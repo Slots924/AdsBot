@@ -79,6 +79,67 @@ class AdsPower {
 
     }
 
+    async getProfileByNo(profileNo) {
+    // Адреса AdsPower API для отримання списку профілів
+    const url = `${this.apiUrl}/api/v2/browser-profile/list`;
+
+    // AdsPower очікує номери профілів у вигляді масиву
+    const data = {
+        profile_no: [String(profileNo)],
+        page: "1",
+        limit: "1",
+    };
+
+    // Налаштування HTTP-запиту
+    const config = {
+        headers: this.headers,
+        timeout: 60000,
+    };
+
+    try {
+        // Надсилаємо запит в AdsPower
+        const response = await axios.post(url, data, config);
+
+        // Отримуємо основну відповідь AdsPower
+        const result = response.data;
+
+        // code !== 0 означає помилку AdsPower API
+        if (result.code !== 0) {
+            throw new Error(result.msg);
+        }
+
+        // Беремо перший знайдений профіль
+        const profile = result.data?.list?.[0];
+
+        // Якщо список порожній, профіль не знайдено
+        if (!profile) {
+            throw new Error(
+                `Профіль із номером ${profileNo} не знайдений`
+            );
+        }
+
+        // Повертаємо весь об'єкт профілю
+        return profile;
+
+    } catch (error) {
+        // Беремо текст помилки Axios або звичайної помилки JavaScript
+        const message =
+            error.response?.data?.msg ||
+            error.message ||
+            "Невідома помилка";
+
+        throw new Error(
+            `Не вдалося отримати профіль ${profileNo}: ${message}`
+        );
+    }
+
+
+
+
+
+    
+}
+
 
 
 
