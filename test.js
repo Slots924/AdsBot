@@ -1,147 +1,54 @@
 import "dotenv/config";
 
 import AdsPower from "./classes/AdsPower.js";
-
-import normalizeProxy from "./services/proxy/normalizeProxy.js";
-import checkProxy from "./services/proxy/checkProxy.js";
-
-import hasBanTag from "./services/profile/hasBanTag.js";
-import markProfileAsBanned from "./services/profile/markProfileAsBanned.js";
+import checkProfileHealth from "./scenarios/checkProfileHealth.js";
 
 
-const adsPower = new AdsPower();
-
-// Номер профілю для тесту
+// Номер профілю AdsPower, який потрібно перевірити
 const profileNo = 123;
 
 
-async function testProfile() {
-    let profileOpened = false;
+async function testCheckProfileHealth() {
+    console.log("=== ТЕСТ ПЕРЕВІРКИ СТАНУ ПРОФІЛЮ ===");
+    console.log(`Номер профілю: ${profileNo}`);
 
     try {
-        console.log(`\nПеревіряємо профіль №${profileNo}`);
+        console.log("\n1. Створюємо клієнт AdsPower...");
+        const adsPower = new AdsPower();
+        console.log("Клієнт AdsPower створено");
 
-        // Отримуємо профіль
-        const profile =
-            await adsPower.getProfileByNo(profileNo);
+        console.log("\n2. Отримуємо інформацію про профіль...");
+        const profile = await adsPower.getProfileByNo(profileNo);
+        console.log("Інформацію про профіль отримано");
+        console.log(`ID профілю: ${profile.profile_id}`);
+        console.log(`Номер профілю: ${profile.profile_no}`);
 
+        console.log("\n3. Передаємо профіль у checkProfileHealth()...");
+        console.log("Перевіряємо BAN-тег і працездатність проксі...");
+        const health = await checkProfileHealth(profile);
+        console.log("Перевірку стану профілю завершено");
 
-        // Перевіряємо проксі профілю
-        console.log("\n1. Перевірка проксі...");
+        console.log("\n4. Результат перевірки:");
 
-        const proxy = normalizeProxy(
-            profile.user_proxy_config
-        );
-
-        const proxyResult = await checkProxy(proxy);
-
-        if (proxyResult.working) {
-            console.log("Проксі працює");
-            console.log("IP:", proxyResult.ip);
-            console.log(
-                "Час відповіді:",
-                `${proxyResult.responseTime} мс`
-            );
+        if (health === "READY") {
+            console.log("READY — профіль готовий до роботи");
+        } else if (health === "BANNED") {
+            console.log("BANNED — профіль має тег BAN");
+        } else if (health === "PROXY_FAILED") {
+            console.log("PROXY_FAILED — проксі профілю не працює");
         } else {
-            console.log("Проксі не працює");
-            console.log("Помилка:", proxyResult.error);
+            console.log(`Невідомий результат: ${health}`);
         }
 
-
-        // Перевіряємо тег BAN
-        console.log("\n2. Перевірка тегу BAN...");
-
-        const bannedBefore = hasBanTag(profile);
-
-        if (bannedBefore) {
-            console.log("Профіль уже має тег BAN");
-        } else {
-            console.log("Профіль не має тегу BAN");
-        }
-
-
-        // Додаємо тег BAN
-        console.log("\n3. Додавання тегу BAN...");
-
-        const banResult = await markProfileAsBanned(
-            adsPower,
-            profile
-        );
-
-        if (banResult.alreadyBanned) {
-            console.log("Тег BAN уже був на профілі");
-        }
-
-        if (banResult.added) {
-            console.log("Тег BAN успішно доданий");
-        }
-
-
-        // Повторно отримуємо профіль і перевіряємо тег
-        const updatedProfile =
-            await adsPower.getProfileByNo(profileNo);
-
-        const bannedAfter =
-            hasBanTag(updatedProfile);
-
-        console.log(
-            "BAN після оновлення:",
-            bannedAfter
-        );
-
-
-        // Відкриваємо профіль
-        console.log("\n4. Відкриття профілю...");
-
-        const openResult =
-            await adsPower.openProfile(profileNo);
-
-        profileOpened = true;
-
-        console.log("Профіль успішно відкритий");
-        console.log("Дані відкриття:", openResult);
-
-
-        // Закриваємо профіль
-        console.log("\n5. Закриття профілю...");
-
-        await adsPower.closeProfile(profileNo);
-
-        profileOpened = false;
-
-        console.log("Профіль успішно закритий");
-
-
-        console.log("\nТЕСТ УСПІШНО ЗАВЕРШЕНИЙ");
+        console.log("\n=== ТЕСТ УСПІШНО ЗАВЕРШЕНО ===");
 
     } catch (error) {
-        console.error("\nПОМИЛКА ТЕСТУ:");
-        console.error(error.message);
-
-    } finally {
-        /*
-            Якщо після відкриття сталася помилка,
-            намагаємося все одно закрити профіль.
-        */
-        if (profileOpened) {
-            try {
-                console.log(
-                    "\nЗакриваємо профіль після помилки..."
-                );
-
-                await adsPower.closeProfile(profileNo);
-
-                console.log("Профіль закритий");
-
-            } catch (closeError) {
-                console.error(
-                    "Не вдалося закрити профіль:",
-                    closeError.message
-                );
-            }
-        }
+        console.error("\n=== ПОМИЛКА ПІД ЧАС ТЕСТУ ===");
+        console.error(`Не вдалося перевірити профіль №${profileNo}`);
+        console.error("Причина:", error.message);
+        process.exitCode = 1;
     }
 }
 
 
-testProfile();
+testCheckProfileHealth();
