@@ -1,186 +1,147 @@
-// Завантажуємо змінні з .env
 import "dotenv/config";
 
-// Вбудована функція Node.js для запису файлів
-import { writeFile } from "node:fs/promises";
-
-// Підключаємо наш клас AdsPower
 import AdsPower from "./classes/AdsPower.js";
 
+import normalizeProxy from "./services/proxy/normalizeProxy.js";
+import checkProxy from "./services/proxy/checkProxy.js";
 
-// Створюємо об'єкт AdsPower
+import hasBanTag from "./services/profile/hasBanTag.js";
+import markProfileAsBanned from "./services/profile/markProfileAsBanned.js";
+
+
 const adsPower = new AdsPower();
 
-
-// Тут вказуємо номер профілю для тесту
+// Номер профілю для тесту
 const profileNo = 123;
 
 
-// Красиво виводить заголовок у консоль
-function printTitle(title) {
-    console.log("\n========================================");
-    console.log(title);
-    console.log("========================================");
-}
+async function testProfile() {
+    let profileOpened = false;
 
-
-// Рекурсивно шукає цікаві назви полів
-function findInterestingFields(data, currentPath = "") {
-    const results = [];
-
-    // Якщо значення не є об'єктом, далі шукати нічого
-    if (data === null || typeof data !== "object") {
-        return results;
-    }
-
-    for (const [key, value] of Object.entries(data)) {
-        // Повний шлях до поля
-        const fieldPath = currentPath
-            ? `${currentPath}.${key}`
-            : key;
-
-        const lowerKey = key.toLowerCase();
-
-        // Шукаємо поля, які можуть стосуватися тегів або груп
-        const interestingWords = [
-            "tag",
-            "label",
-            "group",
-            "folder",
-            "remark",
-            "category",
-        ];
-
-        const isInteresting = interestingWords.some((word) =>
-            lowerKey.includes(word)
-        );
-
-        if (isInteresting) {
-            results.push({
-                path: fieldPath,
-                value,
-            });
-        }
-
-        // Якщо всередині ще один об'єкт або масив,
-        // продовжуємо пошук
-        if (value !== null && typeof value === "object") {
-            results.push(
-                ...findInterestingFields(value, fieldPath)
-            );
-        }
-    }
-
-    return results;
-}
-
-
-async function runTest() {
     try {
-        console.log(`Отримуємо профіль №${profileNo}...`);
+        console.log(`\nПеревіряємо профіль №${profileNo}`);
 
-        // Отримуємо весь профіль через AdsPower API
+        // Отримуємо профіль
         const profile =
             await adsPower.getProfileByNo(profileNo);
 
 
-        /*
-            1. ВИВОДИМО КОРОТКУ ІНФОРМАЦІЮ
-        */
+        // Перевіряємо проксі профілю
+        console.log("\n1. Перевірка проксі...");
 
-        printTitle("КОРОТКА ІНФОРМАЦІЯ");
+        const proxy = normalizeProxy(
+            profile.user_proxy_config
+        );
 
-        console.log("Номер профілю:", profile.profile_no);
-        console.log("ID профілю:", profile.profile_id);
-        console.log("Назва:", profile.name);
-        console.log("Група:", profile.group_name);
-        console.log("ID групи:", profile.group_id);
-        console.log("Платформа:", profile.platform);
-        console.log("Логін:", profile.username);
+        const proxyResult = await checkProxy(proxy);
 
-
-        /*
-            2. ПОКАЗУЄМО НАЗВИ ВСІХ ПОЛІВ
-        */
-
-        printTitle("ПОЛЯ ВЕРХНЬОГО РІВНЯ");
-
-        console.log(Object.keys(profile).sort());
-
-
-        /*
-            3. ВИВОДИМО ПОВНИЙ ОБ'ЄКТ
-
-            depth: null означає показати всі вкладені об'єкти.
-            colors: true додає кольори в консоль.
-            sorted: true сортує поля за назвою.
-        */
-
-        printTitle("ПОВНИЙ ОБ'ЄКТ ПРОФІЛЮ");
-
-        console.dir(profile, {
-            depth: null,
-            colors: true,
-            sorted: true,
-        });
-
-
-        /*
-            4. ШУКАЄМО ПОЛЯ, ЯКІ МОЖУТЬ
-               СТОСУВАТИСЯ ТЕГІВ
-        */
-
-        const interestingFields =
-            findInterestingFields(profile);
-
-        printTitle("МОЖЛИВІ ПОЛЯ ТЕГІВ І ГРУП");
-
-        if (interestingFields.length === 0) {
+        if (proxyResult.working) {
+            console.log("Проксі працює");
+            console.log("IP:", proxyResult.ip);
             console.log(
-                "Поля tag, label, group, folder або remark не знайдені"
+                "Час відповіді:",
+                `${proxyResult.responseTime} мс`
             );
         } else {
-            for (const field of interestingFields) {
-                console.log(`\nПоле: ${field.path}`);
-
-                console.dir(field.value, {
-                    depth: null,
-                    colors: true,
-                });
-            }
+            console.log("Проксі не працює");
+            console.log("Помилка:", proxyResult.error);
         }
 
 
-        /*
-            5. ЗБЕРІГАЄМО ПОВНУ ВІДПОВІДЬ У JSON
+        // Перевіряємо тег BAN
+        console.log("\n2. Перевірка тегу BAN...");
 
-            Так її буде зручніше переглядати у VS Code.
-        */
+        const bannedBefore = hasBanTag(profile);
 
-        const fileName = "profile-debug.json";
+        if (bannedBefore) {
+            console.log("Профіль уже має тег BAN");
+        } else {
+            console.log("Профіль не має тегу BAN");
+        }
 
-        await writeFile(
-            fileName,
-            JSON.stringify(profile, null, 4),
-            "utf8"
+
+        // Додаємо тег BAN
+        console.log("\n3. Додавання тегу BAN...");
+
+        const banResult = await markProfileAsBanned(
+            adsPower,
+            profile
         );
 
-        printTitle("ГОТОВО");
+        if (banResult.alreadyBanned) {
+            console.log("Тег BAN уже був на профілі");
+        }
+
+        if (banResult.added) {
+            console.log("Тег BAN успішно доданий");
+        }
+
+
+        // Повторно отримуємо профіль і перевіряємо тег
+        const updatedProfile =
+            await adsPower.getProfileByNo(profileNo);
+
+        const bannedAfter =
+            hasBanTag(updatedProfile);
 
         console.log(
-            `Повну інформацію збережено у файл: ${fileName}`
+            "BAN після оновлення:",
+            bannedAfter
         );
 
-        console.log(
-            "Увага: файл може містити паролі, cookies та дані проксі."
-        );
+
+        // Відкриваємо профіль
+        console.log("\n4. Відкриття профілю...");
+
+        const openResult =
+            await adsPower.openProfile(profileNo);
+
+        profileOpened = true;
+
+        console.log("Профіль успішно відкритий");
+        console.log("Дані відкриття:", openResult);
+
+
+        // Закриваємо профіль
+        console.log("\n5. Закриття профілю...");
+
+        await adsPower.closeProfile(profileNo);
+
+        profileOpened = false;
+
+        console.log("Профіль успішно закритий");
+
+
+        console.log("\nТЕСТ УСПІШНО ЗАВЕРШЕНИЙ");
 
     } catch (error) {
-        console.error("\nПомилка тесту:");
+        console.error("\nПОМИЛКА ТЕСТУ:");
         console.error(error.message);
+
+    } finally {
+        /*
+            Якщо після відкриття сталася помилка,
+            намагаємося все одно закрити профіль.
+        */
+        if (profileOpened) {
+            try {
+                console.log(
+                    "\nЗакриваємо профіль після помилки..."
+                );
+
+                await adsPower.closeProfile(profileNo);
+
+                console.log("Профіль закритий");
+
+            } catch (closeError) {
+                console.error(
+                    "Не вдалося закрити профіль:",
+                    closeError.message
+                );
+            }
+        }
     }
 }
 
 
-// Запускаємо тест
-runTest();
+testProfile();
