@@ -4,13 +4,17 @@ import puppeteer from "puppeteer-core";
 
 import AdsPower from "./classes/AdsPower.js";
 import ensureEnglish from "./facebook/ensureEnglish.js";
+import scrollToPostLikeButton from "./facebook/scrollToPostLikeButton.js";
 
 
 // Номер профілю AdsPower для ручної перевірки
 const profileNo = 1468;
 
+// Посилання на Facebook-пост для ручної перевірки
+const postUrl = "https://www.facebook.com/mykhailofedorov.com.ua/posts/pfbid0K7kwRCgqcwEU8SvK2BvyM3pHeTWyHpS5xkVTV7xrPymy4Nk7iEQmco4EDeFegPEDl";
 
-async function testEnsureEnglish() {
+
+async function testScrollToPostLikeButton() {
     const adsPower = new AdsPower();
     let browser;
 
@@ -30,7 +34,13 @@ async function testEnsureEnglish() {
 
         await ensureEnglish(page);
 
-        console.log("Перевірку мови завершено");
+        await page.goto(postUrl, {
+            waitUntil: "domcontentloaded",
+        });
+
+        await scrollToPostLikeButton(page);
+
+        console.log("Перевірку прокручування завершено");
         console.log("Профіль залишено відкритим");
     } catch (error) {
         console.error("Помилка тесту:", error.message);
@@ -41,4 +51,4 @@ async function testEnsureEnglish() {
 }
 
 
-testEnsureEnglish();
+testScrollToPostLikeButton();
