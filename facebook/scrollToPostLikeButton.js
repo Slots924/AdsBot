@@ -306,7 +306,7 @@ async function scrollToPostLikeButton(page) {
     } catch {
         // Помилка Puppeteer не зупиняє програму
     } finally {
-        await waitRandom(6755, 8765);
+        await waitRandom(975, 1250);
     }
 }
 
