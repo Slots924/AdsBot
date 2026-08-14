@@ -3,26 +3,21 @@ import "dotenv/config";
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "./classes/AdsPower.js";
-import ensureEnglish from "./facebook/ensureEnglish.js";
-import scrollToPostLikeButton from "./facebook/scrollToPostLikeButton.js";
+import openPageWithoutPopups from "./facebook/openPageWithoutPopups.js";
+import ensureLogin from "./facebook/state/ensureLogin.js";
 
 
 // Номер профілю AdsPower для ручної перевірки
-const profileNo = 1468;
-
-// Посилання на Facebook-пост для ручної перевірки
-const postUrl = "https://www.facebook.com/mykhailofedorov.com.ua/posts/pfbid0K7kwRCgqcwEU8SvK2BvyM3pHeTWyHpS5xkVTV7xrPymy4Nk7iEQmco4EDeFegPEDl";
+const profileNo = 1466;
+const facebookUrl = "https://www.facebook.com/";
 
 
-async function testScrollToPostLikeButton() {
+async function testEnsureLogin() {
     const adsPower = new AdsPower();
     let browser;
 
     try {
-        const browserData =
-            await adsPower.openProfile(profileNo);
-
-        console.log(`Профіль ${profileNo} відкрито`);
+        const browserData = await adsPower.openProfile(profileNo);
 
         browser = await puppeteer.connect({
             browserWSEndpoint: browserData.ws.puppeteer,
@@ -32,23 +27,24 @@ async function testScrollToPostLikeButton() {
         const pages = await browser.pages();
         const page = pages[0] ?? await browser.newPage();
 
-        await ensureEnglish(page);
+        await openPageWithoutPopups(page, facebookUrl);
 
-        await page.goto(postUrl, {
-            waitUntil: "domcontentloaded",
-        });
+        const isLoggedIn = await ensureLogin(page);
 
-        await scrollToPostLikeButton(page);
-
-        console.log("Перевірку прокручування завершено");
-        console.log("Профіль залишено відкритим");
+        console.log(
+            isLoggedIn
+                ? "Вхід у Facebook забезпечено"
+                : "Не вдалося забезпечити вхід у Facebook"
+        );
     } catch (error) {
-        console.error("Помилка тесту:", error.message);
-        process.exitCode = 1;
+        console.error(
+            `Помилка перевірки входу у профілі ${profileNo}:`,
+            error.message
+        );
     } finally {
         browser?.disconnect();
     }
 }
 
 
-testScrollToPostLikeButton();
+testEnsureLogin();

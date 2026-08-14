@@ -88,6 +88,8 @@ class AdsPower {
             profile_no: String(profileNo),
             last_opened_tabs: "0",
             proxy_detection: "0",
+            password_filling: "0",
+            password_saving: "0",
         };
 
         try {
