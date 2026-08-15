@@ -1,5 +1,6 @@
-export const postDialogSelector =
-    'div[role="dialog"][aria-labelledby]';
+import { postDialogSelector } from "../post/selectors.js";
+
+
 export const commentOrderingButtonSelector =
     `${postDialogSelector} `
     + '[aria-expanded="false"][aria-haspopup="menu"]'
@@ -84,14 +85,6 @@ async function getFirstVisibleElement(
 
 
 async function moveMouseToElement(page, element) {
-    await element.evaluate((target) => {
-        target.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-            inline: "center",
-        });
-    });
-
     const box = await element.boundingBox();
 
     if (!box) {
