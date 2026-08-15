@@ -1,8 +1,8 @@
-import normalizeProxy from "../services/proxy/normalizeProxy.js";
-import checkProxy from "../services/proxy/checkProxy.js";
-import hasBanTag from "../services/profile/hasBanTag.js";
-import hasLoginErrorTag from "../services/profile/hasLoginErrorTag.js";
-import isProfileOpen from "../services/profile/isProfileOpen.js";
+import normalizeProxy from "../proxy/normalizeProxy.js";
+import checkProxy from "../proxy/checkProxy.js";
+import hasBanTag from "./hasBanTag.js";
+import hasLoginErrorTag from "./hasLoginErrorTag.js";
+import isProfileOpen from "./isProfileOpen.js";
 
 
 export default async function checkProfileHealth(adsPower, profile) {
