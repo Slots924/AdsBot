@@ -1,4 +1,4 @@
-import { LOGIN_ERROR_TAG_ID } from "../../config.js";
+import { LOGIN_ERROR_TAG_ID } from "../../../config.js";
 import hasLoginErrorTag from "./hasLoginErrorTag.js";
 
 

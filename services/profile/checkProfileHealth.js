@@ -1,7 +1,7 @@
 import normalizeProxy from "../proxy/normalizeProxy.js";
 import checkProxy from "../proxy/checkProxy.js";
-import hasBanTag from "./hasBanTag.js";
-import hasLoginErrorTag from "./hasLoginErrorTag.js";
+import hasBanTag from "./tags/hasBanTag.js";
+import hasLoginErrorTag from "./tags/hasLoginErrorTag.js";
 import isProfileOpen from "./isProfileOpen.js";
 
 

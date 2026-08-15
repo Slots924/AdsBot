@@ -1,4 +1,4 @@
-import { BAN_TAG_ID } from "../../config.js";
+import { BAN_TAG_ID } from "../../../config.js";
 import hasBanTag from "./hasBanTag.js";
 
 

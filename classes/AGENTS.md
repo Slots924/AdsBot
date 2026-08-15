@@ -20,3 +20,6 @@ POST /api/v2/browser-tags/update    — змінити назву або кол�
 POST /api/v2/browser-tags/delete    — повністю видалити тег з AdsPower.
 
 POST /api/v2/browser-profile/update — додати, замінити або змінити теги конкретного профілю.
+
+
+В папці test лежать тести їх запускати не потрібно вони чисто для мене.

@@ -1,4 +1,4 @@
-import { LOGIN_ERROR_TAG_ID } from "../../config.js";
+import { LOGIN_ERROR_TAG_ID } from "../../../config.js";
 
 
 export default function hasLoginErrorTag(profile) {

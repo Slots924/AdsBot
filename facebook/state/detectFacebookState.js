@@ -1,30 +1,16 @@
-async function isCheckpoint(page) {
-    // Умову визначення стану CHECKPOINT буде додано пізніше
-    return false;
-}
-
-
-async function isBanned(page) {
-    // Умову визначення стану BANNED буде додано пізніше
-    return false;
-}
-
-
-async function isNotice(page) {
-    // Умову визначення стану NOTICE буде додано пізніше
-    return false;
-}
-
-
-async function isReady(page) {
-    // Умову визначення стану READY буде додано пізніше
-    return false;
-}
+import isAutomatedBehavior from "./checks/isAutomatedBehavior.js";
+import isBanned from "./checks/isBanned.js";
+import isNotice from "./checks/isNotice.js";
+import isReady from "./checks/isReady.js";
 
 
 async function detectFacebookState(page) {
-    if (await isCheckpoint(page)) {
-        return "CHECKPOINT";
+    await new Promise((resolve) => {
+        setTimeout(resolve, 3000);
+    });
+
+    if (await isAutomatedBehavior(page)) {
+        return "AUTOMATED_BEHAVIOR";
     }
 
     if (await isBanned(page)) {
