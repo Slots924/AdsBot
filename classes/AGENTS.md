@@ -9,3 +9,14 @@ Request queueing and the delay between AdsPower API requests must remain central
 Keep one shared request queue so simultaneous calls execute sequentially.
 Do not remove or bypass the request delay because AdsPower enforces API rate limits.
 A failed request must not permanently block the request queue.
+
+AdsPower ендпойнти актуальні для роботи з тегами профілів
+POST /api/v2/browser-tags/list      — отримати список тегів AdsPower.
+
+POST /api/v2/browser-tags/create    — створити новий тег.
+
+POST /api/v2/browser-tags/update    — змінити назву або колір існуючого тегу.
+
+POST /api/v2/browser-tags/delete    — повністю видалити тег з AdsPower.
+
+POST /api/v2/browser-profile/update — додати, замінити або змінити теги конкретного профілю.

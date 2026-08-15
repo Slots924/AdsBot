@@ -1,50 +1,95 @@
 import "dotenv/config";
 
-import puppeteer from "puppeteer-core";
-
 import AdsPower from "./classes/AdsPower.js";
-import openPageWithoutPopups from "./facebook/openPageWithoutPopups.js";
-import ensureLogin from "./facebook/state/ensureLogin.js";
+import hasLoginErrorTag from "./services/profile/hasLoginErrorTag.js";
+import markProfileAsLoginError from "./services/profile/markProfileAsLoginError.js";
 
 
 // Номер профілю AdsPower для ручної перевірки
 const profileNo = 1466;
-const facebookUrl = "https://www.facebook.com/";
 
 
-async function testEnsureLogin() {
+function logProfileTags(profile) {
+    const tags = Array.isArray(profile?.profile_tags)
+        ? profile.profile_tags
+        : [];
+
+    if (tags.length === 0) {
+        console.log("Теги: відсутні");
+        return;
+    }
+
+    console.log(`Кількість тегів: ${tags.length}`);
+
+    tags.forEach((tag, index) => {
+        console.log(
+            `Тег ${index + 1}: ${tag.name} | ID: ${tag.id} | Колір: ${tag.color}`
+        );
+    });
+}
+
+
+async function testLoginErrorTag() {
     const adsPower = new AdsPower();
-    let browser;
+
+    console.log("=== Початок перевірки тегу Login Error ===");
+    console.log(`Номер профілю: ${profileNo}`);
 
     try {
-        const browserData = await adsPower.openProfile(profileNo);
+        console.log("Отримуємо профіль з AdsPower...");
+        let profile = await adsPower.getProfileByNo(profileNo);
+        console.log("Профіль успішно отримано");
 
-        browser = await puppeteer.connect({
-            browserWSEndpoint: browserData.ws.puppeteer,
-            defaultViewport: null,
-        });
+        console.log("Поточні теги профілю:");
+        logProfileTags(profile);
 
-        const pages = await browser.pages();
-        const page = pages[0] ?? await browser.newPage();
-
-        await openPageWithoutPopups(page, facebookUrl);
-
-        const isLoggedIn = await ensureLogin(page);
-
+        const hadLoginErrorTag = hasLoginErrorTag(profile);
         console.log(
-            isLoggedIn
-                ? "Вхід у Facebook забезпечено"
-                : "Не вдалося забезпечити вхід у Facebook"
+            `Тег Login Error до перевірки: ${hadLoginErrorTag ? "є" : "немає"}`
         );
+
+        if (hadLoginErrorTag) {
+            console.log(
+                "Тег Login Error уже встановлений. Оновлення не потрібне"
+            );
+        } else {
+            console.log("Додаємо тег Login Error...");
+
+            const result = await markProfileAsLoginError(
+                adsPower,
+                profile
+            );
+
+            console.log("Результат додавання тегу:", result);
+            console.log("Повторно отримуємо профіль для перевірки...");
+
+            profile = await adsPower.getProfileByNo(profileNo);
+            console.log("Профіль повторно отримано");
+        }
+
+        const hasTagAfterCheck = hasLoginErrorTag(profile);
+
+        console.log("Підсумкові теги профілю:");
+        logProfileTags(profile);
+        console.log(
+            `Тег Login Error після перевірки: ${hasTagAfterCheck ? "є" : "немає"}`
+        );
+
+        if (!hasTagAfterCheck) {
+            throw new Error(
+                "Тег Login Error не знайдено після спроби додавання"
+            );
+        }
+
+        console.log("Перевірку успішно завершено");
     } catch (error) {
-        console.error(
-            `Помилка перевірки входу у профілі ${profileNo}:`,
-            error.message
-        );
+        console.error("Помилка перевірки тегу Login Error:");
+        console.error(error.stack ?? error.message);
+        process.exitCode = 1;
     } finally {
-        browser?.disconnect();
+        console.log("=== Завершення перевірки тегу Login Error ===");
     }
 }
 
 
-testEnsureLogin();
+testLoginErrorTag();

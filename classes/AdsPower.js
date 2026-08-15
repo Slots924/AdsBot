@@ -88,8 +88,6 @@ class AdsPower {
             profile_no: String(profileNo),
             last_opened_tabs: "0",
             proxy_detection: "0",
-            password_filling: "0",
-            password_saving: "0",
         };
 
         try {
@@ -115,6 +113,57 @@ class AdsPower {
 
             throw new Error(
                 `Не вдалося відкрити профіль ${profileNo}: ${message}`
+            );
+        }
+    }
+
+
+    // Отримує інформацію про відкриття профілю на всіх пристроях
+    async getCloudProfileStatus(profileId) {
+        const url =
+            `${this.apiUrl}/api/v1/browser/cloud-active`;
+
+        try {
+            if (
+                profileId === undefined
+                || profileId === null
+                || String(profileId).trim() === ""
+            ) {
+                throw new Error(
+                    "Не вказано profile_id"
+                );
+            }
+
+            const response = await this.request(
+                "post",
+                url,
+                {
+                    user_ids: String(profileId),
+                }
+            );
+
+            const result = response.data;
+
+            if (result.code !== 0) {
+                throw new Error(result.msg);
+            }
+
+            if (!Array.isArray(result.data)) {
+                throw new Error(
+                    "AdsPower повернув некоректний статус профілю"
+                );
+            }
+
+            return result.data;
+
+        } catch (error) {
+            const message =
+                error.response?.data?.msg
+                || error.message
+                || "Невідома помилка";
+
+            throw new Error(
+                `Не вдалося перевірити хмарний статус профілю ${profileId}: ${message}`
             );
         }
     }

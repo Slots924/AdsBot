@@ -1,5 +1,15 @@
 import detectLoginStatus from "./detectLoginStatus.js";
-import waitRandom from "./waitRandom.js";
+
+
+async function waitRandom(minMilliseconds, maxMilliseconds) {
+    const delay = Math.floor(
+        Math.random() * (maxMilliseconds - minMilliseconds + 1)
+    ) + minMilliseconds;
+
+    await new Promise((resolve) => {
+        setTimeout(resolve, delay);
+    });
+}
 
 
 const loginButtonTexts = [
