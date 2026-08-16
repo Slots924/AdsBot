@@ -4,9 +4,8 @@ import puppeteer from "puppeteer-core";
 
 import AdsPower from "../classes/AdsPower.js";
 import openPageWithoutPopups from "../facebook/actions/openPageWithoutPopups.js";
-import writeReply from "../facebook/actions/writeReply.js";
 import isPostAvailable from "../facebook/post/checks/isPostAvailable.js";
-import loadAllPostComments from "../facebook/workflows/loadAllPostComments.js";
+import replyToComment from "../facebook/workflows/replyToComment.js";
 import ensureAdsPowerProfileReady from "../workflows/profile/ensureAdsPowerProfileReady.js";
 import ensureFacebookAccountLoggedIn from "../workflows/profile/ensureFacebookAccountLoggedIn.js";
 
@@ -91,27 +90,14 @@ async function testWriteReply() {
         }
 
         console.log("Facebook-пост доступний");
-        console.log(
-            "Крок 9. Завантажуємо коментарі та розгортаємо replies..."
-        );
+        console.log("Крок 9. Запускаємо workflow replyToComment...");
 
-        const commentsLoaded = await loadAllPostComments(page);
-
-        if (!commentsLoaded) {
-            throw new Error(
-                "Не вдалося завантажити коментарі поста"
-            );
-        }
-
-        console.log("Коментарі та replies успішно завантажено");
-        console.log("Крок 10. Запускаємо action writeReply...");
-
-        const replyPublished = await writeReply(
+        const replyPublished = await replyToComment(
             page,
             targetCommentText,
             replyText
         );
-        console.log(`Результат writeReply: ${replyPublished}`);
+        console.log(`Результат replyToComment: ${replyPublished}`);
 
         if (!replyPublished) {
             throw new Error("Не вдалося опублікувати reply");
