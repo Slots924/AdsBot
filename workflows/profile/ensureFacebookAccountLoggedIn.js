@@ -1,8 +1,5 @@
 import ensureLogin from "../../facebook/state/ensureLogin.js";
-import markProfileAsBanned from "../../services/profile/tags/markProfileAsBanned.js";
 import markProfileAsLoginError from "../../services/profile/tags/markProfileAsLoginError.js";
-
-import ensureFacebookAccountReady from "./ensureFacebookAccountReady.js";
 
 
 export default async function ensureFacebookAccountLoggedIn(
@@ -10,7 +7,7 @@ export default async function ensureFacebookAccountLoggedIn(
     profile,
     page
 ) {
-    console.log("=== Перевірка готовності профілю до роботи ===");
+    console.log("=== Перевірка входу у Facebook ===");
 
     try {
         console.log("Перевіряємо вхід у Facebook...");
@@ -41,47 +38,11 @@ export default async function ensureFacebookAccountLoggedIn(
         }
 
         console.log("Вхід у Facebook підтверджено");
-        const facebookState = await ensureFacebookAccountReady(page);
-        console.log(
-            `Результат ensureFacebookAccountReady: ${facebookState}`
-        );
-
-        if (facebookState === "BANNED") {
-            console.error("Facebook-акаунт заблокований");
-            console.log("Додаємо профілю тег BAN...");
-
-            try {
-                const markResult = await markProfileAsBanned(
-                    adsPower,
-                    profile
-                );
-                console.log(
-                    "Результат маркування BAN:",
-                    markResult
-                );
-            } catch (error) {
-                console.error(
-                    "Не вдалося додати тег BAN:",
-                    error.message
-                );
-            }
-
-            return false;
-        }
-
-        if (facebookState === "READY") {
-            console.log("Профіль готовий до роботи");
-            return true;
-        }
-
-        console.error(
-            `Профіль не готовий до роботи. Стан: ${facebookState}`
-        );
-        return false;
+        return true;
 
     } catch (error) {
         console.error(
-            "Помилка перевірки готовності профілю:",
+            "Помилка перевірки входу у Facebook:",
             error.message
         );
         return false;

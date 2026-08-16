@@ -31,7 +31,7 @@ class AdsPower {
 
 
     // Усі запити до AdsPower проходять через цей метод
-    async request(method, url, data = null) {
+    async request(method, url, data = null, params = null) {
         const sendRequest = async () => {
             const timePassed =
                 Date.now() - this.lastRequestTime;
@@ -52,6 +52,7 @@ class AdsPower {
                 method,
                 url,
                 data,
+                params,
                 headers: this.headers,
                 timeout: 60000,
             });
@@ -248,6 +249,154 @@ class AdsPower {
 
             throw new Error(
                 `Не вдалося отримати профіль ${profileNo}: ${message}`
+            );
+        }
+    }
+
+
+    // Отримує список груп AdsPower
+    async getGroups() {
+        const limit = 100;
+        const groups = [];
+        let page = 1;
+
+        try {
+            while (true) {
+                const url = `${this.apiUrl}/api/v1/group/list`;
+                const response = await this.request(
+                    "get",
+                    url,
+                    null,
+                    {
+                        page: String(page),
+                        page_size: String(limit),
+                    }
+                );
+                const result = response.data;
+
+                if (result.code !== 0) {
+                    throw new Error(
+                        `AdsPower code=${result.code}, msg=${result.msg}`
+                    );
+                }
+
+                const currentGroups = result.data?.list;
+
+                if (!Array.isArray(currentGroups)) {
+                    throw new Error(
+                        "AdsPower повернув некоректний список груп"
+                    );
+                }
+
+                groups.push(...currentGroups);
+
+                if (currentGroups.length < limit) {
+                    break;
+                }
+
+                page += 1;
+            }
+
+            return groups;
+        } catch (error) {
+            const status = error.response?.status;
+            const responseData = error.response?.data;
+            const message =
+                responseData?.msg
+                || error.message
+                || "Невідома помилка";
+            const details = [
+                status ? `HTTP ${status}` : null,
+                responseData?.code !== undefined
+                    ? `AdsPower code=${responseData.code}`
+                    : null,
+                message,
+            ].filter(Boolean).join(", ");
+
+            const wrappedError = new Error(
+                `Не вдалося отримати список груп AdsPower: ${details}`
+            );
+            wrappedError.status = status;
+
+            throw wrappedError;
+        }
+    }
+
+
+    async getProfiles() {
+        return this.getProfilesPageByPage();
+    }
+
+
+    // Отримує всі профілі вказаної групи AdsPower
+    async getProfilesByGroupId(groupId) {
+        const normalizedGroupId = String(groupId ?? "").trim();
+
+        if (!normalizedGroupId) {
+            throw new Error("Не вказано ID групи AdsPower");
+        }
+
+        return this.getProfilesPageByPage(normalizedGroupId);
+    }
+
+
+    // Централізовано отримує профілі через Profile API V2 із пагінацією
+    async getProfilesPageByPage(groupId = null) {
+        const limit = 100;
+        const profiles = [];
+        let page = 1;
+
+        try {
+            while (true) {
+                const url =
+                    `${this.apiUrl}/api/v2/browser-profile/list`;
+                const data = {
+                    sort_type: "profile_no",
+                    sort_order: "asc",
+                    page: String(page),
+                    limit: String(limit),
+                };
+
+                if (groupId !== null) {
+                    data.group_id = groupId;
+                }
+
+                const response = await this.request("post", url, data);
+                const result = response.data;
+
+                if (result.code !== 0) {
+                    throw new Error(result.msg);
+                }
+
+                const currentProfiles = result.data?.list;
+
+                if (!Array.isArray(currentProfiles)) {
+                    throw new Error(
+                        "AdsPower повернув некоректний список профілів"
+                    );
+                }
+
+                profiles.push(...currentProfiles);
+
+                if (currentProfiles.length < limit) {
+                    break;
+                }
+
+                page += 1;
+            }
+
+            return profiles;
+        } catch (error) {
+            const message =
+                error.response?.data?.msg
+                || error.message
+                || "Невідома помилка";
+            const scope = groupId === null
+                ? "всі профілі AdsPower"
+                : `профілі групи ${groupId}`;
+
+            throw new Error(
+                `Не вдалося отримати ${scope}: ${message}`
             );
         }
     }

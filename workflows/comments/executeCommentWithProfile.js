@@ -1,0 +1,153 @@
+import puppeteer from "puppeteer-core";
+
+import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
+import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
+import isPostAvailable from "../../facebook/post/checks/isPostAvailable.js";
+import commentOnPost from "../../facebook/workflows/commentOnPost.js";
+import replyToComment from "../../facebook/workflows/replyToComment.js";
+import ensureAdsPowerProfileReady from "../profile/ensureAdsPowerProfileReady.js";
+import ensureFacebookAccountActive from "../profile/ensureFacebookAccountActive.js";
+import ensureFacebookAccountLoggedIn from "../profile/ensureFacebookAccountLoggedIn.js";
+
+
+export default async function executeCommentWithProfile({
+    adsPower,
+    profile,
+    postUrl,
+    comment,
+    parentComment = null,
+}) {
+    const profileNo = String(profile?.profile_no ?? "невідомий");
+    const actionType = comment.parent_id === null
+        ? "comment"
+        : "reply";
+    const result = {
+        success: false,
+        actionType,
+        profileNo,
+        commentId: String(comment.id),
+        stage: "ADSPOWER_READY",
+        error: null,
+        cleanupErrors: [],
+    };
+    let browser;
+    let profileOpened = false;
+
+    try {
+        const adsPowerReady =
+            await ensureAdsPowerProfileReady(
+                adsPower,
+                profile
+            );
+
+        if (!adsPowerReady) {
+            throw new Error(
+                "AdsPower-профіль не готовий до роботи"
+            );
+        }
+
+        result.stage = "OPEN_PROFILE";
+        const browserData = await adsPower.openProfile(profileNo);
+        profileOpened = true;
+
+        result.stage = "CONNECT_BROWSER";
+        browser = await puppeteer.connect({
+            browserWSEndpoint: browserData.ws.puppeteer,
+            defaultViewport: null,
+        });
+
+        const pages = await browser.pages();
+        const page = pages[0] ?? await browser.newPage();
+
+        result.stage = "OPEN_FACEBOOK";
+        await openPageWithoutPopups(
+            page,
+            "https://www.facebook.com/"
+        );
+
+        result.stage = "FACEBOOK_LOGIN";
+        const loggedIn = await ensureFacebookAccountLoggedIn(
+            adsPower,
+            profile,
+            page
+        );
+
+        if (!loggedIn) {
+            throw new Error(
+                "Не вдалося підтвердити вхід у Facebook"
+            );
+        }
+
+        result.stage = "FACEBOOK_ACTIVE";
+        const active = await ensureFacebookAccountActive(
+            adsPower,
+            profile,
+            page
+        );
+
+        if (!active) {
+            throw new Error("Facebook-акаунт не активний");
+        }
+
+        result.stage = "ENSURE_ENGLISH";
+        await ensureEnglish(page);
+
+        result.stage = "OPEN_POST";
+        await openPageWithoutPopups(page, postUrl);
+
+        result.stage = "POST_AVAILABLE";
+        const postAvailable = await isPostAvailable(page);
+
+        if (!postAvailable) {
+            throw new Error("Facebook-пост недоступний");
+        }
+
+        if (actionType === "comment") {
+            result.stage = "WRITE_COMMENT";
+            result.success = await commentOnPost(
+                page,
+                comment.text
+            );
+        } else {
+            result.stage = "WRITE_REPLY";
+            result.success = await replyToComment(
+                page,
+                parentComment.text,
+                comment.text
+            );
+        }
+
+        if (!result.success) {
+            throw new Error(
+                actionType === "comment"
+                    ? "Не вдалося опублікувати коментар"
+                    : "Не вдалося опублікувати reply"
+            );
+        }
+    } catch (error) {
+        result.success = false;
+        result.error = error.message;
+    } finally {
+        if (browser) {
+            try {
+                browser.disconnect();
+            } catch (error) {
+                result.cleanupErrors.push(
+                    `Puppeteer disconnect: ${error.message}`
+                );
+            }
+        }
+
+        if (profileOpened) {
+            try {
+                await adsPower.closeProfile(profileNo);
+            } catch (error) {
+                result.cleanupErrors.push(
+                    `AdsPower closeProfile: ${error.message}`
+                );
+            }
+        }
+    }
+
+    return result;
+}

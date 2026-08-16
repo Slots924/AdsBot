@@ -7,6 +7,7 @@ import openPageWithoutPopups from "../facebook/actions/openPageWithoutPopups.js"
 import isPostAvailable from "../facebook/post/checks/isPostAvailable.js";
 import replyToComment from "../facebook/workflows/replyToComment.js";
 import ensureAdsPowerProfileReady from "../workflows/profile/ensureAdsPowerProfileReady.js";
+import ensureFacebookAccountActive from "../workflows/profile/ensureFacebookAccountActive.js";
 import ensureFacebookAccountLoggedIn from "../workflows/profile/ensureFacebookAccountLoggedIn.js";
 
 
@@ -78,11 +79,23 @@ async function testWriteReply() {
 
         if (!facebookAccountLoggedIn) {
             throw new Error(
-                "Facebook-акаунт не готовий до роботи"
+                "Не вдалося підтвердити вхід у Facebook"
             );
         }
 
-        console.log("Крок 8. Перевіряємо доступність поста...");
+        console.log("Крок 8. Перевіряємо активність Facebook-акаунта...");
+        const facebookAccountActive =
+            await ensureFacebookAccountActive(
+                adsPower,
+                profile,
+                page
+            );
+
+        if (!facebookAccountActive) {
+            throw new Error("Facebook-акаунт не активний");
+        }
+
+        console.log("Крок 9. Перевіряємо доступність поста...");
         const postAvailable = await isPostAvailable(page);
 
         if (!postAvailable) {
@@ -90,7 +103,7 @@ async function testWriteReply() {
         }
 
         console.log("Facebook-пост доступний");
-        console.log("Крок 9. Запускаємо workflow replyToComment...");
+        console.log("Крок 10. Запускаємо workflow replyToComment...");
 
         const replyPublished = await replyToComment(
             page,

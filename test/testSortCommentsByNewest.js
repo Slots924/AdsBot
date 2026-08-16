@@ -7,6 +7,7 @@ import openPageWithoutPopups from "../facebook/actions/openPageWithoutPopups.js"
 import sortCommentsByNewest from "../facebook/actions/sortCommentsByNewest.js";
 import isPostAvailable from "../facebook/post/checks/isPostAvailable.js";
 import ensureAdsPowerProfileReady from "../workflows/profile/ensureAdsPowerProfileReady.js";
+import ensureFacebookAccountActive from "../workflows/profile/ensureFacebookAccountActive.js";
 import ensureFacebookAccountLoggedIn from "../workflows/profile/ensureFacebookAccountLoggedIn.js";
 
 
@@ -75,11 +76,23 @@ async function testSortCommentsByNewest() {
 
         if (!facebookAccountLoggedIn) {
             throw new Error(
-                "Facebook-акаунт не готовий до роботи"
+                "Не вдалося підтвердити вхід у Facebook"
             );
         }
 
-        console.log("Крок 8. Перевіряємо доступність поста...");
+        console.log("Крок 8. Перевіряємо активність Facebook-акаунта...");
+        const facebookAccountActive =
+            await ensureFacebookAccountActive(
+                adsPower,
+                profile,
+                page
+            );
+
+        if (!facebookAccountActive) {
+            throw new Error("Facebook-акаунт не активний");
+        }
+
+        console.log("Крок 9. Перевіряємо доступність поста...");
         const postAvailable = await isPostAvailable(page);
 
         if (!postAvailable) {
@@ -88,7 +101,7 @@ async function testSortCommentsByNewest() {
 
         console.log("Facebook-пост доступний");
         console.log(
-            "Крок 9. Запускаємо action sortCommentsByNewest..."
+            "Крок 10. Запускаємо action sortCommentsByNewest..."
         );
 
         const commentsSorted = await sortCommentsByNewest(page);
