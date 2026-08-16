@@ -106,7 +106,35 @@ async function getReplyButton(comment) {
 }
 
 
-async function clickReplyButton(comment) {
+async function moveMouseToElement(page, element) {
+    await element.evaluate((target) => {
+        target.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "center",
+        });
+    });
+
+    const box = await element.boundingBox();
+
+    if (!box) {
+        return false;
+    }
+
+    const x =
+        box.x + box.width * (0.25 + Math.random() * 0.5);
+    const y =
+        box.y + box.height * (0.25 + Math.random() * 0.5);
+
+    await page.mouse.move(x, y, {
+        steps: getRandomInteger(8, 18),
+    });
+
+    return true;
+}
+
+
+async function clickReplyButton(page, comment) {
     const replyButton = await getReplyButton(comment);
 
     if (!replyButton) {
@@ -117,6 +145,17 @@ async function clickReplyButton(comment) {
     }
 
     try {
+        console.log(
+            "Переміщуємо кнопку Reply до центру екрана та наводимо мишу..."
+        );
+
+        if (!await moveMouseToElement(page, replyButton)) {
+            console.error(
+                "Не вдалося визначити розташування кнопки Reply"
+            );
+            return false;
+        }
+
         console.log("Натискаємо на елемент Reply лівою кнопкою миші...");
         await replyButton.click({
             button: "left",
@@ -228,13 +267,15 @@ export default async function writeReply(
         );
 
         if (!matchingComment) {
-            console.error("Не вдалося знайти потрібний коментар");
+            console.error(
+                `Не вдалося знайти коментар: "${targetCommentText}"`
+            );
             return false;
         }
 
         console.log("Коментар знайдено, натискаємо кнопку Reply...");
 
-        if (!await clickReplyButton(matchingComment)) {
+        if (!await clickReplyButton(page, matchingComment)) {
             return false;
         }
 
