@@ -202,7 +202,9 @@ export default class AdsBotGuiService {
     async getFanPages(accountKey) {
         await this.#assertActiveAccount(accountKey);
         this.logger.info(`Завантажуємо фанпейджі: ${accountKey}`);
-        return this.#facebookBackend.getFanPages(accountKey);
+        const fanPages = await this.#facebookBackend.getFanPages(accountKey);
+        this.logger.info(`Знайдено доступних фанпейджів: ${fanPages.length}`);
+        return fanPages;
     }
 
 

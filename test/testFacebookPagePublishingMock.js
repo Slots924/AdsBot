@@ -22,10 +22,39 @@ const proxyHttpClient = {
                             access_token: "PAGE_TOKEN",
                         },
                         {
+                            id: "page-old-manage",
+                            name: "Old Manage Page",
+                            tasks: ["MANAGE"],
+                            access_token: "OLD_MANAGE_TOKEN",
+                        },
+                        {
+                            id: "page-profile-create",
+                            name: "Profile Create Page",
+                            tasks: ["PROFILE_PLUS_CREATE_CONTENT"],
+                            access_token: "PROFILE_CREATE_TOKEN",
+                        },
+                        {
+                            id: "page-profile-manage",
+                            name: "Profile Manage Page",
+                            tasks: ["PROFILE_PLUS_MANAGE"],
+                            access_token: "PROFILE_MANAGE_TOKEN",
+                        },
+                        {
+                            id: "page-full-control",
+                            name: "Full Control Page",
+                            tasks: ["PROFILE_PLUS_FULL_CONTROL"],
+                            access_token: "FULL_CONTROL_TOKEN",
+                        },
+                        {
                             id: "page-no-task",
                             name: "No Task Page",
-                            tasks: ["MESSAGING"],
+                            tasks: ["PROFILE_PLUS_MESSAGING"],
                             access_token: "NO_TASK_TOKEN",
+                        },
+                        {
+                            id: "page-no-token",
+                            name: "No Token Page",
+                            tasks: ["PROFILE_PLUS_CREATE_CONTENT"],
                         },
                         {
                             id: "page-unpublished",
@@ -44,11 +73,22 @@ const proxyHttpClient = {
             };
         }
 
-        if (config.url.endsWith("/page-1")) {
+        const availablePages = new Map([
+            ["page-1", "Test Page"],
+            ["page-old-manage", "Old Manage Page"],
+            ["page-profile-create", "Profile Create Page"],
+            ["page-profile-manage", "Profile Manage Page"],
+            ["page-full-control", "Full Control Page"],
+        ]);
+        const availablePage = [...availablePages.entries()].find(
+            ([pageId]) => config.url.endsWith(`/${pageId}`)
+        );
+
+        if (availablePage) {
             return {
                 data: {
-                    id: "page-1",
-                    name: "Test Page",
+                    id: availablePage[0],
+                    name: availablePage[1],
                     is_published: true,
                 },
             };
@@ -130,16 +170,26 @@ const facebookApiClient = new FacebookGraphApi({
 
 assert.deepEqual(
     await facebookApiClient.getAvailablePages(),
-    [{ id: "page-1", name: "Test Page" }]
+    [
+        { id: "page-1", name: "Test Page" },
+        { id: "page-old-manage", name: "Old Manage Page" },
+        { id: "page-profile-create", name: "Profile Create Page" },
+        { id: "page-profile-manage", name: "Profile Manage Page" },
+        { id: "page-full-control", name: "Full Control Page" },
+    ]
 );
 const availabilityRequests = requests.filter(
     ({ config }) => [
         "/page-1",
+        "/page-old-manage",
+        "/page-profile-create",
+        "/page-profile-manage",
+        "/page-full-control",
         "/page-unpublished",
         "/page-forbidden",
     ].some((pathname) => config.url.endsWith(pathname))
 );
-assert.equal(availabilityRequests.length, 3);
+assert.equal(availabilityRequests.length, 7);
 assert(
     availabilityRequests.every(
         ({ config }) =>

@@ -135,6 +135,7 @@ try {
     assert.deepEqual(await guiService.getFanPages("active"), [
         { id: "page", name: "Page" },
     ]);
+    assert(logs.includes("Знайдено доступних фанпейджів: 1"));
     const adAccounts = await guiService.getAdAccounts("active");
     assert.equal(adAccounts[0].status, "disabled");
     assert.equal(adAccounts[0].disableReason.label, "Ризик або проблема з оплатою");

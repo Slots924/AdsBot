@@ -30,7 +30,9 @@ cookie та User-Agent іншого Facebook-профілю. Facade не має 
 «активного акаунта».
 
 У список потрапляють лише опубліковані фанпейджі з Page token і task
-`CREATE_CONTENT` або `MANAGE`, для яких контрольний Page GET завершився успішно.
+`CREATE_CONTENT`, `MANAGE`, `PROFILE_PLUS_CREATE_CONTENT`,
+`PROFILE_PLUS_MANAGE` або `PROFILE_PLUS_FULL_CONTROL`, для яких контрольний
+Page GET завершився успішно.
 Graph 400/403 окремої фанпейджі приховує тільки її; мережева чи proxy-помилка
 перериває завантаження списку.
 

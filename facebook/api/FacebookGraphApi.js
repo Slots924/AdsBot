@@ -27,6 +27,23 @@ function createFacebookApiError(error) {
 }
 
 
+const pagePublishTasks = new Set([
+    "CREATE_CONTENT",
+    "MANAGE",
+    "PROFILE_PLUS_CREATE_CONTENT",
+    "PROFILE_PLUS_MANAGE",
+    "PROFILE_PLUS_FULL_CONTROL",
+]);
+
+
+function hasPagePublishTask(tasks) {
+    return Array.isArray(tasks)
+        && tasks.some((task) =>
+            pagePublishTasks.has(String(task ?? "").trim().toUpperCase())
+        );
+}
+
+
 export default class FacebookGraphApi {
     #accessToken;
     #cookie;
@@ -257,12 +274,10 @@ export default class FacebookGraphApi {
 
 
     async #getPublishablePage(page) {
-        const tasks = Array.isArray(page?.tasks) ? page.tasks : [];
-        const canCreateContent = tasks.some(
-            (task) => ["CREATE_CONTENT", "MANAGE"].includes(task)
-        );
-
-        if (!page?.pageAccessToken || !canCreateContent) {
+        if (
+            !page?.pageAccessToken
+            || !hasPagePublishTask(page.tasks)
+        ) {
             return null;
         }
 

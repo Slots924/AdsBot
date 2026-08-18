@@ -16,6 +16,7 @@ export default function PublishTab({
     const [fanPages, setFanPages] = useState([]);
     const [pageId, setPageId] = useState("");
     const [loadingPages, setLoadingPages] = useState(false);
+    const [pagesLoaded, setPagesLoaded] = useState(false);
     const [publishing, setPublishing] = useState(false);
     const [result, setResult] = useState(null);
     const [form, setForm] = useState({
@@ -30,6 +31,7 @@ export default function PublishTab({
         setPageId("");
         setFanPages([]);
         setResult(null);
+        setPagesLoaded(false);
 
         if (!accountActive) {
             return;
@@ -45,7 +47,10 @@ export default function PublishTab({
                 if (active) onError(errorDetails(error));
             })
             .finally(() => {
-                if (active) setLoadingPages(false);
+                if (active) {
+                    setLoadingPages(false);
+                    setPagesLoaded(true);
+                }
             });
 
         return () => {
@@ -104,6 +109,11 @@ export default function PublishTab({
             {!selectedAccount && <div className="notice">Оберіть Facebook-акаунт у лівій панелі.</div>}
             {selectedAccount && !accountActive && (
                 <div className="notice danger">Акаунт неактивний. Graph API-дії заблоковано.</div>
+            )}
+            {accountActive && pagesLoaded && fanPages.length === 0 && (
+                <div className="notice danger">
+                    Facebook не повернув жодної доступної для публікації фанпейджі.
+                </div>
             )}
 
             <form className="form-card" onSubmit={publish}>
