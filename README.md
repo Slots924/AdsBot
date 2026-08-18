@@ -9,12 +9,14 @@ AdsBot — Node.js-проєкт для роботи з AdsPower, автомат�
 - `facebook/actions`, `facebook/state`, `facebook/workflows` — браузерна автоматизація Facebook.
 - `facebook/api` — запити до Facebook Graph API для кількох акаунтів.
 - `services/proxy` — перевірка проксі та HTTP-клієнт з автоматичним failover.
+- `services/llm/grok` — прямі текстові запити до xAI Grok.
 - `scenarios` — сценарії, які поєднують окремі workflow.
 
 Докладніше:
 
 - [Facebook Graph API](docs/facebook-api.md)
 - [Proxy client](docs/proxy-client.md)
+- [Grok client](docs/grok-client.md)
 
 ## Налаштування
 
