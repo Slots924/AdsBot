@@ -1,10 +1,12 @@
 import axios from "axios";
 
-import { HttpsProxyAgent } from "https-proxy-agent";
-import { SocksProxyAgent } from "socks-proxy-agent";
+import createProxyAgent from "./createProxyAgent.js";
 
 
-export default async function checkProxy(proxy) {
+export default async function checkProxy(
+    proxy,
+    { timeout = 15000 } = {}
+) {
     /*
         proxy приходить сюди вже в нашому форматі:
 
@@ -17,44 +19,7 @@ export default async function checkProxy(proxy) {
         }
     */
 
-
-    // Кодуємо логін і пароль.
-    // Це потрібно, якщо в них є @, :, пробіли або інші символи.
-    const username = encodeURIComponent(proxy.username);
-    const password = encodeURIComponent(proxy.password);
-
-
-    // Якщо логіна немає, авторизацію в адресу не додаємо
-    const authorization = proxy.username
-        ? `${username}:${password}@`
-        : "";
-
-
-    // Створюємо повну адресу проксі
-    const proxyUrl =
-        `${proxy.type}://${authorization}${proxy.host}:${proxy.port}`;
-
-
-    // Тут зберігатиметься агент для підключення через проксі
-    let proxyAgent;
-
-
-    // Для SOCKS5 використовуємо SocksProxyAgent
-    if (proxy.type === "socks5") {
-        proxyAgent = new SocksProxyAgent(proxyUrl);
-
-    // Для HTTP та HTTPS використовуємо HttpsProxyAgent
-    } else if (
-        proxy.type === "http" ||
-        proxy.type === "https"
-    ) {
-        proxyAgent = new HttpsProxyAgent(proxyUrl);
-
-    } else {
-        throw new Error(
-            `Тип проксі "${proxy.type}" не підтримується`
-        );
-    }
+    const proxyAgent = createProxyAgent(proxy);
 
 
     // Запам'ятовуємо час початку перевірки
@@ -77,8 +42,8 @@ export default async function checkProxy(proxy) {
                 // Вимикаємо стандартну проксі-логіку Axios
                 proxy: false,
 
-                // Чекаємо максимум 15 секунд
-                timeout: 15000,
+                // Час перевірки можна налаштувати для конкретного сценарію
+                timeout,
             }
         );
 
