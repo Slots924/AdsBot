@@ -22,10 +22,10 @@ function printPermissionGroup(label, permissions) {
 
 
 async function testFacebookGraphApi() {
-    const clients = await createFacebookApiClients();
-    const facebookApi = clients.get(accountKey);
+    const facebookApiClients = await createFacebookApiClients();
+    const fpHubFacebookApiClient = facebookApiClients.get(accountKey);
 
-    if (!facebookApi) {
+    if (!fpHubFacebookApiClient) {
         throw new Error(
             `Facebook-акаунт "${accountKey}" не знайдено`
         );
@@ -36,7 +36,7 @@ async function testFacebookGraphApi() {
     console.log("########################################");
     console.log(`Ключ акаунта: ${accountKey}`);
 
-    const tokenStatus = await facebookApi.checkAccessToken();
+    const tokenStatus = await fpHubFacebookApiClient.checkAccessToken();
 
     printSection("СТАТУС ACCESS TOKEN");
     console.log(
@@ -55,7 +55,7 @@ async function testFacebookGraphApi() {
     printSection("КОРИСТУВАЧ");
     console.table([me]);
 
-    const permissions = await facebookApi.getPermissions();
+    const permissions = await fpHubFacebookApiClient.getPermissions();
 
     printSection("PERMISSIONS");
     printPermissionGroup("✅ Надані", permissions.granted);
@@ -67,7 +67,7 @@ async function testFacebookGraphApi() {
         console.table(permissions.other);
     }
 
-    const adAccounts = await facebookApi.getAdAccounts();
+    const adAccounts = await fpHubFacebookApiClient.getAdAccounts();
 
     printSection(`РЕКЛАМНІ АКАУНТИ (${adAccounts.length})`);
 
@@ -77,7 +77,7 @@ async function testFacebookGraphApi() {
         console.log("Доступних рекламних акаунтів немає");
     }
 
-    const pages = await facebookApi.getPages();
+    const pages = await fpHubFacebookApiClient.getPages();
 
     printSection(`FAN PAGES (${pages.length})`);
 

@@ -1,6 +1,10 @@
 # Facebook Graph API
 
-Підсистема `facebook/api` виконує read-only запити до Graph API. Вона не залежить від AdsPower і не запускає браузер. Кожен Facebook-акаунт має власні access token, session cookies та User-Agent, але всі клієнти використовують один спільний `ProxyHttpClient`.
+Підсистема `facebook/api` виконує запити до Graph API, а workflow
+`publishPagePost` додає контрольовану публікацію постів на фанпейджі. Вона не
+залежить від AdsPower і не запускає браузер. Кожен Facebook-акаунт має власні
+access token, session cookies та User-Agent, але всі клієнти використовують один
+спільний `ProxyHttpClient`.
 
 ## Конфігурація акаунтів
 
@@ -40,10 +44,10 @@ import "dotenv/config";
 
 import createFacebookApiClients from "./facebook/api/createFacebookApiClients.js";
 
-const clients = await createFacebookApiClients();
-const facebookApi = clients.get("account-001");
+const facebookApiClients = await createFacebookApiClients();
+const selectedFacebookApiClient = facebookApiClients.get("account-001");
 
-if (!facebookApi) {
+if (!selectedFacebookApiClient) {
     throw new Error("Facebook-акаунт не знайдено");
 }
 ```
@@ -59,24 +63,58 @@ if (!facebookApi) {
 | `getPermissions()` | `{ granted, declined, expired, other }` | Групує permissions за статусом. |
 | `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти. |
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
+| `getAvailablePages()` | `Array<{id, name}>` | Повертає безпечний список фанпейджів без токенів. |
+| `getFanPageById(pageId)` | `object \| null` | Знаходить фанпейджу та її Page token для внутрішньої роботи. |
+| `createPageTextPost(options)` | `{ postId }` | Публікує текстовий пост через `/feed`. |
+| `createPagePhotoPost(options)` | `{ postId, photoId }` | Публікує одну фотографію через `/photos`. |
+| `getPagePost(options)` | `object` | Отримує пост за ID для підтвердження публікації. |
 
 Приклад:
 
 ```js
-const tokenStatus = await facebookApi.checkAccessToken();
+const tokenStatus = await selectedFacebookApiClient.checkAccessToken();
 
 if (!tokenStatus.working) {
     console.error("Access token не працює");
     return;
 }
 
-const me = await facebookApi.getMe();
-const permissions = await facebookApi.getPermissions();
-const adAccounts = await facebookApi.getAdAccounts();
-const pages = await facebookApi.getPages();
+const me = await selectedFacebookApiClient.getMe();
+const permissions = await selectedFacebookApiClient.getPermissions();
+const adAccounts = await selectedFacebookApiClient.getAdAccounts();
+const pages = await selectedFacebookApiClient.getPages();
 ```
 
 `getAdAccounts()` і `getPages()` автоматично проходять усі сторінки Graph API через cursor `after`. Код не використовує абсолютний `paging.next`, щоб access token випадково не потрапив до логів разом із URL.
+
+## Публікація поста
+
+Готовий сценарій знаходиться у `facebook/workflows/publishPagePost.js`. Він сам
+знаходить фанпейджу за ID, бере її Page access token, вибирає `/feed` або
+`/photos`, а потім перевіряє створений пост контрольним GET-запитом.
+
+```js
+import publishPagePost from "./facebook/workflows/publishPagePost.js";
+
+const result = await publishPagePost({
+    facebookApiClient: selectedFacebookApiClient,
+    pageId: "123456789",
+    message: "Текст поста",
+    image: {
+        buffer: imageBuffer,
+        filename: "photo.jpg",
+        contentType: "image/jpeg",
+    },
+});
+```
+
+Поле `image` необов'язкове. Підтримується текст, одна фотографія або одна
+фотографія з текстом. Успішний результат містить `postId`, `permalinkUrl`,
+`createdTime` і `verified: true`.
+
+POST-запит не повторюється після мережевої помилки, бо відповідь могла
+загубитися вже після створення поста. У цьому випадку повертається
+`FACEBOOK_POST_OUTCOME_UNKNOWN`, а автоматичний повтор міг би створити дублікат.
 
 ## Заголовки
 
@@ -104,6 +142,22 @@ const pages = await facebookApi.getPages();
 
 ```powershell
 node test/testFacebookGraphApi.js
+```
+
+Для ручної публікації відкрийте `test/testPublishPagePost.js` і заповніть три
+змінні на початку файла:
+
+```js
+const fanPageId = "ID_ФАНПЕЙДЖІ";
+const postText = `Перший рядок тексту
+Другий рядок тексту`;
+const imagePath = "C:/path/photo.jpg";
+```
+
+Профіль `fp_hub` уже вибраний у тесті. Після заповнення запустіть:
+
+```powershell
+node test/testPublishPagePost.js
 ```
 
 Окремий read-only сценарій для пошуку вимкнених рекламних акаунтів профілю

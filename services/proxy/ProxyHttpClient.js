@@ -115,6 +115,15 @@ function createPoolExhaustedError() {
 }
 
 
+function createRequestOutcomeUnknownError() {
+    const error = new Error(
+        "Не вдалося визначити результат HTTP-запиту"
+    );
+    error.code = "PROXY_REQUEST_OUTCOME_UNKNOWN";
+    return error;
+}
+
+
 export default class ProxyHttpClient {
     #proxies;
 
@@ -218,10 +227,15 @@ export default class ProxyHttpClient {
      * Виконує HTTP-запит через активну проксі.
      * Після проблеми з'єднання перемикає проксі та повторює запит один раз.
      * @param {import("axios").AxiosRequestConfig} config Налаштування Axios.
+     * @param {object} options Поведінка повторної спроби.
+     * @param {boolean} options.retryOnConnectionError Чи повторювати запит після перемикання проксі.
      * @returns {Promise<import("axios").AxiosResponse>}
      * @throws {Error} Помилка з code=PROXY_POOL_EXHAUSTED, якщо пул вичерпано.
      */
-    async request(config) {
+    async request(
+        config,
+        { retryOnConnectionError = true } = {}
+    ) {
         if (!config || !String(config.url ?? "").trim()) {
             throw new Error("Не вказано URL HTTP-запиту");
         }
@@ -234,6 +248,16 @@ export default class ProxyHttpClient {
             if (!isConnectionError(error)) {
                 throw error;
             }
+        }
+
+        if (!retryOnConnectionError) {
+            try {
+                await this.#switchProxy(failedProxyIndex);
+            } catch {
+                // Результат POST все одно невідомий, тому не замінюємо цю помилку.
+            }
+
+            throw createRequestOutcomeUnknownError();
         }
 
         await this.#switchProxy(failedProxyIndex);

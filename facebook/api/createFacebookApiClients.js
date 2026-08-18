@@ -111,10 +111,10 @@ export default async function createFacebookApiClients({
         ...(httpClient ? { httpClient } : {}),
         ...(checkProxyFn ? { checkProxyFn } : {}),
     });
-    const clients = new Map();
+    const facebookApiClients = new Map();
 
     accounts.forEach((account) => {
-        clients.set(
+        facebookApiClients.set(
             account.accountKey,
             new FacebookGraphApi({
                 accountKey: account.accountKey,
@@ -126,5 +126,5 @@ export default async function createFacebookApiClients({
         );
     });
 
-    return clients;
+    return facebookApiClients;
 }

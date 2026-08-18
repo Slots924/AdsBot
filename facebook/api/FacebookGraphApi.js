@@ -3,6 +3,14 @@ function createFacebookApiError(error) {
         return error;
     }
 
+    if (error?.code === "PROXY_REQUEST_OUTCOME_UNKNOWN") {
+        const outcomeError = new Error(
+            "Не вдалося визначити, чи Facebook опублікував пост"
+        );
+        outcomeError.code = "FACEBOOK_POST_OUTCOME_UNKNOWN";
+        return outcomeError;
+    }
+
     const graphError = error?.response?.data?.error;
     const facebookError = new Error(
         graphError?.message
@@ -45,23 +53,33 @@ export default class FacebookGraphApi {
     }
 
 
-    async #request(pathname, params = {}) {
+    async #request(pathname, params = {}, {
+        method = "get",
+        data,
+        accessToken = this.#accessToken,
+        headers = {},
+        retryOnConnectionError = true,
+    } = {}) {
         const normalizedPathname = String(pathname).startsWith("/")
             ? pathname
             : `/${pathname}`;
 
         try {
             const response = await this.#proxyHttpClient.request({
-                method: "get",
+                method,
                 url: `${this.apiUrl}${normalizedPathname}`,
                 params,
                 headers: {
                     Accept: "application/json",
-                    Authorization: `Bearer ${this.#accessToken}`,
+                    Authorization: `Bearer ${accessToken}`,
                     Cookie: this.#cookie,
                     "User-Agent": this.userAgent,
+                    ...headers,
                 },
+                ...(data === undefined ? {} : { data }),
                 timeout: 30000,
+            }, {
+                retryOnConnectionError,
             });
 
             return response.data;
@@ -231,5 +249,167 @@ export default class FacebookGraphApi {
             tasks: page.tasks ?? [],
             pageAccessToken: page.access_token,
         }));
+    }
+
+
+    /**
+     * Повертає безпечний список фанпейджів без Page access tokens.
+     * @returns {Promise<Array<{id: string, name: string}>>}
+     * @throws {Error} FACEBOOK_API_ERROR або PROXY_POOL_EXHAUSTED.
+     */
+    async getAvailablePages() {
+        const pages = await this.getPages();
+
+        return pages.map((page) => ({
+            id: page.id,
+            name: page.name,
+        }));
+    }
+
+
+    /**
+     * Знаходить доступну фанпейджу разом із її Page access token.
+     * @param {string} pageId ID фанпейджі.
+     * @returns {Promise<object|null>}
+     * @throws {Error} FACEBOOK_API_ERROR або PROXY_POOL_EXHAUSTED.
+     */
+    async getFanPageById(pageId) {
+        const normalizedPageId = String(pageId ?? "").trim();
+
+        if (!normalizedPageId) {
+            return null;
+        }
+
+        const pages = await this.getPages();
+
+        return pages.find(
+            (page) => String(page.id) === normalizedPageId
+        ) ?? null;
+    }
+
+
+    /**
+     * Публікує текстовий пост від імені фанпейджі.
+     * @param {object} options Дані текстового поста.
+     * @param {string} options.pageId ID фанпейджі.
+     * @param {string} options.pageAccessToken Page access token.
+     * @param {string} options.message Текст поста.
+     * @returns {Promise<{postId: string}>}
+     * @throws {Error} FACEBOOK_API_ERROR або FACEBOOK_POST_OUTCOME_UNKNOWN.
+     */
+    async createPageTextPost({
+        pageId,
+        pageAccessToken,
+        message,
+    }) {
+        const body = new URLSearchParams();
+        body.set("message", message);
+
+        const data = await this.#request(`/${pageId}/feed`, {}, {
+            method: "post",
+            data: body,
+            accessToken: pageAccessToken,
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            retryOnConnectionError: false,
+        });
+
+        return {
+            postId: data.id,
+        };
+    }
+
+
+    /**
+     * Публікує одну фотографію з необов'язковим текстом від імені фанпейджі.
+     * @param {object} options Дані фотопоста.
+     * @param {string} options.pageId ID фанпейджі.
+     * @param {string} options.pageAccessToken Page access token.
+     * @param {string} options.message Текст поста.
+     * @param {{buffer: Buffer, filename: string, contentType: string}} options.image Файл зображення.
+     * @returns {Promise<{postId: string|null, photoId: string|null}>}
+     * @throws {Error} FACEBOOK_API_ERROR або FACEBOOK_POST_OUTCOME_UNKNOWN.
+     */
+    async createPagePhotoPost({
+        pageId,
+        pageAccessToken,
+        message,
+        image,
+    }) {
+        const body = new FormData();
+        const photo = new Blob([image.buffer], {
+            type: image.contentType,
+        });
+
+        body.set("source", photo, image.filename);
+
+        if (message) {
+            body.set("message", message);
+        }
+
+        const data = await this.#request(`/${pageId}/photos`, {}, {
+            method: "post",
+            data: body,
+            accessToken: pageAccessToken,
+            retryOnConnectionError: false,
+        });
+
+        return {
+            postId: data.post_id ?? data.page_story_id ?? null,
+            photoId: data.id ?? null,
+        };
+    }
+
+
+    /**
+     * Отримує ID поста, створеного під час завантаження фотографії.
+     * @param {object} options Дані фотографії.
+     * @param {string} options.photoId ID фотографії.
+     * @param {string} options.pageAccessToken Page access token.
+     * @returns {Promise<string|null>}
+     * @throws {Error} FACEBOOK_API_ERROR або PROXY_POOL_EXHAUSTED.
+     */
+    async getPhotoPostId({ photoId, pageAccessToken }) {
+        const data = await this.#request(`/${photoId}`, {
+            fields: "page_story_id",
+        }, {
+            accessToken: pageAccessToken,
+        });
+
+        return data.page_story_id ?? null;
+    }
+
+
+    /**
+     * Отримує створений пост для підтвердження публікації.
+     * @param {object} options Дані поста.
+     * @param {string} options.postId ID поста.
+     * @param {string} options.pageAccessToken Page access token.
+     * @returns {Promise<object>}
+     * @throws {Error} FACEBOOK_API_ERROR або PROXY_POOL_EXHAUSTED.
+     */
+    async getPagePost({ postId, pageAccessToken }) {
+        const data = await this.#request(`/${postId}`, {
+            fields: [
+                "id",
+                "message",
+                "created_time",
+                "permalink_url",
+                "is_published",
+                "status_type",
+            ].join(","),
+        }, {
+            accessToken: pageAccessToken,
+        });
+
+        return {
+            id: data.id,
+            message: data.message ?? "",
+            createdTime: data.created_time ?? null,
+            permalinkUrl: data.permalink_url ?? null,
+            isPublished: data.is_published ?? null,
+            statusType: data.status_type ?? null,
+        };
     }
 }

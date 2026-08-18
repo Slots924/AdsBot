@@ -85,10 +85,10 @@ function printDisabledAccount(account, index) {
 
 
 async function testDisabledAdAccounts() {
-    const clients = await createFacebookApiClients();
-    const facebookApi = clients.get(accountKey);
+    const facebookApiClients = await createFacebookApiClients();
+    const fpHubFacebookApiClient = facebookApiClients.get(accountKey);
 
-    if (!facebookApi) {
+    if (!fpHubFacebookApiClient) {
         throw new Error(`Facebook-акаунт "${accountKey}" не знайдено`);
     }
 
@@ -96,7 +96,7 @@ async function testDisabledAdAccounts() {
     console.log(`Профіль: ${accountKey}`);
     console.log("Отримую доступні рекламні акаунти…");
 
-    const adAccounts = await facebookApi.getAdAccounts();
+    const adAccounts = await fpHubFacebookApiClient.getAdAccounts();
     const activeAccounts = adAccounts.filter(
         (account) => Number(account.accountStatus) === 1
     );

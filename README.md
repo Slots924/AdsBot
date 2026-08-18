@@ -1,6 +1,7 @@
 # AdsBot
 
-AdsBot — Node.js-проєкт для роботи з AdsPower, автоматизації Facebook у браузері та read-only запитів до Facebook Graph API.
+AdsBot — Node.js-проєкт для роботи з AdsPower, автоматизації Facebook у
+браузері, читання даних Facebook Graph API та публікації постів на фанпейджі.
 
 ## Основні підсистеми
 
