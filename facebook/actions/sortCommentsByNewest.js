@@ -238,6 +238,9 @@ export default async function sortCommentsByNewest(page) {
         console.log("Натискаємо другий пункт меню лівою кнопкою миші...");
         await clickWithLeftMouseButton(page);
 
+        console.log("Очікуємо 7–10 секунд, поки коментарі завантажаться...");
+        await waitRandom(7000, 10000);
+
         console.log("Коментарі успішно відсортовано за найновішими");
         return true;
     } catch (error) {

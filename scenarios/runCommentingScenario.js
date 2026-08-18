@@ -40,14 +40,14 @@ async function loadComments(commentsFilePath) {
 
 
 function createReport({
-    groupId,
+    groupIds,
     commentsFilePath,
     postUrl,
 }) {
     return {
         startedAt: new Date().toISOString(),
         finishedAt: null,
-        groupId: String(groupId ?? "").trim(),
+        groupIds: normalizeGroupIds(groupIds),
         commentsFilePath: path.resolve(
             String(commentsFilePath ?? "")
         ),
@@ -64,6 +64,33 @@ function createReport({
 }
 
 
+function normalizeGroupIds(groupIds) {
+    if (!Array.isArray(groupIds)) {
+        return [];
+    }
+
+    return [...new Set(
+        groupIds
+            .map((groupId) => String(groupId ?? "").trim())
+            .filter(Boolean)
+    )];
+}
+
+
+function shuffleArray(items) {
+    const shuffledItems = [...items];
+
+    for (let index = shuffledItems.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+
+        [shuffledItems[index], shuffledItems[randomIndex]] =
+            [shuffledItems[randomIndex], shuffledItems[index]];
+    }
+
+    return shuffledItems;
+}
+
+
 function getCommentLabel(comment) {
     return comment.id || `рядок ${comment.rowNumber}`;
 }
@@ -74,9 +101,9 @@ function getActionType(comment) {
 }
 
 
-function validateSettings({ groupId, commentsFilePath, postUrl }) {
-    if (!String(groupId ?? "").trim()) {
-        throw new Error("Не вказано ID групи AdsPower");
+function validateSettings({ groupIds, commentsFilePath, postUrl }) {
+    if (normalizeGroupIds(groupIds).length === 0) {
+        throw new Error("Не вказано ID груп AdsPower");
     }
 
     if (!String(commentsFilePath ?? "").trim()) {
@@ -102,13 +129,13 @@ function validateSettings({ groupId, commentsFilePath, postUrl }) {
 
 export default async function runCommentingScenario({
     adsPower,
-    groupId,
+    groupIds,
     commentsFilePath,
     postUrl,
     reportsDirectory = "./data/reports",
 }) {
     const report = createReport({
-        groupId,
+        groupIds,
         commentsFilePath,
         postUrl,
     });
@@ -120,7 +147,7 @@ export default async function runCommentingScenario({
 
     try {
         validateSettings({
-            groupId,
+            groupIds,
             commentsFilePath,
             postUrl,
         });
@@ -138,12 +165,39 @@ export default async function runCommentingScenario({
             commentsById.set(comment.id, comment);
         });
 
-        console.log(`Отримуємо профілі групи AdsPower: ${groupId}`);
-        const profiles = await adsPower.getProfilesByGroupId(groupId);
+        const normalizedGroupIds = normalizeGroupIds(groupIds);
+
+        console.log(
+            `Отримуємо профілі груп AdsPower: ${normalizedGroupIds.join(", ")}`
+        );
+
+        const profilesFromGroups = await Promise.all(
+            normalizedGroupIds.map((groupId) =>
+                adsPower.getProfilesByGroupId(groupId)
+            )
+        );
+        const uniqueProfiles = [];
+        const seenProfileNos = new Set();
+
+        profilesFromGroups.flat().forEach((profile) => {
+            const profileNo = String(profile?.profile_no ?? "").trim();
+
+            if (profileNo && seenProfileNos.has(profileNo)) {
+                return;
+            }
+
+            if (profileNo) {
+                seenProfileNos.add(profileNo);
+            }
+
+            uniqueProfiles.push(profile);
+        });
+
+        const profiles = shuffleArray(uniqueProfiles);
 
         if (profiles.length === 0) {
             throw new Error(
-                `Група AdsPower ${groupId} порожня або не існує`
+                `Групи AdsPower ${normalizedGroupIds.join(", ")} порожні або не існують`
             );
         }
         const profilesByNo = new Map();
@@ -420,6 +474,11 @@ export default async function runCommentingScenario({
 
                 if (!result.success) {
                     lastError = result.error;
+
+                    if (getActionType(comment) === "reply") {
+                        break;
+                    }
+
                     continue;
                 }
 
@@ -444,7 +503,9 @@ export default async function runCommentingScenario({
                 report.failedComments.push({
                     commentId: comment.id,
                     actionType: getActionType(comment),
-                    reason: lastError
+                    reason: lastError && getActionType(comment) === "reply"
+                        ? `Не вдалося опублікувати reply: ${lastError}`
+                        : lastError
                         ? `Усі спроби завершилися помилкою: ${lastError}`
                         : `Закінчилися профілі gender=${comment.gender}`,
                     attempts,

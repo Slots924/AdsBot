@@ -2,6 +2,8 @@ import puppeteer from "puppeteer-core";
 
 import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
 import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
+import scrollToPostLikeButton from "../../facebook/actions/scrollToPostLikeButton.js";
+import setRandomPostReaction from "../../facebook/actions/setRandomPostReaction.js";
 import isPostAvailable from "../../facebook/post/checks/isPostAvailable.js";
 import commentOnPost from "../../facebook/workflows/commentOnPost.js";
 import replyToComment from "../../facebook/workflows/replyToComment.js";
@@ -101,6 +103,17 @@ export default async function executeCommentWithProfile({
         if (!postAvailable) {
             throw new Error("Facebook-пост недоступний");
         }
+
+        try {
+            await scrollToPostLikeButton(page);
+        } catch (error) {
+            console.error(
+                "Не вдалося прокрутити до кнопки Like, продовжуємо роботу:",
+                error.message
+            );
+        }
+
+        await setRandomPostReaction(page);
 
         if (actionType === "comment") {
             result.stage = "WRITE_COMMENT";

@@ -5,9 +5,9 @@ import runCommentingScenario from "./scenarios/runCommentingScenario.js";
 
 
 // Налаштування кампанії коментування
-const adsPowerGroupId = "8278298";
-const commentsFilePath = "./data/comments/HU/4.json";
-const postUrl = "https://www.facebook.com/share/p/1DX5dVnBMm/";
+const adsPowerGroupIds = ["7398930"];
+const commentsFilePath = "./data/comments/CZ/17.json";
+const postUrl = "https://www.facebook.com/share/p/191TWjNqt1/";
 
 
 async function main() {
@@ -15,7 +15,7 @@ async function main() {
     const { report, reportPath } =
         await runCommentingScenario({
             adsPower,
-            groupId: adsPowerGroupId,
+            groupIds: adsPowerGroupIds,
             commentsFilePath,
             postUrl,
         });

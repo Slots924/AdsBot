@@ -106,7 +106,7 @@ function buildMarkdown(report) {
         "",
         `- Початок: ${formatDateTime(report.startedAt)}`,
         `- Завершення: ${formatDateTime(report.finishedAt)}`,
-        `- ID групи AdsPower: ${escapeCell(report.groupId)}`,
+        `- ID груп AdsPower: ${escapeCell(report.groupIds?.join(", "))}`,
         `- Facebook-пост: ${escapeCell(report.postUrl)}`,
         `- Файл коментарів: ${escapeCell(report.commentsFilePath)}`,
         `- Критична помилка: ${escapeCell(report.fatalError)}`,
