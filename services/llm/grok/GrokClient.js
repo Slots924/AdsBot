@@ -68,6 +68,44 @@ function extractOutputText(data) {
 }
 
 
+function normalizePrompt(value, label) {
+    const normalizedValue = String(value ?? "").trim();
+
+    if (!normalizedValue) {
+        throw createGrokError(
+            `${label} не може бути порожнім`,
+            "GROK_VALIDATION_ERROR"
+        );
+    }
+
+    return normalizedValue;
+}
+
+
+function normalizeJsonSchema(schema, schemaName) {
+    if (!schema || typeof schema !== "object" || Array.isArray(schema)) {
+        throw createGrokError(
+            "JSON schema має бути об'єктом",
+            "GROK_VALIDATION_ERROR"
+        );
+    }
+
+    const normalizedSchemaName = String(schemaName ?? "").trim();
+
+    if (!/^[A-Za-z0-9_-]{1,64}$/.test(normalizedSchemaName)) {
+        throw createGrokError(
+            "Назва JSON schema має містити лише латинські літери, цифри, _ або -",
+            "GROK_VALIDATION_ERROR"
+        );
+    }
+
+    return {
+        schema,
+        schemaName: normalizedSchemaName,
+    };
+}
+
+
 export default class GrokClient {
     #apiKey;
 
@@ -76,7 +114,7 @@ export default class GrokClient {
         apiKey = process.env.XAI_API_KEY,
         apiUrl = process.env.XAI_API_URL,
         model = process.env.XAI_MODEL,
-        timeout = 60000,
+        timeout = 300000,
         httpClient = axios,
     } = {}) {
         if (!Number.isFinite(timeout) || timeout <= 0) {
@@ -110,24 +148,72 @@ export default class GrokClient {
      * @throws {Error} GROK_VALIDATION_ERROR, GROK_API_ERROR або GROK_EMPTY_RESPONSE.
      */
     async generateText({ systemPrompt, prompt } = {}) {
-        const normalizedSystemPrompt = String(
-            systemPrompt ?? ""
-        ).trim();
-        const normalizedPrompt = String(prompt ?? "").trim();
+        const response = await this.#request({ systemPrompt, prompt });
 
-        if (!normalizedSystemPrompt) {
+        return {
+            text: response.text,
+            responseId: response.data?.id ?? null,
+            model: response.data?.model ?? this.model,
+            usage: response.data?.usage ?? null,
+        };
+    }
+
+
+    /**
+     * Надсилає запит до Grok і повертає JSON, який відповідає заданій схемі.
+     * @param {object} options Дані запиту.
+     * @param {string} options.systemPrompt Системний prompt.
+     * @param {string} options.prompt Запит користувача.
+     * @param {object} options.schema JSON schema для відповіді.
+     * @param {string} [options.schemaName="response"] Назва JSON schema.
+     * @returns {Promise<{data: object, responseId: string|null, model: string, usage: object|null}>}
+     * @throws {Error} GROK_VALIDATION_ERROR, GROK_API_ERROR, GROK_EMPTY_RESPONSE або GROK_INVALID_JSON_RESPONSE.
+     */
+    async generateJson({
+        systemPrompt,
+        prompt,
+        schema,
+        schemaName = "response",
+    } = {}) {
+        const normalizedSchema = normalizeJsonSchema(schema, schemaName);
+        const response = await this.#request({
+            systemPrompt,
+            prompt,
+            text: {
+                format: {
+                    type: "json_schema",
+                    name: normalizedSchema.schemaName,
+                    schema: normalizedSchema.schema,
+                    strict: true,
+                },
+            },
+        });
+        let data;
+
+        try {
+            data = JSON.parse(response.text);
+        } catch {
             throw createGrokError(
-                "System prompt не може бути порожнім",
-                "GROK_VALIDATION_ERROR"
+                "Grok API повернув невалідний JSON",
+                "GROK_INVALID_JSON_RESPONSE"
             );
         }
 
-        if (!normalizedPrompt) {
-            throw createGrokError(
-                "User prompt не може бути порожнім",
-                "GROK_VALIDATION_ERROR"
-            );
-        }
+        return {
+            data,
+            responseId: response.data?.id ?? null,
+            model: response.data?.model ?? this.model,
+            usage: response.data?.usage ?? null,
+        };
+    }
+
+
+    async #request({ systemPrompt, prompt, text }) {
+        const normalizedSystemPrompt = normalizePrompt(
+            systemPrompt,
+            "System prompt"
+        );
+        const normalizedPrompt = normalizePrompt(prompt, "User prompt");
 
         let response;
 
@@ -152,6 +238,7 @@ export default class GrokClient {
                             content: normalizedPrompt,
                         },
                     ],
+                    ...(text ? { text } : {}),
                 },
                 timeout: this.timeout,
             });
@@ -174,9 +261,9 @@ export default class GrokClient {
             );
         }
 
-        const text = extractOutputText(response.data);
+        const outputText = extractOutputText(response.data);
 
-        if (!text) {
+        if (!outputText) {
             throw createGrokError(
                 "Grok API не повернув текстової відповіді",
                 "GROK_EMPTY_RESPONSE"
@@ -184,10 +271,8 @@ export default class GrokClient {
         }
 
         return {
-            text,
-            responseId: response.data?.id ?? null,
-            model: response.data?.model ?? this.model,
-            usage: response.data?.usage ?? null,
+            data: response.data,
+            text: outputText,
         };
     }
 }

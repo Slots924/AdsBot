@@ -54,12 +54,37 @@ console.log(result.text);
 }
 ```
 
-Автоматичного retry немає: один виклик `generateText()` створює не більше одного
-оплачуваного API-запиту.
+Для відповіді за строгою JSON-схемою використовуйте `generateJson()`:
+
+```js
+const result = await grokClient.generateJson({
+    systemPrompt: "Поверни дані за заданою схемою.",
+    prompt: "Створи результат.",
+    schema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["value"],
+        properties: {
+            value: { type: "string" },
+        },
+    },
+    schemaName: "result",
+});
+
+console.log(result.data.value);
+```
+
+Метод використовує Responses API Structured Outputs із `strict: true`,
+парсить відповідь і повертає `{ data, responseId, model, usage }`.
+
+Стандартний timeout становить 5 хвилин. Автоматичного retry немає: один виклик
+`generateText()` або `generateJson()` створює не більше одного оплачуваного
+API-запиту.
 
 ## System prompt
 
-Стандартний system prompt зберігається в `data/prompts/grok/system.txt` як
+Стандартний system prompt зберігається в
+`data/prompts/grok/format-creative-to-json.txt` як
 звичайний UTF-8 текст. Його можна редагувати без змін у `GrokClient`.
 
 Інший файл можна завантажити явно:
@@ -76,6 +101,7 @@ const systemPrompt = await loadGrokSystemPrompt(
 - `GROK_VALIDATION_ERROR` — порожній system або user prompt;
 - `GROK_API_ERROR` — HTTP/API-помилка xAI;
 - `GROK_EMPTY_RESPONSE` — API не повернув жодного `output_text`.
+- `GROK_INVALID_JSON_RESPONSE` — structured response не вдалося розпарсити як JSON.
 
 Помилки не містять API key або повну Axios-конфігурацію.
 

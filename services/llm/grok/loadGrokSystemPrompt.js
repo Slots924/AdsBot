@@ -16,7 +16,7 @@ function createPromptError(message) {
  * @throws {Error} GROK_CONFIG_ERROR, якщо файл відсутній або порожній.
  */
 export default async function loadGrokSystemPrompt(
-    filePath = "./data/prompts/grok/system.txt"
+    filePath = "./data/prompts/grok/format-creative-to-json.txt"
 ) {
     const absolutePath = path.resolve(filePath);
     let content;

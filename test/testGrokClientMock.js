@@ -56,6 +56,7 @@ assert.equal(result.model, "grok-test-model-001");
 assert.equal(result.usage.total_tokens, 15);
 assert.equal(capturedRequest.method, "post");
 assert.equal(capturedRequest.url, apiUrl);
+assert.equal(capturedRequest.timeout, 300000);
 assert.equal(
     capturedRequest.headers.Authorization,
     `Bearer ${apiKey}`
@@ -71,6 +72,58 @@ assert.deepEqual(capturedRequest.data.input, [
         content: "Запит користувача",
     },
 ]);
+
+let capturedJsonRequest;
+const jsonSchema = {
+    type: "object",
+    additionalProperties: false,
+    required: ["value"],
+    properties: {
+        value: { type: "string" },
+    },
+};
+const jsonClient = new GrokClient({
+    apiKey,
+    apiUrl,
+    model,
+    httpClient: {
+        async request(config) {
+            capturedJsonRequest = config;
+
+            return {
+                data: {
+                    id: "json-response-123",
+                    model,
+                    output: [{
+                        type: "message",
+                        content: [{
+                            type: "output_text",
+                            text: JSON.stringify({ value: "ready" }),
+                        }],
+                    }],
+                    usage: { total_tokens: 7 },
+                },
+            };
+        },
+    },
+});
+const jsonResult = await jsonClient.generateJson({
+    systemPrompt: "Return JSON",
+    prompt: "Create value",
+    schema: jsonSchema,
+    schemaName: "test_value",
+});
+
+assert.deepEqual(jsonResult.data, { value: "ready" });
+assert.equal(jsonResult.responseId, "json-response-123");
+assert.deepEqual(capturedJsonRequest.data.text, {
+    format: {
+        type: "json_schema",
+        name: "test_value",
+        schema: jsonSchema,
+        strict: true,
+    },
+});
 
 assert.throws(
     () => new GrokClient({
@@ -179,6 +232,36 @@ await assert.rejects(
         prompt: "Запит",
     }),
     { code: "GROK_EMPTY_RESPONSE" }
+);
+
+const invalidJsonClient = new GrokClient({
+    apiKey,
+    apiUrl,
+    model,
+    httpClient: {
+        async request() {
+            return {
+                data: {
+                    output: [{
+                        type: "message",
+                        content: [{
+                            type: "output_text",
+                            text: "not json",
+                        }],
+                    }],
+                },
+            };
+        },
+    },
+});
+
+await assert.rejects(
+    invalidJsonClient.generateJson({
+        systemPrompt: "System",
+        prompt: "Prompt",
+        schema: jsonSchema,
+    }),
+    { code: "GROK_INVALID_JSON_RESPONSE" }
 );
 
 const systemPrompt = await loadGrokSystemPrompt();
