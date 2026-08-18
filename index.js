@@ -2,21 +2,31 @@ import "dotenv/config";
 
 import AdsPower from "./classes/AdsPower.js";
 import runCommentingScenario from "./scenarios/runCommentingScenario.js";
+import CreativeManager from "./services/creatives/CreativeManager.js";
 
 
 // Налаштування кампанії коментування
 const adsPowerGroupIds = ["7398930"];
-const commentsFilePath = "./data/comments/CZ/138.json";
+const geo = "CZ";
+const creativeName = "138";
 const postUrl = "https://www.facebook.com/share/p/19sbfZi1dd/";
 
 
 async function main() {
     const adsPower = new AdsPower();
+    const creativeManager = new CreativeManager();
+    const creative = await creativeManager.getCreative(
+        geo,
+        creativeName
+    );
+    const comments = creative.comments;
     const { report, reportPath } =
         await runCommentingScenario({
             adsPower,
             groupIds: adsPowerGroupIds,
-            commentsFilePath,
+            comments,
+            geo,
+            creativeName,
             postUrl,
         });
 

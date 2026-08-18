@@ -1,9 +1,21 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-
 import getProfileGender from "../services/profile/getProfileGender.js";
 import saveCommentingReport from "../services/reports/saveCommentingReport.js";
 import executeCommentWithProfile from "../workflows/comments/executeCommentWithProfile.js";
+
+
+function normalizeLogger(logger) {
+    return {
+        info: typeof logger?.info === "function"
+            ? logger.info.bind(logger)
+            : console.info.bind(console),
+        warn: typeof logger?.warn === "function"
+            ? logger.warn.bind(logger)
+            : console.warn.bind(console),
+        error: typeof logger?.error === "function"
+            ? logger.error.bind(logger)
+            : console.error.bind(console),
+    };
+}
 
 
 function normalizeComment(rawComment, index) {
@@ -24,33 +36,18 @@ function normalizeComment(rawComment, index) {
 }
 
 
-async function loadComments(commentsFilePath) {
-    const absolutePath = path.resolve(commentsFilePath);
-    const content = await readFile(absolutePath, "utf8");
-    const data = JSON.parse(content);
-
-    if (!Array.isArray(data?.comments)) {
-        throw new Error(
-            "Файл коментарів не містить масив comments"
-        );
-    }
-
-    return data.comments.map(normalizeComment);
-}
-
-
 function createReport({
     groupIds,
-    commentsFilePath,
+    geo,
+    creativeName,
     postUrl,
 }) {
     return {
         startedAt: new Date().toISOString(),
         finishedAt: null,
         groupIds: normalizeGroupIds(groupIds),
-        commentsFilePath: path.resolve(
-            String(commentsFilePath ?? "")
-        ),
+        geo: String(geo ?? "").trim().toUpperCase(),
+        creativeName: String(creativeName ?? "").trim(),
         postUrl,
         fatalError: null,
         published: [],
@@ -101,13 +98,27 @@ function getActionType(comment) {
 }
 
 
-function validateSettings({ groupIds, commentsFilePath, postUrl }) {
+function validateSettings({
+    groupIds,
+    comments,
+    geo,
+    creativeName,
+    postUrl,
+}) {
     if (normalizeGroupIds(groupIds).length === 0) {
         throw new Error("Не вказано ID груп AdsPower");
     }
 
-    if (!String(commentsFilePath ?? "").trim()) {
-        throw new Error("Не вказано шлях до файла коментарів");
+    if (!Array.isArray(comments)) {
+        throw new Error("Коментарі мають бути масивом");
+    }
+
+    if (!String(geo ?? "").trim()) {
+        throw new Error("Не вказано geo креативу");
+    }
+
+    if (!String(creativeName ?? "").trim()) {
+        throw new Error("Не вказано назву креативу");
     }
 
     let parsedPostUrl;
@@ -130,13 +141,18 @@ function validateSettings({ groupIds, commentsFilePath, postUrl }) {
 export default async function runCommentingScenario({
     adsPower,
     groupIds,
-    commentsFilePath,
+    comments,
+    geo,
+    creativeName,
     postUrl,
     reportsDirectory = "./data/reports",
+    logger,
 }) {
+    const campaignLogger = normalizeLogger(logger);
     const report = createReport({
         groupIds,
-        commentsFilePath,
+        geo,
+        creativeName,
         postUrl,
     });
     const profileKeyMap = new Map();
@@ -148,15 +164,17 @@ export default async function runCommentingScenario({
     try {
         validateSettings({
             groupIds,
-            commentsFilePath,
+            comments,
+            geo,
+            creativeName,
             postUrl,
         });
 
-        const comments = await loadComments(commentsFilePath);
+        const normalizedComments = comments.map(normalizeComment);
         const commentsById = new Map();
         const duplicateRows = new Set();
 
-        comments.forEach((comment) => {
+        normalizedComments.forEach((comment) => {
             if (!comment.id || commentsById.has(comment.id)) {
                 duplicateRows.add(comment.rowNumber);
                 return;
@@ -167,7 +185,7 @@ export default async function runCommentingScenario({
 
         const normalizedGroupIds = normalizeGroupIds(groupIds);
 
-        console.log(
+        campaignLogger.info(
             `Отримуємо профілі груп AdsPower: ${normalizedGroupIds.join(", ")}`
         );
 
@@ -233,7 +251,7 @@ export default async function runCommentingScenario({
             profilePools[gender].push(profile);
         });
 
-        console.log(
+        campaignLogger.info(
             `Доступні профілі: male=${profilePools.male.length}, female=${profilePools.female.length}`
         );
 
@@ -262,7 +280,7 @@ export default async function runCommentingScenario({
             const profileNo = String(profile.profile_no);
             attemptedProfileNos.add(profileNo);
 
-            console.log(
+            campaignLogger.info(
                 `Коментар ${comment.id}: використовуємо профіль ${profileNo}`
             );
 
@@ -272,6 +290,7 @@ export default async function runCommentingScenario({
                 postUrl,
                 comment,
                 parentComment,
+                logger: campaignLogger,
             });
 
             saveCleanupWarnings(result);
@@ -302,9 +321,12 @@ export default async function runCommentingScenario({
                 profileKey: comment.profile_key,
                 text: comment.text,
             });
+            campaignLogger.info(
+                `Коментар ${comment.id} успішно опубліковано профілем ${profile.profile_no}`
+            );
         };
 
-        for (const comment of comments) {
+        for (const comment of normalizedComments) {
             const commentLabel = getCommentLabel(comment);
 
             if (comment.should_write === false) {
@@ -511,11 +533,16 @@ export default async function runCommentingScenario({
                     attempts,
                     text: comment.text,
                 });
+                campaignLogger.warn(
+                    `Коментар ${comment.id} не опубліковано після ${attempts} спроб`
+                );
             }
         }
     } catch (error) {
         report.fatalError = error.message;
-        console.error("Критична помилка сценарію:", error.message);
+        campaignLogger.error(
+            `Критична помилка сценарію: ${error.message}`
+        );
     } finally {
         report.finishedAt = new Date().toISOString();
         report.profileKeyMap = Object.fromEntries(profileKeyMap);
@@ -525,11 +552,10 @@ export default async function runCommentingScenario({
                 report,
                 reportsDirectory
             );
-            console.log(`Звіт збережено: ${reportPath}`);
+            campaignLogger.info(`Звіт збережено: ${reportPath}`);
         } catch (error) {
-            console.error(
-                "Не вдалося зберегти звіт:",
-                error.message
+            campaignLogger.error(
+                `Не вдалося зберегти звіт: ${error.message}`
             );
         }
     }

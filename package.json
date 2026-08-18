@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "gui:dev": "npm --prefix frontend run dev",
+    "gui:build": "npm --prefix frontend run build",
+    "gui:test": "npm --prefix frontend run test",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

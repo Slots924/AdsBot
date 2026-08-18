@@ -118,6 +118,8 @@ export default async function createFacebookApiClients({
             account.accountKey,
             new FacebookGraphApi({
                 accountKey: account.accountKey,
+                accountName: account.name,
+                facebookUserId: account.facebookUserId,
                 accessToken: account.accessToken,
                 cookie: account.cookie,
                 userAgent: account.userAgent,

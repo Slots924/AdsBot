@@ -35,6 +35,8 @@ export default class FacebookGraphApi {
 
     constructor({
         accountKey,
+        accountName = "",
+        facebookUserId = "",
         accessToken,
         cookie,
         userAgent,
@@ -45,6 +47,8 @@ export default class FacebookGraphApi {
         }
 
         this.accountKey = accountKey;
+        this.accountName = String(accountName ?? "").trim();
+        this.facebookUserId = String(facebookUserId ?? "").trim();
         this.userAgent = userAgent;
         this.apiUrl = "https://graph.facebook.com/v26.0";
         this.#accessToken = accessToken;
@@ -252,6 +256,45 @@ export default class FacebookGraphApi {
     }
 
 
+    async #getPublishablePage(page) {
+        const tasks = Array.isArray(page?.tasks) ? page.tasks : [];
+        const canCreateContent = tasks.some(
+            (task) => ["CREATE_CONTENT", "MANAGE"].includes(task)
+        );
+
+        if (!page?.pageAccessToken || !canCreateContent) {
+            return null;
+        }
+
+        try {
+            const data = await this.#request(`/${page.id}`, {
+                fields: "id,name,is_published",
+            }, {
+                accessToken: page.pageAccessToken,
+            });
+
+            if (data?.is_published === false) {
+                return null;
+            }
+
+            return {
+                ...page,
+                id: data?.id ?? page.id,
+                name: data?.name ?? page.name,
+            };
+        } catch (error) {
+            if (
+                error?.code === "FACEBOOK_API_ERROR"
+                && [400, 403].includes(error.httpStatus)
+            ) {
+                return null;
+            }
+
+            throw error;
+        }
+    }
+
+
     /**
      * Повертає безпечний список фанпейджів без Page access tokens.
      * @returns {Promise<Array<{id: string, name: string}>>}
@@ -259,11 +302,16 @@ export default class FacebookGraphApi {
      */
     async getAvailablePages() {
         const pages = await this.getPages();
+        const checkedPages = await Promise.all(
+            pages.map((page) => this.#getPublishablePage(page))
+        );
 
-        return pages.map((page) => ({
-            id: page.id,
-            name: page.name,
-        }));
+        return checkedPages
+            .filter(Boolean)
+            .map((page) => ({
+                id: page.id,
+                name: page.name,
+            }));
     }
 
 
@@ -282,9 +330,15 @@ export default class FacebookGraphApi {
 
         const pages = await this.getPages();
 
-        return pages.find(
+        const page = pages.find(
             (page) => String(page.id) === normalizedPageId
         ) ?? null;
+
+        if (!page) {
+            return null;
+        }
+
+        return this.#getPublishablePage(page);
     }
 
 

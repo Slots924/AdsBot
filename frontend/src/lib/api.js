@@ -1,0 +1,22 @@
+export async function unwrap(responsePromise) {
+    const response = await responsePromise;
+
+    if (!response?.ok) {
+        const error = new Error(
+            response?.error?.message || "Backend повернув помилку"
+        );
+        Object.assign(error, response?.error ?? {});
+        throw error;
+    }
+
+    return response.data;
+}
+
+
+export function errorDetails(error) {
+    return {
+        title: "Помилка",
+        message: error?.message || "Невідома помилка",
+        code: error?.code ?? null,
+    };
+}

@@ -42,6 +42,53 @@ console.log(creative.creative);
 console.log(creative.comments);
 ```
 
+## Підготовка для кампанії
+
+Збережений креатив є шаблоном і не змінюється. Чиста функція
+`prepareCreativeForCampaign()` створює копію та замінює всі точні маркери
+`<LINK>` у головному тексті й `comments[].text`:
+
+```js
+import prepareCreativeForCampaign
+    from "../services/creatives/prepareCreativeForCampaign.js";
+
+const preparedCreative = prepareCreativeForCampaign({
+    creative,
+    siteUrl: "https://example.com/offer",
+});
+```
+
+Для backend/GUI цю операцію вже обгортає
+`facebookBackend.prepareCreative({ geo, creativeName, siteUrl })`. Дозволені
+тільки HTTP/HTTPS URL. Якщо `<LINK>` немає ні в тексті, ні в коментарях,
+повертається `CREATIVE_LINK_PLACEHOLDER_NOT_FOUND`.
+
+Для запуску сценарію коментування передайте в нього лише масив коментарів із
+готового креативу. Geo та назва передаються окремо як metadata для звіту:
+
+```js
+const creative = await creativeManager.getCreative(
+    geo,
+    creativeName
+);
+
+await runCommentingScenario({
+    adsPower,
+    groupIds,
+    comments: creative.comments,
+    geo,
+    creativeName,
+    postUrl,
+});
+```
+
+`runCommentingScenario()` не читає файл креативу та не викликає Grok.
+
+У Desktop GUI для коментарів використовується
+`prepareCommentsForCampaign({ creative, siteUrl })`. На відміну від підготовки
+Facebook-поста, `siteUrl` тут необов'язковий: порожнє значення замінює точні
+`<LINK>` порожнім рядком, а відсутність placeholder не є помилкою.
+
 `getCreative()` спочатку читає готовий JSON. Якщо файла немає, менеджер:
 
 1. перевіряє geo через `countries.json`;

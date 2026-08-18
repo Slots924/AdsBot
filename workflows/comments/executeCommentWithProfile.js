@@ -18,6 +18,7 @@ export default async function executeCommentWithProfile({
     postUrl,
     comment,
     parentComment = null,
+    logger = console,
 }) {
     const profileNo = String(profile?.profile_no ?? "невідомий");
     const actionType = comment.parent_id === null
@@ -107,9 +108,8 @@ export default async function executeCommentWithProfile({
         try {
             await scrollToPostLikeButton(page);
         } catch (error) {
-            console.error(
-                "Не вдалося прокрутити до кнопки Like, продовжуємо роботу:",
-                error.message
+            logger.error(
+                `Не вдалося прокрутити до кнопки Like, продовжуємо роботу: ${error.message}`
             );
         }
 

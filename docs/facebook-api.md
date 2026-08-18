@@ -1,5 +1,65 @@
 # Facebook Graph API
 
+## Backend facade для GUI
+
+`FacebookBackendService` є рекомендованою точкою входу для майбутнього
+інтерфейсу. GUI зберігає тільки ключ вибраного акаунта й передає його в кожний
+виклик:
+
+```js
+import FacebookBackendService
+    from "./facebook/services/FacebookBackendService.js";
+
+const facebookBackend = await FacebookBackendService.create();
+let selectedAccountKey = "fp_hub";
+
+const accounts = await facebookBackend.getAccounts();
+const fanPages = await facebookBackend.getFanPages(
+    selectedAccountKey
+);
+```
+
+`getAccounts()` окремо перевіряє кожний профіль через `/me`. Статус `active`
+означає робочий token, `inactive` — підтверджений Meta invalid token, а `error` —
+мережеву, proxy або іншу API-помилку. Помилка одного профілю не ламає список.
+Результат не містить token, cookie, User-Agent або proxy.
+
+`getFanPages(accountKey)` вибирає клієнт із Map саме за переданим ключем. Тому
+після зміни `selectedAccountKey` наступний запит автоматично використовує token,
+cookie та User-Agent іншого Facebook-профілю. Facade не має глобального
+«активного акаунта».
+
+У список потрапляють лише опубліковані фанпейджі з Page token і task
+`CREATE_CONTENT` або `MANAGE`, для яких контрольний Page GET завершився успішно.
+Graph 400/403 окремої фанпейджі приховує тільки її; мережева чи proxy-помилка
+перериває завантаження списку.
+
+Креатив і пост готуються так:
+
+```js
+const preparedCreative = await facebookBackend.prepareCreative({
+    geo: "HU",
+    creativeName: "138",
+    siteUrl: "https://example.com/offer",
+});
+
+const post = await facebookBackend.publishPost({
+    accountKey: selectedAccountKey,
+    pageId: "123456789",
+    message: preparedCreative.creative,
+    imagePath: "C:/images/post.jpg",
+});
+```
+
+`publishPost()` приймає текст, одну локальну картинку або обидва значення.
+Підтримуються JPG, JPEG, PNG і WEBP. Усередині використовується наявний
+`publishPagePost()`, який не повторює невизначений POST і перевіряє створений
+пост контрольним GET-запитом.
+
+Для Electron GUI над цим facade працює `AdsBotGuiService`. Він додає
+`getAdAccounts(accountKey)`, повний сценарій підготовки й публікації креативу та
+не дозволяє Graph API-дії для профілю, статус якого не є `active`.
+
 Підсистема `facebook/api` виконує запити до Graph API, а workflow
 `publishPagePost` додає контрольовану публікацію постів на фанпейджі. Вона не
 залежить від AdsPower і не запускає браузер. Кожен Facebook-акаунт має власні
@@ -63,8 +123,8 @@ if (!selectedFacebookApiClient) {
 | `getPermissions()` | `{ granted, declined, expired, other }` | Групує permissions за статусом. |
 | `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти. |
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
-| `getAvailablePages()` | `Array<{id, name}>` | Повертає безпечний список фанпейджів без токенів. |
-| `getFanPageById(pageId)` | `object \| null` | Знаходить фанпейджу та її Page token для внутрішньої роботи. |
+| `getAvailablePages()` | `Array<{id, name}>` | Перевіряє доступність, publish tasks і статус фанпейджів та повертає список без токенів. |
+| `getFanPageById(pageId)` | `object \| null` | Перевіряє фанпейджу й повертає її Page token лише для внутрішньої публікації. |
 | `createPageTextPost(options)` | `{ postId }` | Публікує текстовий пост через `/feed`. |
 | `createPagePhotoPost(options)` | `{ postId, photoId }` | Публікує одну фотографію через `/photos`. |
 | `getPagePost(options)` | `object` | Отримує пост за ID для підтвердження публікації. |
@@ -144,13 +204,15 @@ POST-запит не повторюється після мережевої по
 node test/testFacebookGraphApi.js
 ```
 
-Для ручної публікації відкрийте `test/testPublishPagePost.js` і заповніть три
-змінні на початку файла:
+Для ручної публікації відкрийте `test/testPublishPagePost.js` і заповніть
+налаштування на початку файла:
 
 ```js
+const accountKey = "fp_hub";
 const fanPageId = "ID_ФАНПЕЙДЖІ";
-const postText = `Перший рядок тексту
-Другий рядок тексту`;
+const geo = "HU";
+const creativeName = "138";
+const siteUrl = "https://example.com/offer";
 const imagePath = "C:/path/photo.jpg";
 ```
 

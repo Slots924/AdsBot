@@ -1,66 +1,22 @@
 import "dotenv/config";
 
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-
-import createFacebookApiClients from "../facebook/api/createFacebookApiClients.js";
-import publishPagePost from "../facebook/workflows/publishPagePost.js";
+import FacebookBackendService
+    from "../facebook/services/FacebookBackendService.js";
 
 
+// Ключ Facebook-акаунта з data/facebookApi/accounts.json.
 const accountKey = "fp_hub";
 
-// Вставте сюди ID фанпейджі, на якій потрібно створити пост.
-const fanPageId = "122101154528004114";
+// Вкажіть ID фанпейджі, на якій потрібно створити пост.
+const fanPageId = "";
 
-// Текст між зворотними лапками може містити будь-яку кількість рядків.
-const postText = `Chtěla mého ptáka
+// Креатив буде отримано через CreativeManager і підготовлено для сайту.
+const geo = "HU";
+const creativeName = "138";
+const siteUrl = "";
 
-Po 20 letech manželství se žena rozhodla, že ji sex už nezajímá, a dostat ji do postele začalo být skoro nemožné. Je mi 48 a po intimní stránce jsem úplně v pohodě. Jenže doma je to jak na poušti, už tam chybí jen velbloudi. Dřív jsme spolu spali aspoň jednou za měsíc, ale poslední dva roky - naprosté ticho. Zkoušel jsem všechno možné, romantiku, dárky - k ničemu. Sedím večer, koukám na ni a dochází mi, že ten vlak už prostě ujel. A popravdě, konkrétně na ni už stejně moc chuť nemám.
-
-Jednou jsme byli s kamarády na rybách a přišla řeč i na vztahy. Jeden mi říká: "Proč se tak trápíš? Seznamka a máš po problému." Říkám mu: "Zkoušel jsem. Všechny si chtějí jen povídat a ptají se na plány do budoucna." A on na to: "Tak chodíš na špatné stránky! Tady máš odkaz https://love-in-hurt.cyou/CJ138Z. Tam fakt mladé holky hledají starší chlapy. Bez závazků a dlouhých vztahů. Prostě chtějí sex!" Samozřejmě jsem tomu moc nevěřil, ale když se druhý den ukázalo, že je žena zase strašně unavená, zalezl jsem do svého pokoje a na tom webu se zaregistroval.
-
-Dal jsem tam normální fotky a napsal rovnou, že hledám mladší holku na pravidelné schůzky. Filtr - maximálně 26 let a do 30 km. Ani ne za 50 minut mi napsala dvacetiletá holka, studentka třetího ročníku. Fotky - naprostá bomba: dlouhé vlasy, sportovní postava a drzý úsměv. "Ahoj. Už dlouho jsem to chtěla zkusit se zkušenějším. Máš dneska čas?" Předstíral jsem, že mě urgentně volají do práce, a vyrazil jsem.
-
-Přijel jsem k ní do pronajatého bytu. Otevřela jen v županu a hned se ke mně přitiskla. "Už jsem úplně mokrá," zašeptala. Ani jsme nedošli k posteli. Hned na chodbě jsem jí vyhrnul župan - pod ním neměla vůbec nic. Opřela se o zeď, sama mě navedla a chtěla to tvrdě. Sténala tak hlasitě, že to snad museli slyšet i sousedi. Pak jsme pokračovali v kuchyni, ve sprše a nakonec v ložnici až do rána. Několikrát se udělala a nakonec sama chtěla, abych se jí udělal na obličej. Pak tam ležela, usmívala se a vypadala naprosto spokojeně... 😏
-
-Teď se vídáme 2-3krát týdně. Manželka nic netuší a já mám zase pocit, že žiju. Jako by mi bylo znovu třicet.`;
-
-// Використовуйте прямі слеші, наприклад: C:/Images/facebook-post.jpg
-// Залиште порожнім, якщо потрібно опублікувати тільки текст.
-const imagePath = "C:/Users/Darkness/Downloads/14.jpeg";
-
-
-function getImageContentType(filePath) {
-    const extension = path.extname(filePath).toLowerCase();
-    const contentTypes = new Map([
-        [".jpg", "image/jpeg"],
-        [".jpeg", "image/jpeg"],
-        [".png", "image/png"],
-        [".webp", "image/webp"],
-    ]);
-
-    return contentTypes.get(extension) ?? null;
-}
-
-
-async function loadTestImage(filePath) {
-    if (!filePath) {
-        return undefined;
-    }
-
-    const absolutePath = path.resolve(filePath);
-    const contentType = getImageContentType(absolutePath);
-
-    if (!contentType) {
-        throw new Error("Тест підтримує JPG, PNG або WEBP");
-    }
-
-    return {
-        buffer: await readFile(absolutePath),
-        filename: path.basename(absolutePath),
-        contentType,
-    };
-}
+// Залиште порожнім для текстового поста. Підтримуються JPG, JPEG, PNG і WEBP.
+const imagePath = "";
 
 
 async function testPublishPagePost() {
@@ -71,28 +27,40 @@ async function testPublishPagePost() {
         return;
     }
 
-    const facebookApiClients = await createFacebookApiClients();
-    const fpHubFacebookApiClient = facebookApiClients.get(accountKey);
+    const facebookBackend = await FacebookBackendService.create();
+    const fanPages = await facebookBackend.getFanPages(accountKey);
 
-    if (!fpHubFacebookApiClient) {
-        throw new Error(`Facebook-акаунт "${accountKey}" не знайдено`);
+    console.log(`Доступні фанпейджі акаунта ${accountKey}:`);
+    console.table(fanPages);
+
+    if (!fanPages.some((fanPage) => fanPage.id === fanPageId.trim())) {
+        throw new Error(
+            `Фанпейджа "${fanPageId}" недоступна для публікації`
+        );
     }
 
-    const image = await loadTestImage(imagePath.trim());
+    const preparedCreative = await facebookBackend.prepareCreative({
+        geo,
+        creativeName,
+        siteUrl,
+    });
 
-    console.log("Доступні фанпейджі:");
-    console.table(await fpHubFacebookApiClient.getAvailablePages());
-    console.log(`Публікуємо на фанпейджу: ${fanPageId}`);
+    console.log(
+        `Публікуємо креатив ${geo} ${creativeName} на фанпейджі ${fanPageId}`
+    );
 
-    const result = await publishPagePost({
-        facebookApiClient: fpHubFacebookApiClient,
+    const post = await facebookBackend.publishPost({
+        accountKey,
         pageId: fanPageId,
-        message: postText,
-        image,
+        message: preparedCreative.creative,
+        imagePath,
     });
 
     console.log("Пост успішно опубліковано та перевірено:");
-    console.table([result]);
+    console.table([post]);
+    console.log(
+        `Для сценарію коментування підготовлено коментарів: ${preparedCreative.comments.length}`
+    );
 }
 
 

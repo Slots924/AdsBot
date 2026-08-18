@@ -14,14 +14,68 @@ const proxyHttpClient = {
         if (config.url.endsWith("/me/accounts")) {
             return {
                 data: {
-                    data: [{
-                        id: "page-1",
-                        name: "Test Page",
-                        tasks: ["CREATE_CONTENT"],
-                        access_token: "PAGE_TOKEN",
-                    }],
+                    data: [
+                        {
+                            id: "page-1",
+                            name: "Test Page",
+                            tasks: ["CREATE_CONTENT"],
+                            access_token: "PAGE_TOKEN",
+                        },
+                        {
+                            id: "page-no-task",
+                            name: "No Task Page",
+                            tasks: ["MESSAGING"],
+                            access_token: "NO_TASK_TOKEN",
+                        },
+                        {
+                            id: "page-unpublished",
+                            name: "Unpublished Page",
+                            tasks: ["MANAGE"],
+                            access_token: "UNPUBLISHED_TOKEN",
+                        },
+                        {
+                            id: "page-forbidden",
+                            name: "Forbidden Page",
+                            tasks: ["CREATE_CONTENT"],
+                            access_token: "FORBIDDEN_TOKEN",
+                        },
+                    ],
                 },
             };
+        }
+
+        if (config.url.endsWith("/page-1")) {
+            return {
+                data: {
+                    id: "page-1",
+                    name: "Test Page",
+                    is_published: true,
+                },
+            };
+        }
+
+        if (config.url.endsWith("/page-unpublished")) {
+            return {
+                data: {
+                    id: "page-unpublished",
+                    name: "Unpublished Page",
+                    is_published: false,
+                },
+            };
+        }
+
+        if (config.url.endsWith("/page-forbidden")) {
+            const error = new Error("Forbidden");
+            error.response = {
+                status: 403,
+                data: {
+                    error: {
+                        message: "Forbidden",
+                        code: 200,
+                    },
+                },
+            };
+            throw error;
         }
 
         if (config.url.endsWith("/page-1/feed")) {
@@ -78,6 +132,52 @@ assert.deepEqual(
     await facebookApiClient.getAvailablePages(),
     [{ id: "page-1", name: "Test Page" }]
 );
+const availabilityRequests = requests.filter(
+    ({ config }) => [
+        "/page-1",
+        "/page-unpublished",
+        "/page-forbidden",
+    ].some((pathname) => config.url.endsWith(pathname))
+);
+assert.equal(availabilityRequests.length, 3);
+assert(
+    availabilityRequests.every(
+        ({ config }) =>
+            config.headers.Authorization.startsWith("Bearer ")
+            && !config.headers.Authorization.includes("USER_TOKEN")
+    )
+);
+
+const networkFailureClient = new FacebookGraphApi({
+    accountKey: "network-failure",
+    accessToken: "USER_TOKEN",
+    cookie: "TEST_COOKIE",
+    userAgent: "TEST_USER_AGENT",
+    proxyHttpClient: {
+        async request(config) {
+            if (config.url.endsWith("/me/accounts")) {
+                return {
+                    data: {
+                        data: [{
+                            id: "network-page",
+                            name: "Network Page",
+                            tasks: ["CREATE_CONTENT"],
+                            access_token: "PAGE_TOKEN",
+                        }],
+                    },
+                };
+            }
+
+            const error = new Error("Proxy pool exhausted");
+            error.code = "PROXY_POOL_EXHAUSTED";
+            throw error;
+        },
+    },
+});
+await assert.rejects(
+    networkFailureClient.getAvailablePages(),
+    { code: "PROXY_POOL_EXHAUSTED" }
+);
 
 const textResult = await publishPagePost({
     facebookApiClient,
@@ -101,6 +201,22 @@ const photoResult = await publishPagePost({
 
 assert.equal(photoResult.postId, "page-1_photo-post");
 assert.equal(photoResult.verified, true);
+
+await assert.rejects(
+    publishPagePost({
+        facebookApiClient,
+        pageId: "page-1",
+    }),
+    { code: "FACEBOOK_POST_VALIDATION_ERROR" }
+);
+await assert.rejects(
+    publishPagePost({
+        facebookApiClient,
+        pageId: "unknown-page",
+        message: "Test",
+    }),
+    { code: "FACEBOOK_PAGE_NOT_FOUND" }
+);
 
 const postRequests = requests.filter(
     ({ config }) => config.method === "post"
