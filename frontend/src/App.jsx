@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BadgeDollarSign, MessageSquareText, Send } from "lucide-react";
+import { BadgeDollarSign, LayoutTemplate, MessageSquareText, Send } from "lucide-react";
 
 import LogPanel from "./components/LogPanel.jsx";
 import { Modal, Toast } from "./components/Overlay.jsx";
@@ -8,6 +8,7 @@ import Sidebar from "./components/Sidebar.jsx";
 import AdAccountsTab from "./tabs/AdAccountsTab.jsx";
 import CommentsTab from "./tabs/CommentsTab.jsx";
 import PublishTab from "./tabs/PublishTab.jsx";
+import TemplatesTab from "./tabs/TemplatesTab.jsx";
 import { errorDetails, unwrap } from "./lib/api.js";
 import { findGroupForGeo } from "./lib/groups.js";
 
@@ -16,6 +17,7 @@ const tabs = [
     { id: "publish", label: "Публікація", icon: Send },
     { id: "comments", label: "Коментарі", icon: MessageSquareText },
     { id: "ads", label: "Рекламні акаунти", icon: BadgeDollarSign },
+    { id: "templates", label: "Шаблони", icon: LayoutTemplate },
 ];
 
 
@@ -23,7 +25,10 @@ export default function App() {
     const [activeTab, setActiveTab] = useState("publish");
     const [accounts, setAccounts] = useState([]);
     const [accountsLoading, setAccountsLoading] = useState(true);
+    const [stateHydrated, setStateHydrated] = useState(false);
     const [selectedAccountKey, setSelectedAccountKey] = useState("");
+    const [selectedPageId, setSelectedPageId] = useState("");
+    const [selectedAdAccountId, setSelectedAdAccountId] = useState("");
     const [groups, setGroups] = useState([]);
     const [selectedGroupIds, setSelectedGroupIds] = useState([]);
     const [commentsForm, setCommentsForm] = useState({
@@ -31,6 +36,12 @@ export default function App() {
         creativeName: "",
         siteUrl: "",
         postUrl: "",
+    });
+    const [publishForm, setPublishForm] = useState({
+        geo: "",
+        creativeName: "",
+        siteUrl: "",
+        imagePath: "",
     });
     const [logs, setLogs] = useState([]);
     const [modal, setModal] = useState(null);
@@ -56,7 +67,7 @@ export default function App() {
         window.setTimeout(() => setToast(null), 3600);
     };
 
-    const loadAccounts = async (refresh = false) => {
+    const loadAccounts = async (refresh = false, preferredAccountKey = null) => {
         setAccountsLoading(true);
         try {
             const nextAccounts = await unwrap(
@@ -65,11 +76,12 @@ export default function App() {
                     : window.adsBot.getAccounts()
             );
             setAccounts(nextAccounts);
-            setSelectedAccountKey((current) =>
-                nextAccounts.some((account) => account.accountKey === current)
-                    ? current
+            setSelectedAccountKey((current) => {
+                const candidate = preferredAccountKey ?? current;
+                return nextAccounts.some((account) => account.accountKey === candidate)
+                    ? candidate
                     : ""
-            );
+            });
         } catch (error) {
             setModal({ ...errorDetails(error), title: "Не вдалося завантажити акаунти" });
         } finally {
@@ -85,18 +97,68 @@ export default function App() {
             showToast(message, "warn");
         });
 
-        loadAccounts();
-        unwrap(window.adsBot.getAdsPowerGroups())
-            .then(setGroups)
-            .catch(() => {
-                addLog("warn", "frontend", "Локальний довідник груп поки недоступний");
-            });
+        const initialize = async () => {
+            let restored = null;
+            try {
+                restored = await unwrap(window.adsBot.loadAppState());
+                setActiveTab(restored.activeTab);
+                setSelectedAccountKey(restored.selectedAccountKey);
+                setSelectedPageId(restored.selectedPageId);
+                setSelectedAdAccountId(restored.selectedAdAccountId);
+                setSelectedGroupIds(restored.selectedGroupIds);
+                setPublishForm(restored.publishForm);
+                setCommentsForm(restored.commentsForm);
+            } catch (error) {
+                addLog("warn", "frontend", `Не вдалося відновити стан: ${error.message}`);
+            }
+
+            await Promise.all([
+                loadAccounts(true, restored?.selectedAccountKey ?? ""),
+                unwrap(window.adsBot.getAdsPowerGroups())
+                    .then(setGroups)
+                    .catch(() => {
+                        addLog("warn", "frontend", "Локальний довідник груп поки недоступний");
+                    }),
+            ]);
+            setStateHydrated(true);
+        };
+
+        initialize();
 
         return () => {
             unsubscribeLog();
             unsubscribeClose();
         };
     }, []);
+
+    useEffect(() => {
+        if (!stateHydrated) return undefined;
+
+        const timeoutId = window.setTimeout(() => {
+            unwrap(window.adsBot.saveAppState({
+                activeTab,
+                selectedAccountKey,
+                selectedPageId,
+                selectedAdAccountId,
+                selectedGroupIds,
+                publishForm,
+                commentsForm,
+            })).catch((error) => {
+                addLog("warn", "frontend", `Не вдалося зберегти стан: ${error.message}`);
+            });
+        }, 250);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [
+        stateHydrated,
+        activeTab,
+        selectedAccountKey,
+        selectedPageId,
+        selectedAdAccountId,
+        selectedGroupIds,
+        publishForm,
+        commentsForm,
+    ]);
 
     const handlePostSuccess = async ({
         post,
@@ -173,6 +235,10 @@ export default function App() {
                                 onError={setModal}
                                 onPostSuccess={handlePostSuccess}
                                 addLog={addLog}
+                                pageId={selectedPageId}
+                                setPageId={setSelectedPageId}
+                                form={publishForm}
+                                setForm={setPublishForm}
                             />
                         )}
                         {activeTab === "comments" && (
@@ -189,7 +255,20 @@ export default function App() {
                             />
                         )}
                         {activeTab === "ads" && (
-                            <AdAccountsTab key="ads" selectedAccount={selectedAccount} onError={setModal} />
+                            <AdAccountsTab
+                                key="ads"
+                                selectedAccount={selectedAccount}
+                                onError={setModal}
+                                selectedId={selectedAdAccountId}
+                                setSelectedId={setSelectedAdAccountId}
+                            />
+                        )}
+                        {activeTab === "templates" && (
+                            <TemplatesTab
+                                key="templates"
+                                onError={setModal}
+                                showToast={showToast}
+                            />
                         )}
                     </AnimatePresence>
                 </div>

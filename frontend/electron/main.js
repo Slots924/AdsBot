@@ -5,6 +5,9 @@ import CreativeManager
     from "../../services/creatives/CreativeManager.js";
 import AdsBotGuiService
     from "../../services/gui/AdsBotGuiService.js";
+import AppStateStore from "../../services/gui/AppStateStore.js";
+import CampaignTemplateManager
+    from "../../services/templates/CampaignTemplateManager.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
 
@@ -14,6 +17,8 @@ loadEnv({ path: appPaths.env });
 const isDevelopment = process.argv.includes("--dev");
 let mainWindow = null;
 let guiService = null;
+let templateManager = null;
+let appStateStore = null;
 
 
 function sendRendererEvent(channel, payload) {
@@ -89,12 +94,18 @@ async function createWindow() {
         creativeManagerFactory: createCreativeManager,
         logger: createLogger(),
     });
+    templateManager = new CampaignTemplateManager({
+        templatesFile: appPaths.templates,
+    });
+    appStateStore = new AppStateStore({ stateFile: appPaths.appState });
 
     registerIpcHandlers({
         ipcMain,
         dialog,
         shell,
         guiService,
+        templateManager,
+        appStateStore,
         getWindow: () => mainWindow,
     });
 

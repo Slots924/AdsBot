@@ -12,23 +12,30 @@ export default function PublishTab({
     onError,
     onPostSuccess,
     addLog,
+    pageId: controlledPageId,
+    setPageId: setControlledPageId,
+    form: controlledForm,
+    setForm: setControlledForm,
 }) {
     const [fanPages, setFanPages] = useState([]);
-    const [pageId, setPageId] = useState("");
+    const [localPageId, setLocalPageId] = useState("");
     const [loadingPages, setLoadingPages] = useState(false);
     const [pagesLoaded, setPagesLoaded] = useState(false);
     const [publishing, setPublishing] = useState(false);
     const [result, setResult] = useState(null);
-    const [form, setForm] = useState({
+    const [localForm, setLocalForm] = useState({
         geo: "",
         creativeName: "",
         siteUrl: "",
         imagePath: "",
     });
+    const pageId = controlledPageId ?? localPageId;
+    const setPageId = setControlledPageId ?? setLocalPageId;
+    const form = controlledForm ?? localForm;
+    const setForm = setControlledForm ?? setLocalForm;
     const accountActive = selectedAccount?.status === "active";
 
     useEffect(() => {
-        setPageId("");
         setFanPages([]);
         setResult(null);
         setPagesLoaded(false);
@@ -41,7 +48,12 @@ export default function PublishTab({
         setLoadingPages(true);
         unwrap(window.adsBot.getFanPages(selectedAccount.accountKey))
             .then((pages) => {
-                if (active) setFanPages(pages);
+                if (active) {
+                    setFanPages(pages);
+                    setPageId((current) => pages.some(
+                        (page) => page.id === current
+                    ) ? current : "");
+                }
             })
             .catch((error) => {
                 if (active) onError(errorDetails(error));

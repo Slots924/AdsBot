@@ -31,6 +31,8 @@ export default function registerIpcHandlers({
     dialog,
     shell,
     guiService,
+    templateManager,
+    appStateStore,
     getWindow,
 }) {
     ipcMain.handle(
@@ -64,6 +66,34 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "comments:run",
         safeHandler((payload) => guiService.runCommentingCampaign(payload))
+    );
+    ipcMain.handle(
+        "templates:list",
+        safeHandler(() => templateManager.list())
+    );
+    ipcMain.handle(
+        "templates:create",
+        safeHandler((payload) => templateManager.create(payload))
+    );
+    ipcMain.handle(
+        "templates:update",
+        safeHandler(({ id, ...payload }) => templateManager.update(id, payload))
+    );
+    ipcMain.handle(
+        "templates:duplicate",
+        safeHandler(({ id }) => templateManager.duplicate(id))
+    );
+    ipcMain.handle(
+        "templates:delete",
+        safeHandler(({ id }) => templateManager.delete(id))
+    );
+    ipcMain.handle(
+        "state:load",
+        safeHandler(() => appStateStore.load())
+    );
+    ipcMain.handle(
+        "state:save",
+        safeHandler((payload) => appStateStore.save(payload))
     );
     ipcMain.handle(
         "dialog:select-image",

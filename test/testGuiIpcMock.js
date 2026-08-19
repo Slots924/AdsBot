@@ -6,6 +6,31 @@ import registerIpcHandlers
 
 const handlers = new Map();
 const openedUrls = [];
+const templateManager = {
+    async list() {
+        return [{ id: 1, name: "AT", pixel: "123" }];
+    },
+    async create(template) {
+        return { id: 2, ...template };
+    },
+    async update(id, template) {
+        return { id, ...template };
+    },
+    async duplicate(id) {
+        return { id: id + 1, name: "AT", pixel: "123" };
+    },
+    async delete(id) {
+        return { id };
+    },
+};
+const appStateStore = {
+    async load() {
+        return { activeTab: "templates" };
+    },
+    async save(state) {
+        return state;
+    },
+};
 const ipcMain = {
     handle(channel, handler) {
         handlers.set(channel, handler);
@@ -59,6 +84,8 @@ registerIpcHandlers({
         },
     },
     guiService,
+    templateManager,
+    appStateStore,
     getWindow: () => ({}),
 });
 
@@ -92,6 +119,18 @@ assert.equal(
     true
 );
 assert.deepEqual(openedUrls, ["https://www.facebook.com/post"]);
+assert.deepEqual(
+    await handlers.get("templates:list")({}, {}),
+    { ok: true, data: [{ id: 1, name: "AT", pixel: "123" }] }
+);
+assert.deepEqual(
+    await handlers.get("templates:create")({}, { name: "HU", pixel: "456" }),
+    { ok: true, data: { id: 2, name: "HU", pixel: "456" } }
+);
+assert.deepEqual(
+    await handlers.get("state:save")({}, { activeTab: "comments" }),
+    { ok: true, data: { activeTab: "comments" } }
+);
 assert.equal(
     (await handlers.get("app:open-external")({}, {
         url: "https://example.com",

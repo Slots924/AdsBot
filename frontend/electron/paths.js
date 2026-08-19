@@ -17,6 +17,8 @@ export const appPaths = {
         "data/prompts/grok/format-creative-to-json.txt"
     ),
     groups: path.join(projectRoot, "data/adspower-groups.json"),
+    templates: path.join(projectRoot, "data/campaign-templates.json"),
+    appState: path.join(projectRoot, "data/app-state.json"),
     reports: path.join(projectRoot, "data/reports"),
     renderer: path.join(frontendRoot, "dist/index.html"),
     preload: path.join(electronDirectory, "preload.cjs"),

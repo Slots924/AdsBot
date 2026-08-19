@@ -11,11 +11,18 @@ function value(value) {
 }
 
 
-export default function AdAccountsTab({ selectedAccount, onError }) {
+export default function AdAccountsTab({
+    selectedAccount,
+    onError,
+    selectedId: controlledSelectedId,
+    setSelectedId: setControlledSelectedId,
+}) {
     const [accounts, setAccounts] = useState([]);
-    const [selectedId, setSelectedId] = useState("");
+    const [localSelectedId, setLocalSelectedId] = useState("");
     const [loading, setLoading] = useState(false);
     const accountActive = selectedAccount?.status === "active";
+    const selectedId = controlledSelectedId ?? localSelectedId;
+    const setSelectedId = setControlledSelectedId ?? setLocalSelectedId;
     const selected = accounts.find((account) => account.id === selectedId);
 
     const load = async () => {
@@ -26,7 +33,9 @@ export default function AdAccountsTab({ selectedAccount, onError }) {
                 window.adsBot.getAdAccounts(selectedAccount.accountKey)
             );
             setAccounts(nextAccounts);
-            setSelectedId("");
+            setSelectedId((current) => nextAccounts.some(
+                (account) => account.id === current
+            ) ? current : "");
         } catch (error) {
             onError({ ...errorDetails(error), title: "Не вдалося завантажити РК" });
         } finally {
@@ -36,7 +45,6 @@ export default function AdAccountsTab({ selectedAccount, onError }) {
 
     useEffect(() => {
         setAccounts([]);
-        setSelectedId("");
         load();
     }, [selectedAccount?.accountKey, accountActive]);
 
