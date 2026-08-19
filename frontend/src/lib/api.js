@@ -18,5 +18,11 @@ export function errorDetails(error) {
         title: "Помилка",
         message: error?.message || "Невідома помилка",
         code: error?.code ?? null,
+        graphCode: error?.graphCode ?? null,
+        graphSubcode: error?.graphSubcode ?? null,
+        stage: error?.stage ?? null,
+        itemIndex: error?.itemIndex ?? null,
+        createdObjects: error?.createdObjects ?? null,
+        jobId: error?.jobId ?? null,
     };
 }

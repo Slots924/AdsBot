@@ -1,23 +1,38 @@
-function createFacebookApiError(error) {
+function redactSensitiveText(value) {
+    return String(value ?? "")
+        .replace(/EAA[A-Za-z0-9]+/g, "[REDACTED]")
+        .replace(/((?:access_)?token|cookie)=([^&\s]+)/gi, "$1=[REDACTED]");
+}
+
+
+function createFacebookApiError(error, {
+    outcomeUnknownCode = "FACEBOOK_POST_OUTCOME_UNKNOWN",
+    outcomeUnknownMessage = "Не вдалося визначити, чи Facebook опублікував пост",
+} = {}) {
     if (error?.code === "PROXY_POOL_EXHAUSTED") {
         return error;
     }
 
     if (error?.code === "PROXY_REQUEST_OUTCOME_UNKNOWN") {
-        const outcomeError = new Error(
-            "Не вдалося визначити, чи Facebook опублікував пост"
-        );
-        outcomeError.code = "FACEBOOK_POST_OUTCOME_UNKNOWN";
+        const outcomeError = new Error(outcomeUnknownMessage);
+        outcomeError.code = outcomeUnknownCode;
         return outcomeError;
     }
 
     const graphError = error?.response?.data?.error;
-    const facebookError = new Error(
+    const facebookError = new Error(redactSensitiveText(
         graphError?.message
         || "Не вдалося виконати запит Facebook API"
-    );
+    ));
 
-    facebookError.code = "FACEBOOK_API_ERROR";
+    const message = facebookError.message.toLowerCase();
+    facebookError.code = message.includes("beneficiar")
+        ? "CAMPAIGN_DSA_BENEFICIARY_REJECTED"
+        : /(payor|payer)/.test(message)
+            ? "CAMPAIGN_DSA_PAYOR_REJECTED"
+            : /\bdsa\b/.test(message)
+                ? "CAMPAIGN_DSA_REJECTED"
+                : "FACEBOOK_API_ERROR";
     facebookError.httpStatus = error?.response?.status ?? null;
     facebookError.graphCode = graphError?.code ?? null;
     facebookError.graphSubcode = graphError?.error_subcode ?? null;
@@ -34,6 +49,13 @@ const pagePublishTasks = new Set([
     "PROFILE_PLUS_MANAGE",
     "PROFILE_PLUS_FULL_CONTROL",
 ]);
+const pageAdvertiseTasks = new Set([
+    "ADVERTISE",
+    "MANAGE",
+    "PROFILE_PLUS_ADVERTISE",
+    "PROFILE_PLUS_MANAGE",
+    "PROFILE_PLUS_FULL_CONTROL",
+]);
 
 const campaignDatePresets = new Set([
     "today",
@@ -42,6 +64,39 @@ const campaignDatePresets = new Set([
     "last_30d",
     "maximum",
 ]);
+
+const europeanDsaCountries = new Set([
+    "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR",
+    "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL",
+    "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO",
+]);
+
+const zeroDecimalCurrencies = new Set([
+    "BIF", "CLP", "DJF", "GNF", "JPY", "KMF", "KRW", "MGA",
+    "PYG", "RWF", "UGX", "VND", "VUV", "XAF", "XOF", "XPF",
+]);
+
+const disabledCreativeFeatures = [
+    "standard_enhancements",
+    "advantage_plus_creative",
+    "audio",
+    "music_generation",
+    "image_animation",
+    "image_auto_crop",
+    "image_background_gen",
+    "image_brightness_and_contrast",
+    "image_enhancement",
+    "image_text_translation",
+    "image_touchups",
+    "image_uncrop",
+    "text_generation",
+    "text_optimizations",
+    "text_translation",
+    "video_auto_crop",
+    "video_filtering",
+    "video_highlights",
+    "video_uncrop",
+];
 
 
 function hasPagePublishTask(tasks) {
@@ -60,6 +115,143 @@ function normalizeAdAccountId(value) {
         throw error;
     }
     return id;
+}
+
+
+function createValidationError(message, code) {
+    const error = new Error(message);
+    error.code = code;
+    return error;
+}
+
+
+function toFormData(fields, validateOnly = false) {
+    const body = new URLSearchParams();
+    Object.entries(fields).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "") return;
+        body.set(
+            key,
+            typeof value === "object" ? JSON.stringify(value) : String(value)
+        );
+    });
+    if (validateOnly) {
+        body.set("execution_options", JSON.stringify(["validate_only"]));
+    }
+    return body;
+}
+
+
+function normalizeObjectId(value, code, label) {
+    const id = String(value ?? "").trim();
+    if (!/^\d+$/.test(id)) {
+        throw createValidationError(`Некоректний ${label}`, code);
+    }
+    return id;
+}
+
+
+function budgetToMinorUnits(value, currency) {
+    const amount = Number(value);
+    if (!Number.isFinite(amount) || amount <= 0) {
+        throw createValidationError(
+            "Бюджет одного ad set має бути більшим за нуль",
+            "CAMPAIGN_BUDGET_INVALID"
+        );
+    }
+    const multiplier = zeroDecimalCurrencies.has(
+        String(currency ?? "").toUpperCase()
+    ) ? 1 : 100;
+    return String(Math.round(amount * multiplier));
+}
+
+
+function buildTargeting(template) {
+    const facebookPositions = (template.placements?.facebook ?? []).map(
+        (position) => position === "reels" ? "facebook_reels" : position
+    );
+    const instagramPositions = template.placements?.instagram ?? [];
+    const publisherPlatforms = [
+        ...(facebookPositions.length ? ["facebook"] : []),
+        ...(instagramPositions.length ? ["instagram"] : []),
+    ];
+    const gender = template.gender === "male"
+        ? [1]
+        : template.gender === "female" ? [2] : undefined;
+
+    return {
+        age_min: template.ageMin,
+        age_max: template.ageMax,
+        geo_locations: { countries: template.countryCodes },
+        publisher_platforms: publisherPlatforms,
+        ...(facebookPositions.length
+            ? { facebook_positions: facebookPositions }
+            : {}),
+        ...(instagramPositions.length
+            ? { instagram_positions: instagramPositions }
+            : {}),
+        ...(gender ? { genders: gender } : {}),
+        targeting_automation: { advantage_audience: 0 },
+    };
+}
+
+
+function buildEnhancementsOptOut() {
+    return {
+        creative_features_spec: Object.fromEntries(
+            disabledCreativeFeatures.map((feature) => [
+                feature,
+                { enroll_status: "OPT_OUT" },
+            ])
+        ),
+    };
+}
+
+
+function resolveDsaSettings(template, account) {
+    const countries = Array.isArray(template.countryCodes)
+        ? template.countryCodes.map((code) => String(code).toUpperCase())
+        : [];
+    const requiredForEurope = countries.some((code) => (
+        europeanDsaCountries.has(code)
+    ));
+    const templateBeneficiary = String(
+        template.dsaBeneficiary ?? ""
+    ).trim();
+    const templatePayor = template.dsaPayorSameAsBeneficiary !== false
+        ? templateBeneficiary
+        : String(template.dsaPayor ?? "").trim();
+    const defaultBeneficiary = String(
+        account.default_dsa_beneficiary ?? ""
+    ).trim();
+    const defaultPayor = String(account.default_dsa_payor ?? "").trim();
+    const shouldResolve = requiredForEurope
+        || Boolean(templateBeneficiary)
+        || Boolean(templatePayor);
+
+    if (!shouldResolve) return null;
+
+    const beneficiary = templateBeneficiary || defaultBeneficiary;
+    const payor = templatePayor || defaultPayor;
+    if (!beneficiary) {
+        throw createValidationError(
+            "Для європейської аудиторії вкажіть бенефіціара у шаблоні або налаштуйте default DSA beneficiary у Meta",
+            "CAMPAIGN_DSA_BENEFICIARY_REQUIRED"
+        );
+    }
+    if (!payor) {
+        throw createValidationError(
+            "Для європейської аудиторії вкажіть платника у шаблоні або налаштуйте default DSA payor у Meta",
+            "CAMPAIGN_DSA_PAYOR_REQUIRED"
+        );
+    }
+
+    return {
+        beneficiary,
+        payor,
+        beneficiarySource: templateBeneficiary ? "template" : "meta-default",
+        payorSource: templatePayor ? "template" : "meta-default",
+        requiredForEurope,
+    };
 }
 
 
@@ -99,6 +291,8 @@ export default class FacebookGraphApi {
         accessToken = this.#accessToken,
         headers = {},
         retryOnConnectionError = true,
+        outcomeUnknownCode,
+        outcomeUnknownMessage,
     } = {}) {
         const normalizedPathname = String(pathname).startsWith("/")
             ? pathname
@@ -124,7 +318,10 @@ export default class FacebookGraphApi {
 
             return response.data;
         } catch (error) {
-            throw createFacebookApiError(error);
+            throw createFacebookApiError(error, {
+                outcomeUnknownCode,
+                outcomeUnknownMessage,
+            });
         }
     }
 
@@ -249,6 +446,8 @@ export default class FacebookGraphApi {
                 "amount_spent",
                 "balance",
                 "spend_cap",
+                "default_dsa_beneficiary",
+                "default_dsa_payor",
                 "owner",
                 "business{id,name}",
             ].join(","),
@@ -266,6 +465,8 @@ export default class FacebookGraphApi {
             amountSpent: account.amount_spent ?? null,
             balance: account.balance ?? null,
             spendCap: account.spend_cap ?? null,
+            defaultDsaBeneficiary: account.default_dsa_beneficiary ?? null,
+            defaultDsaPayor: account.default_dsa_payor ?? null,
             owner: account.owner ?? null,
             business: account.business ?? null,
         }));
@@ -557,5 +758,486 @@ export default class FacebookGraphApi {
             isPublished: data.is_published ?? null,
             statusType: data.status_type ?? null,
         };
+    }
+
+
+    async #writeObject(pathname, fields, { validateOnly = false } = {}) {
+        return this.#request(pathname, {}, {
+            method: "post",
+            data: toFormData(fields, validateOnly),
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            retryOnConnectionError: false,
+            outcomeUnknownCode: "FACEBOOK_WRITE_OUTCOME_UNKNOWN",
+            outcomeUnknownMessage: "Не вдалося визначити, чи Meta застосувала зміну. Не повторюйте операцію до ручної перевірки Ads Manager.",
+        });
+    }
+
+
+    async #readObject(id, fields) {
+        return this.#request(`/${id}`, { fields: fields.join(",") });
+    }
+
+
+    async preflightLeadCampaign({
+        adAccountId,
+        pageId,
+        postId,
+        template,
+        dailyBudget,
+        startTime,
+    }) {
+        const accountId = normalizeAdAccountId(adAccountId);
+        const normalizedPageId = normalizeObjectId(
+            pageId,
+            "CAMPAIGN_PAGE_ID_INVALID",
+            "ID фанпейджі"
+        );
+        const rawPostId = String(postId ?? "").trim();
+        const storyId = rawPostId.includes("_")
+            ? rawPostId
+            : `${normalizedPageId}_${normalizeObjectId(
+                rawPostId,
+                "CAMPAIGN_POST_ID_INVALID",
+                "Post ID"
+            )}`;
+
+        if (!storyId.startsWith(`${normalizedPageId}_`)) {
+            throw createValidationError(
+                "Вказаний пост не належить вибраній фанпейджі",
+                "CAMPAIGN_POST_PAGE_MISMATCH"
+            );
+        }
+        if (!template?.pixel) {
+            throw createValidationError(
+                "У шаблоні не вказано Pixel ID",
+                "CAMPAIGN_PIXEL_REQUIRED"
+            );
+        }
+        if (!Array.isArray(template.countryCodes) || !template.countryCodes.length) {
+            throw createValidationError(
+                "У шаблоні потрібно вибрати хоча б одну країну",
+                "CAMPAIGN_COUNTRY_REQUIRED"
+            );
+        }
+
+        const normalizedStart = new Date(startTime);
+        if (Number.isNaN(normalizedStart.getTime())) {
+            throw createValidationError(
+                "Некоректний час початку показів",
+                "CAMPAIGN_START_TIME_INVALID"
+            );
+        }
+
+        const permissions = await this.getPermissions();
+        if (!permissions.granted.includes("ads_management")) {
+            throw createValidationError(
+                "Access token не має дозволу ads_management",
+                "CAMPAIGN_ADS_MANAGEMENT_REQUIRED"
+            );
+        }
+
+        const account = await this.#request(`/${accountId}`, {
+            fields: [
+                "id",
+                "name",
+                "account_status",
+                "currency",
+                "timezone_name",
+                "default_dsa_beneficiary",
+                "default_dsa_payor",
+            ].join(","),
+        });
+        if (Number(account.account_status) !== 1) {
+            throw createValidationError(
+                `Рекламний акаунт неактивний (status ${account.account_status})`,
+                "CAMPAIGN_AD_ACCOUNT_INACTIVE"
+            );
+        }
+
+        const page = await this.getFanPageById(normalizedPageId);
+        if (!page) {
+            throw createValidationError(
+                "Немає доступу на керування вибраною фанпейджою",
+                "CAMPAIGN_PAGE_ACCESS_DENIED"
+            );
+        }
+        if (!page.tasks.some((task) => (
+            pageAdvertiseTasks.has(String(task).toUpperCase())
+        ))) {
+            throw createValidationError(
+                "Немає дозволу ADVERTISE для вибраної фанпейджі",
+                "CAMPAIGN_PAGE_ADVERTISE_ACCESS_DENIED"
+            );
+        }
+
+        const post = await this.#request(`/${storyId}`, {
+            fields: "id,message,is_published,permalink_url,attachments{url,unshimmed_url,target}",
+        }, { accessToken: page.pageAccessToken });
+        if (post.is_published === false) {
+            throw createValidationError(
+                "Пост не опублікований",
+                "CAMPAIGN_POST_NOT_PUBLISHED"
+            );
+        }
+        const attachmentUrls = (post.attachments?.data ?? []).flatMap(
+            (attachment) => [attachment.unshimmed_url, attachment.url]
+        );
+        const messageUrls = String(post.message ?? "").match(/https?:\/\/[^\s]+/gi) ?? [];
+        const hasWebsiteUrl = [...attachmentUrls, ...messageUrls]
+            .filter(Boolean)
+            .some((value) => {
+                try {
+                    const host = new URL(value).hostname.toLowerCase();
+                    return host !== "facebook.com"
+                        && !host.endsWith(".facebook.com")
+                        && host !== "fb.com"
+                        && !host.endsWith(".fb.com");
+                } catch {
+                    return false;
+                }
+            });
+        if (!hasWebsiteUrl) {
+            throw createValidationError(
+                "У пості не знайдено посилання на зовнішній сайт",
+                "CAMPAIGN_POST_WEBSITE_URL_REQUIRED"
+            );
+        }
+
+        const pixels = await this.#getAll(`/${accountId}/adspixels`, {
+            fields: "id,name",
+            limit: 100,
+        });
+        const pixelId = normalizeObjectId(
+            template.pixel,
+            "CAMPAIGN_PIXEL_ID_INVALID",
+            "Pixel ID"
+        );
+        const pixel = pixels.find((item) => String(item.id) === pixelId);
+        if (!pixel) {
+            throw createValidationError(
+                "Вибраний Pixel недоступний цьому рекламному акаунту",
+                "CAMPAIGN_PIXEL_ACCESS_DENIED"
+            );
+        }
+
+        let instagramActorId = null;
+        if (template.placements?.instagram?.length) {
+            const pageDetails = await this.#request(`/${normalizedPageId}`, {
+                fields: "instagram_business_account{id,username}",
+            }, { accessToken: page.pageAccessToken });
+            instagramActorId = pageDetails.instagram_business_account?.id ?? null;
+            if (!instagramActorId) {
+                throw createValidationError(
+                    "Для Instagram placements до фанпейджі має бути прив’язаний Instagram business account",
+                    "CAMPAIGN_INSTAGRAM_ACTOR_REQUIRED"
+                );
+            }
+        }
+
+        const budgetMinor = budgetToMinorUnits(dailyBudget, account.currency);
+        const dsa = resolveDsaSettings(template, account);
+        const campaignFields = {
+            name: "AdsBot preflight",
+            objective: "OUTCOME_LEADS",
+            status: "PAUSED",
+            special_ad_categories: [],
+            bid_strategy: "LOWEST_COST_WITHOUT_CAP",
+            is_adset_budget_sharing_enabled: template.shareAdSetBudget,
+        };
+        await this.#writeObject(`/${accountId}/campaigns`, campaignFields, {
+            validateOnly: true,
+        });
+
+        return {
+            adAccountId: accountId,
+            accountName: account.name ?? "",
+            currency: account.currency,
+            timezoneName: account.timezone_name,
+            pageId: normalizedPageId,
+            pageName: page.name,
+            postId: storyId,
+            pixel: { id: pixel.id, name: pixel.name ?? "" },
+            instagramActorId,
+            dailyBudgetMinor: budgetMinor,
+            startTime: normalizedStart.toISOString(),
+            targeting: buildTargeting(template),
+            dsa,
+        };
+    }
+
+
+    async createLeadCampaign(options, onProgress = () => {}) {
+        const {
+            campaignName,
+            template,
+            adSetCount,
+            createPaused = true,
+            resume = {},
+        } = options;
+        const count = Number(adSetCount);
+        if (!Number.isInteger(count) || count < 1 || count > 100) {
+            throw createValidationError(
+                "Кількість ad sets має бути від 1 до 100",
+                "CAMPAIGN_ADSET_COUNT_INVALID"
+            );
+        }
+        const name = String(campaignName ?? "").trim();
+        if (!name) {
+            throw createValidationError(
+                "Вкажіть назву кампанії",
+                "CAMPAIGN_NAME_REQUIRED"
+            );
+        }
+
+        const objects = {
+            campaignId: resume.campaignId ?? null,
+            creativeId: resume.creativeId ?? null,
+            adSets: Array.isArray(resume.adSets) ? [...resume.adSets] : [],
+            ads: Array.isArray(resume.ads) ? [...resume.ads] : [],
+        };
+        const emit = async (stage, detail = {}) => onProgress({
+            stage,
+            objects: structuredClone(objects),
+            ...detail,
+        });
+        let currentStage = "preflight";
+        let currentIndex = null;
+
+        try {
+            await emit("preflight", { message: "Перевіряємо доступи та ресурси" });
+            const preflight = await this.preflightLeadCampaign(options);
+            await emit("preflight-complete", { preflight });
+
+            currentStage = "campaign";
+            if (!objects.campaignId) {
+                const created = await this.#writeObject(
+                    `/${preflight.adAccountId}/campaigns`,
+                    {
+                        name,
+                        objective: "OUTCOME_LEADS",
+                        status: "PAUSED",
+                        special_ad_categories: [],
+                        bid_strategy: "LOWEST_COST_WITHOUT_CAP",
+                        is_adset_budget_sharing_enabled:
+                            template.shareAdSetBudget,
+                    }
+                );
+                objects.campaignId = created.id;
+                await emit("campaign", { message: "Campaign створено" });
+            }
+
+            currentStage = "creative";
+            if (!objects.creativeId) {
+                const creativeFields = {
+                    name: `${name} | Creative`,
+                    object_story_id: preflight.postId,
+                    url_tags: template.utm,
+                    degrees_of_freedom_spec: buildEnhancementsOptOut(),
+                    ...(preflight.instagramActorId
+                        ? { instagram_actor_id: preflight.instagramActorId }
+                        : {}),
+                };
+                await this.#writeObject(
+                    `/${preflight.adAccountId}/adcreatives`,
+                    creativeFields,
+                    { validateOnly: true }
+                );
+                const created = await this.#writeObject(
+                    `/${preflight.adAccountId}/adcreatives`,
+                    creativeFields
+                );
+                objects.creativeId = created.id;
+                await emit("creative", { message: "Creative створено" });
+            }
+
+            for (let index = 0; index < count; index += 1) {
+                currentIndex = index;
+                const ordinal = String(index + 1).padStart(2, "0");
+                let adSet = objects.adSets.find((item) => item.index === index);
+                currentStage = "adset";
+                if (!adSet?.id) {
+                    const fields = {
+                        name: `${name} | AS ${ordinal}`,
+                        campaign_id: objects.campaignId,
+                        daily_budget: preflight.dailyBudgetMinor,
+                        billing_event: "IMPRESSIONS",
+                        optimization_goal: "OFFSITE_CONVERSIONS",
+                        destination_type: "WEBSITE",
+                        promoted_object: {
+                            pixel_id: preflight.pixel.id,
+                            custom_event_type: "LEAD",
+                        },
+                        targeting: preflight.targeting,
+                        start_time: preflight.startTime,
+                        status: "PAUSED",
+                        ...(preflight.dsa ? {
+                            dsa_beneficiary: preflight.dsa.beneficiary,
+                            dsa_payor: preflight.dsa.payor,
+                        } : {}),
+                    };
+                    await this.#writeObject(
+                        `/${preflight.adAccountId}/adsets`,
+                        fields,
+                        { validateOnly: true }
+                    );
+                    const created = await this.#writeObject(
+                        `/${preflight.adAccountId}/adsets`,
+                        fields
+                    );
+                    adSet = { index, id: created.id, name: fields.name };
+                    objects.adSets.push(adSet);
+                    await emit("adset", {
+                        index,
+                        message: `Ad set ${index + 1}/${count} створено`,
+                    });
+                }
+
+                currentStage = "ad";
+                if (!objects.ads.some((item) => item.index === index && item.id)) {
+                    const fields = {
+                        name: `${name} | AD ${ordinal}`,
+                        adset_id: adSet.id,
+                        creative: { creative_id: objects.creativeId },
+                        status: "PAUSED",
+                    };
+                    await this.#writeObject(
+                        `/${preflight.adAccountId}/ads`,
+                        fields,
+                        { validateOnly: true }
+                    );
+                    const created = await this.#writeObject(
+                        `/${preflight.adAccountId}/ads`,
+                        fields
+                    );
+                    objects.ads.push({ index, id: created.id, name: fields.name });
+                    await emit("ad", {
+                        index,
+                        message: `Ad ${index + 1}/${count} створено`,
+                    });
+                }
+            }
+
+            if (!createPaused) {
+                currentStage = "activation";
+                for (const ad of objects.ads) {
+                    await this.#writeObject(`/${ad.id}`, { status: "ACTIVE" });
+                }
+                for (const adSet of objects.adSets) {
+                    await this.#writeObject(`/${adSet.id}`, { status: "ACTIVE" });
+                }
+                await this.#writeObject(`/${objects.campaignId}`, {
+                    status: "ACTIVE",
+                });
+                await emit("activation", { message: "Об’єкти активовано" });
+            }
+
+            currentStage = "readback";
+            await emit("readback", { message: "Перевіряємо створені об’єкти" });
+            const [campaignReadback, creativeReadback, adSetsReadback, adsReadback] = await Promise.all([
+                this.#readObject(
+                    objects.campaignId,
+                    ["id", "name", "status", "effective_status"]
+                ),
+                this.#readObject(
+                    objects.creativeId,
+                    ["id", "name", "degrees_of_freedom_spec"]
+                ),
+                Promise.all(objects.adSets.map((item) => this.#readObject(
+                    item.id,
+                    [
+                        "id", "name", "status", "effective_status",
+                        "start_time", "daily_budget", "targeting",
+                        "promoted_object", "dsa_beneficiary", "dsa_payor",
+                    ]
+                ))),
+                Promise.all(objects.ads.map((item) => this.#readObject(
+                    item.id,
+                    ["id", "name", "status", "effective_status", "creative"]
+                ))),
+            ]);
+            const returnedFeatures = creativeReadback
+                ?.degrees_of_freedom_spec
+                ?.creative_features_spec;
+            const warnings = [];
+            if (!returnedFeatures) {
+                warnings.push(
+                    "Meta не повернула creative_features_spec для контрольної перевірки"
+                );
+            } else {
+                const mismatched = disabledCreativeFeatures.filter((feature) => (
+                    returnedFeatures[feature]
+                    && returnedFeatures[feature].enroll_status !== "OPT_OUT"
+                ));
+                if (mismatched.length) {
+                    warnings.push(
+                        `Meta не підтвердила OPT_OUT: ${mismatched.join(", ")}`
+                    );
+                }
+            }
+            if (preflight.dsa) {
+                adSetsReadback.forEach((adSet, index) => {
+                    if (
+                        adSet.dsa_beneficiary !== preflight.dsa.beneficiary
+                        || adSet.dsa_payor !== preflight.dsa.payor
+                    ) {
+                        warnings.push(
+                            `Ad set ${index + 1}: Meta не підтвердила очікувані DSA beneficiary/payor`
+                        );
+                    }
+                });
+            }
+            const readback = {
+                campaign: campaignReadback,
+                creative: creativeReadback,
+                adSets: adSetsReadback,
+                ads: adsReadback,
+                warnings,
+            };
+
+            await emit("complete", { message: "Створення завершено" });
+            return { objects, preflight, readback, createPaused };
+        } catch (error) {
+            error.stage = currentStage;
+            error.itemIndex = currentIndex;
+            error.createdObjects = structuredClone(objects);
+            throw error;
+        }
+    }
+
+
+    async deleteCampaignDraft(objects = {}, onProgress = () => {}) {
+        const result = { deleted: [], failed: [] };
+        const remove = async (type, id) => {
+            try {
+                await this.#request(`/${id}`, {}, {
+                    method: "delete",
+                    retryOnConnectionError: false,
+                    outcomeUnknownCode: "FACEBOOK_WRITE_OUTCOME_UNKNOWN",
+                    outcomeUnknownMessage: "Не вдалося визначити, чи Meta видалила об’єкт. Перевірте Ads Manager перед повтором.",
+                });
+                result.deleted.push({ type, id });
+                await onProgress({ type, id, deleted: true });
+            } catch (error) {
+                result.failed.push({
+                    type,
+                    id,
+                    message: error.message,
+                    code: error.code ?? null,
+                });
+                await onProgress({ type, id, deleted: false });
+            }
+        };
+
+        for (const ad of [...(objects.ads ?? [])].reverse()) {
+            if (ad.id) await remove("ad", ad.id);
+        }
+        for (const adSet of [...(objects.adSets ?? [])].reverse()) {
+            if (adSet.id) await remove("adset", adSet.id);
+        }
+        if (objects.creativeId) await remove("creative", objects.creativeId);
+        if (objects.campaignId) await remove("campaign", objects.campaignId);
+        return result;
     }
 }

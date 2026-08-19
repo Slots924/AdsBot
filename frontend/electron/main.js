@@ -10,6 +10,9 @@ import AdAccountPreferencesStore
     from "../../services/gui/AdAccountPreferencesStore.js";
 import CampaignTemplateManager
     from "../../services/templates/CampaignTemplateManager.js";
+import CountryCatalog from "../../services/templates/CountryCatalog.js";
+import CampaignCreationJournal
+    from "../../services/campaigns/CampaignCreationJournal.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
 
@@ -22,6 +25,8 @@ let guiService = null;
 let templateManager = null;
 let appStateStore = null;
 let adAccountPreferencesStore = null;
+let countryCatalog = null;
+let campaignCreationJournal = null;
 
 
 function sendRendererEvent(channel, payload) {
@@ -100,6 +105,12 @@ async function createWindow() {
     templateManager = new CampaignTemplateManager({
         templatesFile: appPaths.templates,
     });
+    countryCatalog = new CountryCatalog({
+        countriesFile: appPaths.countries,
+    });
+    campaignCreationJournal = new CampaignCreationJournal({
+        jobsFile: appPaths.campaignCreationJobs,
+    });
     appStateStore = new AppStateStore({ stateFile: appPaths.appState });
     adAccountPreferencesStore = new AdAccountPreferencesStore({
         preferencesFile: appPaths.adAccountPreferences,
@@ -113,6 +124,8 @@ async function createWindow() {
         templateManager,
         appStateStore,
         adAccountPreferencesStore,
+        countryCatalog,
+        campaignCreationJournal,
         getWindow: () => mainWindow,
     });
 

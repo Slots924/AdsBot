@@ -34,6 +34,7 @@ export default function App() {
     const [accountsLoading, setAccountsLoading] = useState(true);
     const [stateHydrated, setStateHydrated] = useState(false);
     const [uiScale, setUiScale] = useState(1.3);
+    const [createCampaignsPaused, setCreateCampaignsPaused] = useState(true);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [selectedAccountKey, setSelectedAccountKey] = useState("");
     const [selectedPageId, setSelectedPageId] = useState("");
@@ -112,6 +113,7 @@ export default function App() {
                 restored = await unwrap(window.adsBot.loadAppState());
                 setActiveTab(restored.activeTab);
                 setUiScale(restored.uiScale);
+                setCreateCampaignsPaused(restored.createCampaignsPaused);
                 setSelectedAccountKey(restored.selectedAccountKey);
                 setSelectedPageId(restored.selectedPageId);
                 setSelectedAdAccountId(restored.selectedAdAccountId);
@@ -155,6 +157,7 @@ export default function App() {
             unwrap(window.adsBot.saveAppState({
                 activeTab,
                 uiScale,
+                createCampaignsPaused,
                 selectedAccountKey,
                 selectedPageId,
                 selectedAdAccountId,
@@ -171,6 +174,7 @@ export default function App() {
         stateHydrated,
         activeTab,
         uiScale,
+        createCampaignsPaused,
         selectedAccountKey,
         selectedPageId,
         selectedAdAccountId,
@@ -303,6 +307,7 @@ export default function App() {
                                 addLog={addLog}
                                 selectedId={selectedAdAccountId}
                                 setSelectedId={setSelectedAdAccountId}
+                                createCampaignsPaused={createCampaignsPaused}
                             />
                         )}
                         {activeTab === "templates" && (
@@ -323,6 +328,8 @@ export default function App() {
                 <SettingsModal
                     scale={uiScale}
                     onScaleChange={changeUiScale}
+                    createCampaignsPaused={createCampaignsPaused}
+                    onCreateCampaignsPausedChange={setCreateCampaignsPaused}
                     onClose={() => setSettingsOpen(false)}
                 />
             )}

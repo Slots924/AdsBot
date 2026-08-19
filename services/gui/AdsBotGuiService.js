@@ -79,6 +79,8 @@ function formatAdAccount(account) {
         amountSpent: account.amountSpent ?? null,
         balance: account.balance ?? null,
         spendCap: account.spendCap ?? null,
+        defaultDsaBeneficiary: account.defaultDsaBeneficiary ?? null,
+        defaultDsaPayor: account.defaultDsaPayor ?? null,
         owner: account.owner ?? null,
         business: account.business ?? null,
     };
@@ -279,6 +281,40 @@ export default class AdsBotGuiService {
             datePreset,
             campaigns,
         };
+    }
+
+
+    async preflightLeadCampaign({ accountKey, ...options } = {}) {
+        await this.#assertActiveAccount(accountKey);
+        this.logger.info("Перевіряємо кампанію, доступи та ресурси Meta…");
+        return this.#facebookBackend.preflightLeadCampaign(
+            accountKey,
+            options
+        );
+    }
+
+
+    async createLeadCampaign({ accountKey, ...options } = {}, onProgress) {
+        await this.#assertActiveAccount(accountKey);
+        this.logger.info(
+            `Створюємо lead-кампанію в ${options.adAccountId}…`
+        );
+        return this.#facebookBackend.createLeadCampaign(
+            accountKey,
+            options,
+            onProgress
+        );
+    }
+
+
+    async deleteCampaignDraft({ accountKey, objects } = {}, onProgress) {
+        await this.#assertActiveAccount(accountKey);
+        this.logger.info("Видаляємо PAUSED-чернетку кампанії…");
+        return this.#facebookBackend.deleteCampaignDraft(
+            accountKey,
+            objects,
+            onProgress
+        );
     }
 
 

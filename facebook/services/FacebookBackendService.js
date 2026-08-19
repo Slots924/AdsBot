@@ -192,6 +192,24 @@ export default class FacebookBackendService {
     }
 
 
+    async preflightLeadCampaign(accountKey, options) {
+        const facebookApiClient = this.#getFacebookApiClient(accountKey);
+        return facebookApiClient.preflightLeadCampaign(options);
+    }
+
+
+    async createLeadCampaign(accountKey, options, onProgress) {
+        const facebookApiClient = this.#getFacebookApiClient(accountKey);
+        return facebookApiClient.createLeadCampaign(options, onProgress);
+    }
+
+
+    async deleteCampaignDraft(accountKey, objects, onProgress) {
+        const facebookApiClient = this.#getFacebookApiClient(accountKey);
+        return facebookApiClient.deleteCampaignDraft(objects, onProgress);
+    }
+
+
     /**
      * Отримує креатив і підставляє посилання сайту в його копію.
      * @param {object} options Дані креативу та кампанії.

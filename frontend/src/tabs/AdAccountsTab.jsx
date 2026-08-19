@@ -8,6 +8,7 @@ import {
     CirclePlus,
     GripVertical,
     LoaderCircle,
+    Megaphone,
     Pencil,
     RefreshCw,
     ShieldAlert,
@@ -15,6 +16,8 @@ import {
 } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
+import CampaignCreationWizard
+    from "../components/CampaignCreationWizard.jsx";
 
 
 const datePresets = [
@@ -233,6 +236,7 @@ export default function AdAccountsTab({
     addLog = () => {},
     selectedId: controlledSelectedId,
     setSelectedId: setControlledSelectedId,
+    createCampaignsPaused = true,
 }) {
     const [accounts, setAccounts] = useState([]);
     const [localSelectedId, setLocalSelectedId] = useState("");
@@ -242,6 +246,7 @@ export default function AdAccountsTab({
     const [campaignCache, setCampaignCache] = useState({});
     const [renameEditor, setRenameEditor] = useState(null);
     const [renaming, setRenaming] = useState(false);
+    const [campaignWizardOpen, setCampaignWizardOpen] = useState(false);
     const requestSequence = useRef(0);
     const campaignCacheRef = useRef({});
     const campaignRequestIds = useRef({});
@@ -593,12 +598,19 @@ export default function AdAccountsTab({
                                         <h2>{selected.localName}</h2>
                                         <p>{selected.name} · {selected.accountId} · {selected.id}</p>
                                     </div>
-                                    {selected.status !== "active" && (
-                                        <div className="reason-card">
-                                            <span>Причина Meta #{value(selected.disableReason?.code)}</span>
-                                            <strong>{inactiveReason(selected)}</strong>
-                                        </div>
-                                    )}
+                                    <div className="ad-detail-actions">
+                                        {selected.status === "active" && (
+                                            <button className="primary-button" onClick={() => setCampaignWizardOpen(true)}>
+                                                <Megaphone size={16} /> Створити кампанію
+                                            </button>
+                                        )}
+                                        {selected.status !== "active" && (
+                                            <div className="reason-card">
+                                                <span>Причина Meta #{value(selected.disableReason?.code)}</span>
+                                                <strong>{inactiveReason(selected)}</strong>
+                                            </div>
+                                        )}
+                                    </div>
                                 </header>
                                 <div className="detail-grid compact">
                                     <div><span>Business</span><strong>{value(selected.business?.name)}</strong><small>{value(selected.business?.id)}</small></div>
@@ -609,6 +621,8 @@ export default function AdAccountsTab({
                                     <div><span>Баланс</span><strong>{value(selected.balance)}</strong></div>
                                     <div><span>Spend cap</span><strong>{value(selected.spendCap)}</strong></div>
                                     <div><span>Створено</span><strong>{value(selected.createdTime)}</strong></div>
+                                    <div><span>DSA beneficiary</span><strong>{value(selected.defaultDsaBeneficiary)}</strong></div>
+                                    <div><span>DSA payor</span><strong>{value(selected.defaultDsaPayor)}</strong></div>
                                 </div>
                             </motion.div>
 
@@ -682,6 +696,18 @@ export default function AdAccountsTab({
                         </div>
                     </motion.form>
                 </div>
+            )}
+            {campaignWizardOpen && selected && (
+                <CampaignCreationWizard
+                    accountKey={accountKey}
+                    adAccount={selected}
+                    createPaused={createCampaignsPaused}
+                    onClose={() => setCampaignWizardOpen(false)}
+                    onSuccess={() => {
+                        showToast("Кампанію створено", "success");
+                        loadCampaigns(selected.id, datePreset, { force: true });
+                    }}
+                />
             )}
         </motion.section>
     );

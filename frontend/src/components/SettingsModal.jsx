@@ -7,7 +7,13 @@ const maximumScale = 150;
 const scaleStep = 10;
 
 
-export default function SettingsModal({ scale, onScaleChange, onClose }) {
+export default function SettingsModal({
+    scale,
+    onScaleChange,
+    createCampaignsPaused,
+    onCreateCampaignsPausedChange,
+    onClose,
+}) {
     const percentage = Math.round(scale * 100);
     const change = (nextPercentage) => {
         const normalized = Math.min(
@@ -67,6 +73,22 @@ export default function SettingsModal({ scale, onScaleChange, onClose }) {
                         <span>{minimumScale}%</span>
                         <span>{maximumScale}%</span>
                     </div>
+                </section>
+
+                <section className="scale-setting campaign-safety-setting">
+                    <label className="checkbox-line">
+                        <input
+                            type="checkbox"
+                            checked={createCampaignsPaused}
+                            onChange={(event) => onCreateCampaignsPausedChange(
+                                event.target.checked
+                            )}
+                        />
+                        <span>
+                            <strong>Створювати кампанії на паузі</strong>
+                            <small>Безпечний режим: campaign, ad sets та ads не почнуть витрачати бюджет автоматично.</small>
+                        </span>
+                    </label>
                 </section>
 
                 <div className="form-actions settings-actions">

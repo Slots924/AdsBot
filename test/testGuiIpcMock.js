@@ -7,12 +7,16 @@ import registerIpcHandlers
 const handlers = new Map();
 const openedUrls = [];
 const zoomFactors = [];
+const rendererEvents = [];
 const templateManager = {
     async list() {
         return [{ id: 1, name: "AT", pixel: "123" }];
     },
     async create(template) {
         return { id: 2, ...template };
+    },
+    async get(id) {
+        return { id, name: "AT", pixel: "123", countryCodes: ["HU"] };
     },
     async update(id, template) {
         return { id, ...template };
@@ -52,6 +56,34 @@ const adAccountPreferencesStore = {
         return orderedIds;
     },
 };
+const countryCatalog = {
+    async list() {
+        return [{ code: "HU", name: "Hungary" }];
+    },
+};
+let storedJob = null;
+const campaignCreationJournal = {
+    async create(input) {
+        storedJob = {
+            id: "job-1",
+            input,
+            status: "running",
+            stage: "preflight",
+            completed: 0,
+            total: 5,
+            objects: { campaignId: null, creativeId: null, adSets: [], ads: [] },
+            errors: [],
+        };
+        return structuredClone(storedJob);
+    },
+    async get() {
+        return storedJob ? structuredClone(storedJob) : null;
+    },
+    async update(_id, patch) {
+        storedJob = { ...storedJob, ...patch };
+        return structuredClone(storedJob);
+    },
+};
 const ipcMain = {
     handle(channel, handler) {
         handlers.set(channel, handler);
@@ -73,6 +105,19 @@ const guiService = {
     },
     async getAdCampaigns(accountKey, adAccountId, datePreset) {
         return { accountKey, adAccountId, datePreset, campaigns: [] };
+    },
+    async preflightLeadCampaign(options) {
+        return { adAccountId: options.adAccountId, currency: "USD" };
+    },
+    async createLeadCampaign(options, onProgress) {
+        const objects = {
+            campaignId: "campaign-1",
+            creativeId: "creative-1",
+            adSets: [{ index: 0, id: "adset-1" }],
+            ads: [{ index: 0, id: "ad-1" }],
+        };
+        await onProgress({ stage: "complete", objects });
+        return { objects };
     },
     async getAdsPowerGroups() {
         return [];
@@ -111,11 +156,16 @@ registerIpcHandlers({
     templateManager,
     appStateStore,
     adAccountPreferencesStore,
+    countryCatalog,
+    campaignCreationJournal,
     getWindow: () => ({
         isDestroyed: () => false,
         webContents: {
             setZoomFactor(scale) {
                 zoomFactors.push(scale);
+            },
+            send(channel, payload) {
+                rendererEvents.push({ channel, payload });
             },
         },
     }),
@@ -128,6 +178,35 @@ assert.deepEqual(
         data: [{ accountKey: "fp_hub", status: "active" }],
     }
 );
+assert.deepEqual(
+    await handlers.get("countries:list")({}, {}),
+    { ok: true, data: [{ code: "HU", name: "Hungary" }] }
+);
+assert.deepEqual(
+    await handlers.get("campaigns:create-preflight")({}, {
+        accountKey: "fp_hub",
+        adAccountId: "act_1",
+        templateId: 1,
+    }),
+    { ok: true, data: { adAccountId: "act_1", currency: "USD" } }
+);
+const createdCampaign = await handlers.get("campaigns:create-start")({}, {
+    accountKey: "fp_hub",
+    adAccountId: "act_1",
+    templateId: 1,
+    campaignName: "Test",
+    pageId: "10",
+    postId: "20",
+    adSetCount: 1,
+    dailyBudget: 5,
+    startTime: "2026-08-20T10:00:00.000Z",
+    createPaused: true,
+});
+assert.equal(createdCampaign.ok, true);
+assert.equal(createdCampaign.data.job.objects.campaignId, "campaign-1");
+assert(rendererEvents.some((event) => (
+    event.channel === "campaign-creation:progress"
+)));
 assert.deepEqual(
     await handlers.get("pages:list")({}, { accountKey: "fp_hub" }),
     { ok: true, data: [] }

@@ -123,7 +123,7 @@ if (!selectedFacebookApiClient) {
 | `checkAccessToken()` | `{ working, user?, error? }` | Перевіряє token через `/me`. OAuth code 190 повертається як `working: false`. |
 | `getMe()` | `{ id, name }` | Повертає користувача, якому належить token. |
 | `getPermissions()` | `{ granted, declined, expired, other }` | Групує permissions за статусом. |
-| `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти. |
+| `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти, включно з `defaultDsaBeneficiary` і `defaultDsaPayor`. |
 | `getAdCampaigns(adAccountId)` | `Array` | Повертає ACTIVE і PAUSED кампанії РК. |
 | `getAdCampaignInsights(adAccountId, datePreset)` | `Array` | Повертає campaign-level spend та actions за Meta date preset. |
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
@@ -132,6 +132,9 @@ if (!selectedFacebookApiClient) {
 | `createPageTextPost(options)` | `{ postId }` | Публікує текстовий пост через `/feed`. |
 | `createPagePhotoPost(options)` | `{ postId, photoId }` | Публікує одну фотографію через `/photos`. |
 | `getPagePost(options)` | `object` | Отримує пост за ID для підтвердження публікації. |
+| `preflightLeadCampaign(options)` | `object` | Перевіряє `ads_management`, РК, сторінку, пост, Pixel, targeting і campaign payload через `validate_only`. |
+| `createLeadCampaign(options, onProgress)` | `object` | Поетапно створює website lead campaign, creative, ad sets та ads; усі об'єкти спочатку PAUSED. |
+| `deleteCampaignDraft(objects, onProgress)` | `{ deleted, failed }` | Видаляє тільки Graph ID із журналу конкретної спроби. |
 
 Приклад:
 
@@ -155,6 +158,45 @@ const pages = await selectedFacebookApiClient.getPages();
 через cursor `after`. Insights запитуються з `level=campaign`; GUI використовує
 лише агрегований action type `lead`, не сумуючи його з Pixel або form-підтипами.
 Підтримувані періоди: `today`, `yesterday`, `last_7d`, `last_30d`, `maximum`.
+
+## Створення website lead-кампаній
+
+Створення реклами виконується тільки через `FacebookGraphApi`. Renderer та IPC
+не отримують access token, cookie, Page token або proxy. Потрібен permission
+`ads_management`.
+
+`preflightLeadCampaign()` перевіряє активність РК, доступ до сторінки, поста й
+Pixel, зовнішнє посилання у пості, валюту та timezone. Campaign payload
+перевіряється через `execution_options=["validate_only"]`. Ad set та ad залежать
+від реальних parent ID, тому для них `validate_only` виконується поетапно після
+створення відповідного PAUSED parent.
+
+Для сторінок нового типу право рекламування може повертатися як
+`PROFILE_PLUS_ADVERTISE`; preflight приймає його нарівні з класичним `ADVERTISE`.
+
+`createLeadCampaign()` використовує `OUTCOME_LEADS`, `WEBSITE`,
+`OFFSITE_CONVERSIONS`, Pixel event `LEAD`, бюджети ad set і ручний targeting з
+`advantage_audience=0`. Creative посилається на готовий `object_story_id`,
+отримує `url_tags` та явні `OPT_OUT` для відомих creative enhancements.
+
+Для DSA спочатку використовуються `dsaBeneficiary` і `dsaPayor` шаблону, а
+порожні значення доповнюються офіційними `default_dsa_beneficiary` та
+`default_dsa_payor` рекламного акаунта. Якщо targeting містить країну ЄС/ЄЕЗ,
+відсутність resolved beneficiary або payor блокує preflight. Resolved значення та
+джерела повертаються у `preflight.dsa`, передаються як `dsa_beneficiary` і
+`dsa_payor` у кожний ad set, проходять `validate_only` та контрольний read-back.
+Випадкові назви не створюються.
+
+Сценарій залишається суто website-only: payload явно містить
+`destination_type=WEBSITE` і не надсилає WhatsApp або messaging-поля. Якщо Meta
+повертає destination/WhatsApp setup error, для діагностики слід вручну повторити
+аналогічне налаштування в Ads Manager із WhatsApp і зберегти точний текст помилки
+або скриншот. Це не вмикає автоматичний WhatsApp fallback у програмі.
+
+При частковій помилці Error містить безпечні поля `stage`, `itemIndex` і
+`createdObjects`. Повторна спроба приймає ці ID та створює лише відсутні
+елементи. API-записи не повторюються автоматично після невизначеної мережевої
+помилки.
 
 ## Публікація поста
 

@@ -5,6 +5,7 @@ import path from "node:path";
 const defaultState = {
     activeTab: "publish",
     uiScale: 1.3,
+    createCampaignsPaused: true,
     selectedAccountKey: "",
     selectedPageId: "",
     selectedAdAccountId: "",
@@ -42,6 +43,7 @@ function normalizeState(state = {}) {
         uiScale: Number.isFinite(requestedScale)
             ? Math.min(1.5, Math.max(0.8, requestedScale))
             : defaultState.uiScale,
+        createCampaignsPaused: state.createCampaignsPaused !== false,
         ...stringsFrom(state, [
             "selectedAccountKey",
             "selectedPageId",

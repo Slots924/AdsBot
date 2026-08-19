@@ -38,6 +38,16 @@ contextBridge.exposeInMainWorld("adsBot", {
             adAccountId,
             datePreset,
         }),
+    preflightCampaignCreation: (options) =>
+        ipcRenderer.invoke("campaigns:create-preflight", options),
+    startCampaignCreation: (options) =>
+        ipcRenderer.invoke("campaigns:create-start", options),
+    getCampaignCreationJob: (jobId) =>
+        ipcRenderer.invoke("campaigns:create-job", { jobId }),
+    retryCampaignCreation: (jobId) =>
+        ipcRenderer.invoke("campaigns:create-retry", { jobId }),
+    cleanupCampaignCreation: (jobId) =>
+        ipcRenderer.invoke("campaigns:create-cleanup", { jobId }),
     getAdsPowerGroups: () => ipcRenderer.invoke("groups:list"),
     refreshAdsPowerGroups: () => ipcRenderer.invoke("groups:refresh"),
     publishCreativePost: (options) =>
@@ -45,6 +55,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     runCommentingCampaign: (options) =>
         ipcRenderer.invoke("comments:run", options),
     getTemplates: () => ipcRenderer.invoke("templates:list"),
+    getCountries: () => ipcRenderer.invoke("countries:list"),
     createTemplate: (template) =>
         ipcRenderer.invoke("templates:create", template),
     updateTemplate: (id, template) =>
@@ -60,5 +71,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     openExternal: (url) => ipcRenderer.invoke("app:open-external", { url }),
     getDroppedFilePath: (file) => webUtils.getPathForFile(file),
     onLog: (callback) => subscribe("log:event", callback),
+    onCampaignCreationProgress: (callback) =>
+        subscribe("campaign-creation:progress", callback),
     onCloseBlocked: (callback) => subscribe("app:close-blocked", callback),
 });

@@ -9,6 +9,8 @@ import { afterEach, beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
 import Sidebar from "../components/Sidebar.jsx";
+import CampaignCreationWizard
+    from "../components/CampaignCreationWizard.jsx";
 import SettingsModal from "../components/SettingsModal.jsx";
 import AdAccountsTab from "../tabs/AdAccountsTab.jsx";
 import PublishTab from "../tabs/PublishTab.jsx";
@@ -20,6 +22,7 @@ describe("GUI helpers", () => {
     beforeEach(() => {
         window.adsBot = {
             getFanPages: vi.fn(),
+            getCountries: vi.fn().mockResolvedValue({ ok: true, data: [] }),
         };
     });
 
@@ -145,12 +148,35 @@ describe("GUI helpers", () => {
         fireEvent.change(screen.getByPlaceholderText("Pixel ID або назва"), {
             target: { value: "pixel-123" },
         });
+        fireEvent.change(screen.getByLabelText("Бенефіціар"), {
+            target: { value: "Example Beneficiary LLC" },
+        });
+        fireEvent.click(screen.getByRole("checkbox", {
+            name: /Платник збігається з бенефіціаром/,
+        }));
+        fireEvent.change(screen.getByLabelText("Платник"), {
+            target: { value: "Example Payor LLC" },
+        });
         fireEvent.submit(screen.getByText("Новий шаблон").closest("form"));
 
         expect(await screen.findByText("pixel-123")).toBeInTheDocument();
         expect(window.adsBot.createTemplate).toHaveBeenCalledWith({
             name: "AT Slot",
             pixel: "pixel-123",
+            countryCodes: [],
+            gender: "any",
+            ageMin: 18,
+            ageMax: 65,
+            placements: {
+                facebook: ["feed"],
+                instagram: [],
+            },
+            utm: "",
+            shareAdSetBudget: false,
+            disableCreativeEnhancements: true,
+            dsaBeneficiary: "Example Beneficiary LLC",
+            dsaPayorSameAsBeneficiary: false,
+            dsaPayor: "Example Payor LLC",
         });
     });
 
@@ -235,6 +261,91 @@ describe("GUI helpers", () => {
             "act_2",
             true
         );
+    });
+
+    it("перевіряє та створює lead-кампанію з безпечними дефолтами", async () => {
+        window.adsBot.getTemplates = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{
+                id: 1,
+                name: "HU Leads",
+                pixel: "30",
+                countryCodes: ["HU"],
+            }],
+        });
+        window.adsBot.getFanPages.mockResolvedValue({
+            ok: true,
+            data: [{ id: "10", name: "Page" }],
+        });
+        window.adsBot.onCampaignCreationProgress = vi.fn(() => () => {});
+        window.adsBot.preflightCampaignCreation = vi.fn().mockResolvedValue({
+            ok: true,
+            data: {
+                pageName: "Page",
+                pixel: { id: "30", name: "Pixel" },
+                currency: "USD",
+                dsa: {
+                    beneficiary: "Example Beneficiary LLC",
+                    payor: "Example Payor LLC",
+                    beneficiarySource: "meta-default",
+                    payorSource: "meta-default",
+                },
+            },
+        });
+        window.adsBot.startCampaignCreation = vi.fn().mockResolvedValue({
+            ok: true,
+            data: {
+                job: {
+                    id: "job-1",
+                    total: 13,
+                    objects: { campaignId: "campaign-1" },
+                },
+            },
+        });
+
+        render(
+            <CampaignCreationWizard
+                accountKey="client"
+                adAccount={{
+                    id: "act_1",
+                    localName: "Ім’я 1",
+                    currency: "USD",
+                    timezoneName: "Europe/Kyiv",
+                }}
+                createPaused
+                onClose={vi.fn()}
+                onSuccess={vi.fn()}
+            />
+        );
+
+        await screen.findByText("HU Leads · Pixel 30");
+        fireEvent.change(screen.getByPlaceholderText("HU Leads 20.08"), {
+            target: { value: "Campaign" },
+        });
+        fireEvent.change(screen.getByPlaceholderText("123456789 або pageId_postId"), {
+            target: { value: "20" },
+        });
+        fireEvent.click(screen.getByText("Перевірити дані"));
+        expect(await screen.findByText("Preflight пройдено")).toBeInTheDocument();
+        expect(screen.getByText(/Example Beneficiary LLC/)).toBeInTheDocument();
+        expect(screen.getByText(/Meta default/)).toBeInTheDocument();
+        fireEvent.click(screen.getByText("Створити на паузі"));
+        await waitFor(() => expect(window.adsBot.startCampaignCreation)
+            .toHaveBeenCalled());
+        expect(window.adsBot.startCampaignCreation.mock.calls[0][0])
+            .toMatchObject({
+                accountKey: "client",
+                adAccountId: "act_1",
+                templateId: 1,
+                campaignName: "Campaign",
+                pageId: "10",
+                postId: "20",
+                adSetCount: 5,
+                dailyBudget: 5,
+                createPaused: true,
+            });
+        expect(await screen.findByText(/Campaign ID: campaign-1/))
+            .toBeInTheDocument();
     });
 
     it("змінює масштаб у налаштуваннях", () => {

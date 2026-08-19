@@ -1,20 +1,31 @@
+function safeMessage(value) {
+    return String(value || "Невідома помилка")
+        .replace(/EAA[A-Za-z0-9]+/g, "[REDACTED]")
+        .replace(/((?:access_)?token|cookie)=([^&\s]+)/gi, "$1=[REDACTED]");
+}
+
+
 function serializeError(error) {
     return {
-        message: String(error?.message || "Невідома помилка"),
+        message: safeMessage(error?.message),
         code: error?.code ?? null,
         httpStatus: error?.httpStatus ?? null,
         graphCode: error?.graphCode ?? null,
         graphSubcode: error?.graphSubcode ?? null,
+        stage: error?.stage ?? null,
+        itemIndex: error?.itemIndex ?? null,
+        createdObjects: error?.createdObjects ?? null,
+        jobId: error?.jobId ?? null,
     };
 }
 
 
 function safeHandler(handler) {
-    return async (_event, payload) => {
+    return async (event, payload) => {
         try {
             return {
                 ok: true,
-                data: await handler(payload ?? {}),
+                data: await handler(payload ?? {}, event),
             };
         } catch (error) {
             return {
@@ -34,8 +45,77 @@ export default function registerIpcHandlers({
     templateManager,
     appStateStore,
     adAccountPreferencesStore,
+    countryCatalog,
+    campaignCreationJournal,
     getWindow,
 }) {
+    const sendCampaignProgress = (payload) => {
+        const window = getWindow();
+        if (window && !window.isDestroyed?.()) {
+            window.webContents.send("campaign-creation:progress", payload);
+        }
+    };
+
+    const progressValue = (progress, adSetCount) => {
+        const count = Number(adSetCount) || 0;
+        if (progress.stage === "preflight-complete") return 1;
+        if (progress.stage === "campaign") return 2;
+        if (progress.stage === "creative") return 3;
+        if (progress.stage === "adset") return 4 + Number(progress.index || 0);
+        if (progress.stage === "ad") return 3 + count + Number(progress.index || 0) + 1;
+        if (progress.stage === "complete") return 3 + count * 2;
+        return undefined;
+    };
+
+    const runCreationJob = async (job) => {
+        const template = await templateManager.get(job.input.templateId);
+        const onProgress = async (progress) => {
+            const completed = progressValue(progress, job.input.adSetCount);
+            const updated = await campaignCreationJournal.update(job.id, {
+                stage: progress.stage,
+                ...(completed === undefined ? {} : { completed }),
+                ...(progress.objects ? { objects: progress.objects } : {}),
+            });
+            sendCampaignProgress({
+                jobId: job.id,
+                ...progress,
+                completed: updated.completed,
+                total: updated.total,
+            });
+        };
+
+        try {
+            const result = await guiService.createLeadCampaign({
+                ...job.input,
+                template,
+                resume: job.objects,
+            }, onProgress);
+            const updated = await campaignCreationJournal.update(job.id, {
+                status: "complete",
+                stage: "complete",
+                completed: job.total,
+                objects: result.objects,
+                errors: [],
+            });
+            return { job: updated, result };
+        } catch (error) {
+            const safeError = serializeError(error);
+            await campaignCreationJournal.update(job.id, {
+                status: "failed",
+                stage: error.stage ?? "unknown",
+                objects: error.createdObjects ?? job.objects,
+                errors: [safeError],
+            });
+            sendCampaignProgress({
+                jobId: job.id,
+                stage: "failed",
+                error: safeError,
+            });
+            error.jobId = job.id;
+            throw error;
+        }
+    };
+
     ipcMain.handle(
         "accounts:list",
         safeHandler(() => guiService.getAccounts())
@@ -94,6 +174,78 @@ export default function registerIpcHandlers({
         ))
     );
     ipcMain.handle(
+        "campaigns:create-preflight",
+        safeHandler(async ({ templateId, accountKey, ...payload }) => {
+            const template = await templateManager.get(templateId);
+            return guiService.preflightLeadCampaign({
+                accountKey,
+                ...payload,
+                template,
+            });
+        })
+    );
+    ipcMain.handle(
+        "campaigns:create-start",
+        safeHandler(async (payload) => {
+            const job = await campaignCreationJournal.create(payload);
+            return runCreationJob(job);
+        })
+    );
+    ipcMain.handle(
+        "campaigns:create-job",
+        safeHandler(async ({ jobId }) => {
+            const job = await campaignCreationJournal.get(jobId);
+            if (!job) {
+                const error = new Error("Спробу створення кампанії не знайдено");
+                error.code = "CAMPAIGN_JOB_NOT_FOUND";
+                throw error;
+            }
+            return job;
+        })
+    );
+    ipcMain.handle(
+        "campaigns:create-retry",
+        safeHandler(async ({ jobId }) => {
+            const job = await campaignCreationJournal.get(jobId);
+            if (!job) {
+                const error = new Error("Спробу створення кампанії не знайдено");
+                error.code = "CAMPAIGN_JOB_NOT_FOUND";
+                throw error;
+            }
+            const running = await campaignCreationJournal.update(job.id, {
+                status: "running",
+                errors: [],
+            });
+            return runCreationJob(running);
+        })
+    );
+    ipcMain.handle(
+        "campaigns:create-cleanup",
+        safeHandler(async ({ jobId }) => {
+            const job = await campaignCreationJournal.get(jobId);
+            if (!job) {
+                const error = new Error("Спробу створення кампанії не знайдено");
+                error.code = "CAMPAIGN_JOB_NOT_FOUND";
+                throw error;
+            }
+            const result = await guiService.deleteCampaignDraft({
+                accountKey: job.input.accountKey,
+                objects: job.objects,
+            }, (progress) => {
+                sendCampaignProgress({
+                    jobId: job.id,
+                    stage: "cleanup",
+                    ...progress,
+                });
+            });
+            await campaignCreationJournal.update(job.id, {
+                status: result.failed.length ? "cleanup-partial" : "deleted",
+                stage: "cleanup",
+            });
+            return result;
+        })
+    );
+    ipcMain.handle(
         "groups:list",
         safeHandler(() => guiService.getAdsPowerGroups())
     );
@@ -112,6 +264,10 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "templates:list",
         safeHandler(() => templateManager.list())
+    );
+    ipcMain.handle(
+        "countries:list",
+        safeHandler(() => countryCatalog.list())
     );
     ipcMain.handle(
         "templates:create",
