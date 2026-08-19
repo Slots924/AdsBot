@@ -15,11 +15,13 @@ export async function unwrap(responsePromise) {
 
 export function errorDetails(error) {
     return {
-        title: "Помилка",
+        title: error?.graphUserTitle || "Помилка",
         message: error?.message || "Невідома помилка",
         code: error?.code ?? null,
         graphCode: error?.graphCode ?? null,
         graphSubcode: error?.graphSubcode ?? null,
+        graphUserTitle: error?.graphUserTitle ?? null,
+        graphUserMessage: error?.graphUserMessage ?? null,
         stage: error?.stage ?? null,
         itemIndex: error?.itemIndex ?? null,
         createdObjects: error?.createdObjects ?? null,

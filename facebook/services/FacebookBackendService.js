@@ -192,6 +192,12 @@ export default class FacebookBackendService {
     }
 
 
+    async getPagePosts(accountKey, options) {
+        const facebookApiClient = this.#getFacebookApiClient(accountKey);
+        return facebookApiClient.getPagePosts(options);
+    }
+
+
     async preflightLeadCampaign(accountKey, options) {
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
         return facebookApiClient.preflightLeadCampaign(options);

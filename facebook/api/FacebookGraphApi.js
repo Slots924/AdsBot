@@ -20,8 +20,15 @@ function createFacebookApiError(error, {
     }
 
     const graphError = error?.response?.data?.error;
+    const graphUserTitle = redactSensitiveText(
+        graphError?.error_user_title ?? ""
+    );
+    const graphUserMessage = redactSensitiveText(
+        graphError?.error_user_msg ?? ""
+    );
     const facebookError = new Error(redactSensitiveText(
-        graphError?.message
+        graphUserMessage
+        || graphError?.message
         || "Не вдалося виконати запит Facebook API"
     ));
 
@@ -37,6 +44,8 @@ function createFacebookApiError(error, {
     facebookError.graphCode = graphError?.code ?? null;
     facebookError.graphSubcode = graphError?.error_subcode ?? null;
     facebookError.graphType = graphError?.type ?? null;
+    facebookError.graphUserTitle = graphUserTitle || null;
+    facebookError.graphUserMessage = graphUserMessage || null;
 
     return facebookError;
 }
@@ -97,6 +106,15 @@ const disabledCreativeFeatures = [
     "video_highlights",
     "video_uncrop",
 ];
+const campaignPostFields = [
+    "id",
+    "message",
+    "created_time",
+    "is_published",
+    "status_type",
+    "full_picture",
+    "attachments{media_type,url,unshimmed_url,target,media{image{src}},subattachments{url,unshimmed_url,target}}",
+].join(",");
 
 
 function hasPagePublishTask(tasks) {
@@ -147,6 +165,84 @@ function normalizeObjectId(value, code, label) {
         throw createValidationError(`Некоректний ${label}`, code);
     }
     return id;
+}
+
+
+function isFacebookHost(hostname) {
+    const host = String(hostname ?? "").toLowerCase();
+    return host === "facebook.com" || host.endsWith(".facebook.com");
+}
+
+
+function isExternalWebsiteUrl(value) {
+    try {
+        let parsed = new URL(String(value ?? "").replace(/[),.;!?]+$/, ""));
+        if (isFacebookHost(parsed.hostname) && parsed.pathname === "/l.php") {
+            const target = parsed.searchParams.get("u");
+            if (!target) return false;
+            parsed = new URL(target);
+        }
+        const host = parsed.hostname.toLowerCase();
+        return !isFacebookHost(host)
+            && host !== "fb.com"
+            && !host.endsWith(".fb.com");
+    } catch {
+        return false;
+    }
+}
+
+
+function attachmentUrls(attachments = []) {
+    return (Array.isArray(attachments) ? attachments : []).flatMap(
+        (attachment) => [
+            attachment?.unshimmed_url,
+            attachment?.url,
+            attachment?.target?.url,
+            ...attachmentUrls(attachment?.subattachments?.data),
+        ]
+    ).filter(Boolean);
+}
+
+
+function hasExternalWebsiteUrl(post) {
+    const messageUrls = String(post?.message ?? "")
+        .match(/https?:\/\/[^\s]+/gi) ?? [];
+    return [
+        ...messageUrls,
+        ...attachmentUrls(post?.attachments?.data),
+    ].some(isExternalWebsiteUrl);
+}
+
+
+function safeThumbnailUrl(value) {
+    try {
+        const parsed = new URL(String(value ?? ""));
+        if (
+            parsed.protocol !== "https:"
+            || !(
+                parsed.hostname === "fbcdn.net"
+                || parsed.hostname.endsWith(".fbcdn.net")
+            )
+        ) return null;
+        return parsed.toString();
+    } catch {
+        return null;
+    }
+}
+
+
+function normalizePagePost(post) {
+    const message = String(post?.message ?? "");
+    const attachment = post?.attachments?.data?.[0];
+    return {
+        id: String(post?.id ?? ""),
+        message: message.length > 500 ? `${message.slice(0, 497)}…` : message,
+        createdTime: post?.created_time ?? null,
+        thumbnailUrl: safeThumbnailUrl(
+            post?.full_picture ?? attachment?.media?.image?.src
+        ),
+        type: post?.status_type ?? attachment?.media_type ?? null,
+    };
 }
 
 
@@ -635,6 +731,56 @@ export default class FacebookGraphApi {
     }
 
 
+    async #getCampaignPage(pageId) {
+        const normalizedPageId = normalizeObjectId(
+            pageId,
+            "CAMPAIGN_PAGE_ID_INVALID",
+            "ID фанпейджі"
+        );
+        const page = await this.getFanPageById(normalizedPageId);
+        if (!page) {
+            throw createValidationError(
+                "Немає доступу на керування вибраною фанпейджою",
+                "CAMPAIGN_PAGE_ACCESS_DENIED"
+            );
+        }
+        if (!page.tasks.some((task) => (
+            pageAdvertiseTasks.has(String(task).toUpperCase())
+        ))) {
+            throw createValidationError(
+                "Немає дозволу ADVERTISE для вибраної фанпейджі",
+                "CAMPAIGN_PAGE_ADVERTISE_ACCESS_DENIED"
+            );
+        }
+        return page;
+    }
+
+
+    /** Повертає 10 найновіших опублікованих постів сторінки. */
+    async getPagePosts({ pageId, limit = 10 } = {}) {
+        const page = await this.#getCampaignPage(pageId);
+        const pageSize = Number(limit);
+        if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 25) {
+            throw createValidationError(
+                "Кількість постів має бути від 1 до 25",
+                "CAMPAIGN_POSTS_LIMIT_INVALID"
+            );
+        }
+        const data = await this.#request(`/${page.id}/published_posts`, {
+            fields: campaignPostFields,
+            limit: pageSize,
+        }, { accessToken: page.pageAccessToken });
+        const posts = (Array.isArray(data?.data) ? data.data : [])
+            .filter((post) => post?.is_published !== false)
+            .map(normalizePagePost);
+
+        posts.sort((left, right) => (
+            new Date(right.createdTime ?? 0) - new Date(left.createdTime ?? 0)
+        ));
+        return posts.slice(0, pageSize);
+    }
+
+
     /**
      * Публікує текстовий пост від імені фанпейджі.
      * @param {object} options Дані текстового поста.
@@ -802,7 +948,6 @@ export default class FacebookGraphApi {
                 "CAMPAIGN_POST_ID_INVALID",
                 "Post ID"
             )}`;
-
         if (!storyId.startsWith(`${normalizedPageId}_`)) {
             throw createValidationError(
                 "Вказаний пост не належить вибраній фанпейджі",
@@ -856,24 +1001,9 @@ export default class FacebookGraphApi {
             );
         }
 
-        const page = await this.getFanPageById(normalizedPageId);
-        if (!page) {
-            throw createValidationError(
-                "Немає доступу на керування вибраною фанпейджою",
-                "CAMPAIGN_PAGE_ACCESS_DENIED"
-            );
-        }
-        if (!page.tasks.some((task) => (
-            pageAdvertiseTasks.has(String(task).toUpperCase())
-        ))) {
-            throw createValidationError(
-                "Немає дозволу ADVERTISE для вибраної фанпейджі",
-                "CAMPAIGN_PAGE_ADVERTISE_ACCESS_DENIED"
-            );
-        }
-
+        const page = await this.#getCampaignPage(normalizedPageId);
         const post = await this.#request(`/${storyId}`, {
-            fields: "id,message,is_published,permalink_url,attachments{url,unshimmed_url,target}",
+            fields: campaignPostFields,
         }, { accessToken: page.pageAccessToken });
         if (post.is_published === false) {
             throw createValidationError(
@@ -881,24 +1011,7 @@ export default class FacebookGraphApi {
                 "CAMPAIGN_POST_NOT_PUBLISHED"
             );
         }
-        const attachmentUrls = (post.attachments?.data ?? []).flatMap(
-            (attachment) => [attachment.unshimmed_url, attachment.url]
-        );
-        const messageUrls = String(post.message ?? "").match(/https?:\/\/[^\s]+/gi) ?? [];
-        const hasWebsiteUrl = [...attachmentUrls, ...messageUrls]
-            .filter(Boolean)
-            .some((value) => {
-                try {
-                    const host = new URL(value).hostname.toLowerCase();
-                    return host !== "facebook.com"
-                        && !host.endsWith(".facebook.com")
-                        && host !== "fb.com"
-                        && !host.endsWith(".fb.com");
-                } catch {
-                    return false;
-                }
-            });
-        if (!hasWebsiteUrl) {
+        if (!hasExternalWebsiteUrl(post)) {
             throw createValidationError(
                 "У пості не знайдено посилання на зовнішній сайт",
                 "CAMPAIGN_POST_WEBSITE_URL_REQUIRED"
@@ -1064,7 +1177,6 @@ export default class FacebookGraphApi {
                         daily_budget: preflight.dailyBudgetMinor,
                         billing_event: "IMPRESSIONS",
                         optimization_goal: "OFFSITE_CONVERSIONS",
-                        destination_type: "WEBSITE",
                         promoted_object: {
                             pixel_id: preflight.pixel.id,
                             custom_event_type: "LEAD",

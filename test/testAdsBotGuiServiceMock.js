@@ -114,6 +114,10 @@ try {
                 }],
             };
         },
+        async getPagePosts(accountKey, options) {
+            assert.equal(accountKey, "active");
+            return [{ id: `${options.pageId}_post` }];
+        },
         async prepareCreative() {
             return { creative: "Prepared", comments: [] };
         },
@@ -164,6 +168,10 @@ try {
         "today"
     );
     assert.equal(campaigns.campaigns[0].costPerLead, 5);
+    assert.deepEqual(await guiService.getPagePosts({
+        accountKey: "active",
+        pageId: "page",
+    }), [{ id: "page_post" }]);
 
     const post = await guiService.publishCreativePost({
         accountKey: "active",

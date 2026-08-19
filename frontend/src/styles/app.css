@@ -340,6 +340,31 @@ button:focus-visible, input:focus-visible {
 .campaign-wizard .campaign-icon { color: #b5adff; background: rgba(132,114,255,.12); }
 .campaign-wizard-form { overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
 .wizard-loading { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 160px; color: var(--muted); font-size: 10px; }
+.campaign-resource-field { position: relative; }
+.campaign-combobox-row { display: flex; align-items: stretch; gap: 7px; }
+.campaign-combobox { position: relative; display: flex; flex: 1; align-items: center; min-width: 0; }
+.campaign-combobox > svg:first-child { position: absolute; z-index: 2; left: 11px; color: #697184; pointer-events: none; }
+.campaign-combobox > svg.spin { position: absolute; z-index: 2; right: 11px; color: #9288f0; pointer-events: none; }
+.campaign-combobox input { width: 100%; padding-left: 34px; padding-right: 32px; }
+.campaign-combobox-menu { position: absolute; z-index: 25; top: calc(100% + 5px); right: 0; left: 0; max-height: 215px; padding: 5px; overflow-y: auto; border: 1px solid var(--stroke-bright); border-radius: 11px; background: #181b29; box-shadow: 0 18px 40px rgba(0,0,0,.45); scrollbar-width: thin; }
+.campaign-combobox-menu button { display: flex; width: 100%; flex-direction: column; gap: 3px; padding: 8px 9px; border: 0; border-radius: 8px; color: #c8ccd7; background: transparent; text-align: left; cursor: pointer; }
+.campaign-combobox-menu button:hover, .campaign-combobox-menu button.selected { background: rgba(132,114,255,.12); }
+.campaign-combobox-menu strong { overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.campaign-combobox-menu small { width: 100%; overflow: hidden; color: #70788b; font-size: 8px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.campaign-combobox-empty { padding: 11px; color: #697184; text-align: center; font-size: 8px; }
+.posts-menu { max-height: 260px; }
+.resource-refresh { flex: 0 0 36px; width: 36px; height: 36px; }
+.field-hint { color: #626a7d; font-size: 8px; line-height: 1.45; }
+.resource-inline-error, .resource-inline-notice { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px; border: 1px solid rgba(255,100,124,.2); border-radius: 8px; color: #ee8c9c; background: rgba(255,100,124,.06); font-size: 8px; }
+.resource-inline-error button { padding: 0; border: 0; color: #c7c1ff; background: transparent; cursor: pointer; font-size: 8px; font-weight: 700; }
+.resource-inline-notice { border-color: rgba(246,189,88,.2); color: #d9b96e; background: rgba(246,189,88,.05); }
+.campaign-post-preview { display: grid; grid-template-columns: 78px minmax(0,1fr); gap: 11px; padding: 10px; border: 1px solid rgba(132,114,255,.18); border-radius: 11px; background: rgba(132,114,255,.045); }
+.campaign-post-image { display: grid; place-items: center; width: 78px; height: 62px; overflow: hidden; border-radius: 8px; color: #5e6577; background: #0e111a; }
+.campaign-post-image img { width: 100%; height: 100%; object-fit: cover; }
+.campaign-post-preview > div:last-child { min-width: 0; }
+.campaign-post-preview strong { display: block; overflow-wrap: anywhere; color: #d3d6e0; font-size: 9px; }
+.campaign-post-preview p { display: -webkit-box; margin: 5px 0; overflow: hidden; color: #969daf; font-size: 8px; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.campaign-post-preview small { color: #626a7c; font-size: 7px; }
 .campaign-summary { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 7px; margin-top: 15px; }
 .campaign-summary > div { padding: 10px; border: 1px solid var(--stroke); border-radius: 10px; background: rgba(255,255,255,.025); }
 .campaign-summary span, .campaign-summary strong { display: block; }

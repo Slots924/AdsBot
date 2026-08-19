@@ -12,6 +12,8 @@ function serializeError(error) {
         httpStatus: error?.httpStatus ?? null,
         graphCode: error?.graphCode ?? null,
         graphSubcode: error?.graphSubcode ?? null,
+        graphUserTitle: error?.graphUserTitle ?? null,
+        graphUserMessage: error?.graphUserMessage ?? null,
         stage: error?.stage ?? null,
         itemIndex: error?.itemIndex ?? null,
         createdObjects: error?.createdObjects ?? null,
@@ -172,6 +174,10 @@ export default function registerIpcHandlers({
                 datePreset
             )
         ))
+    );
+    ipcMain.handle(
+        "campaigns:posts-list",
+        safeHandler((payload) => guiService.getPagePosts(payload))
     );
     ipcMain.handle(
         "campaigns:create-preflight",

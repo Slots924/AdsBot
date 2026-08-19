@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
     BadgeCheck,
     CircleAlert,
+    ImageIcon,
     LoaderCircle,
     Play,
+    RefreshCw,
     RotateCcw,
+    Search,
     ShieldCheck,
     Trash2,
     X,
@@ -93,7 +96,18 @@ export default function CampaignCreationWizard({
     const timezone = adAccount.timezoneName || Intl.DateTimeFormat().resolvedOptions().timeZone;
     const [templates, setTemplates] = useState([]);
     const [pages, setPages] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [templatesLoading, setTemplatesLoading] = useState(true);
+    const [pagesLoading, setPagesLoading] = useState(true);
+    const [pagesError, setPagesError] = useState(null);
+    const [pagesNotice, setPagesNotice] = useState("");
+    const [pageQuery, setPageQuery] = useState("");
+    const [pageMenuOpen, setPageMenuOpen] = useState(false);
+    const [posts, setPosts] = useState([]);
+    const [postsLoading, setPostsLoading] = useState(false);
+    const [postsError, setPostsError] = useState(null);
+    const [postQuery, setPostQuery] = useState("");
+    const [postMenuOpen, setPostMenuOpen] = useState(false);
+    const [selectedPost, setSelectedPost] = useState(null);
     const [form, setForm] = useState({
         campaignName: "",
         templateId: "",
@@ -110,27 +124,129 @@ export default function CampaignCreationWizard({
     const [failure, setFailure] = useState(null);
     const [warnings, setWarnings] = useState([]);
     const [jobId, setJobId] = useState(null);
+    const pagesRequest = useRef(0);
+    const postsRequest = useRef(0);
 
     useEffect(() => {
-        Promise.all([
-            unwrap(window.adsBot.getTemplates()),
-            unwrap(window.adsBot.getFanPages(accountKey)),
-        ]).then(([nextTemplates, nextPages]) => {
+        let active = true;
+        unwrap(window.adsBot.getTemplates()).then((nextTemplates) => {
+            if (!active) return;
             setTemplates(nextTemplates);
-            setPages(nextPages);
             setForm((current) => ({
                 ...current,
                 templateId: String(nextTemplates[0]?.id ?? ""),
-                pageId: String(nextPages[0]?.id ?? ""),
             }));
-        }).catch((error) => setFailure(errorDetails(error))).finally(() => setLoading(false));
+        }).catch((error) => {
+            if (active) setFailure(errorDetails(error));
+        }).finally(() => {
+            if (active) setTemplatesLoading(false);
+        });
+        return () => { active = false; };
+    }, []);
 
+    const refreshPages = useCallback(async () => {
+        const requestId = ++pagesRequest.current;
+        setPagesLoading(true);
+        setPagesError(null);
+        setPagesNotice("");
+        try {
+            const nextPages = await unwrap(window.adsBot.getFanPages(accountKey));
+            if (requestId !== pagesRequest.current) return;
+            setPages(nextPages);
+            setForm((current) => {
+                if (!current.pageId) {
+                    return {
+                        ...current,
+                        pageId: String(nextPages[0]?.id ?? ""),
+                    };
+                }
+                if (nextPages.some((page) => String(page.id) === current.pageId)) {
+                    return current;
+                }
+                setPageQuery("");
+                setPostQuery("");
+                setSelectedPost(null);
+                setPagesNotice("Раніше вибрана фанпейджа більше недоступна. Оберіть іншу сторінку.");
+                return { ...current, pageId: "", postId: "" };
+            });
+        } catch (error) {
+            if (requestId === pagesRequest.current) {
+                setPagesError(errorDetails(error));
+            }
+        } finally {
+            if (requestId === pagesRequest.current) setPagesLoading(false);
+        }
+    }, [accountKey]);
+
+    useEffect(() => {
+        refreshPages();
+    }, [refreshPages]);
+
+    const loadPosts = useCallback(async (pageId) => {
+        if (!pageId) return;
+        const requestId = ++postsRequest.current;
+        setPostsLoading(true);
+        setPostsError(null);
+        try {
+            const result = await unwrap(
+                window.adsBot.getCampaignPagePosts(
+                    accountKey,
+                    pageId,
+                    10
+                )
+            );
+            if (requestId !== postsRequest.current) return;
+            setPosts(result);
+        } catch (error) {
+            if (requestId === postsRequest.current) {
+                setPostsError(errorDetails(error));
+            }
+        } finally {
+            if (requestId === postsRequest.current) setPostsLoading(false);
+        }
+    }, [accountKey]);
+
+    useEffect(() => {
+        postsRequest.current += 1;
+        setPosts([]);
+        setPostsError(null);
+        setSelectedPost(null);
+        setPostQuery("");
+        setForm((current) => ({ ...current, postId: "" }));
+        if (form.pageId) loadPosts(form.pageId);
+    }, [form.pageId, loadPosts]);
+
+    useEffect(() => {
         return window.adsBot.onCampaignCreationProgress((event) => {
             setJobId((current) => current ?? event.jobId);
             setProgress(event);
             if (event.error) setFailure(event.error);
         });
-    }, [accountKey]);
+    }, []);
+
+    const selectedPage = pages.find(
+        (page) => String(page.id) === form.pageId
+    );
+    const filteredPages = useMemo(() => {
+        const query = pageQuery.trim().toLocaleLowerCase();
+        if (!query || pageQuery === `${selectedPage?.name ?? ""} · ${selectedPage?.id ?? ""}`) {
+            return pages;
+        }
+        return pages.filter((page) => (
+            `${page.name} ${page.id}`.toLocaleLowerCase().includes(query)
+        ));
+    }, [pageQuery, pages, selectedPage]);
+    const filteredPosts = useMemo(() => {
+        const query = postQuery.trim().toLocaleLowerCase();
+        if (!query || query === String(selectedPost?.id ?? "").toLocaleLowerCase()) {
+            return posts;
+        }
+        return posts.filter((post) => (
+            `${post.id} ${post.message}`
+                .toLocaleLowerCase()
+                .includes(query)
+        ));
+    }, [postQuery, posts, selectedPost]);
 
     const selectedTemplate = templates.find(
         (template) => String(template.id) === form.templateId
@@ -159,6 +275,33 @@ export default function CampaignCreationWizard({
         setFailure(null);
     };
 
+    useEffect(() => {
+        if (selectedPage) {
+            setPageQuery(`${selectedPage.name} · ${selectedPage.id}`);
+        }
+    }, [selectedPage?.id]);
+
+    const selectPage = (page) => {
+        setPageQuery(`${page.name} · ${page.id}`);
+        setPageMenuOpen(false);
+        change("pageId", String(page.id));
+    };
+
+    const selectPost = (post) => {
+        setSelectedPost(post);
+        setPostQuery(String(post.id));
+        setPostMenuOpen(false);
+        change("postId", String(post.id));
+    };
+
+    const editPostQuery = (value) => {
+        setPostQuery(value);
+        setSelectedPost(null);
+        setForm((current) => ({ ...current, postId: "" }));
+        setVerified(null);
+        setFailure(null);
+    };
+
     const canCheck = form.campaignName.trim()
         && form.templateId
         && form.pageId
@@ -173,9 +316,14 @@ export default function CampaignCreationWizard({
         setChecking(true);
         setFailure(null);
         try {
-            setVerified(await unwrap(
+            const result = await unwrap(
                 window.adsBot.preflightCampaignCreation(payload())
-            ));
+            );
+            setVerified(result);
+            if (result.postId) {
+                setForm((current) => ({ ...current, postId: result.postId }));
+                setPostQuery(result.postId);
+            }
         } catch (error) {
             setFailure(errorDetails(error));
         } finally {
@@ -252,13 +400,102 @@ export default function CampaignCreationWizard({
                 <h2>Створити кампанію за шаблоном</h2>
                 <p>{adAccount.currency} · {timezone} · усі об’єкти спочатку створюються PAUSED</p>
 
-                {loading ? <div className="wizard-loading"><LoaderCircle className="spin" /> Завантажуємо шаблони й фанпейджі…</div> : (
                     <form onSubmit={check} className="campaign-wizard-form">
                         <div className="template-editor-fields two-columns">
                             <label className="field"><span>Назва кампанії</span><input autoFocus value={form.campaignName} onChange={(event) => change("campaignName", event.target.value)} placeholder="HU Leads 20.08" /></label>
-                            <label className="field"><span>Шаблон</span><select value={form.templateId} onChange={(event) => change("templateId", event.target.value)}><option value="">Оберіть шаблон</option>{templates.map((template) => <option key={template.id} value={template.id}>{template.name} · Pixel {template.pixel || "—"}</option>)}</select></label>
-                            <label className="field"><span>Фанпейджа</span><select value={form.pageId} onChange={(event) => change("pageId", event.target.value)}><option value="">Оберіть фанпейджу</option>{pages.map((page) => <option key={page.id} value={page.id}>{page.name} · {page.id}</option>)}</select></label>
-                            <label className="field"><span>Post ID</span><input value={form.postId} onChange={(event) => change("postId", event.target.value)} placeholder="123456789 або pageId_postId" /></label>
+                            <label className="field"><span>Шаблон</span><select value={form.templateId} disabled={templatesLoading} onChange={(event) => change("templateId", event.target.value)}><option value="">{templatesLoading ? "Оновлюємо шаблони…" : "Оберіть шаблон"}</option>{templates.map((template) => <option key={template.id} value={template.id}>{template.name} · Pixel {template.pixel || "—"}</option>)}</select></label>
+
+                            <div className="field full-row campaign-resource-field">
+                                <span>Фанпейджа</span>
+                                <div className="campaign-combobox-row">
+                                    <div className="campaign-combobox">
+                                        <Search size={15} />
+                                        <input
+                                            aria-label="Пошук фанпейджі"
+                                            role="combobox"
+                                            aria-expanded={pageMenuOpen}
+                                            value={pageQuery}
+                                            onFocus={(event) => {
+                                                event.target.select();
+                                                setPageMenuOpen(true);
+                                            }}
+                                            onBlur={() => setTimeout(() => setPageMenuOpen(false), 120)}
+                                            onChange={(event) => {
+                                                setPageQuery(event.target.value);
+                                                setPageMenuOpen(true);
+                                            }}
+                                            placeholder="Пошук за назвою або ID"
+                                        />
+                                        {pagesLoading && <LoaderCircle className="spin" size={15} />}
+                                        {pageMenuOpen && (
+                                            <div className="campaign-combobox-menu">
+                                                {filteredPages.map((page) => (
+                                                    <button type="button" key={page.id} onClick={() => selectPage(page)} className={String(page.id) === form.pageId ? "selected" : ""}>
+                                                        <strong>{page.name}</strong><small>{page.id}</small>
+                                                    </button>
+                                                ))}
+                                                {!pagesLoading && !filteredPages.length && <div className="campaign-combobox-empty">Фанпейдж не знайдено</div>}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button type="button" className="icon-button resource-refresh" title="Оновити фанпейджі" aria-label="Оновити фанпейджі" disabled={pagesLoading} onClick={refreshPages}><RefreshCw className={pagesLoading ? "spin" : ""} size={16} /></button>
+                                </div>
+                                {pagesError && <div className="resource-inline-error"><span>{pagesError.message}</span><button type="button" onClick={refreshPages}>Повторити</button></div>}
+                                {pagesNotice && <div className="resource-inline-notice">{pagesNotice}</div>}
+                            </div>
+
+                            <div className="field full-row campaign-resource-field">
+                                <span>Пост для реклами</span>
+                                <div className="campaign-combobox-row">
+                                    <div className="campaign-combobox">
+                                        <Search size={15} />
+                                        <input
+                                            aria-label="Пошук поста"
+                                            role="combobox"
+                                            aria-expanded={postMenuOpen}
+                                            value={postQuery}
+                                            disabled={!form.pageId}
+                                            onFocus={(event) => {
+                                                event.target.select();
+                                                setPostMenuOpen(true);
+                                            }}
+                                            onBlur={() => setTimeout(() => setPostMenuOpen(false), 120)}
+                                            onChange={(event) => {
+                                                editPostQuery(event.target.value);
+                                                setPostMenuOpen(true);
+                                            }}
+                                            placeholder="Пошук серед 10 останніх постів"
+                                        />
+                                        {postsLoading && <LoaderCircle className="spin" size={15} />}
+                                        {postMenuOpen && form.pageId && (
+                                            <div className="campaign-combobox-menu posts-menu">
+                                                {filteredPosts.map((post) => (
+                                                    <button type="button" key={post.id} onClick={() => selectPost(post)} className={String(post.id) === form.postId ? "selected" : ""}>
+                                                        <strong>{post.id}</strong><small>{post.message || "Пост без тексту"}</small>
+                                                    </button>
+                                                ))}
+                                                {!postsLoading && !filteredPosts.length && <div className="campaign-combobox-empty">Серед завантажених постів збігів немає</div>}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button type="button" className="icon-button resource-refresh" title="Оновити пости" aria-label="Оновити пости" disabled={!form.pageId || postsLoading} onClick={() => loadPosts(form.pageId)}><RefreshCw className={postsLoading ? "spin" : ""} size={16} /></button>
+                                </div>
+                                <small className="field-hint">Показуються 10 найновіших опублікованих постів. Найновіший завжди зверху.</small>
+                                {postsError && <div className="resource-inline-error"><span>{postsError.message}</span><button type="button" onClick={() => loadPosts(form.pageId)}>Повторити</button></div>}
+                            </div>
+
+                            {selectedPost && (
+                                <div className="campaign-post-preview full-row">
+                                    <div className="campaign-post-image">
+                                        {selectedPost.thumbnailUrl ? <img src={selectedPost.thumbnailUrl} alt="Прев’ю поста" /> : <ImageIcon size={25} />}
+                                    </div>
+                                    <div>
+                                        <strong>{selectedPost.id}</strong>
+                                        <p>{selectedPost.message || "Пост без тексту"}</p>
+                                        <small>{selectedPost.createdTime ? new Date(selectedPost.createdTime).toLocaleString("uk-UA") : "Дата не вказана"}{selectedPost.type ? ` · ${selectedPost.type}` : ""}</small>
+                                    </div>
+                                </div>
+                            )}
                             <label className="field"><span>Кількість ad sets</span><input type="number" min="1" max="100" value={form.adSetCount} onChange={(event) => change("adSetCount", event.target.value)} /></label>
                             <label className="field"><span>Бюджет одного ad set, {adAccount.currency}</span><input type="number" min="0.01" step="0.01" value={form.dailyBudget} onChange={(event) => change("dailyBudget", event.target.value)} /></label>
                             <label className="field full-row"><span>Початок показів · {timezone}</span><input type="datetime-local" value={form.startTime} onChange={(event) => change("startTime", event.target.value)} /></label>
@@ -310,7 +547,6 @@ export default function CampaignCreationWizard({
                             {verified && progress?.stage !== "complete" && <button className="primary-button" type="button" disabled={creating} onClick={create}>{creating ? <LoaderCircle className="spin" size={16} /> : <Play size={16} />} Створити {createPaused ? "на паузі" : "й активувати"}</button>}
                         </div>
                     </form>
-                )}
             </motion.div>
         </div>
     );

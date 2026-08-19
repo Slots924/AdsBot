@@ -277,6 +277,16 @@ describe("GUI helpers", () => {
             ok: true,
             data: [{ id: "10", name: "Page" }],
         });
+        window.adsBot.getCampaignPagePosts = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{
+                id: "10_20",
+                message: "Newest website post",
+                createdTime: "2026-08-20T10:00:00.000Z",
+                thumbnailUrl: "https://scontent.test.fbcdn.net/post.jpg",
+                type: "added_photos",
+            }],
+        });
         window.adsBot.onCampaignCreationProgress = vi.fn(() => () => {});
         window.adsBot.preflightCampaignCreation = vi.fn().mockResolvedValue({
             ok: true,
@@ -284,6 +294,7 @@ describe("GUI helpers", () => {
                 pageName: "Page",
                 pixel: { id: "30", name: "Pixel" },
                 currency: "USD",
+                postId: "10_20",
                 dsa: {
                     beneficiary: "Example Beneficiary LLC",
                     payor: "Example Payor LLC",
@@ -318,13 +329,23 @@ describe("GUI helpers", () => {
             />
         );
 
+        expect(screen.getByPlaceholderText("HU Leads 20.08")).toBeInTheDocument();
         await screen.findByText("HU Leads · Pixel 30");
+        await waitFor(() => expect(window.adsBot.getCampaignPagePosts)
+            .toHaveBeenCalledWith("client", "10", 10));
         fireEvent.change(screen.getByPlaceholderText("HU Leads 20.08"), {
             target: { value: "Campaign" },
         });
-        fireEvent.change(screen.getByPlaceholderText("123456789 або pageId_postId"), {
-            target: { value: "20" },
-        });
+        fireEvent.focus(screen.getByLabelText("Пошук поста"));
+        fireEvent.click(await screen.findByText("10_20"));
+        expect(screen.getByAltText("Прев’ю поста")).toBeInTheDocument();
+        expect(screen.getByText("Newest website post")).toBeInTheDocument();
+        fireEvent.click(screen.getByLabelText("Оновити пости"));
+        await waitFor(() => expect(window.adsBot.getCampaignPagePosts.mock.calls.length)
+            .toBeGreaterThanOrEqual(2));
+        fireEvent.click(screen.getByLabelText("Оновити фанпейджі"));
+        await waitFor(() => expect(window.adsBot.getFanPages.mock.calls.length)
+            .toBeGreaterThanOrEqual(2));
         fireEvent.click(screen.getByText("Перевірити дані"));
         expect(await screen.findByText("Preflight пройдено")).toBeInTheDocument();
         expect(screen.getByText(/Example Beneficiary LLC/)).toBeInTheDocument();
@@ -339,7 +360,7 @@ describe("GUI helpers", () => {
                 templateId: 1,
                 campaignName: "Campaign",
                 pageId: "10",
-                postId: "20",
+                postId: "10_20",
                 adSetCount: 5,
                 dailyBudget: 5,
                 createPaused: true,

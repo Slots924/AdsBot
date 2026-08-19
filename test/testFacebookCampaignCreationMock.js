@@ -165,7 +165,7 @@ assert.deepEqual(targeting.geo_locations.countries, ["HU", "US"]);
 assert.deepEqual(targeting.genders, [2]);
 assert.equal(targeting.targeting_automation.advantage_audience, 0);
 assert.equal(actualAdSet.data.get("daily_budget"), "500");
-assert.equal(actualAdSet.data.get("destination_type"), "WEBSITE");
+assert.equal(actualAdSet.data.has("destination_type"), false);
 assert.equal(actualAdSet.data.get("dsa_beneficiary"), "Meta Beneficiary LLC");
 assert.equal(actualAdSet.data.get("dsa_payor"), "Meta Payor LLC");
 assert.equal(

@@ -129,6 +129,7 @@ if (!selectedFacebookApiClient) {
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
 | `getAvailablePages()` | `Array<{id, name}>` | Перевіряє доступність, publish tasks і статус фанпейджів та повертає список без токенів. |
 | `getFanPageById(pageId)` | `object \| null` | Перевіряє фанпейджу й повертає її Page token лише для внутрішньої публікації. |
+| `getPagePosts({pageId, limit})` | `Array` | Повертає 10 найновіших опублікованих постів із безпечними даними для прев’ю. |
 | `createPageTextPost(options)` | `{ postId }` | Публікує текстовий пост через `/feed`. |
 | `createPagePhotoPost(options)` | `{ postId, photoId }` | Публікує одну фотографію через `/photos`. |
 | `getPagePost(options)` | `object` | Отримує пост за ID для підтвердження публікації. |
@@ -154,6 +155,11 @@ const pages = await selectedFacebookApiClient.getPages();
 
 `getAdAccounts()` і `getPages()` автоматично проходять усі сторінки Graph API через cursor `after`. Код не використовує абсолютний `paging.next`, щоб access token випадково не потрапив до логів разом із URL.
 
+`getPagePosts()` одним read-only запитом читає перші 10 записів
+`/{page-id}/published_posts` і сортує їх від найновішого до найстарішого.
+Thumbnail URL дозволяється лише з HTTPS-доменів `fbcdn.net`; Page access token у
+результат не потрапляє.
+
 `getAdCampaigns()` і `getAdCampaignInsights()` також проходять усі сторінки
 через cursor `after`. Insights запитуються з `level=campaign`; GUI використовує
 лише агрегований action type `lead`, не сумуючи його з Pixel або form-підтипами.
@@ -171,13 +177,23 @@ Pixel, зовнішнє посилання у пості, валюту та time
 від реальних parent ID, тому для них `validate_only` виконується поетапно після
 створення відповідного PAUSED parent.
 
+Майстер передає canonical `pageId_postId` вибраного поста. Належність поста
+вибраній сторінці, його опублікований стан і наявність зовнішнього website URL
+повторно перевіряються безпосередньо перед preflight.
+
 Для сторінок нового типу право рекламування може повертатися як
 `PROFILE_PLUS_ADVERTISE`; preflight приймає його нарівні з класичним `ADVERTISE`.
 
-`createLeadCampaign()` використовує `OUTCOME_LEADS`, `WEBSITE`,
+`createLeadCampaign()` використовує `OUTCOME_LEADS`,
 `OFFSITE_CONVERSIONS`, Pixel event `LEAD`, бюджети ad set і ручний targeting з
 `advantage_audience=0`. Creative посилається на готовий `object_story_id`,
 отримує `url_tags` та явні `OPT_OUT` для відомих creative enhancements.
+
+Для existing Page post поле `destination_type` навмисно не передається. Meta
+Ads Manager так само залишає його `UNDEFINED`, а website-конверсію визначає
+через `OFFSITE_CONVERSIONS` і promoted object із Pixel event `LEAD`. Явне
+`destination_type=WEBSITE` робить existing photo post несумісним з ad set і
+може повертати Meta `100/1815676`.
 
 Для DSA спочатку використовуються `dsaBeneficiary` і `dsaPayor` шаблону, а
 порожні значення доповнюються офіційними `default_dsa_beneficiary` та
@@ -187,8 +203,8 @@ Pixel, зовнішнє посилання у пості, валюту та time
 `dsa_payor` у кожний ad set, проходять `validate_only` та контрольний read-back.
 Випадкові назви не створюються.
 
-Сценарій залишається суто website-only: payload явно містить
-`destination_type=WEBSITE` і не надсилає WhatsApp або messaging-поля. Якщо Meta
+Сценарій залишається суто website-only завдяки `OFFSITE_CONVERSIONS` і Pixel
+event `LEAD`; payload не надсилає WhatsApp або messaging-поля. Якщо Meta
 повертає destination/WhatsApp setup error, для діагностики слід вручну повторити
 аналогічне налаштування в Ads Manager із WhatsApp і зберегти точний текст помилки
 або скриншот. Це не вмикає автоматичний WhatsApp fallback у програмі.
@@ -240,7 +256,7 @@ POST-запит не повторюється після мережевої по
 
 ## Помилки й токени
 
-- Graph API errors перетворюються на Error з `code="FACEBOOK_API_ERROR"` та полями `httpStatus`, `graphCode`, `graphSubcode`, `graphType`.
+- Graph API errors перетворюються на Error з `code="FACEBOOK_API_ERROR"` та полями `httpStatus`, `graphCode`, `graphSubcode`, `graphType`, `graphUserTitle`, `graphUserMessage`.
 - Вичерпання проксі повертає `code="PROXY_POOL_EXHAUSTED"`.
 - HTTP-помилки Meta не запускають proxy failover, окрім HTTP 407 від проксі.
 - Access tokens, session cookies і Page access tokens не можна виводити в логи.

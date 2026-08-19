@@ -23,6 +23,9 @@ const activeClient = {
     async getAvailablePages() {
         return [{ id: "active-page", name: "Active Page" }];
     },
+    async getPagePosts(options) {
+        return [{ id: `${options.pageId}_post` }];
+    },
 };
 
 const inactiveClient = {
@@ -130,6 +133,10 @@ assert.deepEqual(
 assert.deepEqual(
     await facebookBackend.getFanPages("inactive"),
     [{ id: "inactive-page", name: "Inactive Page" }]
+);
+assert.deepEqual(
+    await facebookBackend.getPagePosts("active", { pageId: "10" }),
+    [{ id: "10_post" }]
 );
 
 const preparedCreative = await facebookBackend.prepareCreative({

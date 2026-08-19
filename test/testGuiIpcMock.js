@@ -106,6 +106,11 @@ const guiService = {
     async getAdCampaigns(accountKey, adAccountId, datePreset) {
         return { accountKey, adAccountId, datePreset, campaigns: [] };
     },
+    async getPagePosts({ accountKey, pageId, limit }) {
+        assert.equal(accountKey, "fp_hub");
+        assert.equal(limit, 10);
+        return [{ id: `${pageId}_20`, message: "Safe" }];
+    },
     async preflightLeadCampaign(options) {
         return { adAccountId: options.adAccountId, currency: "USD" };
     },
@@ -129,6 +134,8 @@ const guiService = {
         const error = new Error("Invalid request");
         error.code = "FACEBOOK_API_ERROR";
         error.httpStatus = 400;
+        error.graphUserTitle = "Invalid ad configuration";
+        error.graphUserMessage = "The selected post is incompatible";
         error.secret = "MUST_NOT_LEAK";
         throw error;
     },
@@ -248,11 +255,24 @@ assert.deepEqual(
         },
     }
 );
+const listedPosts = await handlers.get("campaigns:posts-list")({}, {
+    accountKey: "fp_hub",
+    pageId: "10",
+    limit: 10,
+});
+assert.equal(listedPosts.ok, true);
+assert.equal(listedPosts.data[0].id, "10_20");
+assert(!("pageAccessToken" in listedPosts.data[0]));
 
 const failedPost = await handlers.get("post:publish")({}, {});
 assert.equal(failedPost.ok, false);
 assert.equal(failedPost.error.code, "FACEBOOK_API_ERROR");
 assert.equal(failedPost.error.httpStatus, 400);
+assert.equal(failedPost.error.graphUserTitle, "Invalid ad configuration");
+assert.equal(
+    failedPost.error.graphUserMessage,
+    "The selected post is incompatible"
+);
 assert(!("secret" in failedPost.error));
 assert(!("stack" in failedPost.error));
 

@@ -38,6 +38,12 @@ contextBridge.exposeInMainWorld("adsBot", {
             adAccountId,
             datePreset,
         }),
+    getCampaignPagePosts: (accountKey, pageId, limit = 10) =>
+        ipcRenderer.invoke("campaigns:posts-list", {
+            accountKey,
+            pageId,
+            limit,
+        }),
     preflightCampaignCreation: (options) =>
         ipcRenderer.invoke("campaigns:create-preflight", options),
     startCampaignCreation: (options) =>

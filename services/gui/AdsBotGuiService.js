@@ -284,6 +284,16 @@ export default class AdsBotGuiService {
     }
 
 
+    async getPagePosts({ accountKey, pageId, limit = 10 } = {}) {
+        await this.#assertActiveAccount(accountKey);
+        this.logger.info(`Завантажуємо нові пости фанпейджі ${pageId}…`);
+        return this.#facebookBackend.getPagePosts(accountKey, {
+            pageId,
+            limit,
+        });
+    }
+
+
     async preflightLeadCampaign({ accountKey, ...options } = {}) {
         await this.#assertActiveAccount(accountKey);
         this.logger.info("Перевіряємо кампанію, доступи та ресурси Meta…");
