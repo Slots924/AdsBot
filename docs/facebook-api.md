@@ -188,6 +188,8 @@ Pixel, зовнішнє посилання у пості, валюту та time
 `OFFSITE_CONVERSIONS`, Pixel event `LEAD`, бюджети ad set і ручний targeting з
 `advantage_audience=0`. Creative посилається на готовий `object_story_id`,
 отримує `url_tags` та явні `OPT_OUT` для відомих creative enhancements.
+За наявності обмежень шаблону targeting також отримує `device_platforms` і
+`user_os`; порожні масиви означають усі пристрої та всі мобільні ОС.
 
 Для existing Page post поле `destination_type` навмисно не передається. Meta
 Ads Manager так само залишає його `UNDEFINED`, а website-конверсію визначає

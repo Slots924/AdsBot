@@ -22,6 +22,7 @@ const placementOptions = [
     { platform: "instagram", value: "story", label: "Instagram Stories" },
     { platform: "instagram", value: "reels", label: "Instagram Reels" },
 ];
+const ageOptions = Array.from({ length: 48 }, (_, index) => index + 18);
 
 
 function emptyDraft() {
@@ -32,6 +33,8 @@ function emptyDraft() {
         gender: "any",
         ageMin: 18,
         ageMax: 65,
+        devicePlatforms: [],
+        operatingSystems: [],
         placements: { facebook: ["feed"], instagram: [] },
         utm: "",
         shareAdSetBudget: false,
@@ -57,6 +60,8 @@ function cloneTemplate(template) {
         ...emptyDraft(),
         ...template,
         countryCodes: [...(template.countryCodes ?? [])],
+        devicePlatforms: [...(template.devicePlatforms ?? [])],
+        operatingSystems: [...(template.operatingSystems ?? [])],
         placements: {
             facebook: [...(template.placements?.facebook ?? [])],
             instagram: [...(template.placements?.instagram ?? [])],
@@ -144,6 +149,31 @@ export default function TemplatesTab({ onError, showToast }) {
                 },
             };
         });
+    };
+
+    const deviceMode = draft.devicePlatforms.length === 1
+        ? draft.devicePlatforms[0]
+        : "all";
+    const operatingSystemMode = draft.operatingSystems.length === 1
+        ? draft.operatingSystems[0]
+        : "all";
+
+    const changeDeviceMode = (value) => {
+        setDraft((current) => ({
+            ...current,
+            devicePlatforms: value === "all" ? [] : [value],
+            operatingSystems: value === "mobile"
+                ? current.operatingSystems
+                : [],
+        }));
+    };
+
+    const changeOperatingSystem = (value) => {
+        setDraft((current) => ({
+            ...current,
+            devicePlatforms: ["mobile"],
+            operatingSystems: value === "all" ? [] : [value],
+        }));
     };
 
     const save = async (event) => {
@@ -282,9 +312,10 @@ export default function TemplatesTab({ onError, showToast }) {
                                 </div>
                                 <div className="template-editor-fields three-columns">
                                     <label className="field"><span>Стать</span><select value={draft.gender} onChange={(event) => setDraft((current) => ({ ...current, gender: event.target.value }))}><option value="any">Будь-яка</option><option value="male">Чоловіча</option><option value="female">Жіноча</option></select></label>
-                                    <label className="field"><span>Вік від</span><input type="number" min="18" max="65" value={draft.ageMin} onChange={(event) => setDraft((current) => ({ ...current, ageMin: Number(event.target.value) }))} /></label>
-                                    <label className="field"><span>Вік до</span><input type="number" min="18" max="65" value={draft.ageMax} onChange={(event) => setDraft((current) => ({ ...current, ageMax: Number(event.target.value) }))} /></label>
+                                    <label className="field"><span>Вік від</span><select value={draft.ageMin} onChange={(event) => setDraft((current) => { const ageMin = Number(event.target.value); return { ...current, ageMin, ageMax: Math.max(ageMin, current.ageMax) }; })}>{ageOptions.map((age) => <option key={age} value={age}>{age}</option>)}</select></label>
+                                    <label className="field"><span>Вік до</span><select value={draft.ageMax} onChange={(event) => setDraft((current) => ({ ...current, ageMax: Number(event.target.value) }))}>{ageOptions.filter((age) => age >= draft.ageMin).map((age) => <option key={age} value={age}>{age === 65 ? "65+" : age}</option>)}</select></label>
                                 </div>
+                                <small className="field-hint">65+ означає, що люди старше 65 років не відсікаються.</small>
                             </section>
 
                             <section className="template-form-section">
@@ -292,6 +323,11 @@ export default function TemplatesTab({ onError, showToast }) {
                                 <div className="placement-grid">
                                     {placementOptions.map((option) => <label key={`${option.platform}-${option.value}`} className="checkbox-line compact"><input type="checkbox" checked={draft.placements[option.platform]?.includes(option.value)} onChange={() => togglePlacement(option.platform, option.value)} /><span>{option.label}</span></label>)}
                                 </div>
+                                <div className="template-editor-fields two-columns">
+                                    <label className="field"><span>Пристрої</span><select value={deviceMode} onChange={(event) => changeDeviceMode(event.target.value)}><option value="all">Усі пристрої</option><option value="mobile">Лише мобільні</option><option value="desktop">Лише комп’ютери</option></select></label>
+                                    <label className="field"><span>Операційна система</span><select value={operatingSystemMode} disabled={deviceMode !== "mobile"} onChange={(event) => changeOperatingSystem(event.target.value)}><option value="all">Усі мобільні ОС</option><option value="Android">Android</option><option value="iOS">iOS</option></select></label>
+                                </div>
+                                <small className="field-hint">Вибір ОС доступний лише для мобільних пристроїв.</small>
                             </section>
 
                             <section className="template-form-section dsa-section">

@@ -286,6 +286,12 @@ function buildTargeting(template) {
             ? { instagram_positions: instagramPositions }
             : {}),
         ...(gender ? { genders: gender } : {}),
+        ...(template.devicePlatforms?.length
+            ? { device_platforms: template.devicePlatforms }
+            : {}),
+        ...(template.operatingSystems?.length
+            ? { user_os: template.operatingSystems }
+            : {}),
         targeting_automation: { advantage_audience: 0 },
     };
 }

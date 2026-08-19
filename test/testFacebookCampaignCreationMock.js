@@ -115,6 +115,8 @@ const template = {
     gender: "female",
     ageMin: 25,
     ageMax: 44,
+    devicePlatforms: ["mobile"],
+    operatingSystems: ["iOS"],
     placements: { facebook: ["feed"], instagram: [] },
     utm: "utm_campaign={{campaign.name}}",
     shareAdSetBudget: true,
@@ -164,6 +166,8 @@ const targeting = JSON.parse(actualAdSet.data.get("targeting"));
 assert.deepEqual(targeting.geo_locations.countries, ["HU", "US"]);
 assert.deepEqual(targeting.genders, [2]);
 assert.equal(targeting.targeting_automation.advantage_audience, 0);
+assert.deepEqual(targeting.device_platforms, ["mobile"]);
+assert.deepEqual(targeting.user_os, ["iOS"]);
 assert.equal(actualAdSet.data.get("daily_budget"), "500");
 assert.equal(actualAdSet.data.has("destination_type"), false);
 assert.equal(actualAdSet.data.get("dsa_beneficiary"), "Meta Beneficiary LLC");

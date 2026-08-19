@@ -2,8 +2,10 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 
-export const TEMPLATE_SCHEMA_VERSION = 3;
+export const TEMPLATE_SCHEMA_VERSION = 4;
 export const TEMPLATE_GENDERS = new Set(["any", "male", "female"]);
+export const TEMPLATE_DEVICE_PLATFORMS = new Set(["mobile", "desktop"]);
+export const TEMPLATE_OPERATING_SYSTEMS = new Set(["Android", "iOS"]);
 export const TEMPLATE_PLACEMENTS = Object.freeze({
     facebook: ["feed", "story", "reels"],
     instagram: ["stream", "story", "reels"],
@@ -47,6 +49,24 @@ function normalizePlacements(input = {}) {
 }
 
 
+function normalizeDevicePlatforms(input) {
+    const platforms = uniqueStrings(input).filter((platform) => (
+        TEMPLATE_DEVICE_PLATFORMS.has(platform)
+    ));
+    return platforms.length === TEMPLATE_DEVICE_PLATFORMS.size
+        ? []
+        : platforms;
+}
+
+
+function normalizeOperatingSystems(input, devicePlatforms) {
+    if (!devicePlatforms.includes("mobile")) return [];
+    return uniqueStrings(input).filter((operatingSystem) => (
+        TEMPLATE_OPERATING_SYSTEMS.has(operatingSystem)
+    ));
+}
+
+
 export function normalizeTemplateInput(input = {}) {
     const name = String(input.name ?? "").trim();
     const pixel = String(input.pixel ?? input.pixelId ?? "").trim();
@@ -55,6 +75,7 @@ export function normalizeTemplateInput(input = {}) {
         : "any";
     const ageMin = normalizeAge(input.ageMin, 18);
     const ageMax = normalizeAge(input.ageMax, 65);
+    const devicePlatforms = normalizeDevicePlatforms(input.devicePlatforms);
 
     if (!name) {
         throw createTemplateError(
@@ -85,6 +106,11 @@ export function normalizeTemplateInput(input = {}) {
         gender,
         ageMin,
         ageMax,
+        devicePlatforms,
+        operatingSystems: normalizeOperatingSystems(
+            input.operatingSystems,
+            devicePlatforms
+        ),
         placements: normalizePlacements(input.placements),
         utm: String(input.utm ?? "").trim(),
         shareAdSetBudget: Boolean(input.shareAdSetBudget),

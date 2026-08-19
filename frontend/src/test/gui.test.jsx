@@ -148,6 +148,13 @@ describe("GUI helpers", () => {
         fireEvent.change(screen.getByPlaceholderText("Pixel ID або назва"), {
             target: { value: "pixel-123" },
         });
+        expect(screen.getByLabelText("Вік до")).toHaveDisplayValue("65+");
+        fireEvent.change(screen.getByLabelText("Пристрої"), {
+            target: { value: "mobile" },
+        });
+        fireEvent.change(screen.getByLabelText("Операційна система"), {
+            target: { value: "iOS" },
+        });
         fireEvent.change(screen.getByLabelText("Бенефіціар"), {
             target: { value: "Example Beneficiary LLC" },
         });
@@ -167,6 +174,8 @@ describe("GUI helpers", () => {
             gender: "any",
             ageMin: 18,
             ageMax: 65,
+            devicePlatforms: ["mobile"],
+            operatingSystems: ["iOS"],
             placements: {
                 facebook: ["feed"],
                 instagram: [],

@@ -30,6 +30,8 @@ try {
     assert.equal(first.gender, "any");
     assert.equal(first.ageMin, 18);
     assert.equal(first.ageMax, 65);
+    assert.deepEqual(first.devicePlatforms, []);
+    assert.deepEqual(first.operatingSystems, []);
     assert.equal(first.dsaBeneficiary, "");
     assert.equal(first.dsaPayorSameAsBeneficiary, true);
     assert.equal(first.dsaPayor, "");
@@ -52,7 +54,7 @@ try {
     const saved = JSON.parse(await readFile(templatesFile, "utf8"));
     assert.equal(saved.nextId, 4);
     assert.equal(saved.templates.length, 2);
-    assert.equal(saved.version, 3);
+    assert.equal(saved.version, 4);
 
     const legacyFile = path.join(temporaryDirectory, "legacy.json");
     await writeFile(legacyFile, JSON.stringify({
@@ -64,12 +66,30 @@ try {
         templatesFile: legacyFile,
     });
     const [legacy] = await legacyManager.list();
-    assert.equal(legacy.schemaVersion, 3);
+    assert.equal(legacy.schemaVersion, 4);
     assert.deepEqual(legacy.placements.facebook, ["feed"]);
+    assert.deepEqual(legacy.devicePlatforms, []);
+    assert.deepEqual(legacy.operatingSystems, []);
     assert.equal(legacy.dsaBeneficiary, "");
     assert.equal(legacy.dsaPayorSameAsBeneficiary, true);
     assert.equal(legacy.dsaPayor, "");
-    assert.equal(JSON.parse(await readFile(legacyFile, "utf8")).version, 3);
+    assert.equal(JSON.parse(await readFile(legacyFile, "utf8")).version, 4);
+
+    const mobileTemplate = await manager.create({
+        name: "Mobile iOS",
+        devicePlatforms: ["mobile"],
+        operatingSystems: ["iOS"],
+    });
+    assert.deepEqual(mobileTemplate.devicePlatforms, ["mobile"]);
+    assert.deepEqual(mobileTemplate.operatingSystems, ["iOS"]);
+
+    const desktopTemplate = await manager.create({
+        name: "Desktop",
+        devicePlatforms: ["desktop"],
+        operatingSystems: ["Android"],
+    });
+    assert.deepEqual(desktopTemplate.devicePlatforms, ["desktop"]);
+    assert.deepEqual(desktopTemplate.operatingSystems, []);
 
     const dsaTemplate = await manager.create({
         name: "EU Leads",
