@@ -4,6 +4,7 @@ import path from "node:path";
 
 const defaultState = {
     activeTab: "publish",
+    uiScale: 1.3,
     selectedAccountKey: "",
     selectedPageId: "",
     selectedAdAccountId: "",
@@ -33,10 +34,14 @@ function stringsFrom(source, fields) {
 
 function normalizeState(state = {}) {
     const allowedTabs = new Set(["publish", "comments", "ads", "templates"]);
+    const requestedScale = Number(state.uiScale);
     return {
         activeTab: allowedTabs.has(state.activeTab)
             ? state.activeTab
             : defaultState.activeTab,
+        uiScale: Number.isFinite(requestedScale)
+            ? Math.min(1.5, Math.max(0.8, requestedScale))
+            : defaultState.uiScale,
         ...stringsFrom(state, [
             "selectedAccountKey",
             "selectedPageId",

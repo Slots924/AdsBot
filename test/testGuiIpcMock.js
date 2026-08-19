@@ -6,6 +6,7 @@ import registerIpcHandlers
 
 const handlers = new Map();
 const openedUrls = [];
+const zoomFactors = [];
 const templateManager = {
     async list() {
         return [{ id: 1, name: "AT", pixel: "123" }];
@@ -31,6 +32,26 @@ const appStateStore = {
         return state;
     },
 };
+const adAccountPreferencesStore = {
+    async enrichAccounts(accountKey, accounts) {
+        assert.equal(accountKey, "fp_hub");
+        return accounts.map((account) => ({
+            ...account,
+            localName: "Ім’я 1",
+            isFavorite: false,
+            favoritePosition: null,
+        }));
+    },
+    async rename(adAccountId, name) {
+        return { adAccountId, localName: name };
+    },
+    async setFavorite(_accountKey, adAccountId, isFavorite) {
+        return isFavorite ? [adAccountId] : [];
+    },
+    async reorderFavorites(_accountKey, orderedIds) {
+        return orderedIds;
+    },
+};
 const ipcMain = {
     handle(channel, handler) {
         handlers.set(channel, handler);
@@ -48,7 +69,10 @@ const guiService = {
         return [];
     },
     async getAdAccounts() {
-        return [];
+        return [{ id: "act_1", name: "Meta" }];
+    },
+    async getAdCampaigns(accountKey, adAccountId, datePreset) {
+        return { accountKey, adAccountId, datePreset, campaigns: [] };
     },
     async getAdsPowerGroups() {
         return [];
@@ -86,7 +110,15 @@ registerIpcHandlers({
     guiService,
     templateManager,
     appStateStore,
-    getWindow: () => ({}),
+    adAccountPreferencesStore,
+    getWindow: () => ({
+        isDestroyed: () => false,
+        webContents: {
+            setZoomFactor(scale) {
+                zoomFactors.push(scale);
+            },
+        },
+    }),
 });
 
 assert.deepEqual(
@@ -99,6 +131,43 @@ assert.deepEqual(
 assert.deepEqual(
     await handlers.get("pages:list")({}, { accountKey: "fp_hub" }),
     { ok: true, data: [] }
+);
+assert.deepEqual(
+    await handlers.get("ads:list")({}, { accountKey: "fp_hub" }),
+    {
+        ok: true,
+        data: [{
+            id: "act_1",
+            name: "Meta",
+            localName: "Ім’я 1",
+            isFavorite: false,
+            favoritePosition: null,
+        }],
+    }
+);
+assert.deepEqual(
+    await handlers.get("ads:favorite-set")({}, {
+        accountKey: "fp_hub",
+        adAccountId: "act_1",
+        isFavorite: true,
+    }),
+    { ok: true, data: ["act_1"] }
+);
+assert.deepEqual(
+    await handlers.get("campaigns:list")({}, {
+        accountKey: "fp_hub",
+        adAccountId: "act_1",
+        datePreset: "today",
+    }),
+    {
+        ok: true,
+        data: {
+            accountKey: "fp_hub",
+            adAccountId: "act_1",
+            datePreset: "today",
+            campaigns: [],
+        },
+    }
 );
 
 const failedPost = await handlers.get("post:publish")({}, {});
@@ -131,6 +200,15 @@ assert.deepEqual(
     await handlers.get("state:save")({}, { activeTab: "comments" }),
     { ok: true, data: { activeTab: "comments" } }
 );
+assert.deepEqual(
+    await handlers.get("app:set-zoom")({}, { scale: 1.3 }),
+    { ok: true, data: 1.3 }
+);
+assert.deepEqual(
+    await handlers.get("app:set-zoom")({}, { scale: 2 }),
+    { ok: true, data: 1.5 }
+);
+assert.deepEqual(zoomFactors, [1.3, 1.5]);
 assert.equal(
     (await handlers.get("app:open-external")({}, {
         url: "https://example.com",

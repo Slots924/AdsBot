@@ -46,6 +46,7 @@ try {
     const stateStore = new AppStateStore({ stateFile });
     await stateStore.save({
         activeTab: "templates",
+        uiScale: 1.4,
         selectedAccountKey: "account-1",
         publishForm: { geo: "hu", secret: "not-saved" },
         commentsForm: { postUrl: "https://facebook.com/post" },
@@ -53,9 +54,16 @@ try {
     });
     const state = await stateStore.load();
     assert.equal(state.activeTab, "templates");
+    assert.equal(state.uiScale, 1.4);
     assert.equal(state.publishForm.geo, "hu");
     assert(!("secret" in state.publishForm));
     assert(!("unsafe" in state));
+
+    const defaultStateFile = path.join(temporaryDirectory, "new-state.json");
+    assert.equal(
+        (await new AppStateStore({ stateFile: defaultStateFile }).load()).uiScale,
+        1.3
+    );
 
     console.log("Перевірка шаблонів і стану програми пройшла успішно");
 } finally {

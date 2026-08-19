@@ -1,10 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BadgeDollarSign, LayoutTemplate, MessageSquareText, Send } from "lucide-react";
+import {
+    BadgeDollarSign,
+    LayoutTemplate,
+    MessageSquareText,
+    Send,
+    Settings,
+} from "lucide-react";
 
 import LogPanel from "./components/LogPanel.jsx";
 import { Modal, Toast } from "./components/Overlay.jsx";
 import Sidebar from "./components/Sidebar.jsx";
+import SettingsModal from "./components/SettingsModal.jsx";
 import AdAccountsTab from "./tabs/AdAccountsTab.jsx";
 import CommentsTab from "./tabs/CommentsTab.jsx";
 import PublishTab from "./tabs/PublishTab.jsx";
@@ -26,6 +33,8 @@ export default function App() {
     const [accounts, setAccounts] = useState([]);
     const [accountsLoading, setAccountsLoading] = useState(true);
     const [stateHydrated, setStateHydrated] = useState(false);
+    const [uiScale, setUiScale] = useState(1.3);
+    const [settingsOpen, setSettingsOpen] = useState(false);
     const [selectedAccountKey, setSelectedAccountKey] = useState("");
     const [selectedPageId, setSelectedPageId] = useState("");
     const [selectedAdAccountId, setSelectedAdAccountId] = useState("");
@@ -102,12 +111,20 @@ export default function App() {
             try {
                 restored = await unwrap(window.adsBot.loadAppState());
                 setActiveTab(restored.activeTab);
+                setUiScale(restored.uiScale);
                 setSelectedAccountKey(restored.selectedAccountKey);
                 setSelectedPageId(restored.selectedPageId);
                 setSelectedAdAccountId(restored.selectedAdAccountId);
                 setSelectedGroupIds(restored.selectedGroupIds);
                 setPublishForm(restored.publishForm);
                 setCommentsForm(restored.commentsForm);
+                try {
+                    setUiScale(await unwrap(
+                        window.adsBot.setUiScale(restored.uiScale)
+                    ));
+                } catch (error) {
+                    addLog("warn", "frontend", `Не вдалося застосувати масштаб: ${error.message}`);
+                }
             } catch (error) {
                 addLog("warn", "frontend", `Не вдалося відновити стан: ${error.message}`);
             }
@@ -137,6 +154,7 @@ export default function App() {
         const timeoutId = window.setTimeout(() => {
             unwrap(window.adsBot.saveAppState({
                 activeTab,
+                uiScale,
                 selectedAccountKey,
                 selectedPageId,
                 selectedAdAccountId,
@@ -152,6 +170,7 @@ export default function App() {
     }, [
         stateHydrated,
         activeTab,
+        uiScale,
         selectedAccountKey,
         selectedPageId,
         selectedAdAccountId,
@@ -159,6 +178,20 @@ export default function App() {
         publishForm,
         commentsForm,
     ]);
+
+    const changeUiScale = async (nextScale) => {
+        const previousScale = uiScale;
+        setUiScale(nextScale);
+        try {
+            setUiScale(await unwrap(window.adsBot.setUiScale(nextScale)));
+        } catch (error) {
+            setUiScale(previousScale);
+            setModal({
+                ...errorDetails(error),
+                title: "Не вдалося змінити масштаб",
+            });
+        }
+    };
 
     const handlePostSuccess = async ({
         post,
@@ -224,6 +257,13 @@ export default function App() {
                         <span className={`status-dot ${selectedAccount?.status || "unknown"}`} />
                         {selectedAccount?.accountKey || "Профіль не вибрано"}
                     </div>
+                    <button
+                        className="icon-button settings-trigger"
+                        title="Налаштування"
+                        onClick={() => setSettingsOpen(true)}
+                    >
+                        <Settings size={17} />
+                    </button>
                 </nav>
 
                 <div className="content-scroll">
@@ -259,6 +299,8 @@ export default function App() {
                                 key="ads"
                                 selectedAccount={selectedAccount}
                                 onError={setModal}
+                                showToast={showToast}
+                                addLog={addLog}
                                 selectedId={selectedAdAccountId}
                                 setSelectedId={setSelectedAdAccountId}
                             />
@@ -277,6 +319,13 @@ export default function App() {
             </main>
 
             <Modal modal={modal} onClose={() => setModal(null)} />
+            {settingsOpen && (
+                <SettingsModal
+                    scale={uiScale}
+                    onScaleChange={changeUiScale}
+                    onClose={() => setSettingsOpen(false)}
+                />
+            )}
             <Toast toast={toast} />
         </div>
     );

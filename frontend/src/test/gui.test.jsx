@@ -1,8 +1,16 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+    cleanup,
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+} from "@testing-library/react";
 import { afterEach, beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
 import Sidebar from "../components/Sidebar.jsx";
+import SettingsModal from "../components/SettingsModal.jsx";
+import AdAccountsTab from "../tabs/AdAccountsTab.jsx";
 import PublishTab from "../tabs/PublishTab.jsx";
 import TemplatesTab from "../tabs/TemplatesTab.jsx";
 import { findGroupForGeo } from "../lib/groups.js";
@@ -144,5 +152,105 @@ describe("GUI helpers", () => {
             name: "AT Slot",
             pixel: "pixel-123",
         });
+    });
+
+    it("показує обрані та інші РК і завантажує кампанії по кліку", async () => {
+        window.adsBot.getAdAccounts = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [
+                {
+                    id: "act_1",
+                    accountId: "1",
+                    name: "Meta Main",
+                    localName: "Ім’я 1",
+                    status: "active",
+                    accountStatus: 1,
+                    isFavorite: true,
+                    favoritePosition: 0,
+                    disableReason: { code: null, label: "Не вказано" },
+                    currency: "USD",
+                },
+                {
+                    id: "act_2",
+                    accountId: "2",
+                    name: "Meta Disabled",
+                    localName: "Ім’я 2",
+                    status: "disabled",
+                    accountStatus: 2,
+                    isFavorite: false,
+                    favoritePosition: null,
+                    disableReason: { code: 3, label: "Проблема з оплатою" },
+                    currency: "USD",
+                },
+            ],
+        });
+        window.adsBot.getAdCampaigns = vi.fn().mockResolvedValue({
+            ok: true,
+            data: {
+                adAccountId: "act_1",
+                datePreset: "today",
+                campaigns: [{
+                    id: "campaign-1",
+                    name: "A Campaign",
+                    effectiveStatus: "ACTIVE",
+                    leads: 2,
+                    spend: 10,
+                    costPerLead: 5,
+                }],
+            },
+        });
+        window.adsBot.setAdAccountFavorite = vi.fn().mockResolvedValue({
+            ok: true,
+            data: ["act_1", "act_2"],
+        });
+        window.adsBot.renameAdAccount = vi.fn();
+        window.adsBot.reorderFavoriteAdAccounts = vi.fn();
+
+        render(
+            <AdAccountsTab
+                selectedAccount={{ accountKey: "fp_hub", status: "active" }}
+                onError={vi.fn()}
+            />
+        );
+
+        expect(await screen.findByText("Ім’я 1")).toBeInTheDocument();
+        expect(screen.getByText("Інші РК")).toBeInTheDocument();
+        expect(screen.getByText("Проблема з оплатою")).toBeInTheDocument();
+        fireEvent.click(screen.getByText("Ім’я 1"));
+
+        expect(await screen.findByText("A Campaign")).toBeInTheDocument();
+        expect(window.adsBot.getAdCampaigns).toHaveBeenCalledWith(
+            "fp_hub",
+            "act_1",
+            "today"
+        );
+
+        fireEvent.click(screen.getByText("7 днів"));
+        await waitFor(() => expect(window.adsBot.getAdCampaigns)
+            .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d"));
+
+        fireEvent.click(screen.getByTitle("Додати до обраних"));
+        expect(window.adsBot.setAdAccountFavorite).toHaveBeenCalledWith(
+            "fp_hub",
+            "act_2",
+            true
+        );
+    });
+
+    it("змінює масштаб у налаштуваннях", () => {
+        const onScaleChange = vi.fn();
+        render(
+            <SettingsModal
+                scale={1.3}
+                onScaleChange={onScaleChange}
+                onClose={vi.fn()}
+            />
+        );
+
+        expect(screen.getByText("130%")).toBeInTheDocument();
+        fireEvent.change(screen.getByLabelText("Масштаб інтерфейсу"), {
+            target: { value: "140" },
+        });
+        expect(onScaleChange).toHaveBeenCalledWith(1.4);
     });
 });

@@ -175,6 +175,24 @@ export default class FacebookBackendService {
 
 
     /**
+     * Повертає кампанії та статистику рекламного акаунта.
+     * @param {string} accountKey Ключ Facebook API-клієнта.
+     * @param {string} adAccountId Graph ID рекламного акаунта.
+     * @param {string} datePreset Meta date preset.
+     * @returns {Promise<{campaigns: object[], insights: object[]}>}
+     */
+    async getAdCampaigns(accountKey, adAccountId, datePreset = "today") {
+        const facebookApiClient = this.#getFacebookApiClient(accountKey);
+        const [campaigns, insights] = await Promise.all([
+            facebookApiClient.getAdCampaigns(adAccountId),
+            facebookApiClient.getAdCampaignInsights(adAccountId, datePreset),
+        ]);
+
+        return { campaigns, insights };
+    }
+
+
+    /**
      * Отримує креатив і підставляє посилання сайту в його копію.
      * @param {object} options Дані креативу та кампанії.
      * @returns {Promise<{creative: string, comments: object[]}>}

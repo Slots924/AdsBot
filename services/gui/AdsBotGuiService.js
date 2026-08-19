@@ -85,6 +85,52 @@ function formatAdAccount(account) {
 }
 
 
+function numberOrZero(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : 0;
+}
+
+
+function formatCampaigns({ campaigns = [], insights = [] }) {
+    const insightByCampaignId = new Map(
+        insights.map((insight) => [String(insight.campaignId), insight])
+    );
+
+    return campaigns
+        .filter((campaign) => ["ACTIVE", "PAUSED"].includes(
+            String(campaign.effectiveStatus ?? "").toUpperCase()
+        ))
+        .map((campaign) => {
+            const insight = insightByCampaignId.get(String(campaign.id));
+            const leadAction = insight?.actions?.find(
+                (action) => action.action_type === "lead"
+            );
+            const leads = numberOrZero(leadAction?.value);
+            const spend = numberOrZero(insight?.spend);
+
+            return {
+                id: campaign.id,
+                name: campaign.name || "Без назви",
+                status: campaign.status ?? null,
+                effectiveStatus: campaign.effectiveStatus ?? null,
+                leads,
+                spend,
+                costPerLead: leads > 0 ? spend / leads : null,
+            };
+        })
+        .sort((left, right) => {
+            const activeDifference = Number(
+                right.effectiveStatus === "ACTIVE"
+            ) - Number(left.effectiveStatus === "ACTIVE");
+            return activeDifference || left.name.localeCompare(
+                right.name,
+                "uk-UA",
+                { numeric: true, sensitivity: "base" }
+            );
+        });
+}
+
+
 export default class AdsBotGuiService {
     #facebookBackend;
     #facebookBackendFactory;
@@ -213,6 +259,26 @@ export default class AdsBotGuiService {
         this.logger.info(`Завантажуємо рекламні акаунти: ${accountKey}`);
         const accounts = await this.#facebookBackend.getAdAccounts(accountKey);
         return accounts.map(formatAdAccount);
+    }
+
+
+    async getAdCampaigns(accountKey, adAccountId, datePreset = "today") {
+        await this.#assertActiveAccount(accountKey);
+        this.logger.info(
+            `Завантажуємо кампанії ${adAccountId} за період ${datePreset}…`
+        );
+        const result = await this.#facebookBackend.getAdCampaigns(
+            accountKey,
+            adAccountId,
+            datePreset
+        );
+        const campaigns = formatCampaigns(result);
+        this.logger.info(`Знайдено кампаній: ${campaigns.length}`);
+        return {
+            adAccountId,
+            datePreset,
+            campaigns,
+        };
     }
 
 

@@ -6,6 +6,8 @@ import CreativeManager
 import AdsBotGuiService
     from "../../services/gui/AdsBotGuiService.js";
 import AppStateStore from "../../services/gui/AppStateStore.js";
+import AdAccountPreferencesStore
+    from "../../services/gui/AdAccountPreferencesStore.js";
 import CampaignTemplateManager
     from "../../services/templates/CampaignTemplateManager.js";
 import { appPaths } from "./paths.js";
@@ -19,6 +21,7 @@ let mainWindow = null;
 let guiService = null;
 let templateManager = null;
 let appStateStore = null;
+let adAccountPreferencesStore = null;
 
 
 function sendRendererEvent(channel, payload) {
@@ -98,6 +101,9 @@ async function createWindow() {
         templatesFile: appPaths.templates,
     });
     appStateStore = new AppStateStore({ stateFile: appPaths.appState });
+    adAccountPreferencesStore = new AdAccountPreferencesStore({
+        preferencesFile: appPaths.adAccountPreferences,
+    });
 
     registerIpcHandlers({
         ipcMain,
@@ -106,6 +112,7 @@ async function createWindow() {
         guiService,
         templateManager,
         appStateStore,
+        adAccountPreferencesStore,
         getWindow: () => mainWindow,
     });
 

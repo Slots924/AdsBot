@@ -19,6 +19,10 @@ export const appPaths = {
     groups: path.join(projectRoot, "data/adspower-groups.json"),
     templates: path.join(projectRoot, "data/campaign-templates.json"),
     appState: path.join(projectRoot, "data/app-state.json"),
+    adAccountPreferences: path.join(
+        projectRoot,
+        "data/ad-account-preferences.json"
+    ),
     reports: path.join(projectRoot, "data/reports"),
     renderer: path.join(frontendRoot, "dist/index.html"),
     preload: path.join(electronDirectory, "preload.cjs"),

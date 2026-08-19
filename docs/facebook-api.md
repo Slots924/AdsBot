@@ -124,6 +124,8 @@ if (!selectedFacebookApiClient) {
 | `getMe()` | `{ id, name }` | Повертає користувача, якому належить token. |
 | `getPermissions()` | `{ granted, declined, expired, other }` | Групує permissions за статусом. |
 | `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти. |
+| `getAdCampaigns(adAccountId)` | `Array` | Повертає ACTIVE і PAUSED кампанії РК. |
+| `getAdCampaignInsights(adAccountId, datePreset)` | `Array` | Повертає campaign-level spend та actions за Meta date preset. |
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
 | `getAvailablePages()` | `Array<{id, name}>` | Перевіряє доступність, publish tasks і статус фанпейджів та повертає список без токенів. |
 | `getFanPageById(pageId)` | `object \| null` | Перевіряє фанпейджу й повертає її Page token лише для внутрішньої публікації. |
@@ -148,6 +150,11 @@ const pages = await selectedFacebookApiClient.getPages();
 ```
 
 `getAdAccounts()` і `getPages()` автоматично проходять усі сторінки Graph API через cursor `after`. Код не використовує абсолютний `paging.next`, щоб access token випадково не потрапив до логів разом із URL.
+
+`getAdCampaigns()` і `getAdCampaignInsights()` також проходять усі сторінки
+через cursor `after`. Insights запитуються з `level=campaign`; GUI використовує
+лише агрегований action type `lead`, не сумуючи його з Pixel або form-підтипами.
+Підтримувані періоди: `today`, `yesterday`, `last_7d`, `last_30d`, `maximum`.
 
 ## Публікація поста
 

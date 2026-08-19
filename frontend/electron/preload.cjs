@@ -19,6 +19,25 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("pages:list", { accountKey }),
     getAdAccounts: (accountKey) =>
         ipcRenderer.invoke("ads:list", { accountKey }),
+    renameAdAccount: (adAccountId, name) =>
+        ipcRenderer.invoke("ads:rename", { adAccountId, name }),
+    setAdAccountFavorite: (accountKey, adAccountId, isFavorite) =>
+        ipcRenderer.invoke("ads:favorite-set", {
+            accountKey,
+            adAccountId,
+            isFavorite,
+        }),
+    reorderFavoriteAdAccounts: (accountKey, orderedIds) =>
+        ipcRenderer.invoke("ads:favorite-reorder", {
+            accountKey,
+            orderedIds,
+        }),
+    getAdCampaigns: (accountKey, adAccountId, datePreset) =>
+        ipcRenderer.invoke("campaigns:list", {
+            accountKey,
+            adAccountId,
+            datePreset,
+        }),
     getAdsPowerGroups: () => ipcRenderer.invoke("groups:list"),
     refreshAdsPowerGroups: () => ipcRenderer.invoke("groups:refresh"),
     publishCreativePost: (options) =>
@@ -36,6 +55,7 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("templates:delete", { id }),
     loadAppState: () => ipcRenderer.invoke("state:load"),
     saveAppState: (state) => ipcRenderer.invoke("state:save", state),
+    setUiScale: (scale) => ipcRenderer.invoke("app:set-zoom", { scale }),
     selectImage: () => ipcRenderer.invoke("dialog:select-image"),
     openExternal: (url) => ipcRenderer.invoke("app:open-external", { url }),
     getDroppedFilePath: (file) => webUtils.getPathForFile(file),

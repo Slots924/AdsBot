@@ -96,6 +96,24 @@ try {
                 disableReason: 3,
             }];
         },
+        async getAdCampaigns(accountKey, adAccountId, datePreset) {
+            assert.equal(accountKey, "active");
+            assert.equal(adAccountId, "act_1");
+            assert.equal(datePreset, "today");
+            return {
+                campaigns: [{
+                    id: "campaign-1",
+                    name: "Campaign",
+                    status: "ACTIVE",
+                    effectiveStatus: "ACTIVE",
+                }],
+                insights: [{
+                    campaignId: "campaign-1",
+                    spend: "20",
+                    actions: [{ action_type: "lead", value: "4" }],
+                }],
+            };
+        },
         async prepareCreative() {
             return { creative: "Prepared", comments: [] };
         },
@@ -140,6 +158,12 @@ try {
     assert.equal(adAccounts[0].status, "disabled");
     assert.equal(adAccounts[0].disableReason.label, "Ризик або проблема з оплатою");
     assert(!("accessToken" in adAccounts[0]));
+    const campaigns = await guiService.getAdCampaigns(
+        "active",
+        "act_1",
+        "today"
+    );
+    assert.equal(campaigns.campaigns[0].costPerLead, 5);
 
     const post = await guiService.publishCreativePost({
         accountKey: "active",

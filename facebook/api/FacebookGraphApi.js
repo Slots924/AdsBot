@@ -35,12 +35,31 @@ const pagePublishTasks = new Set([
     "PROFILE_PLUS_FULL_CONTROL",
 ]);
 
+const campaignDatePresets = new Set([
+    "today",
+    "yesterday",
+    "last_7d",
+    "last_30d",
+    "maximum",
+]);
+
 
 function hasPagePublishTask(tasks) {
     return Array.isArray(tasks)
         && tasks.some((task) =>
             pagePublishTasks.has(String(task ?? "").trim().toUpperCase())
         );
+}
+
+
+function normalizeAdAccountId(value) {
+    const id = String(value ?? "").trim();
+    if (!/^act_\d+$/.test(id)) {
+        const error = new Error("Некоректний Graph ID рекламного акаунта");
+        error.code = "FACEBOOK_AD_ACCOUNT_ID_INVALID";
+        throw error;
+    }
+    return id;
 }
 
 
@@ -249,6 +268,64 @@ export default class FacebookGraphApi {
             spendCap: account.spend_cap ?? null,
             owner: account.owner ?? null,
             business: account.business ?? null,
+        }));
+    }
+
+
+    /**
+     * Повертає активні та призупинені кампанії рекламного акаунта.
+     * @param {string} adAccountId Graph ID у форматі act_123.
+     * @returns {Promise<object[]>}
+     */
+    async getAdCampaigns(adAccountId) {
+        const id = normalizeAdAccountId(adAccountId);
+        const campaigns = await this.#getAll(`/${id}/campaigns`, {
+            fields: "id,name,status,effective_status",
+            filtering: JSON.stringify([{
+                field: "effective_status",
+                operator: "IN",
+                value: ["ACTIVE", "PAUSED"],
+            }]),
+            limit: 100,
+        });
+
+        return campaigns.map((campaign) => ({
+            id: campaign.id,
+            name: campaign.name ?? "Без назви",
+            status: campaign.status ?? null,
+            effectiveStatus: campaign.effective_status ?? null,
+        }));
+    }
+
+
+    /**
+     * Повертає campaign-level статистику рекламного акаунта.
+     * @param {string} adAccountId Graph ID у форматі act_123.
+     * @param {string} datePreset Підтримуваний Meta date preset.
+     * @returns {Promise<object[]>}
+     */
+    async getAdCampaignInsights(adAccountId, datePreset = "today") {
+        const id = normalizeAdAccountId(adAccountId);
+        const normalizedPreset = String(datePreset ?? "").trim();
+
+        if (!campaignDatePresets.has(normalizedPreset)) {
+            const error = new Error("Непідтримуваний період статистики");
+            error.code = "FACEBOOK_INSIGHTS_DATE_PRESET_INVALID";
+            throw error;
+        }
+
+        const insights = await this.#getAll(`/${id}/insights`, {
+            fields: "campaign_id,campaign_name,spend,actions",
+            level: "campaign",
+            date_preset: normalizedPreset,
+            limit: 100,
+        });
+
+        return insights.map((insight) => ({
+            campaignId: insight.campaign_id,
+            campaignName: insight.campaign_name ?? null,
+            spend: insight.spend ?? "0",
+            actions: Array.isArray(insight.actions) ? insight.actions : [],
         }));
     }
 
