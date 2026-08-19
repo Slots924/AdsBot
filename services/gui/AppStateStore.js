@@ -10,6 +10,7 @@ const defaultState = {
     selectedPageId: "",
     selectedAdAccountId: "",
     selectedGroupIds: [],
+    lastPublishedPost: null,
     publishForm: {
         geo: "",
         creativeName: "",
@@ -52,6 +53,16 @@ function normalizeState(state = {}) {
         selectedGroupIds: Array.isArray(state.selectedGroupIds)
             ? state.selectedGroupIds.filter((id) => typeof id === "string")
             : [],
+        lastPublishedPost: (
+            typeof state.lastPublishedPost?.accountKey === "string"
+            && typeof state.lastPublishedPost?.pageId === "string"
+            && typeof state.lastPublishedPost?.postId === "string"
+            && state.lastPublishedPost.postId
+        ) ? stringsFrom(state.lastPublishedPost, [
+            "accountKey",
+            "pageId",
+            "postId",
+        ]) : null,
         publishForm: stringsFrom(state.publishForm, [
             "geo",
             "creativeName",

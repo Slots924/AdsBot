@@ -90,6 +90,7 @@ export default function CampaignCreationWizard({
     accountKey,
     adAccount,
     createPaused,
+    lastPublishedPost = null,
     onClose,
     onSuccess,
 }) {
@@ -294,6 +295,29 @@ export default function CampaignCreationWizard({
         change("postId", String(post.id));
     };
 
+    const usePublishedPage = () => {
+        const pageId = String(lastPublishedPost?.pageId ?? "");
+        if (!pageId) return;
+        const page = pages.find((item) => String(item.id) === pageId);
+        setPageQuery(page ? `${page.name} · ${page.id}` : pageId);
+        change("pageId", pageId);
+    };
+
+    const usePublishedPost = () => {
+        const postId = String(lastPublishedPost?.postId ?? "");
+        if (!postId) return;
+        const post = posts.find((item) => String(item.id) === postId) ?? null;
+        setSelectedPost(post);
+        setPostQuery(postId);
+        setPostMenuOpen(false);
+        change("postId", postId);
+    };
+
+    const hasPublishedSource = Boolean(
+        lastPublishedPost?.postId
+        && lastPublishedPost?.pageId
+    );
+
     const editPostQuery = (value) => {
         setPostQuery(value);
         setSelectedPost(null);
@@ -439,6 +463,7 @@ export default function CampaignCreationWizard({
                                         )}
                                     </div>
                                     <button type="button" className="icon-button resource-refresh" title="Оновити фанпейджі" aria-label="Оновити фанпейджі" disabled={pagesLoading} onClick={refreshPages}><RefreshCw className={pagesLoading ? "spin" : ""} size={16} /></button>
+                                    <button type="button" className="secondary-button campaign-use-published" disabled={!hasPublishedSource} onClick={usePublishedPage}>Взяти з публікації</button>
                                 </div>
                                 {pagesError && <div className="resource-inline-error"><span>{pagesError.message}</span><button type="button" onClick={refreshPages}>Повторити</button></div>}
                                 {pagesNotice && <div className="resource-inline-notice">{pagesNotice}</div>}
@@ -479,6 +504,7 @@ export default function CampaignCreationWizard({
                                         )}
                                     </div>
                                     <button type="button" className="icon-button resource-refresh" title="Оновити пости" aria-label="Оновити пости" disabled={!form.pageId || postsLoading} onClick={() => loadPosts(form.pageId)}><RefreshCw className={postsLoading ? "spin" : ""} size={16} /></button>
+                                    <button type="button" className="secondary-button campaign-use-published" disabled={!hasPublishedSource} onClick={usePublishedPost}>Взяти з публікації</button>
                                 </div>
                                 <small className="field-hint">Показуються 10 найновіших опублікованих постів. Найновіший завжди зверху.</small>
                                 {postsError && <div className="resource-inline-error"><span>{postsError.message}</span><button type="button" onClick={() => loadPosts(form.pageId)}>Повторити</button></div>}

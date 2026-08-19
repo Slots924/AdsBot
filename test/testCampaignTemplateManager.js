@@ -109,6 +109,12 @@ try {
         selectedAccountKey: "account-1",
         publishForm: { geo: "hu", secret: "not-saved" },
         commentsForm: { postUrl: "https://facebook.com/post" },
+        lastPublishedPost: {
+            accountKey: "account-1",
+            pageId: "10",
+            postId: "10_20",
+            secret: "not-saved",
+        },
         createCampaignsPaused: false,
         unsafe: "not-saved",
     });
@@ -117,6 +123,11 @@ try {
     assert.equal(state.uiScale, 1.4);
     assert.equal(state.publishForm.geo, "hu");
     assert.equal(state.createCampaignsPaused, false);
+    assert.deepEqual(state.lastPublishedPost, {
+        accountKey: "account-1",
+        pageId: "10",
+        postId: "10_20",
+    });
     assert(!("secret" in state.publishForm));
     assert(!("unsafe" in state));
 

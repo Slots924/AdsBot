@@ -16,6 +16,7 @@ export default function PublishTab({
     setPageId: setControlledPageId,
     form: controlledForm,
     setForm: setControlledForm,
+    lastPublishedPost = null,
 }) {
     const [fanPages, setFanPages] = useState([]);
     const [localPageId, setLocalPageId] = useState("");
@@ -99,7 +100,12 @@ export default function PublishTab({
                 ...form,
             }));
             setResult(post);
-            onPostSuccess({ post, ...form });
+            onPostSuccess({
+                post,
+                pageId,
+                accountKey: selectedAccount.accountKey,
+                ...form,
+            });
         } catch (error) {
             onError({
                 ...errorDetails(error),
@@ -161,6 +167,16 @@ export default function PublishTab({
                     onChange={(imagePath) => setForm((current) => ({ ...current, imagePath }))}
                     disabled={publishing}
                 />
+
+                <div className="section-label"><span>04</span> Остання успішна публікація</div>
+                <label className="field">
+                    <span>Post ID</span>
+                    <input
+                        readOnly
+                        value={lastPublishedPost?.postId ?? ""}
+                        placeholder="Після успішної публікації ID з’явиться тут"
+                    />
+                </label>
 
                 <div className="form-actions">
                     <span>{fanPages.length} доступних фанпейджів</span>

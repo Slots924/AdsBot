@@ -354,6 +354,7 @@ button:focus-visible, input:focus-visible {
 .campaign-combobox-empty { padding: 11px; color: #697184; text-align: center; font-size: 8px; }
 .posts-menu { max-height: 260px; }
 .resource-refresh { flex: 0 0 36px; width: 36px; height: 36px; }
+.campaign-use-published { flex: 0 0 auto; min-height: 36px; padding: 0 11px; white-space: nowrap; }
 .field-hint { color: #626a7d; font-size: 8px; line-height: 1.45; }
 .resource-inline-error, .resource-inline-notice { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px; border: 1px solid rgba(255,100,124,.2); border-radius: 8px; color: #ee8c9c; background: rgba(255,100,124,.06); font-size: 8px; }
 .resource-inline-error button { padding: 0; border: 0; color: #c7c1ff; background: transparent; cursor: pointer; font-size: 8px; font-weight: 700; }

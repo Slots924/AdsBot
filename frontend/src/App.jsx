@@ -53,6 +53,7 @@ export default function App() {
         siteUrl: "",
         imagePath: "",
     });
+    const [lastPublishedPost, setLastPublishedPost] = useState(null);
     const [logs, setLogs] = useState([]);
     const [modal, setModal] = useState(null);
     const [toast, setToast] = useState(null);
@@ -120,6 +121,7 @@ export default function App() {
                 setSelectedGroupIds(restored.selectedGroupIds);
                 setPublishForm(restored.publishForm);
                 setCommentsForm(restored.commentsForm);
+                setLastPublishedPost(restored.lastPublishedPost ?? null);
                 try {
                     setUiScale(await unwrap(
                         window.adsBot.setUiScale(restored.uiScale)
@@ -164,6 +166,7 @@ export default function App() {
                 selectedGroupIds,
                 publishForm,
                 commentsForm,
+                lastPublishedPost,
             })).catch((error) => {
                 addLog("warn", "frontend", `Не вдалося зберегти стан: ${error.message}`);
             });
@@ -181,6 +184,7 @@ export default function App() {
         selectedGroupIds,
         publishForm,
         commentsForm,
+        lastPublishedPost,
     ]);
 
     const changeUiScale = async (nextScale) => {
@@ -202,7 +206,14 @@ export default function App() {
         geo,
         creativeName,
         siteUrl,
+        pageId,
+        accountKey,
     }) => {
+        setLastPublishedPost({
+            accountKey,
+            pageId: String(pageId ?? ""),
+            postId: String(post.postId ?? ""),
+        });
         setCommentsForm({
             geo: geo.trim().toUpperCase(),
             creativeName: creativeName.trim(),
@@ -283,6 +294,7 @@ export default function App() {
                                 setPageId={setSelectedPageId}
                                 form={publishForm}
                                 setForm={setPublishForm}
+                                lastPublishedPost={lastPublishedPost}
                             />
                         )}
                         {activeTab === "comments" && (
@@ -308,6 +320,7 @@ export default function App() {
                                 selectedId={selectedAdAccountId}
                                 setSelectedId={setSelectedAdAccountId}
                                 createCampaignsPaused={createCampaignsPaused}
+                                lastPublishedPost={lastPublishedPost}
                             />
                         )}
                         {activeTab === "templates" && (

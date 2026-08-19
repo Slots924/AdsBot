@@ -113,11 +113,18 @@ describe("GUI helpers", () => {
                 onError={vi.fn()}
                 onPostSuccess={vi.fn()}
                 addLog={vi.fn()}
+                lastPublishedPost={{
+                    accountKey: "fp_hub",
+                    pageId: "page-1",
+                    postId: "page-1_post-1",
+                }}
             />
         );
 
         expect(await screen.findByText("1 доступних фанпейджів"))
             .toBeInTheDocument();
+        expect(screen.getByDisplayValue("page-1_post-1"))
+            .toHaveAttribute("readonly");
     });
 
     it("створює та показує локальний шаблон", async () => {
@@ -333,6 +340,11 @@ describe("GUI helpers", () => {
                     timezoneName: "Europe/Kyiv",
                 }}
                 createPaused
+                lastPublishedPost={{
+                    accountKey: "publishing-client",
+                    pageId: "10",
+                    postId: "10_20",
+                }}
                 onClose={vi.fn()}
                 onSuccess={vi.fn()}
             />
@@ -342,11 +354,15 @@ describe("GUI helpers", () => {
         await screen.findByText("HU Leads · Pixel 30");
         await waitFor(() => expect(window.adsBot.getCampaignPagePosts)
             .toHaveBeenCalledWith("client", "10", 10));
+        const usePublishedButtons = screen.getAllByRole("button", {
+            name: "Взяти з публікації",
+        });
+        fireEvent.click(usePublishedButtons[0]);
+        fireEvent.click(usePublishedButtons[1]);
+        expect(screen.getByLabelText("Пошук поста")).toHaveValue("10_20");
         fireEvent.change(screen.getByPlaceholderText("HU Leads 20.08"), {
             target: { value: "Campaign" },
         });
-        fireEvent.focus(screen.getByLabelText("Пошук поста"));
-        fireEvent.click(await screen.findByText("10_20"));
         expect(screen.getByAltText("Прев’ю поста")).toBeInTheDocument();
         expect(screen.getByText("Newest website post")).toBeInTheDocument();
         fireEvent.click(screen.getByLabelText("Оновити пости"));

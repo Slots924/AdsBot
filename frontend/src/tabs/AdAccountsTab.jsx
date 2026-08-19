@@ -237,6 +237,7 @@ export default function AdAccountsTab({
     selectedId: controlledSelectedId,
     setSelectedId: setControlledSelectedId,
     createCampaignsPaused = true,
+    lastPublishedPost = null,
 }) {
     const [accounts, setAccounts] = useState([]);
     const [localSelectedId, setLocalSelectedId] = useState("");
@@ -702,6 +703,7 @@ export default function AdAccountsTab({
                     accountKey={accountKey}
                     adAccount={selected}
                     createPaused={createCampaignsPaused}
+                    lastPublishedPost={lastPublishedPost}
                     onClose={() => setCampaignWizardOpen(false)}
                     onSuccess={() => {
                         showToast("Кампанію створено", "success");
