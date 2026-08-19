@@ -12,6 +12,7 @@ import Sidebar from "../components/Sidebar.jsx";
 import CampaignCreationWizard
     from "../components/CampaignCreationWizard.jsx";
 import SettingsModal from "../components/SettingsModal.jsx";
+import BackgroundTaskPanel from "../components/BackgroundTaskPanel.jsx";
 import AdAccountsTab from "../tabs/AdAccountsTab.jsx";
 import PublishTab from "../tabs/PublishTab.jsx";
 import TemplatesTab from "../tabs/TemplatesTab.jsx";
@@ -73,6 +74,56 @@ describe("GUI helpers", () => {
         expect(screen.getByText("Proxy unavailable")).toBeInTheDocument();
         expect(document.querySelector(".account-card.selected .status-dot.active"))
             .toBeInTheDocument();
+    });
+
+    it("створює та архівує Facebook API-клієнт через sidebar", async () => {
+        const onCreate = vi.fn().mockResolvedValue(undefined);
+        const onSetArchived = vi.fn().mockResolvedValue(undefined);
+        vi.spyOn(window, "confirm").mockReturnValue(true);
+        render(
+            <Sidebar
+                accounts={[{
+                    accountKey: "fp_hub",
+                    name: "Hub",
+                    facebookUserId: "615",
+                    status: "active",
+                    archived: false,
+                }]}
+                selectedAccountKey=""
+                loading={false}
+                onSelect={vi.fn()}
+                onRefresh={vi.fn()}
+                onCreate={onCreate}
+                onUpdate={vi.fn()}
+                onSetArchived={onSetArchived}
+                onError={vi.fn()}
+            />
+        );
+
+        fireEvent.click(screen.getByTitle("Додати акаунт"));
+        fireEvent.change(screen.getByLabelText("accountKey"), {
+            target: { value: "client_2" },
+        });
+        fireEvent.change(screen.getByLabelText("userAgent"), {
+            target: { value: "Mozilla/5.0 Test" },
+        });
+        fireEvent.change(screen.getByLabelText("accessToken"), {
+            target: { value: "token" },
+        });
+        fireEvent.change(screen.getByLabelText(/Cookie або AdsPower JSON/), {
+            target: { value: "c_user=1; xs=2" },
+        });
+        fireEvent.click(screen.getByText("Створити"));
+        await waitFor(() => expect(onCreate).toHaveBeenCalledWith({
+            accountKey: "client_2",
+            userAgent: "Mozilla/5.0 Test",
+            accessToken: "token",
+            cookie: "c_user=1; xs=2",
+        }));
+
+        fireEvent.click(screen.getByTitle("В архів"));
+        await waitFor(() => expect(onSetArchived)
+            .toHaveBeenCalledWith("fp_hub", true));
     });
 
     it("показує зрозумілий empty state для фанпейджів", async () => {
@@ -322,10 +373,14 @@ describe("GUI helpers", () => {
         window.adsBot.startCampaignCreation = vi.fn().mockResolvedValue({
             ok: true,
             data: {
-                job: {
-                    id: "job-1",
-                    total: 13,
-                    objects: { campaignId: "campaign-1" },
+                jobId: "job-1",
+                taskId: "task-1",
+                task: {
+                    id: "task-1",
+                    name: "Campaign",
+                    status: "queued",
+                    waitingReason: null,
+                    progress: { completed: 0, total: 13 },
                 },
             },
         });
@@ -375,7 +430,7 @@ describe("GUI helpers", () => {
         expect(await screen.findByText("Preflight пройдено")).toBeInTheDocument();
         expect(screen.getByText(/Example Beneficiary LLC/)).toBeInTheDocument();
         expect(screen.getByText(/Meta default/)).toBeInTheDocument();
-        fireEvent.click(screen.getByText("Створити на паузі"));
+        fireEvent.click(screen.getByText("Створити з campaign на паузі"));
         await waitFor(() => expect(window.adsBot.startCampaignCreation)
             .toHaveBeenCalled());
         expect(window.adsBot.startCampaignCreation.mock.calls[0][0])
@@ -390,7 +445,7 @@ describe("GUI helpers", () => {
                 dailyBudget: 5,
                 createPaused: true,
             });
-        expect(await screen.findByText(/Campaign ID: campaign-1/))
+        expect(await screen.findByText(/Кампанію додано в чергу/))
             .toBeInTheDocument();
     });
 
@@ -400,6 +455,10 @@ describe("GUI helpers", () => {
             <SettingsModal
                 scale={1.3}
                 onScaleChange={onScaleChange}
+                createCampaignsPaused
+                onCreateCampaignsPausedChange={vi.fn()}
+                commentTaskConcurrency={2}
+                onCommentTaskConcurrencyChange={vi.fn()}
                 onClose={vi.fn()}
             />
         );
@@ -409,5 +468,41 @@ describe("GUI helpers", () => {
             target: { value: "140" },
         });
         expect(onScaleChange).toHaveBeenCalledWith(1.4);
+    });
+
+    it("показує фонові задачі та дозволяє зупинити активну", async () => {
+        window.adsBot.cancelBackgroundTask = vi.fn().mockResolvedValue({
+            ok: true,
+            data: { id: "task-1", status: "running" },
+        });
+        render(
+            <BackgroundTaskPanel
+                tasks={[{
+                    id: "task-1",
+                    type: "comments",
+                    name: "Коментарі · HU · 138",
+                    status: "running",
+                    createdAt: "2026-08-19T10:00:00.000Z",
+                    metadata: {},
+                    progress: {
+                        stage: "comment",
+                        completed: 2,
+                        total: 5,
+                        published: 2,
+                        message: "Коментар 3 · профіль 12",
+                    },
+                }]}
+                collapsed={false}
+                onCollapsedChange={vi.fn()}
+                onRefresh={vi.fn()}
+                onError={vi.fn()}
+            />
+        );
+
+        expect(screen.getByText("Коментарі · HU · 138")).toBeInTheDocument();
+        fireEvent.click(screen.getByText("Коментарі · HU · 138"));
+        fireEvent.click(screen.getByRole("button", { name: "Зупинити" }));
+        await waitFor(() => expect(window.adsBot.cancelBackgroundTask)
+            .toHaveBeenCalledWith("task-1"));
     });
 });

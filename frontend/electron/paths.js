@@ -22,6 +22,7 @@ export const appPaths = {
         projectRoot,
         "data/campaign-creation-jobs.json"
     ),
+    backgroundTasks: path.join(projectRoot, "data/background-tasks.json"),
     appState: path.join(projectRoot, "data/app-state.json"),
     adAccountPreferences: path.join(
         projectRoot,

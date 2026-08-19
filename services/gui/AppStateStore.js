@@ -6,6 +6,8 @@ const defaultState = {
     activeTab: "publish",
     uiScale: 1.3,
     createCampaignsPaused: true,
+    commentTaskConcurrency: 2,
+    taskPanelCollapsed: false,
     selectedAccountKey: "",
     selectedPageId: "",
     selectedAdAccountId: "",
@@ -45,6 +47,10 @@ function normalizeState(state = {}) {
             ? Math.min(1.5, Math.max(0.8, requestedScale))
             : defaultState.uiScale,
         createCampaignsPaused: state.createCampaignsPaused !== false,
+        commentTaskConcurrency: Number.isFinite(Number(state.commentTaskConcurrency))
+            ? Math.min(5, Math.max(1, Math.round(Number(state.commentTaskConcurrency))))
+            : defaultState.commentTaskConcurrency,
+        taskPanelCollapsed: Boolean(state.taskPanelCollapsed),
         ...stringsFrom(state, [
             "selectedAccountKey",
             "selectedPageId",

@@ -35,7 +35,7 @@ export default class CampaignCreationJournal {
             const job = {
                 id: randomUUID(),
                 input: cleanInput(input),
-                status: "running",
+                status: "queued",
                 stage: "preflight",
                 completed: 0,
                 total: 3 + Number(input.adSetCount || 0) * 2,

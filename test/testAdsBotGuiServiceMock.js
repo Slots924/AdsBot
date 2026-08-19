@@ -188,10 +188,12 @@ try {
         creativeName: "138",
         postUrl: "https://www.facebook.com/post",
     });
-    await assert.rejects(
-        guiService.runCommentingCampaign({}),
-        { code: "COMMENTING_CAMPAIGN_ALREADY_RUNNING" }
-    );
+    const secondCommenting = guiService.runCommentingCampaign({
+        groupIds: ["3"],
+        geo: "CZ",
+        creativeName: "139",
+        postUrl: "https://www.facebook.com/other-post",
+    });
     finishScenario({
         report: {
             published: [{}],
@@ -203,7 +205,7 @@ try {
         reportPath: "report.md",
     });
     assert.equal((await commenting).published, 1);
-    assert.equal(guiService.isCommentingCampaignRunning, false);
+    assert.equal((await secondCommenting).published, 1);
     assert(logs.length > 0);
 
     console.log("Mock-перевірка AdsBotGuiService пройшла успішно");

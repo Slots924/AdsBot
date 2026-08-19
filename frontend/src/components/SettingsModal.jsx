@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Minus, Plus, RotateCcw, Settings, X, ZoomIn } from "lucide-react";
+import { ListChecks, Minus, Plus, RotateCcw, Settings, X, ZoomIn } from "lucide-react";
 
 
 const minimumScale = 80;
@@ -12,6 +12,8 @@ export default function SettingsModal({
     onScaleChange,
     createCampaignsPaused,
     onCreateCampaignsPausedChange,
+    commentTaskConcurrency,
+    onCommentTaskConcurrencyChange,
     onClose,
 }) {
     const percentage = Math.round(scale * 100);
@@ -85,10 +87,24 @@ export default function SettingsModal({
                             )}
                         />
                         <span>
-                            <strong>Створювати кампанії на паузі</strong>
-                            <small>Безпечний режим: campaign, ad sets та ads не почнуть витрачати бюджет автоматично.</small>
+                            <strong>Залишати campaign на паузі</strong>
+                            <small>Ad sets та ads будуть ACTIVE, але не витрачатимуть бюджет, доки campaign PAUSED.</small>
                         </span>
                     </label>
+                </section>
+
+                <section className="scale-setting">
+                    <div className="scale-setting-heading">
+                        <span><ListChecks size={15} /> Паралельні задачі коментування</span>
+                        <strong>{commentTaskConcurrency}</strong>
+                    </div>
+                    <div className="scale-controls task-concurrency-controls">
+                        <button className="icon-button" disabled={commentTaskConcurrency <= 1} onClick={() => onCommentTaskConcurrencyChange(commentTaskConcurrency - 1)}><Minus size={15} /></button>
+                        <input aria-label="Паралельні задачі коментування" type="range" min="1" max="5" step="1" value={commentTaskConcurrency} onChange={(event) => onCommentTaskConcurrencyChange(Number(event.target.value))} />
+                        <button className="icon-button" disabled={commentTaskConcurrency >= 5} onClick={() => onCommentTaskConcurrencyChange(commentTaskConcurrency + 1)}><Plus size={15} /></button>
+                    </div>
+                    <div className="scale-labels"><span>1</span><span>5</span></div>
+                    <small className="settings-hint">Задачі з однаковими AdsPower-групами все одно чекатимуть одна одну.</small>
                 </section>
 
                 <div className="form-actions settings-actions">

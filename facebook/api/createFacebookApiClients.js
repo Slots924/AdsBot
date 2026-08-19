@@ -20,7 +20,7 @@ async function readJson(filePath, label) {
 
 
 function normalizeAccounts(accounts) {
-    if (!Array.isArray(accounts) || accounts.length === 0) {
+    if (!Array.isArray(accounts)) {
         throw new Error("Список Facebook-акаунтів порожній");
     }
 
@@ -105,7 +105,9 @@ export default async function createFacebookApiClients({
         readJson(accountsFilePath, "конфіг Facebook-акаунтів"),
         readJson(proxiesFilePath, "конфіг проксі"),
     ]);
-    const accounts = normalizeAccounts(accountsConfig?.accounts);
+    const accounts = normalizeAccounts(
+        accountsConfig?.accounts?.filter((account) => account?.archived !== true)
+    );
     const proxyHttpClient = new ProxyHttpClient({
         proxies: proxiesConfig?.proxies,
         ...(httpClient ? { httpClient } : {}),

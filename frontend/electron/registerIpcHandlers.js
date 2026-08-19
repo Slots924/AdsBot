@@ -49,8 +49,38 @@ export default function registerIpcHandlers({
     adAccountPreferencesStore,
     countryCatalog,
     campaignCreationJournal,
+    backgroundTaskManager,
+    facebookAccountManager,
     getWindow,
 }) {
+    const mergeAccountStates = async (graphAccounts) => {
+        const storedAccounts = await facebookAccountManager.list();
+        const graphByKey = new Map(graphAccounts.map((account) => [
+            account.accountKey,
+            account,
+        ]));
+        return storedAccounts.map((stored) => {
+            if (stored.archived) {
+                return {
+                    ...stored,
+                    status: "archived",
+                    error: null,
+                };
+            }
+            return {
+                ...stored,
+                ...(graphByKey.get(stored.accountKey) ?? {
+                    status: "error",
+                    error: { message: "Акаунт не завантажено" },
+                }),
+                archived: false,
+            };
+        });
+    };
+
+    const refreshManagedAccounts = async () => mergeAccountStates(
+        await guiService.refreshAccounts()
+    );
     const sendCampaignProgress = (payload) => {
         const window = getWindow();
         if (window && !window.isDestroyed?.()) {
@@ -69,9 +99,21 @@ export default function registerIpcHandlers({
         return undefined;
     };
 
-    const runCreationJob = async (job) => {
+    const runCreationJob = async (job, { signal, taskProgress } = {}) => {
+        const assertNotAborted = () => {
+            if (!signal?.aborted) return;
+            throw Object.assign(new Error("Створення кампанії перервано"), {
+                name: "AbortError",
+                code: "CAMPAIGN_CREATION_INTERRUPTED",
+            });
+        };
+        job = await campaignCreationJournal.update(job.id, {
+            status: "running",
+            errors: [],
+        });
         const template = await templateManager.get(job.input.templateId);
         const onProgress = async (progress) => {
+            assertNotAborted();
             const completed = progressValue(progress, job.input.adSetCount);
             const updated = await campaignCreationJournal.update(job.id, {
                 stage: progress.stage,
@@ -84,6 +126,16 @@ export default function registerIpcHandlers({
                 completed: updated.completed,
                 total: updated.total,
             });
+            if (typeof taskProgress === "function") {
+                await taskProgress({
+                    stage: progress.stage,
+                    completed: updated.completed,
+                    total: updated.total,
+                    message: progress.message,
+                    objects: progress.objects,
+                });
+            }
+            assertNotAborted();
         };
 
         try {
@@ -103,14 +155,14 @@ export default function registerIpcHandlers({
         } catch (error) {
             const safeError = serializeError(error);
             await campaignCreationJournal.update(job.id, {
-                status: "failed",
+                status: signal?.aborted ? "interrupted" : "failed",
                 stage: error.stage ?? "unknown",
                 objects: error.createdObjects ?? job.objects,
                 errors: [safeError],
             });
             sendCampaignProgress({
                 jobId: job.id,
-                stage: "failed",
+                stage: signal?.aborted ? "interrupted" : "failed",
                 error: safeError,
             });
             error.jobId = job.id;
@@ -118,13 +170,71 @@ export default function registerIpcHandlers({
         }
     };
 
+    const enqueueCampaignJob = async (job, name = job.input.campaignName) => {
+        const task = await backgroundTaskManager.enqueue({
+            type: "campaign",
+            name,
+            uniqueKey: `campaign-job:${job.id}`,
+            resources: [{
+                key: "facebook-campaign-write",
+                label: "черга створення рекламних кампаній",
+            }],
+            input: { campaignJobId: job.id },
+            metadata: {
+                campaignJobId: job.id,
+                accountKey: job.input.accountKey,
+                adAccountId: job.input.adAccountId,
+            },
+            runner: async ({ signal, progress }) => {
+                const response = await runCreationJob(job, {
+                    signal,
+                    taskProgress: progress,
+                });
+                return {
+                    result: {
+                        campaignJobId: job.id,
+                        campaignId: response.result?.objects?.campaignId ?? null,
+                        warnings: response.result?.readback?.warnings ?? [],
+                    },
+                    taskStatus: response.result?.readback?.warnings?.length
+                        ? "completed_with_warnings"
+                        : "completed",
+                };
+            },
+        });
+        return { taskId: task.id, task, jobId: job.id };
+    };
+
     ipcMain.handle(
         "accounts:list",
-        safeHandler(() => guiService.getAccounts())
+        safeHandler(async () => mergeAccountStates(
+            await guiService.getAccounts()
+        ))
     );
     ipcMain.handle(
         "accounts:refresh",
-        safeHandler(() => guiService.refreshAccounts())
+        safeHandler(refreshManagedAccounts)
+    );
+    ipcMain.handle(
+        "accounts:create",
+        safeHandler(async (payload) => {
+            await facebookAccountManager.create(payload);
+            return refreshManagedAccounts();
+        })
+    );
+    ipcMain.handle(
+        "accounts:update",
+        safeHandler(async ({ accountKey, ...patch }) => {
+            await facebookAccountManager.update(accountKey, patch);
+            return refreshManagedAccounts();
+        })
+    );
+    ipcMain.handle(
+        "accounts:archive-set",
+        safeHandler(async ({ accountKey, archived }) => {
+            await facebookAccountManager.setArchived(accountKey, archived);
+            return refreshManagedAccounts();
+        })
     );
     ipcMain.handle(
         "pages:list",
@@ -194,7 +304,7 @@ export default function registerIpcHandlers({
         "campaigns:create-start",
         safeHandler(async (payload) => {
             const job = await campaignCreationJournal.create(payload);
-            return runCreationJob(job);
+            return enqueueCampaignJob(job);
         })
     );
     ipcMain.handle(
@@ -218,11 +328,14 @@ export default function registerIpcHandlers({
                 error.code = "CAMPAIGN_JOB_NOT_FOUND";
                 throw error;
             }
-            const running = await campaignCreationJournal.update(job.id, {
-                status: "running",
+            const queued = await campaignCreationJournal.update(job.id, {
+                status: "queued",
                 errors: [],
             });
-            return runCreationJob(running);
+            return enqueueCampaignJob(
+                queued,
+                `${queued.input.campaignName} · повтор`
+            );
         })
     );
     ipcMain.handle(
@@ -234,21 +347,56 @@ export default function registerIpcHandlers({
                 error.code = "CAMPAIGN_JOB_NOT_FOUND";
                 throw error;
             }
-            const result = await guiService.deleteCampaignDraft({
-                accountKey: job.input.accountKey,
-                objects: job.objects,
-            }, (progress) => {
-                sendCampaignProgress({
-                    jobId: job.id,
-                    stage: "cleanup",
-                    ...progress,
-                });
+            const task = await backgroundTaskManager.enqueue({
+                type: "campaign-cleanup",
+                name: `${job.input.campaignName} · очищення`,
+                uniqueKey: `campaign-job:${job.id}`,
+                resources: [{
+                    key: "facebook-campaign-write",
+                    label: "черга створення рекламних кампаній",
+                }],
+                input: { campaignJobId: job.id },
+                metadata: { campaignJobId: job.id },
+                runner: async ({ signal, progress: taskProgress }) => {
+                    const cleanupTotal = (job.objects.ads?.length ?? 0)
+                        + (job.objects.adSets?.length ?? 0)
+                        + Number(Boolean(job.objects.creativeId))
+                        + Number(Boolean(job.objects.campaignId));
+                    let cleanupCompleted = 0;
+                    const result = await guiService.deleteCampaignDraft({
+                        accountKey: job.input.accountKey,
+                        objects: job.objects,
+                    }, async (item) => {
+                        if (signal.aborted) throw Object.assign(
+                            new Error("Очищення кампанії перервано"),
+                            { name: "AbortError" }
+                        );
+                        sendCampaignProgress({
+                            jobId: job.id,
+                            stage: "cleanup",
+                            ...item,
+                        });
+                        cleanupCompleted += 1;
+                        await taskProgress({
+                            stage: "cleanup",
+                            completed: cleanupCompleted,
+                            total: cleanupTotal,
+                            message: `${item.type} ${item.id}`,
+                        });
+                    });
+                    await campaignCreationJournal.update(job.id, {
+                        status: result.failed.length ? "cleanup-partial" : "deleted",
+                        stage: "cleanup",
+                    });
+                    return {
+                        result,
+                        taskStatus: result.failed.length
+                            ? "completed_with_warnings"
+                            : "completed",
+                    };
+                },
             });
-            await campaignCreationJournal.update(job.id, {
-                status: result.failed.length ? "cleanup-partial" : "deleted",
-                stage: "cleanup",
-            });
-            return result;
+            return { taskId: task.id, task, jobId: job.id };
         })
     );
     ipcMain.handle(
@@ -265,7 +413,78 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "comments:run",
-        safeHandler((payload) => guiService.runCommentingCampaign(payload))
+        safeHandler(async (payload) => {
+            const groupIds = [...new Set((payload.groupIds ?? [])
+                .map((id) => String(id).trim())
+                .filter(Boolean))];
+            if (!groupIds.length) throw Object.assign(
+                new Error("Оберіть хоча б одну AdsPower-групу"),
+                { code: "COMMENTING_GROUP_REQUIRED" }
+            );
+            const groups = await guiService.getAdsPowerGroups();
+            const labels = new Map(groups.map((group) => [
+                String(group.groupId),
+                group.groupName,
+            ]));
+            const task = await backgroundTaskManager.enqueue({
+                type: "comments",
+                name: `Коментарі · ${String(payload.geo ?? "").toUpperCase()} · ${String(payload.creativeName ?? "")}`,
+                resources: groupIds.map((groupId) => ({
+                    key: `adspower-group:${groupId}`,
+                    label: labels.get(groupId) || `AdsPower ${groupId}`,
+                })),
+                input: {
+                    groupIds,
+                    geo: payload.geo,
+                    creativeName: payload.creativeName,
+                    siteUrl: payload.siteUrl,
+                    postUrl: payload.postUrl,
+                },
+                metadata: { groupIds, geo: payload.geo },
+                runner: async ({ signal, progress }) => {
+                    const summary = await guiService.runCommentingCampaign({
+                        ...payload,
+                        groupIds,
+                        signal,
+                        onProgress: progress,
+                    });
+                    if (summary.fatalError && !signal.aborted) {
+                        throw Object.assign(new Error(summary.fatalError), {
+                            code: "COMMENTING_FATAL_ERROR",
+                        });
+                    }
+                    return {
+                        result: summary,
+                        taskStatus: summary.failedComments
+                            || summary.failedProfiles
+                            || summary.skipped
+                            ? "completed_with_warnings"
+                            : "completed",
+                    };
+                },
+            });
+            return { taskId: task.id, task };
+        })
+    );
+    ipcMain.handle(
+        "tasks:list",
+        safeHandler(() => backgroundTaskManager.list())
+    );
+    ipcMain.handle(
+        "tasks:cancel",
+        safeHandler(({ taskId }) => backgroundTaskManager.cancel(taskId))
+    );
+    ipcMain.handle(
+        "tasks:dismiss",
+        safeHandler(({ taskId }) => backgroundTaskManager.dismiss(taskId))
+    );
+    ipcMain.handle(
+        "tasks:clear-finished",
+        safeHandler(() => backgroundTaskManager.clearFinished())
+    );
+    ipcMain.handle(
+        "tasks:comment-concurrency-set",
+        safeHandler(({ value }) => backgroundTaskManager.setCommentConcurrency(value))
     );
     ipcMain.handle(
         "templates:list",

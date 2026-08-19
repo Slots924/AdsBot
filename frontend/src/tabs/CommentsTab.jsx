@@ -53,17 +53,12 @@ export default function CommentsTab({
         setResult(null);
         addLog("info", "frontend", "Запускаємо кампанію коментування");
         try {
-            const summary = await unwrap(window.adsBot.runCommentingCampaign({
+            const response = await unwrap(window.adsBot.runCommentingCampaign({
                 groupIds: selectedGroupIds,
                 ...form,
             }));
-            setResult(summary);
-            if (summary.fatalError) {
-                onError({
-                    title: "Кампанія завершилася помилкою",
-                    message: summary.fatalError,
-                });
-            }
+            setResult(response.task);
+            addLog("info", "frontend", `Задачу ${response.task.name} додано в чергу`);
         } catch (error) {
             onError({ ...errorDetails(error), title: "Не вдалося запустити коментарі" });
         } finally {
@@ -119,20 +114,12 @@ export default function CommentsTab({
                     <span>{groups.length} груп у довіднику</span>
                     <button className="primary-button" type="submit" disabled={!canRun}>
                         {running ? <LoaderCircle className="spin" size={17} /> : <MessageSquareText size={17} />}
-                        {running ? "Кампанія виконується…" : "Почати коментування"}
+                        {running ? "Додаємо в чергу…" : "Додати задачу коментування"}
                     </button>
                 </div>
             </form>
 
-            {result && (
-                <div className="summary-grid">
-                    <article><span>Опубліковано</span><strong>{result.published}</strong></article>
-                    <article><span>Пропущено</span><strong>{result.skipped}</strong></article>
-                    <article><span>Помилки коментарів</span><strong>{result.failedComments}</strong></article>
-                    <article><span>Проблемні профілі</span><strong>{result.failedProfiles}</strong></article>
-                    <p className="report-path">Звіт: {result.reportPath || "не збережено"}</p>
-                </div>
-            )}
+            {result && <div className="notice info">Задачу «{result.name}» додано в чергу. Прогрес показується у правій панелі.</div>}
         </motion.section>
     );
 }

@@ -15,6 +15,11 @@ function subscribe(channel, callback) {
 contextBridge.exposeInMainWorld("adsBot", {
     getAccounts: () => ipcRenderer.invoke("accounts:list"),
     refreshAccounts: () => ipcRenderer.invoke("accounts:refresh"),
+    createAccount: (account) => ipcRenderer.invoke("accounts:create", account),
+    updateAccount: (accountKey, patch) =>
+        ipcRenderer.invoke("accounts:update", { accountKey, ...patch }),
+    setAccountArchived: (accountKey, archived) =>
+        ipcRenderer.invoke("accounts:archive-set", { accountKey, archived }),
     getFanPages: (accountKey) =>
         ipcRenderer.invoke("pages:list", { accountKey }),
     getAdAccounts: (accountKey) =>
@@ -60,6 +65,15 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("post:publish", options),
     runCommentingCampaign: (options) =>
         ipcRenderer.invoke("comments:run", options),
+    getBackgroundTasks: () => ipcRenderer.invoke("tasks:list"),
+    cancelBackgroundTask: (taskId) =>
+        ipcRenderer.invoke("tasks:cancel", { taskId }),
+    dismissBackgroundTask: (taskId) =>
+        ipcRenderer.invoke("tasks:dismiss", { taskId }),
+    clearFinishedBackgroundTasks: () =>
+        ipcRenderer.invoke("tasks:clear-finished"),
+    setCommentTaskConcurrency: (value) =>
+        ipcRenderer.invoke("tasks:comment-concurrency-set", { value }),
     getTemplates: () => ipcRenderer.invoke("templates:list"),
     getCountries: () => ipcRenderer.invoke("countries:list"),
     createTemplate: (template) =>
@@ -79,5 +93,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     onLog: (callback) => subscribe("log:event", callback),
     onCampaignCreationProgress: (callback) =>
         subscribe("campaign-creation:progress", callback),
+    onBackgroundTasksUpdated: (callback) =>
+        subscribe("tasks:updated", callback),
     onCloseBlocked: (callback) => subscribe("app:close-blocked", callback),
 });

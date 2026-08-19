@@ -61,7 +61,53 @@ const countryCatalog = {
         return [{ code: "HU", name: "Hungary" }];
     },
 };
+const facebookAccountManager = {
+    async list() {
+        return [{
+            accountKey: "fp_hub",
+            name: "",
+            facebookUserId: "",
+            archived: false,
+            hasUserAgent: true,
+            hasAccessToken: true,
+            hasCookie: true,
+        }];
+    },
+    async create() {},
+    async update() {},
+    async setArchived() {},
+};
 let storedJob = null;
+const backgroundTasks = [];
+const backgroundTaskManager = {
+    async enqueue(options) {
+        const task = {
+            id: `task-${backgroundTasks.length + 1}`,
+            type: options.type,
+            name: options.name,
+            status: "queued",
+            metadata: options.metadata ?? {},
+            progress: { stage: "queued", completed: 0, total: 0 },
+        };
+        backgroundTasks.unshift(task);
+        return structuredClone(task);
+    },
+    async list() {
+        return structuredClone(backgroundTasks);
+    },
+    async cancel(id) {
+        return { id, status: "cancelled" };
+    },
+    async dismiss(id) {
+        return id;
+    },
+    async clearFinished() {
+        return 0;
+    },
+    async setCommentConcurrency(value) {
+        return Number(value);
+    },
+};
 const campaignCreationJournal = {
     async create(input) {
         storedJob = {
@@ -165,6 +211,8 @@ registerIpcHandlers({
     adAccountPreferencesStore,
     countryCatalog,
     campaignCreationJournal,
+    backgroundTaskManager,
+    facebookAccountManager,
     getWindow: () => ({
         isDestroyed: () => false,
         webContents: {
@@ -182,7 +230,16 @@ assert.deepEqual(
     await handlers.get("accounts:list")({}, {}),
     {
         ok: true,
-        data: [{ accountKey: "fp_hub", status: "active" }],
+        data: [{
+            accountKey: "fp_hub",
+            name: "",
+            facebookUserId: "",
+            archived: false,
+            hasUserAgent: true,
+            hasAccessToken: true,
+            hasCookie: true,
+            status: "active",
+        }],
     }
 );
 assert.deepEqual(
@@ -210,10 +267,23 @@ const createdCampaign = await handlers.get("campaigns:create-start")({}, {
     createPaused: true,
 });
 assert.equal(createdCampaign.ok, true);
-assert.equal(createdCampaign.data.job.objects.campaignId, "campaign-1");
-assert(rendererEvents.some((event) => (
-    event.channel === "campaign-creation:progress"
-)));
+assert.equal(createdCampaign.data.jobId, "job-1");
+assert.equal(createdCampaign.data.task.status, "queued");
+assert.equal(createdCampaign.data.task.metadata.campaignJobId, "job-1");
+assert.equal((await handlers.get("tasks:list")({}, {})).data.length, 1);
+const commentingTask = await handlers.get("comments:run")({}, {
+    groupIds: ["7"],
+    geo: "HU",
+    creativeName: "138",
+    postUrl: "https://www.facebook.com/post",
+});
+assert.equal(commentingTask.ok, true);
+assert.equal(commentingTask.data.task.type, "comments");
+assert.equal(commentingTask.data.task.status, "queued");
+assert.deepEqual(
+    await handlers.get("tasks:comment-concurrency-set")({}, { value: 3 }),
+    { ok: true, data: 3 }
+);
 assert.deepEqual(
     await handlers.get("pages:list")({}, { accountKey: "fp_hub" }),
     { ok: true, data: [] }

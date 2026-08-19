@@ -134,7 +134,7 @@ if (!selectedFacebookApiClient) {
 | `createPagePhotoPost(options)` | `{ postId, photoId }` | Публікує одну фотографію через `/photos`. |
 | `getPagePost(options)` | `object` | Отримує пост за ID для підтвердження публікації. |
 | `preflightLeadCampaign(options)` | `object` | Перевіряє `ads_management`, РК, сторінку, пост, Pixel, targeting і campaign payload через `validate_only`. |
-| `createLeadCampaign(options, onProgress)` | `object` | Поетапно створює website lead campaign, creative, ad sets та ads; усі об'єкти спочатку PAUSED. |
+| `createLeadCampaign(options, onProgress)` | `object` | Поетапно створює website lead campaign, creative, ad sets та ads; у ручному режимі campaign PAUSED, а ad sets та ads ACTIVE. |
 | `deleteCampaignDraft(objects, onProgress)` | `{ deleted, failed }` | Видаляє тільки Graph ID із журналу конкретної спроби. |
 
 Приклад:
@@ -171,11 +171,22 @@ Thumbnail URL дозволяється лише з HTTPS-доменів `fbcdn.n
 не отримують access token, cookie, Page token або proxy. Потрібен permission
 `ads_management`.
 
+GUI ставить create/retry/cleanup у єдину фонову write-чергу й одразу повертає
+`taskId`. Це не змінює контракт `FacebookGraphApi`: один виклик
+`createLeadCampaign()` і надалі послідовно створює об’єкти та передає етапи в
+`onProgress`. При перериванні відомі Graph ID зберігаються для контрольованого
+retry або cleanup.
+
 `preflightLeadCampaign()` перевіряє активність РК, доступ до сторінки, поста й
 Pixel, зовнішнє посилання у пості, валюту та timezone. Campaign payload
 перевіряється через `execution_options=["validate_only"]`. Ad set та ad залежать
 від реальних parent ID, тому для них `validate_only` виконується поетапно після
-створення відповідного PAUSED parent.
+створення відповідного parent. Campaign створюється PAUSED; коли
+`createPaused=true`, ad sets та ads отримують власний статус ACTIVE, але не
+показуються через effective status батьківської campaign. Після ручної
+перевірки достатньо активувати campaign. Для `createPaused=false` дочірні
+об’єкти залишаються PAUSED до успішного завершення всіх кроків і лише потім
+активуються разом із campaign.
 
 Майстер передає canonical `pageId_postId` вибраного поста. Належність поста
 вибраній сторінці, його опублікований стан і наявність зовнішнього website URL
@@ -257,6 +268,17 @@ POST-запит не повторюється після мережевої по
 Клієнт не додає `sec-fetch-*`, `sec-ch-ua`, `Origin`, `Referer` або `X-Requested-With`. Системні `Host`, `Connection` та `Accept-Encoding`, які додає HTTP-стек Node.js, є нормальними транспортними заголовками.
 
 ## Помилки й токени
+
+Конфіг `data/facebookApi/accounts.json` змінюється лише через
+`FacebookAccountManager`. Він створює акаунти з унікальним `accountKey`,
+частково оновлює `userAgent`, `accessToken` і cookies та архівує записи без
+фізичного видалення. Архівовані записи не перетворюються на
+`FacebookGraphApi`-клієнти.
+
+Cookie input приймає готовий Cookie header, JSON-масив із AdsPower або об’єкт
+із масивом `cookies`. Під час запису залишаються лише потрібні cookies домену
+`facebook.com`; інші домени й зайві cookie-поля відкидаються. IPC повертає лише
+ознаки наявності секретів, але не їх значення.
 
 - Graph API errors перетворюються на Error з `code="FACEBOOK_API_ERROR"` та полями `httpStatus`, `graphCode`, `graphSubcode`, `graphType`, `graphUserTitle`, `graphUserMessage`.
 - Вичерпання проксі повертає `code="PROXY_POOL_EXHAUSTED"`.

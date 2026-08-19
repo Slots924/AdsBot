@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import LogPanel from "./components/LogPanel.jsx";
+import BackgroundTaskPanel from "./components/BackgroundTaskPanel.jsx";
 import { Modal, Toast } from "./components/Overlay.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import SettingsModal from "./components/SettingsModal.jsx";
@@ -35,6 +36,9 @@ export default function App() {
     const [stateHydrated, setStateHydrated] = useState(false);
     const [uiScale, setUiScale] = useState(1.3);
     const [createCampaignsPaused, setCreateCampaignsPaused] = useState(true);
+    const [commentTaskConcurrency, setCommentTaskConcurrency] = useState(2);
+    const [taskPanelCollapsed, setTaskPanelCollapsed] = useState(false);
+    const [backgroundTasks, setBackgroundTasks] = useState([]);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [selectedAccountKey, setSelectedAccountKey] = useState("");
     const [selectedPageId, setSelectedPageId] = useState("");
@@ -63,6 +67,33 @@ export default function App() {
         [accounts, selectedAccountKey]
     );
 
+    const applyAccountList = (nextAccounts) => {
+        setAccounts(nextAccounts);
+        setSelectedAccountKey((current) => (
+            nextAccounts.some((account) => (
+                account.accountKey === current && !account.archived
+            )) ? current : ""
+        ));
+    };
+
+    const createAccount = async (input) => {
+        const nextAccounts = await unwrap(window.adsBot.createAccount(input));
+        applyAccountList(nextAccounts);
+        showToast("Facebook API-клієнт створено", "success");
+    };
+
+    const updateAccount = async (accountKey, patch) => {
+        const nextAccounts = await unwrap(window.adsBot.updateAccount(accountKey, patch));
+        applyAccountList(nextAccounts);
+        showToast(`Акаунт ${accountKey} оновлено`, "success");
+    };
+
+    const setAccountArchived = async (accountKey, archived) => {
+        const nextAccounts = await unwrap(window.adsBot.setAccountArchived(accountKey, archived));
+        applyAccountList(nextAccounts);
+        showToast(archived ? `Акаунт ${accountKey} переміщено в архів` : `Акаунт ${accountKey} відновлено`, "success");
+    };
+
     const addLog = (level, scope, message) => {
         setLogs((current) => [...current.slice(-499), {
             id: `${Date.now()}-${Math.random()}`,
@@ -78,6 +109,12 @@ export default function App() {
         window.setTimeout(() => setToast(null), 3600);
     };
 
+    const refreshBackgroundTasks = async () => {
+        const tasks = await unwrap(window.adsBot.getBackgroundTasks());
+        setBackgroundTasks(tasks);
+        return tasks;
+    };
+
     const loadAccounts = async (refresh = false, preferredAccountKey = null) => {
         setAccountsLoading(true);
         try {
@@ -89,7 +126,9 @@ export default function App() {
             setAccounts(nextAccounts);
             setSelectedAccountKey((current) => {
                 const candidate = preferredAccountKey ?? current;
-                return nextAccounts.some((account) => account.accountKey === candidate)
+                return nextAccounts.some((account) => (
+                    account.accountKey === candidate && !account.archived
+                ))
                     ? candidate
                     : ""
             });
@@ -107,6 +146,21 @@ export default function App() {
         const unsubscribeClose = window.adsBot.onCloseBlocked(({ message }) => {
             showToast(message, "warn");
         });
+        const unsubscribeTasks = window.adsBot.onBackgroundTasksUpdated((event) => {
+            if (event.type === "snapshot") {
+                setBackgroundTasks(event.tasks);
+                return;
+            }
+            if (event.type === "updated" && event.task) {
+                setBackgroundTasks((current) => {
+                    const exists = current.some((task) => task.id === event.task.id);
+                    const next = exists
+                        ? current.map((task) => task.id === event.task.id ? event.task : task)
+                        : [event.task, ...current];
+                    return next.sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt));
+                });
+            }
+        });
 
         const initialize = async () => {
             let restored = null;
@@ -115,6 +169,8 @@ export default function App() {
                 setActiveTab(restored.activeTab);
                 setUiScale(restored.uiScale);
                 setCreateCampaignsPaused(restored.createCampaignsPaused);
+                setCommentTaskConcurrency(restored.commentTaskConcurrency);
+                setTaskPanelCollapsed(restored.taskPanelCollapsed);
                 setSelectedAccountKey(restored.selectedAccountKey);
                 setSelectedPageId(restored.selectedPageId);
                 setSelectedAdAccountId(restored.selectedAdAccountId);
@@ -140,6 +196,9 @@ export default function App() {
                     .catch(() => {
                         addLog("warn", "frontend", "Локальний довідник груп поки недоступний");
                     }),
+                refreshBackgroundTasks().catch(() => {
+                    addLog("warn", "frontend", "Не вдалося завантажити журнал фонових задач");
+                }),
             ]);
             setStateHydrated(true);
         };
@@ -149,6 +208,7 @@ export default function App() {
         return () => {
             unsubscribeLog();
             unsubscribeClose();
+            unsubscribeTasks();
         };
     }, []);
 
@@ -160,6 +220,8 @@ export default function App() {
                 activeTab,
                 uiScale,
                 createCampaignsPaused,
+                commentTaskConcurrency,
+                taskPanelCollapsed,
                 selectedAccountKey,
                 selectedPageId,
                 selectedAdAccountId,
@@ -178,6 +240,8 @@ export default function App() {
         activeTab,
         uiScale,
         createCampaignsPaused,
+        commentTaskConcurrency,
+        taskPanelCollapsed,
         selectedAccountKey,
         selectedPageId,
         selectedAdAccountId,
@@ -197,6 +261,23 @@ export default function App() {
             setModal({
                 ...errorDetails(error),
                 title: "Не вдалося змінити масштаб",
+            });
+        }
+    };
+
+    const changeCommentTaskConcurrency = async (value) => {
+        const previous = commentTaskConcurrency;
+        const normalized = Math.min(5, Math.max(1, Math.round(Number(value))));
+        setCommentTaskConcurrency(normalized);
+        try {
+            setCommentTaskConcurrency(await unwrap(
+                window.adsBot.setCommentTaskConcurrency(normalized)
+            ));
+        } catch (error) {
+            setCommentTaskConcurrency(previous);
+            setModal({
+                ...errorDetails(error),
+                title: "Не вдалося змінити паралельність задач",
             });
         }
     };
@@ -246,7 +327,7 @@ export default function App() {
     };
 
     return (
-        <div className="app-shell">
+        <div className={`app-shell ${taskPanelCollapsed ? "tasks-collapsed" : ""}`}>
             <div className="ambient one" />
             <div className="ambient two" />
             <Sidebar
@@ -255,6 +336,10 @@ export default function App() {
                 loading={accountsLoading}
                 onSelect={setSelectedAccountKey}
                 onRefresh={() => loadAccounts(true)}
+                onCreate={createAccount}
+                onUpdate={updateAccount}
+                onSetArchived={setAccountArchived}
+                onError={setModal}
             />
 
             <main className="workspace">
@@ -336,6 +421,14 @@ export default function App() {
                 <LogPanel logs={logs} onClear={() => setLogs([])} />
             </main>
 
+            <BackgroundTaskPanel
+                tasks={backgroundTasks}
+                collapsed={taskPanelCollapsed}
+                onCollapsedChange={setTaskPanelCollapsed}
+                onRefresh={refreshBackgroundTasks}
+                onError={setModal}
+            />
+
             <Modal modal={modal} onClose={() => setModal(null)} />
             {settingsOpen && (
                 <SettingsModal
@@ -343,6 +436,8 @@ export default function App() {
                     onScaleChange={changeUiScale}
                     createCampaignsPaused={createCampaignsPaused}
                     onCreateCampaignsPausedChange={setCreateCampaignsPaused}
+                    commentTaskConcurrency={commentTaskConcurrency}
+                    onCommentTaskConcurrencyChange={changeCommentTaskConcurrency}
                     onClose={() => setSettingsOpen(false)}
                 />
             )}

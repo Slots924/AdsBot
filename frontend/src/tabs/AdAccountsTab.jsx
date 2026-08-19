@@ -706,8 +706,7 @@ export default function AdAccountsTab({
                     lastPublishedPost={lastPublishedPost}
                     onClose={() => setCampaignWizardOpen(false)}
                     onSuccess={() => {
-                        showToast("Кампанію створено", "success");
-                        loadCampaigns(selected.id, datePreset, { force: true });
+                        showToast("Кампанію додано в чергу", "success");
                     }}
                 />
             )}

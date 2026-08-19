@@ -1109,6 +1109,7 @@ export default class FacebookGraphApi {
                 "CAMPAIGN_NAME_REQUIRED"
             );
         }
+        const childStatus = createPaused ? "ACTIVE" : "PAUSED";
 
         const objects = {
             campaignId: resume.campaignId ?? null,
@@ -1189,7 +1190,7 @@ export default class FacebookGraphApi {
                         },
                         targeting: preflight.targeting,
                         start_time: preflight.startTime,
-                        status: "PAUSED",
+                        status: childStatus,
                         ...(preflight.dsa ? {
                             dsa_beneficiary: preflight.dsa.beneficiary,
                             dsa_payor: preflight.dsa.payor,
@@ -1218,7 +1219,7 @@ export default class FacebookGraphApi {
                         name: `${name} | AD ${ordinal}`,
                         adset_id: adSet.id,
                         creative: { creative_id: objects.creativeId },
-                        status: "PAUSED",
+                        status: childStatus,
                     };
                     await this.#writeObject(
                         `/${preflight.adAccountId}/ads`,

@@ -13,6 +13,12 @@ import CampaignTemplateManager
 import CountryCatalog from "../../services/templates/CountryCatalog.js";
 import CampaignCreationJournal
     from "../../services/campaigns/CampaignCreationJournal.js";
+import BackgroundTaskJournal
+    from "../../services/tasks/BackgroundTaskJournal.js";
+import BackgroundTaskManager
+    from "../../services/tasks/BackgroundTaskManager.js";
+import FacebookAccountManager
+    from "../../facebook/accounts/FacebookAccountManager.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
 
@@ -27,6 +33,10 @@ let appStateStore = null;
 let adAccountPreferencesStore = null;
 let countryCatalog = null;
 let campaignCreationJournal = null;
+let facebookAccountManager = null;
+let backgroundTaskManager = null;
+let closeApproved = false;
+let closePromptOpen = false;
 
 
 function sendRendererEvent(channel, payload) {
@@ -89,6 +99,9 @@ async function createWindow() {
         systemPromptFile: appPaths.prompt,
     });
 
+    facebookAccountManager = new FacebookAccountManager({
+        accountsFile: appPaths.accounts,
+    });
     guiService = await AdsBotGuiService.create({
         facebookBackendOptions: {
             facebookApiClientsOptions: {
@@ -112,6 +125,17 @@ async function createWindow() {
         jobsFile: appPaths.campaignCreationJobs,
     });
     appStateStore = new AppStateStore({ stateFile: appPaths.appState });
+    const restoredState = await appStateStore.load();
+    backgroundTaskManager = new BackgroundTaskManager({
+        journal: new BackgroundTaskJournal({
+            tasksFile: appPaths.backgroundTasks,
+        }),
+        commentConcurrency: restoredState.commentTaskConcurrency,
+    });
+    await backgroundTaskManager.initialize();
+    backgroundTaskManager.subscribe((payload) => {
+        sendRendererEvent("tasks:updated", payload);
+    });
     adAccountPreferencesStore = new AdAccountPreferencesStore({
         preferencesFile: appPaths.adAccountPreferences,
     });
@@ -126,16 +150,43 @@ async function createWindow() {
         adAccountPreferencesStore,
         countryCatalog,
         campaignCreationJournal,
+        backgroundTaskManager,
+        facebookAccountManager,
         getWindow: () => mainWindow,
     });
 
-    mainWindow.on("close", (event) => {
-        if (guiService?.isCommentingCampaignRunning) {
-            event.preventDefault();
-            sendRendererEvent("app:close-blocked", {
-                message: "Дочекайтеся завершення кампанії коментування",
-            });
+    mainWindow.on("close", async (event) => {
+        if (closeApproved) return;
+        event.preventDefault();
+        if (closePromptOpen) return;
+        closePromptOpen = true;
+        if (!await backgroundTaskManager.hasUnfinished()) {
+            closePromptOpen = false;
+            closeApproved = true;
+            mainWindow.close();
+            return;
         }
+        const answer = await dialog.showMessageBox(mainWindow, {
+            type: "warning",
+            buttons: [
+                "Залишити програму відкритою",
+                "Зупинити задачі й вийти",
+            ],
+            defaultId: 0,
+            cancelId: 0,
+            title: "Є незавершені задачі",
+            message: "Активні задачі буде зупинено після поточного безпечного етапу.",
+            detail: "Уже прийнята Meta дія може завершитися. Відомі Graph ID залишаться у журналі.",
+        });
+        closePromptOpen = false;
+        if (answer.response !== 1) return;
+
+        sendRendererEvent("app:close-blocked", {
+            message: "Безпечно зупиняємо активні задачі…",
+        });
+        await backgroundTaskManager.shutdown();
+        closeApproved = true;
+        mainWindow.close();
     });
 
     if (isDevelopment) {

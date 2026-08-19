@@ -82,6 +82,8 @@ function stageLabel(stage) {
         complete: "Готово",
         failed: "Помилка",
         cleanup: "Очищення",
+        queued: "У черзі",
+        interrupted: "Перервано",
     })[stage] ?? stage;
 }
 
@@ -125,6 +127,7 @@ export default function CampaignCreationWizard({
     const [failure, setFailure] = useState(null);
     const [warnings, setWarnings] = useState([]);
     const [jobId, setJobId] = useState(null);
+    const jobIdRef = useRef(null);
     const pagesRequest = useRef(0);
     const postsRequest = useRef(0);
 
@@ -219,11 +222,15 @@ export default function CampaignCreationWizard({
 
     useEffect(() => {
         return window.adsBot.onCampaignCreationProgress((event) => {
-            setJobId((current) => current ?? event.jobId);
+            if (!jobIdRef.current || event.jobId !== jobIdRef.current) return;
             setProgress(event);
             if (event.error) setFailure(event.error);
         });
     }, []);
+
+    useEffect(() => {
+        jobIdRef.current = jobId;
+    }, [jobId]);
 
     const selectedPage = pages.find(
         (page) => String(page.id) === form.pageId
@@ -361,13 +368,13 @@ export default function CampaignCreationWizard({
         setProgress({ stage: "preflight", completed: 0, total: 3 + Number(form.adSetCount) * 2 });
         try {
             const response = await unwrap(window.adsBot.startCampaignCreation(payload()));
-            setWarnings(response.result?.readback?.warnings ?? []);
-            setJobId(response.job.id);
+            setWarnings([]);
+            setJobId(response.jobId);
             setProgress({
-                stage: "complete",
-                completed: response.job.total,
-                total: response.job.total,
-                objects: response.job.objects,
+                stage: "queued",
+                completed: 0,
+                total: 3 + Number(form.adSetCount) * 2,
+                message: response.task.waitingReason || "Кампанію додано в чергу",
             });
             onSuccess?.(response);
         } catch (error) {
@@ -385,8 +392,8 @@ export default function CampaignCreationWizard({
         setFailure(null);
         try {
             const response = await unwrap(window.adsBot.retryCampaignCreation(jobId));
-            setWarnings(response.result?.readback?.warnings ?? []);
-            setProgress({ stage: "complete", completed: response.job.total, total: response.job.total, objects: response.job.objects });
+            setWarnings([]);
+            setProgress({ stage: "queued", completed: 0, total: response.task.progress?.total || 0, message: "Повтор додано в чергу" });
             onSuccess?.(response);
         } catch (error) {
             setFailure(errorDetails(error));
@@ -399,11 +406,8 @@ export default function CampaignCreationWizard({
         if (!jobId || !window.confirm("Видалити всі об’єкти, створені цією спробою?")) return;
         setCreating(true);
         try {
-            const result = await unwrap(window.adsBot.cleanupCampaignCreation(jobId));
-            setProgress({ stage: "cleanup", completed: result.deleted.length, total: result.deleted.length + result.failed.length });
-            if (result.failed.length) {
-                setFailure({ message: `Не вдалося видалити ${result.failed.length} об’єктів`, code: "CAMPAIGN_CLEANUP_PARTIAL" });
-            }
+            await unwrap(window.adsBot.cleanupCampaignCreation(jobId));
+            setProgress({ stage: "queued", completed: 0, total: 0, message: "Очищення додано в чергу" });
         } catch (error) {
             setFailure(errorDetails(error));
         } finally {
@@ -422,7 +426,7 @@ export default function CampaignCreationWizard({
                 <div className="modal-icon campaign-icon"><Play /></div>
                 <span className="eyebrow">Website leads · {adAccount.localName}</span>
                 <h2>Створити кампанію за шаблоном</h2>
-                <p>{adAccount.currency} · {timezone} · усі об’єкти спочатку створюються PAUSED</p>
+                <p>{adAccount.currency} · {timezone} · campaign PAUSED, ad sets та ads ACTIVE</p>
 
                     <form onSubmit={check} className="campaign-wizard-form">
                         <div className="template-editor-fields two-columns">
@@ -530,7 +534,7 @@ export default function CampaignCreationWizard({
                         <div className="campaign-summary">
                             <div><span>Ad sets / ads</span><strong>{form.adSetCount || 0} / {form.adSetCount || 0}</strong></div>
                             <div><span>Денний бюджет</span><strong>{Number.isFinite(totalBudget) ? totalBudget : 0} {adAccount.currency}</strong></div>
-                            <div><span>Статус після створення</span><strong>{createPaused ? "PAUSED" : "ACTIVE"}</strong></div>
+                            <div><span>Campaign / ad sets / ads</span><strong>{createPaused ? "PAUSED / ACTIVE / ACTIVE" : "ACTIVE / ACTIVE / ACTIVE"}</strong></div>
                             <div><span>Аудиторія</span><strong>{selectedTemplate?.countryCodes?.join(", ") || "—"}</strong></div>
                         </div>
 
@@ -570,7 +574,7 @@ export default function CampaignCreationWizard({
                             <span className="action-spacer" />
                             <button type="button" className="secondary-button" disabled={creating} onClick={onClose}>Закрити</button>
                             {!verified && <button className="primary-button" type="submit" disabled={!canCheck || checking || creating}>{checking ? <LoaderCircle className="spin" size={16} /> : <ShieldCheck size={16} />} Перевірити дані</button>}
-                            {verified && progress?.stage !== "complete" && <button className="primary-button" type="button" disabled={creating} onClick={create}>{creating ? <LoaderCircle className="spin" size={16} /> : <Play size={16} />} Створити {createPaused ? "на паузі" : "й активувати"}</button>}
+                            {verified && !jobId && progress?.stage !== "complete" && <button className="primary-button" type="button" disabled={creating} onClick={create}>{creating ? <LoaderCircle className="spin" size={16} /> : <Play size={16} />} {createPaused ? "Створити з campaign на паузі" : "Створити й активувати"}</button>}
                         </div>
                     </form>
             </motion.div>

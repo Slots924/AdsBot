@@ -140,7 +140,6 @@ export default class AdsBotGuiService {
     #creativeManager;
     #creativeManagerFactory;
     #runCommentingScenario;
-    #commentingPromise = null;
     #accountStatuses = new Map();
 
 
@@ -199,11 +198,6 @@ export default class AdsBotGuiService {
             adsPower,
             adsPowerGroupService,
         });
-    }
-
-
-    get isCommentingCampaignRunning() {
-        return Boolean(this.#commentingPromise);
     }
 
 
@@ -372,20 +366,7 @@ export default class AdsBotGuiService {
 
 
     async runCommentingCampaign(options = {}) {
-        if (this.#commentingPromise) {
-            throw createGuiError(
-                "Кампанія коментування вже виконується",
-                "COMMENTING_CAMPAIGN_ALREADY_RUNNING"
-            );
-        }
-
-        const operation = this.#runCommentingCampaign(options).finally(() => {
-            if (this.#commentingPromise === operation) {
-                this.#commentingPromise = null;
-            }
-        });
-        this.#commentingPromise = operation;
-        return operation;
+        return this.#runCommentingCampaign(options);
     }
 
 
@@ -395,11 +376,25 @@ export default class AdsBotGuiService {
         creativeName,
         siteUrl = "",
         postUrl,
+        signal,
+        onProgress,
     }) {
+        const progress = async (payload) => {
+            if (typeof onProgress === "function") await onProgress(payload);
+        };
+        const assertNotAborted = () => {
+            if (!signal?.aborted) return;
+            throw Object.assign(new Error("Задачу коментування перервано"), {
+                name: "AbortError",
+                code: "COMMENTING_ABORTED",
+            });
+        };
         if (!this.#creativeManager) {
             this.#creativeManager = this.#creativeManagerFactory();
         }
 
+        assertNotAborted();
+        await progress({ stage: "creative", message: "Готуємо коментарі" });
         this.logger.info(
             `Отримуємо або генеруємо коментарі ${geo} ${creativeName}; це може тривати декілька хвилин…`
         );
@@ -411,6 +406,7 @@ export default class AdsBotGuiService {
             creative,
             siteUrl,
         });
+        assertNotAborted();
         const result = await this.#runCommentingScenario({
             adsPower: this.adsPower,
             groupIds,
@@ -420,6 +416,8 @@ export default class AdsBotGuiService {
             postUrl,
             reportsDirectory: this.reportsDirectory,
             logger: this.logger,
+            signal,
+            onProgress: progress,
         });
 
         const summary = {

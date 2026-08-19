@@ -1,5 +1,85 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bot, RefreshCw } from "lucide-react";
+import {
+    ArchiveRestore,
+    Bot,
+    LoaderCircle,
+    Pencil,
+    Plus,
+    RefreshCw,
+    X,
+} from "lucide-react";
+
+import { errorDetails } from "../lib/api.js";
+
+
+function emptyAccountDraft() {
+    return { accountKey: "", userAgent: "", accessToken: "", cookie: "" };
+}
+
+
+function AccountEditor({ editor, onClose, onSave, onError }) {
+    const [draft, setDraft] = useState(() => ({
+        ...emptyAccountDraft(),
+        accountKey: editor.accountKey ?? "",
+    }));
+    const [saving, setSaving] = useState(false);
+    const update = (field) => (event) => setDraft((current) => ({
+        ...current,
+        [field]: event.target.value,
+    }));
+    const creating = editor.mode === "create";
+    const canSave = creating
+        ? draft.accountKey.trim() && draft.userAgent.trim()
+            && draft.accessToken.trim() && draft.cookie.trim()
+        : draft.userAgent.trim() || draft.accessToken.trim()
+            || draft.cookie.trim();
+
+    const submit = async (event) => {
+        event.preventDefault();
+        if (!canSave || saving) return;
+        setSaving(true);
+        try {
+            await onSave(draft);
+            onClose();
+        } catch (error) {
+            onError({
+                ...errorDetails(error),
+                title: creating
+                    ? "Не вдалося створити акаунт"
+                    : "Не вдалося оновити акаунт",
+            });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <div className="overlay" onMouseDown={() => !saving && onClose()}>
+            <motion.form className="modal account-editor" initial={{ opacity: 0, y: 18, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} onMouseDown={(event) => event.stopPropagation()} onSubmit={submit}>
+                <button className="modal-close" type="button" disabled={saving} onClick={onClose}><X size={17} /></button>
+                <div className="modal-icon"><Bot /></div>
+                <span className="eyebrow">Facebook API client</span>
+                <h2>{creating ? "Новий акаунт" : `Редагувати ${editor.accountKey}`}</h2>
+                {!creating && <p>Порожні поля залишаться без змін. Поточні секрети з міркувань безпеки не показуються.</p>}
+                <div className="template-editor-fields">
+                    <label className="field"><span>accountKey</span><input autoFocus={creating} readOnly={!creating} value={draft.accountKey} onChange={update("accountKey")} placeholder="fp_hub_2" /></label>
+                    <label className="field"><span>userAgent</span><textarea rows="3" value={draft.userAgent} onChange={update("userAgent")} placeholder={creating ? "Mozilla/5.0…" : "Залишити без змін"} /></label>
+                    <label className="field"><span>accessToken</span><textarea rows="3" value={draft.accessToken} onChange={update("accessToken")} placeholder={creating ? "Access token" : "Залишити без змін"} /></label>
+                    <label className="field">
+                        <span>Cookie або AdsPower JSON</span>
+                        <textarea rows="6" value={draft.cookie} onChange={update("cookie")} placeholder={creating ? "Cookie header або повний JSON-масив cookies" : "Залишити без змін"} />
+                        <small className="field-hint">Із масиву автоматично беруться лише потрібні cookies домену facebook.com.</small>
+                    </label>
+                </div>
+                <div className="form-actions">
+                    <button className="secondary-button" type="button" disabled={saving} onClick={onClose}>Скасувати</button>
+                    <button className="primary-button" type="submit" disabled={!canSave || saving}>{saving && <LoaderCircle className="spin" size={16} />}{creating ? "Створити" : "Зберегти зміни"}</button>
+                </div>
+            </motion.form>
+        </div>
+    );
+}
 
 
 export default function Sidebar({
@@ -8,70 +88,75 @@ export default function Sidebar({
     loading,
     onSelect,
     onRefresh,
+    onCreate,
+    onUpdate,
+    onSetArchived,
+    onError,
 }) {
+    const [editor, setEditor] = useState(null);
+    const [busyKey, setBusyKey] = useState(null);
+    const saveAccount = (draft) => editor.mode === "create"
+        ? onCreate(draft)
+        : onUpdate(editor.accountKey, draft);
+
+    const toggleArchive = async (event, account) => {
+        event.stopPropagation();
+        if (!account.archived && !window.confirm(
+            `Перемістити акаунт «${account.accountKey}» в архів?`
+        )) return;
+        setBusyKey(account.accountKey);
+        try {
+            await onSetArchived(account.accountKey, !account.archived);
+        } catch (error) {
+            onError({
+                ...errorDetails(error),
+                title: account.archived
+                    ? "Не вдалося відновити акаунт"
+                    : "Не вдалося архівувати акаунт",
+            });
+        } finally {
+            setBusyKey(null);
+        }
+    };
+
     return (
         <aside className="sidebar">
-            <div className="brand">
-                <div className="brand-mark"><Bot size={22} /></div>
-                <div>
-                    <strong>AdsBot</strong>
-                    <span>Control center</span>
-                </div>
-            </div>
-
+            <div className="brand"><div className="brand-mark"><Bot size={22} /></div><div><strong>AdsBot</strong><span>Control center</span></div></div>
             <div className="sidebar-title-row">
-                <div>
-                    <span className="eyebrow">Facebook</span>
-                    <h2>Акаунти</h2>
+                <div><span className="eyebrow">Facebook</span><h2>Акаунти</h2></div>
+                <div className="sidebar-account-tools">
+                    <button className="icon-button" onClick={() => setEditor({ mode: "create" })} title="Додати акаунт"><Plus size={17} /></button>
+                    <button className="icon-button" onClick={onRefresh} disabled={loading} title="Оновити акаунти"><RefreshCw className={loading ? "spin" : ""} size={17} /></button>
                 </div>
-                <button
-                    className="icon-button"
-                    onClick={onRefresh}
-                    disabled={loading}
-                    title="Оновити акаунти"
-                >
-                    <RefreshCw className={loading ? "spin" : ""} size={17} />
-                </button>
             </div>
-
             <div className="account-list">
                 {loading && accounts.length === 0
-                    ? [1, 2, 3].map((item) => (
-                        <div className="account-card skeleton" key={item} />
-                    ))
+                    ? [1, 2, 3].map((item) => <div className="account-card skeleton" key={item} />)
                     : accounts.map((account, index) => (
-                        <motion.button
-                            type="button"
-                            className={`account-card ${
-                                account.accountKey === selectedAccountKey
-                                    ? "selected"
-                                    : ""
-                            }`}
-                            key={account.accountKey}
-                            onClick={() => onSelect(account.accountKey)}
-                            initial={{ opacity: 0, x: -12 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.045 }}
-                            whileHover={{ x: 3 }}
-                        >
-                            <span className={`status-dot ${account.status}`} />
-                            <span className="account-copy">
-                                <strong>{account.accountKey}</strong>
-                                <span>{account.name || "Без імені"}</span>
-                                <small>{account.facebookUserId || "ID не вказано"}</small>
-                                {account.error?.message && (
-                                    <em>{account.error.message}</em>
-                                )}
+                        <motion.div className={`account-card-shell ${account.archived ? "archived" : ""}`} key={account.accountKey} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * .045 }}>
+                            <button type="button" className={`account-card ${account.accountKey === selectedAccountKey ? "selected" : ""}`} onClick={() => !account.archived && onSelect(account.accountKey)} disabled={account.archived}>
+                                <span className={`status-dot ${account.status}`} />
+                                <span className="account-copy">
+                                    <strong>{account.accountKey}</strong>
+                                    <span>{account.archived ? "В архіві" : account.name || "Без імені"}</span>
+                                    <small>{account.facebookUserId || "ID не вказано"}</small>
+                                    {account.error?.message && <em>{account.error.message}</em>}
+                                </span>
+                            </button>
+                            <span className="account-card-tools">
+                                <button type="button" className="icon-button" title="Редагувати" onClick={(event) => { event.stopPropagation(); setEditor({ mode: "edit", accountKey: account.accountKey }); }}><Pencil size={13} /></button>
+                                <button type="button" className={`icon-button ${account.archived ? "" : "danger"}`} title={account.archived ? "Відновити" : "В архів"} disabled={busyKey === account.accountKey} onClick={(event) => toggleArchive(event, account)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : account.archived ? <ArchiveRestore size={13} /> : <X size={13} />}</button>
                             </span>
-                        </motion.button>
+                        </motion.div>
                     ))}
             </div>
-
             <div className="sidebar-legend">
                 <span><i className="status-dot active" /> Активний</span>
                 <span><i className="status-dot inactive" /> Неактивний</span>
                 <span><i className="status-dot error" /> Помилка перевірки</span>
+                <span><i className="status-dot archived" /> В архіві</span>
             </div>
+            {editor && <AccountEditor editor={editor} onClose={() => setEditor(null)} onSave={saveAccount} onError={onError} />}
         </aside>
     );
 }

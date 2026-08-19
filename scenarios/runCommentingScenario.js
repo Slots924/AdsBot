@@ -147,6 +147,8 @@ export default async function runCommentingScenario({
     postUrl,
     reportsDirectory = "./data/reports",
     logger,
+    signal,
+    onProgress,
 }) {
     const campaignLogger = normalizeLogger(logger);
     const report = createReport({
@@ -160,8 +162,25 @@ export default async function runCommentingScenario({
     const attemptedProfileNos = new Set();
     const publishedCommentIds = new Set();
     let reportPath = null;
+    const progress = async (payload) => {
+        if (typeof onProgress === "function") await onProgress({
+            published: report.published.length,
+            skipped: report.skipped.length,
+            failedComments: report.failedComments.length,
+            failedProfiles: report.failedProfiles.length,
+            ...payload,
+        });
+    };
+    const assertNotAborted = () => {
+        if (!signal?.aborted) return;
+        throw Object.assign(new Error("Задачу коментування перервано"), {
+            name: "AbortError",
+            code: "COMMENTING_ABORTED",
+        });
+    };
 
     try {
+        assertNotAborted();
         validateSettings({
             groupIds,
             comments,
@@ -188,6 +207,12 @@ export default async function runCommentingScenario({
         campaignLogger.info(
             `Отримуємо профілі груп AdsPower: ${normalizedGroupIds.join(", ")}`
         );
+        await progress({
+            stage: "profiles",
+            message: "Завантажуємо профілі вибраних AdsPower-груп",
+            completed: 0,
+            total: normalizedComments.length,
+        });
 
         const profilesFromGroups = await Promise.all(
             normalizedGroupIds.map((groupId) =>
@@ -283,6 +308,12 @@ export default async function runCommentingScenario({
             campaignLogger.info(
                 `Коментар ${comment.id}: використовуємо профіль ${profileNo}`
             );
+            await progress({
+                stage: "comment",
+                currentCommentId: comment.id,
+                currentProfileNo: profileNo,
+                message: `Коментар ${comment.id} · профіль ${profileNo}`,
+            });
 
             const result = await executeCommentWithProfile({
                 adsPower,
@@ -327,6 +358,7 @@ export default async function runCommentingScenario({
         };
 
         for (const comment of normalizedComments) {
+            assertNotAborted();
             const commentLabel = getCommentLabel(comment);
 
             if (comment.should_write === false) {
@@ -537,6 +569,15 @@ export default async function runCommentingScenario({
                     `Коментар ${comment.id} не опубліковано після ${attempts} спроб`
                 );
             }
+
+            await progress({
+                stage: "comments",
+                completed: report.published.length
+                    + report.skipped.length
+                    + report.failedComments.length,
+                total: normalizedComments.length,
+                message: `Оброблено коментар ${comment.id}`,
+            });
         }
     } catch (error) {
         report.fatalError = error.message;
@@ -548,6 +589,7 @@ export default async function runCommentingScenario({
         report.profileKeyMap = Object.fromEntries(profileKeyMap);
 
         try {
+            await progress({ stage: "report", message: "Зберігаємо звіт" });
             reportPath = await saveCommentingReport(
                 report,
                 reportsDirectory
