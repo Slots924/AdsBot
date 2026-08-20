@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     BadgeDollarSign,
@@ -6,6 +6,7 @@ import {
     MessageSquareText,
     Send,
     Settings,
+    ScrollText,
 } from "lucide-react";
 
 import LogPanel from "./components/LogPanel.jsx";
@@ -17,6 +18,7 @@ import AdAccountsTab from "./tabs/AdAccountsTab.jsx";
 import CommentsTab from "./tabs/CommentsTab.jsx";
 import PublishTab from "./tabs/PublishTab.jsx";
 import TemplatesTab from "./tabs/TemplatesTab.jsx";
+import JournalTab from "./tabs/JournalTab.jsx";
 import { errorDetails, unwrap } from "./lib/api.js";
 import { findGroupForGeo } from "./lib/groups.js";
 
@@ -24,6 +26,7 @@ import { findGroupForGeo } from "./lib/groups.js";
 const tabs = [
     { id: "publish", label: "Публікація", icon: Send },
     { id: "comments", label: "Коментарі", icon: MessageSquareText },
+    { id: "journal", label: "Журнал", icon: ScrollText },
     { id: "ads", label: "Рекламні акаунти", icon: BadgeDollarSign },
     { id: "templates", label: "Шаблони", icon: LayoutTemplate },
 ];
@@ -39,8 +42,10 @@ export default function App() {
     const [commentTaskConcurrency, setCommentTaskConcurrency] = useState(2);
     const [commentBrowserMode, setCommentBrowserMode] = useState("visible");
     const [commentDisableImages, setCommentDisableImages] = useState(false);
+    const [logLevel, setLogLevel] = useState("info");
     const [taskPanelCollapsed, setTaskPanelCollapsed] = useState(false);
     const [backgroundTasks, setBackgroundTasks] = useState([]);
+    const [taskToOpen, setTaskToOpen] = useState(null);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [selectedAccountKey, setSelectedAccountKey] = useState("");
     const [selectedPageId, setSelectedPageId] = useState("");
@@ -63,6 +68,7 @@ export default function App() {
     const [logs, setLogs] = useState([]);
     const [modal, setModal] = useState(null);
     const [toast, setToast] = useState(null);
+    const handledPublicationTasks = useRef(new Set());
 
     const selectedAccount = useMemo(
         () => accounts.find((account) => account.accountKey === selectedAccountKey) ?? null,
@@ -97,13 +103,20 @@ export default function App() {
     };
 
     const addLog = (level, scope, message) => {
-        setLogs((current) => [...current.slice(-499), {
-            id: `${Date.now()}-${Math.random()}`,
-            timestamp: new Date().toISOString(),
+        window.adsBot.writeRendererLog({
             level,
-            scope,
+            event: `${scope}.message`,
             message,
-        }]);
+            fields: { source: scope },
+        }).catch(() => {
+            setLogs((current) => [...current.slice(-499), {
+                id: `${Date.now()}-${Math.random()}`,
+                timestamp: new Date().toISOString(),
+                level,
+                scope,
+                message,
+            }]);
+        });
     };
 
     const showToast = (message, type = "info") => {
@@ -148,6 +161,10 @@ export default function App() {
         const unsubscribeClose = window.adsBot.onCloseBlocked(({ message }) => {
             showToast(message, "warn");
         });
+        const handleWindowError = (event) => addLog("error", "renderer", event.message || "Невідома renderer-помилка");
+        const handleUnhandledRejection = (event) => addLog("error", "renderer", event.reason?.message || String(event.reason || "Unhandled rejection"));
+        window.addEventListener("error", handleWindowError);
+        window.addEventListener("unhandledrejection", handleUnhandledRejection);
         const unsubscribeTasks = window.adsBot.onBackgroundTasksUpdated((event) => {
             if (event.type === "snapshot") {
                 setBackgroundTasks(event.tasks);
@@ -161,6 +178,22 @@ export default function App() {
                         : [event.task, ...current];
                     return next.sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt));
                 });
+                if (
+                    event.task.type === "publication"
+                    && event.task.status === "completed"
+                    && event.task.result?.postId
+                    && !handledPublicationTasks.current.has(event.task.id)
+                ) {
+                    handledPublicationTasks.current.add(event.task.id);
+                    handlePostSuccess({
+                        post: event.task.result,
+                        pageId: event.task.result.pageId,
+                        accountKey: event.task.result.accountKey,
+                        geo: event.task.result.geo,
+                        creativeName: event.task.result.creativeName,
+                        siteUrl: event.task.result.siteUrl,
+                    });
+                }
             }
         });
 
@@ -174,6 +207,7 @@ export default function App() {
                 setCommentTaskConcurrency(restored.commentTaskConcurrency);
                 setCommentBrowserMode(restored.commentBrowserMode);
                 setCommentDisableImages(restored.commentDisableImages);
+                setLogLevel(restored.logLevel);
                 setTaskPanelCollapsed(restored.taskPanelCollapsed);
                 setSelectedAccountKey(restored.selectedAccountKey);
                 setSelectedPageId(restored.selectedPageId);
@@ -213,6 +247,8 @@ export default function App() {
             unsubscribeLog();
             unsubscribeClose();
             unsubscribeTasks();
+            window.removeEventListener("error", handleWindowError);
+            window.removeEventListener("unhandledrejection", handleUnhandledRejection);
         };
     }, []);
 
@@ -227,6 +263,7 @@ export default function App() {
                 commentTaskConcurrency,
                 commentBrowserMode,
                 commentDisableImages,
+                logLevel,
                 taskPanelCollapsed,
                 selectedAccountKey,
                 selectedPageId,
@@ -249,6 +286,7 @@ export default function App() {
         commentTaskConcurrency,
         commentBrowserMode,
         commentDisableImages,
+        logLevel,
         taskPanelCollapsed,
         selectedAccountKey,
         selectedPageId,
@@ -287,6 +325,18 @@ export default function App() {
                 ...errorDetails(error),
                 title: "Не вдалося змінити паралельність задач",
             });
+        }
+    };
+
+    const changeLogLevel = async (level) => {
+        const previous = logLevel;
+        const normalized = level === "debug" ? "debug" : "info";
+        setLogLevel(normalized);
+        try {
+            setLogLevel(await unwrap(window.adsBot.setLogLevel(normalized)));
+        } catch (error) {
+            setLogLevel(previous);
+            setModal({ ...errorDetails(error), title: "Не вдалося змінити рівень журналу" });
         }
     };
 
@@ -381,7 +431,6 @@ export default function App() {
                                 key="publish"
                                 selectedAccount={selectedAccount}
                                 onError={setModal}
-                                onPostSuccess={handlePostSuccess}
                                 addLog={addLog}
                                 pageId={selectedPageId}
                                 setPageId={setSelectedPageId}
@@ -404,6 +453,12 @@ export default function App() {
                                 browserMode={commentBrowserMode}
                                 disableImages={commentDisableImages}
                             />
+                        )}
+                        {activeTab === "journal" && (
+                            <JournalTab key="journal" onError={setModal} showToast={showToast} onOpenTask={(taskId) => {
+                                setTaskPanelCollapsed(false);
+                                setTaskToOpen(taskId);
+                            }} />
                         )}
                         {activeTab === "ads" && (
                             <AdAccountsTab
@@ -437,6 +492,8 @@ export default function App() {
                 onCollapsedChange={setTaskPanelCollapsed}
                 onRefresh={refreshBackgroundTasks}
                 onError={setModal}
+                openTaskId={taskToOpen}
+                onOpenTaskHandled={() => setTaskToOpen(null)}
             />
 
             <Modal modal={modal} onClose={() => setModal(null)} />
@@ -452,6 +509,8 @@ export default function App() {
                     onCommentBrowserModeChange={setCommentBrowserMode}
                     commentDisableImages={commentDisableImages}
                     onCommentDisableImagesChange={setCommentDisableImages}
+                    logLevel={logLevel}
+                    onLogLevelChange={changeLogLevel}
                     onClose={() => setSettingsOpen(false)}
                 />
             )}

@@ -8,6 +8,18 @@ const handlers = new Map();
 const openedUrls = [];
 const zoomFactors = [];
 const rendererEvents = [];
+const logger = {
+    list: async () => ({ items: [], nextCursor: null }),
+    scopes: async () => ["gui"],
+    setLevel: (level) => level === "debug" ? "debug" : "info",
+    child: () => ({ info: () => ({ id: "log-1" }), warn() {}, error() {}, debug() {} }),
+};
+const reportManager = {
+    list: async () => [{ id: "report-1", title: "Report" }],
+    get: async () => ({ id: "report-1", title: "Report" }),
+    delete: async (id) => id,
+    exportMarkdown: async (_id, file) => file,
+};
 const templateManager = {
     async list() {
         return [{ id: 1, name: "AT", pixel: "123" }];
@@ -79,8 +91,10 @@ const facebookAccountManager = {
 };
 let storedJob = null;
 const backgroundTasks = [];
+const enqueuedOptions = [];
 const backgroundTaskManager = {
     async enqueue(options) {
+        enqueuedOptions.push(options);
         const task = {
             id: `task-${backgroundTasks.length + 1}`,
             type: options.type,
@@ -214,6 +228,8 @@ registerIpcHandlers({
     campaignCreationJournal,
     backgroundTaskManager,
     facebookAccountManager,
+    logger,
+    reportManager,
     getWindow: () => ({
         isDestroyed: () => false,
         webContents: {
@@ -342,17 +358,26 @@ assert.equal(listedPosts.ok, true);
 assert.equal(listedPosts.data[0].id, "10_20");
 assert(!("pageAccessToken" in listedPosts.data[0]));
 
-const failedPost = await handlers.get("post:publish")({}, {});
-assert.equal(failedPost.ok, false);
-assert.equal(failedPost.error.code, "FACEBOOK_API_ERROR");
-assert.equal(failedPost.error.httpStatus, 400);
-assert.equal(failedPost.error.graphUserTitle, "Invalid ad configuration");
-assert.equal(
-    failedPost.error.graphUserMessage,
-    "The selected post is incompatible"
+const queuedPost = await handlers.get("post:publish")({}, {
+    accountKey: "fp_hub",
+    pageId: "10",
+    geo: "HU",
+    creativeName: "138",
+    siteUrl: "https://example.com",
+});
+assert.equal(queuedPost.ok, true);
+assert.equal(queuedPost.data.task.type, "publication");
+assert.equal(queuedPost.data.task.status, "queued");
+assert.equal(queuedPost.data.task.input.creativeName, "138");
+await assert.rejects(
+    enqueuedOptions.find((item) => item.type === "publication").runner({
+        signal: new AbortController().signal,
+        progress: async () => {},
+    }),
+    { code: "FACEBOOK_API_ERROR" }
 );
-assert(!("secret" in failedPost.error));
-assert(!("stack" in failedPost.error));
+assert.equal((await handlers.get("logs:list")({}, {})).ok, true);
+assert.equal((await handlers.get("reports:list")({}, {})).data[0].id, "report-1");
 
 assert.deepEqual(
     await handlers.get("dialog:select-image")({}, {}),

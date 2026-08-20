@@ -74,6 +74,15 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("tasks:clear-finished"),
     setCommentTaskConcurrency: (value) =>
         ipcRenderer.invoke("tasks:comment-concurrency-set", { value }),
+    getLogs: (filters) => ipcRenderer.invoke("logs:list", filters),
+    getLogScopes: () => ipcRenderer.invoke("logs:scopes"),
+    setLogLevel: (level) => ipcRenderer.invoke("logs:level-set", { level }),
+    writeRendererLog: (entry) => ipcRenderer.invoke("logs:renderer-write", entry),
+    getReports: (filters) => ipcRenderer.invoke("reports:list", filters),
+    getReport: (reportId) => ipcRenderer.invoke("reports:get", { reportId }),
+    deleteReport: (reportId) => ipcRenderer.invoke("reports:delete", { reportId }),
+    exportReportMarkdown: (reportId) =>
+        ipcRenderer.invoke("reports:export-markdown", { reportId }),
     getTemplates: () => ipcRenderer.invoke("templates:list"),
     getCountries: () => ipcRenderer.invoke("countries:list"),
     createTemplate: (template) =>

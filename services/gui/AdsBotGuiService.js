@@ -342,8 +342,13 @@ export default class AdsBotGuiService {
         creativeName,
         siteUrl,
         imagePath = "",
-    } = {}) {
+    } = {}, onProgress) {
+        const progress = async (payload) => {
+            if (typeof onProgress === "function") await onProgress(payload);
+        };
         await this.#assertActiveAccount(accountKey);
+        const total = imagePath ? 4 : 3;
+        await progress({ stage: "creative", completed: 0, total, message: "Готуємо креатив" });
         this.logger.info(
             `Отримуємо або генеруємо креатив ${geo} ${creativeName}; це може тривати декілька хвилин…`
         );
@@ -359,7 +364,8 @@ export default class AdsBotGuiService {
             pageId,
             message: preparedCreative.creative,
             imagePath,
-        });
+        }, progress);
+        await progress({ stage: "verification", completed: total, total, message: "Пост опубліковано та перевірено" });
         this.logger.info(`Пост підтверджено: ${post.postId}`);
         return post;
     }
@@ -430,9 +436,35 @@ export default class AdsBotGuiService {
             failedComments: result.report.failedComments.length,
             failedProfiles: result.report.failedProfiles.length,
             fatalError: result.report.fatalError,
-            reportPath: result.reportPath,
             browserMode: result.report.browserMode,
             disableImages: result.report.disableImages,
+            reportDetails: {
+                inputSummary: {
+                    groupIds: result.report.groupIds,
+                    geo: result.report.geo,
+                    creativeName: result.report.creativeName,
+                    postUrl: result.report.postUrl,
+                    browserMode: result.report.browserMode,
+                    disableImages: result.report.disableImages,
+                },
+                resultSummary: {
+                    published: result.report.published,
+                    skipped: result.report.skipped,
+                    failedComments: result.report.failedComments,
+                    failedProfiles: result.report.failedProfiles,
+                    excludedProfiles: result.report.excludedProfiles,
+                    cleanupWarnings: result.report.cleanupWarnings,
+                    fatalError: result.report.fatalError,
+                },
+                counters: {
+                    published: result.report.published.length,
+                    skipped: result.report.skipped.length,
+                    failedComments: result.report.failedComments.length,
+                    failedProfiles: result.report.failedProfiles.length,
+                },
+                warnings: result.report.cleanupWarnings,
+                errors: result.report.fatalError ? [{ message: result.report.fatalError }] : [],
+            },
         };
         this.logger.info(
             `Кампанію завершено: успішно ${summary.published}, помилок ${summary.failedComments}`

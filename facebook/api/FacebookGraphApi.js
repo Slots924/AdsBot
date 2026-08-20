@@ -1,3 +1,6 @@
+import { getLogger } from "../../services/logging/runtimeLogger.js";
+
+
 function redactSensitiveText(value) {
     return String(value ?? "")
         .replace(/EAA[A-Za-z0-9]+/g, "[REDACTED]")
@@ -399,6 +402,14 @@ export default class FacebookGraphApi {
         const normalizedPathname = String(pathname).startsWith("/")
             ? pathname
             : `/${pathname}`;
+        const startedAt = Date.now();
+        const logger = getLogger("facebook.graph", {
+            accountKey: this.accountKey,
+        });
+        logger.debug("graph.request", "Надсилаємо Graph API-запит", {
+            method,
+            endpoint: normalizedPathname,
+        });
 
         try {
             const response = await this.#proxyHttpClient.request({
@@ -418,12 +429,27 @@ export default class FacebookGraphApi {
                 retryOnConnectionError,
             });
 
+            logger.debug("graph.response", "Graph API відповів", {
+                method,
+                endpoint: normalizedPathname,
+                status: response.status,
+                durationMs: Date.now() - startedAt,
+            });
             return response.data;
         } catch (error) {
-            throw createFacebookApiError(error, {
+            const normalizedError = createFacebookApiError(error, {
                 outcomeUnknownCode,
                 outcomeUnknownMessage,
             });
+            logger.error("graph.request.failed", "Graph API-запит завершився помилкою", {
+                method,
+                endpoint: normalizedPathname,
+                durationMs: Date.now() - startedAt,
+                graphCode: normalizedError.graphCode,
+                graphSubcode: normalizedError.graphSubcode,
+                error: normalizedError,
+            });
+            throw normalizedError;
         }
     }
 

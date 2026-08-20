@@ -16,6 +16,7 @@ import BackgroundTaskPanel from "../components/BackgroundTaskPanel.jsx";
 import AdAccountsTab from "../tabs/AdAccountsTab.jsx";
 import PublishTab from "../tabs/PublishTab.jsx";
 import TemplatesTab from "../tabs/TemplatesTab.jsx";
+import JournalTab from "../tabs/JournalTab.jsx";
 import { findGroupForGeo } from "../lib/groups.js";
 
 
@@ -24,6 +25,9 @@ describe("GUI helpers", () => {
         window.adsBot = {
             getFanPages: vi.fn(),
             getCountries: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+            getLogs: vi.fn().mockResolvedValue({ ok: true, data: { items: [], nextCursor: null } }),
+            getLogScopes: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+            getReports: vi.fn().mockResolvedValue({ ok: true, data: [] }),
         };
     });
 
@@ -176,6 +180,52 @@ describe("GUI helpers", () => {
             .toBeInTheDocument();
         expect(screen.getByDisplayValue("page-1_post-1"))
             .toHaveAttribute("readonly");
+    });
+
+    it("одразу додає публікацію в чергу та звільняє форму", async () => {
+        window.adsBot.getFanPages.mockResolvedValue({
+            ok: true,
+            data: [{ id: "page-1", name: "Test Page" }],
+        });
+        window.adsBot.publishCreativePost = vi.fn().mockResolvedValue({
+            ok: true,
+            data: {
+                taskId: "task-publication",
+                task: {
+                    id: "task-publication",
+                    type: "publication",
+                    name: "Публікація · HU · 138",
+                    status: "queued",
+                },
+            },
+        });
+        render(
+            <PublishTab
+                selectedAccount={{ accountKey: "fp_hub", status: "active" }}
+                onError={vi.fn()}
+                addLog={vi.fn()}
+                pageId="page-1"
+                setPageId={vi.fn()}
+                form={{
+                    geo: "HU",
+                    creativeName: "138",
+                    siteUrl: "https://example.com",
+                    imagePath: "",
+                }}
+                setForm={vi.fn()}
+            />
+        );
+        fireEvent.click(await screen.findByRole("button", { name: "Запостити креатив" }));
+        await waitFor(() => expect(window.adsBot.publishCreativePost).toHaveBeenCalledWith({
+            accountKey: "fp_hub",
+            pageId: "page-1",
+            geo: "HU",
+            creativeName: "138",
+            siteUrl: "https://example.com",
+            imagePath: "",
+        }));
+        expect(await screen.findByText(/додано в чергу/)).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Запостити креатив" })).toBeEnabled();
     });
 
     it("створює та показує локальний шаблон", async () => {
@@ -453,6 +503,7 @@ describe("GUI helpers", () => {
         const onScaleChange = vi.fn();
         const onCommentBrowserModeChange = vi.fn();
         const onCommentDisableImagesChange = vi.fn();
+        const onLogLevelChange = vi.fn();
         render(
             <SettingsModal
                 scale={1.3}
@@ -465,6 +516,8 @@ describe("GUI helpers", () => {
                 onCommentBrowserModeChange={onCommentBrowserModeChange}
                 commentDisableImages={false}
                 onCommentDisableImagesChange={onCommentDisableImagesChange}
+                logLevel="info"
+                onLogLevelChange={onLogLevelChange}
                 onClose={vi.fn()}
             />
         );
@@ -480,6 +533,59 @@ describe("GUI helpers", () => {
         expect(onCommentBrowserModeChange).toHaveBeenCalledWith("headless");
         fireEvent.click(screen.getByRole("checkbox", { name: /Не завантажувати зображення/ }));
         expect(onCommentDisableImagesChange).toHaveBeenCalledWith(true);
+        fireEvent.change(screen.getByLabelText("Рівень логування"), {
+            target: { value: "debug" },
+        });
+        expect(onLogLevelChange).toHaveBeenCalledWith("debug");
+    });
+
+    it("показує збережені події та структуровані звіти", async () => {
+        window.adsBot.getLogScopes.mockResolvedValue({ ok: true, data: ["tasks"] });
+        window.adsBot.getLogs.mockResolvedValue({
+            ok: true,
+            data: {
+                items: [{
+                    id: "log-1",
+                    timestamp: "2026-08-20T10:00:00.000Z",
+                    level: "error",
+                    scope: "tasks",
+                    message: "Meta повернула помилку",
+                    context: { taskId: "task-1" },
+                }],
+                nextCursor: null,
+            },
+        });
+        window.adsBot.getReports.mockResolvedValue({
+            ok: true,
+            data: [{
+                id: "report-1",
+                taskId: "task-1",
+                type: "publication",
+                title: "Публікація · HU · 138",
+                status: "completed",
+                createdAt: "2026-08-20T10:01:00.000Z",
+            }],
+        });
+        window.adsBot.getReport = vi.fn().mockResolvedValue({
+            ok: true,
+            data: {
+                id: "report-1",
+                taskId: "task-1",
+                type: "publication",
+                title: "Публікація · HU · 138",
+                status: "completed",
+                resultSummary: { postId: "10_20" },
+            },
+        });
+        window.adsBot.exportReportMarkdown = vi.fn().mockResolvedValue({ ok: true, data: true });
+        render(<JournalTab onError={vi.fn()} showToast={vi.fn()} />);
+        expect(await screen.findByText("Meta повернула помилку")).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: /Звіти/ }));
+        expect(await screen.findByText("Публікація · HU · 138")).toBeInTheDocument();
+        fireEvent.click(screen.getByText("Публікація · HU · 138"));
+        expect(await screen.findByText(/10_20/)).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: /Markdown/ }));
+        await waitFor(() => expect(window.adsBot.exportReportMarkdown).toHaveBeenCalledWith("report-1"));
     });
 
     it("показує фонові задачі та дозволяє зупинити активну", async () => {

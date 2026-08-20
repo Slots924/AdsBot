@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ExternalLink, LoaderCircle, Send } from "lucide-react";
+import { LoaderCircle, Send } from "lucide-react";
 
 import ImageDropzone from "../components/ImageDropzone.jsx";
 import SearchSelect from "../components/SearchSelect.jsx";
@@ -10,7 +10,6 @@ import { errorDetails, unwrap } from "../lib/api.js";
 export default function PublishTab({
     selectedAccount,
     onError,
-    onPostSuccess,
     addLog,
     pageId: controlledPageId,
     setPageId: setControlledPageId,
@@ -94,18 +93,13 @@ export default function PublishTab({
         addLog("info", "frontend", `Запускаємо публікацію ${form.geo} ${form.creativeName}`);
 
         try {
-            const post = await unwrap(window.adsBot.publishCreativePost({
+            const queued = await unwrap(window.adsBot.publishCreativePost({
                 accountKey: selectedAccount.accountKey,
                 pageId,
                 ...form,
             }));
-            setResult(post);
-            onPostSuccess({
-                post,
-                pageId,
-                accountKey: selectedAccount.accountKey,
-                ...form,
-            });
+            setResult(queued.task);
+            addLog("info", "frontend", `Публікацію додано в чергу: ${queued.taskId}`);
         } catch (error) {
             onError({
                 ...errorDetails(error),
@@ -182,23 +176,12 @@ export default function PublishTab({
                     <span>{fanPages.length} доступних фанпейджів</span>
                     <button className="primary-button" type="submit" disabled={!canPublish}>
                         {publishing ? <LoaderCircle className="spin" size={17} /> : <Send size={17} />}
-                        {publishing ? "Публікуємо…" : "Запостити креатив"}
+                        {publishing ? "Додаємо в чергу…" : "Запостити креатив"}
                     </button>
                 </div>
             </form>
 
-            {result && (
-                <motion.div className="success-card" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
-                    <div><span className="status-dot active" /><strong>Пост опубліковано та перевірено</strong></div>
-                    <dl>
-                        <div><dt>Post ID</dt><dd>{result.postId}</dd></div>
-                        <div><dt>Тип</dt><dd>{result.type}</dd></div>
-                    </dl>
-                    <button className="link-button" onClick={() => window.adsBot.openExternal(result.permalinkUrl)}>
-                        Відкрити пост <ExternalLink size={15} />
-                    </button>
-                </motion.div>
-            )}
+            {result && <div className="notice info">Задачу «{result.name}» додано в чергу. Форму можна використовувати для наступної публікації.</div>}
         </motion.section>
     );
 }

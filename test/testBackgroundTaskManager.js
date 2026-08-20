@@ -7,6 +7,7 @@ import BackgroundTaskJournal
     from "../services/tasks/BackgroundTaskJournal.js";
 import BackgroundTaskManager
     from "../services/tasks/BackgroundTaskManager.js";
+import TaskReportManager from "../services/reports/TaskReportManager.js";
 
 
 const waitUntil = async (predicate, timeout = 2000) => {
@@ -23,7 +24,14 @@ const tasksFile = path.join(directory, "tasks.json");
 
 try {
     const journal = new BackgroundTaskJournal({ tasksFile });
-    const manager = new BackgroundTaskManager({ journal, commentConcurrency: 2 });
+    const reportManager = new TaskReportManager({
+        reportsDirectory: path.join(directory, "reports"),
+    });
+    const manager = new BackgroundTaskManager({
+        journal,
+        commentConcurrency: 2,
+        reportManager,
+    });
     await manager.initialize();
 
     const started = [];
@@ -51,6 +59,10 @@ try {
     releases.get("B")();
     releases.get("C")();
     await waitUntil(async () => !(await manager.hasUnfinished()));
+    const finishedA = (await manager.list()).find((task) => task.name === "A");
+    assert(finishedA.metadata.reportId);
+    await manager.dismiss(finishedA.id);
+    assert(await reportManager.get(finishedA.metadata.reportId));
 
     const campaignStarted = [];
     let releaseCampaign;
@@ -84,6 +96,29 @@ try {
     assert.deepEqual(campaignStarted, ["one"]);
     releaseCampaign();
     await waitUntil(() => campaignStarted.length === 2);
+    await waitUntil(async () => !(await manager.hasUnfinished()));
+
+    const publicationStarted = [];
+    let releasePublication;
+    await manager.enqueue({
+        type: "publication",
+        name: "Publication 1",
+        resources: [{ key: "facebook-page-publish" }],
+        runner: async () => {
+            publicationStarted.push("one");
+            await new Promise((resolve) => { releasePublication = resolve; });
+        },
+    });
+    await manager.enqueue({
+        type: "publication",
+        name: "Publication 2",
+        resources: [{ key: "facebook-page-publish" }],
+        runner: async () => { publicationStarted.push("two"); },
+    });
+    await waitUntil(() => publicationStarted.length === 1);
+    assert.deepEqual(publicationStarted, ["one"]);
+    releasePublication();
+    await waitUntil(() => publicationStarted.length === 2);
     await waitUntil(async () => !(await manager.hasUnfinished()));
 
     const orphan = await journal.create({ type: "comments", name: "Orphan" });

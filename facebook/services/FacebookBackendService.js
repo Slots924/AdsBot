@@ -250,12 +250,26 @@ export default class FacebookBackendService {
         pageId,
         message = "",
         imagePath = "",
-    } = {}) {
+    } = {}, onProgress) {
+        const progress = async (payload) => {
+            if (typeof onProgress === "function") await onProgress(payload);
+        };
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
         const normalizedImagePath = String(imagePath ?? "").trim();
+        const total = normalizedImagePath ? 4 : 3;
+        if (normalizedImagePath) {
+            await progress({ stage: "image", completed: 1, total, message: "Завантажуємо файл зображення" });
+        }
         const image = normalizedImagePath
             ? await this.#loadImageFromPath(normalizedImagePath)
             : undefined;
+
+        await progress({
+            stage: "publication",
+            completed: normalizedImagePath ? 2 : 1,
+            total,
+            message: "Публікуємо пост у Facebook",
+        });
 
         return this.#publishPagePost({
             facebookApiClient,

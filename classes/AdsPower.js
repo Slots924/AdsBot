@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getLogger } from "../services/logging/runtimeLogger.js";
 
 
 class AdsPower {
@@ -33,6 +34,8 @@ class AdsPower {
     // Усі запити до AdsPower проходять через цей метод
     async request(method, url, data = null, params = null) {
         const sendRequest = async () => {
+            const startedAt = Date.now();
+            const logger = getLogger("adspower");
             const timePassed =
                 Date.now() - this.lastRequestTime;
 
@@ -48,14 +51,36 @@ class AdsPower {
             // Запам'ятовуємо час запуску запиту
             this.lastRequestTime = Date.now();
 
-            return axios({
-                method,
-                url,
-                data,
-                params,
-                headers: this.headers,
-                timeout: 60000,
-            });
+            const endpoint = (() => {
+                try { return new URL(url).pathname; } catch { return "unknown"; }
+            })();
+            logger.debug("adspower.request", "Надсилаємо запит до AdsPower", { method, endpoint });
+            try {
+                const response = await axios({
+                    method,
+                    url,
+                    data,
+                    params,
+                    headers: this.headers,
+                    timeout: 60000,
+                });
+                logger.debug("adspower.response", "AdsPower відповів", {
+                    method,
+                    endpoint,
+                    durationMs: Date.now() - startedAt,
+                    status: response.status,
+                    code: response.data?.code,
+                });
+                return response;
+            } catch (error) {
+                logger.error("adspower.request.failed", "Запит до AdsPower завершився помилкою", {
+                    method,
+                    endpoint,
+                    durationMs: Date.now() - startedAt,
+                    error,
+                });
+                throw error;
+            }
         };
 
 

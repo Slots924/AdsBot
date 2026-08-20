@@ -174,6 +174,14 @@ Preload відкриває тільки конкретні методи `window.
 завершення. Історія й керування доступні через `tasks:list`, `tasks:cancel`,
 `tasks:dismiss`, `tasks:clear-finished`; зміни надходять подією `tasks:updated`.
 
+`post:publish` також одразу ставить публікацію у глобальну послідовну чергу.
+Форма після enqueue не блокується, а останній Post ID оновлюється після події
+успішного завершення задачі.
+
+Вкладка «Журнал» читає структуровані події з `data/logs` через пагінований IPC
+і показує незалежні звіти задач із `data/reports/tasks`. Технічні деталі logger,
+redaction та retention описані в [logging.md](logging.md).
+
 У налаштуваннях коментування можна вибрати звичайний або `Headless` запуск
 AdsPower та окремо вимкнути завантаження зображень. Параметри копіюються в
 задачу під час `comments:run`, тому подальша зміна налаштувань не впливає на
@@ -189,6 +197,8 @@ node test/testAdsBotGuiServiceMock.js
 node test/testBackgroundTaskManager.js
 node test/testGuiIpcMock.js
 node test/testAdsPowerBrowserOptionsMock.js
+node test/testAppLogger.js
+node test/testTaskReportManager.js
 node test/testCampaignTemplateManager.js
 node test/testAdAccountPreferencesStore.js
 node test/testFacebookCampaignsMock.js

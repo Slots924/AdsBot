@@ -51,6 +51,8 @@ export default function BackgroundTaskPanel({
     onCollapsedChange,
     onRefresh,
     onError,
+    openTaskId = null,
+    onOpenTaskHandled = () => {},
 }) {
     const [selected, setSelected] = useState(null);
     const [campaignJob, setCampaignJob] = useState(null);
@@ -85,6 +87,13 @@ export default function BackgroundTaskPanel({
             onError({ ...errorDetails(error), title: "Не вдалося завантажити деталі кампанії" });
         }
     };
+
+    useEffect(() => {
+        if (!openTaskId) return;
+        const task = tasks.find((item) => item.id === openTaskId);
+        if (task) openTask(task);
+        onOpenTaskHandled();
+    }, [openTaskId, tasks]);
 
     const action = async (operation) => {
         setActionPending(true);
@@ -153,7 +162,7 @@ export default function BackgroundTaskPanel({
                             <div><span>Етап</span><strong>{selected.progress?.stage || "—"}</strong></div>
                             {selected.type === "comments" && <div><span>Режим браузера</span><strong>{selected.metadata?.browserMode === "headless" ? "Headless" : "Звичайний"}</strong></div>}
                             {selected.type === "comments" && <div><span>Зображення</span><strong>{selected.metadata?.disableImages ? "Вимкнені" : "Завантажуються"}</strong></div>}
-                            {selected.result?.reportPath && <div className="wide"><span>Звіт</span><strong>{selected.result.reportPath}</strong></div>}
+                            {selected.metadata?.reportId && <div className="wide"><span>Report ID</span><strong>{selected.metadata.reportId}</strong></div>}
                             {(selected.progress?.objects?.campaignId || campaignJob?.objects?.campaignId) && <div className="wide"><span>Campaign ID</span><strong>{selected.progress?.objects?.campaignId || campaignJob.objects.campaignId}</strong></div>}
                         </div>
                         {selected.error && <div className="creation-error"><AlertCircle size={18} /><div><strong>{selected.error.message}</strong><span>{selected.error.code || "TASK_ERROR"}</span></div></div>}

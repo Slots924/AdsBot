@@ -1,7 +1,8 @@
 function safeMessage(value) {
     return String(value || "Невідома помилка")
-        .replace(/EAA[A-Za-z0-9]+/g, "[REDACTED]")
-        .replace(/((?:access_)?token|cookie)=([^&\s]+)/gi, "$1=[REDACTED]");
+        .replace(/EAA[A-Za-z0-9_-]+/g, "[REDACTED]")
+        .replace(/((?:access_)?token|cookie|authorization|password|secret|api[_-]?key|utm)=([^&\s]+)/gi, "$1=[REDACTED]")
+        .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, "Bearer [REDACTED]");
 }
 
 
@@ -22,7 +23,7 @@ function serializeError(error) {
 }
 
 
-function safeHandler(handler) {
+function createSafeHandler(handler, logger = null) {
     return async (event, payload) => {
         try {
             return {
@@ -30,6 +31,9 @@ function safeHandler(handler) {
                 data: await handler(payload ?? {}, event),
             };
         } catch (error) {
+            logger?.error("ipc.request.failed", "IPC-запит завершився помилкою", {
+                error,
+            });
             return {
                 ok: false,
                 error: serializeError(error),
@@ -51,8 +55,11 @@ export default function registerIpcHandlers({
     campaignCreationJournal,
     backgroundTaskManager,
     facebookAccountManager,
+    logger,
+    reportManager,
     getWindow,
 }) {
+    const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
     const mergeAccountStates = async (graphAccounts) => {
         const storedAccounts = await facebookAccountManager.list();
         const graphByKey = new Map(graphAccounts.map((account) => [
@@ -166,6 +173,23 @@ export default function registerIpcHandlers({
                 error: safeError,
             });
             error.jobId = job.id;
+            error.reportDetails = {
+                inputSummary: {
+                    campaignJobId: job.id,
+                    accountKey: job.input.accountKey,
+                    adAccountId: job.input.adAccountId,
+                    campaignName: job.input.campaignName,
+                    templateId: job.input.templateId,
+                    pageId: job.input.pageId,
+                    postId: job.input.postId,
+                    adSetCount: job.input.adSetCount,
+                    dailyBudget: job.input.dailyBudget,
+                    startTime: job.input.startTime,
+                    createPaused: job.input.createPaused,
+                },
+                resultSummary: { objects: error.createdObjects ?? job.objects },
+                errors: [safeError],
+            };
             throw error;
         }
     };
@@ -199,6 +223,27 @@ export default function registerIpcHandlers({
                     taskStatus: response.result?.readback?.warnings?.length
                         ? "completed_with_warnings"
                         : "completed",
+                    reportDetails: {
+                        inputSummary: {
+                            campaignJobId: job.id,
+                            accountKey: job.input.accountKey,
+                            adAccountId: job.input.adAccountId,
+                            campaignName: job.input.campaignName,
+                            templateId: job.input.templateId,
+                            pageId: job.input.pageId,
+                            postId: job.input.postId,
+                            adSetCount: job.input.adSetCount,
+                            dailyBudget: job.input.dailyBudget,
+                            startTime: job.input.startTime,
+                            createPaused: job.input.createPaused,
+                        },
+                        resultSummary: {
+                            campaignJobId: job.id,
+                            objects: response.result?.objects,
+                            readback: response.result?.readback,
+                        },
+                        warnings: response.result?.readback?.warnings ?? [],
+                    },
                 };
             },
         });
@@ -393,6 +438,15 @@ export default function registerIpcHandlers({
                         taskStatus: result.failed.length
                             ? "completed_with_warnings"
                             : "completed",
+                        reportDetails: {
+                            inputSummary: {
+                                campaignJobId: job.id,
+                                accountKey: job.input.accountKey,
+                                knownObjects: job.objects,
+                            },
+                            resultSummary: result,
+                            warnings: result.failed,
+                        },
                     };
                 },
             });
@@ -409,7 +463,65 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "post:publish",
-        safeHandler((payload) => guiService.publishCreativePost(payload))
+        safeHandler(async (payload) => {
+            const input = {
+                accountKey: String(payload.accountKey ?? ""),
+                pageId: String(payload.pageId ?? ""),
+                geo: String(payload.geo ?? "").trim().toUpperCase(),
+                creativeName: String(payload.creativeName ?? "").trim(),
+                siteUrl: String(payload.siteUrl ?? "").trim(),
+                imagePath: String(payload.imagePath ?? ""),
+            };
+            const task = await backgroundTaskManager.enqueue({
+                type: "publication",
+                name: `Публікація · ${input.geo} · ${input.creativeName}`,
+                resources: [{
+                    key: "facebook-page-publish",
+                    label: "черга публікації Facebook-постів",
+                }],
+                input,
+                metadata: {
+                    accountKey: input.accountKey,
+                    pageId: input.pageId,
+                    geo: input.geo,
+                    creativeName: input.creativeName,
+                },
+                runner: async ({ signal, progress }) => {
+                    const taskProgress = async (patch) => {
+                        if (signal.aborted) throw Object.assign(new Error("Публікацію скасовано"), { name: "AbortError" });
+                        return progress(patch);
+                    };
+                    await taskProgress({ stage: "starting", completed: 0, total: input.imagePath ? 4 : 3, message: "Починаємо публікацію" });
+                    const post = await guiService.publishCreativePost(input, taskProgress);
+                    const result = {
+                        accountKey: input.accountKey,
+                        pageId: input.pageId,
+                        geo: input.geo,
+                        creativeName: input.creativeName,
+                        siteUrl: input.siteUrl,
+                        postId: post.postId,
+                        permalinkUrl: post.permalinkUrl,
+                        type: post.type,
+                        verified: post.verified,
+                    };
+                    return {
+                        result,
+                        reportDetails: {
+                            inputSummary: {
+                                accountKey: input.accountKey,
+                                pageId: input.pageId,
+                                geo: input.geo,
+                                creativeName: input.creativeName,
+                                siteUrl: input.siteUrl,
+                                hasImage: Boolean(input.imagePath),
+                            },
+                            resultSummary: result,
+                        },
+                    };
+                },
+            });
+            return { taskId: task.id, task };
+        })
     );
     ipcMain.handle(
         "comments:run",
@@ -461,18 +573,24 @@ export default function registerIpcHandlers({
                         signal,
                         onProgress: progress,
                     });
+                    const reportDetails = summary.reportDetails;
+                    const publicSummary = { ...summary };
+                    delete publicSummary.reportDetails;
                     if (summary.fatalError && !signal.aborted) {
-                        throw Object.assign(new Error(summary.fatalError), {
+                        const error = Object.assign(new Error(summary.fatalError), {
                             code: "COMMENTING_FATAL_ERROR",
                         });
+                        error.reportDetails = reportDetails;
+                        throw error;
                     }
                     return {
-                        result: summary,
+                        result: publicSummary,
                         taskStatus: summary.failedComments
                             || summary.failedProfiles
                             || summary.skipped
                             ? "completed_with_warnings"
                             : "completed",
+                        reportDetails,
                     };
                 },
             });
@@ -498,6 +616,58 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "tasks:comment-concurrency-set",
         safeHandler(({ value }) => backgroundTaskManager.setCommentConcurrency(value))
+    );
+    ipcMain.handle(
+        "logs:list",
+        safeHandler((payload) => logger.list(payload))
+    );
+    ipcMain.handle(
+        "logs:scopes",
+        safeHandler(() => logger.scopes())
+    );
+    ipcMain.handle(
+        "logs:level-set",
+        safeHandler(({ level }) => logger.setLevel(level))
+    );
+    ipcMain.handle(
+        "logs:renderer-write",
+        safeHandler(({ level, event, message, fields }) => {
+            const method = ["debug", "info", "warn", "error"].includes(level)
+                ? level
+                : "info";
+            return logger.child("renderer")[method](event, message, fields);
+        })
+    );
+    ipcMain.handle(
+        "reports:list",
+        safeHandler((payload) => reportManager.list(payload))
+    );
+    ipcMain.handle(
+        "reports:get",
+        safeHandler(async ({ reportId }) => {
+            const report = await reportManager.get(reportId);
+            if (!report) throw Object.assign(new Error("Звіт не знайдено"), { code: "REPORT_NOT_FOUND" });
+            return report;
+        })
+    );
+    ipcMain.handle(
+        "reports:delete",
+        safeHandler(({ reportId }) => reportManager.delete(reportId))
+    );
+    ipcMain.handle(
+        "reports:export-markdown",
+        safeHandler(async ({ reportId }) => {
+            const report = await reportManager.get(reportId);
+            if (!report) throw Object.assign(new Error("Звіт не знайдено"), { code: "REPORT_NOT_FOUND" });
+            const result = await dialog.showSaveDialog(getWindow(), {
+                title: "Експортувати звіт",
+                defaultPath: `${report.title.replace(/[^A-Za-zА-Яа-яІіЇїЄє0-9_-]+/g, "-")}.md`,
+                filters: [{ name: "Markdown", extensions: ["md"] }],
+            });
+            if (result.canceled || !result.filePath) return null;
+            await reportManager.exportMarkdown(reportId, result.filePath);
+            return true;
+        })
     );
     ipcMain.handle(
         "templates:list",

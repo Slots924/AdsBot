@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -32,7 +32,7 @@ try {
         is_author: false,
         should_write: false,
     }];
-    const { report, reportPath } = await runCommentingScenario({
+    const { report } = await runCommentingScenario({
         adsPower,
         groupIds: ["test-group"],
         comments,
@@ -53,12 +53,6 @@ try {
     assert.equal(report.skipped.length, 1);
     assert.equal(report.skipped[0].commentId, "1");
     assert.equal(report.skipped[0].reason, "should_write=false");
-
-    const markdownReport = await readFile(reportPath, "utf8");
-    assert(markdownReport.includes("Креатив: CZ 138"));
-    assert(markdownReport.includes("Режим браузера: Headless"));
-    assert(markdownReport.includes("Зображення: вимкнені"));
-    assert(!markdownReport.includes("Файл коментарів"));
 
     let unexpectedAdsPowerCalls = 0;
     const unusedAdsPower = {

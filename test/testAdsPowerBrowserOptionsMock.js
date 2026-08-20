@@ -76,6 +76,9 @@ assert.equal(normalizeState({ commentBrowserMode: "headless" }).commentBrowserMo
 assert.equal(normalizeState({ commentBrowserMode: "broken" }).commentBrowserMode, "visible");
 assert.equal(normalizeState({ commentDisableImages: true }).commentDisableImages, true);
 assert.equal(normalizeState({ commentDisableImages: "true" }).commentDisableImages, false);
+assert.equal(normalizeState({}).logLevel, "info");
+assert.equal(normalizeState({ logLevel: "debug" }).logLevel, "debug");
+assert.equal(normalizeState({ logLevel: "trace" }).logLevel, "info");
 
 const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "adsbot-browser-settings-"));
 try {

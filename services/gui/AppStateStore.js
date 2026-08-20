@@ -9,6 +9,7 @@ const defaultState = {
     commentTaskConcurrency: 2,
     commentBrowserMode: "visible",
     commentDisableImages: false,
+    logLevel: "info",
     taskPanelCollapsed: false,
     selectedAccountKey: "",
     selectedPageId: "",
@@ -39,7 +40,7 @@ function stringsFrom(source, fields) {
 
 
 function normalizeState(state = {}) {
-    const allowedTabs = new Set(["publish", "comments", "ads", "templates"]);
+    const allowedTabs = new Set(["publish", "comments", "journal", "ads", "templates"]);
     const allowedCommentBrowserModes = new Set(["visible", "headless"]);
     const requestedScale = Number(state.uiScale);
     return {
@@ -57,6 +58,7 @@ function normalizeState(state = {}) {
             ? state.commentBrowserMode
             : defaultState.commentBrowserMode,
         commentDisableImages: state.commentDisableImages === true,
+        logLevel: state.logLevel === "debug" ? "debug" : "info",
         taskPanelCollapsed: Boolean(state.taskPanelCollapsed),
         ...stringsFrom(state, [
             "selectedAccountKey",

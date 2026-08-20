@@ -29,6 +29,8 @@ export const appPaths = {
         "data/ad-account-preferences.json"
     ),
     reports: path.join(projectRoot, "data/reports"),
+    taskReports: path.join(projectRoot, "data/reports/tasks"),
+    logs: path.join(projectRoot, "data/logs"),
     renderer: path.join(frontendRoot, "dist/index.html"),
     preload: path.join(electronDirectory, "preload.cjs"),
 };

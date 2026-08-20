@@ -1,5 +1,4 @@
 import getProfileGender from "../services/profile/getProfileGender.js";
-import saveCommentingReport from "../services/reports/saveCommentingReport.js";
 import executeCommentWithProfile from "../workflows/comments/executeCommentWithProfile.js";
 
 
@@ -169,7 +168,6 @@ export default async function runCommentingScenario({
     const brokenProfileKeys = new Set();
     const attemptedProfileNos = new Set();
     const publishedCommentIds = new Set();
-    let reportPath = null;
     const progress = async (payload) => {
         if (typeof onProgress === "function") await onProgress({
             published: report.published.length,
@@ -597,23 +595,10 @@ export default async function runCommentingScenario({
     } finally {
         report.finishedAt = new Date().toISOString();
         report.profileKeyMap = Object.fromEntries(profileKeyMap);
-
-        try {
-            await progress({ stage: "report", message: "Зберігаємо звіт" });
-            reportPath = await saveCommentingReport(
-                report,
-                reportsDirectory
-            );
-            campaignLogger.info(`Звіт збережено: ${reportPath}`);
-        } catch (error) {
-            campaignLogger.error(
-                `Не вдалося зберегти звіт: ${error.message}`
-            );
-        }
+        await progress({ stage: "report", message: "Формуємо структурований звіт" });
     }
 
     return {
         report,
-        reportPath,
     };
 }

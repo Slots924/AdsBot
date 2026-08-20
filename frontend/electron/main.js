@@ -17,6 +17,9 @@ import BackgroundTaskJournal
     from "../../services/tasks/BackgroundTaskJournal.js";
 import BackgroundTaskManager
     from "../../services/tasks/BackgroundTaskManager.js";
+import AppLogger from "../../services/logging/AppLogger.js";
+import TaskReportManager from "../../services/reports/TaskReportManager.js";
+import { configureRuntimeLogger } from "../../services/logging/runtimeLogger.js";
 import FacebookAccountManager
     from "../../facebook/accounts/FacebookAccountManager.js";
 import { appPaths } from "./paths.js";
@@ -35,6 +38,8 @@ let countryCatalog = null;
 let campaignCreationJournal = null;
 let facebookAccountManager = null;
 let backgroundTaskManager = null;
+let appLogger = null;
+let taskReportManager = null;
 let closeApproved = false;
 let closePromptOpen = false;
 
@@ -43,25 +48,6 @@ function sendRendererEvent(channel, payload) {
     if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send(channel, payload);
     }
-}
-
-
-function createLogger() {
-    const send = (level, message) => {
-        sendRendererEvent("log:event", {
-            id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-            timestamp: new Date().toISOString(),
-            level,
-            scope: "backend",
-            message: String(message),
-        });
-    };
-
-    return {
-        info: (message) => send("info", message),
-        warn: (message) => send("warn", message),
-        error: (message) => send("error", message),
-    };
 }
 
 
@@ -92,6 +78,23 @@ async function createWindow() {
             event.preventDefault();
         }
     });
+    mainWindow.webContents.on("render-process-gone", (_event, details) => {
+        appLogger?.error("renderer.gone", "Renderer-process завершився", details);
+    });
+
+    appStateStore = new AppStateStore({ stateFile: appPaths.appState });
+    const restoredState = await appStateStore.load();
+    appLogger = new AppLogger({
+        logsDirectory: appPaths.logs,
+        level: restoredState.logLevel,
+    });
+    appLogger.subscribe((event) => sendRendererEvent("log:event", event));
+    await appLogger.initialize();
+    configureRuntimeLogger(appLogger);
+    appLogger.installConsoleBridge("legacy");
+    taskReportManager = new TaskReportManager({
+        reportsDirectory: appPaths.taskReports,
+    });
 
     const createCreativeManager = () => new CreativeManager({
         countriesFile: appPaths.countries,
@@ -113,7 +116,7 @@ async function createWindow() {
         groupsFile: appPaths.groups,
         reportsDirectory: appPaths.reports,
         creativeManagerFactory: createCreativeManager,
-        logger: createLogger(),
+        logger: appLogger.child("gui"),
     });
     templateManager = new CampaignTemplateManager({
         templatesFile: appPaths.templates,
@@ -124,13 +127,13 @@ async function createWindow() {
     campaignCreationJournal = new CampaignCreationJournal({
         jobsFile: appPaths.campaignCreationJobs,
     });
-    appStateStore = new AppStateStore({ stateFile: appPaths.appState });
-    const restoredState = await appStateStore.load();
     backgroundTaskManager = new BackgroundTaskManager({
         journal: new BackgroundTaskJournal({
             tasksFile: appPaths.backgroundTasks,
         }),
         commentConcurrency: restoredState.commentTaskConcurrency,
+        logger: appLogger.child("tasks"),
+        reportManager: taskReportManager,
     });
     await backgroundTaskManager.initialize();
     backgroundTaskManager.subscribe((payload) => {
@@ -152,6 +155,8 @@ async function createWindow() {
         campaignCreationJournal,
         backgroundTaskManager,
         facebookAccountManager,
+        logger: appLogger,
+        reportManager: taskReportManager,
         getWindow: () => mainWindow,
     });
 
@@ -162,6 +167,7 @@ async function createWindow() {
         closePromptOpen = true;
         if (!await backgroundTaskManager.hasUnfinished()) {
             closePromptOpen = false;
+            await appLogger.flush();
             closeApproved = true;
             mainWindow.close();
             return;
@@ -185,6 +191,7 @@ async function createWindow() {
             message: "Безпечно зупиняємо активні задачі…",
         });
         await backgroundTaskManager.shutdown();
+        await appLogger.flush();
         closeApproved = true;
         mainWindow.close();
     });
@@ -198,8 +205,18 @@ async function createWindow() {
 
 
 app.whenReady().then(createWindow).catch((error) => {
+    appLogger?.error("app.start.failed", "Не вдалося запустити AdsBot GUI", { error });
     dialog.showErrorBox("Не вдалося запустити AdsBot GUI", error.message);
     app.quit();
+});
+
+process.on("unhandledRejection", (error) => {
+    appLogger?.error("process.unhandled_rejection", "Необроблена Promise-помилка", { error });
+});
+
+process.on("uncaughtException", (error) => {
+    appLogger?.error("process.uncaught_exception", "Необроблена помилка process", { error });
+    Promise.resolve(appLogger?.flush()).finally(() => app.quit());
 });
 
 app.on("window-all-closed", () => {

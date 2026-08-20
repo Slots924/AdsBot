@@ -1,13 +1,15 @@
+import { finishedStatuses } from "./BackgroundTaskJournal.js";
+import { sanitize } from "../logging/AppLogger.js";
+
+
 function safeError(error) {
-    return {
-        message: String(error?.message || "Невідома помилка")
-            .replace(/EAA[A-Za-z0-9]+/g, "[REDACTED]")
-            .replace(/((?:access_)?token|cookie)=([^&\s]+)/gi, "$1=[REDACTED]"),
+    return sanitize({
+        message: String(error?.message || "Невідома помилка"),
         code: error?.code ?? null,
         stage: error?.stage ?? null,
         graphCode: error?.graphCode ?? null,
         graphSubcode: error?.graphSubcode ?? null,
-    };
+    }, { forRenderer: true });
 }
 
 
@@ -28,9 +30,11 @@ export default class BackgroundTaskManager {
     #shuttingDown = false;
 
 
-    constructor({ journal, commentConcurrency = 2 } = {}) {
+    constructor({ journal, commentConcurrency = 2, logger = null, reportManager = null } = {}) {
         if (!journal) throw new Error("Не передано журнал фонових задач");
         this.journal = journal;
+        this.logger = logger;
+        this.reportManager = reportManager;
         this.typeLimits = new Map([
             ["comments", this.#normalizeCommentConcurrency(commentConcurrency)],
             ["campaign", 1],
@@ -40,7 +44,10 @@ export default class BackgroundTaskManager {
 
 
     async initialize() {
-        await this.journal.initialize();
+        const tasks = await this.journal.initialize();
+        for (const task of tasks.filter((item) => finishedStatuses.has(item.status) && !item.metadata?.reportId)) {
+            await this.#attachReport(task);
+        }
         await this.#emitList();
     }
 
@@ -105,9 +112,10 @@ export default class BackgroundTaskManager {
                 finishedAt: new Date().toISOString(),
                 progress: { ...task.progress, stage: "cancelled", message: "Задачу скасовано до запуску" },
             });
-            await this.#emit(updated);
+            const reported = await this.#attachReport(updated);
+            await this.#emit(reported);
             this.#schedule();
-            return publicTask(updated);
+            return publicTask(reported);
         }
         if (task.status === "running" && runtime) {
             runtime.controller.abort();
@@ -221,6 +229,11 @@ export default class BackgroundTaskManager {
             progress: { ...task.progress, stage: "starting", message: "Задачу запущено" },
         });
         await this.#emit(current);
+        this.logger?.info("task.started", "Фонову задачу запущено", {
+            taskId: task.id,
+            taskType: task.type,
+            name: task.name,
+        });
         const progress = async (patch) => {
             current = await this.journal.update(task.id, {
                 progress: { ...current.progress, ...structuredClone(patch) },
@@ -230,7 +243,19 @@ export default class BackgroundTaskManager {
         };
 
         try {
-            const output = await runtime.runner({ signal: runtime.controller.signal, progress, task: publicTask(current) });
+            const invokeRunner = () => runtime.runner({
+                signal: runtime.controller.signal,
+                progress,
+                task: publicTask(current),
+            });
+            const output = this.logger?.runWithContext
+                ? await this.logger.runWithContext({
+                    taskId: task.id,
+                    taskType: task.type,
+                    accountKey: task.metadata?.accountKey,
+                    jobId: task.metadata?.campaignJobId,
+                }, invokeRunner)
+                : await invokeRunner();
             const status = runtime.controller.signal.aborted
                 ? "interrupted"
                 : output?.taskStatus === "completed_with_warnings"
@@ -247,6 +272,11 @@ export default class BackgroundTaskManager {
                     message: status === "interrupted" ? "Задачу перервано" : "Задачу завершено",
                 },
             });
+            current = await this.#attachReport(current, output?.reportDetails);
+            this.logger?.info("task.finished", "Фонову задачу завершено", {
+                taskId: task.id,
+                status,
+            });
         } catch (error) {
             const interrupted = runtime.controller.signal.aborted || error?.name === "AbortError";
             current = await this.journal.update(task.id, {
@@ -255,12 +285,35 @@ export default class BackgroundTaskManager {
                 finishedAt: new Date().toISOString(),
                 progress: { ...current.progress, stage: interrupted ? "interrupted" : "failed", message: interrupted ? "Задачу перервано" : safeError(error).message },
             });
+            current = await this.#attachReport(current, error?.reportDetails);
+            this.logger?.error("task.failed", interrupted ? "Фонову задачу перервано" : "Фонова задача завершилася помилкою", {
+                taskId: task.id,
+                status: current.status,
+                error,
+            });
         } finally {
             task.resources.forEach((resource) => this.#activeResources.delete(resource.key));
             this.#activeByType.set(task.type, Math.max(0, (this.#activeByType.get(task.type) ?? 1) - 1));
             this.#runtimes.delete(task.id);
             await this.#emit(current);
             this.#schedule();
+        }
+    }
+
+
+    async #attachReport(task, details = {}) {
+        if (!this.reportManager || task.metadata?.reportId) return task;
+        try {
+            const report = await this.reportManager.createFromTask(task, details);
+            return this.journal.update(task.id, {
+                metadata: { ...task.metadata, reportId: report.id },
+            });
+        } catch (error) {
+            this.logger?.error("report.create.failed", "Не вдалося створити звіт задачі", {
+                taskId: task.id,
+                error,
+            });
+            return task;
         }
     }
 

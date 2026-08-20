@@ -18,6 +18,8 @@ export default function SettingsModal({
     onCommentBrowserModeChange,
     commentDisableImages,
     onCommentDisableImagesChange,
+    logLevel,
+    onLogLevelChange,
     onClose,
 }) {
     const percentage = Math.round(scale * 100);
@@ -137,6 +139,18 @@ export default function SettingsModal({
                             <small>Економить трафік лише на зображеннях. Відео, шрифти та інші ресурси продовжують завантажуватися.</small>
                         </span>
                     </label>
+                </section>
+
+                <section className="scale-setting">
+                    <div className="scale-setting-heading"><span>Детальність журналу</span></div>
+                    <label className="field">
+                        <span>Рівень логування</span>
+                        <select aria-label="Рівень логування" value={logLevel} onChange={(event) => onLogLevelChange(event.target.value)}>
+                            <option value="info">Info — звичайний режим</option>
+                            <option value="debug">Debug — детальна діагностика</option>
+                        </select>
+                    </label>
+                    <small className="settings-hint">Debug створює більше технічних подій, але секрети однаково приховуються.</small>
                 </section>
 
                 <div className="form-actions settings-actions">
