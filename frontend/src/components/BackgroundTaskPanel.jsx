@@ -151,6 +151,8 @@ export default function BackgroundTaskPanel({
                         <div className="task-detail-grid">
                             <div><span>Створено</span><strong>{new Date(selected.createdAt).toLocaleString("uk-UA")}</strong></div>
                             <div><span>Етап</span><strong>{selected.progress?.stage || "—"}</strong></div>
+                            {selected.type === "comments" && <div><span>Режим браузера</span><strong>{selected.metadata?.browserMode === "headless" ? "Headless" : "Звичайний"}</strong></div>}
+                            {selected.type === "comments" && <div><span>Зображення</span><strong>{selected.metadata?.disableImages ? "Вимкнені" : "Завантажуються"}</strong></div>}
                             {selected.result?.reportPath && <div className="wide"><span>Звіт</span><strong>{selected.result.reportPath}</strong></div>}
                             {(selected.progress?.objects?.campaignId || campaignJob?.objects?.campaignId) && <div className="wide"><span>Campaign ID</span><strong>{selected.progress?.objects?.campaignId || campaignJob.objects.campaignId}</strong></div>}
                         </div>

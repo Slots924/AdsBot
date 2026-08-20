@@ -7,6 +7,8 @@ const defaultState = {
     uiScale: 1.3,
     createCampaignsPaused: true,
     commentTaskConcurrency: 2,
+    commentBrowserMode: "visible",
+    commentDisableImages: false,
     taskPanelCollapsed: false,
     selectedAccountKey: "",
     selectedPageId: "",
@@ -38,6 +40,7 @@ function stringsFrom(source, fields) {
 
 function normalizeState(state = {}) {
     const allowedTabs = new Set(["publish", "comments", "ads", "templates"]);
+    const allowedCommentBrowserModes = new Set(["visible", "headless"]);
     const requestedScale = Number(state.uiScale);
     return {
         activeTab: allowedTabs.has(state.activeTab)
@@ -50,6 +53,10 @@ function normalizeState(state = {}) {
         commentTaskConcurrency: Number.isFinite(Number(state.commentTaskConcurrency))
             ? Math.min(5, Math.max(1, Math.round(Number(state.commentTaskConcurrency))))
             : defaultState.commentTaskConcurrency,
+        commentBrowserMode: allowedCommentBrowserModes.has(state.commentBrowserMode)
+            ? state.commentBrowserMode
+            : defaultState.commentBrowserMode,
+        commentDisableImages: state.commentDisableImages === true,
         taskPanelCollapsed: Boolean(state.taskPanelCollapsed),
         ...stringsFrom(state, [
             "selectedAccountKey",

@@ -15,6 +15,8 @@ export default function CommentsTab({
     setForm,
     onError,
     addLog,
+    browserMode,
+    disableImages,
 }) {
     const [refreshing, setRefreshing] = useState(false);
     const [running, setRunning] = useState(false);
@@ -56,6 +58,8 @@ export default function CommentsTab({
             const response = await unwrap(window.adsBot.runCommentingCampaign({
                 groupIds: selectedGroupIds,
                 ...form,
+                browserMode,
+                disableImages,
             }));
             setResult(response.task);
             addLog("info", "frontend", `Задачу ${response.task.name} додано в чергу`);

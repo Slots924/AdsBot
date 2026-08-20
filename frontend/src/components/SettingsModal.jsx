@@ -14,6 +14,10 @@ export default function SettingsModal({
     onCreateCampaignsPausedChange,
     commentTaskConcurrency,
     onCommentTaskConcurrencyChange,
+    commentBrowserMode,
+    onCommentBrowserModeChange,
+    commentDisableImages,
+    onCommentDisableImagesChange,
     onClose,
 }) {
     const percentage = Math.round(scale * 100);
@@ -105,6 +109,34 @@ export default function SettingsModal({
                     </div>
                     <div className="scale-labels"><span>1</span><span>5</span></div>
                     <small className="settings-hint">Задачі з однаковими AdsPower-групами все одно чекатимуть одна одну.</small>
+                </section>
+
+                <section className="scale-setting comment-browser-setting">
+                    <div className="scale-setting-heading">
+                        <span>Браузер для коментарів</span>
+                    </div>
+                    <label className="field">
+                        <span>Режим запуску AdsPower</span>
+                        <select
+                            aria-label="Режим браузера для коментарів"
+                            value={commentBrowserMode}
+                            onChange={(event) => onCommentBrowserModeChange(event.target.value)}
+                        >
+                            <option value="visible">Звичайний браузер</option>
+                            <option value="headless">Headless (без вікна)</option>
+                        </select>
+                    </label>
+                    <label className="checkbox-line">
+                        <input
+                            type="checkbox"
+                            checked={commentDisableImages}
+                            onChange={(event) => onCommentDisableImagesChange(event.target.checked)}
+                        />
+                        <span>
+                            <strong>Не завантажувати зображення</strong>
+                            <small>Економить трафік лише на зображеннях. Відео, шрифти та інші ресурси продовжують завантажуватися.</small>
+                        </span>
+                    </label>
                 </section>
 
                 <div className="form-actions settings-actions">

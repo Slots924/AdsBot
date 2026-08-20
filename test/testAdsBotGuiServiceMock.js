@@ -135,6 +135,7 @@ try {
     const scenarioPromise = new Promise((resolve) => {
         finishScenario = resolve;
     });
+    const scenarioOptions = [];
     const guiService = new AdsBotGuiService({
         facebookBackend,
         facebookBackendFactory: async () => facebookBackend,
@@ -145,7 +146,10 @@ try {
                 return creative;
             },
         },
-        runCommentingScenarioFn: async () => scenarioPromise,
+        runCommentingScenarioFn: async (options) => {
+            scenarioOptions.push(options);
+            return scenarioPromise;
+        },
         logger: {
             info: (message) => logs.push(message),
             warn: (message) => logs.push(message),
@@ -187,6 +191,8 @@ try {
         geo: "HU",
         creativeName: "138",
         postUrl: "https://www.facebook.com/post",
+        browserMode: "headless",
+        disableImages: true,
     });
     const secondCommenting = guiService.runCommentingCampaign({
         groupIds: ["3"],
@@ -201,11 +207,17 @@ try {
             failedComments: [],
             failedProfiles: [],
             fatalError: null,
+            browserMode: "headless",
+            disableImages: true,
         },
         reportPath: "report.md",
     });
     assert.equal((await commenting).published, 1);
     assert.equal((await secondCommenting).published, 1);
+    assert.equal(scenarioOptions[0].browserMode, "headless");
+    assert.equal(scenarioOptions[0].disableImages, true);
+    assert.equal(scenarioOptions[1].browserMode, "visible");
+    assert.equal(scenarioOptions[1].disableImages, false);
     assert(logs.length > 0);
 
     console.log("Mock-перевірка AdsBotGuiService пройшла успішно");

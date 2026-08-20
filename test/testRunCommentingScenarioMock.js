@@ -39,6 +39,8 @@ try {
         geo: " cz ",
         creativeName: " 138 ",
         postUrl: "https://www.facebook.com/test-post",
+        browserMode: "headless",
+        disableImages: true,
         reportsDirectory,
     });
 
@@ -46,12 +48,16 @@ try {
     assert.equal(report.fatalError, null);
     assert.equal(report.geo, "CZ");
     assert.equal(report.creativeName, "138");
+    assert.equal(report.browserMode, "headless");
+    assert.equal(report.disableImages, true);
     assert.equal(report.skipped.length, 1);
     assert.equal(report.skipped[0].commentId, "1");
     assert.equal(report.skipped[0].reason, "should_write=false");
 
     const markdownReport = await readFile(reportPath, "utf8");
     assert(markdownReport.includes("Креатив: CZ 138"));
+    assert(markdownReport.includes("Режим браузера: Headless"));
+    assert(markdownReport.includes("Зображення: вимкнені"));
     assert(!markdownReport.includes("Файл коментарів"));
 
     let unexpectedAdsPowerCalls = 0;

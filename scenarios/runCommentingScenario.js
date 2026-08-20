@@ -41,6 +41,8 @@ function createReport({
     geo,
     creativeName,
     postUrl,
+    browserMode,
+    disableImages,
 }) {
     return {
         startedAt: new Date().toISOString(),
@@ -49,6 +51,8 @@ function createReport({
         geo: String(geo ?? "").trim().toUpperCase(),
         creativeName: String(creativeName ?? "").trim(),
         postUrl,
+        browserMode: browserMode === "headless" ? "headless" : "visible",
+        disableImages: disableImages === true,
         fatalError: null,
         published: [],
         skipped: [],
@@ -145,6 +149,8 @@ export default async function runCommentingScenario({
     geo,
     creativeName,
     postUrl,
+    browserMode = "visible",
+    disableImages = false,
     reportsDirectory = "./data/reports",
     logger,
     signal,
@@ -156,6 +162,8 @@ export default async function runCommentingScenario({
         geo,
         creativeName,
         postUrl,
+        browserMode,
+        disableImages,
     });
     const profileKeyMap = new Map();
     const brokenProfileKeys = new Set();
@@ -321,6 +329,8 @@ export default async function runCommentingScenario({
                 postUrl,
                 comment,
                 parentComment,
+                browserMode: report.browserMode,
+                disableImages: report.disableImages,
                 logger: campaignLogger,
             });
 

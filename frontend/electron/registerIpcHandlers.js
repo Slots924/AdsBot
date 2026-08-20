@@ -414,6 +414,10 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "comments:run",
         safeHandler(async (payload) => {
+            const browserMode = payload.browserMode === "headless"
+                ? "headless"
+                : "visible";
+            const disableImages = payload.disableImages === true;
             const groupIds = [...new Set((payload.groupIds ?? [])
                 .map((id) => String(id).trim())
                 .filter(Boolean))];
@@ -439,12 +443,21 @@ export default function registerIpcHandlers({
                     creativeName: payload.creativeName,
                     siteUrl: payload.siteUrl,
                     postUrl: payload.postUrl,
+                    browserMode,
+                    disableImages,
                 },
-                metadata: { groupIds, geo: payload.geo },
+                metadata: {
+                    groupIds,
+                    geo: payload.geo,
+                    browserMode,
+                    disableImages,
+                },
                 runner: async ({ signal, progress }) => {
                     const summary = await guiService.runCommentingCampaign({
                         ...payload,
                         groupIds,
+                        browserMode,
+                        disableImages,
                         signal,
                         onProgress: progress,
                     });

@@ -109,6 +109,8 @@ function buildMarkdown(report) {
         `- ID груп AdsPower: ${escapeCell(report.groupIds?.join(", "))}`,
         `- Facebook-пост: ${escapeCell(report.postUrl)}`,
         `- Креатив: ${escapeCell(`${report.geo} ${report.creativeName}`)}`,
+        `- Режим браузера: ${report.browserMode === "headless" ? "Headless" : "Звичайний"}`,
+        `- Зображення: ${report.disableImages ? "вимкнені" : "завантажуються"}`,
         `- Критична помилка: ${escapeCell(report.fatalError)}`,
         "",
         "## Підсумок",

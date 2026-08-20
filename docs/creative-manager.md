@@ -79,10 +79,15 @@ await runCommentingScenario({
     geo,
     creativeName,
     postUrl,
+    browserMode: "headless",
+    disableImages: true,
 });
 ```
 
 `runCommentingScenario()` не читає файл креативу та не викликає Grok.
+`browserMode` приймає `visible` або `headless`, а `disableImages` керує лише
+AdsPower launch argument для блокування зображень. Обидва поля зберігаються у
+звіті фактичного запуску.
 
 У Desktop GUI для коментарів використовується
 `prepareCommentsForCampaign({ creative, siteUrl })`. На відміну від підготовки

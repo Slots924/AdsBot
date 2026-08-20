@@ -80,8 +80,8 @@ class AdsPower {
     }
 
 
-    // Відкриває профіль за його номером
-    async openProfile(profileNo) {
+    // Відкриває профіль за його номером із параметрами конкретного сценарію
+    async openProfile(profileNo, options = null) {
         const url =
             `${this.apiUrl}/api/v2/browser-profile/start`;
 
@@ -90,6 +90,16 @@ class AdsPower {
             last_opened_tabs: "0",
             proxy_detection: "0",
         };
+
+        if (options && typeof options === "object") {
+            data.headless = options.browserMode === "headless" ? "1" : "0";
+
+            if (options.disableImages === true) {
+                data.launch_args = [
+                    "--blink-settings=imagesEnabled=false",
+                ];
+            }
+        }
 
         try {
             const response = await this.request(

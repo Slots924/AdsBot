@@ -37,6 +37,8 @@ export default function App() {
     const [uiScale, setUiScale] = useState(1.3);
     const [createCampaignsPaused, setCreateCampaignsPaused] = useState(true);
     const [commentTaskConcurrency, setCommentTaskConcurrency] = useState(2);
+    const [commentBrowserMode, setCommentBrowserMode] = useState("visible");
+    const [commentDisableImages, setCommentDisableImages] = useState(false);
     const [taskPanelCollapsed, setTaskPanelCollapsed] = useState(false);
     const [backgroundTasks, setBackgroundTasks] = useState([]);
     const [settingsOpen, setSettingsOpen] = useState(false);
@@ -170,6 +172,8 @@ export default function App() {
                 setUiScale(restored.uiScale);
                 setCreateCampaignsPaused(restored.createCampaignsPaused);
                 setCommentTaskConcurrency(restored.commentTaskConcurrency);
+                setCommentBrowserMode(restored.commentBrowserMode);
+                setCommentDisableImages(restored.commentDisableImages);
                 setTaskPanelCollapsed(restored.taskPanelCollapsed);
                 setSelectedAccountKey(restored.selectedAccountKey);
                 setSelectedPageId(restored.selectedPageId);
@@ -221,6 +225,8 @@ export default function App() {
                 uiScale,
                 createCampaignsPaused,
                 commentTaskConcurrency,
+                commentBrowserMode,
+                commentDisableImages,
                 taskPanelCollapsed,
                 selectedAccountKey,
                 selectedPageId,
@@ -241,6 +247,8 @@ export default function App() {
         uiScale,
         createCampaignsPaused,
         commentTaskConcurrency,
+        commentBrowserMode,
+        commentDisableImages,
         taskPanelCollapsed,
         selectedAccountKey,
         selectedPageId,
@@ -393,6 +401,8 @@ export default function App() {
                                 setForm={setCommentsForm}
                                 onError={setModal}
                                 addLog={addLog}
+                                browserMode={commentBrowserMode}
+                                disableImages={commentDisableImages}
                             />
                         )}
                         {activeTab === "ads" && (
@@ -438,6 +448,10 @@ export default function App() {
                     onCreateCampaignsPausedChange={setCreateCampaignsPaused}
                     commentTaskConcurrency={commentTaskConcurrency}
                     onCommentTaskConcurrencyChange={changeCommentTaskConcurrency}
+                    commentBrowserMode={commentBrowserMode}
+                    onCommentBrowserModeChange={setCommentBrowserMode}
+                    commentDisableImages={commentDisableImages}
+                    onCommentDisableImagesChange={setCommentDisableImages}
                     onClose={() => setSettingsOpen(false)}
                 />
             )}

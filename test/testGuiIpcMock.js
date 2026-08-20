@@ -86,6 +86,7 @@ const backgroundTaskManager = {
             type: options.type,
             name: options.name,
             status: "queued",
+            input: options.input ?? {},
             metadata: options.metadata ?? {},
             progress: { stage: "queued", completed: 0, total: 0 },
         };
@@ -276,10 +277,17 @@ const commentingTask = await handlers.get("comments:run")({}, {
     geo: "HU",
     creativeName: "138",
     postUrl: "https://www.facebook.com/post",
+    browserMode: "headless",
+    disableImages: true,
 });
 assert.equal(commentingTask.ok, true);
 assert.equal(commentingTask.data.task.type, "comments");
 assert.equal(commentingTask.data.task.status, "queued");
+assert.equal(commentingTask.data.task.input.browserMode, "headless");
+assert.equal(commentingTask.data.task.input.disableImages, true);
+assert.equal(commentingTask.data.task.metadata.browserMode, "headless");
+assert.equal(commentingTask.data.task.metadata.disableImages, true);
+assert.equal(JSON.stringify(commentingTask.data.task).includes("accessToken"), false);
 assert.deepEqual(
     await handlers.get("tasks:comment-concurrency-set")({}, { value: 3 }),
     { ok: true, data: 3 }

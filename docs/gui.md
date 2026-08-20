@@ -174,12 +174,21 @@ Preload відкриває тільки конкретні методи `window.
 завершення. Історія й керування доступні через `tasks:list`, `tasks:cancel`,
 `tasks:dismiss`, `tasks:clear-finished`; зміни надходять подією `tasks:updated`.
 
+У налаштуваннях коментування можна вибрати звичайний або `Headless` запуск
+AdsPower та окремо вимкнути завантаження зображень. Параметри копіюються в
+задачу під час `comments:run`, тому подальша зміна налаштувань не впливає на
+вже поставлені задачі. Backend передає AdsPower Open Browser V2 поля
+`headless: "0" | "1"` та, за потреби,
+`launch_args: ["--blink-settings=imagesEnabled=false"]`. Інші ресурси, зокрема
+відео та шрифти, цим прапорцем не блокуються.
+
 ## Перевірка
 
 ```powershell
 node test/testAdsBotGuiServiceMock.js
 node test/testBackgroundTaskManager.js
 node test/testGuiIpcMock.js
+node test/testAdsPowerBrowserOptionsMock.js
 node test/testCampaignTemplateManager.js
 node test/testAdAccountPreferencesStore.js
 node test/testFacebookCampaignsMock.js

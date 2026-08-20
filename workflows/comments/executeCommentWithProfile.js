@@ -18,6 +18,8 @@ export default async function executeCommentWithProfile({
     postUrl,
     comment,
     parentComment = null,
+    browserMode = "visible",
+    disableImages = false,
     logger = console,
 }) {
     const profileNo = String(profile?.profile_no ?? "невідомий");
@@ -50,7 +52,10 @@ export default async function executeCommentWithProfile({
         }
 
         result.stage = "OPEN_PROFILE";
-        const browserData = await adsPower.openProfile(profileNo);
+        const browserData = await adsPower.openProfile(profileNo, {
+            browserMode: browserMode === "headless" ? "headless" : "visible",
+            disableImages: disableImages === true,
+        });
         profileOpened = true;
 
         result.stage = "CONNECT_BROWSER";

@@ -451,6 +451,8 @@ describe("GUI helpers", () => {
 
     it("змінює масштаб у налаштуваннях", () => {
         const onScaleChange = vi.fn();
+        const onCommentBrowserModeChange = vi.fn();
+        const onCommentDisableImagesChange = vi.fn();
         render(
             <SettingsModal
                 scale={1.3}
@@ -459,6 +461,10 @@ describe("GUI helpers", () => {
                 onCreateCampaignsPausedChange={vi.fn()}
                 commentTaskConcurrency={2}
                 onCommentTaskConcurrencyChange={vi.fn()}
+                commentBrowserMode="visible"
+                onCommentBrowserModeChange={onCommentBrowserModeChange}
+                commentDisableImages={false}
+                onCommentDisableImagesChange={onCommentDisableImagesChange}
                 onClose={vi.fn()}
             />
         );
@@ -468,6 +474,12 @@ describe("GUI helpers", () => {
             target: { value: "140" },
         });
         expect(onScaleChange).toHaveBeenCalledWith(1.4);
+        fireEvent.change(screen.getByLabelText("Режим браузера для коментарів"), {
+            target: { value: "headless" },
+        });
+        expect(onCommentBrowserModeChange).toHaveBeenCalledWith("headless");
+        fireEvent.click(screen.getByRole("checkbox", { name: /Не завантажувати зображення/ }));
+        expect(onCommentDisableImagesChange).toHaveBeenCalledWith(true);
     });
 
     it("показує фонові задачі та дозволяє зупинити активну", async () => {
@@ -483,7 +495,7 @@ describe("GUI helpers", () => {
                     name: "Коментарі · HU · 138",
                     status: "running",
                     createdAt: "2026-08-19T10:00:00.000Z",
-                    metadata: {},
+                    metadata: { browserMode: "headless", disableImages: true },
                     progress: {
                         stage: "comment",
                         completed: 2,
@@ -501,6 +513,8 @@ describe("GUI helpers", () => {
 
         expect(screen.getByText("Коментарі · HU · 138")).toBeInTheDocument();
         fireEvent.click(screen.getByText("Коментарі · HU · 138"));
+        expect(screen.getByText("Headless")).toBeInTheDocument();
+        expect(screen.getByText("Вимкнені")).toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: "Зупинити" }));
         await waitFor(() => expect(window.adsBot.cancelBackgroundTask)
             .toHaveBeenCalledWith("task-1"));

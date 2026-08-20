@@ -376,6 +376,8 @@ export default class AdsBotGuiService {
         creativeName,
         siteUrl = "",
         postUrl,
+        browserMode = "visible",
+        disableImages = false,
         signal,
         onProgress,
     }) {
@@ -414,6 +416,8 @@ export default class AdsBotGuiService {
             geo,
             creativeName,
             postUrl,
+            browserMode,
+            disableImages,
             reportsDirectory: this.reportsDirectory,
             logger: this.logger,
             signal,
@@ -427,6 +431,8 @@ export default class AdsBotGuiService {
             failedProfiles: result.report.failedProfiles.length,
             fatalError: result.report.fatalError,
             reportPath: result.reportPath,
+            browserMode: result.report.browserMode,
+            disableImages: result.report.disableImages,
         };
         this.logger.info(
             `Кампанію завершено: успішно ${summary.published}, помилок ${summary.failedComments}`
