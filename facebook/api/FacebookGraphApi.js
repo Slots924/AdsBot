@@ -1,4 +1,8 @@
 import { getLogger } from "../../services/logging/runtimeLogger.js";
+import collectLatestPagePostsWithLinks
+    from "../workflows/collectLatestPagePostsWithLinks.js";
+import deletePagePostsWorkflow
+    from "../workflows/deletePagePosts.js";
 
 
 function redactSensitiveText(value) {
@@ -810,6 +814,90 @@ export default class FacebookGraphApi {
             new Date(right.createdTime ?? 0) - new Date(left.createdTime ?? 0)
         ));
         return posts.slice(0, pageSize);
+    }
+
+
+    /**
+     * Повертає найновіші опубліковані пости з HTTP(S)-посиланням у тексті.
+     * Спочатку бере limit найновіших постів, а потім фільтрує цю вибірку.
+     */
+    async getLatestPagePostsWithLinks({ pageId, limit = 10 } = {}) {
+        const normalizedPageId = normalizeObjectId(
+            pageId,
+            "PAGE_POSTS_PAGE_ID_INVALID",
+            "ID фанпейджі"
+        );
+        const page = await this.getFanPageById(normalizedPageId);
+        if (!page) {
+            throw createValidationError(
+                "Немає доступу на керування вибраною фанпейджою",
+                "PAGE_POSTS_ACCESS_DENIED"
+            );
+        }
+        const normalizedLimit = Number(limit);
+        if (!Number.isInteger(normalizedLimit) || normalizedLimit < 1 || normalizedLimit > 25) {
+            throw createValidationError(
+                "Кількість постів має бути від 1 до 25",
+                "PAGE_POSTS_WITH_LINKS_LIMIT_INVALID"
+            );
+        }
+
+        return collectLatestPagePostsWithLinks({
+            limit: normalizedLimit,
+            normalizePost: normalizePagePost,
+            fetchPosts: async ({ limit: requestLimit }) => {
+                const data = await this.#request(`/${page.id}/published_posts`, {
+                    fields: campaignPostFields,
+                    limit: requestLimit,
+                }, { accessToken: page.pageAccessToken });
+                return Array.isArray(data?.data) ? data.data : [];
+            },
+        });
+    }
+
+
+    /**
+     * Видаляє масив публікацій вибраної фанпейджі та повертає частковий результат.
+     * Приймає canonical ID або об'єкти з полем id/postId.
+     */
+    async deletePagePosts({ pageId, posts } = {}) {
+        const normalizedPageId = normalizeObjectId(
+            pageId,
+            "PAGE_POST_DELETE_PAGE_ID_INVALID",
+            "ID фанпейджі"
+        );
+        const page = await this.getFanPageById(normalizedPageId);
+        if (!page) {
+            throw createValidationError(
+                "Немає доступу на керування вибраною фанпейджою",
+                "PAGE_POST_DELETE_ACCESS_DENIED"
+            );
+        }
+
+        return deletePagePostsWorkflow({
+            posts,
+            deletePost: async (postId) => {
+                if (!/^\d+_\d+$/.test(postId) || !postId.startsWith(`${page.id}_`)) {
+                    throw createValidationError(
+                        "Публікація не належить вибраній фанпейджі",
+                        "PAGE_POST_DELETE_OWNERSHIP_MISMATCH"
+                    );
+                }
+                const response = await this.#request(`/${postId}`, {}, {
+                    method: "delete",
+                    accessToken: page.pageAccessToken,
+                    retryOnConnectionError: false,
+                    outcomeUnknownCode: "FACEBOOK_POST_DELETE_OUTCOME_UNKNOWN",
+                    outcomeUnknownMessage: "Не вдалося визначити, чи Facebook видалив публікацію",
+                });
+                if (response !== true && response?.success !== true) {
+                    throw createValidationError(
+                        "Facebook не підтвердив видалення публікації",
+                        "FACEBOOK_POST_DELETE_NOT_CONFIRMED"
+                    );
+                }
+            },
+        });
     }
 
 

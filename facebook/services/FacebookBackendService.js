@@ -198,6 +198,18 @@ export default class FacebookBackendService {
     }
 
 
+    async getLatestPagePostsWithLinks(accountKey, options) {
+        const facebookApiClient = this.#getFacebookApiClient(accountKey);
+        return facebookApiClient.getLatestPagePostsWithLinks(options);
+    }
+
+
+    async deletePagePosts(accountKey, options) {
+        const facebookApiClient = this.#getFacebookApiClient(accountKey);
+        return facebookApiClient.deletePagePosts(options);
+    }
+
+
     async preflightLeadCampaign(accountKey, options) {
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
         return facebookApiClient.preflightLeadCampaign(options);

@@ -21,6 +21,7 @@ export default async function executeCommentWithProfile({
     browserMode = "visible",
     disableImages = false,
     logger = console,
+    signal,
 }) {
     const profileNo = String(profile?.profile_no ?? "невідомий");
     const actionType = comment.parent_id === null
@@ -37,8 +38,44 @@ export default async function executeCommentWithProfile({
     };
     let browser;
     let profileOpened = false;
+    let abortCleanupPromise = null;
+    const createAbortError = () => Object.assign(
+        new Error("Виконання коментаря перервано"),
+        { name: "AbortError", code: "COMMENTING_ABORTED" }
+    );
+    const assertNotAborted = () => {
+        if (signal?.aborted) throw createAbortError();
+    };
+    const stopOpenedProfile = async () => {
+        if (browser) {
+            try {
+                browser.disconnect();
+            } catch (error) {
+                result.cleanupErrors.push(
+                    `Puppeteer disconnect: ${error.message}`
+                );
+            }
+            browser = null;
+        }
+        if (profileOpened) {
+            profileOpened = false;
+            try {
+                await adsPower.closeProfile(profileNo);
+            } catch (error) {
+                result.cleanupErrors.push(
+                    `AdsPower closeProfile: ${error.message}`
+                );
+            }
+        }
+    };
+    const handleAbort = () => {
+        abortCleanupPromise ??= stopOpenedProfile();
+    };
+
+    signal?.addEventListener("abort", handleAbort, { once: true });
 
     try {
+        assertNotAborted();
         const adsPowerReady =
             await ensureAdsPowerProfileReady(
                 adsPower,
@@ -51,6 +88,7 @@ export default async function executeCommentWithProfile({
             );
         }
 
+        assertNotAborted();
         result.stage = "OPEN_PROFILE";
         const browserData = await adsPower.openProfile(profileNo, {
             browserMode: browserMode === "headless" ? "headless" : "visible",
@@ -58,6 +96,7 @@ export default async function executeCommentWithProfile({
         });
         profileOpened = true;
 
+        assertNotAborted();
         result.stage = "CONNECT_BROWSER";
         browser = await puppeteer.connect({
             browserWSEndpoint: browserData.ws.puppeteer,
@@ -67,12 +106,14 @@ export default async function executeCommentWithProfile({
         const pages = await browser.pages();
         const page = pages[0] ?? await browser.newPage();
 
+        assertNotAborted();
         result.stage = "OPEN_FACEBOOK";
         await openPageWithoutPopups(
             page,
             "https://www.facebook.com/"
         );
 
+        assertNotAborted();
         result.stage = "FACEBOOK_LOGIN";
         const loggedIn = await ensureFacebookAccountLoggedIn(
             adsPower,
@@ -86,6 +127,7 @@ export default async function executeCommentWithProfile({
             );
         }
 
+        assertNotAborted();
         result.stage = "FACEBOOK_ACTIVE";
         const active = await ensureFacebookAccountActive(
             adsPower,
@@ -97,9 +139,11 @@ export default async function executeCommentWithProfile({
             throw new Error("Facebook-акаунт не активний");
         }
 
+        assertNotAborted();
         result.stage = "ENSURE_ENGLISH";
         await ensureEnglish(page);
 
+        assertNotAborted();
         result.stage = "OPEN_POST";
         await openPageWithoutPopups(page, postUrl);
 
@@ -110,6 +154,7 @@ export default async function executeCommentWithProfile({
             throw new Error("Facebook-пост недоступний");
         }
 
+        assertNotAborted();
         try {
             await scrollToPostLikeButton(page);
         } catch (error) {
@@ -120,6 +165,7 @@ export default async function executeCommentWithProfile({
 
         await setRandomPostReaction(page);
 
+        assertNotAborted();
         if (actionType === "comment") {
             result.stage = "WRITE_COMMENT";
             result.success = await commentOnPost(
@@ -144,27 +190,14 @@ export default async function executeCommentWithProfile({
         }
     } catch (error) {
         result.success = false;
-        result.error = error.message;
+        result.error = signal?.aborted
+            ? "Виконання коментаря перервано"
+            : error.message;
+        result.aborted = signal?.aborted || error?.name === "AbortError";
     } finally {
-        if (browser) {
-            try {
-                browser.disconnect();
-            } catch (error) {
-                result.cleanupErrors.push(
-                    `Puppeteer disconnect: ${error.message}`
-                );
-            }
-        }
-
-        if (profileOpened) {
-            try {
-                await adsPower.closeProfile(profileNo);
-            } catch (error) {
-                result.cleanupErrors.push(
-                    `AdsPower closeProfile: ${error.message}`
-                );
-            }
-        }
+        signal?.removeEventListener("abort", handleAbort);
+        if (abortCleanupPromise) await abortCleanupPromise;
+        await stopOpenedProfile();
     }
 
     return result;

@@ -330,6 +330,7 @@ export default async function runCommentingScenario({
                 browserMode: report.browserMode,
                 disableImages: report.disableImages,
                 logger: campaignLogger,
+                signal,
             });
 
             saveCleanupWarnings(result);
@@ -602,3 +603,14 @@ export default async function runCommentingScenario({
         report,
     };
 }
+
+
+export {
+    createReport,
+    getActionType,
+    getCommentLabel,
+    normalizeComment,
+    normalizeGroupIds,
+    shuffleArray,
+    validateSettings,
+};

@@ -130,6 +130,8 @@ if (!selectedFacebookApiClient) {
 | `getAvailablePages()` | `Array<{id, name}>` | Перевіряє доступність, publish tasks і статус фанпейджів та повертає список без токенів. |
 | `getFanPageById(pageId)` | `object \| null` | Перевіряє фанпейджу й повертає її Page token лише для внутрішньої публікації. |
 | `getPagePosts({pageId, limit})` | `Array` | Повертає 10 найновіших опублікованих постів із безпечними даними для прев’ю. |
+| `getLatestPagePostsWithLinks({pageId, limit})` | `Array` | Серед 10 найновіших опублікованих постів повертає ті, що містять HTTP(S)-посилання саме в тексті. |
+| `deletePagePosts({pageId, posts})` | `{ deleted, failed }` | Послідовно видаляє передані canonical post ID цієї фанпейджі та повертає частковий результат. |
 | `createPageTextPost(options)` | `{ postId }` | Публікує текстовий пост через `/feed`. |
 | `createPagePhotoPost(options)` | `{ postId, photoId }` | Публікує одну фотографію через `/photos`. |
 | `getPagePost(options)` | `object` | Отримує пост за ID для підтвердження публікації. |
@@ -159,6 +161,18 @@ const pages = await selectedFacebookApiClient.getPages();
 `/{page-id}/published_posts` і сортує їх від найновішого до найстарішого.
 Thumbnail URL дозволяється лише з HTTPS-доменів `fbcdn.net`; Page access token у
 результат не потрапляє.
+
+`getLatestPagePostsWithLinks()` не змінює контракт `getPagePosts()`. Метод
+запитує рівно 10 найновіших публікацій за стандартного `limit`, сортує цю
+вибірку від нової до старої й лише після цього відкидає записи без `http://` або
+`https://` у тексті. Тому результат може містити менше ніж 10 постів. Старіші
+публікації для доповнення результату не завантажуються, а посилання лише в
+attachments не враховуються.
+
+`deletePagePosts()` приймає масив рядків або об'єктів із `id`/`postId`, прибирає
+дублікати та видаляє записи послідовно. Дозволені лише canonical ID формату
+`pageId_postId`, що належать переданій фанпейджі. Метод не повторює запит після
+невизначеної мережевої помилки й повертає окремі масиви `deleted` та `failed`.
 
 `getAdCampaigns()` і `getAdCampaignInsights()` також проходять усі сторінки
 через cursor `after`. Insights запитуються з `level=campaign`; GUI використовує
