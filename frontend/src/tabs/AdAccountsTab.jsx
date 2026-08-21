@@ -490,7 +490,7 @@ export default function AdAccountsTab({
             <div className="ad-workspace-heading">
                 <div>
                     <span className="eyebrow">Meta Ads</span>
-                    <h1>Рекламні акаунти</h1>
+                    <h1>Рекламні кабінети</h1>
                     <p>Обрані кабінети, статуси та статистика кампаній.</p>
                 </div>
                 <button
@@ -575,7 +575,7 @@ export default function AdAccountsTab({
                     {!selected && (
                         <div className="ad-detail-placeholder">
                             <BadgeDollarSign size={35} />
-                            <strong>Оберіть рекламний акаунт</strong>
+                            <strong>Оберіть рекламний кабінет</strong>
                             <span>Тут з’являться його інформація та кампанії.</span>
                         </div>
                     )}

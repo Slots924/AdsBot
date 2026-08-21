@@ -39,6 +39,7 @@ const frontendSuites = {
     all: [
         "src/test/campaign.test.jsx",
         "src/test/gui.test.jsx",
+        "src/test/workspace-design.test.jsx",
     ],
 };
 

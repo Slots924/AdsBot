@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search, X } from "lucide-react";
 
 
@@ -7,37 +7,52 @@ export default function MultiSelect({
     value,
     onChange,
     disabled = false,
+    placeholder = "Оберіть акаунти",
+    searchPlaceholder = "Назва або ID акаунта…",
 }) {
+    const root = useRef(null);
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    const selectedSet = new Set(value);
+    const normalizedValue = value.map(String);
+    const selectedSet = new Set(normalizedValue);
     const filtered = useMemo(() => {
         const needle = query.trim().toLocaleLowerCase();
         return needle
-            ? items.filter((group) =>
+            ? items.filter((group) => (
                 `${group.groupName} ${group.groupId}`
                     .toLocaleLowerCase()
                     .includes(needle)
-            )
+            ))
             : items;
     }, [items, query]);
 
-    const toggle = (groupId) => {
+    useEffect(() => {
+        const close = (event) => {
+            if (!root.current?.contains(event.target)) setOpen(false);
+        };
+        document.addEventListener("mousedown", close);
+        return () => document.removeEventListener("mousedown", close);
+    }, []);
+
+    const toggle = (rawGroupId) => {
+        const groupId = String(rawGroupId);
         onChange(selectedSet.has(groupId)
-            ? value.filter((id) => id !== groupId)
-            : [...value, groupId]);
+            ? normalizedValue.filter((id) => id !== groupId)
+            : [...normalizedValue, groupId]);
     };
 
     return (
-        <div className={`select multi-select ${open ? "open" : ""}`}>
+        <div ref={root} className={`select multi-select ${open ? "open" : ""}`}>
             <button
                 type="button"
                 className="select-trigger"
                 disabled={disabled}
+                aria-label="Акаунти для коментарів"
+                aria-expanded={open}
                 onClick={() => setOpen((current) => !current)}
             >
                 <span>
-                    <strong>{value.length ? `Вибрано груп: ${value.length}` : "Оберіть групи"}</strong>
+                    <strong>{value.length ? `Вибрано: ${value.length}` : placeholder}</strong>
                     <small>Можна вибрати декілька</small>
                 </span>
                 <ChevronDown size={17} />
@@ -46,39 +61,45 @@ export default function MultiSelect({
             {open && !disabled && (
                 <div className="select-menu">
                     <label className="select-search">
-                        <Search size={15} />
+                        <Search size={16} />
                         <input
                             autoFocus
                             value={query}
                             onChange={(event) => setQuery(event.target.value)}
-                            placeholder="Назва або ID групи…"
+                            placeholder={searchPlaceholder}
                         />
                     </label>
                     <div className="select-options">
-                        {filtered.map((group) => (
-                            <button
-                                type="button"
-                                className="select-option"
-                                key={group.groupId}
-                                onClick={() => toggle(group.groupId)}
-                            >
-                                <span>
-                                    <strong>{group.groupName || "Без назви"}</strong>
-                                    <small>ID {group.groupId}</small>
-                                </span>
-                                <i className={`checkbox ${selectedSet.has(group.groupId) ? "checked" : ""}`}>
-                                    {selectedSet.has(group.groupId) && <Check size={13} />}
-                                </i>
-                            </button>
-                        ))}
+                        {filtered.length === 0 && (
+                            <div className="select-empty">Акаунтів не знайдено</div>
+                        )}
+                        {filtered.map((group) => {
+                            const groupId = String(group.groupId);
+                            return (
+                                <button
+                                    type="button"
+                                    className="select-option"
+                                    key={groupId}
+                                    onClick={() => toggle(groupId)}
+                                >
+                                    <span>
+                                        <strong>{group.groupName || "Без назви"}</strong>
+                                        <small>ID {groupId}</small>
+                                    </span>
+                                    <i className={`checkbox ${selectedSet.has(groupId) ? "checked" : ""}`}>
+                                        {selectedSet.has(groupId) && <Check size={13} />}
+                                    </i>
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             )}
 
             {value.length > 0 && (
                 <div className="chips">
-                    {value.map((groupId) => {
-                        const group = items.find((item) => item.groupId === groupId);
+                    {normalizedValue.map((groupId) => {
+                        const group = items.find((item) => String(item.groupId) === groupId);
                         return (
                             <span className="chip" key={groupId}>
                                 {group?.groupName || groupId}

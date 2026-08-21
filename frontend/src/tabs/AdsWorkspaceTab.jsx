@@ -12,7 +12,7 @@ export default function AdsWorkspaceTab({ adsSubtab, onSubtabChange, ...props })
     return (
         <section className="ads-workspace-tab">
             <div className="inner-tabs">
-                <button className={active === "accounts" ? "active" : ""} onClick={() => change("accounts")}>Рекламні акаунти</button>
+                <button className={active === "accounts" ? "active" : ""} onClick={() => change("accounts")}>Рекламні кабінети</button>
                 <button className={active === "templates" ? "active" : ""} onClick={() => change("templates")}>Шаблони</button>
             </div>
             {active === "accounts"

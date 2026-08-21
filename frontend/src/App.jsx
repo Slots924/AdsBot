@@ -13,7 +13,7 @@ import { errorDetails, unwrap } from "./lib/api.js";
 
 const tabs = [
     { id: "accounts", label: "API-клієнти", icon: Bot },
-    { id: "ads", label: "РК", icon: BadgeDollarSign },
+    { id: "ads", label: "Рекламні кабінети", icon: BadgeDollarSign },
     { id: "pages", label: "Фанпейджі", icon: PanelsTopLeft },
     { id: "journal", label: "Журнал", icon: BookOpen },
 ];

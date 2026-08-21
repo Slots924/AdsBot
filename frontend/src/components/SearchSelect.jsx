@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 
 
@@ -9,35 +9,56 @@ export default function SearchSelect({
     getId = (item) => item.id,
     getTitle = (item) => item.name,
     getSubtitle = (item) => item.id,
+    getSearchText,
+    getStatus,
     placeholder = "Оберіть значення",
     searchPlaceholder = "Пошук…",
+    emptyText = "Нічого не знайдено",
     disabled = false,
+    ariaLabel,
+    className = "",
 }) {
+    const root = useRef(null);
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    const selected = items.find((item) => getId(item) === value);
+    const selected = items.find((item) => String(getId(item)) === String(value));
     const filtered = useMemo(() => {
         const needle = query.trim().toLocaleLowerCase();
-        return needle
-            ? items.filter((item) =>
-                `${getTitle(item)} ${getSubtitle(item)}`
-                    .toLocaleLowerCase()
-                    .includes(needle)
-            )
-            : items;
-    }, [items, query, getTitle, getSubtitle]);
+        if (!needle) return items;
+        return items.filter((item) => String(
+            getSearchText
+                ? getSearchText(item)
+                : `${getTitle(item)} ${getSubtitle(item)}`
+        ).toLocaleLowerCase().includes(needle));
+    }, [items, query, getTitle, getSubtitle, getSearchText]);
 
+    useEffect(() => {
+        const close = (event) => {
+            if (!root.current?.contains(event.target)) setOpen(false);
+        };
+        document.addEventListener("mousedown", close);
+        return () => document.removeEventListener("mousedown", close);
+    }, []);
+
+    const subtitle = selected ? getSubtitle(selected) : "";
     return (
-        <div className={`select ${open ? "open" : ""}`}>
+        <div ref={root} className={`select ${open ? "open" : ""} ${className}`.trim()}>
             <button
                 type="button"
                 className="select-trigger"
+                aria-label={ariaLabel}
+                aria-expanded={open}
                 disabled={disabled}
                 onClick={() => setOpen((current) => !current)}
             >
-                <span>
-                    <strong>{selected ? getTitle(selected) : placeholder}</strong>
-                    {selected && <small>{getSubtitle(selected)}</small>}
+                <span className="select-trigger-value">
+                    {selected && getStatus && (
+                        <i className={`select-status status-dot ${getStatus(selected)}`} />
+                    )}
+                    <span>
+                        <strong>{selected ? getTitle(selected) : placeholder}</strong>
+                        {subtitle && <small>{subtitle}</small>}
+                    </span>
                 </span>
                 <ChevronDown size={17} />
             </button>
@@ -45,7 +66,7 @@ export default function SearchSelect({
             {open && !disabled && (
                 <div className="select-menu">
                     <label className="select-search">
-                        <Search size={15} />
+                        <Search size={16} />
                         <input
                             autoFocus
                             value={query}
@@ -55,10 +76,11 @@ export default function SearchSelect({
                     </label>
                     <div className="select-options">
                         {filtered.length === 0 && (
-                            <div className="select-empty">Нічого не знайдено</div>
+                            <div className="select-empty">{emptyText}</div>
                         )}
                         {filtered.map((item) => {
                             const id = getId(item);
+                            const optionSubtitle = getSubtitle(item);
                             return (
                                 <button
                                     type="button"
@@ -70,11 +92,16 @@ export default function SearchSelect({
                                         setQuery("");
                                     }}
                                 >
-                                    <span>
-                                        <strong>{getTitle(item)}</strong>
-                                        <small>{getSubtitle(item)}</small>
+                                    <span className="select-option-value">
+                                        {getStatus && (
+                                            <i className={`select-status status-dot ${getStatus(item)}`} />
+                                        )}
+                                        <span>
+                                            <strong>{getTitle(item)}</strong>
+                                            {optionSubtitle && <small>{optionSubtitle}</small>}
+                                        </span>
                                     </span>
-                                    {id === value && <Check size={16} />}
+                                    {String(id) === String(value) && <Check size={16} />}
                                 </button>
                             );
                         })}
