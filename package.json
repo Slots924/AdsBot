@@ -7,6 +7,7 @@
     "start": "node index.js",
     "gui:dev": "npm --prefix frontend run dev",
     "gui:build": "npm --prefix frontend run build",
+    "gui:scale-test": "npm --prefix frontend run scale:test",
     "gui:test": "npm --prefix frontend run test",
     "test": "npm run test:campaign",
     "test:campaign": "node scripts/runTests.js campaign",
