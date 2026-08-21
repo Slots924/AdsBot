@@ -92,6 +92,7 @@ export default function Sidebar({
     onUpdate,
     onSetArchived,
     onError,
+    standalone = false,
 }) {
     const [editor, setEditor] = useState(null);
     const [busyKey, setBusyKey] = useState(null);
@@ -120,7 +121,7 @@ export default function Sidebar({
     };
 
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar ${standalone ? "accounts-tab-sidebar" : ""}`}>
             <div className="brand"><div className="brand-mark"><Bot size={22} /></div><div><strong>AdsBot</strong><span>Control center</span></div></div>
             <div className="sidebar-title-row">
                 <div><span className="eyebrow">Facebook</span><h2>Акаунти</h2></div>

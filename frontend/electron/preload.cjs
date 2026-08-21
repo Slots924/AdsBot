@@ -22,8 +22,22 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("accounts:archive-set", { accountKey, archived }),
     getFanPages: (accountKey) =>
         ipcRenderer.invoke("pages:list", { accountKey }),
+    loadClientWorkspace: (accountKey) =>
+        ipcRenderer.invoke("workspace:client-load", { accountKey }),
+    setPageFavorite: (pageId, isFavorite) =>
+        ipcRenderer.invoke("pages:favorite-set", { pageId, isFavorite }),
+    updatePageMetadata: (pageId, patch) =>
+        ipcRenderer.invoke("pages:metadata-update", { pageId, ...patch }),
+    getPagePostsWithLinks: (accountKey, pageId) =>
+        ipcRenderer.invoke("pages:posts-with-links", { accountKey, pageId }),
+    deletePagePosts: (options) =>
+        ipcRenderer.invoke("pages:posts-delete", options),
+    deletePagePost: (options) =>
+        ipcRenderer.invoke("pages:post-delete", options),
     getAdAccounts: (accountKey) =>
         ipcRenderer.invoke("ads:list", { accountKey }),
+    getAdPixels: (accountKey, adAccountId) =>
+        ipcRenderer.invoke("ads:pixels-list", { accountKey, adAccountId }),
     renameAdAccount: (adAccountId, name) =>
         ipcRenderer.invoke("ads:rename", { adAccountId, name }),
     setAdAccountFavorite: (accountKey, adAccountId, isFavorite) =>
@@ -65,6 +79,12 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("post:publish", options),
     runCommentingCampaign: (options) =>
         ipcRenderer.invoke("comments:run", options),
+    startCreativeLaunch: (options) =>
+        ipcRenderer.invoke("creative-launch:start", options),
+    getCreativeLaunch: (workflowJobId) =>
+        ipcRenderer.invoke("creative-launch:get", { workflowJobId }),
+    retryCreativeLaunch: (workflowJobId, patch = {}) =>
+        ipcRenderer.invoke("creative-launch:retry", { workflowJobId, patch }),
     getBackgroundTasks: () => ipcRenderer.invoke("tasks:list"),
     cancelBackgroundTask: (taskId) =>
         ipcRenderer.invoke("tasks:cancel", { taskId }),

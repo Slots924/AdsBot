@@ -237,7 +237,12 @@ export default function AdAccountsTab({
     selectedId: controlledSelectedId,
     setSelectedId: setControlledSelectedId,
     createCampaignsPaused = true,
+    defaultPixelId = "",
+    defaultUtm = "",
     lastPublishedPost = null,
+    workspaceAccounts = null,
+    onWorkspaceRefresh = null,
+    onWorkspaceAccountsChange = null,
 }) {
     const [accounts, setAccounts] = useState([]);
     const [localSelectedId, setLocalSelectedId] = useState("");
@@ -366,6 +371,7 @@ export default function AdAccountsTab({
             );
             if (sequence !== requestSequence.current) return;
             setAccounts(nextAccounts);
+            onWorkspaceAccountsChange?.(nextAccounts);
             setSelectedId((current) => nextAccounts.some(
                 (account) => account.id === current
             ) ? current : "");
@@ -384,48 +390,28 @@ export default function AdAccountsTab({
     useEffect(() => {
         requestSequence.current += 1;
         setAccounts([]);
+        if (Array.isArray(workspaceAccounts)) {
+            setAccounts(workspaceAccounts);
+            return;
+        }
         if (accountActive) loadAccounts();
-    }, [accountKey, accountActive]);
+    }, [accountKey, accountActive, workspaceAccounts]);
 
     useEffect(() => {
         if (selected) loadCampaigns(selected.id, datePreset);
     }, [selected?.id, datePreset, accountKey, campaignRefreshVersion]);
 
-    useEffect(() => {
-        if (!accountKey || favorites.length === 0) return undefined;
-        const queue = favorites.map((account) => account.id);
-        let cursor = 0;
-        let cancelled = false;
-
-        const worker = async () => {
-            while (!cancelled && cursor < queue.length) {
-                const id = queue[cursor];
-                cursor += 1;
-                await loadCampaigns(id, datePreset, { background: true });
-            }
-        };
-
-        Promise.all(Array.from(
-            { length: Math.min(2, queue.length) },
-            worker
-        ));
-        return () => {
-            cancelled = true;
-        };
-    }, [
-        accountKey,
-        datePreset,
-        campaignRefreshVersion,
-        favorites.map((account) => account.id).join("|"),
-    ]);
-
     const updateFavoritePositions = (orderedIds) => {
         const positions = new Map(orderedIds.map((id, index) => [id, index]));
-        setAccounts((current) => current.map((account) => ({
-            ...account,
-            isFavorite: positions.has(account.id),
-            favoritePosition: positions.get(account.id) ?? null,
-        })));
+        setAccounts((current) => {
+            const next = current.map((account) => ({
+                ...account,
+                isFavorite: positions.has(account.id),
+                favoritePosition: positions.get(account.id) ?? null,
+            }));
+            onWorkspaceAccountsChange?.(next);
+            return next;
+        });
     };
 
     const toggleFavorite = async (account, isFavorite) => {
@@ -474,11 +460,15 @@ export default function AdAccountsTab({
                 renameEditor.id,
                 name
             ));
-            setAccounts((current) => current.map((account) => (
-                account.id === result.adAccountId
-                    ? { ...account, localName: result.localName }
-                    : account
-            )));
+            setAccounts((current) => {
+                const next = current.map((account) => (
+                    account.id === result.adAccountId
+                        ? { ...account, localName: result.localName }
+                        : account
+                ));
+                onWorkspaceAccountsChange?.(next);
+                return next;
+            });
             setRenameEditor(null);
             showToast("Назву РК збережено", "success");
         } catch (error) {
@@ -703,6 +693,8 @@ export default function AdAccountsTab({
                     accountKey={accountKey}
                     adAccount={selected}
                     createPaused={createCampaignsPaused}
+                    defaultPixelId={defaultPixelId}
+                    defaultUtm={defaultUtm}
                     lastPublishedPost={lastPublishedPost}
                     onClose={() => setCampaignWizardOpen(false)}
                     onSuccess={() => {

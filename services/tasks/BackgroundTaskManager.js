@@ -28,6 +28,7 @@ export default class BackgroundTaskManager {
     #enqueueOperation = Promise.resolve();
     #listeners = new Set();
     #shuttingDown = false;
+    #activeTaskId = null;
 
 
     constructor({ journal, commentConcurrency = 2, logger = null, reportManager = null } = {}) {
@@ -35,11 +36,7 @@ export default class BackgroundTaskManager {
         this.journal = journal;
         this.logger = logger;
         this.reportManager = reportManager;
-        this.typeLimits = new Map([
-            ["comments", this.#normalizeCommentConcurrency(commentConcurrency)],
-            ["campaign", 1],
-            ["campaign-cleanup", 1],
-        ]);
+        this.commentConcurrency = this.#normalizeCommentConcurrency(commentConcurrency);
     }
 
 
@@ -144,10 +141,8 @@ export default class BackgroundTaskManager {
 
 
     async setCommentConcurrency(value) {
-        const normalized = this.#normalizeCommentConcurrency(value);
-        this.typeLimits.set("comments", normalized);
-        this.#schedule();
-        return normalized;
+        this.commentConcurrency = this.#normalizeCommentConcurrency(value);
+        return this.commentConcurrency;
     }
 
 
@@ -180,41 +175,27 @@ export default class BackgroundTaskManager {
 
     async #runScheduler() {
         if (this.#shuttingDown) return;
+        if (this.#activeTaskId) return;
         const queued = (await this.journal.list())
             .filter((task) => task.status === "queued" && this.#runtimes.has(task.id))
             .sort((left, right) => new Date(left.createdAt) - new Date(right.createdAt));
 
-        for (let index = 0; index < queued.length; index += 1) {
-            const task = queued[index];
-            const limit = this.typeLimits.get(task.type) ?? 1;
-            const activeCount = this.#activeByType.get(task.type) ?? 0;
-            const blockedResource = task.resources.find((resource) => this.#activeResources.has(resource.key));
-            const earlierConflict = queued.slice(0, index).some((earlier) =>
-                this.#runtimes.has(earlier.id)
-                && earlier.resources.some((left) => task.resources.some((right) => left.key === right.key))
-            );
-
-            if (activeCount >= limit || blockedResource || earlierConflict) {
-                const reason = blockedResource
-                    ? `Очікує ресурс: ${blockedResource.label || blockedResource.key}`
-                    : activeCount >= limit
-                        ? "Очікує вільне місце в черзі"
-                        : "Очікує попередню задачу з тією самою групою";
-                if (task.waitingReason !== reason) {
-                    const updated = await this.journal.update(task.id, { waitingReason: reason });
-                    await this.#emit(updated);
-                }
-                continue;
+        const [next, ...waiting] = queued;
+        for (const task of waiting) {
+            if (task.waitingReason !== "Очікує попередню задачу в глобальній черзі") {
+                await this.#emit(await this.journal.update(task.id, {
+                    waitingReason: "Очікує попередню задачу в глобальній черзі",
+                }));
             }
-
-            this.#start(task);
         }
+        if (next) this.#start(next);
     }
 
 
     #start(task) {
         const runtime = this.#runtimes.get(task.id);
         if (!runtime || runtime.promise) return;
+        this.#activeTaskId = task.id;
         task.resources.forEach((resource) => this.#activeResources.add(resource.key));
         this.#activeByType.set(task.type, (this.#activeByType.get(task.type) ?? 0) + 1);
         runtime.promise = this.#execute(task, runtime);
@@ -295,6 +276,7 @@ export default class BackgroundTaskManager {
             task.resources.forEach((resource) => this.#activeResources.delete(resource.key));
             this.#activeByType.set(task.type, Math.max(0, (this.#activeByType.get(task.type) ?? 1) - 1));
             this.#runtimes.delete(task.id);
+            this.#activeTaskId = null;
             await this.#emit(current);
             this.#schedule();
         }

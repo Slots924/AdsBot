@@ -3,31 +3,22 @@ import path from "node:path";
 
 
 const defaultState = {
-    activeTab: "publish",
+    activeTab: "accounts",
+    adsSubtab: "accounts",
     uiScale: 1.3,
     createCampaignsPaused: true,
-    commentTaskConcurrency: 2,
+    commentWorkerConcurrency: 5,
     commentBrowserMode: "visible",
     commentDisableImages: false,
     logLevel: "info",
+    defaultPixelId: "",
+    defaultUtm: "",
     taskPanelCollapsed: false,
     selectedAccountKey: "",
     selectedPageId: "",
     selectedAdAccountId: "",
     selectedGroupIds: [],
     lastPublishedPost: null,
-    publishForm: {
-        geo: "",
-        creativeName: "",
-        siteUrl: "",
-        imagePath: "",
-    },
-    commentsForm: {
-        geo: "",
-        creativeName: "",
-        siteUrl: "",
-        postUrl: "",
-    },
 };
 
 
@@ -40,25 +31,29 @@ function stringsFrom(source, fields) {
 
 
 function normalizeState(state = {}) {
-    const allowedTabs = new Set(["publish", "comments", "journal", "ads", "templates"]);
+    const legacyTab = ["publish", "comments"].includes(state.activeTab) ? "pages" : state.activeTab;
+    const allowedTabs = new Set(["accounts", "ads", "pages", "journal"]);
     const allowedCommentBrowserModes = new Set(["visible", "headless"]);
     const requestedScale = Number(state.uiScale);
     return {
-        activeTab: allowedTabs.has(state.activeTab)
-            ? state.activeTab
+        activeTab: allowedTabs.has(legacyTab)
+            ? legacyTab
             : defaultState.activeTab,
+        adsSubtab: state.adsSubtab === "templates" ? "templates" : "accounts",
         uiScale: Number.isFinite(requestedScale)
             ? Math.min(1.5, Math.max(0.8, requestedScale))
             : defaultState.uiScale,
         createCampaignsPaused: state.createCampaignsPaused !== false,
-        commentTaskConcurrency: Number.isFinite(Number(state.commentTaskConcurrency))
-            ? Math.min(5, Math.max(1, Math.round(Number(state.commentTaskConcurrency))))
-            : defaultState.commentTaskConcurrency,
+        commentWorkerConcurrency: Number.isFinite(Number(state.commentWorkerConcurrency))
+            ? Math.min(5, Math.max(1, Math.round(Number(state.commentWorkerConcurrency))))
+            : defaultState.commentWorkerConcurrency,
         commentBrowserMode: allowedCommentBrowserModes.has(state.commentBrowserMode)
             ? state.commentBrowserMode
             : defaultState.commentBrowserMode,
         commentDisableImages: state.commentDisableImages === true,
         logLevel: state.logLevel === "debug" ? "debug" : "info",
+        defaultPixelId: String(state.defaultPixelId ?? "").trim(),
+        defaultUtm: String(state.defaultUtm ?? ""),
         taskPanelCollapsed: Boolean(state.taskPanelCollapsed),
         ...stringsFrom(state, [
             "selectedAccountKey",
@@ -78,18 +73,6 @@ function normalizeState(state = {}) {
             "pageId",
             "postId",
         ]) : null,
-        publishForm: stringsFrom(state.publishForm, [
-            "geo",
-            "creativeName",
-            "siteUrl",
-            "imagePath",
-        ]),
-        commentsForm: stringsFrom(state.commentsForm, [
-            "geo",
-            "creativeName",
-            "siteUrl",
-            "postUrl",
-        ]),
     };
 }
 

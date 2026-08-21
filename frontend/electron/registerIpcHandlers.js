@@ -51,6 +51,8 @@ export default function registerIpcHandlers({
     templateManager,
     appStateStore,
     adAccountPreferencesStore,
+    pagePreferencesStore,
+    creativeLaunchJournal,
     countryCatalog,
     campaignCreationJournal,
     backgroundTaskManager,
@@ -250,6 +252,136 @@ export default function registerIpcHandlers({
         return { taskId: task.id, task, jobId: job.id };
     };
 
+    const enqueueCreativeLaunch = async (launchJob) => {
+        const task = await backgroundTaskManager.enqueue({
+            type: "creative-launch",
+            name: launchJob.draft.campaignName || `Запуск · ${launchJob.draft.geo} · Creo_${launchJob.draft.creativeName}`,
+            uniqueKey: `creative-launch:${launchJob.id}`,
+            resources: [{ key: "global-workflow", label: "глобальна черга" }],
+            input: { workflowJobId: launchJob.id },
+            metadata: { workflowJobId: launchJob.id, accountKey: launchJob.draft.accountKey, pageId: launchJob.draft.pageId },
+            runner: async ({ signal, progress }) => {
+                let job = await creativeLaunchJournal.update(launchJob.id, { status: "running", errors: [] });
+                const draft = job.draft;
+                const setSubtask = async (id, patch) => {
+                    job = await creativeLaunchJournal.updateSubtask(job.id, id, patch);
+                    const subtasks = job.subtasks;
+                    await progress({
+                        stage: id,
+                        message: patch.message || subtasks.find((item) => item.id === id)?.message,
+                        completed: subtasks.filter((item) => ["completed", "completed_with_warnings", "failed", "skipped"].includes(item.status)).length,
+                        total: 3,
+                        subtasks,
+                    });
+                };
+                const abort = () => {
+                    if (signal.aborted) throw Object.assign(new Error("Запуск креативу перервано"), { name: "AbortError", code: "CREATIVE_LAUNCH_ABORTED" });
+                };
+                try {
+                    await setSubtask("publication", { status: "running", message: "Перевіряємо дані й готуємо креатив" });
+                    abort();
+                    const [template, pages, accounts, groups, prepared] = await Promise.all([
+                        templateManager.get(draft.templateId),
+                        guiService.getFanPages(draft.accountKey),
+                        guiService.getAdAccounts(draft.accountKey),
+                        guiService.getAdsPowerGroups(),
+                        guiService.prepareCreative({ geo: draft.geo, creativeName: draft.creativeName, siteUrl: draft.siteUrl }),
+                    ]);
+                    if (!pages.some((page) => String(page.id) === draft.pageId)) throw Object.assign(new Error("Фанпейджа недоступна API-клієнту"), { code: "CREATIVE_LAUNCH_PAGE_UNAVAILABLE" });
+                    const adAccount = accounts.find((account) => String(account.id) === draft.adAccountId);
+                    if (!adAccount || Number(adAccount.accountStatus) !== 1) throw Object.assign(new Error("Рекламний акаунт недоступний або неактивний"), { code: "CREATIVE_LAUNCH_AD_ACCOUNT_UNAVAILABLE" });
+                    if (!Array.isArray(template.countryCodes) || !template.countryCodes.length) throw Object.assign(new Error("У шаблоні не вибрано країну"), { code: "CAMPAIGN_COUNTRY_REQUIRED" });
+                    if (!Number.isInteger(draft.adSetCount) || draft.adSetCount < 1 || draft.adSetCount > 100) throw Object.assign(new Error("Кількість ad sets має бути від 1 до 100"), { code: "CAMPAIGN_ADSET_COUNT_INVALID" });
+                    if (!Number.isFinite(draft.dailyBudget) || draft.dailyBudget <= 0) throw Object.assign(new Error("Бюджет ad set має бути більшим за нуль"), { code: "CAMPAIGN_BUDGET_INVALID" });
+                    if (Number.isNaN(new Date(draft.startTime).getTime())) throw Object.assign(new Error("Некоректний час початку"), { code: "CAMPAIGN_START_TIME_INVALID" });
+                    const pixels = await guiService.getAdPixels({ accountKey: draft.accountKey, adAccountId: draft.adAccountId });
+                    if (!pixels.some((pixel) => pixel.id === draft.pixelId)) throw Object.assign(new Error("Pixel недоступний вибраному РК"), { code: "CAMPAIGN_PIXEL_ACCESS_DENIED" });
+                    const knownGroups = new Set(groups.map((group) => String(group.groupId)));
+                    if (!draft.groupIds.length || draft.groupIds.some((id) => !knownGroups.has(id))) throw Object.assign(new Error("Вибрані AdsPower-групи недоступні"), { code: "COMMENTING_GROUP_REQUIRED" });
+                    abort();
+
+                    let cleanup = { deleted: [], failed: [] };
+                    if (draft.deleteOldPosts) {
+                        await setSubtask("publication", { status: "running", message: "Видаляємо старі URL-пости" });
+                        const oldPosts = await guiService.getPagePostsWithLinks({ accountKey: draft.accountKey, pageId: draft.pageId, limit: 10 });
+                        cleanup = await guiService.deletePagePosts({ accountKey: draft.accountKey, pageId: draft.pageId, posts: oldPosts });
+                        job = await creativeLaunchJournal.update(job.id, { cleanup });
+                    }
+                    abort();
+                    const post = await guiService.publishPreparedPost({
+                        accountKey: draft.accountKey, pageId: draft.pageId,
+                        message: prepared.creative, imagePath: draft.imagePath,
+                    }, async (item) => setSubtask("publication", { status: "running", message: item.message, progress: item }));
+                    await pagePreferencesStore.updateMetadata(draft.pageId, { geo: draft.geo, creativeName: draft.creativeName });
+                    job = await creativeLaunchJournal.update(job.id, { post, cleanup });
+                    await setSubtask("publication", {
+                        status: cleanup.failed.length ? "completed_with_warnings" : "completed",
+                        message: cleanup.failed.length ? `Пост опубліковано; не видалено ${cleanup.failed.length}` : "Пост опубліковано та перевірено",
+                        result: post,
+                    });
+
+                    const campaignBranch = async () => {
+                        await setSubtask("campaign", { status: "running", message: "Перевіряємо й створюємо кампанію" });
+                        const campaignJob = await campaignCreationJournal.create({
+                            ...draft, pageId: draft.pageId, postId: post.postId,
+                        });
+                        await creativeLaunchJournal.update(job.id, { campaignJobId: campaignJob.id });
+                        try {
+                            const response = await runCreationJob(campaignJob, {
+                                signal,
+                                taskProgress: (item) => setSubtask("campaign", { status: "running", message: item.message, progress: item }),
+                            });
+                            await setSubtask("campaign", { status: "completed", message: "Кампанію створено", result: response.result });
+                            return response.result;
+                        } catch (error) {
+                            await setSubtask("campaign", { status: "failed", message: error.message, error: serializeError(error) });
+                            throw error;
+                        }
+                    };
+                    const commentsBranch = async () => {
+                        await setSubtask("comments", { status: "running", message: "Запускаємо паралельні коментарі" });
+                        try {
+                            const response = await guiService.runParallelComments({
+                                groupIds: draft.groupIds, comments: prepared.comments,
+                                geo: draft.geo, creativeName: draft.creativeName,
+                                postUrl: post.permalinkUrl, browserMode: draft.browserMode,
+                                disableImages: draft.disableImages, concurrency: draft.commentWorkerConcurrency,
+                                signal,
+                                onProgress: (item) => setSubtask("comments", { status: "running", message: item.message, progress: item }),
+                            });
+                            const report = response.report;
+                            const warned = report.failedComments.length || report.skipped.length || report.cleanupWarnings.length;
+                            await creativeLaunchJournal.update(job.id, { commentsResume: {
+                                publishedCommentIds: report.published.map((item) => item.commentId),
+                                profileKeyMap: report.profileKeyMap,
+                                uncertainCommentIds: report.interrupted ? report.failedComments.map((item) => item.commentId) : [],
+                            } });
+                            await setSubtask("comments", { status: warned ? "completed_with_warnings" : "completed", message: `Коментарі: ${report.published.length} успішно`, result: { published: report.published.length, failed: report.failedComments.length, skipped: report.skipped.length } });
+                            return report;
+                        } catch (error) {
+                            await setSubtask("comments", { status: signal.aborted ? "interrupted" : "failed", message: error.message, error: serializeError(error) });
+                            throw error;
+                        }
+                    };
+                    const branches = await Promise.allSettled([campaignBranch(), commentsBranch()]);
+                    abort();
+                    const warnings = cleanup.failed.length + branches.filter((item) => item.status === "rejected").length;
+                    job = await creativeLaunchJournal.update(job.id, { status: warnings ? "completed_with_warnings" : "completed" });
+                    return {
+                        taskStatus: warnings ? "completed_with_warnings" : "completed",
+                        result: { workflowJobId: job.id, post, warnings },
+                        reportDetails: { inputSummary: { workflowJobId: job.id, accountKey: draft.accountKey, pageId: draft.pageId, geo: draft.geo, creativeName: draft.creativeName, adAccountId: draft.adAccountId }, resultSummary: { post, cleanup, subtasks: job.subtasks }, warnings: cleanup.failed },
+                    };
+                } catch (error) {
+                    await creativeLaunchJournal.update(job.id, { status: signal.aborted ? "interrupted" : "failed", errors: [serializeError(error)] });
+                    error.reportDetails ??= { inputSummary: { workflowJobId: job.id, accountKey: draft.accountKey, pageId: draft.pageId }, resultSummary: { post: job.post, subtasks: job.subtasks }, errors: [serializeError(error)] };
+                    throw error;
+                }
+            },
+        });
+        return { taskId: task.id, task, workflowJobId: launchJob.id };
+    };
+
     ipcMain.handle(
         "accounts:list",
         safeHandler(async () => mergeAccountStates(
@@ -283,8 +415,69 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "pages:list",
-        safeHandler(({ accountKey }) => guiService.getFanPages(accountKey))
+        safeHandler(async ({ accountKey }) => pagePreferencesStore.enrich(
+            await guiService.getFanPages(accountKey)
+        ))
     );
+    ipcMain.handle(
+        "workspace:client-load",
+        safeHandler(async ({ accountKey }) => {
+            const [accounts, pages] = await Promise.all([
+                guiService.getAdAccounts(accountKey),
+                guiService.getFanPages(accountKey),
+            ]);
+            return {
+                adAccounts: await adAccountPreferencesStore.enrichAccounts(accountKey, accounts),
+                pages: await pagePreferencesStore.enrich(pages),
+            };
+        })
+    );
+    ipcMain.handle("pages:favorite-set", safeHandler(({ pageId, isFavorite }) => pagePreferencesStore.setFavorite(pageId, Boolean(isFavorite))));
+    ipcMain.handle("pages:metadata-update", safeHandler(({ pageId, ...patch }) => pagePreferencesStore.updateMetadata(pageId, patch)));
+    ipcMain.handle("pages:posts-with-links", safeHandler((payload) => guiService.getPagePostsWithLinks(payload)));
+    ipcMain.handle("ads:pixels-list", safeHandler((payload) => guiService.getAdPixels(payload)));
+    ipcMain.handle("pages:posts-delete", safeHandler(async (payload) => {
+        const task = await backgroundTaskManager.enqueue({
+            type: "page-cleanup", name: `Видалення URL-постів · ${payload.pageId}`,
+            input: { accountKey: payload.accountKey, pageId: payload.pageId }, metadata: { accountKey: payload.accountKey, pageId: payload.pageId },
+            runner: async ({ signal, progress }) => {
+                await progress({ stage: "load", completed: 0, total: 2, message: "Шукаємо URL-пости серед 10 найновіших" });
+                const posts = await guiService.getPagePostsWithLinks({ ...payload, limit: 10 });
+                if (signal.aborted) throw Object.assign(new Error("Видалення перервано"), { name: "AbortError" });
+                const result = await guiService.deletePagePosts({ ...payload, posts });
+                await progress({ stage: "delete", completed: 2, total: 2, message: `Видалено ${result.deleted.length}, помилок ${result.failed.length}` });
+                return { result, taskStatus: result.failed.length ? "completed_with_warnings" : "completed", reportDetails: { resultSummary: result, warnings: result.failed } };
+            },
+        });
+        return { taskId: task.id, task };
+    }));
+    ipcMain.handle("pages:post-delete", safeHandler(async (payload) => {
+        const task = await backgroundTaskManager.enqueue({
+            type: "page-post-delete", name: `Видалення поста · ${payload.postId}`,
+            input: { accountKey: payload.accountKey, pageId: payload.pageId, postId: payload.postId }, metadata: { accountKey: payload.accountKey, pageId: payload.pageId },
+            runner: async ({ progress }) => {
+                await progress({ stage: "delete", completed: 0, total: 1, message: "Видаляємо публікацію" });
+                const result = await guiService.deletePagePosts({ ...payload, posts: [payload.postId] });
+                if (result.failed.length) throw Object.assign(new Error(result.failed[0].error.message), { code: result.failed[0].error.code });
+                return { result };
+            },
+        });
+        return { taskId: task.id, task };
+    }));
+    ipcMain.handle("creative-launch:start", safeHandler(async (payload) => enqueueCreativeLaunch(await creativeLaunchJournal.create(payload))));
+    ipcMain.handle("creative-launch:get", safeHandler(async ({ workflowJobId }) => {
+        const job = await creativeLaunchJournal.get(workflowJobId);
+        if (!job) throw Object.assign(new Error("Workflow запуску не знайдено"), { code: "CREATIVE_LAUNCH_NOT_FOUND" });
+        return job;
+    }));
+    ipcMain.handle("creative-launch:retry", safeHandler(async ({ workflowJobId, patch = {} }) => {
+        const source = await creativeLaunchJournal.get(workflowJobId);
+        if (!source) throw Object.assign(new Error("Workflow запуску не знайдено"), { code: "CREATIVE_LAUNCH_NOT_FOUND" });
+        if (source.post?.postId) {
+            throw Object.assign(new Error("Пост уже опублікований. Повний повтор заблоковано, щоб не створити дублікат; повторіть лише помилкову гілку з деталей задачі."), { code: "CREATIVE_LAUNCH_FULL_RETRY_UNSAFE" });
+        }
+        return enqueueCreativeLaunch(await creativeLaunchJournal.create({ ...source.draft, ...patch }, { parentJobId: source.id }));
+    }));
     ipcMain.handle(
         "ads:list",
         safeHandler(async ({ accountKey }) => {
@@ -493,6 +686,10 @@ export default function registerIpcHandlers({
                     };
                     await taskProgress({ stage: "starting", completed: 0, total: input.imagePath ? 4 : 3, message: "Починаємо публікацію" });
                     const post = await guiService.publishCreativePost(input, taskProgress);
+                    await pagePreferencesStore.updateMetadata(input.pageId, {
+                        geo: input.geo,
+                        creativeName: input.creativeName,
+                    });
                     const result = {
                         accountKey: input.accountKey,
                         pageId: input.pageId,
@@ -565,11 +762,12 @@ export default function registerIpcHandlers({
                     disableImages,
                 },
                 runner: async ({ signal, progress }) => {
-                    const summary = await guiService.runCommentingCampaign({
+                    const summary = await guiService.runParallelCommentingCampaign({
                         ...payload,
                         groupIds,
                         browserMode,
                         disableImages,
+                        concurrency: payload.commentWorkerConcurrency,
                         signal,
                         onProgress: progress,
                     });

@@ -22,8 +22,8 @@ try {
         dailyBudget: 5,
         startTime: "2026-08-20T10:00:00.000Z",
         createPaused: true,
-        accessToken: "must-not-be-saved",
-        cookie: "must-not-be-saved",
+        accessToken: "access-token-must-not-be-saved",
+        cookie: "cookie-must-not-be-saved",
         utm: "must-not-be-copied-to-job",
     });
     assert.equal(job.total, 7);
@@ -37,9 +37,11 @@ try {
 
     const restored = await new CampaignCreationJournal({ jobsFile }).get(job.id);
     assert.equal(restored.objects.campaignId, "campaign-1");
+    assert.equal(restored.input.utm, "must-not-be-copied-to-job");
     const raw = await readFile(jobsFile, "utf8");
-    assert(!raw.includes("must-not-be-saved"));
-    assert(!raw.includes("must-not-be-copied-to-job"));
+    assert(!raw.includes("access-token-must-not-be-saved"));
+    assert(!raw.includes("cookie-must-not-be-saved"));
+    assert(raw.includes("must-not-be-copied-to-job"));
     console.log("Перевірка журналу створення кампаній пройшла успішно");
 } finally {
     await rm(directory, { recursive: true, force: true });

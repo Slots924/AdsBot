@@ -68,6 +68,15 @@ const adAccountPreferencesStore = {
         return orderedIds;
     },
 };
+const pagePreferencesStore = {
+    async enrich(pages) { return pages; },
+    async setFavorite(pageId, isFavorite) { return { pageId, isFavorite }; },
+    async updateMetadata(pageId, patch) { return { pageId, ...patch }; },
+};
+const creativeLaunchJournal = {
+    async create(draft) { return { id: "workflow-1", draft, subtasks: [] }; },
+    async get() { return null; },
+};
 const countryCatalog = {
     async list() {
         return [{ code: "HU", name: "Hungary" }];
@@ -224,6 +233,8 @@ registerIpcHandlers({
     templateManager,
     appStateStore,
     adAccountPreferencesStore,
+    pagePreferencesStore,
+    creativeLaunchJournal,
     countryCatalog,
     campaignCreationJournal,
     backgroundTaskManager,
@@ -287,7 +298,27 @@ assert.equal(createdCampaign.ok, true);
 assert.equal(createdCampaign.data.jobId, "job-1");
 assert.equal(createdCampaign.data.task.status, "queued");
 assert.equal(createdCampaign.data.task.metadata.campaignJobId, "job-1");
-assert.equal((await handlers.get("tasks:list")({}, {})).data.length, 1);
+await campaignCreationJournal.update("job-1", {
+    status: "failed",
+    errors: [{ code: "FACEBOOK_API_ERROR" }],
+    objects: {
+        campaignId: "campaign-1",
+        creativeId: null,
+        adSets: [],
+        ads: [],
+    },
+});
+const retriedCampaign = await handlers.get("campaigns:create-retry")({}, {
+    jobId: "job-1",
+});
+assert.equal(retriedCampaign.ok, true);
+assert.equal(retriedCampaign.data.jobId, "job-1");
+assert.equal(retriedCampaign.data.task.name, "Test · повтор");
+assert.equal(retriedCampaign.data.task.metadata.campaignJobId, "job-1");
+assert.equal(storedJob.status, "queued");
+assert.deepEqual(storedJob.errors, []);
+assert.equal(storedJob.objects.campaignId, "campaign-1");
+assert.equal((await handlers.get("tasks:list")({}, {})).data.length, 2);
 const commentingTask = await handlers.get("comments:run")({}, {
     groupIds: ["7"],
     geo: "HU",

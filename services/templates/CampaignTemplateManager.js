@@ -2,7 +2,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 
-export const TEMPLATE_SCHEMA_VERSION = 4;
+export const TEMPLATE_SCHEMA_VERSION = 5;
 export const TEMPLATE_GENDERS = new Set(["any", "male", "female"]);
 export const TEMPLATE_DEVICE_PLATFORMS = new Set(["mobile", "desktop"]);
 export const TEMPLATE_OPERATING_SYSTEMS = new Set(["Android", "iOS"]);
@@ -69,7 +69,6 @@ function normalizeOperatingSystems(input, devicePlatforms) {
 
 export function normalizeTemplateInput(input = {}) {
     const name = String(input.name ?? "").trim();
-    const pixel = String(input.pixel ?? input.pixelId ?? "").trim();
     const gender = TEMPLATE_GENDERS.has(input.gender)
         ? input.gender
         : "any";
@@ -99,7 +98,6 @@ export function normalizeTemplateInput(input = {}) {
     return {
         schemaVersion: TEMPLATE_SCHEMA_VERSION,
         name,
-        pixel,
         countryCodes: uniqueStrings(input.countryCodes)
             .map((code) => code.toUpperCase())
             .filter((code) => /^[A-Z]{2}$/.test(code)),
@@ -112,7 +110,6 @@ export function normalizeTemplateInput(input = {}) {
             devicePlatforms
         ),
         placements: normalizePlacements(input.placements),
-        utm: String(input.utm ?? "").trim(),
         shareAdSetBudget: Boolean(input.shareAdSetBudget),
         disableCreativeEnhancements: true,
         dsaBeneficiary: String(input.dsaBeneficiary ?? "").trim(),

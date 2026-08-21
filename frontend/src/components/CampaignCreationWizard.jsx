@@ -92,6 +92,10 @@ export default function CampaignCreationWizard({
     accountKey,
     adAccount,
     createPaused,
+    defaultPixelId = "",
+    defaultUtm = "",
+    initialPageId = "",
+    initialPostId = "",
     lastPublishedPost = null,
     onClose,
     onSuccess,
@@ -114,11 +118,13 @@ export default function CampaignCreationWizard({
     const [form, setForm] = useState({
         campaignName: "",
         templateId: "",
-        pageId: "",
-        postId: "",
+        pageId: String(initialPageId || ""),
+        postId: String(initialPostId || ""),
         adSetCount: 5,
         dailyBudget: 5,
         startTime: localValueInZone(new Date(), timezone),
+        pixelId: defaultPixelId,
+        utm: defaultUtm,
     });
     const [verified, setVerified] = useState(null);
     const [checking, setChecking] = useState(false);
@@ -216,9 +222,14 @@ export default function CampaignCreationWizard({
         setPostsError(null);
         setSelectedPost(null);
         setPostQuery("");
-        setForm((current) => ({ ...current, postId: "" }));
+        setForm((current) => ({
+            ...current,
+            postId: String(initialPageId) === String(form.pageId)
+                ? String(initialPostId || "")
+                : "",
+        }));
         if (form.pageId) loadPosts(form.pageId);
-    }, [form.pageId, loadPosts]);
+    }, [form.pageId, loadPosts, initialPageId, initialPostId]);
 
     useEffect(() => {
         return window.adsBot.onCampaignCreationProgress((event) => {
@@ -275,6 +286,8 @@ export default function CampaignCreationWizard({
         dailyBudget: Number(form.dailyBudget),
         startTime: zonedValueToIso(form.startTime, timezone),
         createPaused,
+        pixelId: form.pixelId.trim(),
+        utm: form.utm,
     });
 
     const change = (field, value) => {
@@ -431,7 +444,9 @@ export default function CampaignCreationWizard({
                     <form onSubmit={check} className="campaign-wizard-form">
                         <div className="template-editor-fields two-columns">
                             <label className="field"><span>Назва кампанії</span><input autoFocus value={form.campaignName} onChange={(event) => change("campaignName", event.target.value)} placeholder="HU Leads 20.08" /></label>
-                            <label className="field"><span>Шаблон</span><select value={form.templateId} disabled={templatesLoading} onChange={(event) => change("templateId", event.target.value)}><option value="">{templatesLoading ? "Оновлюємо шаблони…" : "Оберіть шаблон"}</option>{templates.map((template) => <option key={template.id} value={template.id}>{template.name} · Pixel {template.pixel || "—"}</option>)}</select></label>
+                            <label className="field"><span>Шаблон</span><select value={form.templateId} disabled={templatesLoading} onChange={(event) => change("templateId", event.target.value)}><option value="">{templatesLoading ? "Оновлюємо шаблони…" : "Оберіть шаблон"}</option>{templates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}</select></label>
+                            <label className="field"><span>Pixel ID</span><input value={form.pixelId} onChange={(event) => change("pixelId", event.target.value)} placeholder="Pixel ID" /></label>
+                            <label className="field"><span>UTM / URL tags</span><textarea rows="3" value={form.utm} onChange={(event) => change("utm", event.target.value)} /></label>
 
                             <div className="field full-row campaign-resource-field">
                                 <span>Фанпейджа</span>

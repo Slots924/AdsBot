@@ -1,8 +1,8 @@
 import "dotenv/config";
 
-import AdsPower from "./classes/AdsPower.js";
-import hasLoginErrorTag from "./services/profile/tags/hasLoginErrorTag.js";
-import markProfileAsLoginError from "./services/profile/tags/markProfileAsLoginError.js";
+import AdsPower from "../../classes/AdsPower.js";
+import hasLoginErrorTag from "../../services/profile/tags/hasLoginErrorTag.js";
+import markProfileAsLoginError from "../../services/profile/tags/markProfileAsLoginError.js";
 
 
 // Номер профілю AdsPower для ручної перевірки

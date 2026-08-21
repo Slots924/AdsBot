@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import AdsPower from "../classes/AdsPower.js";
+import AdsPower from "../../classes/AdsPower.js";
 
 
 // Вкажіть номер профілю AdsPower для перевірки

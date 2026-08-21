@@ -8,6 +8,8 @@ import AdsBotGuiService
 import AppStateStore from "../../services/gui/AppStateStore.js";
 import AdAccountPreferencesStore
     from "../../services/gui/AdAccountPreferencesStore.js";
+import PagePreferencesStore from "../../services/gui/PagePreferencesStore.js";
+import CreativeLaunchJournal from "../../services/workflows/CreativeLaunchJournal.js";
 import CampaignTemplateManager
     from "../../services/templates/CampaignTemplateManager.js";
 import CountryCatalog from "../../services/templates/CountryCatalog.js";
@@ -34,6 +36,8 @@ let guiService = null;
 let templateManager = null;
 let appStateStore = null;
 let adAccountPreferencesStore = null;
+let pagePreferencesStore = null;
+let creativeLaunchJournal = null;
 let countryCatalog = null;
 let campaignCreationJournal = null;
 let facebookAccountManager = null;
@@ -131,7 +135,7 @@ async function createWindow() {
         journal: new BackgroundTaskJournal({
             tasksFile: appPaths.backgroundTasks,
         }),
-        commentConcurrency: restoredState.commentTaskConcurrency,
+        commentConcurrency: 1,
         logger: appLogger.child("tasks"),
         reportManager: taskReportManager,
     });
@@ -142,6 +146,8 @@ async function createWindow() {
     adAccountPreferencesStore = new AdAccountPreferencesStore({
         preferencesFile: appPaths.adAccountPreferences,
     });
+    pagePreferencesStore = new PagePreferencesStore({ preferencesFile: appPaths.pagePreferences });
+    creativeLaunchJournal = new CreativeLaunchJournal({ jobsFile: appPaths.creativeLaunchJobs });
 
     registerIpcHandlers({
         ipcMain,
@@ -151,6 +157,8 @@ async function createWindow() {
         templateManager,
         appStateStore,
         adAccountPreferencesStore,
+        pagePreferencesStore,
+        creativeLaunchJournal,
         countryCatalog,
         campaignCreationJournal,
         backgroundTaskManager,

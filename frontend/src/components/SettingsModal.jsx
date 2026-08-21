@@ -12,8 +12,12 @@ export default function SettingsModal({
     onScaleChange,
     createCampaignsPaused,
     onCreateCampaignsPausedChange,
-    commentTaskConcurrency,
-    onCommentTaskConcurrencyChange,
+    commentWorkerConcurrency,
+    onCommentWorkerConcurrencyChange,
+    defaultPixelId,
+    onDefaultPixelIdChange,
+    defaultUtm,
+    onDefaultUtmChange,
     commentBrowserMode,
     onCommentBrowserModeChange,
     commentDisableImages,
@@ -101,16 +105,23 @@ export default function SettingsModal({
 
                 <section className="scale-setting">
                     <div className="scale-setting-heading">
-                        <span><ListChecks size={15} /> Паралельні задачі коментування</span>
-                        <strong>{commentTaskConcurrency}</strong>
+                        <span><ListChecks size={15} /> Браузери всередині коментування</span>
+                        <strong>{commentWorkerConcurrency}</strong>
                     </div>
                     <div className="scale-controls task-concurrency-controls">
-                        <button className="icon-button" disabled={commentTaskConcurrency <= 1} onClick={() => onCommentTaskConcurrencyChange(commentTaskConcurrency - 1)}><Minus size={15} /></button>
-                        <input aria-label="Паралельні задачі коментування" type="range" min="1" max="5" step="1" value={commentTaskConcurrency} onChange={(event) => onCommentTaskConcurrencyChange(Number(event.target.value))} />
-                        <button className="icon-button" disabled={commentTaskConcurrency >= 5} onClick={() => onCommentTaskConcurrencyChange(commentTaskConcurrency + 1)}><Plus size={15} /></button>
+                        <button className="icon-button" disabled={commentWorkerConcurrency <= 1} onClick={() => onCommentWorkerConcurrencyChange(commentWorkerConcurrency - 1)}><Minus size={15} /></button>
+                        <input aria-label="Паралельні браузери коментування" type="range" min="1" max="5" step="1" value={commentWorkerConcurrency} onChange={(event) => onCommentWorkerConcurrencyChange(Number(event.target.value))} />
+                        <button className="icon-button" disabled={commentWorkerConcurrency >= 5} onClick={() => onCommentWorkerConcurrencyChange(commentWorkerConcurrency + 1)}><Plus size={15} /></button>
                     </div>
                     <div className="scale-labels"><span>1</span><span>5</span></div>
-                    <small className="settings-hint">Задачі з однаковими AdsPower-групами все одно чекатимуть одна одну.</small>
+                    <small className="settings-hint">Це кількість AdsPower-профілів, які один сценарій може використовувати одночасно.</small>
+                </section>
+
+                <section className="scale-setting">
+                    <div className="scale-setting-heading"><span>Реклама за замовчуванням</span></div>
+                    <label className="field"><span>Pixel ID</span><input value={defaultPixelId} onChange={(event) => onDefaultPixelIdChange(event.target.value)} placeholder="Не вказано" /></label>
+                    <label className="field"><span>UTM / URL tags</span><textarea rows="3" value={defaultUtm} onChange={(event) => onDefaultUtmChange(event.target.value)} placeholder="utm_source={{site_source_name}}" /></label>
+                    <small className="settings-hint">Ці значення підставляються у нові кампанії, але їх можна перевизначити у формі запуску.</small>
                 </section>
 
                 <section className="scale-setting comment-browser-setting">

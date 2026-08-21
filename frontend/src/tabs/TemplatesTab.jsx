@@ -28,7 +28,6 @@ const ageOptions = Array.from({ length: 48 }, (_, index) => index + 18);
 function emptyDraft() {
     return {
         name: "",
-        pixel: "",
         countryCodes: [],
         gender: "any",
         ageMin: 18,
@@ -36,7 +35,6 @@ function emptyDraft() {
         devicePlatforms: [],
         operatingSystems: [],
         placements: { facebook: ["feed"], instagram: [] },
-        utm: "",
         shareAdSetBudget: false,
         disableCreativeEnhancements: true,
         dsaBeneficiary: "",
@@ -248,7 +246,7 @@ export default function TemplatesTab({ onError, showToast }) {
 
             <div className="templates-table-card">
                 <div className="templates-table-head templates-grid">
-                    <span>ID</span><span>Назва</span><span>Pixel</span>
+                    <span>ID</span><span>Назва</span><span>Країни</span>
                     <span>Аудиторія</span><span>Оновлено</span><span>Дії</span>
                 </div>
                 {loading && <div className="templates-empty"><LoaderCircle className="spin" size={23} /> Завантажуємо шаблони…</div>}
@@ -265,7 +263,7 @@ export default function TemplatesTab({ onError, showToast }) {
                     }}>
                         <span className="template-id"><i className="status-dot active" />{template.id}</span>
                         <strong>{template.name}</strong>
-                        <span className={template.pixel ? "" : "muted-value"}>{template.pixel || "Не вказано"}</span>
+                        <span>{template.countryCodes?.join(", ") || "Країни не вибрані"}</span>
                         <span className={template.countryCodes?.length ? "" : "muted-value"}>
                             {template.countryCodes?.length
                                 ? `${template.countryCodes.join(", ")} · ${template.ageMin}–${template.ageMax === 65 ? "65+" : template.ageMax}`
@@ -293,7 +291,6 @@ export default function TemplatesTab({ onError, showToast }) {
                         <div className="template-editor-scroll">
                             <div className="template-editor-fields two-columns">
                                 <label className="field"><span>Назва</span><input autoFocus value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Наприклад, AT Slot" /></label>
-                                <label className="field"><span>Pixel ID</span><input value={draft.pixel} onChange={(event) => setDraft((current) => ({ ...current, pixel: event.target.value }))} placeholder="Pixel ID або назва" /></label>
                             </div>
 
                             <section className="template-form-section">
@@ -377,7 +374,6 @@ export default function TemplatesTab({ onError, showToast }) {
                             </section>
 
                             <section className="template-form-section">
-                                <label className="field"><span>UTM / URL tags</span><textarea rows="4" value={draft.utm} onChange={(event) => setDraft((current) => ({ ...current, utm: event.target.value }))} placeholder="utm_campaign={{campaign.name}}&utm_source={{site_source_name}}" /></label>
                                 <label className="checkbox-line"><input type="checkbox" checked={draft.shareAdSetBudget} onChange={(event) => setDraft((current) => ({ ...current, shareAdSetBudget: event.target.checked }))} /><span><strong>Дозволити Meta розподіляти бюджет між ad sets</strong><small>Бюджети все одно задаються на рівні ad set.</small></span></label>
                                 <div className="notice info">Музика, Standard Enhancements, Advantage+ Creative, автоматичний текст та image/video-покращення примусово вимкнені.</div>
                             </section>

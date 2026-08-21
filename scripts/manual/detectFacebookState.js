@@ -2,12 +2,12 @@ import "dotenv/config";
 
 import puppeteer from "puppeteer-core";
 
-import AdsPower from "../classes/AdsPower.js";
-import dismissAutomatedBehavior from "../facebook/actions/dismissAutomatedBehavior.js";
-import openPageWithoutPopups from "../facebook/actions/openPageWithoutPopups.js";
-import detectFacebookState from "../facebook/state/detectFacebookState.js";
-import isAutomatedBehavior from "../facebook/state/checks/isAutomatedBehavior.js";
-import isProfileOpen from "../services/profile/isProfileOpen.js";
+import AdsPower from "../../classes/AdsPower.js";
+import dismissAutomatedBehavior from "../../facebook/actions/dismissAutomatedBehavior.js";
+import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
+import detectFacebookState from "../../facebook/state/detectFacebookState.js";
+import isAutomatedBehavior from "../../facebook/state/checks/isAutomatedBehavior.js";
+import isProfileOpen from "../../services/profile/isProfileOpen.js";
 
 
 const profileNo = 1418;

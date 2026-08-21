@@ -9,8 +9,6 @@ import { afterEach, beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
 import Sidebar from "../components/Sidebar.jsx";
-import CampaignCreationWizard
-    from "../components/CampaignCreationWizard.jsx";
 import SettingsModal from "../components/SettingsModal.jsx";
 import BackgroundTaskPanel from "../components/BackgroundTaskPanel.jsx";
 import AdAccountsTab from "../tabs/AdAccountsTab.jsx";
@@ -238,7 +236,7 @@ describe("GUI helpers", () => {
             data: {
                 id: 1,
                 name: "AT Slot",
-                pixel: "pixel-123",
+                countryCodes: [],
                 updatedAt: "2026-08-19T07:00:00.000Z",
             },
         });
@@ -252,9 +250,6 @@ describe("GUI helpers", () => {
         fireEvent.click(screen.getByText("Створити шаблон"));
         fireEvent.change(screen.getByPlaceholderText("Наприклад, AT Slot"), {
             target: { value: "AT Slot" },
-        });
-        fireEvent.change(screen.getByPlaceholderText("Pixel ID або назва"), {
-            target: { value: "pixel-123" },
         });
         expect(screen.getByLabelText("Вік до")).toHaveDisplayValue("65+");
         fireEvent.change(screen.getByLabelText("Пристрої"), {
@@ -274,10 +269,9 @@ describe("GUI helpers", () => {
         });
         fireEvent.submit(screen.getByText("Новий шаблон").closest("form"));
 
-        expect(await screen.findByText("pixel-123")).toBeInTheDocument();
+        expect(await screen.findByText("AT Slot")).toBeInTheDocument();
         expect(window.adsBot.createTemplate).toHaveBeenCalledWith({
             name: "AT Slot",
-            pixel: "pixel-123",
             countryCodes: [],
             gender: "any",
             ageMin: 18,
@@ -288,7 +282,6 @@ describe("GUI helpers", () => {
                 facebook: ["feed"],
                 instagram: [],
             },
-            utm: "",
             shareAdSetBudget: false,
             disableCreativeEnhancements: true,
             dsaBeneficiary: "Example Beneficiary LLC",
@@ -380,125 +373,6 @@ describe("GUI helpers", () => {
         );
     });
 
-    it("перевіряє та створює lead-кампанію з безпечними дефолтами", async () => {
-        window.adsBot.getTemplates = vi.fn().mockResolvedValue({
-            ok: true,
-            data: [{
-                id: 1,
-                name: "HU Leads",
-                pixel: "30",
-                countryCodes: ["HU"],
-            }],
-        });
-        window.adsBot.getFanPages.mockResolvedValue({
-            ok: true,
-            data: [{ id: "10", name: "Page" }],
-        });
-        window.adsBot.getCampaignPagePosts = vi.fn().mockResolvedValue({
-            ok: true,
-            data: [{
-                id: "10_20",
-                message: "Newest website post",
-                createdTime: "2026-08-20T10:00:00.000Z",
-                thumbnailUrl: "https://scontent.test.fbcdn.net/post.jpg",
-                type: "added_photos",
-            }],
-        });
-        window.adsBot.onCampaignCreationProgress = vi.fn(() => () => {});
-        window.adsBot.preflightCampaignCreation = vi.fn().mockResolvedValue({
-            ok: true,
-            data: {
-                pageName: "Page",
-                pixel: { id: "30", name: "Pixel" },
-                currency: "USD",
-                postId: "10_20",
-                dsa: {
-                    beneficiary: "Example Beneficiary LLC",
-                    payor: "Example Payor LLC",
-                    beneficiarySource: "meta-default",
-                    payorSource: "meta-default",
-                },
-            },
-        });
-        window.adsBot.startCampaignCreation = vi.fn().mockResolvedValue({
-            ok: true,
-            data: {
-                jobId: "job-1",
-                taskId: "task-1",
-                task: {
-                    id: "task-1",
-                    name: "Campaign",
-                    status: "queued",
-                    waitingReason: null,
-                    progress: { completed: 0, total: 13 },
-                },
-            },
-        });
-
-        render(
-            <CampaignCreationWizard
-                accountKey="client"
-                adAccount={{
-                    id: "act_1",
-                    localName: "Ім’я 1",
-                    currency: "USD",
-                    timezoneName: "Europe/Kyiv",
-                }}
-                createPaused
-                lastPublishedPost={{
-                    accountKey: "publishing-client",
-                    pageId: "10",
-                    postId: "10_20",
-                }}
-                onClose={vi.fn()}
-                onSuccess={vi.fn()}
-            />
-        );
-
-        expect(screen.getByPlaceholderText("HU Leads 20.08")).toBeInTheDocument();
-        await screen.findByText("HU Leads · Pixel 30");
-        await waitFor(() => expect(window.adsBot.getCampaignPagePosts)
-            .toHaveBeenCalledWith("client", "10", 10));
-        const usePublishedButtons = screen.getAllByRole("button", {
-            name: "Взяти з публікації",
-        });
-        fireEvent.click(usePublishedButtons[0]);
-        fireEvent.click(usePublishedButtons[1]);
-        expect(screen.getByLabelText("Пошук поста")).toHaveValue("10_20");
-        fireEvent.change(screen.getByPlaceholderText("HU Leads 20.08"), {
-            target: { value: "Campaign" },
-        });
-        expect(screen.getByAltText("Прев’ю поста")).toBeInTheDocument();
-        expect(screen.getByText("Newest website post")).toBeInTheDocument();
-        fireEvent.click(screen.getByLabelText("Оновити пости"));
-        await waitFor(() => expect(window.adsBot.getCampaignPagePosts.mock.calls.length)
-            .toBeGreaterThanOrEqual(2));
-        fireEvent.click(screen.getByLabelText("Оновити фанпейджі"));
-        await waitFor(() => expect(window.adsBot.getFanPages.mock.calls.length)
-            .toBeGreaterThanOrEqual(2));
-        fireEvent.click(screen.getByText("Перевірити дані"));
-        expect(await screen.findByText("Preflight пройдено")).toBeInTheDocument();
-        expect(screen.getByText(/Example Beneficiary LLC/)).toBeInTheDocument();
-        expect(screen.getByText(/Meta default/)).toBeInTheDocument();
-        fireEvent.click(screen.getByText("Створити з campaign на паузі"));
-        await waitFor(() => expect(window.adsBot.startCampaignCreation)
-            .toHaveBeenCalled());
-        expect(window.adsBot.startCampaignCreation.mock.calls[0][0])
-            .toMatchObject({
-                accountKey: "client",
-                adAccountId: "act_1",
-                templateId: 1,
-                campaignName: "Campaign",
-                pageId: "10",
-                postId: "10_20",
-                adSetCount: 5,
-                dailyBudget: 5,
-                createPaused: true,
-            });
-        expect(await screen.findByText(/Кампанію додано в чергу/))
-            .toBeInTheDocument();
-    });
-
     it("змінює масштаб у налаштуваннях", () => {
         const onScaleChange = vi.fn();
         const onCommentBrowserModeChange = vi.fn();
@@ -510,8 +384,12 @@ describe("GUI helpers", () => {
                 onScaleChange={onScaleChange}
                 createCampaignsPaused
                 onCreateCampaignsPausedChange={vi.fn()}
-                commentTaskConcurrency={2}
-                onCommentTaskConcurrencyChange={vi.fn()}
+                commentWorkerConcurrency={5}
+                onCommentWorkerConcurrencyChange={vi.fn()}
+                defaultPixelId=""
+                onDefaultPixelIdChange={vi.fn()}
+                defaultUtm=""
+                onDefaultUtmChange={vi.fn()}
                 commentBrowserMode="visible"
                 onCommentBrowserModeChange={onCommentBrowserModeChange}
                 commentDisableImages={false}

@@ -2,25 +2,57 @@ import "dotenv/config";
 
 import puppeteer from "puppeteer-core";
 
-import AdsPower from "../classes/AdsPower.js";
-import openPageWithoutPopups from "../facebook/actions/openPageWithoutPopups.js";
-import sortCommentsByNewest from "../facebook/actions/sortCommentsByNewest.js";
-import isPostAvailable from "../facebook/post/checks/isPostAvailable.js";
-import ensureAdsPowerProfileReady from "../workflows/profile/ensureAdsPowerProfileReady.js";
-import ensureFacebookAccountActive from "../workflows/profile/ensureFacebookAccountActive.js";
-import ensureFacebookAccountLoggedIn from "../workflows/profile/ensureFacebookAccountLoggedIn.js";
+import AdsPower from "../../classes/AdsPower.js";
+import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
+import isPostAvailable from "../../facebook/post/checks/isPostAvailable.js";
+import commentOnPost from "../../facebook/workflows/commentOnPost.js";
+import ensureAdsPowerProfileReady from "../../workflows/profile/ensureAdsPowerProfileReady.js";
+import ensureFacebookAccountActive from "../../workflows/profile/ensureFacebookAccountActive.js";
+import ensureFacebookAccountLoggedIn from "../../workflows/profile/ensureFacebookAccountLoggedIn.js";
 
 
 const profileNo = 1418;
 const postUrl = "https://www.facebook.com/share/p/1Br6k96dhi/";
 
+const comments = [
+    "Great post, thanks for sharing.",
+    "This was interesting to read.",
+    "Thanks for sharing this update.",
+    "I appreciate you posting this.",
+    "This is a thoughtful perspective.",
+    "Nice to see this shared here.",
+    "This is useful information.",
+    "I enjoyed reading this post.",
+    "Thanks for bringing this up.",
+    "This is worth thinking about.",
+    "I appreciate the insight.",
+    "This was clearly explained.",
+    "Good to know, thanks for sharing.",
+    "This is an interesting point.",
+    "I found this helpful.",
+    "Thanks for the useful update.",
+    "This is a valuable perspective.",
+    "Glad I came across this post.",
+    "This gave me something to consider.",
+    "I appreciate the context here.",
+];
 
-async function testSortCommentsByNewest() {
+
+function getRandomComment() {
+    const randomIndex = Math.floor(
+        Math.random() * comments.length
+    );
+
+    return comments[randomIndex];
+}
+
+
+async function testCommentOnPost() {
     const adsPower = new AdsPower();
     let browser;
     let profileOpenedByTest = false;
 
-    console.log("=== Початок тесту sortCommentsByNewest ===");
+    console.log("=== Початок тесту commentOnPost ===");
     console.log(`Профіль AdsPower: ${profileNo}`);
     console.log(`Посилання на пост: ${postUrl || "не вказано"}`);
 
@@ -100,24 +132,25 @@ async function testSortCommentsByNewest() {
         }
 
         console.log("Facebook-пост доступний");
-        console.log(
-            "Крок 10. Запускаємо action sortCommentsByNewest..."
-        );
 
-        const commentsSorted = await sortCommentsByNewest(page);
-        console.log(
-            `Результат sortCommentsByNewest: ${commentsSorted}`
-        );
+        console.log("Крок 10. Вибираємо випадковий коментар...");
+        const selectedComment = getRandomComment();
+        console.log(`Вибраний коментар: ${selectedComment}`);
 
-        if (!commentsSorted) {
-            throw new Error(
-                "Не вдалося відсортувати коментарі за найновішими"
-            );
+        console.log("Крок 11. Запускаємо workflow commentOnPost...");
+        const commentPublished = await commentOnPost(
+            page,
+            selectedComment
+        );
+        console.log(`Результат commentOnPost: ${commentPublished}`);
+
+        if (!commentPublished) {
+            throw new Error("Не вдалося опублікувати коментар");
         }
 
-        console.log("Коментарі успішно відсортовано за найновішими");
+        console.log("Коментар успішно опубліковано");
     } catch (error) {
-        console.error("Помилка тесту sortCommentsByNewest:");
+        console.error("Помилка тесту commentOnPost:");
         console.error(error.stack ?? error.message);
         process.exitCode = 1;
     } finally {
@@ -137,9 +170,9 @@ async function testSortCommentsByNewest() {
             console.log("Тест не відкривав AdsPower-профіль");
         }
 
-        console.log("=== Завершення тесту sortCommentsByNewest ===");
+        console.log("=== Завершення тесту commentOnPost ===");
     }
 }
 
 
-testSortCommentsByNewest();
+testCommentOnPost();

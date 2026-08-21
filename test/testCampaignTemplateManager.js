@@ -17,7 +17,7 @@ try {
     const manager = new CampaignTemplateManager({ templatesFile });
 
     assert.deepEqual(await manager.list(), []);
-    const first = await manager.create({ name: "AT Slot", pixel: "pixel-1" });
+    const first = await manager.create({ name: "AT Slot", pixel: "legacy-pixel", utm: "legacy-utm" });
     const copy = await manager.duplicate(first.id);
     assert.equal(first.id, 1);
     assert.equal(copy.id, 2);
@@ -38,9 +38,11 @@ try {
 
     const updated = await manager.update(copy.id, {
         name: "AT Slot updated",
-        pixel: "pixel-2",
+        pixel: "ignored-legacy-pixel",
+        utm: "ignored-legacy-utm",
     });
-    assert.equal(updated.pixel, "pixel-2");
+    assert.equal(updated.pixel, undefined);
+    assert.equal(updated.utm, undefined);
     await manager.delete(first.id);
     assert.deepEqual((await manager.list()).map((item) => item.id), [2]);
 
@@ -54,7 +56,9 @@ try {
     const saved = JSON.parse(await readFile(templatesFile, "utf8"));
     assert.equal(saved.nextId, 4);
     assert.equal(saved.templates.length, 2);
-    assert.equal(saved.version, 4);
+    assert.equal(saved.version, 5);
+    assert(!("pixel" in saved.templates[0]));
+    assert(!("utm" in saved.templates[0]));
 
     const legacyFile = path.join(temporaryDirectory, "legacy.json");
     await writeFile(legacyFile, JSON.stringify({
@@ -66,14 +70,15 @@ try {
         templatesFile: legacyFile,
     });
     const [legacy] = await legacyManager.list();
-    assert.equal(legacy.schemaVersion, 4);
+    assert.equal(legacy.schemaVersion, 5);
     assert.deepEqual(legacy.placements.facebook, ["feed"]);
     assert.deepEqual(legacy.devicePlatforms, []);
     assert.deepEqual(legacy.operatingSystems, []);
     assert.equal(legacy.dsaBeneficiary, "");
     assert.equal(legacy.dsaPayorSameAsBeneficiary, true);
     assert.equal(legacy.dsaPayor, "");
-    assert.equal(JSON.parse(await readFile(legacyFile, "utf8")).version, 4);
+    assert.equal(JSON.parse(await readFile(legacyFile, "utf8")).version, 5);
+    assert.equal(legacy.pixel, undefined);
 
     const mobileTemplate = await manager.create({
         name: "Mobile iOS",
@@ -104,11 +109,13 @@ try {
     const stateFile = path.join(temporaryDirectory, "app-state.json");
     const stateStore = new AppStateStore({ stateFile });
     await stateStore.save({
-        activeTab: "templates",
+        activeTab: "comments",
+        adsSubtab: "templates",
         uiScale: 1.4,
         selectedAccountKey: "account-1",
-        publishForm: { geo: "hu", secret: "not-saved" },
-        commentsForm: { postUrl: "https://facebook.com/post" },
+        commentWorkerConcurrency: 4,
+        defaultPixelId: "123",
+        defaultUtm: "utm_source=test",
         lastPublishedPost: {
             accountKey: "account-1",
             pageId: "10",
@@ -119,16 +126,19 @@ try {
         unsafe: "not-saved",
     });
     const state = await stateStore.load();
-    assert.equal(state.activeTab, "templates");
+    assert.equal(state.activeTab, "pages");
+    assert.equal(state.adsSubtab, "templates");
     assert.equal(state.uiScale, 1.4);
-    assert.equal(state.publishForm.geo, "hu");
+    assert.equal(state.commentWorkerConcurrency, 4);
+    assert.equal(state.defaultPixelId, "123");
+    assert.equal(state.defaultUtm, "utm_source=test");
     assert.equal(state.createCampaignsPaused, false);
     assert.deepEqual(state.lastPublishedPost, {
         accountKey: "account-1",
         pageId: "10",
         postId: "10_20",
     });
-    assert(!("secret" in state.publishForm));
+    assert(!("publishForm" in state));
     assert(!("unsafe" in state));
 
     const defaultStateFile = path.join(temporaryDirectory, "new-state.json");

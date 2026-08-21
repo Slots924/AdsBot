@@ -1,5 +1,17 @@
 # AdsBot Desktop GUI
 
+## Єдиний workspace (актуальний контракт)
+
+Верхня навігація складається з вкладок «API-клієнти», «РК», «Фанпейджі» та «Журнал». Колишні окремі вкладки публікації й коментування вилучені. Після вибору активного API-клієнта IPC `workspace:client-load` паралельно повертає повні списки РК і фанпейдж; renderer кешує їх окремо за `accountKey`. Кампанії не прогріваються у фоні й завантажуються лише після відкриття РК.
+
+Вкладка РК має внутрішні вкладки «Рекламні акаунти» та «Шаблони». Схема campaign template v5 більше не містить Pixel або UTM. Runtime Pixel і UTM беруться з глобальних `defaultPixelId`/`defaultUtm` у `data/app-state.json` або перевизначаються у формі конкретного запуску.
+
+Глобальні обрані фанпейджі, GEO та маркер креативу зберігаються за Page ID у `data/page-preferences.json`. Вони не залежать від API-клієнта. Відкриття фанпейджі читає рівно 10 найновіших `published_posts`, після чого показує лише пости з HTTP(S)-посиланням у тексті; старіші сторінки Graph не запитуються.
+
+Кнопка «Запустити новий креатив» створює запис у `data/creative-launch-jobs.json`. Parent workflow готує креатив, за бажанням видаляє URL-пости серед 10 найновіших, публікує й перевіряє новий пост, а далі одночасно запускає внутрішні гілки створення кампанії та паралельного коментування. Це внутрішня паралельність однієї задачі: усі верхньорівневі background tasks виконуються суворо по одній у глобальній FIFO-черзі.
+
+`commentWorkerConcurrency` (1–5, стандартно 5) визначає кількість браузерів усередині одного паралельного comment workflow. Старий параметр паралельності кількох comment jobs більше не використовується GUI.
+
 GUI працює як локальна Electron-програма. React renderer знаходиться повністю в
 `frontend/`, а Facebook, AdsPower, Grok і файли залишаються у Node backend.
 Renderer не отримує access tokens, cookies, proxy credentials або довільний
@@ -193,18 +205,15 @@ AdsPower та окремо вимкнути завантаження зобра�
 ## Перевірка
 
 ```powershell
-node test/testAdsBotGuiServiceMock.js
-node test/testBackgroundTaskManager.js
-node test/testGuiIpcMock.js
-node test/testAdsPowerBrowserOptionsMock.js
-node test/testAppLogger.js
-node test/testTaskReportManager.js
-node test/testCampaignTemplateManager.js
-node test/testAdAccountPreferencesStore.js
-node test/testFacebookCampaignsMock.js
-npm run gui:test
+npm run test:campaign
+npm run test:all
 npm run gui:build
 ```
+
+`test:campaign` є типовою швидкою перевіркою форми, IPC, черги, журналу та
+Graph API payload-ів запуску РК. `test:all` додатково запускає всі безпечні
+backend mocks і повний frontend-набір. Runner показує час кожного файла та
+загальну тривалість.
 
 Mock-тести не створюють реальних Facebook-постів, не запускають браузерні
 профілі AdsPower і не виконують платних Grok-запитів.

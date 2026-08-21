@@ -56,6 +56,7 @@ export default function BackgroundTaskPanel({
 }) {
     const [selected, setSelected] = useState(null);
     const [campaignJob, setCampaignJob] = useState(null);
+    const [creativeJob, setCreativeJob] = useState(null);
     const [actionPending, setActionPending] = useState(false);
     const activeCount = useMemo(
         () => tasks.filter((task) => activeStatuses.has(task.status)).length,
@@ -79,6 +80,11 @@ export default function BackgroundTaskPanel({
     const openTask = async (task) => {
         setSelected(task);
         setCampaignJob(null);
+        setCreativeJob(null);
+        if (task.metadata?.workflowJobId) {
+            try { setCreativeJob(await unwrap(window.adsBot.getCreativeLaunch(task.metadata.workflowJobId))); }
+            catch (error) { onError({ ...errorDetails(error), title: "Не вдалося завантажити деталі запуску" }); }
+        }
         const jobId = task.metadata?.campaignJobId;
         if (!jobId) return;
         try {
@@ -140,6 +146,7 @@ export default function BackgroundTaskPanel({
                                                 <span>! {task.progress.failedComments || 0}</span>
                                             </div>
                                         )}
+                                        {Array.isArray(task.progress?.subtasks) && <div className="task-subtasks-mini">{task.progress.subtasks.map((subtask) => <span key={subtask.id} className={subtask.status}>{subtask.title}: {statusLabels[subtask.status] || subtask.status}</span>)}</div>}
                                     </article>
                                 );
                             })}
@@ -166,9 +173,12 @@ export default function BackgroundTaskPanel({
                             {(selected.progress?.objects?.campaignId || campaignJob?.objects?.campaignId) && <div className="wide"><span>Campaign ID</span><strong>{selected.progress?.objects?.campaignId || campaignJob.objects.campaignId}</strong></div>}
                         </div>
                         {selected.error && <div className="creation-error"><AlertCircle size={18} /><div><strong>{selected.error.message}</strong><span>{selected.error.code || "TASK_ERROR"}</span></div></div>}
+                        {Array.isArray(selected.progress?.subtasks) && <div className="task-subtask-details">{selected.progress.subtasks.map((subtask) => <article key={subtask.id} className={subtask.status}><div><TaskIcon status={subtask.status}/><strong>{subtask.title}</strong></div><span>{statusLabels[subtask.status] || subtask.status}</span><small>{subtask.message || subtask.error?.message || "—"}</small></article>)}</div>}
                         <div className="form-actions">
                             {activeStatuses.has(selected.status) && <button className="secondary-button danger" disabled={actionPending} onClick={() => action(() => unwrap(window.adsBot.cancelBackgroundTask(selected.id)))}><CircleStop size={15} /> Зупинити</button>}
                             {selectedRetryable && selected.metadata?.campaignJobId && <button className="secondary-button" disabled={actionPending} onClick={() => action(() => unwrap(window.adsBot.retryCampaignCreation(selected.metadata.campaignJobId)))}><RotateCcw size={15} /> Повторити</button>}
+                            {selectedRetryable && selected.metadata?.workflowJobId && !creativeJob?.post?.postId && <button className="secondary-button" disabled={actionPending} onClick={() => action(() => unwrap(window.adsBot.retryCreativeLaunch(selected.metadata.workflowJobId)))}><RotateCcw size={15} /> Нова пов’язана спроба</button>}
+                            {creativeJob?.campaignJobId && creativeJob.subtasks?.find((item) => item.id === "campaign")?.status === "failed" && <button className="secondary-button" disabled={actionPending} onClick={() => action(() => unwrap(window.adsBot.retryCampaignCreation(creativeJob.campaignJobId)))}><RotateCcw size={15} /> Повторити лише кампанію</button>}
                             {selectedRetryable && campaignJob?.objects?.campaignId && <button className="secondary-button danger" disabled={actionPending} onClick={() => {
                                 if (window.confirm("Видалити всі відомі Meta-об’єкти цієї спроби?")) {
                                     action(() => unwrap(window.adsBot.cleanupCampaignCreation(selected.metadata.campaignJobId)));

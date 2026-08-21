@@ -51,12 +51,13 @@ try {
     await enqueueComment("A", "HU");
     await enqueueComment("B", "CZ");
     await enqueueComment("C", "HU");
-    await waitUntil(() => started.length === 2);
-    assert.deepEqual(started, ["A", "B"]);
+    await waitUntil(() => started.length === 1);
+    assert.deepEqual(started, ["A"]);
 
     releases.get("A")();
-    await waitUntil(() => started.includes("C"));
+    await waitUntil(() => started.includes("B"));
     releases.get("B")();
+    await waitUntil(() => started.includes("C"));
     releases.get("C")();
     await waitUntil(async () => !(await manager.hasUnfinished()));
     const finishedA = (await manager.list()).find((task) => task.name === "A");

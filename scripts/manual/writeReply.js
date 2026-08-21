@@ -2,13 +2,13 @@ import "dotenv/config";
 
 import puppeteer from "puppeteer-core";
 
-import AdsPower from "../classes/AdsPower.js";
-import openPageWithoutPopups from "../facebook/actions/openPageWithoutPopups.js";
-import isPostAvailable from "../facebook/post/checks/isPostAvailable.js";
-import replyToComment from "../facebook/workflows/replyToComment.js";
-import ensureAdsPowerProfileReady from "../workflows/profile/ensureAdsPowerProfileReady.js";
-import ensureFacebookAccountActive from "../workflows/profile/ensureFacebookAccountActive.js";
-import ensureFacebookAccountLoggedIn from "../workflows/profile/ensureFacebookAccountLoggedIn.js";
+import AdsPower from "../../classes/AdsPower.js";
+import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
+import isPostAvailable from "../../facebook/post/checks/isPostAvailable.js";
+import replyToComment from "../../facebook/workflows/replyToComment.js";
+import ensureAdsPowerProfileReady from "../../workflows/profile/ensureAdsPowerProfileReady.js";
+import ensureFacebookAccountActive from "../../workflows/profile/ensureFacebookAccountActive.js";
+import ensureFacebookAccountLoggedIn from "../../workflows/profile/ensureFacebookAccountLoggedIn.js";
 
 
 const profileNo = 1418;

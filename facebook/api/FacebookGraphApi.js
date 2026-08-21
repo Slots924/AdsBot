@@ -117,6 +117,7 @@ const campaignPostFields = [
     "id",
     "message",
     "created_time",
+    "permalink_url",
     "is_published",
     "status_type",
     "full_picture",
@@ -245,6 +246,7 @@ function normalizePagePost(post) {
         id: String(post?.id ?? ""),
         message: message.length > 500 ? `${message.slice(0, 497)}…` : message,
         createdTime: post?.created_time ?? null,
+        permalinkUrl: post?.permalink_url ?? null,
         thumbnailUrl: safeThumbnailUrl(
             post?.full_picture ?? attachment?.media?.image?.src
         ),
@@ -856,6 +858,20 @@ export default class FacebookGraphApi {
     }
 
 
+    /** Повертає доступні Pixel рекламного акаунта без секретних полів. */
+    async getAdPixels(adAccountId) {
+        const accountId = normalizeAdAccountId(adAccountId);
+        const pixels = await this.#getAll(`/${accountId}/adspixels`, {
+            fields: "id,name",
+            limit: 100,
+        });
+        return pixels.filter((pixel) => pixel?.id).map((pixel) => ({
+            id: String(pixel.id),
+            name: String(pixel.name ?? ""),
+        }));
+    }
+
+
     /**
      * Видаляє масив публікацій вибраної фанпейджі та повертає частковий результат.
      * Приймає canonical ID або об'єкти з полем id/postId.
@@ -1051,6 +1067,7 @@ export default class FacebookGraphApi {
         pageId,
         postId,
         template,
+        pixelId,
         dailyBudget,
         startTime,
     }) {
@@ -1074,9 +1091,9 @@ export default class FacebookGraphApi {
                 "CAMPAIGN_POST_PAGE_MISMATCH"
             );
         }
-        if (!template?.pixel) {
+        if (!pixelId) {
             throw createValidationError(
-                "У шаблоні не вказано Pixel ID",
+                "Не вказано Pixel ID",
                 "CAMPAIGN_PIXEL_REQUIRED"
             );
         }
@@ -1142,12 +1159,12 @@ export default class FacebookGraphApi {
             fields: "id,name",
             limit: 100,
         });
-        const pixelId = normalizeObjectId(
-            template.pixel,
+        const normalizedPixelId = normalizeObjectId(
+            pixelId,
             "CAMPAIGN_PIXEL_ID_INVALID",
             "Pixel ID"
         );
-        const pixel = pixels.find((item) => String(item.id) === pixelId);
+        const pixel = pixels.find((item) => String(item.id) === normalizedPixelId);
         if (!pixel) {
             throw createValidationError(
                 "Вибраний Pixel недоступний цьому рекламному акаунту",
@@ -1207,6 +1224,7 @@ export default class FacebookGraphApi {
             template,
             adSetCount,
             createPaused = true,
+            utm = "",
             resume = {},
         } = options;
         const count = Number(adSetCount);
@@ -1267,7 +1285,7 @@ export default class FacebookGraphApi {
                 const creativeFields = {
                     name: `${name} | Creative`,
                     object_story_id: preflight.postId,
-                    url_tags: template.utm,
+                    url_tags: String(utm ?? "").trim(),
                     degrees_of_freedom_spec: buildEnhancementsOptOut(),
                     ...(preflight.instagramActorId
                         ? { instagram_actor_id: preflight.instagramActorId }

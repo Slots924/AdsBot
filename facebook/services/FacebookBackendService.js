@@ -192,6 +192,11 @@ export default class FacebookBackendService {
     }
 
 
+    async getAdPixels(accountKey, adAccountId) {
+        return this.#getFacebookApiClient(accountKey).getAdPixels(adAccountId);
+    }
+
+
     async getPagePosts(accountKey, options) {
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
         return facebookApiClient.getPagePosts(options);

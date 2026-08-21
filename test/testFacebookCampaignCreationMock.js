@@ -128,6 +128,8 @@ const result = await api.createLeadCampaign({
     postId: "20",
     campaignName: "Test",
     template,
+    pixelId: "30",
+    utm: "utm_campaign={{campaign.name}}",
     adSetCount: 2,
     dailyBudget: 5,
     startTime: "2026-08-20T10:00:00.000Z",
@@ -147,6 +149,27 @@ assert.deepEqual(result.preflight.dsa, {
 });
 assert.equal(result.readback.adSets.length, 2);
 assert.equal(progress.at(-1).stage, "complete");
+
+const writeSequence = requests
+    .filter((request) => request.method === "post")
+    .map((request) => {
+        const path = new URL(request.url).pathname.replace("/v26.0", "");
+        return `${path}:${isValidate(request) ? "validate" : "create"}`;
+    });
+assert.deepEqual(writeSequence, [
+    "/act_1/campaigns:validate",
+    "/act_1/campaigns:create",
+    "/act_1/adcreatives:validate",
+    "/act_1/adcreatives:create",
+    "/act_1/adsets:validate",
+    "/act_1/adsets:create",
+    "/act_1/ads:validate",
+    "/act_1/ads:create",
+    "/act_1/adsets:validate",
+    "/act_1/adsets:create",
+    "/act_1/ads:validate",
+    "/act_1/ads:create",
+]);
 
 const actualCampaign = requests.find((request) => (
     request.method === "post"
@@ -212,6 +235,7 @@ const commonPreflightInput = {
     adSetCount: 1,
     dailyBudget: 5,
     startTime: "2026-08-20T10:00:00.000Z",
+    pixelId: "30",
 };
 const samePayor = await api.preflightLeadCampaign({
     ...commonPreflightInput,

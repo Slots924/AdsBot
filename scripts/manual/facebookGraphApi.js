@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import createFacebookApiClients from "../facebook/api/createFacebookApiClients.js";
+import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
 
 
 // Ключ акаунта FP Hub для ручної перевірки

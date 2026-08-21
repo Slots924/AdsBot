@@ -114,10 +114,10 @@ node test/testGrokClientMock.js
 ```
 
 Для ручної перевірки заповніть багаторядкову змінну `prompt` на початку
-`test/testGrokClient.js`, а потім запустіть:
+`scripts/manual/grokClient.js`, а потім запустіть:
 
 ```powershell
-node test/testGrokClient.js
+node scripts/manual/grokClient.js
 ```
 
 Ручний сценарій виконує реальний оплачуваний запит.

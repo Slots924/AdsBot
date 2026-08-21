@@ -3,6 +3,8 @@ import FacebookBackendService
     from "../../facebook/services/FacebookBackendService.js";
 import runCommentingScenario
     from "../../scenarios/runCommentingScenario.js";
+import runParallelCommentingScenario
+    from "../../scenarios/runParallelCommentingScenario.js";
 import AdsPowerGroupService
     from "../adspower/AdsPowerGroupService.js";
 import CreativeManager from "../creatives/CreativeManager.js";
@@ -140,6 +142,7 @@ export default class AdsBotGuiService {
     #creativeManager;
     #creativeManagerFactory;
     #runCommentingScenario;
+    #runParallelCommentingScenario;
     #accountStatuses = new Map();
 
 
@@ -152,6 +155,7 @@ export default class AdsBotGuiService {
         creativeManager = null,
         creativeManagerFactory = () => new CreativeManager(),
         runCommentingScenarioFn = runCommentingScenario,
+        runParallelCommentingScenarioFn = runParallelCommentingScenario,
         reportsDirectory = "./data/reports",
         logger,
     } = {}) {
@@ -170,6 +174,7 @@ export default class AdsBotGuiService {
         this.#creativeManager = creativeManager;
         this.#creativeManagerFactory = creativeManagerFactory;
         this.#runCommentingScenario = runCommentingScenarioFn;
+        this.#runParallelCommentingScenario = runParallelCommentingScenarioFn;
         this.reportsDirectory = reportsDirectory;
         this.logger = normalizeLogger(logger);
     }
@@ -288,6 +293,24 @@ export default class AdsBotGuiService {
     }
 
 
+    async getPagePostsWithLinks({ accountKey, pageId, limit = 10 } = {}) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getLatestPagePostsWithLinks(accountKey, { pageId, limit });
+    }
+
+
+    async deletePagePosts({ accountKey, pageId, posts } = {}) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.deletePagePosts(accountKey, { pageId, posts });
+    }
+
+
+    async getAdPixels({ accountKey, adAccountId } = {}) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getAdPixels(accountKey, adAccountId);
+    }
+
+
     async preflightLeadCampaign({ accountKey, ...options } = {}) {
         await this.#assertActiveAccount(accountKey);
         this.logger.info("Перевіряємо кампанію, доступи та ресурси Meta…");
@@ -368,6 +391,54 @@ export default class AdsBotGuiService {
         await progress({ stage: "verification", completed: total, total, message: "Пост опубліковано та перевірено" });
         this.logger.info(`Пост підтверджено: ${post.postId}`);
         return post;
+    }
+
+
+    async prepareCreative(options) {
+        return this.#facebookBackend.prepareCreative(options);
+    }
+
+
+    async publishPreparedPost({ accountKey, pageId, message, imagePath = "" }, onProgress) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.publishPost({ accountKey, pageId, message, imagePath }, onProgress);
+    }
+
+
+    async runParallelComments({
+        groupIds, comments, geo, creativeName, postUrl,
+        browserMode = "visible", disableImages = false,
+        concurrency = 5, signal, onProgress,
+    }) {
+        return this.#runParallelCommentingScenario({
+            adsPower: this.adsPower, groupIds, comments, geo, creativeName, postUrl,
+            browserMode, disableImages, concurrency, signal, onProgress,
+            logger: this.logger,
+        });
+    }
+
+
+    async runParallelCommentingCampaign(options = {}) {
+        if (!this.#creativeManager) this.#creativeManager = this.#creativeManagerFactory();
+        const creative = await this.#creativeManager.getCreative(options.geo, options.creativeName);
+        const comments = prepareCommentsForCampaign({ creative, siteUrl: options.siteUrl ?? "" });
+        const response = await this.runParallelComments({ ...options, comments });
+        const report = response.report;
+        return {
+            published: report.published.length,
+            skipped: report.skipped.length,
+            failedComments: report.failedComments.length,
+            failedProfiles: report.failedProfiles.length,
+            fatalError: report.fatalError,
+            browserMode: report.browserMode,
+            disableImages: report.disableImages,
+            reportDetails: {
+                inputSummary: { groupIds: report.groupIds, geo: report.geo, creativeName: report.creativeName, postUrl: report.postUrl, browserMode: report.browserMode, disableImages: report.disableImages },
+                resultSummary: { published: report.published, skipped: report.skipped, failedComments: report.failedComments, failedProfiles: report.failedProfiles, uncertain: report.interrupted ? report.failedComments : [] },
+                counters: { published: report.published.length, skipped: report.skipped.length, failedComments: report.failedComments.length, failedProfiles: report.failedProfiles.length },
+                warnings: report.cleanupWarnings,
+            },
+        };
     }
 
 

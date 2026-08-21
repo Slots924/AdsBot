@@ -3,9 +3,9 @@ import "dotenv/config";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import AdsPower from "../classes/AdsPower.js";
+import AdsPower from "../../classes/AdsPower.js";
 import AdsPowerGroupService
-    from "../services/adspower/AdsPowerGroupService.js";
+    from "../../services/adspower/AdsPowerGroupService.js";
 
 
 async function testExportAdsPowerGroups() {

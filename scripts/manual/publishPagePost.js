@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 import FacebookBackendService
-    from "../facebook/services/FacebookBackendService.js";
+    from "../../facebook/services/FacebookBackendService.js";
 
 
 // Ключ Facebook-акаунта з data/facebookApi/accounts.json.

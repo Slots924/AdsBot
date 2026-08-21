@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 import CreativeManager
-    from "../services/creatives/CreativeManager.js";
+    from "../../services/creatives/CreativeManager.js";
 
 
 // Введіть дволітерний код країни, наприклад US, UA, CA або CZ.

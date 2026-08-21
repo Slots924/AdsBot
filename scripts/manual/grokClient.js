@@ -1,7 +1,7 @@
 import "dotenv/config";
 
-import GrokClient from "../services/llm/grok/GrokClient.js";
-import loadGrokSystemPrompt from "../services/llm/grok/loadGrokSystemPrompt.js";
+import GrokClient from "../../services/llm/grok/GrokClient.js";
+import loadGrokSystemPrompt from "../../services/llm/grok/loadGrokSystemPrompt.js";
 
 
 // Вставте запит між зворотними лапками. Він може містити декілька рядків.

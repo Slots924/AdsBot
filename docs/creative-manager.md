@@ -165,10 +165,10 @@ node test/testCreativeManagerMock.js
 ```
 
 Для ручної перевірки вкажіть `geo` та `creativeName` на початку
-`test/testCreativeManager.js`, після чого запустіть:
+`scripts/manual/creativeManager.js`, після чого запустіть:
 
 ```powershell
-node test/testCreativeManager.js
+node scripts/manual/creativeManager.js
 ```
 
 Якщо готового JSON немає, цей сценарій виконає реальний платний запит до Grok.

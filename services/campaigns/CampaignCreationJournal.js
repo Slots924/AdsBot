@@ -8,6 +8,8 @@ function cleanInput(input = {}) {
         accountKey: String(input.accountKey ?? ""),
         adAccountId: String(input.adAccountId ?? ""),
         templateId: Number(input.templateId),
+        pixelId: String(input.pixelId ?? ""),
+        utm: String(input.utm ?? ""),
         campaignName: String(input.campaignName ?? ""),
         pageId: String(input.pageId ?? ""),
         postId: String(input.postId ?? ""),

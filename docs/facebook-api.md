@@ -1,5 +1,13 @@
 # Facebook Graph API
 
+## Контракти workspace і runtime tracking
+
+`FacebookGraphApi.getAdPixels(adAccountId)` проходить cursor-пагінацію `/{act_id}/adspixels` і повертає лише `{ id, name }`. Page token, access token, cookie та proxy-поля не потрапляють у backend facade або renderer.
+
+`preflightLeadCampaign()` і `createLeadCampaign()` тепер приймають `pixelId` та `utm` як runtime-параметри. Campaign template v5 містить лише targeting, placements, devices, DSA, enhancements і budget sharing. Старі `pixel`/`utm` під час нормалізації шаблону відкидаються й не переносяться до глобальних defaults.
+
+GUI-контракти: `workspace:client-load`, `pages:posts-with-links`, `pages:posts-delete`, `pages:post-delete`, `ads:pixels-list` та `creative-launch:start/get/retry`. Creative launch не викликає campaign/comments як вкладені background tasks: обидві гілки запускаються безпосередньо всередині parent runner і тому не створюють deadlock глобальної черги.
+
 ## Backend facade для GUI
 
 `FacebookBackendService` є рекомендованою точкою входу для майбутнього
@@ -303,13 +311,13 @@ Cookie input приймає готовий Cookie header, JSON-масив із A
 
 ## Ручна перевірка
 
-Після заповнення `.env`, `accounts.json` і `proxies.json` вкажіть потрібний `accountKey` у `test/testFacebookGraphApi.js` та запустіть:
+Після заповнення `.env`, `accounts.json` і `proxies.json` вкажіть потрібний `accountKey` у `scripts/manual/facebookGraphApi.js` та запустіть:
 
 ```powershell
-node test/testFacebookGraphApi.js
+node scripts/manual/facebookGraphApi.js
 ```
 
-Для ручної публікації відкрийте `test/testPublishPagePost.js` і заповніть
+Для ручної публікації відкрийте `scripts/manual/publishPagePost.js` і заповніть
 налаштування на початку файла:
 
 ```js
@@ -324,14 +332,14 @@ const imagePath = "C:/path/photo.jpg";
 Профіль `fp_hub` уже вибраний у тесті. Після заповнення запустіть:
 
 ```powershell
-node test/testPublishPagePost.js
+node scripts/manual/publishPagePost.js
 ```
 
 Окремий read-only сценарій для пошуку вимкнених рекламних акаунтів профілю
 `fp_hub`:
 
 ```powershell
-node test/testDisabledAdAccounts.js
+node scripts/manual/disabledAdAccounts.js
 ```
 
 Сценарій відбирає акаунти з `accountStatus === 2` і показує `disableReason`,
@@ -340,3 +348,27 @@ Business, власника та основні фінансові поля.
 конкретного порушення.
 
 Сценарій не змінює дані Facebook і не виводить access tokens або session cookies. Він виконує реальні запити, тому автоматично не запускається.
+
+### Live validation створення кампанії
+
+`npm run test:campaign:live` виконує реальні read-only запити та один Meta
+`validate_only` для campaign payload. Сценарій не створює campaign, ad set,
+creative або ad і не запускається з `test:campaign` чи `test:all`.
+
+Перед ручним запуском задайте явний дозвіл і тестові ресурси:
+
+```powershell
+$env:ADSBOT_ALLOW_LIVE_CAMPAIGN_VALIDATION = "1"
+$env:ADSBOT_CAMPAIGN_ACCOUNT_KEY = "fp_hub"
+$env:ADSBOT_CAMPAIGN_AD_ACCOUNT_ID = "act_123"
+$env:ADSBOT_CAMPAIGN_PAGE_ID = "123"
+$env:ADSBOT_CAMPAIGN_POST_ID = "123_456"
+$env:ADSBOT_CAMPAIGN_PIXEL_ID = "789"
+$env:ADSBOT_CAMPAIGN_COUNTRIES = "HU"
+npm run test:campaign:live
+```
+
+Для європейської аудиторії використовуються Meta defaults DSA. За потреби їх
+можна перевизначити через `ADSBOT_CAMPAIGN_DSA_BENEFICIARY` та
+`ADSBOT_CAMPAIGN_DSA_PAYOR`. Бюджет за замовчуванням — 5 одиниць валюти РК;
+його можна змінити через `ADSBOT_CAMPAIGN_DAILY_BUDGET`.
