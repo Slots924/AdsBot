@@ -14,7 +14,22 @@ const graphApi = new FacebookGraphApi({
         async request(config) {
             requests.push(config);
             const isCampaigns = config.url.endsWith("/act_1/campaigns");
+            const isAdAccounts = config.url.endsWith("/me/adaccounts");
             const secondPage = config.params.after === "page-2";
+
+            if (isAdAccounts) {
+                return { data: { data: [{
+                    id: "act_1",
+                    account_id: "1",
+                    name: "Main",
+                    account_status: 1,
+                    currency: "USD",
+                    timezone_name: "Europe/Kyiv",
+                    timezone_offset_hours_utc: 3,
+                    adtrust_dsl: "5000",
+                    insights: { data: [{ spend: "12.50" }] },
+                }] } };
+            }
 
             if (isCampaigns) {
                 return { data: secondPage ? {
@@ -52,12 +67,19 @@ const graphApi = new FacebookGraphApi({
 
 const graphCampaigns = await graphApi.getAdCampaigns("act_1");
 const graphInsights = await graphApi.getAdCampaignInsights("act_1", "last_7d");
+const graphAccounts = await graphApi.getAdAccounts();
 assert.equal(graphCampaigns.length, 2);
 assert.equal(graphInsights[0].spend, "12.50");
 assert.equal(requests[1].params.after, "page-2");
 assert.equal(requests[2].params.date_preset, "last_7d");
 assert.equal(requests[2].params.level, "campaign");
 assert.match(requests[0].params.filtering, /ACTIVE/);
+assert.match(requests[3].params.fields, /adtrust_dsl/);
+assert.match(requests[3].params.fields, /timezone_offset_hours_utc/);
+assert.match(requests[3].params.fields, /insights\.date_preset\(today\)/);
+assert.equal(graphAccounts[0].todaySpend, "12.50");
+assert.equal(graphAccounts[0].dailySpendLimit, "5000");
+assert.equal(graphAccounts[0].timezoneOffsetHoursUtc, 3);
 await assert.rejects(
     graphApi.getAdCampaignInsights("act_1", "invalid"),
     { code: "FACEBOOK_INSIGHTS_DATE_PRESET_INVALID" }

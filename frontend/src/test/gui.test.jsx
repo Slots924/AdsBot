@@ -305,6 +305,10 @@ describe("GUI helpers", () => {
                     favoritePosition: 0,
                     disableReason: { code: null, label: "Не вказано" },
                     currency: "USD",
+                    timezoneName: "Europe/Kyiv",
+                    timezoneOffsetHoursUtc: 3,
+                    todaySpend: "12.50",
+                    dailySpendLimit: "5000",
                 },
                 {
                     id: "act_2",
@@ -355,6 +359,13 @@ describe("GUI helpers", () => {
         fireEvent.click(screen.getByText("Ім’я 1"));
 
         expect(await screen.findByText("A Campaign")).toBeInTheDocument();
+        expect(screen.getAllByText("ID: 1").length).toBeGreaterThan(0);
+        expect(screen.getByText((text) => (
+            text.includes("12,50") && text.includes("50,00")
+        ))).toBeInTheDocument();
+        expect(screen.getByText("Europe/Kyiv · UTC+3")).toBeInTheDocument();
+        expect(screen.getAllByTitle("Копіювати ID рекламного кабінету").length)
+            .toBeGreaterThan(0);
         expect(window.adsBot.getAdCampaigns).toHaveBeenCalledWith(
             "fp_hub",
             "act_1",

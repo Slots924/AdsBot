@@ -9,6 +9,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import CreativeLaunchModal from "../components/CreativeLaunchModal.jsx";
+import GeoSelect from "../components/GeoSelect.jsx";
 import PagesTab from "../tabs/PagesTab.jsx";
 
 
@@ -126,6 +127,10 @@ describe("Дизайн workspace фанпейджів", () => {
         expect(screen.getByTitle("Копіювати ID фанпейджі")).toBeInTheDocument();
         expect(screen.getByTitle("Копіювати Page ID")).toBeInTheDocument();
         expect(await screen.findByText("Post")).toBeInTheDocument();
+        expect(screen.getByTitle("Копіювати посилання на фанку")).toBeInTheDocument();
+        expect(screen.getByTitle("Відкрити фанку у Facebook")).toBeInTheDocument();
+        expect(screen.getByTitle("Копіювати посилання на пост")).toBeInTheDocument();
+        expect(screen.getByTitle("Відкрити пост у Facebook")).toBeInTheDocument();
     });
 
     it("сортує рекламні акаунти за статусом і показує лише ID", async () => {
@@ -273,6 +278,35 @@ describe("Дизайн workspace фанпейджів", () => {
             "Пересетаплення фанпейджа поставлено в чергу",
             "success"
         );
+    });
+});
+
+
+describe("Пошук GEO", () => {
+    afterEach(() => cleanup());
+
+    it("фільтрує лише за дволітерним кодом країни", () => {
+        render(
+            <GeoSelect
+                countries={[
+                    { code: "ES", name: "Spain" },
+                    { code: "EE", name: "Estonia" },
+                    { code: "DE", name: "Germany" },
+                ]}
+                value=""
+                onChange={vi.fn()}
+            />
+        );
+
+        fireEvent.click(screen.getByRole("button", { name: "GEO" }));
+        fireEvent.change(screen.getByPlaceholderText("Дволітерний код країни…"), {
+            target: { value: "es" },
+        });
+        const options = within(document.querySelector(".geo-select .select-options"))
+            .getAllByRole("button");
+        expect(options).toHaveLength(1);
+        expect(options[0]).toHaveTextContent("ES");
+        expect(options[0]).not.toHaveTextContent("Estonia");
     });
 });
 

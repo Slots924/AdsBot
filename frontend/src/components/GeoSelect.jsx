@@ -17,13 +17,9 @@ export default function GeoSelect({ countries, value, onChange, disabled = false
             getId={(country) => country.code}
             getTitle={(country) => country.code}
             getSubtitle={() => ""}
-            getSearchText={(country) => [
-                country.code,
-                country.name,
-                ...(country.aliases ?? []),
-            ].join(" ")}
+            getSearchText={(country) => country.code}
             placeholder="GEO"
-            searchPlaceholder="Код або назва країни…"
+            searchPlaceholder="Дволітерний код країни…"
             emptyText="GEO не знайдено"
             ariaLabel="GEO"
             disabled={disabled}

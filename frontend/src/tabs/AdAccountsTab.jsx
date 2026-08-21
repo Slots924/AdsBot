@@ -6,6 +6,7 @@ import {
     Check,
     CircleMinus,
     CirclePlus,
+    Copy,
     GripVertical,
     LoaderCircle,
     Megaphone,
@@ -56,6 +57,49 @@ function formatMoney(amount, currency) {
     } catch {
         return `${Number(amount).toFixed(2)} ${currency || ""}`.trim();
     }
+}
+
+
+function formatMinorMoney(amount, currency) {
+    if (amount === null || amount === undefined || amount === "") return "—";
+    try {
+        const formatter = new Intl.NumberFormat("uk-UA", {
+            style: "currency",
+            currency: currency || "USD",
+        });
+        const digits = formatter.resolvedOptions().maximumFractionDigits;
+        return formatter.format(Number(amount) / (10 ** digits));
+    } catch {
+        return String(amount);
+    }
+}
+
+
+function timezoneLabel(account) {
+    const offset = Number(account.timezoneOffsetHoursUtc);
+    const suffix = Number.isFinite(offset)
+        ? `UTC${offset >= 0 ? "+" : ""}${offset}`
+        : "UTC —";
+    return `${value(account.timezoneName)} · ${suffix}`;
+}
+
+
+function AccountId({ accountId, large = false }) {
+    return (
+        <span className={`ad-account-id ${large ? "large" : ""}`}>
+            <strong>ID: {accountId}</strong>
+            <button
+                type="button"
+                title="Копіювати ID рекламного кабінету"
+                onClick={(event) => {
+                    event.stopPropagation();
+                    navigator.clipboard.writeText(String(accountId));
+                }}
+            >
+                <Copy size={large ? 16 : 13} />
+            </button>
+        </span>
+    );
 }
 
 
@@ -110,7 +154,7 @@ function AccountCard({
             <span className="ad-account-card-copy">
                 <strong>{account.localName}</strong>
                 <span>{account.name}</span>
-                <small>{account.accountId} · {account.id}</small>
+                <AccountId accountId={account.accountId} />
                 {reason && <em>{reason}</em>}
             </span>
 
@@ -584,10 +628,13 @@ export default function AdAccountsTab({
                         <>
                             <motion.div className="ad-detail compact" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
                                 <header>
-                                    <div>
+                                    <div className="ad-detail-identity">
                                         <span className={`status-pill ${selected.status}`}>{selected.status}</span>
-                                        <h2>{selected.localName}</h2>
-                                        <p>{selected.name} · {selected.accountId} · {selected.id}</p>
+                                        <div className="ad-detail-title-row">
+                                            <h2>{selected.localName}</h2>
+                                            <AccountId accountId={selected.accountId} large />
+                                        </div>
+                                        <p>{selected.name}</p>
                                     </div>
                                     <div className="ad-detail-actions">
                                         {selected.status === "active" && (
@@ -604,10 +651,16 @@ export default function AdAccountsTab({
                                     </div>
                                 </header>
                                 <div className="detail-grid compact">
+                                    <div className="account-spend-today">
+                                        <span>Сьогодні / денний ліміт Meta</span>
+                                        <strong>
+                                            {formatMoney(selected.todaySpend, selected.currency)} / {formatMinorMoney(selected.dailySpendLimit, selected.currency)}
+                                        </strong>
+                                    </div>
                                     <div><span>Business</span><strong>{value(selected.business?.name)}</strong><small>{value(selected.business?.id)}</small></div>
                                     <div><span>Owner</span><strong>{value(selected.owner)}</strong></div>
                                     <div><span>Валюта</span><strong>{value(selected.currency)}</strong></div>
-                                    <div><span>Часовий пояс</span><strong>{value(selected.timezoneName)}</strong></div>
+                                    <div><span>Часовий пояс</span><strong>{timezoneLabel(selected)}</strong></div>
                                     <div><span>Витрачено</span><strong>{value(selected.amountSpent)}</strong></div>
                                     <div><span>Баланс</span><strong>{value(selected.balance)}</strong></div>
                                     <div><span>Spend cap</span><strong>{value(selected.spendCap)}</strong></div>

@@ -55,7 +55,7 @@ function CopyButton({ value, label }) {
 }
 
 
-function PageCard({ page, selected, onSelect, onFavorite, onRebuild }) {
+function PageCard({ page, selected, onSelect, onFavorite }) {
     return (
         <div
             className={`page-card ${selected ? "selected" : ""}`}
@@ -66,50 +66,34 @@ function PageCard({ page, selected, onSelect, onFavorite, onRebuild }) {
                 if (event.key === "Enter" || event.key === " ") onSelect(page.id);
             }}
         >
-            <div className="page-card-heading">
-                <strong>{page.geo || "—"}</strong>
-                <b>{marker(page.creativeName)}</b>
-            </div>
-            <div className="page-card-body">
-                <span className="page-avatar">
-                    {String(page.name || "P").slice(0, 1).toUpperCase()}
-                </span>
-                <span className="page-card-copy">
-                    <span className="page-card-value">
-                        <strong>{page.name}</strong>
-                        <CopyButton value={page.name} label="назву фанпейджі" />
-                    </span>
-                    <span className="page-card-value page-card-id">
-                        <small>{page.id}</small>
-                        <CopyButton value={page.id} label="ID фанпейджі" />
-                    </span>
-                </span>
-                <button
-                    type="button"
-                    className="page-card-rebuild"
-                    title="Пересетапити фанпейдж"
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        onRebuild(page);
-                    }}
-                >
-                    <RotateCcw size={14} />
-                    Пересетапити
-                </button>
-                <button
-                    type="button"
-                    className="ad-card-action"
-                    title={page.isFavorite ? "Забрати з обраних" : "Додати до обраних"}
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        onFavorite(page, !page.isFavorite);
-                    }}
-                >
-                    {page.isFavorite
-                        ? <CircleMinus size={17} />
-                        : <CirclePlus size={17} />}
-                </button>
-            </div>
+            <span className="page-avatar">
+                {page.pictureUrl
+                    ? <img src={page.pictureUrl} alt="" />
+                    : String(page.name || "P").slice(0, 1).toUpperCase()}
+            </span>
+            <strong className="page-card-geo">{page.geo || "—"}</strong>
+            <span className="page-card-value page-card-name">
+                <strong>{page.name}</strong>
+                <CopyButton value={page.name} label="назву фанпейджі" />
+            </span>
+            <span className="page-card-value page-card-id">
+                <small>ID: {page.id}</small>
+                <CopyButton value={page.id} label="ID фанпейджі" />
+            </span>
+            <b className="page-card-creative">{marker(page.creativeName)}</b>
+            <button
+                type="button"
+                className="ad-card-action"
+                title={page.isFavorite ? "Забрати з обраних" : "Додати до обраних"}
+                onClick={(event) => {
+                    event.stopPropagation();
+                    onFavorite(page, !page.isFavorite);
+                }}
+            >
+                {page.isFavorite
+                    ? <CircleMinus size={17} />
+                    : <CirclePlus size={17} />}
+            </button>
         </div>
     );
 }
@@ -664,10 +648,6 @@ export default function PagesTab({
                                             selected={String(page.id) === String(selectedPageId)}
                                             onSelect={setSelectedPageId}
                                             onFavorite={favorite}
-                                            onRebuild={(page) => setAction({
-                                                type: "rebuild",
-                                                page,
-                                            })}
                                         />
                                     </div>
                                 );
@@ -682,10 +662,6 @@ export default function PagesTab({
                                     selected={String(page.id) === String(selectedPageId)}
                                     onSelect={setSelectedPageId}
                                     onFavorite={favorite}
-                                    onRebuild={(page) => setAction({
-                                        type: "rebuild",
-                                        page,
-                                    })}
                                 />
                             ))}
                         </div>
@@ -759,6 +735,25 @@ export default function PagesTab({
                                             </button>
                                         </span>
                                     </div>
+                                    <div className="page-link-field">
+                                        <span>Посилання на фанку</span>
+                                        <strong>{`facebook.com/${selected.id}`}</strong>
+                                        <span className="metadata-actions">
+                                            <CopyButton
+                                                value={`https://www.facebook.com/${selected.id}`}
+                                                label="посилання на фанку"
+                                            />
+                                            <button
+                                                className="icon-button"
+                                                title="Відкрити фанку у Facebook"
+                                                onClick={() => window.adsBot.openExternal(
+                                                    `https://www.facebook.com/${selected.id}`
+                                                )}
+                                            >
+                                                <ExternalLink size={14} />
+                                            </button>
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div className="page-actions">
@@ -781,6 +776,16 @@ export default function PagesTab({
                                     >
                                         <Trash2 size={16} />Видалити URL-пости
                                     </button>
+                                    <button
+                                        className="danger-button page-rebuild-action"
+                                        title="Пересетапити фанпейдж"
+                                        onClick={() => setAction({
+                                            type: "rebuild",
+                                            page: selected,
+                                        })}
+                                    >
+                                        <RotateCcw size={16} />Пересетапити
+                                    </button>
                                     <button className="icon-button" onClick={loadPosts}>
                                         <RefreshCw className={loading ? "spin" : ""} size={16} />
                                     </button>
@@ -801,7 +806,28 @@ export default function PagesTab({
                                             <div>
                                                 <strong>{new Date(post.createdTime).toLocaleString("uk-UA")}</strong>
                                                 <p>{post.message}</p>
-                                                <small>{post.id}</small>
+                                                <div className="page-post-reference">
+                                                    <small>ID: {post.id}</small>
+                                                    {post.permalinkUrl && (
+                                                        <>
+                                                            <span>{post.permalinkUrl}</span>
+                                                            <CopyButton
+                                                                value={post.permalinkUrl}
+                                                                label="посилання на пост"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                className="page-copy-button"
+                                                                title="Відкрити пост у Facebook"
+                                                                onClick={() => window.adsBot.openExternal(
+                                                                    post.permalinkUrl
+                                                                )}
+                                                            >
+                                                                <ExternalLink size={14} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
                                                 <div className="post-actions">
                                                     <button onClick={async () => {
                                                         if (!window.confirm("Видалити цей пост?")) return;

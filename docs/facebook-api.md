@@ -131,11 +131,11 @@ if (!selectedFacebookApiClient) {
 | `checkAccessToken()` | `{ working, user?, error? }` | Перевіряє token через `/me`. OAuth code 190 повертається як `working: false`. |
 | `getMe()` | `{ id, name }` | Повертає користувача, якому належить token. |
 | `getPermissions()` | `{ granted, declined, expired, other }` | Групує permissions за статусом. |
-| `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти, включно з `defaultDsaBeneficiary` і `defaultDsaPayor`. |
+| `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти, включно з today spend, `dailySpendLimit`, UTC offset і DSA defaults. |
 | `getAdCampaigns(adAccountId)` | `Array` | Повертає ACTIVE і PAUSED кампанії РК. |
 | `getAdCampaignInsights(adAccountId, datePreset)` | `Array` | Повертає campaign-level spend та actions за Meta date preset. |
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
-| `getAvailablePages()` | `Array<{id, name}>` | Перевіряє доступність, publish tasks і статус фанпейджів та повертає список без токенів. |
+| `getAvailablePages()` | `Array<{id, name, pictureUrl}>` | Перевіряє доступність, publish tasks і статус фанпейджів та повертає список з avatar URL, але без токенів. |
 | `getFanPageById(pageId)` | `object \| null` | Перевіряє фанпейджу й повертає її Page token лише для внутрішньої публікації. |
 | `getPagePosts({pageId, limit})` | `Array` | Повертає 10 найновіших опублікованих постів із безпечними даними для прев’ю. |
 | `getLatestPagePostsWithLinks({pageId, limit})` | `Array` | Серед 10 найновіших опублікованих постів повертає ті, що містять HTTP(S)-посилання саме в тексті. |
@@ -164,6 +164,11 @@ const pages = await selectedFacebookApiClient.getPages();
 ```
 
 `getAdAccounts()` і `getPages()` автоматично проходять усі сторінки Graph API через cursor `after`. Код не використовує абсолютний `paging.next`, щоб access token випадково не потрапив до логів разом із URL.
+
+`getAdAccounts()` читає `insights.date_preset(today){spend}` на рівні акаунта,
+`adtrust_dsl` як денний ліміт Meta і `timezone_offset_hours_utc`. Грошовий
+`adtrust_dsl` залишається у minor units Graph API; форматування у валюту виконує
+GUI.
 
 `getPagePosts()` одним read-only запитом читає перші 10 записів
 `/{page-id}/published_posts` і сортує їх від найновішого до найстарішого.

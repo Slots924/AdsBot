@@ -302,6 +302,13 @@ button:focus-visible, input:focus-visible {
 .ad-account-card-copy span { color: #a5abba; font-size: var(--font-meta); }
 .ad-account-card-copy small { color: #596174; font-size: var(--font-caption); }
 .ad-account-card-copy em { margin-top: 3px; color: #ff9aaa; font-size: var(--font-caption); font-style: normal; }
+.ad-account-id { display: inline-flex !important; align-items: center; gap: 6px; min-width: 0; color: #8c94a8; }
+.ad-account-id strong { min-width: 0; overflow: hidden; color: inherit; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.ad-account-id button { display: grid; flex: 0 0 24px; place-items: center; width: 24px; height: 24px; padding: 0; border: 1px solid transparent; border-radius: 7px; color: #8177db; background: transparent; cursor: pointer; }
+.ad-account-id button:hover { border-color: rgba(132,114,255,.28); background: rgba(132,114,255,.1); }
+.ad-account-id.large { flex: 0 1 auto; color: #f1efff; }
+.ad-account-id.large strong { font-size: 20px; }
+.ad-account-id.large button { flex-basis: 30px; width: 30px; height: 30px; }
 .ad-account-card-actions { display: flex; flex-direction: column; gap: 5px; }
 .ad-card-action { display: grid; place-items: center; width: 25px; height: 25px; padding: 0; border: 1px solid transparent; border-radius: 7px; color: #737b90; background: rgba(255,255,255,.035); cursor: pointer; }
 .ad-card-action:hover { color: #c5bfff; border-color: rgba(132,114,255,.25); background: rgba(132,114,255,.1); }
@@ -311,10 +318,15 @@ button:focus-visible, input:focus-visible {
 .ad-detail-placeholder span { font-size: var(--font-meta); }
 .ad-detail.compact { margin-top: 0; padding: 18px; border-radius: 17px; }
 .ad-detail.compact h2 { margin-top: 5px; font-size: 20px; }
+.ad-detail-identity { flex: 1; min-width: 0; }
+.ad-detail-title-row { display: flex; align-items: center; gap: 20px; min-width: 0; margin-top: 5px; }
+.ad-detail-title-row h2 { min-width: 0; overflow: hidden; margin: 0 !important; font-size: 23px !important; text-overflow: ellipsis; white-space: nowrap; }
 .ad-detail-actions { display: flex; align-items: center; gap: 10px; }
 .detail-grid.compact { grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: 14px; }
 .detail-grid.compact > div { min-height: 61px; padding: 10px; }
 .detail-grid.compact strong { margin-top: 6px; font-size: var(--font-meta); }
+.detail-grid.compact .account-spend-today { grid-column: span 2; border-color: rgba(69,223,161,.2); background: rgba(69,223,161,.045); }
+.detail-grid.compact .account-spend-today strong { color: #dffbef; font-size: 16px; }
 .campaign-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 20px 0 10px; }
 .campaign-heading h2 { margin: 3px 0 0; font-size: 20px; }
 .campaign-periods { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
@@ -563,23 +575,23 @@ button:focus-visible, input:focus-visible {
 .multi-select .select-menu { min-width: min(520px, calc(100vw - 80px)); }
 
 /* Фанпейджі */
-.page-workspace .ad-layout { grid-template-columns: 390px minmax(0,1fr); }
-.page-card { display: block; min-height: 126px; padding: 13px; border-radius: 12px; background: linear-gradient(145deg, rgba(255,255,255,.038), rgba(255,255,255,.018)); }
-.page-card-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-height: 34px; padding: 1px 2px 11px; border-bottom: 1px solid rgba(255,255,255,.075); }
-.page-card-heading strong { color: #fff; font-size: 20px; line-height: 1; letter-spacing: .05em; }
-.page-card-heading b { overflow: hidden; color: #bcb4ff; font-size: 16px; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
-.page-card-body { display: grid; grid-template-columns: 42px minmax(0,1fr) auto 30px; align-items: center; gap: 8px; padding-top: 11px; }
-.page-avatar { width: 42px; height: 42px; font-size: 16px; }
-.page-card-copy { gap: 5px; }
-.page-card-value { display: flex !important; flex-direction: row !important; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.page-workspace .ad-layout { grid-template-columns: 760px minmax(0,1fr); max-width: 1800px; }
+.page-card { display: grid; grid-template-columns: 34px 34px minmax(220px,1.45fr) minmax(190px,1fr) minmax(90px,.65fr) 29px; min-height: 52px; gap: 8px; margin-bottom: 6px; padding: 8px; border-radius: 11px; background: linear-gradient(145deg, rgba(255,255,255,.038), rgba(255,255,255,.018)); }
+.page-avatar { width: 34px; height: 34px; overflow: hidden; font-size: 14px; }
+.page-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.page-card-geo { color: #fff; font-size: 15px; letter-spacing: .05em; }
+.page-card-creative { min-width: 0; overflow: hidden; color: #bcb4ff; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.page-card-value { display: flex !important; flex-direction: row !important; align-items: center; gap: 5px; min-width: 0; }
 .page-card-value strong, .page-card-value small { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.page-card-copy .page-card-value strong { color: #f3f5fb; font-size: 13px; }
-.page-card-copy .page-card-id small { color: #8c94a8; font-size: var(--font-control); }
+.page-card-name strong { color: #f3f5fb; font-size: 13px; }
+.page-card-id small { color: #8c94a8; font-size: 12px; }
 .page-copy-button { display: grid; flex: 0 0 27px; place-items: center; width: 27px; height: 27px; padding: 0; border: 1px solid transparent; border-radius: 7px; color: #778096; background: rgba(255,255,255,.035); cursor: pointer; }
 .page-copy-button:hover { color: #c7c1ff; border-color: rgba(132,114,255,.3); background: rgba(132,114,255,.12); }
 .page-card .ad-card-action { width: 29px; height: 29px; }
-.page-card-rebuild { display: inline-flex; align-items: center; gap: 5px; min-height: 29px; padding: 0 8px; border: 1px solid rgba(255,100,124,.25); border-radius: 7px; color: #ff9aaa; background: rgba(255,100,124,.07); font-size: var(--font-meta); font-weight: 700; cursor: pointer; }
-.page-card-rebuild:hover { border-color: rgba(255,100,124,.55); background: rgba(255,100,124,.14); }
+.page-link-field { grid-column: 1 / -1; }
+.page-post-reference { display: flex; align-items: center; gap: 7px; min-width: 0; margin-top: 7px; }
+.page-post-reference > span { min-width: 0; overflow: hidden; color: #8c94a8; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.page-post-reference > .page-copy-button { flex: 0 0 auto; }
 .page-metadata-grid > div .page-copy-button { position: absolute; right: 9px; top: 9px; }
 .page-metadata-grid > div .metadata-actions { position: absolute; right: 9px; top: 9px; display: flex; gap: 6px; }
 .page-metadata-grid > div .metadata-actions .page-copy-button, .page-metadata-grid > div .metadata-actions .icon-button { position: static; width: 29px; height: 29px; }
@@ -671,7 +683,7 @@ button:focus-visible, input:focus-visible {
     .ad-accounts-workspace { grid-template-columns: 292px minmax(0,1fr); gap: 13px; }
     .campaign-grid { grid-template-columns: 26px minmax(100px,1.5fr) 68px 38px 70px 77px; gap: 5px; }
     .campaign-table-head, .campaign-row { padding-left: 10px; padding-right: 10px; }
-    .page-workspace .ad-layout { grid-template-columns: 350px minmax(0,1fr); }
+    .page-workspace .ad-layout { grid-template-columns: 620px minmax(0,1fr); }
 }
 
 @media (max-width: 900px) {

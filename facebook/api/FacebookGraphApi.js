@@ -595,10 +595,13 @@ export default class FacebookGraphApi {
                 "disable_reason",
                 "currency",
                 "timezone_name",
+                "timezone_offset_hours_utc",
                 "created_time",
                 "amount_spent",
                 "balance",
                 "spend_cap",
+                "adtrust_dsl",
+                "insights.date_preset(today).limit(1){spend}",
                 "default_dsa_beneficiary",
                 "default_dsa_payor",
                 "owner",
@@ -614,10 +617,13 @@ export default class FacebookGraphApi {
             disableReason: account.disable_reason ?? null,
             currency: account.currency,
             timezoneName: account.timezone_name,
+            timezoneOffsetHoursUtc: account.timezone_offset_hours_utc ?? null,
             createdTime: account.created_time ?? null,
             amountSpent: account.amount_spent ?? null,
             balance: account.balance ?? null,
             spendCap: account.spend_cap ?? null,
+            dailySpendLimit: account.adtrust_dsl ?? null,
+            todaySpend: account.insights?.data?.[0]?.spend ?? "0",
             defaultDsaBeneficiary: account.default_dsa_beneficiary ?? null,
             defaultDsaPayor: account.default_dsa_payor ?? null,
             owner: account.owner ?? null,
@@ -691,7 +697,7 @@ export default class FacebookGraphApi {
      */
     async getPages() {
         const pages = await this.#getAll("/me/accounts", {
-            fields: "id,name,category,tasks,access_token",
+            fields: "id,name,category,tasks,access_token,picture.type(square){url}",
         });
 
         return pages.map((page) => ({
@@ -700,6 +706,7 @@ export default class FacebookGraphApi {
             category: page.category,
             tasks: page.tasks ?? [],
             pageAccessToken: page.access_token,
+            pictureUrl: page.picture?.data?.url ?? null,
         }));
     }
 
@@ -757,6 +764,7 @@ export default class FacebookGraphApi {
             .map((page) => ({
                 id: page.id,
                 name: page.name,
+                pictureUrl: page.pictureUrl ?? null,
             }));
     }
 

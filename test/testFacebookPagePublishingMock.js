@@ -20,6 +20,7 @@ const proxyHttpClient = {
                             name: "Test Page",
                             tasks: ["CREATE_CONTENT"],
                             access_token: "PAGE_TOKEN",
+                            picture: { data: { url: "https://facebook.test/page.jpg" } },
                         },
                         {
                             id: "page-old-manage",
@@ -171,11 +172,11 @@ const facebookApiClient = new FacebookGraphApi({
 assert.deepEqual(
     await facebookApiClient.getAvailablePages(),
     [
-        { id: "page-1", name: "Test Page" },
-        { id: "page-old-manage", name: "Old Manage Page" },
-        { id: "page-profile-create", name: "Profile Create Page" },
-        { id: "page-profile-manage", name: "Profile Manage Page" },
-        { id: "page-full-control", name: "Full Control Page" },
+        { id: "page-1", name: "Test Page", pictureUrl: "https://facebook.test/page.jpg" },
+        { id: "page-old-manage", name: "Old Manage Page", pictureUrl: null },
+        { id: "page-profile-create", name: "Profile Create Page", pictureUrl: null },
+        { id: "page-profile-manage", name: "Profile Manage Page", pictureUrl: null },
+        { id: "page-full-control", name: "Full Control Page", pictureUrl: null },
     ]
 );
 const availabilityRequests = requests.filter(
