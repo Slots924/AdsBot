@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "id": "73b0304a-6935-406c-a4a6-b235d819ecd1",
+  "taskId": "9b489f49-f5d9-4a62-a178-da6ccf19900e",
+  "type": "creative-launch",
+  "title": "ES | Creo_17 | 25+",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-08-21T15:35:48.723Z",
+  "startedAt": "2026-08-21T15:29:37.608Z",
+  "finishedAt": "2026-08-21T15:35:48.722Z",
+  "durationMs": 371114,
+  "inputSummary": {
+    "workflowJobId": "21b469d7-a49e-4cc1-b9c5-f3450024f1ea",
+    "accountKey": "N5_ADS",
+    "pageId": "122096579090008341",
+    "geo": "ES",
+    "creativeName": "17",
+    "adAccountId": "act_1730609228180541"
+  },
+  "resultSummary": {
+    "post": {
+      "postId": "122096579090008341_122371165244002102",
+      "pageId": "122096579090008341",
+      "type": "photo",
+      "message": "Me violó una chica\n\nHistoria de la categoría: trash total 😂\nHace un mes me registré en una web de citas, aquí: https://daters.click/EJ17S\n\nAhí hay sobre todo ninfómanas, swingers y fetichistas, vamos, toda la gente que quiere mucho y a todas horas. Las chicas son muy abiertas, encontrar a alguien para una buena noche no es ningún problema 🔥 Una vez hasta tuve una que vino a mi casa y después del sexo todavía me preparó algo de comer. 😀\n\nPero esta historia va de otra cosa. Me topé con una chica, un 10 de 10, figura de reloj de arena 😍 Se notaba que iba al gym, un ideal total. Llegué a su casa sobre las 21:30, follamos, y me dice: vamos otra vez. Yo pensé, hay que recuperar el aliento un poco y listo. Como a los 20 minutos volvimos a empezar, pero a ella le seguía pareciendo poco 😕 Al final me dijo que no me iba a dejar ir hasta estar completamente satisfecha, y hasta las 6 de la mañana lo hicimos una y otra vez.\n\nDespués de esta situación llevo casi 3 semanas sin ni siquiera entrar en la web, no me apetece nada acostarme con nadie, y a esa chica la bloqueé en todos lados donde pude. Así que, chicos, tened cuidado jaja",
+      "permalinkUrl": "https://www.facebook.com/61550063070083/posts/pfbid06LETVCfjpfdTWwKNDGUog1xihDWcpRLTGL3CZZmrzicZuaS8dDnaqM9vfRXaFKhsl",
+      "createdTime": "2026-08-21T15:30:39+0000",
+      "verified": true
+    },
+    "cleanup": {
+      "deleted": [
+        {
+          "id": "122096579090008341_122366454314002102"
+        }
+      ],
+      "failed": []
+    },
+    "subtasks": [
+      {
+        "id": "publication",
+        "title": "Підготовка і публікація",
+        "status": "completed",
+        "progress": {
+          "stage": "publication",
+          "completed": 2,
+          "total": 4,
+          "message": "Публікуємо пост у Facebook"
+        },
+        "message": "Пост опубліковано та перевірено",
+        "result": {
+          "postId": "122096579090008341_122371165244002102",
+          "pageId": "122096579090008341",
+          "type": "photo",
+          "message": "Me violó una chica\n\nHistoria de la categoría: trash total 😂\nHace un mes me registré en una web de citas, aquí: https://daters.click/EJ17S\n\nAhí hay sobre todo ninfómanas, swingers y fetichistas, vamos, toda la gente que quiere mucho y a todas horas. Las chicas son muy abiertas, encontrar a alguien para una buena noche no es ningún problema 🔥 Una vez hasta tuve una que vino a mi casa y después del sexo todavía me preparó algo de comer. 😀\n\nPero esta historia va de otra cosa. Me topé con una chica, un 10 de 10, figura de reloj de arena 😍 Se notaba que iba al gym, un ideal total. Llegué a su casa sobre las 21:30, follamos, y me dice: vamos otra vez. Yo pensé, hay que recuperar el aliento un poco y listo. Como a los 20 minutos volvimos a empezar, pero a ella le seguía pareciendo poco 😕 Al final me dijo que no me iba a dejar ir hasta estar completamente satisfecha, y hasta las 6 de la mañana lo hicimos una y otra vez.\n\nDespués de esta situación llevo casi 3 semanas sin ni siquiera entrar en la web, no me apetece nada acostarme con nadie, y a esa chica la bloqueé en todos lados donde pude. Así que, chicos, tened cuidado jaja",
+          "permalinkUrl": "https://www.facebook.com/61550063070083/posts/pfbid06LETVCfjpfdTWwKNDGUog1xihDWcpRLTGL3CZZmrzicZuaS8dDnaqM9vfRXaFKhsl",
+          "createdTime": "2026-08-21T15:30:39+0000",
+          "verified": true
+        }
+      },
+      {
+        "id": "campaign",
+        "title": "Створення кампанії",
+        "status": "failed",
+        "progress": {
+          "stage": "preflight",
+          "completed": 0,
+          "total": 13,
+          "message": "Перевіряємо доступи та ресурси",
+          "objects": {
+            "campaignId": null,
+            "creativeId": null,
+            "adSets": [],
+            "ads": []
+          }
+        },
+        "message": "This campaign doesn't have a budget. Add a budget to edit the bid strategy.",
+        "error": {
+          "message": "This campaign doesn't have a budget. Add a budget to edit the bid strategy.",
+          "code": "FACEBOOK_API_ERROR",
+          "httpStatus": 400,
+          "graphCode": 100,
+          "graphSubcode": 1885737,
+          "graphUserTitle": "No budget for campaign",
+          "graphUserMessage": "This campaign doesn't have a budget. Add a budget to edit the bid strategy.",
+          "stage": "preflight",
+          "itemIndex": null,
+          "createdObjects": {
+            "campaignId": null,
+            "creativeId": null,
+            "adSets": [],
+            "ads": []
+          },
+          "jobId": "6eee129c-e64a-4ad3-90ca-3bb8be727786"
+        }
+      },
+      {
+        "id": "comments",
+        "title": "Коментування",
+        "status": "completed_with_warnings",
+        "progress": {
+          "completed": 18,
+          "total": 18,
+          "published": 12,
+          "skipped": 2,
+          "failedComments": 4,
+          "failedProfiles": 2,
+          "activeWorkers": 0,
+          "concurrency": 5,
+          "stage": "report",
+          "message": "Формуємо структурований звіт"
+        },
+        "message": "Коментарі: 12 успішно",
+        "result": {
+          "published": 12,
+          "failed": 4,
+          "skipped": 2
+        }
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "workflowJobId": "21b469d7-a49e-4cc1-b9c5-f3450024f1ea",
+    "accountKey": "N5_ADS",
+    "pageId": "122096579090008341",
+    "uniqueKey": "creative-launch:21b469d7-a49e-4cc1-b9c5-f3450024f1ea"
+  }
+}
