@@ -435,6 +435,50 @@ export default function registerIpcHandlers({
     ipcMain.handle("pages:favorite-set", safeHandler(({ pageId, isFavorite }) => pagePreferencesStore.setFavorite(pageId, Boolean(isFavorite))));
     ipcMain.handle("pages:metadata-update", safeHandler(({ pageId, ...patch }) => pagePreferencesStore.updateMetadata(pageId, patch)));
     ipcMain.handle("pages:posts-with-links", safeHandler((payload) => guiService.getPagePostsWithLinks(payload)));
+    ipcMain.handle(
+        "pages:rebuild-requirements",
+        safeHandler((payload) => guiService.getPageRebuildRequirements(payload))
+    );
+    ipcMain.handle("pages:rebuild-start", safeHandler(async (payload) => {
+        const accountKey = String(payload.accountKey ?? "").trim();
+        const pageId = String(payload.pageId ?? "").trim();
+        const task = await backgroundTaskManager.enqueue({
+            type: "page-rebuild",
+            name: `Пересетаплення фанпейджа · ${pageId}`,
+            uniqueKey: `page-rebuild:${accountKey}:${pageId}`,
+            resources: [{
+                key: `facebook-page:${accountKey}:${pageId}`,
+                label: `фанпейджа ${pageId}`,
+            }],
+            input: {
+                accountKey,
+                pageId,
+                imagesDirectory: payload.imagesDirectory,
+                pageCreatedAt: payload.pageCreatedAt ?? null,
+            },
+            metadata: { accountKey, pageId },
+            runner: async ({ signal, progress }) => {
+                const result = await guiService.rebuildPageFromFolder({
+                    accountKey,
+                    pageId,
+                    imagesDirectory: payload.imagesDirectory,
+                    pageCreatedAt: payload.pageCreatedAt,
+                }, progress, signal);
+                return {
+                    result,
+                    taskStatus: result.warnings.length
+                        ? "completed_with_warnings"
+                        : "completed",
+                    reportDetails: {
+                        inputSummary: { accountKey, pageId },
+                        resultSummary: result,
+                        warnings: result.warnings,
+                    },
+                };
+            },
+        });
+        return { taskId: task.id, task };
+    }));
     ipcMain.handle("ads:pixels-list", safeHandler((payload) => guiService.getAdPixels(payload)));
     ipcMain.handle("pages:posts-delete", safeHandler(async (payload) => {
         const task = await backgroundTaskManager.enqueue({
@@ -928,6 +972,16 @@ export default function registerIpcHandlers({
                     name: "Зображення",
                     extensions: ["jpg", "jpeg", "png", "webp"],
                 }],
+            });
+            return result.canceled ? null : result.filePaths[0] ?? null;
+        })
+    );
+    ipcMain.handle(
+        "dialog:select-page-rebuild-folder",
+        safeHandler(async () => {
+            const result = await dialog.showOpenDialog(getWindow(), {
+                title: "Виберіть папку для пересетаплення фанпейджа",
+                properties: ["openDirectory"],
             });
             return result.canceled ? null : result.filePaths[0] ?? null;
         })

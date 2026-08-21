@@ -34,6 +34,13 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("pages:posts-delete", options),
     deletePagePost: (options) =>
         ipcRenderer.invoke("pages:post-delete", options),
+    getPageRebuildRequirements: (accountKey, pageId) =>
+        ipcRenderer.invoke("pages:rebuild-requirements", {
+            accountKey,
+            pageId,
+        }),
+    startPageRebuild: (options) =>
+        ipcRenderer.invoke("pages:rebuild-start", options),
     getAdAccounts: (accountKey) =>
         ipcRenderer.invoke("ads:list", { accountKey }),
     getAdPixels: (accountKey, adAccountId) =>
@@ -117,6 +124,8 @@ contextBridge.exposeInMainWorld("adsBot", {
     saveAppState: (state) => ipcRenderer.invoke("state:save", state),
     setUiScale: (scale) => ipcRenderer.invoke("app:set-zoom", { scale }),
     selectImage: () => ipcRenderer.invoke("dialog:select-image"),
+    selectPageRebuildFolder: () =>
+        ipcRenderer.invoke("dialog:select-page-rebuild-folder"),
     openExternal: (url) => ipcRenderer.invoke("app:open-external", { url }),
     getDroppedFilePath: (file) => webUtils.getPathForFile(file),
     onLog: (callback) => subscribe("log:event", callback),

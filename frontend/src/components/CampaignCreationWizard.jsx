@@ -5,6 +5,7 @@ import {
     CircleAlert,
     ImageIcon,
     LoaderCircle,
+    Pencil,
     Play,
     RefreshCw,
     RotateCcw,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
+import SearchSelect from "./SearchSelect.jsx";
 
 
 function localValueInZone(date, timeZone) {
@@ -97,6 +99,8 @@ export default function CampaignCreationWizard({
     initialPageId = "",
     initialPostId = "",
     lastPublishedPost = null,
+    sourcePage = null,
+    sourcePost = null,
     onClose,
     onSuccess,
 }) {
@@ -115,6 +119,10 @@ export default function CampaignCreationWizard({
     const [postQuery, setPostQuery] = useState("");
     const [postMenuOpen, setPostMenuOpen] = useState(false);
     const [selectedPost, setSelectedPost] = useState(null);
+    const [manualName, setManualName] = useState(false);
+    const [overrideTracking, setOverrideTracking] = useState(false);
+    const [pixels, setPixels] = useState([]);
+    const [pixelsLoading, setPixelsLoading] = useState(false);
     const [form, setForm] = useState({
         campaignName: "",
         templateId: "",
@@ -141,10 +149,16 @@ export default function CampaignCreationWizard({
         let active = true;
         unwrap(window.adsBot.getTemplates()).then((nextTemplates) => {
             if (!active) return;
-            setTemplates(nextTemplates);
+            const sortedTemplates = nextTemplates.slice().sort((left, right) => (
+                String(left.name).localeCompare(String(right.name), "uk-UA", {
+                    numeric: true,
+                    sensitivity: "base",
+                })
+            ));
+            setTemplates(sortedTemplates);
             setForm((current) => ({
                 ...current,
-                templateId: String(nextTemplates[0]?.id ?? ""),
+                templateId: String(sortedTemplates[0]?.id ?? ""),
             }));
         }).catch((error) => {
             if (active) setFailure(errorDetails(error));
@@ -274,6 +288,35 @@ export default function CampaignCreationWizard({
         () => Number(form.adSetCount || 0) * Number(form.dailyBudget || 0),
         [form.adSetCount, form.dailyBudget]
     );
+    const automaticName = sourcePage
+        ? `${sourcePage.geo || "GEO"} | Creo_${sourcePage.creativeName || "?"} | ${selectedTemplate?.ageMin ?? 18}+`
+        : "";
+
+    useEffect(() => {
+        if (!sourcePage || manualName) return;
+        setForm((current) => ({ ...current, campaignName: automaticName }));
+    }, [automaticName, manualName, sourcePage]);
+
+    useEffect(() => {
+        if (!sourcePost) return;
+        setSelectedPost(sourcePost);
+        setPostQuery(String(sourcePost.id));
+    }, [sourcePost]);
+
+    const loadPixels = async () => {
+        setPixelsLoading(true);
+        try {
+            setPixels(await unwrap(window.adsBot.getAdPixels(accountKey, adAccount.id)));
+        } catch (error) {
+            setFailure(errorDetails(error));
+        } finally {
+            setPixelsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (sourcePage && overrideTracking) loadPixels();
+    }, [sourcePage, overrideTracking, adAccount.id]);
 
     const payload = () => ({
         accountKey,
@@ -399,6 +442,40 @@ export default function CampaignCreationWizard({
         }
     };
 
+    const checkAndCreate = async (event) => {
+        event.preventDefault();
+        if (!canCheck || checking || creating) return;
+        setChecking(true);
+        setFailure(null);
+        try {
+            const result = await unwrap(window.adsBot.preflightCampaignCreation(payload()));
+            setVerified(result);
+            const verifiedPostId = result.postId || form.postId.trim();
+            if (result.postId) {
+                setForm((current) => ({ ...current, postId: result.postId }));
+                setPostQuery(result.postId);
+            }
+            setCreating(true);
+            const response = await unwrap(window.adsBot.startCampaignCreation({
+                ...payload(),
+                postId: verifiedPostId,
+            }));
+            setJobId(response.jobId);
+            setProgress({
+                stage: "queued",
+                completed: 0,
+                total: 3 + Number(form.adSetCount) * 2,
+                message: response.task.waitingReason || "Кампанію додано в чергу",
+            });
+            onSuccess?.(response);
+        } catch (error) {
+            setFailure(errorDetails(error));
+        } finally {
+            setChecking(false);
+            setCreating(false);
+        }
+    };
+
     const retry = async () => {
         if (!jobId) return;
         setCreating(true);
@@ -431,6 +508,147 @@ export default function CampaignCreationWizard({
     const percent = progress?.total
         ? Math.min(100, Math.round((progress.completed ?? 0) / progress.total * 100))
         : 0;
+
+    if (sourcePage && sourcePost) {
+        return (
+            <div className="overlay creative-launch-overlay" onMouseDown={() => !creating && onClose()}>
+                <form
+                    className="modal creative-launch-modal post-campaign-launch-modal"
+                    onSubmit={checkAndCreate}
+                    onMouseDown={(event) => event.stopPropagation()}
+                >
+                    <button type="button" className="modal-close" disabled={creating} onClick={onClose}>
+                        <X size={18} />
+                    </button>
+                    <header className="creative-launch-header">
+                        <span className="eyebrow">Запустити рекламну кампанію</span>
+                        <div className={`campaign-title-editor ${manualName ? "editing" : ""}`}>
+                            {manualName ? (
+                                <input
+                                    autoFocus
+                                    aria-label="Назва кампанії"
+                                    value={form.campaignName}
+                                    onChange={(event) => change("campaignName", event.target.value)}
+                                />
+                            ) : <h2>{form.campaignName || automaticName}</h2>}
+                            {!manualName ? (
+                                <button type="button" title="Змінити назву" onClick={() => setManualName(true)}>
+                                    <Pencil size={17} />
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    title="Повернути автоматичну назву"
+                                    onClick={() => {
+                                        setManualName(false);
+                                        change("campaignName", automaticName);
+                                    }}
+                                >
+                                    <X size={18} />
+                                </button>
+                            )}
+                        </div>
+                    </header>
+
+                    <div className="creative-launch-scroll">
+                        <section className="launch-section campaign-source-section">
+                            <header><strong>Джерело реклами</strong></header>
+                            <div className="campaign-source-grid">
+                                <div><span>Фанпейджа</span><strong>{sourcePage.name}</strong><small>{sourcePage.id}</small></div>
+                                <div><span>Пост</span><strong>{sourcePost.id}</strong><small>{sourcePost.message || "Пост без тексту"}</small></div>
+                                {sourcePost.thumbnailUrl && <img src={sourcePost.thumbnailUrl} alt="Прев’ю поста" />}
+                            </div>
+                        </section>
+
+                        <section className="launch-section campaign-launch-section">
+                            <header><strong>Рекламна кампанія</strong></header>
+                            <div className="campaign-selected-account">
+                                <span>Рекламний акаунт</span>
+                                <strong>{adAccount.id}</strong>
+                                <small>{adAccount.currency} · {timezone}</small>
+                            </div>
+                            <label className="field">
+                                <span>Шаблон</span>
+                                <SearchSelect
+                                    items={templates}
+                                    value={form.templateId}
+                                    onChange={(value) => change("templateId", String(value))}
+                                    getId={(template) => String(template.id)}
+                                    getTitle={(template) => template.name}
+                                    getSubtitle={(template) => `ID ${template.id}`}
+                                    placeholder={templatesLoading ? "Оновлюємо шаблони…" : "Оберіть шаблон"}
+                                    searchPlaceholder="Пошук шаблону за назвою…"
+                                    disabled={templatesLoading}
+                                    ariaLabel="Шаблон"
+                                />
+                            </label>
+
+                            <label className="checkbox-line tracking-toggle">
+                                <input
+                                    type="checkbox"
+                                    checked={overrideTracking}
+                                    onChange={(event) => {
+                                        setOverrideTracking(event.target.checked);
+                                        if (!event.target.checked) {
+                                            setForm((current) => ({
+                                                ...current,
+                                                pixelId: defaultPixelId,
+                                                utm: defaultUtm,
+                                            }));
+                                        }
+                                    }}
+                                />
+                                <span>Ввести Pixel і UTM вручну</span>
+                            </label>
+                            {overrideTracking && (
+                                <div className="tracking-editor">
+                                    <label className="field">
+                                        <span>Pixel · пошук за назвою або ID</span>
+                                        <div className="resource-select-row">
+                                            <SearchSelect
+                                                items={pixels}
+                                                value={form.pixelId}
+                                                onChange={(value) => change("pixelId", String(value))}
+                                                getId={(pixel) => String(pixel.id)}
+                                                getTitle={(pixel) => pixel.name || pixel.id}
+                                                getSubtitle={(pixel) => pixel.id}
+                                                placeholder="Оберіть Pixel"
+                                                searchPlaceholder="Назва або ID Pixel…"
+                                                disabled={pixelsLoading}
+                                                ariaLabel="Pixel"
+                                            />
+                                            <button type="button" className="icon-button resource-refresh-button" onClick={loadPixels} disabled={pixelsLoading}>
+                                                <RefreshCw className={pixelsLoading ? "spin" : ""} size={17} />
+                                            </button>
+                                        </div>
+                                    </label>
+                                    <label className="field"><span>UTM</span><textarea rows="3" value={form.utm} onChange={(event) => change("utm", event.target.value)} /></label>
+                                </div>
+                            )}
+
+                            <label className="field launch-start-field">
+                                <span>Старт <b>{timezone}</b></span>
+                                <input type="datetime-local" step="60" value={form.startTime} onChange={(event) => change("startTime", event.target.value)} />
+                            </label>
+                            <div className="launch-budget-grid">
+                                <label className="field"><span>Ad sets</span><input type="number" min="1" max="100" value={form.adSetCount} onChange={(event) => change("adSetCount", event.target.value)} /></label>
+                                <label className="field"><span>Бюджет / ad set, {adAccount.currency}</span><input type="number" min="0.01" step="0.01" value={form.dailyBudget} onChange={(event) => change("dailyBudget", event.target.value)} /></label>
+                            </div>
+                        </section>
+
+                        {failure && <div className="creation-error"><CircleAlert size={19} /><div><strong>{failure.message}</strong></div></div>}
+                    </div>
+                    <div className="form-actions creative-launch-actions">
+                        <button type="button" className="secondary-button" disabled={creating} onClick={onClose}>Скасувати</button>
+                        <button className="primary-button" disabled={!canCheck || checking || creating}>
+                            {(checking || creating) && <LoaderCircle className="spin" size={16} />}
+                            Поставити в чергу
+                        </button>
+                    </div>
+                </form>
+            </div>
+        );
+    }
 
     return (
         <div className="overlay campaign-wizard-overlay" onMouseDown={() => !creating && onClose()}>

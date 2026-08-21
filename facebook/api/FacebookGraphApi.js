@@ -483,6 +483,25 @@ export default class FacebookGraphApi {
     }
 
 
+    async #getAllWithAccessToken(pathname, params, accessToken) {
+        const items = [];
+        let after = null;
+
+        do {
+            const data = await this.#request(pathname, {
+                ...params,
+                ...(after ? { after } : {}),
+            }, { accessToken });
+            if (Array.isArray(data?.data)) items.push(...data.data);
+            after = data?.paging?.next
+                ? data?.paging?.cursors?.after ?? null
+                : null;
+        } while (after);
+
+        return items;
+    }
+
+
     /**
      * Перевіряє, чи працює access token, через запит /me.
      * @returns {Promise<{working: boolean, user?: object, error?: object}>}
@@ -766,6 +785,349 @@ export default class FacebookGraphApi {
         }
 
         return this.#getPublishablePage(page);
+    }
+
+
+    async #getRebuildPage(pageId) {
+        const normalizedPageId = String(pageId ?? "").trim();
+        if (!normalizedPageId) {
+            throw createValidationError(
+                "Не вказано ID фанпейджа",
+                "PAGE_REBUILD_PAGE_ID_REQUIRED"
+            );
+        }
+        const page = await this.getFanPageById(normalizedPageId);
+        if (!page) {
+            throw createValidationError(
+                "Немає доступу на керування вибраною фанпейджою",
+                "PAGE_REBUILD_PAGE_ACCESS_DENIED"
+            );
+        }
+        return page;
+    }
+
+
+    /** Перевіряє доступність Page та читає її дату створення без мутацій. */
+    async getPageRebuildRequirements({ pageId } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        let data;
+        try {
+            data = await this.#request(`/${page.id}`, {
+                fields: "id,name,is_published,created_time",
+            }, { accessToken: page.pageAccessToken });
+        } catch (error) {
+            const createdTimeUnavailable = Number(error?.graphCode) === 100
+                || String(error?.message ?? "").includes("created_time");
+            if (!createdTimeUnavailable) throw error;
+            data = {
+                id: page.id,
+                name: page.name,
+                is_published: true,
+            };
+        }
+        const pageCreatedAt = data?.created_time ?? null;
+        return {
+            pageId: String(data?.id ?? page.id),
+            pageName: String(data?.name ?? page.name ?? ""),
+            pageCreatedAt,
+            requiresPageCreatedAt: !pageCreatedAt,
+        };
+    }
+
+
+    /** Повертає повний snapshot старих постів і завантажених фотографій. */
+    async getPageRebuildSnapshot({ pageId } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        const [posts, photos] = await Promise.all([
+            this.#getAllWithAccessToken(`/${page.id}/feed`, {
+                fields: "id,created_time,is_hidden,message,object_id,status_type,story",
+                limit: 100,
+            }, page.pageAccessToken),
+            this.#getAllWithAccessToken(`/${page.id}/photos`, {
+                fields: "id,created_time,name,album{id,name}",
+                type: "uploaded",
+                limit: 100,
+            }, page.pageAccessToken),
+        ]);
+        return {
+            posts: posts.filter((post) => post?.id).map((post) => ({
+                id: String(post.id),
+                createdTime: post.created_time ?? null,
+                isHidden: post.is_hidden === true,
+                message: post.message ?? "",
+                objectId: post.object_id ? String(post.object_id) : null,
+                statusType: post.status_type ?? null,
+                story: post.story ?? "",
+            })),
+            photos: photos.filter((photo) => photo?.id).map((photo) => ({
+                id: String(photo.id),
+                createdTime: photo.created_time ?? null,
+                name: photo.name ?? "",
+                albumId: photo.album?.id ? String(photo.album.id) : null,
+                albumName: photo.album?.name ?? null,
+            })),
+        };
+    }
+
+
+    async #resolveNewUploadedPhoto(page, knownPhotoIds) {
+        const known = new Set((knownPhotoIds ?? []).map(String));
+        for (let attempt = 0; attempt < 5; attempt += 1) {
+            const photos = await this.#getAllWithAccessToken(`/${page.id}/photos`, {
+                fields: "id,created_time",
+                type: "uploaded",
+                limit: 100,
+            }, page.pageAccessToken);
+            const created = photos
+                .filter((photo) => photo?.id && !known.has(String(photo.id)))
+                .sort((left, right) => (
+                    new Date(right.created_time ?? 0) - new Date(left.created_time ?? 0)
+                ));
+            if (created[0]?.id) return String(created[0].id);
+            if (attempt < 4) {
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+            }
+        }
+        return null;
+    }
+
+
+    /** Завантажує й установлює нову фотографію профілю Page. */
+    async setPageProfilePicture({ pageId, image, knownPhotoIds = [] } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        const body = new FormData();
+        body.set("source", new Blob([image.buffer], {
+            type: image.contentType,
+        }), image.filename);
+        let data;
+        try {
+            data = await this.#request(`/${page.id}/picture`, {}, {
+                method: "post",
+                data: body,
+                accessToken: page.pageAccessToken,
+                retryOnConnectionError: false,
+                outcomeUnknownCode: "FACEBOOK_PAGE_AVATAR_OUTCOME_UNKNOWN",
+                outcomeUnknownMessage: "Не вдалося визначити, чи Meta змінила avatar",
+            });
+        } catch (error) {
+            if (error?.code !== "FACEBOOK_PAGE_AVATAR_OUTCOME_UNKNOWN") throw error;
+            const recoveredId = await this.#resolveNewUploadedPhoto(page, knownPhotoIds);
+            if (!recoveredId) throw error;
+            return { photoId: recoveredId, recovered: true };
+        }
+        const photoId = data?.id
+            ? String(data.id)
+            : await this.#resolveNewUploadedPhoto(page, knownPhotoIds);
+        if (!photoId) {
+            throw createValidationError(
+                "Meta змінила avatar, але не повернула ID фотографії",
+                "PAGE_REBUILD_AVATAR_ID_MISSING"
+            );
+        }
+        return { photoId, recovered: false };
+    }
+
+
+    /** Завантажує фото без публікації у стрічці. */
+    async createUnpublishedPagePhoto({
+        pageId,
+        image,
+        knownPhotoIds = [],
+    } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        const body = new FormData();
+        body.set("source", new Blob([image.buffer], {
+            type: image.contentType,
+        }), image.filename);
+        body.set("published", "false");
+        let data;
+        try {
+            data = await this.#request(`/${page.id}/photos`, {}, {
+                method: "post",
+                data: body,
+                accessToken: page.pageAccessToken,
+                retryOnConnectionError: false,
+                outcomeUnknownCode: "FACEBOOK_PAGE_PHOTO_UPLOAD_OUTCOME_UNKNOWN",
+                outcomeUnknownMessage: "Не вдалося визначити, чи Meta завантажила фотографію",
+            });
+        } catch (error) {
+            if (error?.code !== "FACEBOOK_PAGE_PHOTO_UPLOAD_OUTCOME_UNKNOWN") throw error;
+            const recoveredId = await this.#resolveNewUploadedPhoto(page, knownPhotoIds);
+            if (!recoveredId) throw error;
+            return { photoId: recoveredId, recovered: true };
+        }
+        const photoId = data?.id ? String(data.id) : null;
+        if (!photoId) {
+            throw createValidationError(
+                "Meta не повернула ID завантаженої фотографії",
+                "PAGE_REBUILD_PHOTO_ID_MISSING"
+            );
+        }
+        return { photoId, recovered: false };
+    }
+
+
+    /** Завантажує й установлює нову обкладинку Page. */
+    async setPageCoverPicture({
+        pageId,
+        image,
+        photoId,
+        knownPhotoIds = [],
+    } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        const uploaded = photoId
+            ? { photoId: String(photoId), recovered: true }
+            : await this.createUnpublishedPagePhoto({
+                pageId: page.id,
+                image,
+                knownPhotoIds,
+            });
+        const body = new URLSearchParams();
+        body.set("cover", uploaded.photoId);
+        let data;
+        try {
+            data = await this.#request(`/${page.id}`, {}, {
+                method: "post",
+                data: body,
+                accessToken: page.pageAccessToken,
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                retryOnConnectionError: false,
+                outcomeUnknownCode: "FACEBOOK_PAGE_COVER_OUTCOME_UNKNOWN",
+                outcomeUnknownMessage: "Не вдалося визначити, чи Meta змінила обкладинку",
+            });
+        } catch (error) {
+            error.photoId = uploaded.photoId;
+            if (error?.code !== "FACEBOOK_PAGE_COVER_OUTCOME_UNKNOWN") throw error;
+            const current = await this.#request(`/${page.id}`, {
+                fields: "cover{id}",
+            }, { accessToken: page.pageAccessToken });
+            if (String(current?.cover?.id ?? "") !== uploaded.photoId) throw error;
+            return { ...uploaded, recovered: true };
+        }
+        if (data !== true && data?.success !== true) {
+            throw createValidationError(
+                "Meta не підтвердила зміну обкладинки",
+                "PAGE_REBUILD_COVER_NOT_CONFIRMED"
+            );
+        }
+        return uploaded;
+    }
+
+
+    /** Приховує службовий пост Page. */
+    async hidePagePost({ pageId, postId } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        const body = new URLSearchParams();
+        body.set("is_hidden", "true");
+        const data = await this.#request(`/${postId}`, {}, {
+            method: "post",
+            data: body,
+            accessToken: page.pageAccessToken,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            retryOnConnectionError: false,
+        });
+        if (data !== true && data?.success !== true) {
+            throw createValidationError(
+                "Meta не підтвердила приховування службового поста",
+                "PAGE_REBUILD_HIDE_NOT_CONFIRMED"
+            );
+        }
+        return true;
+    }
+
+
+    async #pageObjectExists(objectId, pageAccessToken) {
+        try {
+            await this.#request(`/${objectId}`, { fields: "id" }, {
+                accessToken: pageAccessToken,
+            });
+            return true;
+        } catch (error) {
+            if (error?.httpStatus === 404 || [100, 803].includes(Number(error?.graphCode))) {
+                return false;
+            }
+            throw error;
+        }
+    }
+
+
+    /** Видаляє старий post/photo і перевіряє невизначений результат. */
+    async deletePageObject({ pageId, objectId } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        try {
+            const data = await this.#request(`/${objectId}`, {}, {
+                method: "delete",
+                accessToken: page.pageAccessToken,
+                retryOnConnectionError: false,
+                outcomeUnknownCode: "FACEBOOK_PAGE_OBJECT_DELETE_OUTCOME_UNKNOWN",
+                outcomeUnknownMessage: "Не вдалося визначити результат видалення об'єкта",
+            });
+            if (data !== true && data?.success !== true) {
+                throw createValidationError(
+                    "Meta не підтвердила видалення об'єкта",
+                    "PAGE_REBUILD_DELETE_NOT_CONFIRMED"
+                );
+            }
+            return true;
+        } catch (error) {
+            if (error?.code !== "FACEBOOK_PAGE_OBJECT_DELETE_OUTCOME_UNKNOWN") {
+                throw error;
+            }
+            if (!await this.#pageObjectExists(objectId, page.pageAccessToken)) return true;
+            throw error;
+        }
+    }
+
+
+    /** Створює backdated feed post з уже завантаженої фотографії. */
+    async createBackdatedPhotoPost({ pageId, photoId, backdatedTime } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        const timestamp = new Date(backdatedTime);
+        if (Number.isNaN(timestamp.getTime()) || timestamp >= new Date()) {
+            throw createValidationError(
+                "Некоректна минула дата фото-поста",
+                "PAGE_REBUILD_BACKDATED_TIME_INVALID"
+            );
+        }
+        const body = new URLSearchParams();
+        body.set("attached_media", JSON.stringify([{ media_fbid: String(photoId) }]));
+        body.set("backdated_time", timestamp.toISOString());
+        body.set("backdated_time_granularity", "day");
+        body.set("published", "true");
+        const data = await this.#request(`/${page.id}/feed`, {}, {
+            method: "post",
+            data: body,
+            accessToken: page.pageAccessToken,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            retryOnConnectionError: false,
+            outcomeUnknownCode: "FACEBOOK_BACKDATED_POST_OUTCOME_UNKNOWN",
+            outcomeUnknownMessage: "Не вдалося визначити, чи Meta створила backdated пост",
+        });
+        if (!data?.id) {
+            throw createValidationError(
+                "Meta не повернула ID backdated поста",
+                "PAGE_REBUILD_POST_ID_MISSING"
+            );
+        }
+        return { postId: String(data.id) };
+    }
+
+
+    async getPagePhotoStory({ pageId, photoId } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        return this.getPhotoPostId({
+            photoId,
+            pageAccessToken: page.pageAccessToken,
+        });
+    }
+
+
+    async getPagePostForPage({ pageId, postId } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        return this.getPagePost({
+            postId,
+            pageAccessToken: page.pageAccessToken,
+        });
     }
 
 

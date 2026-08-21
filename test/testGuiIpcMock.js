@@ -170,6 +170,27 @@ const guiService = {
         assert.equal(accountKey, "fp_hub");
         return [];
     },
+    async getPageRebuildRequirements({ accountKey, pageId }) {
+        return {
+            pageId,
+            accountKey,
+            pageCreatedAt: null,
+            requiresPageCreatedAt: true,
+        };
+    },
+    async rebuildPageFromFolder(options, onProgress) {
+        await onProgress({
+            stage: "complete",
+            completed: 5,
+            total: 5,
+            message: "done",
+        });
+        return {
+            pageId: options.pageId,
+            warnings: [],
+            publications: [{ postId: "10_post" }],
+        };
+    },
     async getAdAccounts() {
         return [{ id: "act_1", name: "Meta" }];
     },
@@ -217,10 +238,12 @@ const guiService = {
 registerIpcHandlers({
     ipcMain,
     dialog: {
-        async showOpenDialog() {
+        async showOpenDialog(_window, options) {
             return {
                 canceled: false,
-                filePaths: ["C:/images/post.jpg"],
+                filePaths: options.properties.includes("openDirectory")
+                    ? ["C:/images/page"]
+                    : ["C:/images/post.jpg"],
             };
         },
     },
@@ -344,6 +367,42 @@ assert.deepEqual(
     { ok: true, data: [] }
 );
 assert.deepEqual(
+    await handlers.get("pages:rebuild-requirements")({}, {
+        accountKey: "fp_hub",
+        pageId: "10",
+    }),
+    {
+        ok: true,
+        data: {
+            accountKey: "fp_hub",
+            pageId: "10",
+            pageCreatedAt: null,
+            requiresPageCreatedAt: true,
+        },
+    }
+);
+const rebuildTask = await handlers.get("pages:rebuild-start")({}, {
+    accountKey: "fp_hub",
+    pageId: "10",
+    imagesDirectory: "C:/images/page",
+    pageCreatedAt: "2024-01-01",
+});
+assert.equal(rebuildTask.ok, true);
+assert.equal(rebuildTask.data.task.type, "page-rebuild");
+assert.equal(rebuildTask.data.task.metadata.pageId, "10");
+assert.equal(
+    enqueuedOptions.find((item) => item.type === "page-rebuild")
+        .resources[0].key,
+    "facebook-page:fp_hub:10"
+);
+const rebuildOutput = await enqueuedOptions
+    .find((item) => item.type === "page-rebuild")
+    .runner({
+        signal: new AbortController().signal,
+        progress: async () => {},
+    });
+assert.equal(rebuildOutput.result.publications[0].postId, "10_post");
+assert.deepEqual(
     await handlers.get("ads:list")({}, { accountKey: "fp_hub" }),
     {
         ok: true,
@@ -413,6 +472,10 @@ assert.equal((await handlers.get("reports:list")({}, {})).data[0].id, "report-1"
 assert.deepEqual(
     await handlers.get("dialog:select-image")({}, {}),
     { ok: true, data: "C:/images/post.jpg" }
+);
+assert.deepEqual(
+    await handlers.get("dialog:select-page-rebuild-folder")({}, {}),
+    { ok: true, data: "C:/images/page" }
 );
 assert.equal(
     (await handlers.get("app:open-external")({}, {

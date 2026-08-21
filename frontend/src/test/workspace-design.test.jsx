@@ -48,6 +48,47 @@ describe("Дизайн workspace фанпейджів", () => {
                     { id: "act_1", localName: "Active name", status: "active" },
                 ],
             }),
+            getTemplates: vi.fn().mockResolvedValue({
+                ok: true,
+                data: [{ id: 7, name: "DE Leads", ageMin: 21 }],
+            }),
+            getFanPages: vi.fn().mockResolvedValue({
+                ok: true,
+                data: [{ id: "10", name: "Deutschland Page", geo: "DE", creativeName: "1" }],
+            }),
+            getCampaignPagePosts: vi.fn().mockResolvedValue({
+                ok: true,
+                data: [{ id: "10_20", message: "Post" }],
+            }),
+            getAdPixels: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+            onCampaignCreationProgress: vi.fn(() => () => {}),
+            preflightCampaignCreation: vi.fn().mockResolvedValue({
+                ok: true,
+                data: { postId: "10_20", pageName: "Deutschland Page" },
+            }),
+            startCampaignCreation: vi.fn().mockResolvedValue({
+                ok: true,
+                data: {
+                    jobId: "campaign-job",
+                    task: { waitingReason: null },
+                },
+            }),
+            getPageRebuildRequirements: vi.fn().mockResolvedValue({
+                ok: true,
+                data: {
+                    pageId: "10",
+                    pageCreatedAt: null,
+                    requiresPageCreatedAt: true,
+                },
+            }),
+            selectPageRebuildFolder: vi.fn().mockResolvedValue({
+                ok: true,
+                data: "C:/images/page",
+            }),
+            startPageRebuild: vi.fn().mockResolvedValue({
+                ok: true,
+                data: { taskId: "task-rebuild" },
+            }),
         };
         Object.assign(navigator, {
             clipboard: { writeText: vi.fn().mockResolvedValue(undefined) },
@@ -119,6 +160,119 @@ describe("Дизайн workspace фанпейджів", () => {
         expect(options[1]).toHaveTextContent("act_2");
         expect(screen.queryByText("Active name")).not.toBeInTheDocument();
         expect(screen.queryByText("Disabled name")).not.toBeInTheDocument();
+    });
+
+    it("відкриває нове автозаповнене вікно кампанії для вибраного поста", async () => {
+        const showToast = vi.fn();
+        render(
+            <PagesTab
+                selectedAccount={{ accountKey: "client", status: "active" }}
+                pages={[{
+                    id: "10",
+                    name: "Deutschland Page",
+                    geo: "DE",
+                    creativeName: "1",
+                    isFavorite: true,
+                }]}
+                adAccounts={[]}
+                groups={[]}
+                selectedPageId="10"
+                setSelectedPageId={vi.fn()}
+                onPagesChange={vi.fn()}
+                onRefresh={vi.fn()}
+                settings={settings}
+                onError={vi.fn()}
+                showToast={showToast}
+            />
+        );
+
+        fireEvent.click(await screen.findByRole("button", { name: "Кампанія" }));
+        const accountSelect = screen.getByRole("button", { name: "Рекламний акаунт" });
+        await waitFor(() => expect(accountSelect).not.toBeDisabled());
+        fireEvent.click(accountSelect);
+        fireEvent.click(await screen.findByText("act_1"));
+        fireEvent.click(screen.getByRole("button", { name: "Продовжити" }));
+
+        expect(await screen.findByRole("heading", {
+            name: "DE | Creo_1 | 21+",
+        })).toBeInTheDocument();
+        expect(screen.getByText("Джерело реклами")).toBeInTheDocument();
+        expect(screen.getAllByText("10_20").length).toBeGreaterThan(0);
+        expect(screen.getByText("act_1")).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Поставити в чергу" }));
+
+        await waitFor(() => expect(window.adsBot.startCampaignCreation).toHaveBeenCalled());
+        expect(window.adsBot.startCampaignCreation.mock.calls[0][0]).toMatchObject({
+            accountKey: "client",
+            adAccountId: "act_1",
+            templateId: 7,
+            campaignName: "DE | Creo_1 | 21+",
+            pageId: "10",
+            postId: "10_20",
+            pixelId: "30",
+            utm: "utm_source=adsbot",
+        });
+        expect(showToast).toHaveBeenCalledWith("Кампанію поставлено в чергу", "success");
+    });
+
+    it("підтверджує небезпечне пересетаплення та передає вибрану папку", async () => {
+        const setSelectedPageId = vi.fn();
+        const showToast = vi.fn();
+        render(
+            <PagesTab
+                selectedAccount={{ accountKey: "client", status: "active" }}
+                pages={[{
+                    id: "10",
+                    name: "Deutschland Page",
+                    geo: "DE",
+                    creativeName: "1",
+                    isFavorite: true,
+                }]}
+                adAccounts={[]}
+                groups={[]}
+                selectedPageId="10"
+                setSelectedPageId={setSelectedPageId}
+                onPagesChange={vi.fn()}
+                onRefresh={vi.fn()}
+                settings={settings}
+                onError={vi.fn()}
+                showToast={showToast}
+            />
+        );
+
+        fireEvent.click(screen.getByTitle("Пересетапити фанпейдж"));
+        expect(setSelectedPageId).not.toHaveBeenCalled();
+        expect(await screen.findByRole("heading", {
+            name: "Пересетапити Deutschland Page",
+        })).toBeInTheDocument();
+        expect(screen.getByText(/видаляться к хрінам/)).toBeInTheDocument();
+        expect(screen.getByText("1.*")).toBeInTheDocument();
+        expect(screen.getByText("2.*")).toBeInTheDocument();
+
+        const submit = screen.getByRole("button", { name: "Пересетапити фанку" });
+        expect(submit).toBeDisabled();
+        fireEvent.click(screen.getByRole("button", { name: "Вибрати папку" }));
+        expect(await screen.findByDisplayValue("C:/images/page")).toBeInTheDocument();
+        fireEvent.change(await screen.findByLabelText("Дата створення фанпейджа"), {
+            target: { value: "2024-01-01" },
+        });
+        fireEvent.click(screen.getByLabelText(
+            "Я розумію, що всі старі пости й фото буде видалено"
+        ));
+        expect(submit).toBeEnabled();
+        fireEvent.click(submit);
+
+        await waitFor(() => expect(window.adsBot.startPageRebuild)
+            .toHaveBeenCalledWith({
+                accountKey: "client",
+                pageId: "10",
+                imagesDirectory: "C:/images/page",
+                pageCreatedAt: "2024-01-01",
+            }));
+        expect(showToast).toHaveBeenCalledWith(
+            "Пересетаплення фанпейджа поставлено в чергу",
+            "success"
+        );
     });
 });
 

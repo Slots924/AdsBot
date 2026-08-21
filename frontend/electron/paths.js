@@ -30,6 +30,7 @@ export const appPaths = {
     ),
     pagePreferences: path.join(projectRoot, "data/page-preferences.json"),
     creativeLaunchJobs: path.join(projectRoot, "data/creative-launch-jobs.json"),
+    pageRebuildJobs: path.join(projectRoot, "data/page-rebuild-jobs.json"),
     reports: path.join(projectRoot, "data/reports"),
     taskReports: path.join(projectRoot, "data/reports/tasks"),
     logs: path.join(projectRoot, "data/logs"),

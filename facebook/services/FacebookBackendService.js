@@ -7,6 +7,10 @@ import prepareCreativeForCampaign
     from "../../services/creatives/prepareCreativeForCampaign.js";
 import loadImageFromPath
     from "../../services/images/loadImageFromPath.js";
+import PageRebuildJournal
+    from "../../services/workflows/PageRebuildJournal.js";
+import rebuildPageFromFolderWorkflow
+    from "../workflows/rebuildPageFromFolder.js";
 
 
 function createBackendError(message, code) {
@@ -34,6 +38,9 @@ export default class FacebookBackendService {
     #publishPagePost;
     #prepareCreativeForCampaign;
     #loadImageFromPath;
+    #pageRebuildJournal;
+    #rebuildPageFromFolder;
+    #pageRebuildOperations = new Map();
 
 
     constructor({
@@ -43,6 +50,8 @@ export default class FacebookBackendService {
         publishPagePostFn = publishPagePost,
         prepareCreativeFn = prepareCreativeForCampaign,
         imageLoader = loadImageFromPath,
+        pageRebuildJournal = new PageRebuildJournal(),
+        rebuildPageFromFolderFn = rebuildPageFromFolderWorkflow,
     } = {}) {
         if (!(facebookApiClients instanceof Map)) {
             throw createBackendError(
@@ -57,6 +66,8 @@ export default class FacebookBackendService {
         this.#publishPagePost = publishPagePostFn;
         this.#prepareCreativeForCampaign = prepareCreativeFn;
         this.#loadImageFromPath = imageLoader;
+        this.#pageRebuildJournal = pageRebuildJournal;
+        this.#rebuildPageFromFolder = rebuildPageFromFolderFn;
     }
 
 
@@ -159,6 +170,34 @@ export default class FacebookBackendService {
     async getFanPages(accountKey) {
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
         return facebookApiClient.getAvailablePages();
+    }
+
+
+    async getPageRebuildRequirements({ accountKey, pageId } = {}) {
+        const facebookApiClient = this.#getFacebookApiClient(accountKey);
+        return facebookApiClient.getPageRebuildRequirements({ pageId });
+    }
+
+
+    async rebuildPageFromFolder(options = {}, onProgress, signal) {
+        const key = `${String(options.accountKey)}:${String(options.pageId)}`;
+        const current = this.#pageRebuildOperations.get(key);
+        if (current) return current;
+        const facebookApiClient = this.#getFacebookApiClient(options.accountKey);
+        const operation = this.#rebuildPageFromFolder({
+            ...options,
+            facebookApiClient,
+            journal: this.#pageRebuildJournal,
+            imageLoader: this.#loadImageFromPath,
+            onProgress,
+            signal,
+        }).finally(() => {
+            if (this.#pageRebuildOperations.get(key) === operation) {
+                this.#pageRebuildOperations.delete(key);
+            }
+        });
+        this.#pageRebuildOperations.set(key, operation);
+        return operation;
     }
 
 

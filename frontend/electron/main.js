@@ -10,6 +10,7 @@ import AdAccountPreferencesStore
     from "../../services/gui/AdAccountPreferencesStore.js";
 import PagePreferencesStore from "../../services/gui/PagePreferencesStore.js";
 import CreativeLaunchJournal from "../../services/workflows/CreativeLaunchJournal.js";
+import PageRebuildJournal from "../../services/workflows/PageRebuildJournal.js";
 import CampaignTemplateManager
     from "../../services/templates/CampaignTemplateManager.js";
 import CountryCatalog from "../../services/templates/CountryCatalog.js";
@@ -116,6 +117,9 @@ async function createWindow() {
                 proxiesFilePath: appPaths.proxies,
             },
             creativeManagerFactory: createCreativeManager,
+            pageRebuildJournal: new PageRebuildJournal({
+                jobsFile: appPaths.pageRebuildJobs,
+            }),
         },
         groupsFile: appPaths.groups,
         reportsDirectory: appPaths.reports,

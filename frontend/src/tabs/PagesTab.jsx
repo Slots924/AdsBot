@@ -4,14 +4,17 @@ import {
     CirclePlus,
     Copy,
     ExternalLink,
+    FolderOpen,
     LoaderCircle,
     Megaphone,
     MessageSquareText,
     Pencil,
     RefreshCw,
+    RotateCcw,
     Rocket,
     Send,
     Trash2,
+    TriangleAlert,
     X,
 } from "lucide-react";
 
@@ -52,7 +55,7 @@ function CopyButton({ value, label }) {
 }
 
 
-function PageCard({ page, selected, onSelect, onFavorite }) {
+function PageCard({ page, selected, onSelect, onFavorite, onRebuild }) {
     return (
         <div
             className={`page-card ${selected ? "selected" : ""}`}
@@ -83,6 +86,18 @@ function PageCard({ page, selected, onSelect, onFavorite }) {
                 </span>
                 <button
                     type="button"
+                    className="page-card-rebuild"
+                    title="Пересетапити фанпейдж"
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        onRebuild(page);
+                    }}
+                >
+                    <RotateCcw size={14} />
+                    Пересетапити
+                </button>
+                <button
+                    type="button"
                     className="ad-card-action"
                     title={page.isFavorite ? "Забрати з обраних" : "Додати до обраних"}
                     onClick={(event) => {
@@ -95,6 +110,175 @@ function PageCard({ page, selected, onSelect, onFavorite }) {
                         : <CirclePlus size={17} />}
                 </button>
             </div>
+        </div>
+    );
+}
+
+
+function PageRebuildModal({
+    page,
+    accountKey,
+    onClose,
+    onQueued,
+    onError,
+}) {
+    const [requirements, setRequirements] = useState(null);
+    const [imagesDirectory, setImagesDirectory] = useState("");
+    const [pageCreatedAt, setPageCreatedAt] = useState("");
+    const [confirmed, setConfirmed] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        let active = true;
+        setLoading(true);
+        unwrap(window.adsBot.getPageRebuildRequirements(accountKey, page.id))
+            .then((value) => {
+                if (active) setRequirements(value);
+            })
+            .catch((error) => {
+                if (active) onError(errorDetails(error));
+            })
+            .finally(() => {
+                if (active) setLoading(false);
+            });
+        return () => {
+            active = false;
+        };
+    }, [accountKey, page.id, onError]);
+
+    const chooseFolder = async () => {
+        try {
+            const selected = await unwrap(
+                window.adsBot.selectPageRebuildFolder()
+            );
+            if (selected) setImagesDirectory(selected);
+        } catch (error) {
+            onError(errorDetails(error));
+        }
+    };
+    const submit = async (event) => {
+        event.preventDefault();
+        setSaving(true);
+        try {
+            const result = await unwrap(window.adsBot.startPageRebuild({
+                accountKey,
+                pageId: page.id,
+                imagesDirectory,
+                ...(requirements?.requiresPageCreatedAt
+                    ? { pageCreatedAt }
+                    : {}),
+            }));
+            onQueued(result);
+        } catch (error) {
+            onError(errorDetails(error));
+        } finally {
+            setSaving(false);
+        }
+    };
+    const canSubmit = Boolean(
+        requirements
+        && imagesDirectory
+        && confirmed
+        && (!requirements.requiresPageCreatedAt || pageCreatedAt)
+    );
+
+    return (
+        <div className="overlay">
+            <form className="modal page-rebuild-modal" onSubmit={submit}>
+                <button type="button" className="modal-close" onClick={onClose}>
+                    <X size={17} />
+                </button>
+                <span className="eyebrow">Fanpage {page.id}</span>
+                <h2>Пересетапити {page.name}</h2>
+
+                <div className="page-rebuild-warning">
+                    <TriangleAlert size={24} />
+                    <div>
+                        <strong>Увага: це незворотна операція</strong>
+                        <p>
+                            Усі старі пости та фотографії цієї фанки видаляться
+                            к хрінам. Відновити їх буде неможливо.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="page-rebuild-instructions">
+                    <strong>Як підготувати папку</strong>
+                    <p><code>1.*</code> — фото на avatar.</p>
+                    <p><code>2.*</code> — фото на обкладинку.</p>
+                    <p>Усі інші фотографії будуть опубліковані як пости.</p>
+                    <small>
+                        Якщо 1.* або 2.* відсутнє чи не підходить за розміром,
+                        backend автоматично вибере інше придатне фото.
+                    </small>
+                </div>
+
+                <label className="field">
+                    <span>Папка з фотографіями</span>
+                    <div className="page-rebuild-folder-row">
+                        <input
+                            readOnly
+                            value={imagesDirectory}
+                            placeholder="Папку не вибрано"
+                        />
+                        <button
+                            type="button"
+                            className="secondary-button"
+                            onClick={chooseFolder}
+                            disabled={saving}
+                        >
+                            <FolderOpen size={16} />
+                            Вибрати папку
+                        </button>
+                    </div>
+                </label>
+
+                {loading && (
+                    <div className="page-rebuild-requirements">
+                        <LoaderCircle className="spin" size={16} />
+                        Перевіряємо доступ до фанпейджа…
+                    </div>
+                )}
+                {requirements?.requiresPageCreatedAt && (
+                    <label className="field">
+                        <span>Дата створення фанпейджа</span>
+                        <input
+                            type="date"
+                            aria-label="Дата створення фанпейджа"
+                            max={new Date().toISOString().slice(0, 10)}
+                            value={pageCreatedAt}
+                            onChange={(event) => setPageCreatedAt(event.target.value)}
+                            required
+                        />
+                        <small>Meta не повернула дату — вкажіть її вручну.</small>
+                    </label>
+                )}
+
+                <label className="page-rebuild-confirmation">
+                    <input
+                        type="checkbox"
+                        checked={confirmed}
+                        onChange={(event) => setConfirmed(event.target.checked)}
+                    />
+                    <span>Я розумію, що всі старі пости й фото буде видалено</span>
+                </label>
+
+                <div className="form-actions">
+                    <button type="button" className="secondary-button" onClick={onClose}>
+                        Скасувати
+                    </button>
+                    <button
+                        className="danger-button page-rebuild-submit"
+                        disabled={!canSubmit || saving || loading}
+                    >
+                        {saving
+                            ? <LoaderCircle className="spin" size={16} />
+                            : <RotateCcw size={16} />}
+                        Пересетапити фанку
+                    </button>
+                </div>
+            </form>
         </div>
     );
 }
@@ -480,6 +664,10 @@ export default function PagesTab({
                                             selected={String(page.id) === String(selectedPageId)}
                                             onSelect={setSelectedPageId}
                                             onFavorite={favorite}
+                                            onRebuild={(page) => setAction({
+                                                type: "rebuild",
+                                                page,
+                                            })}
                                         />
                                     </div>
                                 );
@@ -494,6 +682,10 @@ export default function PagesTab({
                                     selected={String(page.id) === String(selectedPageId)}
                                     onSelect={setSelectedPageId}
                                     onFavorite={favorite}
+                                    onRebuild={(page) => setAction({
+                                        type: "rebuild",
+                                        page,
+                                    })}
                                 />
                             ))}
                         </div>
@@ -651,6 +843,17 @@ export default function PagesTab({
                     onError={onError}
                 />
             )}
+            {action?.type === "rebuild" && (
+                <PageRebuildModal
+                    page={action.page}
+                    accountKey={accountKey}
+                    onClose={() => setAction(null)}
+                    onQueued={() => queued(
+                        "Пересетаплення фанпейджа поставлено в чергу"
+                    )}
+                    onError={onError}
+                />
+            )}
             {action?.type === "publish" && (
                 <PublicationModal
                     page={selected}
@@ -700,6 +903,8 @@ export default function PagesTab({
                         pageId: selected.id,
                         postId: action.post.id,
                     }}
+                    sourcePage={selected}
+                    sourcePost={action.post}
                     onClose={() => setAction(null)}
                     onSuccess={() => queued("Кампанію поставлено в чергу")}
                 />

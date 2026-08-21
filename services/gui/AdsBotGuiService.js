@@ -255,6 +255,22 @@ export default class AdsBotGuiService {
     }
 
 
+    async getPageRebuildRequirements(options = {}) {
+        await this.#assertActiveAccount(options.accountKey);
+        return this.#facebookBackend.getPageRebuildRequirements(options);
+    }
+
+
+    async rebuildPageFromFolder(options = {}, onProgress, signal) {
+        await this.#assertActiveAccount(options.accountKey);
+        return this.#facebookBackend.rebuildPageFromFolder(
+            options,
+            onProgress,
+            signal
+        );
+    }
+
+
     async getAdAccounts(accountKey) {
         await this.#assertActiveAccount(accountKey);
         this.logger.info(`Завантажуємо рекламні акаунти: ${accountKey}`);
