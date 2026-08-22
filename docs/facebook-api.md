@@ -131,14 +131,17 @@ if (!selectedFacebookApiClient) {
 | `checkAccessToken()` | `{ working, user?, error? }` | Перевіряє token через `/me`. OAuth code 190 повертається як `working: false`. |
 | `getMe()` | `{ id, name }` | Повертає користувача, якому належить token. |
 | `getPermissions()` | `{ granted, declined, expired, other }` | Групує permissions за статусом. |
-| `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти, включно з today spend, `dailySpendLimit`, UTC offset і DSA defaults. |
+| `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти, включно з UTC offset і DSA defaults. Денний spend та `adtrust_dsl` тут навмисно не запитуються. |
 | `getAdCampaigns(adAccountId)` | `Array` | Повертає ACTIVE і PAUSED кампанії РК. |
 | `getAdCampaignInsights(adAccountId, datePreset)` | `Array` | Повертає campaign-level spend та actions за Meta date preset. |
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
 | `getAvailablePages()` | `Array<{id, name, pictureUrl}>` | Перевіряє доступність, publish tasks і статус фанпейджів та повертає список з avatar URL, але без токенів. |
+| `getPageList({force})` | `Array<{id, name, pictureUrl}>` | Легко оновлює список через `id,name,tasks,access_token` без перевірки деталей кожної Page та без завантаження avatar. Токени назовні не повертає. |
+| `getPageDetails({pageId})` | `{id, name, pictureUrl}` | За прямою ручною дією оновлює дані та локальну копію avatar однієї Page. |
 | `getFanPageById(pageId)` | `object \| null` | Перевіряє фанпейджу й повертає її Page token лише для внутрішньої публікації. |
 | `getPagePosts({pageId, limit})` | `Array` | Повертає 10 найновіших опублікованих постів із безпечними даними для прев’ю. |
 | `getLatestPagePostsWithLinks({pageId, limit})` | `Array` | Серед 10 найновіших опублікованих постів повертає ті, що містять HTTP(S)-посилання саме в тексті. |
+| `getPagePostsSignature({pageId, limit})` | `{count, postIds}` | Легко читає лише `id,message,is_published`, щоб порівняти URL-пости без завантаження фотографій і заміни кешу. |
 | `deletePagePosts({pageId, posts})` | `{ deleted, failed }` | Послідовно видаляє передані canonical post ID цієї фанпейджі та повертає частковий результат. |
 | `createPageTextPost(options)` | `{ postId }` | Публікує текстовий пост через `/feed`. |
 | `createPagePhotoPost(options)` | `{ postId, photoId }` | Публікує одну фотографію через `/photos`. |
@@ -165,10 +168,9 @@ const pages = await selectedFacebookApiClient.getPages();
 
 `getAdAccounts()` і `getPages()` автоматично проходять усі сторінки Graph API через cursor `after`. Код не використовує абсолютний `paging.next`, щоб access token випадково не потрапив до логів разом із URL.
 
-`getAdAccounts()` читає `insights.date_preset(today){spend}` на рівні акаунта,
-`adtrust_dsl` як денний ліміт Meta і `timezone_offset_hours_utc`. Грошовий
-`adtrust_dsl` залишається у minor units Graph API; форматування у валюту виконує
-GUI.
+`getAdAccounts()` читає `timezone_offset_hours_utc`, але не додає важкий вкладений
+`insights.date_preset(today){spend}` і не запитує `adtrust_dsl`. Spend кампаній
+надалі завантажується окремим `getAdCampaignInsights()` лише для вибраної РК.
 
 `getPagePosts()` одним read-only запитом читає перші 10 записів
 `/{page-id}/published_posts` і сортує їх від найновішого до найстарішого.

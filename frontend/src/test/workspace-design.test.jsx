@@ -40,8 +40,32 @@ describe("Дизайн workspace фанпейджів", () => {
                     message: "Post",
                     permalinkUrl: "https://facebook.test/post",
                     createdTime: "2026-08-20T10:00:00.000Z",
+                    thumbnailUrl: `adsbot-cache://image/${"a".repeat(64)}.jpg`,
                 }],
             }),
+            getPagePostsSignature: vi.fn().mockResolvedValue({
+                ok: true,
+                data: { count: 1, postIds: ["10_20"] },
+            }),
+            refreshSelectedFanPage: vi.fn().mockResolvedValue({
+                ok: true,
+                data: {
+                    page: {
+                        id: "10",
+                        name: "Deutschland Page Updated",
+                        pictureUrl: "data:image/png;base64,AA==",
+                    },
+                    posts: [{
+                        id: "10_21",
+                        message: "Updated post",
+                        permalinkUrl: "https://facebook.test/updated",
+                        createdTime: "2026-08-21T10:00:00.000Z",
+                        thumbnailUrl: "data:image/png;base64,AA==",
+                    }],
+                    postCount: 1,
+                },
+            }),
+            writeRendererLog: vi.fn().mockResolvedValue({ ok: true }),
             getAdAccounts: vi.fn().mockResolvedValue({
                 ok: true,
                 data: [
@@ -131,6 +155,71 @@ describe("Дизайн workspace фанпейджів", () => {
         expect(screen.getByTitle("Відкрити фанку у Facebook")).toBeInTheDocument();
         expect(screen.getByTitle("Копіювати посилання на пост")).toBeInTheDocument();
         expect(screen.getByTitle("Відкрити пост у Facebook")).toBeInTheDocument();
+    });
+
+    it("окремо оновлює список і вибрану фанку, не ховаючи старі пости", async () => {
+        const onRefresh = vi.fn().mockResolvedValue([]);
+        const onPagesChange = vi.fn();
+        let finishRefresh;
+        window.adsBot.refreshSelectedFanPage = vi.fn(() => new Promise((resolve) => {
+            finishRefresh = resolve;
+        }));
+        render(
+            <PagesTab
+                selectedAccount={{ accountKey: "client", status: "active" }}
+                pages={[{
+                    id: "10",
+                    name: "Deutschland Page",
+                    geo: "DE",
+                    creativeName: "1",
+                    isFavorite: true,
+                }]}
+                adAccounts={[]}
+                groups={[]}
+                selectedPageId="10"
+                setSelectedPageId={vi.fn()}
+                onPagesChange={onPagesChange}
+                onRefresh={onRefresh}
+                settings={settings}
+                onError={vi.fn()}
+                showToast={vi.fn()}
+            />
+        );
+
+        expect(await screen.findByText("Post")).toBeInTheDocument();
+        await waitFor(() => expect(window.adsBot.getPagePostsSignature)
+            .toHaveBeenCalledWith("client", "10"));
+
+        fireEvent.click(screen.getByTitle("Оновити список фанок"));
+        await waitFor(() => expect(onRefresh).toHaveBeenCalledTimes(1));
+        expect(window.adsBot.refreshSelectedFanPage).not.toHaveBeenCalled();
+
+        const selectedRefresh = screen.getByTitle(
+            "Оновити вибрану фанку і пости"
+        );
+        fireEvent.click(selectedRefresh);
+        expect(screen.getByText("Post")).toBeInTheDocument();
+        expect(selectedRefresh.querySelector("svg")).toHaveClass("spin");
+
+        finishRefresh({
+            ok: true,
+            data: {
+                page: { id: "10", name: "Updated Page" },
+                posts: [{
+                    id: "10_20",
+                    message: "Updated post",
+                    createdTime: "2026-08-21T10:00:00.000Z",
+                    thumbnailUrl: `adsbot-cache://image/${"b".repeat(64)}.jpg`,
+                }],
+                postCount: 1,
+            },
+        });
+        expect(await screen.findByText("Updated post")).toBeInTheDocument();
+        expect(screen.getByAltText("Прев’ю поста")).toHaveAttribute(
+            "src",
+            `adsbot-cache://image/${"a".repeat(64)}.jpg`
+        );
+        expect(onPagesChange).toHaveBeenCalled();
     });
 
     it("сортує рекламні акаунти за статусом і показує лише ID", async () => {

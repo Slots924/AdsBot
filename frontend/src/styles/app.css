@@ -152,6 +152,9 @@ button:focus-visible, input:focus-visible {
 .page-geo-divider { margin-top: 13px; padding-top: 13px; border-top: 4px solid rgba(132,114,255,.18); }
 .page-details-header, .page-actions, .inline-field { display: flex; align-items: center; gap: 10px; }
 .page-details-header { justify-content: space-between; }.page-details-header h1 { margin: 4px 0 0; font-size: 28px; }
+.page-details-header-actions, .page-post-status { display: flex; align-items: center; gap: 10px; }
+.page-post-status { margin-top: 7px; color: var(--muted); font-size: 12px; }
+.page-post-status strong { color: #f7c75c; }
 .page-metadata-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin-top: 18px; }
 .page-metadata-grid > div { position: relative; min-height: 72px; padding: 12px; border: 1px solid var(--stroke); border-radius: 12px; background: rgba(255,255,255,.025); }
 .page-metadata-grid > div span, .page-metadata-grid > div strong { display: block; }.page-metadata-grid > div span { color: var(--muted); font-size: var(--font-meta); }.page-metadata-grid > div strong { margin-top: 9px; font-size: var(--font-control); }

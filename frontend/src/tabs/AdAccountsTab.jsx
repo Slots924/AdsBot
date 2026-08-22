@@ -60,21 +60,6 @@ function formatMoney(amount, currency) {
 }
 
 
-function formatMinorMoney(amount, currency) {
-    if (amount === null || amount === undefined || amount === "") return "—";
-    try {
-        const formatter = new Intl.NumberFormat("uk-UA", {
-            style: "currency",
-            currency: currency || "USD",
-        });
-        const digits = formatter.resolvedOptions().maximumFractionDigits;
-        return formatter.format(Number(amount) / (10 ** digits));
-    } catch {
-        return String(amount);
-    }
-}
-
-
 function timezoneLabel(account) {
     const offset = Number(account.timezoneOffsetHoursUtc);
     const suffix = Number.isFinite(offset)
@@ -301,6 +286,7 @@ export default function AdAccountsTab({
     const campaignCacheRef = useRef({});
     const campaignRequestIds = useRef({});
     const campaignClientVersions = useRef({});
+    const forceNextCampaignLoad = useRef(false);
     const favoriteOrderRef = useRef([]);
     const accountActive = selectedAccount?.status === "active";
     const selectedId = controlledSelectedId ?? localSelectedId;
@@ -357,7 +343,8 @@ export default function AdAccountsTab({
             const data = await unwrap(window.adsBot.getAdCampaigns(
                 accountKey,
                 adAccountId,
-                preset
+                preset,
+                force
             ));
             const entry = { status: "ready", data, error: null };
             if (
@@ -398,6 +385,7 @@ export default function AdAccountsTab({
         setLoading(true);
 
         if (refreshCampaigns) {
+            forceNextCampaignLoad.current = true;
             campaignClientVersions.current[accountKey] = (
                 campaignClientVersions.current[accountKey] ?? 0
             ) + 1;
@@ -442,8 +430,38 @@ export default function AdAccountsTab({
     }, [accountKey, accountActive, workspaceAccounts]);
 
     useEffect(() => {
-        if (selected) loadCampaigns(selected.id, datePreset);
+        if (selected) {
+            const force = forceNextCampaignLoad.current;
+            forceNextCampaignLoad.current = false;
+            loadCampaigns(selected.id, datePreset, { force });
+        }
     }, [selected?.id, datePreset, accountKey, campaignRefreshVersion]);
+
+    useEffect(() => {
+        const offRefreshed = window.adsBot.onCampaignsRefreshed?.((event) => {
+            if (event?.accountKey !== accountKey || !event?.data) return;
+            const key = campaignKey(event.adAccountId, event.datePreset);
+            updateCampaignCache((cache) => ({
+                ...cache,
+                [key]: { status: "ready", data: event.data, error: null },
+            }));
+        }) ?? (() => {});
+        const offInvalidated = window.adsBot.onCampaignsInvalidated?.((event) => {
+            if (event?.accountKey !== accountKey) return;
+            updateCampaignCache((cache) => Object.fromEntries(
+                Object.entries(cache).filter(([key]) => !key.startsWith(
+                    `${accountKey}::${event.adAccountId}::`
+                ))
+            ));
+            if (String(selected?.id) === String(event.adAccountId)) {
+                loadCampaigns(event.adAccountId, datePreset, { force: true });
+            }
+        }) ?? (() => {});
+        return () => {
+            offRefreshed();
+            offInvalidated();
+        };
+    }, [accountKey, selected?.id, datePreset]);
 
     const updateFavoritePositions = (orderedIds) => {
         const positions = new Map(orderedIds.map((id, index) => [id, index]));
@@ -651,12 +669,6 @@ export default function AdAccountsTab({
                                     </div>
                                 </header>
                                 <div className="detail-grid compact">
-                                    <div className="account-spend-today">
-                                        <span>Сьогодні / денний ліміт Meta</span>
-                                        <strong>
-                                            {formatMoney(selected.todaySpend, selected.currency)} / {formatMinorMoney(selected.dailySpendLimit, selected.currency)}
-                                        </strong>
-                                    </div>
                                     <div><span>Business</span><strong>{value(selected.business?.name)}</strong><small>{value(selected.business?.id)}</small></div>
                                     <div><span>Owner</span><strong>{value(selected.owner)}</strong></div>
                                     <div><span>Валюта</span><strong>{value(selected.currency)}</strong></div>

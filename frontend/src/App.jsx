@@ -63,7 +63,9 @@ export default function App() {
         if (!accountKey || (!force && workspaceCache[accountKey])) return;
         setWorkspaceLoading(true);
         try {
-            const value = await unwrap(window.adsBot.loadClientWorkspace(accountKey));
+            const value = await unwrap(
+                window.adsBot.loadClientWorkspace(accountKey, force)
+            );
             setWorkspaceCache((current) => ({ ...current, [accountKey]: value }));
             setSelectedAdAccountId((current) => value.adAccounts.some((item) => item.id === current) ? current : "");
             setSelectedPageId((current) => value.pages.some((item) => item.id === current) ? current : "");
@@ -94,6 +96,13 @@ export default function App() {
                 }
             }
         });
+        const offWorkspace = window.adsBot.onWorkspaceRefreshed?.((event) => {
+            if (!event?.accountKey || !event?.workspace) return;
+            setWorkspaceCache((current) => ({
+                ...current,
+                [event.accountKey]: event.workspace,
+            }));
+        }) ?? (() => {});
         const initialize = async () => {
             try {
                 const state = await unwrap(window.adsBot.loadAppState());
@@ -108,7 +117,7 @@ export default function App() {
             setHydrated(true);
         };
         initialize();
-        return () => { offLog(); offTasks(); };
+        return () => { offLog(); offTasks(); offWorkspace(); };
     }, []);
 
     useEffect(() => { if (selectedAccount?.status === "active") loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status]);
@@ -118,7 +127,22 @@ export default function App() {
         return () => clearTimeout(timer);
     }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentBrowserMode, commentDisableImages, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId]);
 
-    const updateWorkspacePages = (pages) => setWorkspaceCache((current) => ({ ...current, [selectedAccountKey]: { ...workspace, pages } }));
+    const updateWorkspacePages = (pages) => setWorkspaceCache((current) => ({
+        ...current,
+        [selectedAccountKey]: {
+            ...(current[selectedAccountKey] ?? workspace),
+            pages,
+        },
+    }));
+    const refreshFanPageList = async () => {
+        if (!selectedAccountKey) return [];
+        const pages = await unwrap(window.adsBot.getFanPages(
+            selectedAccountKey,
+            true
+        ));
+        updateWorkspacePages(pages);
+        return pages;
+    };
     const updateWorkspaceAccounts = (adAccounts) => setWorkspaceCache((current) => ({ ...current, [selectedAccountKey]: { ...(current[selectedAccountKey] || workspace), adAccounts } }));
     const createAccount = async (input) => { applyAccounts(await unwrap(window.adsBot.createAccount(input))); showToast("API-клієнта створено", "success"); };
     const updateAccount = async (key, patch) => { applyAccounts(await unwrap(window.adsBot.updateAccount(key, patch))); setWorkspaceCache((current) => { const next = { ...current }; delete next[key]; return next; }); showToast("API-клієнта оновлено", "success"); };
@@ -135,7 +159,22 @@ export default function App() {
             <div className="content-scroll"><AnimatePresence mode="wait">
                 {activeTab === "accounts" && <motion.section key="accounts" className="accounts-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><Sidebar standalone accounts={accounts} selectedAccountKey={selectedAccountKey} loading={accountsLoading} onSelect={selectAccount} onRefresh={() => loadAccounts(true)} onCreate={createAccount} onUpdate={updateAccount} onSetArchived={archiveAccount} onError={setModal}/></motion.section>}
                 {activeTab === "ads" && <AdsWorkspaceTab key="ads" adsSubtab={adsSubtab} onSubtabChange={setAdsSubtab} selectedAccount={selectedAccount} workspaceAccounts={workspace.adAccounts} onWorkspaceAccountsChange={updateWorkspaceAccounts} onError={setModal} showToast={showToast} addLog={addLog} selectedId={selectedAdAccountId} setSelectedId={setSelectedAdAccountId} createCampaignsPaused={createCampaignsPaused} defaultPixelId={defaultPixelId} defaultUtm={defaultUtm}/>}
-                {activeTab === "pages" && <PagesTab key="pages" selectedAccount={selectedAccount} pages={workspace.pages} adAccounts={workspace.adAccounts} groups={groups} selectedPageId={selectedPageId} setSelectedPageId={setSelectedPageId} onPagesChange={updateWorkspacePages} onRefresh={() => loadWorkspace(selectedAccountKey, true)} settings={settings} onError={setModal} showToast={showToast}/>}
+                {activeTab === "pages" && (
+                    <PagesTab
+                        key="pages"
+                        selectedAccount={selectedAccount}
+                        pages={workspace.pages}
+                        adAccounts={workspace.adAccounts}
+                        groups={groups}
+                        selectedPageId={selectedPageId}
+                        setSelectedPageId={setSelectedPageId}
+                        onPagesChange={updateWorkspacePages}
+                        onRefresh={refreshFanPageList}
+                        settings={settings}
+                        onError={setModal}
+                        showToast={showToast}
+                    />
+                )}
                 {activeTab === "journal" && <JournalTab key="journal" onError={setModal} showToast={showToast} onOpenTask={(id) => { setTaskPanelCollapsed(false); setTaskToOpen(id); }}/>}
             </AnimatePresence></div>
             <LogPanel logs={logs} onClear={() => setLogs([])}/>

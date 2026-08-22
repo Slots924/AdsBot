@@ -360,21 +360,19 @@ describe("GUI helpers", () => {
 
         expect(await screen.findByText("A Campaign")).toBeInTheDocument();
         expect(screen.getAllByText("ID: 1").length).toBeGreaterThan(0);
-        expect(screen.getByText((text) => (
-            text.includes("12,50") && text.includes("50,00")
-        ))).toBeInTheDocument();
         expect(screen.getByText("Europe/Kyiv · UTC+3")).toBeInTheDocument();
         expect(screen.getAllByTitle("Копіювати ID рекламного кабінету").length)
             .toBeGreaterThan(0);
         expect(window.adsBot.getAdCampaigns).toHaveBeenCalledWith(
             "fp_hub",
             "act_1",
-            "today"
+            "today",
+            false
         );
 
         fireEvent.click(screen.getByText("7 днів"));
         await waitFor(() => expect(window.adsBot.getAdCampaigns)
-            .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d"));
+            .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d", false));
 
         fireEvent.click(screen.getByTitle("Додати до обраних"));
         expect(window.adsBot.setAdAccountFavorite).toHaveBeenCalledWith(

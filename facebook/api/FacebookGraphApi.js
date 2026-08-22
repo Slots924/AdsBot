@@ -144,6 +144,24 @@ function normalizeAdAccountId(value) {
 }
 
 
+async function mapWithConcurrency(items, worker, concurrency = 3) {
+    const result = new Array(items.length);
+    let nextIndex = 0;
+    const run = async () => {
+        while (nextIndex < items.length) {
+            const index = nextIndex;
+            nextIndex += 1;
+            result[index] = await worker(items[index], index);
+        }
+    };
+    await Promise.all(Array.from(
+        { length: Math.min(concurrency, items.length) },
+        run
+    ));
+    return result;
+}
+
+
 function createValidationError(message, code) {
     const error = new Error(message);
     error.code = code;
@@ -248,7 +266,7 @@ function normalizePagePost(post) {
         createdTime: post?.created_time ?? null,
         permalinkUrl: post?.permalink_url ?? null,
         thumbnailUrl: safeThumbnailUrl(
-            post?.full_picture ?? attachment?.media?.image?.src
+            attachment?.media?.image?.src ?? post?.full_picture
         ),
         type: post?.status_type ?? attachment?.media_type ?? null,
     };
@@ -367,6 +385,8 @@ function resolveDsaSettings(template, account) {
 
 
 export default class FacebookGraphApi {
+    #pagesCache = null;
+    #pagesRequest = null;
     #accessToken;
     #cookie;
     #proxyHttpClient;
@@ -600,8 +620,6 @@ export default class FacebookGraphApi {
                 "amount_spent",
                 "balance",
                 "spend_cap",
-                "adtrust_dsl",
-                "insights.date_preset(today).limit(1){spend}",
                 "default_dsa_beneficiary",
                 "default_dsa_payor",
                 "owner",
@@ -622,8 +640,6 @@ export default class FacebookGraphApi {
             amountSpent: account.amount_spent ?? null,
             balance: account.balance ?? null,
             spendCap: account.spend_cap ?? null,
-            dailySpendLimit: account.adtrust_dsl ?? null,
-            todaySpend: account.insights?.data?.[0]?.spend ?? "0",
             defaultDsaBeneficiary: account.default_dsa_beneficiary ?? null,
             defaultDsaPayor: account.default_dsa_payor ?? null,
             owner: account.owner ?? null,
@@ -695,19 +711,27 @@ export default class FacebookGraphApi {
      * @returns {Promise<object[]>}
      * @throws {Error} FACEBOOK_API_ERROR або PROXY_POOL_EXHAUSTED.
      */
-    async getPages() {
-        const pages = await this.#getAll("/me/accounts", {
-            fields: "id,name,category,tasks,access_token,picture.type(square){url}",
-        });
+    async getPages({ force = false } = {}) {
+        if (!force && this.#pagesCache) return this.#pagesCache;
+        if (!force && this.#pagesRequest) return this.#pagesRequest;
 
-        return pages.map((page) => ({
+        const request = this.#getAll("/me/accounts", {
+            fields: "id,name,category,tasks,access_token,picture.type(square){url}",
+        }).then((pages) => pages.map((page) => ({
             id: page.id,
             name: page.name,
             category: page.category,
             tasks: page.tasks ?? [],
             pageAccessToken: page.access_token,
             pictureUrl: page.picture?.data?.url ?? null,
-        }));
+        }))).then((pages) => {
+            this.#pagesCache = pages;
+            return pages;
+        }).finally(() => {
+            if (this.#pagesRequest === request) this.#pagesRequest = null;
+        });
+        this.#pagesRequest = request;
+        return request;
     }
 
 
@@ -748,24 +772,146 @@ export default class FacebookGraphApi {
     }
 
 
+    async #cacheImageUrl(url, maximumBytes = 2_000_000) {
+        if (!/^https:\/\//i.test(String(url ?? ""))) return url;
+        try {
+            const response = await this.#proxyHttpClient.get(url, {
+                responseType: "arraybuffer",
+                headers: {
+                    "User-Agent": this.userAgent,
+                    Accept: "image/jpeg,image/png,image/webp",
+                },
+            });
+            let contentType = String(
+                response.headers?.["content-type"] ?? ""
+            ).split(";")[0].trim().toLowerCase();
+            const image = Buffer.from(response.data);
+            if (contentType === "image/jpg") contentType = "image/jpeg";
+            if (!new Set(["image/jpeg", "image/png", "image/webp"]).has(contentType)) {
+                if (image.subarray(0, 2).toString("hex") === "ffd8") {
+                    contentType = "image/jpeg";
+                } else if (image.subarray(0, 8).toString("hex") === "89504e470d0a1a0a") {
+                    contentType = "image/png";
+                } else if (
+                    image.subarray(0, 4).toString("ascii") === "RIFF"
+                    && image.subarray(8, 12).toString("ascii") === "WEBP"
+                ) {
+                    contentType = "image/webp";
+                }
+            }
+            if (
+                !new Set(["image/jpeg", "image/png", "image/webp"]).has(contentType)
+                || image.length > maximumBytes
+            ) {
+                return url;
+            }
+            return `data:${contentType};base64,${image.toString("base64")}`;
+        } catch {
+            return url;
+        }
+    }
+
+
+    async #cachePagePicture(page) {
+        return {
+            ...page,
+            pictureUrl: await this.#cacheImageUrl(page?.pictureUrl),
+        };
+    }
+
+
+    #cachePostPictures(posts) {
+        return mapWithConcurrency(posts, async (post) => ({
+            ...post,
+            thumbnailUrl: await this.#cacheImageUrl(
+                post?.thumbnailUrl,
+                1_500_000
+            ),
+        }), 3);
+    }
+
+
     /**
      * Повертає безпечний список фанпейджів без Page access tokens.
      * @returns {Promise<Array<{id: string, name: string}>>}
      * @throws {Error} FACEBOOK_API_ERROR або PROXY_POOL_EXHAUSTED.
      */
-    async getAvailablePages() {
-        const pages = await this.getPages();
-        const checkedPages = await Promise.all(
-            pages.map((page) => this.#getPublishablePage(page))
+    async getAvailablePages({ force = false } = {}) {
+        const pages = await this.getPages({ force });
+        const checkedPages = await mapWithConcurrency(
+            pages,
+            (page) => this.#getPublishablePage(page),
+            3
         );
 
-        return checkedPages
+        const availablePages = checkedPages
             .filter(Boolean)
             .map((page) => ({
                 id: page.id,
                 name: page.name,
                 pictureUrl: page.pictureUrl ?? null,
             }));
+        return mapWithConcurrency(
+            availablePages,
+            (page) => this.#cachePagePicture(page),
+            3
+        );
+    }
+
+
+    async getPageList({ force = false } = {}) {
+        let pages;
+        if (force) {
+            const previousPictures = new Map((this.#pagesCache ?? []).map(
+                (page) => [String(page.id), page.pictureUrl ?? null]
+            ));
+            const data = await this.#getAll("/me/accounts", {
+                fields: "id,name,tasks,access_token",
+            });
+            pages = data.map((page) => ({
+                id: page.id,
+                name: page.name,
+                category: null,
+                tasks: page.tasks ?? [],
+                pageAccessToken: page.access_token,
+                pictureUrl: previousPictures.get(String(page.id)) ?? null,
+            }));
+            this.#pagesCache = pages;
+        } else {
+            pages = await this.getPages();
+        }
+        return pages
+            .filter((page) => page?.pageAccessToken && hasPagePublishTask(page.tasks))
+            .map((page) => ({
+                id: page.id,
+                name: page.name,
+                pictureUrl: page.pictureUrl ?? null,
+            }));
+    }
+
+
+    async getPageDetails({ pageId } = {}) {
+        const page = await this.getFanPageById(pageId);
+        if (!page) {
+            throw createValidationError(
+                "Немає доступу до вибраної фанпейджі",
+                "PAGE_DETAILS_ACCESS_DENIED"
+            );
+        }
+        const data = await this.#request(`/${page.id}`, {
+            fields: "id,name,is_published,picture.type(square){url}",
+        }, { accessToken: page.pageAccessToken });
+        if (data?.is_published === false) {
+            throw createValidationError(
+                "Вибрана фанпейджа не опублікована",
+                "PAGE_DETAILS_UNPUBLISHED"
+            );
+        }
+        return this.#cachePagePicture({
+            id: data?.id ?? page.id,
+            name: data?.name ?? page.name,
+            pictureUrl: data?.picture?.data?.url ?? page.pictureUrl ?? null,
+        });
     }
 
 
@@ -1185,7 +1331,7 @@ export default class FacebookGraphApi {
         posts.sort((left, right) => (
             new Date(right.createdTime ?? 0) - new Date(left.createdTime ?? 0)
         ));
-        return posts.slice(0, pageSize);
+        return this.#cachePostPictures(posts.slice(0, pageSize));
     }
 
 
@@ -1214,7 +1360,7 @@ export default class FacebookGraphApi {
             );
         }
 
-        return collectLatestPagePostsWithLinks({
+        const posts = await collectLatestPagePostsWithLinks({
             limit: normalizedLimit,
             normalizePost: normalizePagePost,
             fetchPosts: async ({ limit: requestLimit }) => {
@@ -1225,6 +1371,36 @@ export default class FacebookGraphApi {
                 return Array.isArray(data?.data) ? data.data : [];
             },
         });
+        return this.#cachePostPictures(posts);
+    }
+
+
+    async getPagePostsSignature({ pageId, limit = 10 } = {}) {
+        const page = await this.getFanPageById(pageId);
+        if (!page) {
+            throw createValidationError(
+                "Немає доступу до вибраної фанпейджі",
+                "PAGE_POSTS_ACCESS_DENIED"
+            );
+        }
+        const normalizedLimit = Number(limit);
+        if (!Number.isInteger(normalizedLimit) || normalizedLimit < 1 || normalizedLimit > 25) {
+            throw createValidationError(
+                "Кількість постів має бути від 1 до 25",
+                "PAGE_POSTS_SIGNATURE_LIMIT_INVALID"
+            );
+        }
+        const data = await this.#request(`/${page.id}/published_posts`, {
+            fields: "id,message,is_published",
+            limit: normalizedLimit,
+        }, { accessToken: page.pageAccessToken });
+        const postIds = (Array.isArray(data?.data) ? data.data : [])
+            .filter((post) => (
+                post?.is_published !== false
+                && /https?:\/\/[^\s]+/i.test(String(post?.message ?? ""))
+            ))
+            .map((post) => String(post.id));
+        return { count: postIds.length, postIds };
     }
 
 

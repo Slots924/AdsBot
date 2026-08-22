@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     CircleMinus,
     CirclePlus,
@@ -55,6 +55,34 @@ function CopyButton({ value, label }) {
 }
 
 
+function StableImage({ src, alt = "", fallback = null }) {
+    const [displayedSrc, setDisplayedSrc] = useState(src || "");
+
+    useEffect(() => {
+        if (!src || src === displayedSrc) return undefined;
+        let active = true;
+        const image = new Image();
+        image.onload = () => {
+            if (active) setDisplayedSrc(src);
+        };
+        image.src = src;
+        return () => {
+            active = false;
+            image.onload = null;
+        };
+    }, [src, displayedSrc]);
+
+    if (!displayedSrc) return fallback;
+    return (
+        <img
+            src={displayedSrc}
+            alt={alt}
+            onError={() => setDisplayedSrc("")}
+        />
+    );
+}
+
+
 function PageCard({ page, selected, onSelect, onFavorite }) {
     return (
         <div
@@ -67,9 +95,10 @@ function PageCard({ page, selected, onSelect, onFavorite }) {
             }}
         >
             <span className="page-avatar">
-                {page.pictureUrl
-                    ? <img src={page.pictureUrl} alt="" />
-                    : String(page.name || "P").slice(0, 1).toUpperCase()}
+                <StableImage
+                    src={page.pictureUrl}
+                    fallback={String(page.name || "P").slice(0, 1).toUpperCase()}
+                />
             </span>
             <strong className="page-card-geo">{page.geo || "—"}</strong>
             <span className="page-card-value page-card-name">
@@ -545,8 +574,14 @@ export default function PagesTab({
 }) {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [listRefreshing, setListRefreshing] = useState(false);
+    const [selectedRefreshing, setSelectedRefreshing] = useState(false);
+    const [postsChanged, setPostsChanged] = useState(false);
     const [action, setAction] = useState(null);
     const [countries, setCountries] = useState([]);
+    const postsByPage = useRef({});
+    const postsRequestId = useRef(0);
+    const signatureRequestId = useRef(0);
     const accountKey = selectedAccount?.accountKey || "";
     const selected = pages.find((page) => String(page.id) === String(selectedPageId));
     const favorites = useMemo(() => pages
@@ -559,20 +594,50 @@ export default function PagesTab({
         .filter((page) => !page.isFavorite)
         .sort(compare), [pages]);
 
-    const loadPosts = async () => {
+    const loadPosts = async (force = false) => {
         if (!selected) return;
+        const pageId = String(selected.id);
+        const requestId = ++postsRequestId.current;
         setLoading(true);
         try {
-            setPosts(await unwrap(
-                window.adsBot.getPagePostsWithLinks(accountKey, selected.id)
+            const next = await unwrap(window.adsBot.getPagePostsWithLinks(
+                accountKey,
+                pageId,
+                force
             ));
+            postsByPage.current[`${accountKey}::${pageId}`] = next;
+            if (requestId === postsRequestId.current) setPosts(next);
+            return next;
         } catch (error) {
             onError({
                 ...errorDetails(error),
                 title: "Не вдалося завантажити пости",
             });
         } finally {
-            setLoading(false);
+            if (requestId === postsRequestId.current) setLoading(false);
+        }
+        return null;
+    };
+
+    const checkPostChanges = async (pageId, knownPosts) => {
+        const requestId = ++signatureRequestId.current;
+        try {
+            const signature = await unwrap(
+                window.adsBot.getPagePostsSignature(accountKey, pageId)
+            );
+            if (requestId !== signatureRequestId.current) return;
+            const knownIds = (knownPosts ?? []).map((post) => String(post.id));
+            const remoteIds = (signature.postIds ?? []).map(String);
+            setPostsChanged(
+                signature.count !== knownIds.length
+                || remoteIds.some((id, index) => id !== knownIds[index])
+            );
+        } catch (error) {
+            window.adsBot.writeRendererLog?.({
+                level: "debug",
+                event: "pages.posts-signature.failed",
+                message: error.message,
+            })?.catch(() => {});
         }
     };
 
@@ -580,9 +645,83 @@ export default function PagesTab({
         unwrap(window.adsBot.getCountries()).then(setCountries).catch(() => {});
     }, []);
     useEffect(() => {
-        setPosts([]);
-        if (selected) loadPosts();
+        postsRequestId.current += 1;
+        signatureRequestId.current += 1;
+        setPostsChanged(false);
+        const key = `${accountKey}::${selected?.id ?? ""}`;
+        setPosts(postsByPage.current[key] ?? []);
+        if (selected) {
+            const pageId = String(selected.id);
+            loadPosts().then((knownPosts) => {
+                if (knownPosts) checkPostChanges(pageId, knownPosts);
+            });
+        }
     }, [selected?.id, accountKey]);
+    useEffect(() => {
+        const unsubscribe = window.adsBot.onPagePostsCacheUpdated?.((event) => {
+            if (!event?.accountKey || !event?.pageId) return;
+            const key = `${event.accountKey}::${event.pageId}`;
+            const current = postsByPage.current[key] ?? [];
+            const removed = new Set((
+                event.postIds ?? event.removedPostIds ?? []
+            ).map(String));
+            let next = current.filter((post) => !removed.has(String(post.id)));
+            if (event.type === "clear") next = [];
+            if (event.post) {
+                next = [event.post, ...next.filter((post) => (
+                    String(post.id) !== String(event.post.id)
+                ))].slice(0, 10);
+            }
+            postsByPage.current[key] = next;
+            if (
+                event.accountKey === accountKey
+                && String(event.pageId) === String(selectedPageId)
+            ) setPosts(next);
+        }) ?? (() => {});
+        return unsubscribe;
+    }, [accountKey, selectedPageId]);
+
+    const refreshFanpageList = async () => {
+        setListRefreshing(true);
+        try {
+            await onRefresh?.();
+        } catch (error) {
+            onError({
+                ...errorDetails(error),
+                title: "Не вдалося оновити список фанок",
+            });
+        } finally {
+            setListRefreshing(false);
+        }
+    };
+
+    const refreshSelectedFanpage = async () => {
+        if (!selected || selectedRefreshing) return;
+        const pageId = String(selected.id);
+        setSelectedRefreshing(true);
+        try {
+            const result = await unwrap(window.adsBot.refreshSelectedFanPage(
+                accountKey,
+                pageId
+            ));
+            const key = `${accountKey}::${pageId}`;
+            postsByPage.current[key] = result.posts;
+            setPosts(result.posts);
+            setPostsChanged(false);
+            onPagesChange(pages.map((page) => (
+                String(page.id) === pageId
+                    ? { ...page, ...result.page }
+                    : page
+            )));
+        } catch (error) {
+            onError({
+                ...errorDetails(error),
+                title: "Не вдалося оновити фанку",
+            });
+        } finally {
+            setSelectedRefreshing(false);
+        }
+    };
 
     const favorite = async (page, isFavorite) => {
         const preference = await unwrap(
@@ -629,8 +768,8 @@ export default function PagesTab({
                                 <span className="eyebrow">Facebook</span>
                                 <h2>Фанпейджі</h2>
                             </div>
-                            <button className="icon-button" onClick={onRefresh}>
-                                <RefreshCw size={17} />
+                            <button className="icon-button" title="Оновити список фанок" aria-label="Оновити список фанок" onClick={refreshFanpageList} disabled={listRefreshing}>
+                                <RefreshCw className={listRefreshing ? "spin" : ""} size={17} />
                             </button>
                         </div>
                         <div className="ad-account-scroll">
@@ -676,13 +815,28 @@ export default function PagesTab({
                                     <div>
                                         <span className="eyebrow">Fanpage workspace</span>
                                         <h1>{selected.name}</h1>
+                                        <div className="page-post-status">
+                                            <span>URL-постів серед останніх 10: {posts.length}</span>
+                                            {postsChanged && <strong>У Facebook є зміни</strong>}
+                                        </div>
                                     </div>
-                                    <button
-                                        className="primary-button"
-                                        onClick={() => setAction({ type: "launch" })}
-                                    >
-                                        <Rocket size={18} />Запустити новий креатив
-                                    </button>
+                                    <div className="page-details-header-actions">
+                                        <button
+                                            className="icon-button"
+                                            title="Оновити вибрану фанку і пости"
+                                            aria-label="Оновити вибрану фанку і пости"
+                                            disabled={selectedRefreshing}
+                                            onClick={refreshSelectedFanpage}
+                                        >
+                                            <RefreshCw className={selectedRefreshing ? "spin" : ""} size={18} />
+                                        </button>
+                                        <button
+                                            className="primary-button"
+                                            onClick={() => setAction({ type: "launch" })}
+                                        >
+                                            <Rocket size={18} />Запустити новий креатив
+                                        </button>
+                                    </div>
                                 </header>
 
                                 <div className="page-metadata-grid">
@@ -786,9 +940,6 @@ export default function PagesTab({
                                     >
                                         <RotateCcw size={16} />Пересетапити
                                     </button>
-                                    <button className="icon-button" onClick={loadPosts}>
-                                        <RefreshCw className={loading ? "spin" : ""} size={16} />
-                                    </button>
                                 </div>
 
                                 <div className="page-post-list">
@@ -800,9 +951,11 @@ export default function PagesTab({
                                     )}
                                     {posts.map((post) => (
                                         <article className="page-post-card" key={post.id}>
-                                            {post.thumbnailUrl
-                                                ? <img src={post.thumbnailUrl} alt="Прев’ю поста" />
-                                                : <div className="post-thumb-placeholder" />}
+                                            <StableImage
+                                                src={post.thumbnailUrl}
+                                                alt="Прев’ю поста"
+                                                fallback={<div className="post-thumb-placeholder" />}
+                                            />
                                             <div>
                                                 <strong>{new Date(post.createdTime).toLocaleString("uk-UA")}</strong>
                                                 <p>{post.message}</p>

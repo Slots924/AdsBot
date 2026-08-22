@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "id": "ddbb9b6f-3e72-41f9-96c0-beb2031d56a8",
+  "taskId": "e0147fc5-61e7-42b9-bf74-9c65cc39d560",
+  "type": "campaign-cleanup",
+  "title": "AU | Creo_28 | 30+ · очищення",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-08-22T05:16:03.569Z",
+  "startedAt": "2026-08-22T05:15:52.746Z",
+  "finishedAt": "2026-08-22T05:16:03.568Z",
+  "durationMs": 10822,
+  "inputSummary": {
+    "campaignJobId": "f8fdd1a2-82b6-4222-a34e-9ea21d83cec0",
+    "accountKey": "N5_ADS",
+    "knownObjects": {
+      "campaignId": "120252206313240206",
+      "creativeId": "2756209421446445",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120252206313540206",
+          "name": "AU | Creo_28 | 30+ | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120252206314110206",
+          "name": "AU | Creo_28 | 30+ | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120252206314770206",
+          "name": "AU | Creo_28 | 30+ | AS 03"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120252206313860206",
+          "name": "AU | Creo_28 | 30+ | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "120252206314500206",
+          "name": "AU | Creo_28 | 30+ | AD 02"
+        }
+      ]
+    }
+  },
+  "resultSummary": {
+    "deleted": [
+      {
+        "type": "ad",
+        "id": "120252206314500206"
+      },
+      {
+        "type": "ad",
+        "id": "120252206313860206"
+      },
+      {
+        "type": "adset",
+        "id": "120252206314770206"
+      },
+      {
+        "type": "adset",
+        "id": "120252206314110206"
+      },
+      {
+        "type": "adset",
+        "id": "120252206313540206"
+      },
+      {
+        "type": "campaign",
+        "id": "120252206313240206"
+      }
+    ],
+    "failed": [
+      {
+        "type": "creative",
+        "id": "2756209421446445",
+        "message": "You cannot delete this creative because it is currently in use for existing advert groups.",
+        "code": "FACEBOOK_API_ERROR"
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "f8fdd1a2-82b6-4222-a34e-9ea21d83cec0",
+    "uniqueKey": "campaign-job:f8fdd1a2-82b6-4222-a34e-9ea21d83cec0"
+  }
+}

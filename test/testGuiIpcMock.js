@@ -73,6 +73,19 @@ const pagePreferencesStore = {
     async setFavorite(pageId, isFavorite) { return { pageId, isFavorite }; },
     async updateMetadata(pageId, patch) { return { pageId, ...patch }; },
 };
+const remoteDataCacheStore = {
+    async getWorkspace() { return null; },
+    async setWorkspace() {},
+    async setWorkspacePart() {},
+    async getPosts() { return null; },
+    async setPosts() {},
+    async clearPosts() {},
+    async removePosts() {},
+    async prependPost() {},
+    async getCampaigns() { return null; },
+    async setCampaigns() {},
+    async invalidateCampaigns() {},
+};
 const creativeLaunchJournal = {
     async create(draft) { return { id: "workflow-1", draft, subtasks: [] }; },
     async get() { return null; },
@@ -170,6 +183,16 @@ const guiService = {
         assert.equal(accountKey, "fp_hub");
         return [];
     },
+    async getFanPageList(accountKey) {
+        assert.equal(accountKey, "fp_hub");
+        return [];
+    },
+    async getFanPageDetails({ pageId }) {
+        return { id: pageId, name: "Page", pictureUrl: null };
+    },
+    async getPagePostsSignature() {
+        return { count: 0, postIds: [] };
+    },
     async getPageRebuildRequirements({ accountKey, pageId }) {
         return {
             pageId,
@@ -257,6 +280,7 @@ registerIpcHandlers({
     appStateStore,
     adAccountPreferencesStore,
     pagePreferencesStore,
+    remoteDataCacheStore,
     creativeLaunchJournal,
     countryCatalog,
     campaignCreationJournal,

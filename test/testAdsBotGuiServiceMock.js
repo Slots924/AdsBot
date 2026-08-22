@@ -168,8 +168,6 @@ try {
     const adAccounts = await guiService.getAdAccounts("active");
     assert.equal(adAccounts[0].status, "disabled");
     assert.equal(adAccounts[0].disableReason.label, "Ризик або проблема з оплатою");
-    assert.equal(adAccounts[0].todaySpend, "12.50");
-    assert.equal(adAccounts[0].dailySpendLimit, "5000");
     assert.equal(adAccounts[0].timezoneOffsetHoursUtc, 3);
     assert(!("accessToken" in adAccounts[0]));
     const campaigns = await guiService.getAdCampaigns(

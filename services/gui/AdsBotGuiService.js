@@ -82,8 +82,6 @@ function formatAdAccount(account) {
         amountSpent: account.amountSpent ?? null,
         balance: account.balance ?? null,
         spendCap: account.spendCap ?? null,
-        dailySpendLimit: account.dailySpendLimit ?? null,
-        todaySpend: account.todaySpend ?? "0",
         defaultDsaBeneficiary: account.defaultDsaBeneficiary ?? null,
         defaultDsaPayor: account.defaultDsaPayor ?? null,
         owner: account.owner ?? null,
@@ -249,12 +247,30 @@ export default class AdsBotGuiService {
     }
 
 
-    async getFanPages(accountKey) {
+    async getFanPages(accountKey, options = {}) {
         await this.#assertActiveAccount(accountKey);
         this.logger.info(`Завантажуємо фанпейджі: ${accountKey}`);
-        const fanPages = await this.#facebookBackend.getFanPages(accountKey);
+        const fanPages = await this.#facebookBackend.getFanPages(
+            accountKey,
+            options
+        );
         this.logger.info(`Знайдено доступних фанпейджів: ${fanPages.length}`);
         return fanPages;
+    }
+
+
+    async getFanPageList(accountKey, options = {}) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getFanPageList(accountKey, options);
+    }
+
+
+    async getFanPageDetails(options = {}) {
+        await this.#assertActiveAccount(options.accountKey);
+        return this.#facebookBackend.getFanPageDetails(
+            options.accountKey,
+            options
+        );
     }
 
 
@@ -315,6 +331,15 @@ export default class AdsBotGuiService {
     async getPagePostsWithLinks({ accountKey, pageId, limit = 10 } = {}) {
         await this.#assertActiveAccount(accountKey);
         return this.#facebookBackend.getLatestPagePostsWithLinks(accountKey, { pageId, limit });
+    }
+
+
+    async getPagePostsSignature({ accountKey, pageId, limit = 10 } = {}) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getPagePostsSignature(accountKey, {
+            pageId,
+            limit,
+        });
     }
 
 

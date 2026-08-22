@@ -20,16 +20,24 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("accounts:update", { accountKey, ...patch }),
     setAccountArchived: (accountKey, archived) =>
         ipcRenderer.invoke("accounts:archive-set", { accountKey, archived }),
-    getFanPages: (accountKey) =>
-        ipcRenderer.invoke("pages:list", { accountKey }),
-    loadClientWorkspace: (accountKey) =>
-        ipcRenderer.invoke("workspace:client-load", { accountKey }),
+    getFanPages: (accountKey, force = false) =>
+        ipcRenderer.invoke("pages:list", { accountKey, force }),
+    loadClientWorkspace: (accountKey, force = false) =>
+        ipcRenderer.invoke("workspace:client-load", { accountKey, force }),
     setPageFavorite: (pageId, isFavorite) =>
         ipcRenderer.invoke("pages:favorite-set", { pageId, isFavorite }),
     updatePageMetadata: (pageId, patch) =>
         ipcRenderer.invoke("pages:metadata-update", { pageId, ...patch }),
-    getPagePostsWithLinks: (accountKey, pageId) =>
-        ipcRenderer.invoke("pages:posts-with-links", { accountKey, pageId }),
+    getPagePostsWithLinks: (accountKey, pageId, force = false) =>
+        ipcRenderer.invoke("pages:posts-with-links", {
+            accountKey,
+            pageId,
+            force,
+        }),
+    getPagePostsSignature: (accountKey, pageId) =>
+        ipcRenderer.invoke("pages:posts-signature", { accountKey, pageId }),
+    refreshSelectedFanPage: (accountKey, pageId) =>
+        ipcRenderer.invoke("pages:selected-refresh", { accountKey, pageId }),
     deletePagePosts: (options) =>
         ipcRenderer.invoke("pages:posts-delete", options),
     deletePagePost: (options) =>
@@ -58,17 +66,19 @@ contextBridge.exposeInMainWorld("adsBot", {
             accountKey,
             orderedIds,
         }),
-    getAdCampaigns: (accountKey, adAccountId, datePreset) =>
+    getAdCampaigns: (accountKey, adAccountId, datePreset, force = false) =>
         ipcRenderer.invoke("campaigns:list", {
             accountKey,
             adAccountId,
             datePreset,
+            force,
         }),
-    getCampaignPagePosts: (accountKey, pageId, limit = 10) =>
+    getCampaignPagePosts: (accountKey, pageId, limit = 10, force = false) =>
         ipcRenderer.invoke("campaigns:posts-list", {
             accountKey,
             pageId,
             limit,
+            force,
         }),
     preflightCampaignCreation: (options) =>
         ipcRenderer.invoke("campaigns:create-preflight", options),
@@ -133,5 +143,13 @@ contextBridge.exposeInMainWorld("adsBot", {
         subscribe("campaign-creation:progress", callback),
     onBackgroundTasksUpdated: (callback) =>
         subscribe("tasks:updated", callback),
+    onWorkspaceRefreshed: (callback) =>
+        subscribe("workspace:refreshed", callback),
+    onCampaignsRefreshed: (callback) =>
+        subscribe("campaigns:refreshed", callback),
+    onCampaignsInvalidated: (callback) =>
+        subscribe("campaigns:invalidated", callback),
+    onPagePostsCacheUpdated: (callback) =>
+        subscribe("pages:posts-cache-updated", callback),
     onCloseBlocked: (callback) => subscribe("app:close-blocked", callback),
 });

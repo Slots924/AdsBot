@@ -1,5 +1,7 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, net, protocol, shell } from "electron";
 import { config as loadEnv } from "dotenv";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import CreativeManager
     from "../../services/creatives/CreativeManager.js";
@@ -9,6 +11,7 @@ import AppStateStore from "../../services/gui/AppStateStore.js";
 import AdAccountPreferencesStore
     from "../../services/gui/AdAccountPreferencesStore.js";
 import PagePreferencesStore from "../../services/gui/PagePreferencesStore.js";
+import RemoteDataCacheStore from "../../services/gui/RemoteDataCacheStore.js";
 import CreativeLaunchJournal from "../../services/workflows/CreativeLaunchJournal.js";
 import PageRebuildJournal from "../../services/workflows/PageRebuildJournal.js";
 import CampaignTemplateManager
@@ -31,6 +34,16 @@ import registerIpcHandlers from "./registerIpcHandlers.js";
 
 loadEnv({ path: appPaths.env });
 
+protocol.registerSchemesAsPrivileged([{
+    scheme: "adsbot-cache",
+    privileges: {
+        standard: true,
+        secure: true,
+        supportFetchAPI: true,
+        stream: true,
+    },
+}]);
+
 const isDevelopment = process.argv.includes("--dev");
 let mainWindow = null;
 let guiService = null;
@@ -38,6 +51,7 @@ let templateManager = null;
 let appStateStore = null;
 let adAccountPreferencesStore = null;
 let pagePreferencesStore = null;
+let remoteDataCacheStore = null;
 let creativeLaunchJournal = null;
 let countryCatalog = null;
 let campaignCreationJournal = null;
@@ -47,6 +61,7 @@ let appLogger = null;
 let taskReportManager = null;
 let closeApproved = false;
 let closePromptOpen = false;
+let cacheProtocolReady = false;
 
 
 function sendRendererEvent(channel, payload) {
@@ -57,6 +72,29 @@ function sendRendererEvent(channel, payload) {
 
 
 async function createWindow() {
+    if (!cacheProtocolReady) protocol.handle("adsbot-cache", async (request) => {
+        try {
+            const requested = new URL(request.url);
+            const filename = decodeURIComponent(requested.pathname).replace(/^\//, "");
+            if (
+                requested.hostname !== "image"
+                || !/^[a-f0-9]{64}\.(?:jpg|png|webp)$/.test(filename)
+                || path.basename(filename) !== filename
+            ) {
+                return new Response("Not found", { status: 404 });
+            }
+            const imagesRoot = path.resolve(appPaths.remoteImages);
+            const imagePath = path.resolve(imagesRoot, filename);
+            if (path.dirname(imagePath) !== imagesRoot) {
+                return new Response("Not found", { status: 404 });
+            }
+            return await net.fetch(pathToFileURL(imagePath).toString());
+        } catch {
+            return new Response("Not found", { status: 404 });
+        }
+    });
+    cacheProtocolReady = true;
+
     mainWindow = new BrowserWindow({
         width: 1440,
         height: 900,
@@ -151,6 +189,10 @@ async function createWindow() {
         preferencesFile: appPaths.adAccountPreferences,
     });
     pagePreferencesStore = new PagePreferencesStore({ preferencesFile: appPaths.pagePreferences });
+    remoteDataCacheStore = new RemoteDataCacheStore({
+        cacheFile: appPaths.remoteDataCache,
+        imagesDirectory: appPaths.remoteImages,
+    });
     creativeLaunchJournal = new CreativeLaunchJournal({ jobsFile: appPaths.creativeLaunchJobs });
 
     registerIpcHandlers({
@@ -162,6 +204,7 @@ async function createWindow() {
         appStateStore,
         adAccountPreferencesStore,
         pagePreferencesStore,
+        remoteDataCacheStore,
         creativeLaunchJournal,
         countryCatalog,
         campaignCreationJournal,

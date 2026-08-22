@@ -32,6 +32,7 @@ const backendSuites = {
         "test/testGrokClientMock.js",
         "test/testGuiIpcMock.js",
         "test/testPagePreferencesStore.js",
+        "test/testRemoteDataCacheStore.js",
         "test/testRunCommentingScenarioMock.js",
         "test/testRunParallelCommentingScenarioMock.js",
         "test/testTaskReportManager.js",

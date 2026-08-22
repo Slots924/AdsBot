@@ -74,11 +74,9 @@ assert.equal(requests[1].params.after, "page-2");
 assert.equal(requests[2].params.date_preset, "last_7d");
 assert.equal(requests[2].params.level, "campaign");
 assert.match(requests[0].params.filtering, /ACTIVE/);
-assert.match(requests[3].params.fields, /adtrust_dsl/);
 assert.match(requests[3].params.fields, /timezone_offset_hours_utc/);
-assert.match(requests[3].params.fields, /insights\.date_preset\(today\)/);
-assert.equal(graphAccounts[0].todaySpend, "12.50");
-assert.equal(graphAccounts[0].dailySpendLimit, "5000");
+assert.doesNotMatch(requests[3].params.fields, /adtrust_dsl/);
+assert.doesNotMatch(requests[3].params.fields, /insights\.date_preset\(today\)/);
 assert.equal(graphAccounts[0].timezoneOffsetHoursUtc, 3);
 await assert.rejects(
     graphApi.getAdCampaignInsights("act_1", "invalid"),

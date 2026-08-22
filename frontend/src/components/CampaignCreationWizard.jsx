@@ -168,13 +168,16 @@ export default function CampaignCreationWizard({
         return () => { active = false; };
     }, []);
 
-    const refreshPages = useCallback(async () => {
+    const refreshPages = useCallback(async (force = false) => {
         const requestId = ++pagesRequest.current;
         setPagesLoading(true);
         setPagesError(null);
         setPagesNotice("");
         try {
-            const nextPages = await unwrap(window.adsBot.getFanPages(accountKey));
+            const nextPages = await unwrap(window.adsBot.getFanPages(
+                accountKey,
+                force
+            ));
             if (requestId !== pagesRequest.current) return;
             setPages(nextPages);
             setForm((current) => {
@@ -206,7 +209,7 @@ export default function CampaignCreationWizard({
         refreshPages();
     }, [refreshPages]);
 
-    const loadPosts = useCallback(async (pageId) => {
+    const loadPosts = useCallback(async (pageId, force = false) => {
         if (!pageId) return;
         const requestId = ++postsRequest.current;
         setPostsLoading(true);
@@ -216,7 +219,8 @@ export default function CampaignCreationWizard({
                 window.adsBot.getCampaignPagePosts(
                     accountKey,
                     pageId,
-                    10
+                    10,
+                    force
                 )
             );
             if (requestId !== postsRequest.current) return;
@@ -699,10 +703,10 @@ export default function CampaignCreationWizard({
                                             </div>
                                         )}
                                     </div>
-                                    <button type="button" className="icon-button resource-refresh" title="Оновити фанпейджі" aria-label="Оновити фанпейджі" disabled={pagesLoading} onClick={refreshPages}><RefreshCw className={pagesLoading ? "spin" : ""} size={16} /></button>
+                                    <button type="button" className="icon-button resource-refresh" title="Оновити фанпейджі" aria-label="Оновити фанпейджі" disabled={pagesLoading} onClick={() => refreshPages(true)}><RefreshCw className={pagesLoading ? "spin" : ""} size={16} /></button>
                                     <button type="button" className="secondary-button campaign-use-published" disabled={!hasPublishedSource} onClick={usePublishedPage}>Взяти з публікації</button>
                                 </div>
-                                {pagesError && <div className="resource-inline-error"><span>{pagesError.message}</span><button type="button" onClick={refreshPages}>Повторити</button></div>}
+                                {pagesError && <div className="resource-inline-error"><span>{pagesError.message}</span><button type="button" onClick={() => refreshPages(true)}>Повторити</button></div>}
                                 {pagesNotice && <div className="resource-inline-notice">{pagesNotice}</div>}
                             </div>
 
@@ -740,7 +744,7 @@ export default function CampaignCreationWizard({
                                             </div>
                                         )}
                                     </div>
-                                    <button type="button" className="icon-button resource-refresh" title="Оновити пости" aria-label="Оновити пости" disabled={!form.pageId || postsLoading} onClick={() => loadPosts(form.pageId)}><RefreshCw className={postsLoading ? "spin" : ""} size={16} /></button>
+                                    <button type="button" className="icon-button resource-refresh" title="Оновити пости" aria-label="Оновити пости" disabled={!form.pageId || postsLoading} onClick={() => loadPosts(form.pageId, true)}><RefreshCw className={postsLoading ? "spin" : ""} size={16} /></button>
                                     <button type="button" className="secondary-button campaign-use-published" disabled={!hasPublishedSource} onClick={usePublishedPost}>Взяти з публікації</button>
                                 </div>
                                 <small className="field-hint">Показуються 10 найновіших опублікованих постів. Найновіший завжди зверху.</small>

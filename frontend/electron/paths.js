@@ -29,6 +29,8 @@ export const appPaths = {
         "data/ad-account-preferences.json"
     ),
     pagePreferences: path.join(projectRoot, "data/page-preferences.json"),
+    remoteDataCache: path.join(projectRoot, "data/gui-remote-cache.json"),
+    remoteImages: path.join(projectRoot, "data/gui-cache-images"),
     creativeLaunchJobs: path.join(projectRoot, "data/creative-launch-jobs.json"),
     pageRebuildJobs: path.join(projectRoot, "data/page-rebuild-jobs.json"),
     reports: path.join(projectRoot, "data/reports"),

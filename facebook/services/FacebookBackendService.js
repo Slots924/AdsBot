@@ -167,9 +167,19 @@ export default class FacebookBackendService {
      * @returns {Promise<Array<{id: string, name: string}>>}
      * @throws {Error} FACEBOOK_ACCOUNT_NOT_FOUND, FACEBOOK_API_ERROR або proxy error.
      */
-    async getFanPages(accountKey) {
+    async getFanPages(accountKey, options = {}) {
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
-        return facebookApiClient.getAvailablePages();
+        return facebookApiClient.getAvailablePages(options);
+    }
+
+
+    async getFanPageList(accountKey, options = {}) {
+        return this.#getFacebookApiClient(accountKey).getPageList(options);
+    }
+
+
+    async getFanPageDetails(accountKey, options = {}) {
+        return this.#getFacebookApiClient(accountKey).getPageDetails(options);
     }
 
 
@@ -245,6 +255,12 @@ export default class FacebookBackendService {
     async getLatestPagePostsWithLinks(accountKey, options) {
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
         return facebookApiClient.getLatestPagePostsWithLinks(options);
+    }
+
+
+    async getPagePostsSignature(accountKey, options) {
+        return this.#getFacebookApiClient(accountKey)
+            .getPagePostsSignature(options);
     }
 
 
