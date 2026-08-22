@@ -3,6 +3,7 @@ import {
     moveMouseToElement,
 } from "../browser/pointer.js";
 import { wait, waitHuman } from "../browser/timing.js";
+import { dismissPopupButtonSelector } from "../selectors/overlays.js";
 
 
 export const dismissButtonLabels = [
@@ -26,8 +27,7 @@ export const dismissButtonLabels = [
 
 
 export default async function dismissAutomatedBehavior(page) {
-    const buttonSelector =
-        'button[aria-label], [role="button"][aria-label]';
+    const buttonSelector = dismissPopupButtonSelector;
     let buttonHandle;
 
     try {

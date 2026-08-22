@@ -1,6 +1,13 @@
 import { waitForVisibleElement } from "../browser/elements.js";
 import { humanClickElement } from "../browser/pointer.js";
 import { waitHuman } from "../browser/timing.js";
+import {
+    facebookLanguageSelector,
+    firstLanguageResultSelector,
+    languageDialogSelector,
+    languageSearchInputSelector,
+    languageSettingsButtonSelector,
+} from "../selectors/language.js";
 
 
 async function humanClick(page, selector) {
@@ -28,7 +35,7 @@ async function ensureEnglish(page) {
         await waitHuman("short");
 
         const language = await page.$eval(
-            'html[id="facebook"][lang]',
+            facebookLanguageSelector,
             (element) => element.getAttribute("lang")
         );
 
@@ -47,32 +54,26 @@ async function ensureEnglish(page) {
 
         await humanClick(
             page,
-            'div[role="main"] div[style^="border-radius"] div[class^="html-div"] div[role="button"]'
+            languageSettingsButtonSelector
         );
 
         await waitHuman("extraLong");
 
-        const dialogSelector =
-            'div[aria-labelledby][role="dialog"]';
-
         const dialog = await waitForVisibleElement(
             page,
-            dialogSelector,
+            languageDialogSelector,
             { timeout: 30000 }
         );
         await dialog.dispose();
 
-        const inputSelector =
-            `${dialogSelector} input[placeholder][type="text"]`;
-
         const input = await waitForVisibleElement(
             page,
-            inputSelector,
+            languageSearchInputSelector,
             { timeout: 30000 }
         );
         await input.dispose();
 
-        await page.type(inputSelector, "US", {
+        await page.type(languageSearchInputSelector, "US", {
             delay: 300,
         });
 
@@ -80,7 +81,7 @@ async function ensureEnglish(page) {
 
         await humanClick(
             page,
-            `${dialogSelector} div[data-visualcompletion="ignore-dynamic"] > div:nth-of-type(1)`
+            firstLanguageResultSelector
         );
 
         await waitHuman("extraLong");

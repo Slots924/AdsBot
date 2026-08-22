@@ -1,7 +1,7 @@
 import {
     postDialogSelector,
     topLevelCommentSelector,
-} from "../post/selectors.js";
+} from "../selectors/post.js";
 import { moveMouseToElement } from "../browser/pointer.js";
 import {
     randomInteger,

@@ -1,7 +1,7 @@
 import {
     commentButtonSelector,
     replyCommentSelector,
-} from "../post/selectors.js";
+} from "../selectors/post.js";
 import { clickLeftMouse, moveMouseToElement } from "../browser/pointer.js";
 import { waitHuman } from "../browser/timing.js";
 

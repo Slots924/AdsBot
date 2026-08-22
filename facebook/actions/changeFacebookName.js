@@ -4,38 +4,12 @@ import {
 } from "../browser/elements.js";
 import { humanClickElement as browserHumanClickElement } from "../browser/pointer.js";
 import { waitRandom as waitRandomDelay } from "../browser/timing.js";
+import { facebookNameChangeSelectors as selectors } from "../selectors/accountCenter.js";
 
 
 const PROFILES_URL = "https://accountscenter.facebook.com/profiles";
 const FORCED_ACCOUNT_SWITCH_PART =
     "www.facebook.com/forced_account_switch";
-
-const selectors = {
-    accountOverview:
-        'a[href*="account_overview"]',
-    accountOverviewDialog:
-        'div[role="dialog"][aria-modal="true"]',
-    accountOverviewDialogLink:
-        'div[role="dialog"][aria-modal="true"] '
-        + 'a[role="link"][href*="entrypoint=account_overview"]',
-    profile:
-        'div[role="list"] [role="listitem"] [aria-label] '
-        + '[aria-hidden="true"][role="presentation"]',
-    profileDialog:
-        'div[role="dialog"][aria-modal="true"][aria-labelledby] '
-        + '[aria-hidden="false"]',
-    nameLink: 'a[role="link"][aria-label="Name"]',
-    nameDialog:
-        'div[aria-label="Name"][aria-modal="true"][role="dialog"] '
-        + '[aria-hidden="false"]',
-    anyNameDialog:
-        'div[aria-label="Name"][aria-modal="true"][role="dialog"]',
-    anyDialog:
-        'div[role="dialog"][aria-modal="true"][aria-labelledby]',
-    visibleDialogs:
-        'div[role="dialog"][aria-modal="true"]',
-    finalName: 'h3[dir="auto"] > span',
-};
 
 export const facebookNameChangeStatuses = Object.freeze({
     CHANGED: "CHANGED",

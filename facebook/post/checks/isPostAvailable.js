@@ -1,7 +1,7 @@
-export const availablePostSelector =
-    'div[role="dialog"] div[class^="html-div"] > *'
-    + ' > div[data-visualcompletion="ignore-dynamic"]'
-    + ' > div > div:nth-of-type(1)';
+import { availablePostSelector } from "../../selectors/post.js";
+
+
+export { availablePostSelector };
 
 
 export default async function isPostAvailable(page) {

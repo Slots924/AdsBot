@@ -4,7 +4,7 @@ import sortCommentsByNewest from "../actions/sortCommentsByNewest.js";
 import {
     postDialogSelector,
     topLevelCommentSelector,
-} from "../post/selectors.js";
+} from "../selectors/post.js";
 
 
 const maxTopLevelComments = 50;

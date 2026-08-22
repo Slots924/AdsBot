@@ -1,20 +1,22 @@
-import { postDialogSelector } from "../post/selectors.js";
 import {
     clickLeftMouse,
     moveMouseToElement,
 } from "../browser/pointer.js";
 import { waitForVisibleElement } from "../browser/elements.js";
 import { waitHuman } from "../browser/timing.js";
+import {
+    commentOrderingButtonSelector,
+    commentOrderingMenuItemSelector,
+    commentOrderingMenuSelector,
+    postDialogSelector,
+} from "../selectors/post.js";
 
 
-export const commentOrderingButtonSelector =
-    `${postDialogSelector} `
-    + '[aria-expanded="false"][aria-haspopup="menu"]'
-    + '[role="button"]:has(span)';
-export const commentOrderingMenuSelector =
-    '[aria-label="Comment Ordering"][role="menu"]';
-export const commentOrderingMenuItemSelector =
-    '[role="menuitem"]';
+export {
+    commentOrderingButtonSelector,
+    commentOrderingMenuItemSelector,
+    commentOrderingMenuSelector,
+};
 
 const currentOrderingText = "Most relevant";
 

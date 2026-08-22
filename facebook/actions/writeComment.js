@@ -1,10 +1,7 @@
 import { waitForVisibleElement } from "../browser/elements.js";
 import { humanClickElement } from "../browser/pointer.js";
 import { waitHuman } from "../browser/timing.js";
-
-
-const commentInputSelector =
-    'form[role="presentation"] div[contenteditable="true"][role="textbox"]';
+import { commentInputSelector } from "../selectors/post.js";
 
 
 async function clickCommentInput(page) {

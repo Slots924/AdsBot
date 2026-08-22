@@ -1,7 +1,7 @@
 import {
     allPostCommentSelector,
     replyInputSelector,
-} from "../post/selectors.js";
+} from "../selectors/post.js";
 import {
     clickLeftMouse,
     moveMouseToElement,

@@ -1,11 +1,6 @@
 import { humanScrollToSelector } from "../browser/scroll.js";
 import { waitHuman } from "../browser/timing.js";
-
-
-const postLikeAreaSelector =
-    'div[role="dialog"] div[class^="html-div"] > * '
-    + '> div[data-visualcompletion="ignore-dynamic"] '
-    + '> div > div:nth-of-type(1)';
+import { postLikeAreaSelector } from "../selectors/post.js";
 
 
 async function scrollToPostLikeButton(page) {

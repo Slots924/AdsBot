@@ -7,14 +7,11 @@ import {
     waitForVisibleElement,
 } from "../browser/elements.js";
 import { waitHuman, waitRandom } from "../browser/timing.js";
-
-
-const reactionButtonSelector =
-    'div[role="dialog"][aria-modal="true"][aria-labelledby] '
-    + 'div[data-visualcompletion="ignore-dynamic"] [aria-label]';
-const reactionsToolbarSelector =
-    'div[data-visualcompletion="ignore-dynamic"]'
-    + '[aria-label="Reactions"][role="dialog"] [role="toolbar"]';
+import {
+    getReactionOptionSelector,
+    reactionButtonSelector,
+    reactionsToolbarSelector,
+} from "../selectors/reactions.js";
 const reactionNames = {
     like: "Like",
     love: "Love",
@@ -116,7 +113,7 @@ async function setPostReaction(page, reaction = "like") {
             await toolbar.dispose();
 
             const reactionOptionSelector =
-                `${reactionsToolbarSelector} [aria-label="${reactionName}"]`;
+                getReactionOptionSelector(reactionName);
 
             const reactionOption = await waitForVisibleElement(
                 page,
