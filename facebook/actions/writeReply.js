@@ -2,6 +2,11 @@ import {
     allPostCommentSelector,
     replyInputSelector,
 } from "../post/selectors.js";
+import {
+    clickLeftMouse,
+    moveMouseToElement,
+} from "../browser/pointer.js";
+import { waitHuman, waitRandom } from "../browser/timing.js";
 
 
 const searchTextLength = 30;
@@ -15,25 +20,6 @@ export function normalizeCommentText(text) {
         .replace(/[^\p{L}\p{N}]+/gu, " ")
         .replace(/\s+/g, " ")
         .trim();
-}
-
-
-function getRandomInteger(min, max) {
-    return Math.floor(
-        Math.random() * (max - min + 1)
-    ) + min;
-}
-
-
-async function wait(milliseconds) {
-    await new Promise((resolve) => {
-        setTimeout(resolve, milliseconds);
-    });
-}
-
-
-async function waitRandom(min, max) {
-    await wait(getRandomInteger(min, max));
 }
 
 
@@ -106,34 +92,6 @@ async function getReplyButton(comment) {
 }
 
 
-async function moveMouseToElement(page, element) {
-    await element.evaluate((target) => {
-        target.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-            inline: "center",
-        });
-    });
-
-    const box = await element.boundingBox();
-
-    if (!box) {
-        return false;
-    }
-
-    const x =
-        box.x + box.width * (0.25 + Math.random() * 0.5);
-    const y =
-        box.y + box.height * (0.25 + Math.random() * 0.5);
-
-    await page.mouse.move(x, y, {
-        steps: getRandomInteger(8, 18),
-    });
-
-    return true;
-}
-
-
 async function clickReplyButton(page, comment) {
     const replyButton = await getReplyButton(comment);
 
@@ -157,9 +115,8 @@ async function clickReplyButton(page, comment) {
         }
 
         console.log("Натискаємо на елемент Reply лівою кнопкою миші...");
-        await replyButton.click({
-            button: "left",
-            delay: getRandomInteger(70, 160),
+        await clickLeftMouse(page, {
+            holdDelay: [70, 160],
         });
 
         return true;
@@ -280,7 +237,7 @@ export default async function writeReply(
         }
 
         console.log("Очікуємо 1,5–3 секунди на появу поля reply...");
-        await waitRandom(1500, 3000);
+        await waitHuman("medium");
 
         replyInput = await getActiveReplyInput(page);
 
@@ -293,13 +250,13 @@ export default async function writeReply(
         await typeTextHumanLike(page, replyText);
 
         console.log("Очікуємо 2–4 секунди перед відправленням...");
-        await waitRandom(2000, 4000);
+        await waitHuman("long");
 
         console.log("Натискаємо Enter для відправлення reply...");
         await page.keyboard.press("Enter");
 
         console.log("Очікуємо 3–7 секунд після відправлення...");
-        await waitRandom(3000, 7000);
+        await waitHuman("veryLong");
 
         console.log("Reply успішно відправлено");
         return true;

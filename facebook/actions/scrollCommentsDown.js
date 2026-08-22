@@ -2,25 +2,12 @@ import {
     postDialogSelector,
     topLevelCommentSelector,
 } from "../post/selectors.js";
-
-
-function getRandomInteger(min, max) {
-    return Math.floor(
-        Math.random() * (max - min + 1)
-    ) + min;
-}
-
-
-async function wait(milliseconds) {
-    await new Promise((resolve) => {
-        setTimeout(resolve, milliseconds);
-    });
-}
-
-
-async function waitRandom(min, max) {
-    await wait(getRandomInteger(min, max));
-}
+import { moveMouseToElement } from "../browser/pointer.js";
+import {
+    randomInteger,
+    waitHuman,
+    waitRandom,
+} from "../browser/timing.js";
 
 
 export default async function scrollCommentsDown(page) {
@@ -41,13 +28,9 @@ export default async function scrollCommentsDown(page) {
 
                 let container = lastComment.parentElement;
 
-                while (
-                    container
-                    && container !== document.body
-                ) {
+                while (container && container !== document.body) {
                     const styles = window.getComputedStyle(container);
-                    const canScroll =
-                        styles.overflowY === "auto"
+                    const canScroll = styles.overflowY === "auto"
                         || styles.overflowY === "scroll";
 
                     if (
@@ -89,22 +72,20 @@ export default async function scrollCommentsDown(page) {
             return false;
         }
 
-        const x =
-            box.x + box.width * (0.3 + Math.random() * 0.4);
-        const y =
-            box.y + box.height * (0.3 + Math.random() * 0.4);
-
         console.log("Наводимо курсор на область коментарів...");
-        await page.mouse.move(x, y, {
-            steps: getRandomInteger(8, 18),
+        await moveMouseToElement(page, scrollContainer, {
+            scrollIntoView: false,
+            inset: [0.3, 0.7],
+            steps: [8, 18],
         });
         await waitRandom(80, 180);
 
+        const distanceFactor = randomInteger(65, 85) / 100;
         const scrollDistance = Math.max(
             240,
-            Math.round(box.height * (0.65 + Math.random() * 0.2))
+            Math.round(box.height * distanceFactor)
         );
-        const wheelSteps = getRandomInteger(8, 15);
+        const wheelSteps = randomInteger(8, 15);
         let distanceLeft = scrollDistance;
 
         console.log("Прокручуємо коментарі вниз...");
@@ -112,11 +93,10 @@ export default async function scrollCommentsDown(page) {
         for (let index = 0; index < wheelSteps; index += 1) {
             const stepsLeft = wheelSteps - index;
             const averageStep = distanceLeft / stepsLeft;
+            const stepFactor = randomInteger(80, 120) / 100;
             const deltaY = Math.max(
                 12,
-                Math.round(
-                    averageStep * (0.8 + Math.random() * 0.4)
-                )
+                Math.round(averageStep * stepFactor)
             );
 
             await page.mouse.wheel({ deltaY });
@@ -127,7 +107,7 @@ export default async function scrollCommentsDown(page) {
         console.log(
             "Очікуємо 3–5 секунд для підвантаження коментарів..."
         );
-        await waitRandom(3000, 5000);
+        await waitHuman("long");
 
         return true;
     } catch (error) {

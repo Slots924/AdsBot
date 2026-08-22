@@ -1,4 +1,10 @@
 import { postDialogSelector } from "../post/selectors.js";
+import {
+    clickLeftMouse,
+    moveMouseToElement,
+} from "../browser/pointer.js";
+import { waitForVisibleElement } from "../browser/elements.js";
+import { waitHuman } from "../browser/timing.js";
 
 
 export const commentOrderingButtonSelector =
@@ -11,25 +17,6 @@ export const commentOrderingMenuItemSelector =
     '[role="menuitem"]';
 
 const currentOrderingText = "Most relevant";
-
-
-function getRandomInteger(min, max) {
-    return Math.floor(
-        Math.random() * (max - min + 1)
-    ) + min;
-}
-
-
-async function wait(milliseconds) {
-    await new Promise((resolve) => {
-        setTimeout(resolve, milliseconds);
-    });
-}
-
-
-async function waitRandom(min, max) {
-    await wait(getRandomInteger(min, max));
-}
 
 
 async function getFirstVisibleElement(
@@ -84,33 +71,6 @@ async function getFirstVisibleElement(
 }
 
 
-async function moveMouseToElement(page, element) {
-    const box = await element.boundingBox();
-
-    if (!box) {
-        return false;
-    }
-
-    const x =
-        box.x + box.width * (0.25 + Math.random() * 0.5);
-    const y =
-        box.y + box.height * (0.25 + Math.random() * 0.5);
-
-    await page.mouse.move(x, y, {
-        steps: getRandomInteger(8, 18),
-    });
-
-    return true;
-}
-
-
-async function clickWithLeftMouseButton(page) {
-    await page.mouse.down({ button: "left" });
-    await waitRandom(70, 160);
-    await page.mouse.up({ button: "left" });
-}
-
-
 export default async function sortCommentsByNewest(page) {
     let orderingButton;
     let orderingMenu;
@@ -120,10 +80,12 @@ export default async function sortCommentsByNewest(page) {
         console.log("Шукаємо кнопку сортування коментарів...");
 
         try {
-            await page.waitForSelector(postDialogSelector, {
-                visible: true,
-                timeout: 15000,
-            });
+            const postDialog = await waitForVisibleElement(
+                page,
+                postDialogSelector,
+                { timeout: 15000 }
+            );
+            await postDialog.dispose();
 
             await page.waitForFunction(
                 (selector, expectedText) => {
@@ -178,7 +140,9 @@ export default async function sortCommentsByNewest(page) {
         console.log("Знайдено кнопку сортування Most relevant");
         console.log("Наводимо курсор на кнопку сортування...");
 
-        if (!await moveMouseToElement(page, orderingButton)) {
+        if (!await moveMouseToElement(page, orderingButton, {
+            scrollIntoView: false,
+        })) {
             console.error(
                 "Не вдалося визначити розташування кнопки сортування коментарів"
             );
@@ -186,19 +150,23 @@ export default async function sortCommentsByNewest(page) {
         }
 
         console.log("Очікуємо 1,5–3 секунди перед натисканням...");
-        await waitRandom(1500, 3000);
+        await waitHuman("medium");
 
         console.log("Натискаємо кнопку сортування лівою кнопкою миші...");
-        await clickWithLeftMouseButton(page);
+        await clickLeftMouse(page, {
+            holdDelay: [70, 160],
+        });
 
         console.log("Очікуємо 3–5 секунд після відкриття меню...");
-        await waitRandom(3000, 5000);
+        await waitHuman("long");
 
         console.log("Очікуємо появу меню Comment Ordering...");
-        await page.waitForSelector(commentOrderingMenuSelector, {
-            visible: true,
-            timeout: 15000,
-        });
+        const visibleOrderingMenu = await waitForVisibleElement(
+            page,
+            commentOrderingMenuSelector,
+            { timeout: 15000 }
+        );
+        await visibleOrderingMenu.dispose();
 
         orderingMenu = await getFirstVisibleElement(
             page,
@@ -225,7 +193,9 @@ export default async function sortCommentsByNewest(page) {
 
         console.log("Наводимо курсор на другий пункт меню...");
 
-        if (!await moveMouseToElement(page, newestCommentsItem)) {
+        if (!await moveMouseToElement(page, newestCommentsItem, {
+            scrollIntoView: false,
+        })) {
             console.error(
                 "Не вдалося визначити розташування другого пункту меню"
             );
@@ -233,13 +203,15 @@ export default async function sortCommentsByNewest(page) {
         }
 
         console.log("Очікуємо 1,5–3 секунди перед натисканням...");
-        await waitRandom(1500, 3000);
+        await waitHuman("medium");
 
         console.log("Натискаємо другий пункт меню лівою кнопкою миші...");
-        await clickWithLeftMouseButton(page);
+        await clickLeftMouse(page, {
+            holdDelay: [70, 160],
+        });
 
         console.log("Очікуємо 7–10 секунд, поки коментарі завантажаться...");
-        await waitRandom(7000, 10000);
+        await waitHuman("extraLong");
 
         console.log("Коментарі успішно відсортовано за найновішими");
         return true;

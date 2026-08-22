@@ -1,56 +1,22 @@
+import { waitForVisibleElement } from "../browser/elements.js";
+import { humanClickElement } from "../browser/pointer.js";
+import { waitHuman } from "../browser/timing.js";
+
+
 const commentInputSelector =
     'form[role="presentation"] div[contenteditable="true"][role="textbox"]';
 
 
-function getRandomInteger(min, max) {
-    return Math.floor(
-        Math.random() * (max - min + 1)
-    ) + min;
-}
-
-
-async function waitRandom(min, max) {
-    const delay = getRandomInteger(min, max);
-
-    await new Promise((resolve) => {
-        setTimeout(resolve, delay);
-    });
-}
-
-
 async function clickCommentInput(page) {
-    await page.waitForSelector(commentInputSelector, {
-        visible: true,
+    const input = await waitForVisibleElement(page, commentInputSelector, {
         timeout: 15000,
     });
 
-    const input = await page.$(commentInputSelector);
-
-    if (!input) {
-        throw new Error("Не знайдено поле введення коментаря");
-    }
-
     try {
-        const box = await input.boundingBox();
-
-        if (!box) {
-            throw new Error(
-                "Не вдалося визначити розташування поля введення коментаря"
-            );
-        }
-
-        // Клікаємо у випадковій точці подалі від країв поля
-        const x =
-            box.x + box.width * (0.25 + Math.random() * 0.5);
-        const y =
-            box.y + box.height * (0.25 + Math.random() * 0.5);
-        const steps = getRandomInteger(8, 18);
-
-        await page.mouse.move(x, y, { steps });
-        await waitRandom(60, 140);
-        await page.mouse.down();
-        await waitRandom(70, 160);
-        await page.mouse.up();
+        await humanClickElement(page, input, {
+            beforeDelay: [60, 140],
+            holdDelay: [70, 160],
+        });
     } finally {
         await input.dispose();
     }
@@ -67,7 +33,7 @@ async function writeComment(page, commentText) {
 
     try {
         await clickCommentInput(page);
-        await waitRandom(4313, 7623);
+        await waitHuman("veryLong");
 
         await page.evaluate(
             async (selector, text) => {
@@ -123,9 +89,9 @@ async function writeComment(page, commentText) {
             commentText
         );
 
-        await waitRandom(3421, 5465);
+        await waitHuman("long");
         await page.keyboard.press("Enter");
-        await waitRandom(2755, 4765);
+        await waitHuman("long");
 
         return true;
     } catch (error) {

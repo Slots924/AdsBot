@@ -1,3 +1,11 @@
+import {
+    getFirstVisibleElement,
+    waitForVisibleElement,
+} from "../browser/elements.js";
+import { humanClickElement as browserHumanClickElement } from "../browser/pointer.js";
+import { waitRandom as waitRandomDelay } from "../browser/timing.js";
+
+
 const PROFILES_URL = "https://accountscenter.facebook.com/profiles";
 const FORCED_ACCOUNT_SWITCH_PART =
     "www.facebook.com/forced_account_switch";
@@ -101,13 +109,6 @@ function emitLog(logger, level, event, message, fields = {}) {
 }
 
 
-function randomInteger(minimum, maximum) {
-    return Math.floor(
-        Math.random() * (maximum - minimum + 1)
-    ) + minimum;
-}
-
-
 function normalizeText(value) {
     return String(value ?? "")
         .replace(/[’‘`]/g, "'")
@@ -145,14 +146,14 @@ function isAccountsCenterLandingUrl(value) {
 
 
 async function waitRandom(minimum, maximum, report, stage, reason) {
-    const delayMs = randomInteger(minimum, maximum);
-
-    report(stage, `Пауза ${delayMs} мс: ${reason}`, { delayMs });
-    await new Promise((resolve) => {
-        setTimeout(resolve, delayMs);
+    return waitRandomDelay(minimum, maximum, {
+        onDelay: (delayMs) => {
+            report(stage, `Пауза ${delayMs} мс: ${reason}`, {
+                delayMs,
+            });
+        },
     });
 }
-
 
 async function waitForVisibleSelector(
     page,
@@ -166,22 +167,12 @@ async function waitForVisibleSelector(
         timeout,
     });
 
-    let readyHandle;
+    let element;
 
     try {
-        readyHandle = await page.waitForFunction((targetSelector) => {
-            return Array.from(document.querySelectorAll(targetSelector))
-                .some((element) => {
-                    const rectangle = element.getBoundingClientRect();
-                    const style = window.getComputedStyle(element);
-
-                    return rectangle.width > 0
-                        && rectangle.height > 0
-                        && style.display !== "none"
-                        && style.visibility !== "hidden"
-                        && style.opacity !== "0";
-                });
-        }, { timeout }, selector);
+        element = await waitForVisibleElement(page, selector, {
+            timeout,
+        });
     } catch (error) {
         throw new FacebookNameChangeError(
             `Не знайдено видимий елемент за селектором: ${selector}`,
@@ -194,9 +185,9 @@ async function waitForVisibleSelector(
                 cause: error,
             }
         );
+    } finally {
+        await element?.dispose().catch(() => {});
     }
-
-    await readyHandle.dispose();
 
     const count = await page.$$eval(
         selector,
@@ -208,31 +199,11 @@ async function waitForVisibleSelector(
     });
 }
 
-
 async function getVisibleElementBySelector(page, selector) {
-    const handle = await page.evaluateHandle((targetSelector) => {
-        return Array.from(document.querySelectorAll(targetSelector))
-            .find((element) => {
-                const rectangle = element.getBoundingClientRect();
-                const style = window.getComputedStyle(element);
+    const element = await getFirstVisibleElement(page, selector);
 
-                return rectangle.width > 0
-                    && rectangle.height > 0
-                    && style.display !== "none"
-                    && style.visibility !== "hidden"
-                    && style.opacity !== "0";
-            }) ?? null;
-    }, selector);
-    const element = handle.asElement();
-
-    if (!element) {
-        await handle.dispose();
-        return null;
-    }
-
-    return { element, handle };
+    return element ? { element, handle: element } : null;
 }
-
 
 async function humanClickElement(
     page,
@@ -240,131 +211,56 @@ async function humanClickElement(
     report,
     stage,
     description,
-    pauseBeforeClick = null
+    pauseBeforeClick = null,
+    selector = null
 ) {
-    await element.evaluate((target) => {
-        target.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-            inline: "center",
-        });
+    const beforeDelay = pauseBeforeClick
+        ? [pauseBeforeClick.minimum, pauseBeforeClick.maximum]
+        : [100, 260];
+
+    await browserHumanClickElement(page, element, {
+        scrollDelay: [900, 1600],
+        fallbackScrollDelay: [250, 500],
+        beforeDelay,
+        holdDelay: [80, 170],
+        steps: [9, 19],
+        onEvent: (event) => {
+            if (event.type === "delay") {
+                report(
+                    stage,
+                    `Пауза ${event.delayMs} мс для «${description}»: ${event.reason}`,
+                    {
+                        delayMs: event.delayMs,
+                        reason: event.reason,
+                        selector,
+                    }
+                );
+                return;
+            }
+
+            if (event.type === "mouse_move") {
+                report(stage, `Наводимо курсор на «${description}»`, {
+                    x: Math.round(event.x),
+                    y: Math.round(event.y),
+                    steps: event.steps,
+                    box: event.box,
+                    selector,
+                });
+                return;
+            }
+
+            report(
+                stage,
+                `Pointer event для «${description}»: ${event.type}`,
+                { ...event, selector }
+            );
+        },
     });
 
-    await waitRandom(
-        900,
-        1600,
-        report,
-        stage,
-        `прокрутка до елемента «${description}»`
-    );
-
-    let box = await element.boundingBox();
-
-    const viewport = await page.evaluate(() => ({
-        width: window.innerWidth,
-        height: window.innerHeight,
-    }));
-    const hasUsableViewport = viewport.width >= 100
-        && viewport.height >= 100;
-    const outsideViewport = box
-        && (
-            box.x < 0
-            || box.y < 0
-            || (
-                hasUsableViewport
-                && (
-                    box.x + box.width > viewport.width
-                    || box.y + box.height > viewport.height
-                )
-            )
-        );
-
-    if (outsideViewport) {
-        report(
-            stage,
-            `Елемент «${description}» ще поза viewport, центруємо повторно`,
-            { box, viewport }
-        );
-        await element.evaluate((target) => {
-            target.scrollIntoView({
-                behavior: "auto",
-                block: "center",
-                inline: "center",
-            });
-        });
-        await waitRandom(
-            250,
-            500,
-            report,
-            stage,
-            `стабілізація позиції «${description}»`
-        );
-        box = await element.boundingBox();
-    }
-
-    if (!box) {
-        throw new Error(
-            `Не вдалося визначити координати елемента «${description}»`
-        );
-    }
-
-    if (
-        box.x < 0
-        || box.y < 0
-        || (
-            hasUsableViewport
-            && (
-                box.x + box.width > viewport.width
-                || box.y + box.height > viewport.height
-            )
-        )
-    ) {
-        throw new Error(
-            `Елемент «${description}» залишився поза viewport після прокрутки`
-        );
-    }
-
-    const x = box.x + box.width * (0.25 + Math.random() * 0.5);
-    const y = box.y + box.height * (0.25 + Math.random() * 0.5);
-    const steps = randomInteger(9, 19);
-
-    report(stage, `Наводимо курсор на «${description}»`, {
-        x: Math.round(x),
-        y: Math.round(y),
-        steps,
+    report(stage, `Клікнули ЛКМ по «${description}»`, {
+        selector,
     });
-    await page.mouse.move(x, y, { steps });
-
-    if (pauseBeforeClick) {
-        await waitRandom(
-            pauseBeforeClick.minimum,
-            pauseBeforeClick.maximum,
-            report,
-            stage,
-            `перед кліком по «${description}»`
-        );
-    } else {
-        await waitRandom(
-            100,
-            260,
-            report,
-            stage,
-            `перед кліком по «${description}»`
-        );
-    }
-
-    await page.mouse.down({ button: "left" });
-    await waitRandom(
-        80,
-        170,
-        report,
-        stage,
-        `утримання ЛКМ на «${description}»`
-    );
-    await page.mouse.up({ button: "left" });
-    report(stage, `Клікнули ЛКМ по «${description}»`);
 }
-
 
 async function humanClickSelector(
     page,
@@ -404,7 +300,8 @@ async function humanClickSelector(
                 report,
                 stage,
                 description,
-                options.pauseBeforeClick
+                options.pauseBeforeClick,
+                selector
             );
         } catch (error) {
             throw new FacebookNameChangeError(
@@ -432,32 +329,20 @@ async function humanClickFirstSelector(
     description,
     options = {}
 ) {
+    const timeout = options.timeout ?? 30000;
     report(stage, `Чекаємо перший видимий елемент: ${selector}`, {
         selector,
-        timeout: options.timeout ?? 30000,
+        timeout,
         index: 0,
     });
 
-    const timeout = options.timeout ?? 30000;
-    let readyHandle;
+    let element;
 
     try {
-        readyHandle = await page.waitForFunction((targetSelector) => {
-            const element = document.querySelectorAll(targetSelector)[0];
-
-            if (!element) {
-                return false;
-            }
-
-            const rectangle = element.getBoundingClientRect();
-            const style = window.getComputedStyle(element);
-
-            return rectangle.width > 0
-                && rectangle.height > 0
-                && style.display !== "none"
-                && style.visibility !== "hidden"
-                && style.opacity !== "0";
-        }, { timeout }, selector);
+        element = await waitForVisibleElement(page, selector, {
+            timeout,
+            index: 0,
+        });
     } catch (error) {
         throw new FacebookNameChangeError(
             `Не знайдено перший видимий елемент «${description}»`,
@@ -468,22 +353,6 @@ async function humanClickFirstSelector(
                 timeoutMs: timeout,
                 url: page.url(),
                 cause: error,
-            }
-        );
-    }
-
-    await readyHandle.dispose();
-
-    const element = await page.$(selector);
-
-    if (!element) {
-        throw new FacebookNameChangeError(
-            `Не знайдено перший елемент «${description}»`,
-            {
-                code: "FACEBOOK_NAME_ELEMENT_NOT_FOUND",
-                stage,
-                selector: `${selector}[0]`,
-                url: page.url(),
             }
         );
     }
@@ -501,7 +370,8 @@ async function humanClickFirstSelector(
                 report,
                 stage,
                 description,
-                options.pauseBeforeClick
+                options.pauseBeforeClick,
+                `${selector}[0]`
             );
         } catch (error) {
             throw new FacebookNameChangeError(
@@ -519,7 +389,6 @@ async function humanClickFirstSelector(
         await element.dispose().catch(() => {});
     }
 }
-
 
 async function getVisibleElementByText(
     page,
@@ -751,7 +620,9 @@ async function humanTypeInput(
             target.element,
             report,
             stage,
-            `поле ${labelText}`
+            `поле ${labelText}`,
+            null,
+            selectorDescription
         );
         await target.element.focus();
 
@@ -1220,7 +1091,9 @@ export default async function changeFacebookName(
                     reviewButton.element,
                     report,
                     stage,
-                    "Review change"
+                    "Review change",
+                    null,
+                    'span text="Review change" -> closest([role="button"])'
                 );
             } catch (error) {
                 throw new FacebookNameChangeError(
@@ -1272,7 +1145,8 @@ export default async function changeFacebookName(
                     report,
                     stage,
                     "Done",
-                    { minimum: 1500, maximum: 3000 }
+                    { minimum: 1500, maximum: 3000 },
+                    '[role="button"] text="Done"'
                 );
             } catch (error) {
                 throw new FacebookNameChangeError(

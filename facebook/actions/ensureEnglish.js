@@ -1,63 +1,18 @@
-function getRandomInteger(min, max) {
-    return Math.floor(
-        Math.random() * (max - min + 1)
-    ) + min;
-}
-
-
-async function waitRandom(min, max) {
-    const delay = getRandomInteger(min, max);
-
-    await new Promise((resolve) => {
-        setTimeout(resolve, delay);
-    });
-}
+import { waitForVisibleElement } from "../browser/elements.js";
+import { humanClickElement } from "../browser/pointer.js";
+import { waitHuman } from "../browser/timing.js";
 
 
 async function humanClick(page, selector) {
-    await page.waitForSelector(selector);
-
-    const element = await page.$(selector);
-
-    if (!element) {
-        throw new Error(
-            `Не знайдено елемент для кліку: ${selector}`
-        );
-    }
+    const element = await waitForVisibleElement(page, selector, {
+        timeout: 30000,
+    });
 
     try {
-        await element.evaluate((target) => {
-            target.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-                inline: "center",
-            });
+        await humanClickElement(page, element, {
+            beforeDelay: [60, 140],
+            holdDelay: [70, 160],
         });
-
-        const box = await element.boundingBox();
-
-        if (!box) {
-            throw new Error(
-                `Не вдалося визначити розташування елемента: ${selector}`
-            );
-        }
-
-        // Обираємо випадкову точку подалі від країв елемента
-        const x =
-            box.x + box.width * (0.25 + Math.random() * 0.5);
-        const y =
-            box.y + box.height * (0.25 + Math.random() * 0.5);
-        const steps = getRandomInteger(8, 18);
-
-        await page.mouse.move(x, y, { steps });
-
-        await waitRandom(60, 140);
-
-        await page.mouse.down();
-
-        await waitRandom(70, 160);
-
-        await page.mouse.up();
     } finally {
         await element.dispose();
     }
@@ -70,7 +25,7 @@ async function ensureEnglish(page) {
             waitUntil: "domcontentloaded",
         });
 
-        await waitRandom(879, 1354);
+        await waitHuman("short");
 
         const language = await page.$eval(
             'html[id="facebook"][lang]',
@@ -88,41 +43,47 @@ async function ensureEnglish(page) {
             }
         );
 
-        await waitRandom(6755, 8765);
+        await waitHuman("extraLong");
 
         await humanClick(
             page,
             'div[role="main"] div[style^="border-radius"] div[class^="html-div"] div[role="button"]'
         );
 
-        await waitRandom(6755, 8765);
+        await waitHuman("extraLong");
 
         const dialogSelector =
             'div[aria-labelledby][role="dialog"]';
 
-        await page.waitForSelector(dialogSelector, {
-            visible: true,
-        });
+        const dialog = await waitForVisibleElement(
+            page,
+            dialogSelector,
+            { timeout: 30000 }
+        );
+        await dialog.dispose();
 
         const inputSelector =
             `${dialogSelector} input[placeholder][type="text"]`;
 
-        await page.waitForSelector(inputSelector, {
-            visible: true,
-        });
+        const input = await waitForVisibleElement(
+            page,
+            inputSelector,
+            { timeout: 30000 }
+        );
+        await input.dispose();
 
         await page.type(inputSelector, "US", {
             delay: 300,
         });
 
-        await waitRandom(1755, 3765);
+        await waitHuman("medium");
 
         await humanClick(
             page,
             `${dialogSelector} div[data-visualcompletion="ignore-dynamic"] > div:nth-of-type(1)`
         );
 
-        await waitRandom(6755, 8765);
+        await waitHuman("extraLong");
     } catch {
         // Зміна мови не повинна зупиняти подальшу роботу програми
     }

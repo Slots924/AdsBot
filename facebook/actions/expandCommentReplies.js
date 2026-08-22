@@ -2,31 +2,14 @@ import {
     commentButtonSelector,
     replyCommentSelector,
 } from "../post/selectors.js";
+import { clickLeftMouse, moveMouseToElement } from "../browser/pointer.js";
+import { waitHuman } from "../browser/timing.js";
 
 
 export const viewRepliesPattern =
     /^View(?: \d+)?(?: more| previous)? repl(?:y|ies)$/i;
 
 const maxAttemptsWithoutProgress = 3;
-
-
-function getRandomInteger(min, max) {
-    return Math.floor(
-        Math.random() * (max - min + 1)
-    ) + min;
-}
-
-
-async function wait(milliseconds) {
-    await new Promise((resolve) => {
-        setTimeout(resolve, milliseconds);
-    });
-}
-
-
-async function waitRandom(min, max) {
-    await wait(getRandomInteger(min, max));
-}
 
 
 async function getReplyState(page) {
@@ -107,41 +90,6 @@ async function getFirstVisibleReplyButton(page) {
 }
 
 
-async function moveMouseToElement(page, element) {
-    await element.evaluate((target) => {
-        target.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-            inline: "center",
-        });
-    });
-
-    const box = await element.boundingBox();
-
-    if (!box) {
-        return false;
-    }
-
-    const x =
-        box.x + box.width * (0.25 + Math.random() * 0.5);
-    const y =
-        box.y + box.height * (0.25 + Math.random() * 0.5);
-
-    await page.mouse.move(x, y, {
-        steps: getRandomInteger(8, 18),
-    });
-
-    return true;
-}
-
-
-async function clickWithLeftMouseButton(page) {
-    await page.mouse.down({ button: "left" });
-    await waitRandom(70, 160);
-    await page.mouse.up({ button: "left" });
-}
-
-
 export default async function expandCommentReplies(page) {
     let attemptsWithoutProgress = 0;
 
@@ -168,7 +116,9 @@ export default async function expandCommentReplies(page) {
                     `Розгортаємо replies: ${stateBeforeClick.firstButtonText}`
                 );
 
-                if (!await moveMouseToElement(page, replyButton)) {
+                try {
+                    await moveMouseToElement(page, replyButton);
+                } catch {
                     console.error(
                         "Не вдалося визначити розташування кнопки replies"
                     );
@@ -178,18 +128,20 @@ export default async function expandCommentReplies(page) {
                 console.log(
                     "Очікуємо 1,5–3 секунди перед натисканням..."
                 );
-                await waitRandom(1500, 3000);
+                await waitHuman("medium");
 
                 console.log(
                     "Натискаємо кнопку replies лівою кнопкою миші..."
                 );
-                await clickWithLeftMouseButton(page);
+                await clickLeftMouse(page, {
+                    holdDelay: [70, 160],
+                });
             } finally {
                 await replyButton.dispose().catch(() => {});
             }
 
             console.log("Очікуємо 2–4 секунди після натискання...");
-            await waitRandom(2000, 4000);
+            await waitHuman("long");
 
             const stateAfterClick = await getReplyState(page);
             const hasProgress =

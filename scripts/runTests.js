@@ -24,6 +24,7 @@ const backendSuites = {
         "test/testFacebookBackendServiceMock.js",
         "test/testFacebookCampaignCreationMock.js",
         "test/testFacebookCampaignsMock.js",
+        "test/testFacebookBrowserPrimitives.js",
         "test/testFacebookPagePostsMock.js",
         "test/testFacebookPagePublishingMock.js",
         "test/testFacebookPageRebuildGraphMock.js",

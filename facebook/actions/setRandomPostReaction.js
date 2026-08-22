@@ -1,4 +1,5 @@
 import setPostReaction from "./setPostReaction.js";
+import { randomInteger } from "../browser/timing.js";
 
 
 const POST_REACTIONS = ["like", "love", "wow"];
@@ -6,8 +7,9 @@ const POST_REACTIONS = ["like", "love", "wow"];
 
 export default async function setRandomPostReaction(page) {
     try {
-        const reactionIndex = Math.floor(
-            Math.random() * POST_REACTIONS.length
+        const reactionIndex = randomInteger(
+            0,
+            POST_REACTIONS.length - 1
         );
 
         return await setPostReaction(
