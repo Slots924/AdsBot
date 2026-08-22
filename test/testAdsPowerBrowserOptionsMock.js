@@ -65,6 +65,34 @@ await legacyAdsPower.openProfile("7");
 assert.equal("headless" in legacyPayload, false);
 assert.equal("launch_args" in legacyPayload, false);
 
+const profileNameAdsPower = new AdsPower();
+let profileNameRequest = null;
+profileNameAdsPower.request = async (method, url, data) => {
+    profileNameRequest = { method, url, data };
+    return { data: { code: 0, data: {} } };
+};
+await profileNameAdsPower.updateProfileName(
+    "profile-id-1880",
+    "m_Vojtěch Sedláček only changed name"
+);
+assert.equal(profileNameRequest.method, "post");
+assert.match(
+    profileNameRequest.url,
+    /\/api\/v2\/browser-profile\/update$/
+);
+assert.deepEqual(profileNameRequest.data, {
+    profile_id: "profile-id-1880",
+    name: "m_Vojtěch Sedláček only changed name",
+});
+await assert.rejects(
+    () => profileNameAdsPower.updateProfileName("", "Profile name"),
+    /profile_id/
+);
+await assert.rejects(
+    () => profileNameAdsPower.updateProfileName("profile-id", ""),
+    /не може бути порожньою/
+);
+
 assert.deepEqual(
     {
         mode: normalizeState({}).commentBrowserMode,

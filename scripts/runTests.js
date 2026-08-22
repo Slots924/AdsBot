@@ -18,6 +18,7 @@ const backendSuites = {
         "test/testBackgroundTaskManager.js",
         "test/testCampaignCreationJournal.js",
         "test/testCampaignTemplateManager.js",
+        "test/testChangeFacebookName.js",
         "test/testCreativeManagerMock.js",
         "test/testFacebookAccountManager.js",
         "test/testFacebookBackendServiceMock.js",

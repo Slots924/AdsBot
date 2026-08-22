@@ -1,3 +1,8 @@
 export default async function isBanned(page) {
-    return page.url().includes("www.facebook.com/checkpoint");
+    const currentUrl = page.url();
+
+    return [
+        "www.facebook.com/checkpoint",
+        "www.facebook.com/confirmemail",
+    ].some((blockedUrl) => currentUrl.includes(blockedUrl));
 }

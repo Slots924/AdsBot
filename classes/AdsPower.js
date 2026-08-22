@@ -483,6 +483,57 @@ class AdsPower {
             );
         }
     }
+
+
+    // Оновлює відображувану назву AdsPower-профілю
+    async updateProfileName(profileId, name) {
+        const normalizedProfileId = String(profileId ?? "").trim();
+        const normalizedName = String(name ?? "").trim();
+
+        if (!normalizedProfileId) {
+            throw new Error("Не вказано profile_id AdsPower-профілю");
+        }
+
+        if (!normalizedName) {
+            throw new Error("Назва AdsPower-профілю не може бути порожньою");
+        }
+
+        if (normalizedName.length > 100) {
+            throw new Error(
+                "Назва AdsPower-профілю не може перевищувати 100 символів"
+            );
+        }
+
+        const url =
+            `${this.apiUrl}/api/v2/browser-profile/update`;
+
+        try {
+            const response = await this.request(
+                "post",
+                url,
+                {
+                    profile_id: normalizedProfileId,
+                    name: normalizedName,
+                }
+            );
+            const result = response.data;
+
+            if (result.code !== 0) {
+                throw new Error(result.msg);
+            }
+
+            return result.data ?? result;
+        } catch (error) {
+            const message =
+                error.response?.data?.msg
+                || error.message
+                || "Невідома помилка";
+
+            throw new Error(
+                `Не вдалося оновити назву AdsPower-профілю ${normalizedProfileId}: ${message}`
+            );
+        }
+    }
 }
 
 
