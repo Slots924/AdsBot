@@ -8,7 +8,10 @@ import {
     languageSearchInputSelector,
     languageSettingsButtonSelector,
 } from "../facebook/selectors/language.js";
-import { dismissPopupButtonSelector } from "../facebook/selectors/overlays.js";
+import {
+    dismissPopupButtonSelector,
+    modalDialogSelector,
+} from "../facebook/selectors/overlays.js";
 import {
     allPostCommentSelector,
     availablePostSelector,
@@ -28,6 +31,14 @@ import {
     reactionButtonSelector,
     reactionsToolbarSelector,
 } from "../facebook/selectors/reactions.js";
+import {
+    chooseProfilePictureDialogSelector,
+    profilePictureImageSelector,
+    profilePictureUploadInputSelector,
+    saveProfilePictureButtonSelector,
+    updateProfilePictureButtonSelector,
+    uploadProfilePhotoButtonSelector,
+} from "../facebook/selectors/profile.js";
 import {
     allPostCommentSelector as compatibleAllPostCommentSelector,
     postDialogSelector as compatiblePostDialogSelector,
@@ -158,6 +169,41 @@ assert.equal(
 assert.equal(
     dismissPopupButtonSelector,
     'button[aria-label], [role="button"][aria-label]'
+);
+assert.equal(
+    modalDialogSelector,
+    'div[role="dialog"][aria-modal="true"]'
+);
+assert.equal(
+    updateProfilePictureButtonSelector,
+    'div[role="main"] '
+    + 'div[role="button"][aria-label="Update profile picture"]'
+);
+assert.equal(
+    chooseProfilePictureDialogSelector,
+    'div[role="dialog"][aria-modal="true"]'
+    + '[aria-label="Choose profile picture"]'
+);
+assert.equal(
+    uploadProfilePhotoButtonSelector,
+    `${chooseProfilePictureDialogSelector} `
+    + 'div[role="button"][aria-label="Upload Photo"]'
+);
+assert.equal(
+    profilePictureUploadInputSelector,
+    `${chooseProfilePictureDialogSelector} `
+    + 'input[type="file"]'
+    + '[accept="image/*,image/heif,image/heic"]'
+);
+assert.equal(
+    saveProfilePictureButtonSelector,
+    `${chooseProfilePictureDialogSelector} `
+    + 'div[role="button"][aria-label="Save"]'
+);
+assert.equal(
+    profilePictureImageSelector,
+    'div[role="main"] '
+    + 'div[role="button"][aria-label="Profile picture actions"] image'
 );
 
 assert.equal(compatiblePostDialogSelector, postDialogSelector);

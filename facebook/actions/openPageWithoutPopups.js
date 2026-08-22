@@ -1,4 +1,8 @@
-async function openPageWithoutPopups(page, url) {
+async function openPageWithoutPopups(
+    page,
+    url,
+    navigationOptions = {}
+) {
     // Блокуємо Credential Management API до завантаження Facebook
     await page.evaluateOnNewDocument(() => {
         try {
@@ -8,6 +12,7 @@ async function openPageWithoutPopups(page, url) {
 
     await page.goto(url, {
         waitUntil: "domcontentloaded",
+        ...navigationOptions,
     });
 }
 
