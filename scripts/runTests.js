@@ -23,6 +23,7 @@ const backendSuites = {
         "test/testChangeFacebookProfilePicture.js",
         "test/testCreativeManagerMock.js",
         "test/testDeleteAllFacebookPersonalProfilePosts.js",
+        "test/testGetFacebookPersonalProfileCreationDate.js",
         "test/testFacebookAccountManager.js",
         "test/testFacebookBackendServiceMock.js",
         "test/testFacebookCampaignCreationMock.js",
