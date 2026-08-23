@@ -13,6 +13,15 @@ import {
     modalDialogSelector,
 } from "../facebook/selectors/overlays.js";
 import {
+    personalProfileAudienceDoneButtonSelector,
+    personalProfileAudienceRadioSelector,
+    personalProfileComposerButtonCandidatesSelector,
+    personalProfileCreatePostDialogSelector,
+    personalProfilePhotoVideoButtonSelector,
+    personalProfilePostPrivacyButtonSelector,
+    personalProfilePublishPostButtonSelector,
+} from "../facebook/selectors/personalProfilePost.js";
+import {
     allPostCommentSelector,
     availablePostSelector,
     commentButtonSelector,
@@ -32,9 +41,17 @@ import {
     reactionsToolbarSelector,
 } from "../facebook/selectors/reactions.js";
 import {
+    chooseProfilePictureMenuItemSelector,
+    coverPhotoEditingMenuItemSelector,
+    coverPhotoEditingMenuSelector,
+    coverPhotoImageSelector,
+    coverPhotoUploadInputSelector,
     chooseProfilePictureDialogSelector,
+    editCoverPhotoButtonSelector,
     profilePictureImageSelector,
+    profilePictureActionsButtonSelector,
     profilePictureUploadInputSelector,
+    saveCoverPhotoButtonSelector,
     saveProfilePictureButtonSelector,
     updateProfilePictureButtonSelector,
     uploadProfilePhotoButtonSelector,
@@ -180,6 +197,15 @@ assert.equal(
     + 'div[role="button"][aria-label="Update profile picture"]'
 );
 assert.equal(
+    profilePictureActionsButtonSelector,
+    'div[role="main"] '
+    + 'div[role="button"][aria-label="Profile picture actions"]'
+);
+assert.equal(
+    chooseProfilePictureMenuItemSelector,
+    'div[role="menu"] [role="menuitem"]'
+);
+assert.equal(
     chooseProfilePictureDialogSelector,
     'div[role="dialog"][aria-modal="true"]'
     + '[aria-label="Choose profile picture"]'
@@ -187,7 +213,7 @@ assert.equal(
 assert.equal(
     uploadProfilePhotoButtonSelector,
     `${chooseProfilePictureDialogSelector} `
-    + 'div[role="button"][aria-label="Upload Photo"]'
+    + 'div[role="button"][aria-label="Upload photo" i]'
 );
 assert.equal(
     profilePictureUploadInputSelector,
@@ -204,6 +230,66 @@ assert.equal(
     profilePictureImageSelector,
     'div[role="main"] '
     + 'div[role="button"][aria-label="Profile picture actions"] image'
+);
+assert.equal(
+    coverPhotoImageSelector,
+    'div[role="main"] '
+    + 'a[role="link"][aria-label="View profile cover photo" i] img'
+);
+assert.equal(
+    editCoverPhotoButtonSelector,
+    'div[role="main"] '
+    + 'div[role="button"][aria-label="Edit cover photo" i]'
+);
+assert.equal(
+    coverPhotoEditingMenuSelector,
+    'div[role="menu"][aria-label="Cover photo editing options" i]'
+);
+assert.equal(
+    coverPhotoEditingMenuItemSelector,
+    `${coverPhotoEditingMenuSelector} [role="menuitem"]`
+);
+assert.equal(
+    coverPhotoUploadInputSelector,
+    'input[type="file"][accept="image/*,image/heif,image/heic"]'
+);
+assert.equal(
+    saveCoverPhotoButtonSelector,
+    'div[role="main"] '
+    + 'div[role="button"][aria-label="Save changes" i]'
+);
+assert.equal(
+    personalProfileComposerButtonCandidatesSelector,
+    'div[role="main"] div[role="button"]'
+);
+assert.equal(
+    personalProfileCreatePostDialogSelector,
+    `${modalDialogSelector}[aria-label="Create post" i]`
+);
+assert.equal(
+    personalProfilePostPrivacyButtonSelector,
+    `${personalProfileCreatePostDialogSelector} `
+    + '[role="button"][aria-label^="Edit privacy." i]'
+);
+assert.equal(
+    personalProfileAudienceRadioSelector,
+    `${personalProfileCreatePostDialogSelector} input[type="radio"]`
+);
+assert.equal(
+    personalProfileAudienceDoneButtonSelector,
+    `${personalProfileCreatePostDialogSelector} `
+    + '[role="button"]'
+    + '[aria-label="Done with privacy audience selection and close dialog" i]'
+);
+assert.equal(
+    personalProfilePhotoVideoButtonSelector,
+    `${personalProfileCreatePostDialogSelector} `
+    + '[role="button"][aria-label="Photo/video" i]'
+);
+assert.equal(
+    personalProfilePublishPostButtonSelector,
+    `${personalProfileCreatePostDialogSelector} `
+    + '[role="button"][aria-label="Post" i]'
 );
 
 assert.equal(compatiblePostDialogSelector, postDialogSelector);

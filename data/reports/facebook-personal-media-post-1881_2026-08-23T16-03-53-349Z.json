@@ -1,0 +1,32 @@
+{
+  "title": "Ручний тест публікації медіапоста в особистий Facebook-профіль",
+  "profileNo": 1881,
+  "mediaPaths": [
+    "C:\\Users\\Darkness\\Downloads\\772586141_122369469278003679_1517380305269590544_n.jpg"
+  ],
+  "browserMode": "visible",
+  "keepOpen": true,
+  "startedAt": "2026-08-23T16:03:26.265Z",
+  "finishedAt": "2026-08-23T16:03:53.349Z",
+  "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+  "action": {
+    "success": false,
+    "status": "PRIVACY_FAILED",
+    "stage": "ENSURE_PUBLIC",
+    "mediaPaths": [
+      "C:\\Users\\Darkness\\Downloads\\772586141_122369469278003679_1517380305269590544_n.jpg"
+    ],
+    "mediaCount": 1,
+    "audience": null,
+    "startedAt": "2026-08-23T16:03:43.466Z",
+    "finishedAt": "2026-08-23T16:03:53.349Z",
+    "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+    "error": {
+      "code": "FACEBOOK_PERSONAL_POST_NOT_PUBLIC",
+      "message": "Не вдалося підтвердити публічну аудиторію допису",
+      "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Create post\" i] [role=\"button\"][aria-label^=\"Edit privacy.\" i]"
+    }
+  },
+  "error": null,
+  "cleanupErrors": []
+}

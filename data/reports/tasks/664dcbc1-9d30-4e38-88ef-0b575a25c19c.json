@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "664dcbc1-9d30-4e38-88ef-0b575a25c19c",
+  "taskId": "a91b5163-d394-4f23-8998-df088f056496",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 122101132004003855",
+  "status": "failed",
+  "createdAt": "2026-08-23T02:38:14.990Z",
+  "startedAt": "2026-08-23T02:38:13.960Z",
+  "finishedAt": "2026-08-23T02:38:14.989Z",
+  "durationMs": 1029,
+  "inputSummary": {
+    "accountKey": "N5_ADS",
+    "pageId": "122101132004003855",
+    "imagesDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\B28",
+    "pageCreatedAt": "2023-10-12"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "У папці немає окремих придатних фотографій для avatar і cover",
+      "code": "PAGE_REBUILD_ROLE_IMAGES_MISSING",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "N5_ADS",
+    "pageId": "122101132004003855",
+    "uniqueKey": "page-rebuild:N5_ADS:122101132004003855"
+  }
+}

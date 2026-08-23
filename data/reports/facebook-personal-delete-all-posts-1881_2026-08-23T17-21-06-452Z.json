@@ -1,0 +1,111 @@
+{
+  "title": "Ручне видалення всіх постів особистого Facebook-профілю",
+  "profileNo": 1881,
+  "browserMode": "visible",
+  "keepOpen": true,
+  "confirmed": true,
+  "startedAt": "2026-08-23T17:21:06.452Z",
+  "finishedAt": "2026-08-23T17:24:08.649Z",
+  "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+  "action": {
+    "success": true,
+    "status": "CLEANED",
+    "stage": "COMPLETED",
+    "systemSelectedCount": 0,
+    "systemHideSubmittedCount": 0,
+    "hiddenSystemCount": 0,
+    "systemHideVerified": true,
+    "ordinarySelectedCount": 3,
+    "ordinaryDeleteSubmittedCount": 3,
+    "deletedOrdinaryCount": 3,
+    "processedSections": [
+      "Manage posts"
+    ],
+    "fallbackClicks": 0,
+    "reachedLimit": false,
+    "hideVerification": {
+      "totalCount": 3,
+      "systemCount": 0,
+      "ordinaryCount": 3,
+      "posts": [
+        {
+          "key": "https://www.facebook.com/permalink.php?story_fbid=pfbid038Gpw6BHFnXNu4hRrR5UMj99WLPfEEV9Qt69BidbHgypqsjPgcipJUg9QnVNU3jHnl&id=61584835263222",
+          "systemPost": false,
+          "selected": false,
+          "visible": true
+        },
+        {
+          "key": "https://www.facebook.com/permalink.php?story_fbid=pfbid0Z8HyfdptCVF3Ad5Q6u31QgY8KZyYMjPgYccjpD8yp3rEY9KqXARSmTdPA7Zi8zypl&id=61584835263222",
+          "systemPost": false,
+          "selected": false,
+          "visible": true
+        },
+        {
+          "key": "https://www.facebook.com/permalink.php?story_fbid=pfbid034P6AqGF6qy73kQej6g8EGY48o7Watox4TQP7YR7WjRPCsYpQ1SRMn8puTeWU1aXcl&id=61584835263222",
+          "systemPost": false,
+          "selected": false,
+          "visible": true
+        }
+      ]
+    },
+    "verification": {
+      "totalCount": 0,
+      "systemCount": 0,
+      "ordinaryCount": 0,
+      "posts": []
+    },
+    "startedAt": "2026-08-23T17:21:24.027Z",
+    "finishedAt": "2026-08-23T17:24:08.649Z",
+    "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+    "error": null
+  },
+  "progress": [
+    {
+      "at": "2026-08-23T17:21:32.946Z",
+      "type": "manage_posts_opened"
+    },
+    {
+      "at": "2026-08-23T17:21:46.778Z",
+      "type": "reopen_manage_posts_after_hide",
+      "currentUrl": "https://www.facebook.com/profile.php?id=61584835263222"
+    },
+    {
+      "at": "2026-08-23T17:21:46.780Z",
+      "type": "manage_posts_reopened_after_hide",
+      "currentUrl": "https://www.facebook.com/profile.php?id=61584835263222"
+    },
+    {
+      "at": "2026-08-23T17:22:26.452Z",
+      "type": "system_hide_verified",
+      "hiddenSystemCount": 0,
+      "remainingSystemCount": 0
+    },
+    {
+      "at": "2026-08-23T17:22:42.780Z",
+      "type": "section_selected",
+      "section": "Manage posts",
+      "selectedCount": 2
+    },
+    {
+      "at": "2026-08-23T17:22:48.232Z",
+      "type": "section_selected",
+      "section": "Manage posts",
+      "selectedCount": 3
+    },
+    {
+      "at": "2026-08-23T17:23:31.069Z",
+      "type": "ordinary_delete_submitted",
+      "submittedCount": 3
+    },
+    {
+      "at": "2026-08-23T17:24:08.648Z",
+      "type": "final_verification",
+      "hiddenSystemCount": 0,
+      "deletedOrdinaryCount": 3,
+      "remainingSystemCount": 0,
+      "remainingOrdinaryCount": 0
+    }
+  ],
+  "error": null,
+  "cleanupErrors": []
+}

@@ -1,0 +1,550 @@
+{
+  "title": "Ручний тест зміни шпалер Facebook",
+  "profileNo": 1881,
+  "imagePath": "C:\\Users\\Darkness\\Downloads\\Group 2 (2)_19d2944bc4f.png",
+  "browserMode": "visible",
+  "keepOpen": true,
+  "startedAt": "2026-08-22T17:34:24.267Z",
+  "finishedAt": "2026-08-22T17:35:24.864Z",
+  "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+  "action": {
+    "success": true,
+    "status": "CHANGED",
+    "stage": "VERIFY_COVER",
+    "previousCoverUrl": "https://scontent.fods5-1.fna.fbcdn.net/v/t39.30808-6/784025778_122143405479161175_7895931085656247199_n.png?stp=dst-png&cstp=mx1737x906&ctp=s960x960&_nc_cat=104&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=GDd1owJVDkwQ7kNvwEM5hFc&_nc_oc=AdpiOb0BxjYhbwPVEq2lvBeany9Q0kFdR3jbg0s4DvkbUbjvdvWhlVc5aktzMdtTUCk&_nc_zt=23&_nc_ht=scontent.fods5-1.fna&_nc_gid=pqHacyMWnwNZ_HY9ok52dQ&_nc_ss=7f2a8&oh=00_AQFI5rg9bnSzboF1_JZcstfVXH4pygH6XtRtXuY2lwKXmw&oe=6A8FC494",
+    "currentCoverUrl": "https://scontent.fods5-1.fna.fbcdn.net/v/t39.30808-6/783707667_122143406127161175_8449547090296545585_n.png?stp=dst-png&cstp=mx753x753&ctp=s753x753&_nc_cat=108&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=F-oWKdnUmbkQ7kNvwEQ58VJ&_nc_oc=AdqsqzdF4x4RbgVhe__ROnTfMNGEw0hFmo65pght0W7OWsOD8aACPNhZlgQ7OU2T1VE&_nc_zt=23&_nc_ht=scontent.fods5-1.fna&_nc_gid=pyDTU9rxTRushkz3956ePA&_nc_ss=7f2a8&oh=00_AQG83wmKBODeyq1JTe45Wu4lwsCM7aqM6-FPM5kCBOqNcQ&oe=6A8FB101",
+    "startedAt": "2026-08-22T17:34:43.630Z",
+    "finishedAt": "2026-08-22T17:35:24.863Z",
+    "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+    "failedSelector": null,
+    "error": null,
+    "diagnostics": [
+      {
+        "at": "2026-08-22T17:34:43.631Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "VALIDATE_INPUT",
+        "message": "Файл шпалер перевірено",
+        "details": {
+          "stage": "VALIDATE_INPUT",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "filename": "Group 2 (2)_19d2944bc4f.png",
+          "contentType": "image/png",
+          "bytes": 1196951
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:43.633Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "READ_CURRENT_COVER",
+        "message": "Збережено URL поточних шпалер",
+        "details": {
+          "stage": "READ_CURRENT_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "selector": "div[role=\"main\"] a[role=\"link\"][aria-label=\"View profile cover photo\"] img",
+          "previousCoverUrl": "https://scontent.fods5-1.fna.fbcdn.net/v/t39.30808-6/784025778_122143405479161175_7895931085656247199_n.png?stp=dst-png&cstp=mx1737x906&ctp=s960x960&_nc_cat=104&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=GDd1owJVDkwQ7kNvwEM5hFc&_nc_oc=AdpiOb0BxjYhbwPVEq2lvBeany9Q0kFdR3jbg0s4DvkbUbjvdvWhlVc5aktzMdtTUCk&_nc_zt=23&_nc_ht=scontent.fods5-1.fna&_nc_gid=pqHacyMWnwNZ_HY9ok52dQ&_nc_ss=7f2a8&oh=00_AQFI5rg9bnSzboF1_JZcstfVXH4pygH6XtRtXuY2lwKXmw&oe=6A8FC494"
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:43.635Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "OPEN_COVER_MENU",
+        "message": "Чекаємо елемент «Edit cover photo»",
+        "details": {
+          "stage": "OPEN_COVER_MENU",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Edit cover photo\"]",
+          "timeout": 90000,
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:43.639Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "OPEN_COVER_MENU",
+        "message": "Пауза 4037 мс: стабілізація React для «Edit cover photo»",
+        "details": {
+          "stage": "OPEN_COVER_MENU",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 4037,
+          "reason": "стабілізація React для «Edit cover photo»"
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:47.682Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "OPEN_COVER_MENU",
+        "message": "Pointer event «Edit cover photo»: scroll_into_view",
+        "details": {
+          "stage": "OPEN_COVER_MENU",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "scroll_into_view",
+          "behavior": "smooth",
+          "block": "center",
+          "inline": "center",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Edit cover photo\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:47.682Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "OPEN_COVER_MENU",
+        "message": "Pointer event «Edit cover photo»: delay",
+        "details": {
+          "stage": "OPEN_COVER_MENU",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 1331,
+          "reason": "scroll_into_view",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Edit cover photo\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:49.023Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "OPEN_COVER_MENU",
+        "message": "Pointer event «Edit cover photo»: mouse_move",
+        "details": {
+          "stage": "OPEN_COVER_MENU",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_move",
+          "x": 1108.4329607964844,
+          "y": 468.14538089423496,
+          "steps": 12,
+          "box": {
+            "x": 1043.5625,
+            "y": 455.03125,
+            "height": 36,
+            "width": 158.4375
+          },
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Edit cover photo\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:49.091Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "OPEN_COVER_MENU",
+        "message": "Pointer event «Edit cover photo»: delay",
+        "details": {
+          "stage": "OPEN_COVER_MENU",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 120,
+          "reason": "before_click",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Edit cover photo\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:49.233Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "OPEN_COVER_MENU",
+        "message": "Pointer event «Edit cover photo»: mouse_down",
+        "details": {
+          "stage": "OPEN_COVER_MENU",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_down",
+          "button": "left",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Edit cover photo\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:49.233Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "OPEN_COVER_MENU",
+        "message": "Pointer event «Edit cover photo»: delay",
+        "details": {
+          "stage": "OPEN_COVER_MENU",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 163,
+          "reason": "mouse_hold",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Edit cover photo\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:49.412Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "OPEN_COVER_MENU",
+        "message": "Pointer event «Edit cover photo»: mouse_up",
+        "details": {
+          "stage": "OPEN_COVER_MENU",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_up",
+          "button": "left",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Edit cover photo\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:49.419Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "WAIT_COVER_MENU",
+        "message": "Пауза 4560 мс: повне завантаження меню Cover photo editing options",
+        "details": {
+          "stage": "WAIT_COVER_MENU",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 4560,
+          "reason": "повне завантаження меню Cover photo editing options"
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:54.001Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "UPLOAD_COVER",
+        "message": "Пауза 2196 мс: стабілізація React для menuitem «Upload photo»",
+        "details": {
+          "stage": "UPLOAD_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 2196,
+          "reason": "стабілізація React для menuitem «Upload photo»"
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:56.218Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "UPLOAD_COVER",
+        "message": "Pointer event «Upload photo»: scroll_into_view",
+        "details": {
+          "stage": "UPLOAD_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "scroll_into_view",
+          "behavior": "smooth",
+          "block": "center",
+          "inline": "center",
+          "selector": "div[role=\"menu\"][aria-label=\"Cover photo editing options\"] [role=\"menuitem\"]",
+          "expectedText": "Upload photo",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:56.218Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "UPLOAD_COVER",
+        "message": "Pointer event «Upload photo»: delay",
+        "details": {
+          "stage": "UPLOAD_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 1544,
+          "reason": "scroll_into_view",
+          "selector": "div[role=\"menu\"][aria-label=\"Cover photo editing options\"] [role=\"menuitem\"]",
+          "expectedText": "Upload photo",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:57.775Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "UPLOAD_COVER",
+        "message": "Pointer event «Upload photo»: mouse_move",
+        "details": {
+          "stage": "UPLOAD_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_move",
+          "x": 1034.7359505868324,
+          "y": 547.6613383546083,
+          "steps": 11,
+          "box": {
+            "x": 866,
+            "y": 535,
+            "height": 36,
+            "width": 328
+          },
+          "selector": "div[role=\"menu\"][aria-label=\"Cover photo editing options\"] [role=\"menuitem\"]",
+          "expectedText": "Upload photo",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:57.831Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "UPLOAD_COVER",
+        "message": "Pointer event «Upload photo»: delay",
+        "details": {
+          "stage": "UPLOAD_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 152,
+          "reason": "before_click",
+          "selector": "div[role=\"menu\"][aria-label=\"Cover photo editing options\"] [role=\"menuitem\"]",
+          "expectedText": "Upload photo",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:57.989Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "UPLOAD_COVER",
+        "message": "Pointer event «Upload photo»: mouse_down",
+        "details": {
+          "stage": "UPLOAD_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_down",
+          "button": "left",
+          "selector": "div[role=\"menu\"][aria-label=\"Cover photo editing options\"] [role=\"menuitem\"]",
+          "expectedText": "Upload photo",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:57.989Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "UPLOAD_COVER",
+        "message": "Pointer event «Upload photo»: delay",
+        "details": {
+          "stage": "UPLOAD_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 113,
+          "reason": "mouse_hold",
+          "selector": "div[role=\"menu\"][aria-label=\"Cover photo editing options\"] [role=\"menuitem\"]",
+          "expectedText": "Upload photo",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:58.119Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "UPLOAD_COVER",
+        "message": "Pointer event «Upload photo»: mouse_up",
+        "details": {
+          "stage": "UPLOAD_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_up",
+          "button": "left",
+          "selector": "div[role=\"menu\"][aria-label=\"Cover photo editing options\"] [role=\"menuitem\"]",
+          "expectedText": "Upload photo",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:34:58.121Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "UPLOAD_COVER",
+        "message": "Передаємо файл у Facebook file chooser",
+        "details": {
+          "stage": "UPLOAD_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "attempt": 1,
+          "selector": "input[type=\"file\"][accept=\"image/*,image/heif,image/heic\"]",
+          "filename": "Group 2 (2)_19d2944bc4f.png"
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:01.465Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "WAIT_PREVIEW",
+        "message": "Пауза 6092 мс: завантаження preview та скриптів reposition",
+        "details": {
+          "stage": "WAIT_PREVIEW",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 6092,
+          "reason": "завантаження preview та скриптів reposition"
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:07.558Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "SAVE",
+        "message": "Чекаємо елемент «Save changes»",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Save changes\"]",
+          "timeout": 90000,
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:07.561Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "SAVE",
+        "message": "Пауза 2080 мс: стабілізація React для «Save changes»",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 2080,
+          "reason": "стабілізація React для «Save changes»"
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:09.648Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save changes»: scroll_into_view",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "scroll_into_view",
+          "behavior": "smooth",
+          "block": "center",
+          "inline": "center",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Save changes\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:09.648Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save changes»: delay",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 978,
+          "reason": "scroll_into_view",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Save changes\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:10.628Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save changes»: mouse_move",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_move",
+          "x": 1118.2048086174364,
+          "y": 85.80759592831568,
+          "steps": 9,
+          "box": {
+            "x": 1046.578125,
+            "y": 68,
+            "height": 36,
+            "width": 171.421875
+          },
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Save changes\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:10.674Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save changes»: delay",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 2668,
+          "reason": "before_click",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Save changes\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:13.362Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save changes»: mouse_down",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_down",
+          "button": "left",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Save changes\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:13.362Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save changes»: delay",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 151,
+          "reason": "mouse_hold",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Save changes\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:13.533Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save changes»: mouse_up",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_up",
+          "button": "left",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Save changes\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:15.969Z",
+        "level": "info",
+        "event": "facebook.cover_change.step",
+        "stage": "VERIFY_COVER",
+        "message": "Пауза 8885 мс: фінальна стабілізація оновленого профілю",
+        "details": {
+          "stage": "VERIFY_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 8885,
+          "reason": "фінальна стабілізація оновленого профілю"
+        }
+      },
+      {
+        "at": "2026-08-22T17:35:24.863Z",
+        "level": "info",
+        "event": "facebook.cover_change.completed",
+        "stage": "VERIFY_COVER",
+        "message": "Зміна шпалер завершена зі статусом CHANGED",
+        "details": {
+          "stage": "VERIFY_COVER",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "status": "CHANGED",
+          "success": true,
+          "previousCoverUrl": "https://scontent.fods5-1.fna.fbcdn.net/v/t39.30808-6/784025778_122143405479161175_7895931085656247199_n.png?stp=dst-png&cstp=mx1737x906&ctp=s960x960&_nc_cat=104&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=GDd1owJVDkwQ7kNvwEM5hFc&_nc_oc=AdpiOb0BxjYhbwPVEq2lvBeany9Q0kFdR3jbg0s4DvkbUbjvdvWhlVc5aktzMdtTUCk&_nc_zt=23&_nc_ht=scontent.fods5-1.fna&_nc_gid=pqHacyMWnwNZ_HY9ok52dQ&_nc_ss=7f2a8&oh=00_AQFI5rg9bnSzboF1_JZcstfVXH4pygH6XtRtXuY2lwKXmw&oe=6A8FC494",
+          "currentCoverUrl": "https://scontent.fods5-1.fna.fbcdn.net/v/t39.30808-6/783707667_122143406127161175_8449547090296545585_n.png?stp=dst-png&cstp=mx753x753&ctp=s753x753&_nc_cat=108&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=F-oWKdnUmbkQ7kNvwEQ58VJ&_nc_oc=AdqsqzdF4x4RbgVhe__ROnTfMNGEw0hFmo65pght0W7OWsOD8aACPNhZlgQ7OU2T1VE&_nc_zt=23&_nc_ht=scontent.fods5-1.fna&_nc_gid=pyDTU9rxTRushkz3956ePA&_nc_ss=7f2a8&oh=00_AQG83wmKBODeyq1JTe45Wu4lwsCM7aqM6-FPM5kCBOqNcQ&oe=6A8FB101",
+          "error": null
+        }
+      }
+    ]
+  },
+  "error": null,
+  "cleanupErrors": []
+}

@@ -1,0 +1,69 @@
+{
+  "title": "Ручне видалення всіх постів особистого Facebook-профілю",
+  "profileNo": 1881,
+  "browserMode": "visible",
+  "keepOpen": true,
+  "confirmed": true,
+  "startedAt": "2026-08-23T17:36:43.527Z",
+  "finishedAt": "2026-08-23T17:38:36.855Z",
+  "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+  "action": {
+    "success": true,
+    "status": "NO_POSTS",
+    "stage": "COMPLETED",
+    "systemSelectedCount": 0,
+    "systemHideSubmittedCount": 0,
+    "hiddenSystemCount": 0,
+    "systemHideVerified": true,
+    "ordinarySelectedCount": 0,
+    "ordinaryDeleteSubmittedCount": 0,
+    "deletedOrdinaryCount": 0,
+    "processedSections": [],
+    "fallbackClicks": 0,
+    "reachedLimit": false,
+    "hideVerification": {
+      "totalCount": 0,
+      "systemCount": 0,
+      "ordinaryCount": 0,
+      "posts": []
+    },
+    "verification": {
+      "totalCount": 0,
+      "systemCount": 0,
+      "ordinaryCount": 0,
+      "posts": []
+    },
+    "managerClosed": true,
+    "startedAt": "2026-08-23T17:37:01.519Z",
+    "finishedAt": "2026-08-23T17:38:36.855Z",
+    "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+    "error": null
+  },
+  "progress": [
+    {
+      "at": "2026-08-23T17:37:09.610Z",
+      "type": "manage_posts_opened"
+    },
+    {
+      "at": "2026-08-23T17:37:40.211Z",
+      "type": "system_posts_absent",
+      "ordinaryCount": 0
+    },
+    {
+      "at": "2026-08-23T17:38:30.015Z",
+      "type": "final_verification",
+      "hiddenSystemCount": 0,
+      "deletedOrdinaryCount": 0,
+      "remainingSystemCount": 0,
+      "remainingOrdinaryCount": 0
+    },
+    {
+      "at": "2026-08-23T17:38:36.854Z",
+      "type": "final_manage_posts_closed",
+      "remainingSystemCount": 0,
+      "remainingOrdinaryCount": 0
+    }
+  ],
+  "error": null,
+  "cleanupErrors": []
+}

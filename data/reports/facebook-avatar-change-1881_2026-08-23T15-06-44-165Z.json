@@ -1,0 +1,77 @@
+{
+  "title": "Ручний тест зміни аватарки Facebook",
+  "profileNo": 1881,
+  "imagePath": "C:\\Users\\Darkness\\Downloads\\772586141\\_122369469278003679_1517380305269590544_n.jpg",
+  "browserMode": "visible",
+  "keepOpen": true,
+  "startedAt": "2026-08-23T15:06:25.528Z",
+  "finishedAt": "2026-08-23T15:06:44.165Z",
+  "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+  "action": {
+    "success": false,
+    "status": "INVALID_IMAGE",
+    "stage": "VALIDATE_INPUT",
+    "previousAvatarUrl": null,
+    "currentAvatarUrl": null,
+    "startedAt": "2026-08-23T15:06:44.161Z",
+    "finishedAt": "2026-08-23T15:06:44.164Z",
+    "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+    "failedSelector": null,
+    "error": {
+      "code": "FACEBOOK_AVATAR_INVALID_IMAGE",
+      "message": "Не вдалося прочитати файл картинки",
+      "stage": "VALIDATE_INPUT",
+      "selector": null,
+      "timeoutMs": null,
+      "name": "FacebookAvatarChangeError",
+      "stack": "FacebookAvatarChangeError: Не вдалося прочитати файл картинки\n    at changeFacebookProfilePicture (file:///C:/Users/Darkness/Documents/AdsBot/facebook/actions/changeFacebookProfilePicture.js:567:19)\n    at async runTest (file:///C:/Users/Darkness/Documents/AdsBot/scripts/manual/changeFacebookProfilePicture709.js:185:25)"
+    },
+    "diagnostics": [
+      {
+        "at": "2026-08-23T15:06:44.163Z",
+        "level": "error",
+        "event": "facebook.avatar_change.failed",
+        "stage": "VALIDATE_INPUT",
+        "message": "Помилка зміни аватарки: Не вдалося прочитати файл картинки",
+        "details": {
+          "stage": "VALIDATE_INPUT",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "code": "FACEBOOK_AVATAR_INVALID_IMAGE",
+          "message": "Не вдалося прочитати файл картинки",
+          "selector": null,
+          "timeoutMs": null,
+          "name": "FacebookAvatarChangeError",
+          "stack": "FacebookAvatarChangeError: Не вдалося прочитати файл картинки\n    at changeFacebookProfilePicture (file:///C:/Users/Darkness/Documents/AdsBot/facebook/actions/changeFacebookProfilePicture.js:567:19)\n    at async runTest (file:///C:/Users/Darkness/Documents/AdsBot/scripts/manual/changeFacebookProfilePicture709.js:185:25)",
+          "dialogs": []
+        }
+      },
+      {
+        "at": "2026-08-23T15:06:44.164Z",
+        "level": "error",
+        "event": "facebook.avatar_change.completed",
+        "stage": "VALIDATE_INPUT",
+        "message": "Зміна аватарки завершена зі статусом INVALID_IMAGE",
+        "details": {
+          "stage": "VALIDATE_INPUT",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "status": "INVALID_IMAGE",
+          "success": false,
+          "previousAvatarUrl": null,
+          "currentAvatarUrl": null,
+          "error": {
+            "code": "FACEBOOK_AVATAR_INVALID_IMAGE",
+            "message": "Не вдалося прочитати файл картинки",
+            "stage": "VALIDATE_INPUT",
+            "selector": null,
+            "timeoutMs": null,
+            "name": "FacebookAvatarChangeError",
+            "stack": "FacebookAvatarChangeError: Не вдалося прочитати файл картинки\n    at changeFacebookProfilePicture (file:///C:/Users/Darkness/Documents/AdsBot/facebook/actions/changeFacebookProfilePicture.js:567:19)\n    at async runTest (file:///C:/Users/Darkness/Documents/AdsBot/scripts/manual/changeFacebookProfilePicture709.js:185:25)"
+          }
+        }
+      }
+    ],
+    "dialogText": ""
+  },
+  "error": null,
+  "cleanupErrors": []
+}

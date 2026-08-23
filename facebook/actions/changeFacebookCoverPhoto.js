@@ -9,20 +9,19 @@ import { humanClickElement } from "../browser/pointer.js";
 import { waitHuman } from "../browser/timing.js";
 import { modalDialogSelector } from "../selectors/overlays.js";
 import {
-    chooseProfilePictureMenuItemSelector,
-    chooseProfilePictureDialogSelector,
-    profilePictureActionsButtonSelector,
-    profilePictureImageSelector,
-    profilePictureUploadInputSelector,
-    saveProfilePictureButtonSelector,
-    updateProfilePictureButtonSelector,
-    uploadProfilePhotoButtonSelector,
+    coverPhotoEditingMenuItemSelector,
+    coverPhotoEditingMenuSelector,
+    coverPhotoImageSelector,
+    coverPhotoUploadInputSelector,
+    editCoverPhotoButtonSelector,
+    saveCoverPhotoButtonSelector,
 } from "../selectors/profile.js";
 
 
 const fileChooserTimeout = 15000;
+const uploadPhotoMenuText = "Upload photo";
 
-export const facebookAvatarChangeStatuses = Object.freeze({
+export const facebookCoverPhotoChangeStatuses = Object.freeze({
     CHANGED: "CHANGED",
     INVALID_IMAGE: "INVALID_IMAGE",
     ELEMENT_NOT_FOUND: "ELEMENT_NOT_FOUND",
@@ -33,17 +32,17 @@ export const facebookAvatarChangeStatuses = Object.freeze({
 });
 
 
-class FacebookAvatarChangeError extends Error {
+class FacebookCoverPhotoChangeError extends Error {
     constructor(message, {
-        code = "FACEBOOK_AVATAR_CHANGE_FAILED",
-        status = facebookAvatarChangeStatuses.ERROR,
+        code = "FACEBOOK_COVER_CHANGE_FAILED",
+        status = facebookCoverPhotoChangeStatuses.ERROR,
         stage = null,
         selector = null,
         timeoutMs = null,
         cause = null,
     } = {}) {
         super(message, cause ? { cause } : undefined);
-        this.name = "FacebookAvatarChangeError";
+        this.name = "FacebookCoverPhotoChangeError";
         this.code = code;
         this.status = status;
         this.stage = stage;
@@ -68,7 +67,7 @@ function emitLog(logger, level, event, message, fields = {}) {
 
         method.call(
             logger,
-            `[changeFacebookProfilePicture] [${fields.stage ?? "UNKNOWN"}] ${message}`,
+            `[changeFacebookCoverPhoto] [${fields.stage ?? "UNKNOWN"}] ${message}`,
             fields
         );
     } catch {
@@ -80,7 +79,7 @@ function emitLog(logger, level, event, message, fields = {}) {
 function createErrorDetails(error, fallback = {}) {
     return {
         code: error?.code ?? fallback.code
-            ?? "FACEBOOK_AVATAR_CHANGE_FAILED",
+            ?? "FACEBOOK_COVER_CHANGE_FAILED",
         message: error?.message ?? String(error),
         stage: error?.stage ?? fallback.stage ?? null,
         selector: error?.selector ?? fallback.selector ?? null,
@@ -91,20 +90,23 @@ function createErrorDetails(error, fallback = {}) {
 }
 
 
-async function readAvatarUrl(page) {
+async function readCoverUrl(page) {
     return page.evaluate((selector) => {
-        const avatar = document.querySelector(selector);
+        const cover = document.querySelector(selector);
 
-        return avatar?.getAttribute("href")
-            ?? avatar?.getAttribute("xlink:href")
-            ?? null;
-    }, profilePictureImageSelector);
+        return (
+            cover?.currentSrc
+            || cover?.getAttribute("src")
+        ) ?? null;
+    }, coverPhotoImageSelector);
 }
 
 
-async function readVisibleDialogs(page) {
-    return page.evaluate((selector) => {
-        return Array.from(document.querySelectorAll(selector))
+async function readVisibleLayers(page) {
+    return page.evaluate((dialogSelector, menuSelector) => {
+        const selectors = `${dialogSelector}, ${menuSelector}`;
+
+        return Array.from(document.querySelectorAll(selectors))
             .filter((element) => {
                 const rectangle = element.getBoundingClientRect();
                 const style = window.getComputedStyle(element);
@@ -119,7 +121,7 @@ async function readVisibleDialogs(page) {
                 .replace(/\s+/g, " ")
                 .trim())
             .filter(Boolean);
-    }, modalDialogSelector);
+    }, modalDialogSelector, coverPhotoEditingMenuSelector);
 }
 
 
@@ -135,20 +137,15 @@ async function isVisible(page, selector) {
 }
 
 
-async function waitForVisible(
-    page,
-    selector,
-    timeout,
-    stage
-) {
+async function waitForVisible(page, selector, timeout, stage) {
     try {
         return await waitForVisibleElement(page, selector, { timeout });
     } catch (error) {
-        throw new FacebookAvatarChangeError(
+        throw new FacebookCoverPhotoChangeError(
             `Не знайдено видимий елемент: ${selector}`,
             {
-                code: "FACEBOOK_AVATAR_SELECTOR_TIMEOUT",
-                status: facebookAvatarChangeStatuses.ELEMENT_NOT_FOUND,
+                code: "FACEBOOK_COVER_SELECTOR_TIMEOUT",
+                status: facebookCoverPhotoChangeStatuses.ELEMENT_NOT_FOUND,
                 stage,
                 selector,
                 timeoutMs: timeout,
@@ -239,11 +236,11 @@ async function clickFreshVisibleElement(
             ),
         });
     } catch (error) {
-        throw new FacebookAvatarChangeError(
+        throw new FacebookCoverPhotoChangeError(
             `Не вдалося клікнути «${description}»: ${error.message}`,
             {
-                code: "FACEBOOK_AVATAR_INTERACTION_FAILED",
-                status: facebookAvatarChangeStatuses.ELEMENT_NOT_FOUND,
+                code: "FACEBOOK_COVER_INTERACTION_FAILED",
+                status: facebookCoverPhotoChangeStatuses.ELEMENT_NOT_FOUND,
                 stage,
                 selector,
                 timeoutMs: timeout,
@@ -256,76 +253,154 @@ async function clickFreshVisibleElement(
 }
 
 
-async function openPictureDialog(
+async function findVisibleElementByText(page, selector, expectedText) {
+    const elements = await page.$$(selector);
+    let matchedElement = null;
+    const normalizedExpectedText = expectedText.toLocaleLowerCase();
+
+    for (const element of elements) {
+        try {
+            const text = await element.evaluate((node) =>
+                String(node.innerText ?? "").replace(/\s+/g, " ").trim()
+            );
+            const rectangle = await element.boundingBox();
+
+            if (
+                text.toLocaleLowerCase() === normalizedExpectedText
+                && rectangle
+            ) {
+                matchedElement = element;
+                break;
+            }
+        } catch {
+            // React міг замінити menuitem під час перевірки.
+        }
+    }
+
+    await Promise.all(elements
+        .filter((element) => element !== matchedElement)
+        .map((element) => element.dispose().catch(() => {})));
+
+    return matchedElement;
+}
+
+
+async function clickFreshMenuItem(
+    page,
+    expectedText,
+    {
+        timeout,
+        report,
+        stage,
+        timingOptions,
+        attempt,
+    }
+) {
+    let element = await findVisibleElementByText(
+        page,
+        coverPhotoEditingMenuItemSelector,
+        expectedText
+    );
+
+    if (!element) {
+        throw new FacebookCoverPhotoChangeError(
+            `Не знайдено пункт меню «${expectedText}»`,
+            {
+                code: "FACEBOOK_COVER_MENU_ITEM_NOT_FOUND",
+                status: facebookCoverPhotoChangeStatuses.UPLOAD_FAILED,
+                stage,
+                selector: coverPhotoEditingMenuItemSelector,
+                timeoutMs: timeout,
+            }
+        );
+    }
+
+    await element.dispose().catch(() => {});
+    await pauseAfterVisible(
+        "medium",
+        report,
+        stage,
+        `стабілізація React для menuitem «${expectedText}»`,
+        timingOptions
+    );
+    element = await findVisibleElementByText(
+        page,
+        coverPhotoEditingMenuItemSelector,
+        expectedText
+    );
+
+    if (!element) {
+        throw new FacebookCoverPhotoChangeError(
+            `Пункт меню «${expectedText}» зник після React rerender`,
+            {
+                code: "FACEBOOK_COVER_MENU_ITEM_DETACHED",
+                status: facebookCoverPhotoChangeStatuses.UPLOAD_FAILED,
+                stage,
+                selector: coverPhotoEditingMenuItemSelector,
+                timeoutMs: timeout,
+            }
+        );
+    }
+
+    try {
+        await humanClickElement(page, element, {
+            beforeDelay: [100, 260],
+            holdDelay: [80, 170],
+            scrollDelay: [900, 1600],
+            random: timingOptions.random,
+            ...(timingOptions.sleep
+                ? { sleep: timingOptions.sleep }
+                : {}),
+            onEvent: (event) => report(
+                stage,
+                `Pointer event «${expectedText}»: ${event.type}`,
+                {
+                    ...event,
+                    selector: coverPhotoEditingMenuItemSelector,
+                    expectedText,
+                    attempt,
+                }
+            ),
+        });
+    } finally {
+        await element.dispose().catch(() => {});
+    }
+}
+
+
+async function openCoverEditingMenu(
     page,
     { timeout, report, timingOptions }
 ) {
-    const stage = "OPEN_PICTURE_DIALOG";
+    const stage = "OPEN_COVER_MENU";
     let lastError;
 
     for (let attempt = 1; attempt <= 2; attempt += 1) {
-        if (await isVisible(page, chooseProfilePictureDialogSelector)) {
+        if (await isVisible(page, coverPhotoEditingMenuSelector)) {
             return;
         }
 
         try {
-            if (await isVisible(page, updateProfilePictureButtonSelector)) {
-                await clickFreshVisibleElement(
-                    page,
-                    updateProfilePictureButtonSelector,
-                    {
-                        timeout,
-                        report,
-                        stage,
-                        description: "Update profile picture",
-                        timingOptions,
-                        attempt,
-                    }
-                );
-            } else {
-                report(
-                    stage,
-                    "Кнопки камери немає, відкриваємо меню поточної аватарки",
-                    {
-                        attempt,
-                        selector: profilePictureActionsButtonSelector,
-                    }
-                );
-                await clickFreshVisibleElement(
-                    page,
-                    profilePictureActionsButtonSelector,
-                    {
-                        timeout,
-                        report,
-                        stage,
-                        description: "Profile picture actions",
-                        stabilization: "medium",
-                        timingOptions,
-                        attempt,
-                    }
-                );
-                await clickFreshVisibleElement(
-                    page,
-                    chooseProfilePictureMenuItemSelector,
-                    {
-                        timeout,
-                        report,
-                        stage,
-                        description: "Choose profile picture",
-                        stabilization: "medium",
-                        timingOptions,
-                        attempt,
-                    }
-                );
-            }
-
-            const dialog = await waitForVisible(
+            await clickFreshVisibleElement(
                 page,
-                chooseProfilePictureDialogSelector,
+                editCoverPhotoButtonSelector,
+                {
+                    timeout,
+                    report,
+                    stage,
+                    description: "Edit cover photo",
+                    timingOptions,
+                    attempt,
+                }
+            );
+
+            const menu = await waitForVisible(
+                page,
+                coverPhotoEditingMenuSelector,
                 timeout,
                 stage
             );
-            await dialog.dispose().catch(() => {});
+            await menu.dispose().catch(() => {});
             return;
         } catch (error) {
             lastError = error;
@@ -333,10 +408,10 @@ async function openPictureDialog(
             if (attempt === 1) {
                 report(
                     stage,
-                    "Діалог вибору аватарки не відкрився, перевіряємо стан перед retry",
+                    "Меню редагування шпалер не відкрилося, перевіряємо стан перед retry",
                     {
                         attempt,
-                        selector: chooseProfilePictureDialogSelector,
+                        selector: coverPhotoEditingMenuSelector,
                         error: createErrorDetails(error),
                     },
                     { level: "warn" }
@@ -349,32 +424,45 @@ async function openPictureDialog(
 }
 
 
-async function uploadPicture(
+async function uploadCoverPhoto(
     page,
     absolutePath,
     { timeout, report, timingOptions }
 ) {
-    const stage = "UPLOAD_PHOTO";
+    const stage = "UPLOAD_COVER";
     let lastError;
 
     for (let attempt = 1; attempt <= 2; attempt += 1) {
-        if (await isVisible(page, saveProfilePictureButtonSelector)) {
+        if (await isVisible(page, saveCoverPhotoButtonSelector)) {
             return;
         }
 
         try {
+            if (!await isVisible(page, coverPhotoEditingMenuSelector)) {
+                await openCoverEditingMenu(page, {
+                    timeout,
+                    report,
+                    timingOptions,
+                });
+                await pauseAfterVisible(
+                    "long",
+                    report,
+                    stage,
+                    "повне завантаження меню редагування шпалер",
+                    timingOptions
+                );
+            }
+
             const chooserPromise = page.waitForFileChooser({
                 timeout: fileChooserTimeout,
             });
-            const clickPromise = clickFreshVisibleElement(
+            const clickPromise = clickFreshMenuItem(
                 page,
-                uploadProfilePhotoButtonSelector,
+                uploadPhotoMenuText,
                 {
                     timeout,
                     report,
                     stage,
-                    description: "Upload Photo",
-                    stabilization: "medium",
                     timingOptions,
                     attempt,
                 }
@@ -392,31 +480,29 @@ async function uploadPicture(
                 throw chooserResult.reason;
             }
 
-            const fileChooser = chooserResult.value;
-
             report(stage, "Передаємо файл у Facebook file chooser", {
                 attempt,
-                selector: profilePictureUploadInputSelector,
+                selector: coverPhotoUploadInputSelector,
                 filename: path.basename(absolutePath),
             });
-            await fileChooser.accept([absolutePath]);
+            await chooserResult.value.accept([absolutePath]);
 
             let preview;
 
             try {
                 preview = await waitForVisibleElement(
                     page,
-                    saveProfilePictureButtonSelector,
+                    saveCoverPhotoButtonSelector,
                     { timeout }
                 );
             } catch (error) {
-                throw new FacebookAvatarChangeError(
-                    "Facebook не показав preview завантаженої аватарки",
+                throw new FacebookCoverPhotoChangeError(
+                    "Facebook не показав preview нових шпалер",
                     {
-                        code: "FACEBOOK_AVATAR_PREVIEW_TIMEOUT",
-                        status: facebookAvatarChangeStatuses.UPLOAD_FAILED,
+                        code: "FACEBOOK_COVER_PREVIEW_TIMEOUT",
+                        status: facebookCoverPhotoChangeStatuses.UPLOAD_FAILED,
                         stage: "WAIT_PREVIEW",
-                        selector: saveProfilePictureButtonSelector,
+                        selector: saveCoverPhotoButtonSelector,
                         timeoutMs: timeout,
                         cause: error,
                     }
@@ -427,22 +513,22 @@ async function uploadPicture(
 
             return;
         } catch (error) {
-            lastError = error instanceof FacebookAvatarChangeError
+            lastError = error instanceof FacebookCoverPhotoChangeError
                 ? error
-                : new FacebookAvatarChangeError(
+                : new FacebookCoverPhotoChangeError(
                     `Не вдалося відкрити file chooser: ${error.message}`,
                     {
-                        code: "FACEBOOK_AVATAR_FILE_CHOOSER_FAILED",
-                        status: facebookAvatarChangeStatuses.UPLOAD_FAILED,
+                        code: "FACEBOOK_COVER_FILE_CHOOSER_FAILED",
+                        status: facebookCoverPhotoChangeStatuses.UPLOAD_FAILED,
                         stage,
-                        selector: uploadProfilePhotoButtonSelector,
+                        selector: coverPhotoEditingMenuItemSelector,
                         timeoutMs: fileChooserTimeout,
                         cause: error,
                     }
                 );
 
             if (
-                lastError.code === "FACEBOOK_AVATAR_PREVIEW_TIMEOUT"
+                lastError.code === "FACEBOOK_COVER_PREVIEW_TIMEOUT"
                 || attempt === 2
             ) {
                 break;
@@ -453,7 +539,7 @@ async function uploadPicture(
                 "File chooser не відкрився, перевіряємо preview перед retry",
                 {
                     attempt,
-                    selector: uploadProfilePhotoButtonSelector,
+                    selector: coverPhotoEditingMenuItemSelector,
                     error: createErrorDetails(lastError),
                 },
                 { level: "warn" }
@@ -465,7 +551,7 @@ async function uploadPicture(
 }
 
 
-export default async function changeFacebookProfilePicture(
+export default async function changeFacebookCoverPhoto(
     page,
     {
         imagePath,
@@ -482,8 +568,8 @@ export default async function changeFacebookProfilePicture(
         ...(sleep ? { sleep } : {}),
     };
     let stage = "VALIDATE_INPUT";
-    let previousAvatarUrl = null;
-    let currentAvatarUrl = null;
+    let previousCoverUrl = null;
+    let currentCoverUrl = null;
 
     const report = (
         currentStage,
@@ -491,7 +577,7 @@ export default async function changeFacebookProfilePicture(
         details = {},
         {
             level = "info",
-            event = "facebook.avatar_change.step",
+            event = "facebook.cover_change.step",
         } = {}
     ) => {
         const fields = {
@@ -512,22 +598,21 @@ export default async function changeFacebookProfilePicture(
         emitLog(logger, level, event, message, fields);
     };
     const finish = (status, extra = {}) => {
-        const success = status === facebookAvatarChangeStatuses.CHANGED;
-        const level = success ? "info" : "error";
+        const success = status === facebookCoverPhotoChangeStatuses.CHANGED;
 
         report(
             stage,
-            `Зміна аватарки завершена зі статусом ${status}`,
+            `Зміна шпалер завершена зі статусом ${status}`,
             {
                 status,
                 success,
-                previousAvatarUrl,
-                currentAvatarUrl,
+                previousCoverUrl,
+                currentCoverUrl,
                 error: extra.error ?? null,
             },
             {
-                level,
-                event: "facebook.avatar_change.completed",
+                level: success ? "info" : "error",
+                event: "facebook.cover_change.completed",
             }
         );
 
@@ -535,8 +620,8 @@ export default async function changeFacebookProfilePicture(
             success,
             status,
             stage,
-            previousAvatarUrl,
-            currentAvatarUrl,
+            previousCoverUrl,
+            currentCoverUrl,
             startedAt,
             finishedAt: new Date().toISOString(),
             finalUrl: page.url(),
@@ -549,11 +634,11 @@ export default async function changeFacebookProfilePicture(
 
     try {
         if (!Number.isFinite(timeout) || timeout <= 0) {
-            throw new FacebookAvatarChangeError(
-                "Timeout зміни аватарки має бути додатним числом",
+            throw new FacebookCoverPhotoChangeError(
+                "Timeout зміни шпалер має бути додатним числом",
                 {
-                    code: "FACEBOOK_AVATAR_INVALID_TIMEOUT",
-                    status: facebookAvatarChangeStatuses.ERROR,
+                    code: "FACEBOOK_COVER_INVALID_TIMEOUT",
+                    status: facebookCoverPhotoChangeStatuses.ERROR,
                     stage,
                 }
             );
@@ -564,60 +649,60 @@ export default async function changeFacebookProfilePicture(
         try {
             image = await loadImageFromPath(imagePath);
         } catch (error) {
-            throw new FacebookAvatarChangeError(error.message, {
-                code: "FACEBOOK_AVATAR_INVALID_IMAGE",
-                status: facebookAvatarChangeStatuses.INVALID_IMAGE,
+            throw new FacebookCoverPhotoChangeError(error.message, {
+                code: "FACEBOOK_COVER_INVALID_IMAGE",
+                status: facebookCoverPhotoChangeStatuses.INVALID_IMAGE,
                 stage,
                 cause: error,
             });
         }
 
         const absolutePath = path.resolve(String(imagePath).trim());
-        report(stage, "Файл аватарки перевірено", {
+        report(stage, "Файл шпалер перевірено", {
             filename: image.filename,
             contentType: image.contentType,
             bytes: image.buffer.length,
         });
 
-        stage = "READ_CURRENT_AVATAR";
-        previousAvatarUrl = await readAvatarUrl(page);
+        stage = "READ_CURRENT_COVER";
+        previousCoverUrl = await readCoverUrl(page);
 
-        if (!previousAvatarUrl) {
-            throw new FacebookAvatarChangeError(
-                "Не знайдено поточну аватарку профілю",
+        if (!previousCoverUrl) {
+            throw new FacebookCoverPhotoChangeError(
+                "Не знайдено поточні шпалери профілю",
                 {
-                    code: "FACEBOOK_AVATAR_CURRENT_IMAGE_NOT_FOUND",
-                    status: facebookAvatarChangeStatuses.ELEMENT_NOT_FOUND,
+                    code: "FACEBOOK_CURRENT_COVER_NOT_FOUND",
+                    status: facebookCoverPhotoChangeStatuses.ELEMENT_NOT_FOUND,
                     stage,
-                    selector: profilePictureImageSelector,
+                    selector: coverPhotoImageSelector,
                     timeoutMs: timeout,
                 }
             );
         }
 
-        report(stage, "Збережено URL поточної аватарки", {
-            selector: profilePictureImageSelector,
-            previousAvatarUrl,
+        report(stage, "Збережено URL поточних шпалер", {
+            selector: coverPhotoImageSelector,
+            previousCoverUrl,
         });
 
-        stage = "OPEN_PICTURE_DIALOG";
-        await openPictureDialog(page, {
+        stage = "OPEN_COVER_MENU";
+        await openCoverEditingMenu(page, {
             timeout,
             report,
             timingOptions,
         });
 
-        stage = "WAIT_CHOOSER_DIALOG";
+        stage = "WAIT_COVER_MENU";
         await pauseAfterVisible(
             "long",
             report,
             stage,
-            "повне завантаження діалогу Choose profile picture",
+            "повне завантаження меню Cover photo editing options",
             timingOptions
         );
 
-        stage = "UPLOAD_PHOTO";
-        await uploadPicture(page, absolutePath, {
+        stage = "UPLOAD_COVER";
+        await uploadCoverPhoto(page, absolutePath, {
             timeout,
             report,
             timingOptions,
@@ -628,19 +713,19 @@ export default async function changeFacebookProfilePicture(
             "veryLong",
             report,
             stage,
-            "завантаження preview і скриптів crop",
+            "завантаження preview та скриптів reposition",
             timingOptions
         );
 
         stage = "SAVE";
         await clickFreshVisibleElement(
             page,
-            saveProfilePictureButtonSelector,
+            saveCoverPhotoButtonSelector,
             {
                 timeout,
                 report,
                 stage,
-                description: "Save",
+                description: "Save changes",
                 stabilization: "medium",
                 beforeDelay: [1500, 3000],
                 timingOptions,
@@ -653,67 +738,65 @@ export default async function changeFacebookProfilePicture(
 
         try {
             resultHandle = await page.waitForFunction(
-                (dialogSelector, avatarSelector, oldUrl) => {
-                    const dialog = document.querySelector(dialogSelector);
-                    const avatar = document.querySelector(avatarSelector);
-                    const newUrl = avatar?.getAttribute("href")
-                        ?? avatar?.getAttribute("xlink:href")
-                        ?? null;
+                (saveSelector, coverSelector, oldUrl) => {
+                    const saveButton = document.querySelector(saveSelector);
+                    const cover = document.querySelector(coverSelector);
+                    const newUrl = (
+                        cover?.currentSrc
+                        || cover?.getAttribute("src")
+                    ) ?? null;
 
-                    return !dialog && Boolean(newUrl) && newUrl !== oldUrl;
+                    return !saveButton
+                        && Boolean(newUrl)
+                        && newUrl !== oldUrl;
                 },
                 { timeout },
-                chooseProfilePictureDialogSelector,
-                profilePictureImageSelector,
-                previousAvatarUrl
+                saveCoverPhotoButtonSelector,
+                coverPhotoImageSelector,
+                previousCoverUrl
             );
         } catch (error) {
-            currentAvatarUrl = await readAvatarUrl(page).catch(() => null);
-            const dialogs = await readVisibleDialogs(page).catch(() => []);
-            const dialogStillVisible = await isVisible(
+            currentCoverUrl = await readCoverUrl(page).catch(() => null);
+            const saveStillVisible = await isVisible(
                 page,
-                chooseProfilePictureDialogSelector
+                saveCoverPhotoButtonSelector
             ).catch(() => false);
 
-            throw new FacebookAvatarChangeError(
-                dialogStillVisible
-                    ? "Facebook не завершив збереження аватарки"
-                    : "Facebook закрив діалог, але URL аватарки не змінився",
+            throw new FacebookCoverPhotoChangeError(
+                saveStillVisible
+                    ? "Facebook не завершив збереження шпалер"
+                    : "Facebook закрив preview, але URL шпалер не змінився",
                 {
-                    code: dialogStillVisible
-                        ? "FACEBOOK_AVATAR_SAVE_TIMEOUT"
-                        : "FACEBOOK_AVATAR_NOT_CHANGED",
-                    status: dialogStillVisible
-                        ? facebookAvatarChangeStatuses.SAVE_FAILED
-                        : facebookAvatarChangeStatuses.VERIFICATION_FAILED,
+                    code: saveStillVisible
+                        ? "FACEBOOK_COVER_SAVE_TIMEOUT"
+                        : "FACEBOOK_COVER_NOT_CHANGED",
+                    status: saveStillVisible
+                        ? facebookCoverPhotoChangeStatuses.SAVE_FAILED
+                        : facebookCoverPhotoChangeStatuses.VERIFICATION_FAILED,
                     stage,
-                    selector: dialogStillVisible
-                        ? chooseProfilePictureDialogSelector
-                        : profilePictureImageSelector,
+                    selector: saveStillVisible
+                        ? saveCoverPhotoButtonSelector
+                        : coverPhotoImageSelector,
                     timeoutMs: timeout,
                     cause: error,
-                    dialogs,
                 }
             );
         } finally {
             await resultHandle?.dispose().catch(() => {});
         }
 
-        stage = "VERIFY_AVATAR";
-        currentAvatarUrl = await readAvatarUrl(page);
+        stage = "VERIFY_COVER";
+        currentCoverUrl = await readCoverUrl(page);
 
-        if (
-            !currentAvatarUrl
-            || currentAvatarUrl === previousAvatarUrl
-        ) {
-            throw new FacebookAvatarChangeError(
-                "URL аватарки не змінився після збереження",
+        if (!currentCoverUrl || currentCoverUrl === previousCoverUrl) {
+            throw new FacebookCoverPhotoChangeError(
+                "URL шпалер не змінився після збереження",
                 {
-                    code: "FACEBOOK_AVATAR_NOT_CHANGED",
+                    code: "FACEBOOK_COVER_NOT_CHANGED",
                     status:
-                        facebookAvatarChangeStatuses.VERIFICATION_FAILED,
+                        facebookCoverPhotoChangeStatuses.VERIFICATION_FAILED,
                     stage,
-                    selector: profilePictureImageSelector,
+                    selector: coverPhotoImageSelector,
                     timeoutMs: timeout,
                 }
             );
@@ -727,49 +810,49 @@ export default async function changeFacebookProfilePicture(
             timingOptions
         );
 
-        return finish(facebookAvatarChangeStatuses.CHANGED);
+        return finish(facebookCoverPhotoChangeStatuses.CHANGED);
     } catch (error) {
-        const normalizedError = error instanceof FacebookAvatarChangeError
+        const normalizedError = error instanceof FacebookCoverPhotoChangeError
             ? error
-            : new FacebookAvatarChangeError(
+            : new FacebookCoverPhotoChangeError(
                 error?.message ?? String(error),
                 {
                     code: error?.code,
-                    status: facebookAvatarChangeStatuses.ERROR,
+                    status: facebookCoverPhotoChangeStatuses.ERROR,
                     stage,
                     cause: error,
                 }
             );
         stage = normalizedError.stage ?? stage;
         const errorDetails = createErrorDetails(normalizedError, { stage });
-        const dialogs = await readVisibleDialogs(page).catch(() => []);
+        const layers = await readVisibleLayers(page).catch(() => []);
 
         report(
             stage,
-            `Помилка зміни аватарки: ${errorDetails.message}`,
+            `Помилка зміни шпалер: ${errorDetails.message}`,
             {
                 ...errorDetails,
-                dialogs,
+                visibleLayers: layers,
             },
             {
                 level: "error",
-                event: "facebook.avatar_change.failed",
+                event: "facebook.cover_change.failed",
             }
         );
 
         return finish(normalizedError.status, {
             error: errorDetails,
-            dialogText: dialogs.join(" "),
+            visibleLayerText: layers.join(" "),
         });
     }
 }
 
 
 export {
-    chooseProfilePictureDialogSelector,
-    profilePictureImageSelector,
-    profilePictureUploadInputSelector,
-    saveProfilePictureButtonSelector,
-    updateProfilePictureButtonSelector,
-    uploadProfilePhotoButtonSelector,
+    coverPhotoEditingMenuItemSelector,
+    coverPhotoEditingMenuSelector,
+    coverPhotoImageSelector,
+    coverPhotoUploadInputSelector,
+    editCoverPhotoButtonSelector,
+    saveCoverPhotoButtonSelector,
 };

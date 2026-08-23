@@ -8,7 +8,9 @@ import changeFacebookProfilePicture, {
 } from "../facebook/actions/changeFacebookProfilePicture.js";
 import { modalDialogSelector } from "../facebook/selectors/overlays.js";
 import {
+    chooseProfilePictureMenuItemSelector,
     chooseProfilePictureDialogSelector,
+    profilePictureActionsButtonSelector,
     profilePictureImageSelector,
     saveProfilePictureButtonSelector,
     updateProfilePictureButtonSelector,
@@ -18,6 +20,7 @@ import {
 
 function createMockPage({
     avatarUrl = "https://facebook.test/old-avatar.jpg",
+    cameraButtonVisible = true,
     openFailures = 0,
     chooserFailures = 0,
     previewNeverAppears = false,
@@ -26,9 +29,12 @@ function createMockPage({
     const state = {
         avatarUrl,
         dialogVisible: false,
+        actionsMenuVisible: false,
         previewVisible: false,
         currentSelector: null,
         updateClicks: 0,
+        actionsClicks: 0,
+        chooseClicks: 0,
         uploadClicks: 0,
         saveClicks: 0,
         chooserCalls: 0,
@@ -38,7 +44,13 @@ function createMockPage({
 
     const selectorVisible = (selector) => {
         if (selector === updateProfilePictureButtonSelector) {
-            return Boolean(state.avatarUrl);
+            return Boolean(state.avatarUrl) && cameraButtonVisible;
+        }
+        if (selector === profilePictureActionsButtonSelector) {
+            return Boolean(state.avatarUrl) && !state.dialogVisible;
+        }
+        if (selector === chooseProfilePictureMenuItemSelector) {
+            return state.actionsMenuVisible;
         }
         if (selector === chooseProfilePictureDialogSelector) {
             return state.dialogVisible;
@@ -143,6 +155,19 @@ function createMockPage({
                         state.updateClicks > openFailures;
                 } else if (
                     state.currentSelector
+                    === profilePictureActionsButtonSelector
+                ) {
+                    state.actionsClicks += 1;
+                    state.actionsMenuVisible = true;
+                } else if (
+                    state.currentSelector
+                    === chooseProfilePictureMenuItemSelector
+                ) {
+                    state.chooseClicks += 1;
+                    state.actionsMenuVisible = false;
+                    state.dialogVisible = true;
+                } else if (
+                    state.currentSelector
                     === uploadProfilePhotoButtonSelector
                 ) {
                     state.uploadClicks += 1;
@@ -219,6 +244,19 @@ try {
         && Number.isFinite(entry.details.y)
         && Number.isInteger(entry.details.steps)
     ));
+
+    const menuFallbackPage = createMockPage({
+        cameraButtonVisible: false,
+    });
+    const menuFallbackResult = await changeFacebookProfilePicture(
+        menuFallbackPage,
+        { imagePath, timeout: 100, logger: silentLogger, ...timingOptions }
+    );
+    assert.equal(menuFallbackResult.success, true);
+    assert.equal(menuFallbackPage.state.updateClicks, 0);
+    assert.equal(menuFallbackPage.state.actionsClicks, 1);
+    assert.equal(menuFallbackPage.state.chooseClicks, 1);
+    assert.equal(menuFallbackPage.state.saveClicks, 1);
 
     const openRetryPage = createMockPage({ openFailures: 1 });
     const openRetryResult = await changeFacebookProfilePicture(

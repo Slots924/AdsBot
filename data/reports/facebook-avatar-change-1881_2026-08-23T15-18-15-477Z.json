@@ -1,0 +1,715 @@
+{
+  "title": "Ручний тест зміни аватарки Facebook",
+  "profileNo": 1881,
+  "imagePath": "C:\\Users\\Darkness\\Downloads\\772586141_122369469278003679_1517380305269590544_n.jpg",
+  "browserMode": "visible",
+  "keepOpen": true,
+  "startedAt": "2026-08-23T15:17:20.569Z",
+  "finishedAt": "2026-08-23T15:18:15.477Z",
+  "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+  "action": {
+    "success": true,
+    "status": "CHANGED",
+    "stage": "VERIFY_AVATAR",
+    "previousAvatarUrl": "https://scontent.fods5-1.fna.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=dst-png&cstp=mx2048x2048&ctp=s200x200&_nc_cat=1&ccb=1-7&_nc_sid=136b72&_nc_ohc=rpegEg2_vnQQ7kNvwE2KnbF&_nc_oc=AdpFWDa4fFl1MMA5LAH8R5upoKHOhCVDmnaoC5XdzuiLvYH1dJ4hrc0Gft-osTA5Cms&_nc_zt=24&_nc_ht=scontent.fods5-1.fna&_nc_ss=7f2a8&oh=00_AQEFWIm_303E8J0lNx-HHjMh0knICqKEzjCqmm2WYxrJYg&oe=6AB27A7A",
+    "currentAvatarUrl": "https://scontent.fods5-2.fna.fbcdn.net/v/t39.30808-1/784251349_122143547523161175_3896632906047556533_n.jpg?stp=c0.52.487.486a_cp6_dst-jpg_tt6&cstp=mx487x486&ctp=s200x200&_nc_cat=102&ccb=1-7&_nc_sid=e99d92&_nc_ohc=dZOrOdOujbcQ7kNvwFdRVh8&_nc_oc=AdrecIjfZjLBrK5OxUYoCsRX2eg8Xwje867OT5_Q0_5YBKTqQcU69bezoedFwa9RzhE&_nc_zt=24&_nc_ht=scontent.fods5-2.fna&_nc_gid=ayZAd4VE2SnAnbQm_FvP4w&_nc_ss=7f2a8&oh=00_AQEzyXvWn2teU3cNtK9_Vk5SSssRltnQO1M2bNCZ-74z9w&oe=6A90D257",
+    "startedAt": "2026-08-23T15:17:37.408Z",
+    "finishedAt": "2026-08-23T15:18:15.476Z",
+    "finalUrl": "https://www.facebook.com/profile.php?id=61584835263222",
+    "failedSelector": null,
+    "error": null,
+    "diagnostics": [
+      {
+        "at": "2026-08-23T15:17:37.409Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "VALIDATE_INPUT",
+        "message": "Файл аватарки перевірено",
+        "details": {
+          "stage": "VALIDATE_INPUT",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "filename": "772586141_122369469278003679_1517380305269590544_n.jpg",
+          "contentType": "image/jpeg",
+          "bytes": 23706
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:37.411Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "READ_CURRENT_AVATAR",
+        "message": "Збережено URL поточної аватарки",
+        "details": {
+          "stage": "READ_CURRENT_AVATAR",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Profile picture actions\"] image",
+          "previousAvatarUrl": "https://scontent.fods5-1.fna.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=dst-png&cstp=mx2048x2048&ctp=s200x200&_nc_cat=1&ccb=1-7&_nc_sid=136b72&_nc_ohc=rpegEg2_vnQQ7kNvwE2KnbF&_nc_oc=AdpFWDa4fFl1MMA5LAH8R5upoKHOhCVDmnaoC5XdzuiLvYH1dJ4hrc0Gft-osTA5Cms&_nc_zt=24&_nc_ht=scontent.fods5-1.fna&_nc_ss=7f2a8&oh=00_AQEFWIm_303E8J0lNx-HHjMh0knICqKEzjCqmm2WYxrJYg&oe=6AB27A7A"
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:37.413Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Кнопки камери немає, відкриваємо меню поточної аватарки",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "attempt": 1,
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Profile picture actions\"]"
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:37.413Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Чекаємо елемент «Profile picture actions»",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Profile picture actions\"]",
+          "timeout": 90000,
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:37.417Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Пауза 2461 мс: стабілізація React для «Profile picture actions»",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 2461,
+          "reason": "стабілізація React для «Profile picture actions»"
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:39.883Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Profile picture actions»: scroll_into_view",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "scroll_into_view",
+          "behavior": "smooth",
+          "block": "center",
+          "inline": "center",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Profile picture actions\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:39.883Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Profile picture actions»: delay",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 1223,
+          "reason": "scroll_into_view",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Profile picture actions\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:41.113Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Profile picture actions»: mouse_move",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_move",
+          "x": 148.317872273589,
+          "y": 639.7610468311163,
+          "steps": 12,
+          "box": {
+            "x": 38,
+            "y": 541.03125,
+            "height": 168,
+            "width": 168
+          },
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Profile picture actions\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:41.190Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Profile picture actions»: delay",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 117,
+          "reason": "before_click",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Profile picture actions\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:41.322Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Profile picture actions»: mouse_down",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_down",
+          "button": "left",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Profile picture actions\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:41.322Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Profile picture actions»: delay",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 80,
+          "reason": "mouse_hold",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Profile picture actions\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:41.424Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Profile picture actions»: mouse_up",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_up",
+          "button": "left",
+          "selector": "div[role=\"main\"] div[role=\"button\"][aria-label=\"Profile picture actions\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:41.428Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Чекаємо елемент «Choose profile picture»",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "selector": "div[role=\"menu\"] [role=\"menuitem\"]",
+          "timeout": 90000,
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:41.431Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Пауза 2043 мс: стабілізація React для «Choose profile picture»",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 2043,
+          "reason": "стабілізація React для «Choose profile picture»"
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:43.490Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Choose profile picture»: scroll_into_view",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "scroll_into_view",
+          "behavior": "smooth",
+          "block": "center",
+          "inline": "center",
+          "selector": "div[role=\"menu\"] [role=\"menuitem\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:43.490Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Choose profile picture»: delay",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 1375,
+          "reason": "scroll_into_view",
+          "selector": "div[role=\"menu\"] [role=\"menuitem\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:44.871Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Choose profile picture»: mouse_move",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_move",
+          "x": 253.40228652771,
+          "y": 650.0903357620006,
+          "steps": 8,
+          "box": {
+            "x": 25.5,
+            "y": 624,
+            "height": 36,
+            "width": 328
+          },
+          "selector": "div[role=\"menu\"] [role=\"menuitem\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:44.911Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Choose profile picture»: delay",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 193,
+          "reason": "before_click",
+          "selector": "div[role=\"menu\"] [role=\"menuitem\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:45.115Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Choose profile picture»: mouse_down",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_down",
+          "button": "left",
+          "selector": "div[role=\"menu\"] [role=\"menuitem\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:45.115Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Choose profile picture»: delay",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 155,
+          "reason": "mouse_hold",
+          "selector": "div[role=\"menu\"] [role=\"menuitem\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:45.302Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "OPEN_PICTURE_DIALOG",
+        "message": "Pointer event «Choose profile picture»: mouse_up",
+        "details": {
+          "stage": "OPEN_PICTURE_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_up",
+          "button": "left",
+          "selector": "div[role=\"menu\"] [role=\"menuitem\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:45.311Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "WAIT_CHOOSER_DIALOG",
+        "message": "Пауза 3377 мс: повне завантаження діалогу Choose profile picture",
+        "details": {
+          "stage": "WAIT_CHOOSER_DIALOG",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 3377,
+          "reason": "повне завантаження діалогу Choose profile picture"
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:48.693Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "UPLOAD_PHOTO",
+        "message": "Чекаємо елемент «Upload Photo»",
+        "details": {
+          "stage": "UPLOAD_PHOTO",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Upload photo\" i]",
+          "timeout": 90000,
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:48.696Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "UPLOAD_PHOTO",
+        "message": "Пауза 2404 мс: стабілізація React для «Upload Photo»",
+        "details": {
+          "stage": "UPLOAD_PHOTO",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 2404,
+          "reason": "стабілізація React для «Upload Photo»"
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:51.116Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "UPLOAD_PHOTO",
+        "message": "Pointer event «Upload Photo»: scroll_into_view",
+        "details": {
+          "stage": "UPLOAD_PHOTO",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "scroll_into_view",
+          "behavior": "smooth",
+          "block": "center",
+          "inline": "center",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Upload photo\" i]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:51.116Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "UPLOAD_PHOTO",
+        "message": "Pointer event «Upload Photo»: delay",
+        "details": {
+          "stage": "UPLOAD_PHOTO",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 1365,
+          "reason": "scroll_into_view",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Upload photo\" i]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:52.485Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "UPLOAD_PHOTO",
+        "message": "Pointer event «Upload Photo»: mouse_move",
+        "details": {
+          "stage": "UPLOAD_PHOTO",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_move",
+          "x": 558.6805081052803,
+          "y": 432.499318624431,
+          "steps": 18,
+          "box": {
+            "x": 283,
+            "y": 413.515625,
+            "height": 36,
+            "width": 668
+          },
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Upload photo\" i]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:52.580Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "UPLOAD_PHOTO",
+        "message": "Pointer event «Upload Photo»: delay",
+        "details": {
+          "stage": "UPLOAD_PHOTO",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 101,
+          "reason": "before_click",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Upload photo\" i]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:52.693Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "UPLOAD_PHOTO",
+        "message": "Pointer event «Upload Photo»: mouse_down",
+        "details": {
+          "stage": "UPLOAD_PHOTO",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_down",
+          "button": "left",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Upload photo\" i]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:52.693Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "UPLOAD_PHOTO",
+        "message": "Pointer event «Upload Photo»: delay",
+        "details": {
+          "stage": "UPLOAD_PHOTO",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 146,
+          "reason": "mouse_hold",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Upload photo\" i]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:52.855Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "UPLOAD_PHOTO",
+        "message": "Pointer event «Upload Photo»: mouse_up",
+        "details": {
+          "stage": "UPLOAD_PHOTO",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_up",
+          "button": "left",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Upload photo\" i]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:52.858Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "UPLOAD_PHOTO",
+        "message": "Передаємо файл у Facebook file chooser",
+        "details": {
+          "stage": "UPLOAD_PHOTO",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "attempt": 1,
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] input[type=\"file\"][accept=\"image/*,image/heif,image/heic\"]",
+          "filename": "772586141_122369469278003679_1517380305269590544_n.jpg"
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:53.767Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "WAIT_PREVIEW",
+        "message": "Пауза 5354 мс: завантаження preview і скриптів crop",
+        "details": {
+          "stage": "WAIT_PREVIEW",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 5354,
+          "reason": "завантаження preview і скриптів crop"
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:59.133Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "SAVE",
+        "message": "Чекаємо елемент «Save»",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Save\"]",
+          "timeout": 90000,
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:17:59.136Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "SAVE",
+        "message": "Пауза 1931 мс: стабілізація React для «Save»",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 1931,
+          "reason": "стабілізація React для «Save»"
+        }
+      },
+      {
+        "at": "2026-08-23T15:18:01.085Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save»: scroll_into_view",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "scroll_into_view",
+          "behavior": "smooth",
+          "block": "center",
+          "inline": "center",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Save\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:18:01.085Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save»: delay",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 1379,
+          "reason": "scroll_into_view",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Save\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:18:02.470Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save»: mouse_move",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_move",
+          "x": 870.8580031224586,
+          "y": 1010.2330648902348,
+          "steps": 18,
+          "box": {
+            "x": 839.53125,
+            "y": 990.53125,
+            "height": 36,
+            "width": 111.46875
+          },
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Save\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:18:02.566Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save»: delay",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 2014,
+          "reason": "before_click",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Save\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:18:04.586Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save»: mouse_down",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_down",
+          "button": "left",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Save\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:18:04.586Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save»: delay",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "delay",
+          "delayMs": 109,
+          "reason": "mouse_hold",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Save\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:18:04.709Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "SAVE",
+        "message": "Pointer event «Save»: mouse_up",
+        "details": {
+          "stage": "SAVE",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "type": "mouse_up",
+          "button": "left",
+          "selector": "div[role=\"dialog\"][aria-modal=\"true\"][aria-label=\"Choose profile picture\"] div[role=\"button\"][aria-label=\"Save\"]",
+          "attempt": 1
+        }
+      },
+      {
+        "at": "2026-08-23T15:18:07.881Z",
+        "level": "info",
+        "event": "facebook.avatar_change.step",
+        "stage": "VERIFY_AVATAR",
+        "message": "Пауза 7589 мс: фінальна стабілізація оновленого профілю",
+        "details": {
+          "stage": "VERIFY_AVATAR",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "delayMs": 7589,
+          "reason": "фінальна стабілізація оновленого профілю"
+        }
+      },
+      {
+        "at": "2026-08-23T15:18:15.476Z",
+        "level": "info",
+        "event": "facebook.avatar_change.completed",
+        "stage": "VERIFY_AVATAR",
+        "message": "Зміна аватарки завершена зі статусом CHANGED",
+        "details": {
+          "stage": "VERIFY_AVATAR",
+          "url": "https://www.facebook.com/profile.php?id=61584835263222",
+          "status": "CHANGED",
+          "success": true,
+          "previousAvatarUrl": "https://scontent.fods5-1.fna.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=dst-png&cstp=mx2048x2048&ctp=s200x200&_nc_cat=1&ccb=1-7&_nc_sid=136b72&_nc_ohc=rpegEg2_vnQQ7kNvwE2KnbF&_nc_oc=AdpFWDa4fFl1MMA5LAH8R5upoKHOhCVDmnaoC5XdzuiLvYH1dJ4hrc0Gft-osTA5Cms&_nc_zt=24&_nc_ht=scontent.fods5-1.fna&_nc_ss=7f2a8&oh=00_AQEFWIm_303E8J0lNx-HHjMh0knICqKEzjCqmm2WYxrJYg&oe=6AB27A7A",
+          "currentAvatarUrl": "https://scontent.fods5-2.fna.fbcdn.net/v/t39.30808-1/784251349_122143547523161175_3896632906047556533_n.jpg?stp=c0.52.487.486a_cp6_dst-jpg_tt6&cstp=mx487x486&ctp=s200x200&_nc_cat=102&ccb=1-7&_nc_sid=e99d92&_nc_ohc=dZOrOdOujbcQ7kNvwFdRVh8&_nc_oc=AdrecIjfZjLBrK5OxUYoCsRX2eg8Xwje867OT5_Q0_5YBKTqQcU69bezoedFwa9RzhE&_nc_zt=24&_nc_ht=scontent.fods5-2.fna&_nc_gid=ayZAd4VE2SnAnbQm_FvP4w&_nc_ss=7f2a8&oh=00_AQEzyXvWn2teU3cNtK9_Vk5SSssRltnQO1M2bNCZ-74z9w&oe=6A90D257",
+          "error": null
+        }
+      }
+    ]
+  },
+  "error": null,
+  "cleanupErrors": []
+}
