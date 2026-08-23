@@ -22,6 +22,15 @@ import {
     personalProfilePublishPostButtonSelector,
 } from "../facebook/selectors/personalProfilePost.js";
 import {
+    personalProfileEditDateCancelButtonSelector,
+    personalProfileEditDateComboboxSelector,
+    personalProfileEditDateDialogSelector,
+    personalProfileEditDateDoneButtonSelector,
+    personalProfilePostActionsButtonSelector,
+    personalProfilePostCloseButtonSelector,
+    personalProfilePostMenuItemSelector,
+} from "../facebook/selectors/personalProfilePostDate.js";
+import {
     allPostCommentSelector,
     availablePostSelector,
     commentButtonSelector,
@@ -75,15 +84,16 @@ import {
 
 assert.equal(
     postDialogSelector,
-    'div[role="dialog"][aria-labelledby]'
+    'div[role="dialog"][aria-modal="true"][aria-labelledby]'
 );
 assert.equal(
     availablePostSelector,
-    'div[role="dialog"] div[class^="html-div"] > *'
-    + ' > div[data-visualcompletion="ignore-dynamic"]'
-    + ' > div > div:nth-of-type(1)'
+    postDialogSelector
 );
-assert.equal(postLikeAreaSelector, availablePostSelector);
+assert.equal(
+    postLikeAreaSelector,
+    `${postDialogSelector} div[data-visualcompletion="ignore-dynamic"]`
+);
 assert.equal(
     topLevelCommentSelector,
     `${postDialogSelector} `
@@ -290,6 +300,36 @@ assert.equal(
     personalProfilePublishPostButtonSelector,
     `${personalProfileCreatePostDialogSelector} `
     + '[role="button"][aria-label="Post" i]'
+);
+assert.equal(
+    personalProfilePostActionsButtonSelector,
+    `${postDialogSelector} `
+    + '[role="button"][aria-haspopup="menu"]'
+    + '[aria-label^="Actions for this post by " i]'
+);
+assert.equal(
+    personalProfilePostMenuItemSelector,
+    '[role="menu"] [role="menuitem"]'
+);
+assert.equal(
+    personalProfileEditDateDialogSelector,
+    'div[role="dialog"][aria-modal="true"][aria-labelledby]'
+);
+assert.equal(
+    personalProfileEditDateComboboxSelector,
+    'input[role="combobox"][type="text"]'
+);
+assert.equal(
+    personalProfileEditDateDoneButtonSelector,
+    '[role="button"][aria-label="Done" i]'
+);
+assert.equal(
+    personalProfileEditDateCancelButtonSelector,
+    '[role="button"][aria-label="Cancel editing timeline date" i]'
+);
+assert.equal(
+    personalProfilePostCloseButtonSelector,
+    '[role="button"][aria-label="Close" i]'
 );
 
 assert.equal(compatiblePostDialogSelector, postDialogSelector);

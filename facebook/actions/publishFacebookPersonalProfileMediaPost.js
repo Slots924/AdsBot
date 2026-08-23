@@ -56,6 +56,109 @@ function normalizeText(value) {
 }
 
 
+function normalizeFacebookPostUrl(value) {
+    try {
+        const url = new URL(value);
+        url.hash = "";
+
+        if (url.pathname.toLocaleLowerCase().endsWith("/permalink.php")) {
+            const storyId = url.searchParams.get("story_fbid");
+            const profileId = url.searchParams.get("id");
+            url.search = "";
+            if (storyId) url.searchParams.set("story_fbid", storyId);
+            if (profileId) url.searchParams.set("id", profileId);
+            return url.toString();
+        }
+
+        if (url.pathname.toLocaleLowerCase().endsWith("/photo/")) {
+            const photoId = url.searchParams.get("fbid");
+            url.search = "";
+            if (photoId) url.searchParams.set("fbid", photoId);
+            return url.toString();
+        }
+
+        url.search = "";
+        return url.toString();
+    } catch {
+        return null;
+    }
+}
+
+
+function extractFacebookPostId(postUrl) {
+    if (!postUrl) return null;
+
+    try {
+        const url = new URL(postUrl);
+        return url.searchParams.get("story_fbid")
+            ?? url.searchParams.get("fbid")
+            ?? url.pathname.match(/\/(?:posts|videos)\/([^/?]+)/i)?.[1]
+            ?? null;
+    } catch {
+        return null;
+    }
+}
+
+
+async function readVisiblePostPermalinks(page) {
+    const candidates = await page.evaluate(() => {
+        const visible = (node) => {
+            const rectangle = node.getBoundingClientRect();
+            const style = getComputedStyle(node);
+            return rectangle.width > 0
+                && rectangle.height > 0
+                && style.display !== "none"
+                && style.visibility !== "hidden"
+                && style.opacity !== "0";
+        };
+        return Array.from(document.querySelectorAll(
+            'div[role="main"] a[href*="story_fbid"], '
+            + 'div[role="main"] a[href*="/posts/"], '
+            + 'div[role="main"] a[href*="/videos/"]'
+        ))
+            .filter(visible)
+            .map((anchor) => ({
+                href: anchor.href,
+                text: String(anchor.innerText ?? "")
+                    .replace(/\s+/g, " ")
+                    .trim(),
+                top: anchor.getBoundingClientRect().top,
+            }))
+            .sort((left, right) => left.top - right.top);
+    });
+
+    return candidates
+        .map((candidate) => ({
+            ...candidate,
+            href: normalizeFacebookPostUrl(candidate.href),
+        }))
+        .filter((candidate) => candidate.href);
+}
+
+
+async function waitForNewPostPermalink(
+    page,
+    previousPermalinks,
+    timeout,
+    sleep
+) {
+    const known = new Set(previousPermalinks);
+    const deadline = Date.now() + timeout;
+
+    while (Date.now() < deadline) {
+        const candidates = await readVisiblePostPermalinks(page);
+        const createdPost = candidates.find(({ href }) => !known.has(href));
+        if (createdPost) return createdPost.href;
+
+        await (sleep
+            ? sleep(250)
+            : new Promise((resolve) => setTimeout(resolve, 250)));
+    }
+
+    return null;
+}
+
+
 async function validateMediaPaths(mediaPaths) {
     if (!Array.isArray(mediaPaths) || mediaPaths.length === 0) {
         throw new PersonalProfileMediaPostError(
@@ -319,11 +422,14 @@ export default async function publishFacebookPersonalProfileMediaPost(
         timeout = 90000,
         random = Math.random,
         sleep,
+        capturePostUrl = false,
     } = {}
 ) {
     const startedAt = new Date().toISOString();
     let stage = "VALIDATE_INPUT";
     let absolutePaths = [];
+    let postUrl = null;
+    let previousPermalinks = [];
 
     try {
         if (!page || typeof page.url !== "function") {
@@ -411,6 +517,10 @@ export default async function publishFacebookPersonalProfileMediaPost(
         }
 
         stage = "PUBLISH";
+        if (capturePostUrl) {
+            previousPermalinks = (await readVisiblePostPermalinks(page))
+                .map(({ href }) => href);
+        }
         await clickVisibleSelector(
             page,
             personalProfilePublishPostButtonSelector,
@@ -424,6 +534,16 @@ export default async function publishFacebookPersonalProfileMediaPost(
             personalProfileCreatePostDialogSelector
         );
 
+        if (capturePostUrl) {
+            stage = "CAPTURE_POST_URL";
+            postUrl = await waitForNewPostPermalink(
+                page,
+                previousPermalinks,
+                Math.min(timeout, 30000),
+                sleep
+            );
+        }
+
         return {
             success: true,
             status: facebookPersonalProfileMediaPostStatuses.PUBLISHED,
@@ -431,6 +551,9 @@ export default async function publishFacebookPersonalProfileMediaPost(
             mediaPaths: absolutePaths,
             mediaCount: absolutePaths.length,
             audience: "Public",
+            postUrl,
+            postId: extractFacebookPostId(postUrl),
+            postUrlCaptured: Boolean(postUrl),
             startedAt,
             finishedAt: new Date().toISOString(),
             finalUrl: page.url(),
@@ -457,6 +580,9 @@ export default async function publishFacebookPersonalProfileMediaPost(
             mediaPaths: absolutePaths,
             mediaCount: absolutePaths.length,
             audience: null,
+            postUrl,
+            postId: extractFacebookPostId(postUrl),
+            postUrlCaptured: Boolean(postUrl),
             startedAt,
             finishedAt: new Date().toISOString(),
             finalUrl: typeof page?.url === "function" ? page.url() : null,

@@ -1,15 +1,14 @@
 /** Модальне вікно відкритого Facebook-поста. */
 export const postDialogSelector =
-    'div[role="dialog"][aria-labelledby]';
+    'div[role="dialog"][aria-modal="true"][aria-labelledby]';
 
 /** Основна область контенту відкритого Facebook-поста. */
 export const availablePostSelector =
-    'div[role="dialog"] div[class^="html-div"] > *'
-    + ' > div[data-visualcompletion="ignore-dynamic"]'
-    + ' > div > div:nth-of-type(1)';
+    postDialogSelector;
 
 /** Область поста, до якої прокручуємо перед взаємодією з Like. */
-export const postLikeAreaSelector = availablePostSelector;
+export const postLikeAreaSelector =
+    `${postDialogSelector} div[data-visualcompletion="ignore-dynamic"]`;
 
 /** Коментарі верхнього рівня у відкритому Facebook-пості. */
 export const topLevelCommentSelector =

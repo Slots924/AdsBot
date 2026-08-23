@@ -4,22 +4,89 @@ import { availablePostSelector } from "../../selectors/post.js";
 export { availablePostSelector };
 
 
-export default async function isPostAvailable(page) {
-    try {
-        const post = await page.$(availablePostSelector);
+function emitLog(logger, level, message, fields = {}) {
+    const method = logger?.[level];
+    if (typeof method !== "function") return;
 
-        if (post) {
-            await post.dispose();
+    try {
+        method.call(logger, `[isPostAvailable] ${message}`, fields);
+    } catch {
+        // Помилка logger не повинна змінювати результат перевірки поста.
+    }
+}
+
+
+export default async function isPostAvailable(
+    page,
+    { logger = console } = {}
+) {
+    try {
+        emitLog(logger, "info", "Шукаємо видиме модальне вікно поста", {
+            selector: availablePostSelector,
+        });
+        const result = await page.evaluate((selector) => {
+            const normalize = (value) => String(value ?? "")
+                .replace(/\s+/g, " ")
+                .trim();
+            const visible = (node) => {
+                const rectangle = node.getBoundingClientRect();
+                const style = getComputedStyle(node);
+                return rectangle.width > 0
+                    && rectangle.height > 0
+                    && style.display !== "none"
+                    && style.visibility !== "hidden"
+                    && style.opacity !== "0";
+            };
+            const accessibleName = (dialog) => {
+                const labelledBy = normalize(
+                    dialog.getAttribute("aria-labelledby")
+                );
+                return normalize(labelledBy.split(" ")
+                    .filter(Boolean)
+                    .map((id) => document.getElementById(id)?.innerText)
+                    .filter(Boolean)
+                    .join(" "));
+            };
+            const unavailablePattern = /(?:content (?:isn't|is not) available|this post is no longer available|content unavailable)/i;
+            const unavailableText = Array.from(document.querySelectorAll(
+                '[role="dialog"], [role="main"]'
+            ))
+                .filter(visible)
+                .map((node) => normalize(node.innerText))
+                .find((text) => unavailablePattern.test(text)) ?? null;
+            const dialog = Array.from(document.querySelectorAll(selector))
+                .filter(visible)
+                .find((candidate) => /['\u2019](?:s\s+)?post$/i.test(
+                    accessibleName(candidate)
+                ));
+
+            return {
+                available: Boolean(dialog) && !unavailableText,
+                dialogFound: Boolean(dialog),
+                dialogName: dialog ? accessibleName(dialog) : null,
+                unavailableText,
+            };
+        }, availablePostSelector);
+
+        if (result.available) {
+            emitLog(logger, "info", "Модальне вікно доступного поста знайдено", {
+                selector: availablePostSelector,
+                dialogName: result.dialogName,
+            });
             return true;
         }
 
-        console.error("Контент Facebook-поста недоступний");
+        emitLog(logger, "error", "Facebook-пост недоступний", {
+            selector: availablePostSelector,
+            dialogFound: result.dialogFound,
+            unavailableText: result.unavailableText,
+        });
         return false;
     } catch (error) {
-        console.error(
-            "Контент Facebook-поста недоступний:",
-            error.message
-        );
+        emitLog(logger, "error", "Не вдалося перевірити Facebook-пост", {
+            selector: availablePostSelector,
+            error: error.message,
+        });
         return false;
     }
 }

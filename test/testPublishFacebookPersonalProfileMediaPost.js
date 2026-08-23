@@ -90,7 +90,16 @@ function createMockPage({ applyPrivacy = true } = {}) {
 
             return [];
         },
-        async evaluate(_callback, selector) {
+        async evaluate(callback, selector) {
+            if (String(callback).includes('a[href*="story_fbid"]')) {
+                return state.publishClicks > 0
+                    ? [{
+                        href: "https://www.facebook.com/permalink.php?story_fbid=pfbid-new&id=123&__tn__=test",
+                        text: "Just now",
+                        top: 100,
+                    }]
+                    : [];
+            }
             if (selector === personalProfilePostPrivacyButtonSelector) {
                 return state.audience;
             }
@@ -209,6 +218,24 @@ try {
     ]);
     assert.equal(page.state.chooserCalls, 1);
     assert.equal(page.state.publishClicks, 1);
+
+    const capturePage = createMockPage();
+    const capturedPost = await publishFacebookPersonalProfileMediaPost(
+        capturePage,
+        {
+            mediaPaths: [imagePath],
+            timeout: 100,
+            capturePostUrl: true,
+            ...timingOptions,
+        }
+    );
+    assert.equal(capturedPost.success, true);
+    assert.equal(capturedPost.postUrlCaptured, true);
+    assert.equal(
+        capturedPost.postUrl,
+        "https://www.facebook.com/permalink.php?story_fbid=pfbid-new&id=123"
+    );
+    assert.equal(capturedPost.postId, "pfbid-new");
 
     const privacyFailurePage = createMockPage({ applyPrivacy: false });
     const privacyFailure = await publishFacebookPersonalProfileMediaPost(

@@ -1,5 +1,46 @@
 # Facebook Graph API
 
+## Puppeteer: пости особистого профілю з вибраними датами
+
+`publishFacebookPersonalProfileMediaPostsWithDates(page, options)` виконує
+дві окремі фази. Спочатку він публікує всі передані медіапости через
+`publishFacebookPersonalProfileMediaPost` і фіксує точний `postUrl` та
+`postId` кожного поста. Лише після успішного завершення всіх публікацій і
+захоплення всіх URL починається зміна дат за прямими посиланнями.
+
+```js
+const result = await publishFacebookPersonalProfileMediaPostsWithDates(page, {
+    posts: [
+        {
+            mediaPaths: ["C:/images/one.jpg"],
+            targetDate: "04/22/2020",
+        },
+        {
+            mediaPaths: ["C:/images/two.jpg", "C:/images/three.jpg"],
+            targetDate: "2020-05-10",
+        },
+    ],
+    timeout: 90000,
+    logger,
+    onProgress,
+});
+```
+
+Дати підтримують `MM/DD/YYYY`, `YYYY-MM-DD` та англійський формат
+`Month D, YYYY`. Екшен вводить `MM/DD/YYYY` безпосередньо в React-combobox,
+натискає `Enter`, перевіряє відформатовану дату, натискає `Done` і повторно
+перевіряє timestamp поста. Час поста не змінюється.
+
+Якщо хоча б одна публікація неуспішна або її URL не знайдений, фаза дат не
+запускається. Основні статуси: `COMPLETED`, `PUBLISH_PARTIAL`,
+`POST_URL_CAPTURE_FAILED`, `DATE_CHANGE_PARTIAL`, `INVALID_INPUT`, `ERROR`.
+Звіт містить `publishedCount`, `capturedUrlCount`, `dateChangedCount`,
+`datePhaseStarted` та журнал `items` для кожного поста.
+
+Звичайний `publishFacebookPersonalProfileMediaPost` зберігає попередню
+поведінку. За опції `capturePostUrl: true` він додатково повертає `postUrl`,
+`postId` і `postUrlCaptured`.
+
 ## Контракти workspace і runtime tracking
 
 `FacebookGraphApi.getAdPixels(adAccountId)` проходить cursor-пагінацію `/{act_id}/adspixels` і повертає лише `{ id, name }`. Page token, access token, cookie та proxy-поля не потрапляють у backend facade або renderer.
