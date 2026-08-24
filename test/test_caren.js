@@ -1,111 +1,53 @@
 import "dotenv/config";
 
-import { readdir, stat } from "node:fs/promises";
-import path from "node:path";
-
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "../classes/AdsPower.js";
+import fillFacebookPersonalProfileAbout from "../facebook/actions/fillFacebookPersonalProfileAbout.js";
 import openPageWithoutPopups from "../facebook/actions/openPageWithoutPopups.js";
-import publishFacebookPersonalProfileMediaPostsWithDates from "../facebook/actions/publishFacebookPersonalProfileMediaPostsWithDates.js";
 import { waitHuman } from "../facebook/browser/timing.js";
 import ensureAdsPowerProfileReady from "../workflows/profile/ensureAdsPowerProfileReady.js";
 import ensureFacebookAccountActive from "../workflows/profile/ensureFacebookAccountActive.js";
 import ensureFacebookAccountLoggedIn from "../workflows/profile/ensureFacebookAccountLoggedIn.js";
 
 const PROFILE_NO = 1881;
-const PHOTO_DIR = "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\ES\\Man\\1";
 const TIMEOUT = 90000;
 
-const supportedExt = /\.(avi|bmp|gif|heic|heif|jpe?g|m4v|mkv|mov|mp4|mpeg?|mpg|png|tiff?|webm|webp|wmv)$/i;
-
-function getRandomDate1to3YearsAgo() {
-    const now = new Date();
-    const minDays = 365;
-    const maxDays = 365 * 3;
-    const daysBack = Math.floor(Math.random() * (maxDays - minDays + 1)) + minDays;
-    const date = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    const yyyy = date.getFullYear();
-    return `${mm}/${dd}/${yyyy}`;
-}
-
-async function getPhotos() {
-    const resolvedDir = path.resolve(PHOTO_DIR);
-    console.log("Перевіряємо папку (resolve):", resolvedDir);
-
-    try {
-        // Перевіряємо чи папка існує
-        const dirStat = await stat(resolvedDir);
-        if (!dirStat.isDirectory()) {
-            console.error("Шлях існує, але це НЕ папка!");
-            return [];
-        }
-        console.log("Папка існує. Читаємо файли...");
-
-        const files = await readdir(resolvedDir);
-        console.log("Всього файлів у папці:", files.length);
-
-        if (files.length > 0) {
-            console.log("Приклади файлів у папці (перші 10):");
-            files.slice(0, 10).forEach((f, i) => console.log("   ", i + 1, f));
-        }
-
-        const images = files
-            .filter((f) => supportedExt.test(f))
-            .map((f) => path.join(resolvedDir, f));
-
-        console.log("Після фільтра по розширенню знайдено фото:", images.length);
-
-        if (images.length > 0) {
-            console.log("Перші приклади повних шляхів до фото:");
-            images.slice(0, 5).forEach((p, i) => console.log("  ", i + 1, p));
-        } else {
-            console.log("Увага: жоден файл не пройшов фільтр по розширенню.");
-        }
-
-        return images;
-    } catch (e) {
-        console.error("ПОМИЛКА при доступі до папки:", resolvedDir);
-        console.error("Код помилки:", e.code);
-        console.error("Повідомлення:", e.message);
-        if (e.code === "ENOENT") {
-            console.error(">>> Папка не існує за цим шляхом!");
-        } else if (e.code === "EACCES") {
-            console.error(">>> Немає прав на читання папки!");
-        }
-        return [];
-    }
-}
+const fields = {
+    bio: "Weekend hiker. Coffee in the morning, code at night.",
+    work: {
+        company: "Northwind Analytics",
+        position: "Product Designer",
+    },
+    education: "University of Edinburgh",
+};
 
 const logEvents = [];
 const detailedLogger = {
-    info(message, fields) {
-        const entry = { level: "info", time: new Date().toISOString(), message, fields };
+    info(message, extra) {
+        const entry = { level: "info", time: new Date().toISOString(), message, extra };
         logEvents.push(entry);
-        console.log("[INFO]", message, fields ? JSON.stringify(fields) : "");
+        console.log("[INFO]", message, extra ? JSON.stringify(extra) : "");
     },
-    error(message, fields) {
-        const entry = { level: "error", time: new Date().toISOString(), message, fields };
+    error(message, extra) {
+        const entry = { level: "error", time: new Date().toISOString(), message, extra };
         logEvents.push(entry);
-        console.error("[ERROR]", message, fields ? JSON.stringify(fields) : "");
+        console.error("[ERROR]", message, extra ? JSON.stringify(extra) : "");
     },
-    warn(message, fields) {
-        const entry = { level: "warn", time: new Date().toISOString(), message, fields };
+    warn(message, extra) {
+        const entry = { level: "warn", time: new Date().toISOString(), message, extra };
         logEvents.push(entry);
-        console.warn("[WARN]", message, fields ? JSON.stringify(fields) : "");
+        console.warn("[WARN]", message, extra ? JSON.stringify(extra) : "");
     },
 };
 
 async function runTest() {
     const report = {
-        title: "Тест publishFacebookPersonalProfileMediaPostsWithDates для профілю 1881",
+        title: "Тест fillFacebookPersonalProfileAbout для профілю 1881",
         profileNo: PROFILE_NO,
-        photoDir: PHOTO_DIR,
+        fields,
         startedAt: new Date().toISOString(),
         finishedAt: null,
-        posts: null,
         actionResult: null,
         logEvents: null,
         error: null,
@@ -116,35 +58,10 @@ async function runTest() {
     let browser = null;
     let profileOpened = false;
 
-    console.log("=== ТЕСТ КАРЕN для профілю AdsPower 1881 ===");
-    console.log("Папка фото:", PHOTO_DIR);
-    console.log("Будемо використовувати випадкові дати 1-3 роки тому");
+    console.log("=== ТЕСТ ABOUT для профілю AdsPower 1881 ===");
+    console.log("Поля:", JSON.stringify(fields, null, 2));
 
     try {
-        const photos = await getPhotos();
-        if (photos.length === 0) {
-            console.error(">>> ДЕТАЛЬНА ДІАГНОСТИКА:");
-            console.error("   PHOTO_DIR (оригінал):", PHOTO_DIR);
-            console.error("   Після path.resolve:", path.resolve(PHOTO_DIR));
-            console.error("   Підтримувані розширення:", supportedExt);
-            throw new Error("Не знайдено фото у папці (дивись логи вище для діагностики)");
-        }
-
-        // Робимо окремі пости з 1 фото кожен (беремо перші 3-4)
-        const posts = photos.slice(0, 4).map((photoPath, index) => ({
-            mediaPaths: [photoPath],
-            targetDate: getRandomDate1to3YearsAgo(),
-        }));
-
-        report.posts = posts.map((p, i) => ({
-            sequence: i + 1,
-            mediaPaths: p.mediaPaths,
-            targetDate: p.targetDate,
-        }));
-
-        console.log(`Знайдено фото: ${photos.length}`);
-        console.log(`Створюємо ${posts.length} постів з випадковими датами`);
-
         const adsPower = new AdsPower();
 
         console.log("1. Перевіряємо AdsPower-профіль...");
@@ -178,15 +95,13 @@ async function runTest() {
         await openPageWithoutPopups(page, "https://www.facebook.com/me", { timeout: TIMEOUT });
         await waitHuman("long");
 
-        console.log("5. Запускаємо publishFacebookPersonalProfileMediaPostsWithDates...");
-        console.log("Пости:", JSON.stringify(posts, null, 2));
-
+        console.log("5. Запускаємо fillFacebookPersonalProfileAbout...");
         const onProgress = (event) => {
             console.log("[PROGRESS]", JSON.stringify(event));
         };
 
-        report.actionResult = await publishFacebookPersonalProfileMediaPostsWithDates(page, {
-            posts,
+        report.actionResult = await fillFacebookPersonalProfileAbout(page, {
+            fields,
             timeout: TIMEOUT,
             logger: detailedLogger,
             onProgress,
@@ -209,10 +124,9 @@ async function runTest() {
         console.error("=== ПОМИЛКА ===");
         console.error(error.stack || error.message);
 
-        // Спроба витягнути останній stage з логів
-        const lastStageLog = logEvents.slice().reverse().find((e) => e.fields && e.fields.stage);
+        const lastStageLog = logEvents.slice().reverse().find((e) => e.extra && e.extra.stage);
         if (lastStageLog) {
-            report.lastStage = lastStageLog.fields.stage;
+            report.lastStage = lastStageLog.extra.stage;
             console.error("Останній відомий stage:", report.lastStage);
         }
 
@@ -239,7 +153,6 @@ async function runTest() {
         console.log("\n=== ПОВНИЙ ЗВІТ ДЛЯ ДЕБАГІНГУ ===");
         console.log(JSON.stringify(report, null, 2));
 
-        // Також виводимо всі логи окремо
         console.log("\n=== ВСІ ЛОГИ ===");
         logEvents.forEach((e) => console.log(e));
     }

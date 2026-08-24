@@ -47,6 +47,43 @@ const result = await publishFacebookPersonalProfileMediaPostsWithDates(page, {
 поведінку. За опції `capturePostUrl: true` він додатково повертає `postUrl`,
 `postId` і `postUrlCaptured`.
 
+## Puppeteer: About особистої сторінки
+
+`fillFacebookPersonalProfileAbout(page, options)` з англомовної домашньої
+сторінки `/me` відкриває About і заповнює біо, роботу та коледж. Помилку
+назовні не кидає: повертає звіт по кожному полю.
+
+```js
+const result = await fillFacebookPersonalProfileAbout(page, {
+    fields: {
+        bio: "I hike on weekends",
+        work: { company: "Acme", position: "Engineer" },
+        education: "Harvard University",
+    },
+    timeout: 90000,
+    logger,
+    onProgress,
+});
+```
+
+`bio` обробляється завжди: є текст — записати або оновити, ключа немає або
+рядок порожній — стерти наявне. `work` береться лише коли є і `company`, і
+`position`; інакше поле `SKIPPED`. Якщо вже є `Edit Workplace` або
+`Edit college`, другий запис не додається. `{}` валідний і лише чистить біо.
+
+Після Save успіх поля визначається тим, що форма закрилась і поля вводу
+зникли. Точний збіг збереженого тексту більше не перевіряється.
+
+Для Company, Position і College name: після вводу чекаємо підказки тричі
+по 5 с. Якщо списку немає — стираємо по одній літері з паузою 3 с, поки
+не з’явиться option або не закінчаться букви. Якщо списку так і немає,
+поле (компанія, посада чи університет) вважається проваленим.
+
+`success` true лише коли жоден requested-крок не `FAILED`. Основні статуси
+екшену: `COMPLETED`, `PARTIAL`, `INVALID_INPUT`, `ERROR`. Статуси полів:
+біо `UPDATED` / `CLEARED` / `FAILED`, робота й освіта `FILLED` / `SKIPPED` /
+`FAILED`. Причини skip: `MISSING_INPUT`, `INCOMPLETE_WORK`, `ALREADY_EXISTS`.
+
 ## Контракти workspace і runtime tracking
 
 `FacebookGraphApi.getAdPixels(adAccountId)` проходить cursor-пагінацію `/{act_id}/adspixels` і повертає лише `{ id, name }`. Page token, access token, cookie та proxy-поля не потрапляють у backend facade або renderer.

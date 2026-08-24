@@ -1,0 +1,600 @@
+// ПАНЕЛЬ All / About / Friends / Photos / Reels / More
+const profileTabs =
+  '[role="tablist"][aria-orientation="horizontal"]';
+
+
+// ALL
+const tabAll =
+  '[role="tablist"][aria-orientation="horizontal"] a[role="tab"][href^="/profile.php?id="]:not([href*="&sk="])';
+
+
+// ABOUT
+const tabAbout =
+  '[role="tablist"][aria-orientation="horizontal"] a[role="tab"][href*="sk=about"]';
+
+
+// FRIENDS
+const tabFriends =
+  '[role="tablist"][aria-orientation="horizontal"] a[role="tab"][href*="sk=friends"]';
+
+
+// PHOTOS
+const tabPhotos =
+  '[role="tablist"][aria-orientation="horizontal"] a[role="tab"][href*="sk=photos"]';
+
+
+// REELS
+const tabReels =
+  '[role="tablist"][aria-orientation="horizontal"] a[role="tab"][href*="sk=reels_tab"]';
+
+
+// MORE
+const tabMore =
+  '[role="tablist"][aria-orientation="horizontal"] [role="tab"][aria-label="More profile sections"]';
+
+
+
+
+
+// БОКОВА ПАНЕЛЬ ABOUT
+const aboutPanel =
+  '[role="tablist"]:has(a[role="tab"][href*="sk=directory_intro"])';
+
+
+// INTRO
+const aboutIntro =
+  `${aboutPanel} a[role="tab"][href*="sk=directory_intro"]`;
+
+
+// PERSONAL DETAILS
+const aboutPersonalDetails =
+  `${aboutPanel} a[role="tab"][href*="sk=directory_personal_details"]`;
+
+
+// WORK
+const aboutWork =
+  `${aboutPanel} a[role="tab"][href*="sk=directory_work"]`;
+
+
+// EDUCATION
+const aboutEducation =
+  `${aboutPanel} a[role="tab"][href*="sk=directory_education"]`;
+
+
+// HOBBIES
+const aboutHobbies =
+  `${aboutPanel} a[role="tab"][href*="sk=directory_activites"]`;
+
+
+// INTERESTS
+const aboutInterests =
+  `${aboutPanel} a[role="tab"][href*="sk=directory_interests"]`;
+
+
+// TRAVEL
+const aboutTravel =
+  `${aboutPanel} a[role="tab"][href*="sk=directory_travel"]`;
+
+
+// LINKS
+const aboutLinks =
+  `${aboutPanel} a[role="tab"][href*="sk=directory_links"]`;
+
+
+// CONTACT INFO
+const aboutContactInfo =
+  `${aboutPanel} a[role="tab"][href*="sk=directory_contact_info"]`;
+
+
+// NAMES
+const aboutNames =
+  `${aboutPanel} a[role="tab"][href*="sk=directory_names"]`;
+
+
+// DETAILS ABOUT YOU
+const aboutDetailsAboutYou =
+  `${aboutPanel} a[role="tab"][href*="sk=about_details"]`;
+
+
+  // ПІСЛЯ ТОГО ЯК ВІДКРИЛИ ABOUT → INTRO:
+//
+// 1. Знаходимо секцію "Bio".
+//    Шукаємо <section>, всередині якого заголовок <h2> має текст "Bio".
+const bioSection = [...document.querySelectorAll('section')]
+  .find(section =>
+    section.querySelector('h2')?.innerText.trim() === 'Bio'
+  );
+
+
+// 2. Усередині знайденої секції Bio шукаємо кнопку [role="button"]
+//    з текстом "About you".
+const aboutYouButton = [...bioSection.querySelectorAll('[role="button"]')]
+  .find(el =>
+    el.innerText.trim() === 'About you'
+  );
+
+
+// ВСЕ НИЖЧЕ ШУКАЄМО ВСЕРЕДИНІ СЕКЦІЇ "Bio".
+
+// 1. Знаходимо секцію Bio.
+const bioSection = [...document.querySelectorAll('section')]
+  .find(section =>
+    section.querySelector('h2')?.innerText.trim() === 'Bio'
+  );
+
+
+// 2. Після натискання "About you" у Bio з'являється поле
+//    з назвою "Introduce yourself".
+//    Знаходимо label з цим текстом, а всередині нього textarea.
+const introduceLabel = [...bioSection.querySelectorAll('label')]
+  .find(label =>
+    label.innerText.includes('Introduce yourself')
+  );
+
+const introduceField =
+  introduceLabel?.querySelector('textarea');
+
+
+// 3. Усередині Bio шукаємо кнопку Save.
+//    У неї є стабільний aria-label="Save".
+const saveButton =
+  bioSection.querySelector('[role="button"][aria-label="Save"]');
+
+
+// 4. Перевіряємо, чи Save активна.
+//
+// НЕАКТИВНА:
+// aria-disabled="true"
+//
+// АКТИВНА:
+// aria-disabled немає
+const saveIsActive =
+  saveButton?.getAttribute('aria-disabled') !== 'true';
+
+console.log({
+  bioSection,
+  introduceField,
+  saveButton,
+  saveIsActive
+});
+
+
+// ПІСЛЯ НАТИСКАННЯ SAVE ВАЛІДУЄМО ЗБЕРЕЖЕННЯ BIO
+
+const targetText = 'about metest text';
+
+// 1. Знаходимо секцію Bio
+const bioSection = [...document.querySelectorAll('section')]
+  .find(section =>
+    section.querySelector('h2')?.innerText.trim() === 'Bio'
+  );
+
+
+// 2. ГОЛОВНА ПЕРЕВІРКА:
+// наш цільовий текст реально з'явився всередині Bio
+const textSaved =
+  bioSection?.innerText.includes(targetText) === true;
+
+
+// 3. ДОДАТКОВА ПЕРЕВІРКА:
+// редактор закрився — більше немає textarea і Save
+const editorClosed =
+  !bioSection?.querySelector('textarea') &&
+  !bioSection?.querySelector('[role="button"][aria-label="Save"]');
+
+
+// ПРАЦЮЄМО З ПОЛЕМ COMPANY У СЕКЦІЇ WORK.
+
+
+// 1. Поле Company
+const companyInput =
+  workSection.querySelector(
+    'input[role="combobox"][aria-label="Company"]'
+  );
+
+
+// 2. Коли починаємо вводити текст,
+// Company отримує aria-expanded="true"
+// і aria-controls вказує на випадаючий список.
+const listboxId =
+  companyInput.getAttribute('aria-controls');
+
+const companyListbox =
+  document.getElementById(listboxId);
+
+
+// 3. Усі рядки випадаючого меню
+const companyOptions =
+  [...companyListbox.querySelectorAll('li[role="option"]')];
+
+
+// 4. ПЕРШИЙ РЯДОК КОМПАНІЇ.
+// Якщо компанії знайдені — завжди беремо перший option.
+const firstCompanyOption =
+  companyOptions[0];
+
+
+// 5. Перевіряємо, чи Facebook пропонує
+// додати нашу нову компанію.
+//
+// Наприклад:
+// Add “аівфаіва”
+const addCompanyOption =
+  companyOptions.find(option =>
+    option.innerText.trim().startsWith('Add “')
+  );
+
+
+// 6. ВИЗНАЧАЄМО, ЩО ЗВИЧАЙНИХ КОМПАНІЙ НЕ ЗНАЙДЕНО.
+//
+// У нашому DOM у такому випадку:
+// - у списку лише 1 option
+// - цей option = Add “наша компанія”
+const companyNotFound =
+  companyOptions.length === 1 &&
+  !!addCompanyOption;
+
+
+// 7. Якщо companyNotFound === true,
+// натискаємо кнопку додавання нашої компанії.
+if (companyNotFound) {
+  addCompanyOption.click();
+}
+
+
+// Якщо компанія знайдена — беремо перший результат.
+if (!companyNotFound && firstCompanyOption) {
+  firstCompanyOption.click();
+}
+
+
+// Після заповнення Company + Position знаходимо кнопку Save.
+const saveButton =
+  workSection.querySelector(
+    '[role="button"][aria-label="Save"]'
+  );
+
+
+// СТАН КНОПКИ:
+//
+// НЕАКТИВНА:
+// aria-disabled="true"
+//
+// АКТИВНА:
+// aria-disabled відсутній
+const saveIsActive =
+  saveButton &&
+  saveButton.getAttribute('aria-disabled') !== 'true';
+
+
+// Натискаємо тільки коли кнопка стала активною
+if (saveIsActive) {
+  saveButton.click();
+}
+
+// ПІСЛЯ НАТИСКАННЯ SAVE ЧЕКАЄМО,
+// ПОКИ WORK ПОВНІСТЮ ЗБЕРЕЖЕТЬСЯ І ПЕРЕМАЛЮЄТЬСЯ.
+
+const targetCompany = 'Woods Hole Oceanographic Institution (WHOI)';
+const targetPosition = 'sdf';
+
+
+// 1. Знаходимо секцію Work заново,
+// бо після Save Facebook перемальовує DOM.
+const workSection = [...document.querySelectorAll('section')]
+  .find(section =>
+    section.querySelector('h2')?.innerText.trim() === 'Work'
+  );
+
+
+// 2. Форма повинна ЗНИКНУТИ.
+const editorClosed =
+  !workSection?.querySelector('input[aria-label="Company"]') &&
+  !workSection?.querySelector('input[aria-label="Position"]') &&
+  !workSection?.querySelector('[aria-label="Save"]');
+
+
+// 3. У секції повинні з'явитися наші збережені дані.
+const workText =
+  workSection?.innerText.toLowerCase() || '';
+
+const companySaved =
+  workText.includes(targetCompany.toLowerCase());
+
+const positionSaved =
+  workText.includes(targetPosition.toLowerCase());
+
+
+// 4. Після збереження з'являється кнопка Edit Workplace.
+// Це ще одна сильна ознака, що запис уже створений.
+const editWorkplaceButton =
+  workSection?.querySelector(
+    '[role="button"][aria-label="Edit Workplace"]'
+  );
+
+
+// 5. МОЖНА ЙТИ ДАЛІ тільки коли виконано все.
+const workSavedSuccessfully =
+  editorClosed &&
+  companySaved &&
+  positionSaved &&
+  !!editWorkplaceButton;
+
+
+// ABOUT → EDUCATION
+// УСЕ НИЖЧЕ СТОСУЄТЬСЯ БЛОКУ COLLEGE.
+
+
+// 1. ЗНАХОДИМО СЕКЦІЮ "College"
+const collegeSection = [...document.querySelectorAll('section')]
+  .find(section =>
+    section.querySelector('h2')?.innerText.trim() === 'College'
+  );
+
+
+// 2. УСЕРЕДИНІ СЕКЦІЇ COLLEGE ШУКАЄМО КНОПКУ "College"
+const collegeButton =
+  [...collegeSection.querySelectorAll('[role="button"]')]
+    .find(el =>
+      el.innerText.trim() === 'College'
+    );
+
+
+// 3. ПІСЛЯ НАТИСКАННЯ COLLEGE
+// з'являється поле "College name".
+const collegeNameInput =
+  collegeSection.querySelector(
+    'input[role="combobox"][aria-label="College name"]'
+  );
+
+
+// 4. КОЛИ ПОЧИНАЄМО ВВОДИТИ НАЗВУ,
+// через aria-controls знаходимо саме dropdown цього поля.
+const listboxId =
+  collegeNameInput.getAttribute('aria-controls');
+
+const collegeListbox =
+  document.getElementById(listboxId);
+
+
+// 5. УСІ РЕЗУЛЬТАТИ
+const collegeOptions =
+  [...collegeListbox.querySelectorAll('li[role="option"]')];
+
+
+// 6. ЯКЩО КОЛЕДЖІ ЗНАЙДЕНІ —
+// ЗАВЖДИ БЕРЕМО САМИЙ ПЕРШИЙ РЯДОК.
+const firstCollegeOption =
+  collegeOptions[0];
+
+
+// 7. ЯКЩО КОЛЕДЖУ НЕ ІСНУЄ,
+// Facebook залишає 1 option з текстом:
+// Add “назва”
+const addCollegeOption =
+  collegeOptions.find(option =>
+    option.innerText.trim().startsWith('Add “')
+  );
+
+
+// 8. ОЗНАКА, ЩО КОЛЕДЖ НЕ ЗНАЙДЕНО
+const collegeNotFound =
+  collegeOptions.length === 1 &&
+  !!addCollegeOption;
+
+
+// 9. ЛОГІКА КЛІКУ
+if (collegeNotFound) {
+  // Коледжу немає → додаємо наш
+  addCollegeOption.click();
+} else if (firstCollegeOption) {
+  // Коледж знайдений → беремо перший
+  firstCollegeOption.click();
+}
+
+// ABOUT → EDUCATION → COLLEGE
+// ВЕСЬ ЦИКЛ: SAVE → ПЕРЕВІРКА ПОМИЛКИ → ПЕРЕВІРКА УСПІШНОГО ЗБЕРЕЖЕННЯ
+
+const targetCollege = 'Lalaalatat';
+
+
+// 1. ЗНАХОДИМО СЕКЦІЮ COLLEGE
+const collegeSection = [...document.querySelectorAll('section')]
+  .find(section =>
+    section.querySelector('h2')?.innerText.trim() === 'College'
+  );
+
+
+// 2. ЗНАХОДИМО SAVE
+const saveButton =
+  collegeSection?.querySelector(
+    '[role="button"][aria-label="Save"]'
+  );
+
+
+// 3. ПЕРЕВІРЯЄМО, ЧИ SAVE АКТИВНА
+// НЕАКТИВНА → aria-disabled="true"
+// АКТИВНА   → aria-disabled відсутній
+const saveIsActive =
+  !!saveButton &&
+  saveButton.getAttribute('aria-disabled') !== 'true';
+
+
+// 4. ЯКЩО АКТИВНА — НАТИСКАЄМО SAVE
+if (saveIsActive) {
+  saveButton.click();
+}
+
+
+// 5. ПІСЛЯ SAVE МОЖЕ З'ЯВИТИСЯ ПОМИЛКА.
+// Помилка — це:
+// [role="dialog"][aria-modal="true"]
+// з заголовком "Invalid Name"
+const errorDialog =
+  document.querySelector(
+    '[role="dialog"][aria-modal="true"]'
+  );
+
+const invalidNameError =
+  errorDialog?.querySelector('h2')?.innerText.trim() === 'Invalid Name';
+
+
+// 6. КНОПКИ НА ПОМИЛЦІ
+const errorCloseButton =
+  errorDialog?.querySelector(
+    '[role="button"][aria-label="Close"]'
+  );
+
+const errorOkButton =
+  errorDialog?.querySelector(
+    '[role="button"][aria-label="OK"]'
+  );
+
+
+// 7. ЯКЩО ПОМИЛКИ НЕМАЄ — ПЕРЕВІРЯЄМО УСПІШНЕ ЗБЕРЕЖЕННЯ.
+// Facebook після Save перемальовує DOM,
+// тому знаходимо секцію College ЗАНОВО.
+const collegeSectionAfterSave = [...document.querySelectorAll('section')]
+  .find(section =>
+    section.querySelector('h2')?.innerText.trim() === 'College'
+  );
+
+
+// 8. ФОРМА ПОВИННА ЗНИКНУТИ
+const editorClosed =
+  !collegeSectionAfterSave?.querySelector(
+    'input[aria-label="College name"]'
+  ) &&
+  !collegeSectionAfterSave?.querySelector(
+    '[aria-label="Save"]'
+  );
+
+
+// 9. НАШ COLLEGE ПОВИНЕН З'ЯВИТИСЯ ЯК ЗВИЧАЙНИЙ ТЕКСТ
+const collegeSaved =
+  collegeSectionAfterSave?.innerText
+    .toLowerCase()
+    .includes(targetCollege.toLowerCase()) === true;
+
+
+// 10. ПОВИННА З'ЯВИТИСЯ КНОПКА EDIT COLLEGE
+const editCollegeButton =
+  collegeSectionAfterSave?.querySelector(
+    '[role="button"][aria-label="Edit college"]'
+  );
+
+
+// 11. ФІНАЛЬНА ВАЛІДАЦІЯ
+const collegeSavedSuccessfully =
+  !invalidNameError &&
+  editorClosed &&
+  collegeSaved &&
+  !!editCollegeButton;
+
+
+console.log({
+  saveIsActive,
+
+  // ПОМИЛКА
+  errorFound: !!errorDialog,
+  invalidNameError,
+  errorCloseButton,
+  errorOkButton,
+
+  // УСПІХ
+  editorClosed,
+  collegeSaved,
+  editCollegeFound: !!editCollegeButton,
+  collegeSavedSuccessfully
+});
+
+
+// ПОПЕРЕДЖЕННЯ ПРО НЕЗБЕРЕЖЕНІ ЗМІНИ
+//
+// Воно з'являється, якщо ми ввели дані,
+// вони НЕ збереглися і ми натиснули іншу вкладку.
+//
+// Вікно має:
+// role="dialog"
+// aria-modal="true"
+// aria-label="Leave Page?"
+// текст: "You have unsaved changes to your profile."
+
+const leavePageDialog =
+  document.querySelector(
+    '[role="dialog"][aria-modal="true"][aria-label="Leave Page?"]'
+  );
+
+
+// ДОДАТКОВА ПЕРЕВІРКА, ЩО ЦЕ САМЕ ПОПЕРЕДЖЕННЯ
+// ПРО НЕЗБЕРЕЖЕНІ ЗМІНИ
+const unsavedChangesWarning =
+  !!leavePageDialog &&
+  leavePageDialog.innerText.includes(
+    'You have unsaved changes to your profile.'
+  );
+
+
+// КНОПКА X — закрити popup і залишитися на поточній сторінці
+const closeButton =
+  leavePageDialog?.querySelector(
+    '[role="button"][aria-label="Close"]'
+  );
+
+
+// STAY ON PAGE — залишитися і НЕ втрачати введені дані
+const stayOnPageButton =
+  leavePageDialog?.querySelector(
+    '[role="button"][aria-label="Stay on Page"]'
+  );
+
+
+// LEAVE PAGE — піти на іншу вкладку і ВТРАТИТИ незбережені зміни.
+//
+// У DOM є ще прихована disabled-копія Leave Page,
+// тому беремо саме АКТИВНУ кнопку з tabindex="0".
+const leavePageButton =
+  leavePageDialog?.querySelector(
+    '[role="button"][aria-label="Leave Page"][tabindex="0"]'
+  );
+
+
+console.log({
+  warningFound: !!leavePageDialog,
+  unsavedChangesWarning,
+
+  closeButton,
+  stayOnPageButton,
+  leavePageButton
+});
+
+
+// ЛОГІКА:
+//
+// unsavedChangesWarning === true
+// → дані НЕ збереглися і Facebook питає, що робити.
+//
+// Якщо хочемо повернутися і спробувати зберегти:
+// stayOnPageButton.click();
+//
+// Якщо хочемо проігнорувати дані і перейти далі:
+// leavePageButton.click();
+//
+// Просто закрити вікно:
+// closeButton.click();
+
+
+// УСЕРЕДИНІ СЕКЦІЇ "Bio" ПІСЛЯ ТОГО ЯК BIO ВЖЕ ЗБЕРЕЖЕНЕ:
+//
+// Знаходимо секцію Bio
+const bioSection = [...document.querySelectorAll('section')]
+  .find(section =>
+    section.querySelector('h2')?.innerText.trim() === 'Bio'
+  );
+
+
+// Кнопка редагування BIO
+const editBioButton =
+  bioSection?.querySelector(
+    '[role="button"][aria-label="Edit bio"]'
+  );
