@@ -2,11 +2,13 @@
 
 ## Puppeteer: пости особистого профілю з вибраними датами
 
-`publishFacebookPersonalProfileMediaPostsWithDates(page, options)` виконує
-дві окремі фази. Спочатку він публікує всі передані медіапости через
-`publishFacebookPersonalProfileMediaPost` і фіксує точний `postUrl` та
-`postId` кожного поста. Лише після успішного завершення всіх публікацій і
-захоплення всіх URL починається зміна дат за прямими посиланнями.
+`publishFacebookPersonalProfileMediaPostsWithDates(page, options)` обробляє
+кожен пост окремо в одній вкладці: публікує медіа через
+`publishFacebookPersonalProfileMediaPost` з `capturePostUrl: false`, відкриває
+першу картку стрічки `[aria-posinset="1"]` кліком по першому
+`a[href*="?__cft__[0]="]`, зчитує `postUrl` з адреси вкладки або з відкритого
+діалогу і одразу змінює дату через `changeFacebookPersonalProfilePostDate`
+без повторної навігації (`postUrl: null`, `closePostDialog: true`).
 
 ```js
 const result = await publishFacebookPersonalProfileMediaPostsWithDates(page, {
@@ -28,14 +30,18 @@ const result = await publishFacebookPersonalProfileMediaPostsWithDates(page, {
 
 Дати підтримують `MM/DD/YYYY`, `YYYY-MM-DD` та англійський формат
 `Month D, YYYY`. Екшен вводить `MM/DD/YYYY` безпосередньо в React-combobox,
-натискає `Enter`, перевіряє відформатовану дату, натискає `Done` і повторно
-перевіряє timestamp поста. Час поста не змінюється.
+натискає `Enter`, перевіряє відформатовану дату в полі і натискає `Done`.
+Після `Done` дата вважається зміненою, timestamp у вікні поста не
+перевіряється. Далі вікно поста закривається. Час поста не змінюється.
 
-Якщо хоча б одна публікація неуспішна або її URL не знайдений, фаза дат не
-запускається. Основні статуси: `COMPLETED`, `PUBLISH_PARTIAL`,
-`POST_URL_CAPTURE_FAILED`, `DATE_CHANGE_PARTIAL`, `INVALID_INPUT`, `ERROR`.
-Звіт містить `publishedCount`, `capturedUrlCount`, `dateChangedCount`,
-`datePhaseStarted` та журнал `items` для кожного поста.
+Якщо публікація неуспішна або перший пост стрічки не відкрився, цикл
+зупиняється, щоб не клікнути чужу стару картку. `datePhaseStarted`
+стає `true`, коли починається перша зміна дати відкритого поста, а не після
+збору всіх URL. Основні статуси: `COMPLETED`, `PUBLISH_PARTIAL`,
+`FIRST_FEED_POST_OPEN_FAILED`, `POST_URL_CAPTURE_FAILED`,
+`DATE_CHANGE_PARTIAL`, `INVALID_INPUT`, `ERROR`. Звіт містить
+`publishedCount`, `capturedUrlCount`, `dateChangedCount`, `datePhaseStarted`
+та журнал `items` для кожного поста.
 
 Звичайний `publishFacebookPersonalProfileMediaPost` зберігає попередню
 поведінку. За опції `capturePostUrl: true` він додатково повертає `postUrl`,

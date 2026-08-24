@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "id": "f81a97bc-0583-41db-985e-fe4abd1bd320",
+  "taskId": "9956c40b-83f6-44e6-86ae-f194171f3984",
+  "type": "campaign",
+  "title": "CZ | Creo_138 | 30+",
+  "status": "failed",
+  "createdAt": "2026-08-24T00:26:26.248Z",
+  "startedAt": "2026-08-24T00:25:40.146Z",
+  "finishedAt": "2026-08-24T00:26:26.245Z",
+  "durationMs": 46099,
+  "inputSummary": {
+    "campaignJobId": "3a7e0100-cce1-49dc-9d5e-8c0ccb45a4ad",
+    "accountKey": "N5_ADS",
+    "adAccountId": "act_3391112407716529",
+    "campaignName": "CZ | Creo_138 | 30+",
+    "templateId": 3,
+    "pageId": "122101154528004114",
+    "postId": "122101154528004114_122377858226003926",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-08-24T00:25:00.000Z",
+    "createPaused": true
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120249922131030238",
+      "creativeId": "2366390557229243",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120249922131450238",
+          "name": "CZ | Creo_138 | 30+ | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120249922131930238",
+          "name": "CZ | Creo_138 | 30+ | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120249922132480238",
+          "name": "CZ | Creo_138 | 30+ | AS 03"
+        },
+        {
+          "index": 3,
+          "id": "120249922133020238",
+          "name": "CZ | Creo_138 | 30+ | AS 04"
+        },
+        {
+          "index": 4,
+          "id": "120249922133880238",
+          "name": "CZ | Creo_138 | 30+ | AS 05"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "name": "CZ | Creo_138 | 30+ | AD 01"
+        },
+        {
+          "index": 1,
+          "name": "CZ | Creo_138 | 30+ | AD 02"
+        },
+        {
+          "index": 2,
+          "name": "CZ | Creo_138 | 30+ | AD 03"
+        },
+        {
+          "index": 3,
+          "name": "CZ | Creo_138 | 30+ | AD 04"
+        },
+        {
+          "index": 4,
+          "name": "CZ | Creo_138 | 30+ | AD 05"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Unsupported get request. Object with ID 'undefined' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 100,
+      "graphSubcode": 33,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "readback",
+      "itemIndex": 4,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "3a7e0100-cce1-49dc-9d5e-8c0ccb45a4ad",
+    "accountKey": "N5_ADS",
+    "adAccountId": "act_3391112407716529",
+    "uniqueKey": "campaign-job:3a7e0100-cce1-49dc-9d5e-8c0ccb45a4ad"
+  }
+}

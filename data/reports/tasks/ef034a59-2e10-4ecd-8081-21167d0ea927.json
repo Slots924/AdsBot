@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "id": "ef034a59-2e10-4ecd-8081-21167d0ea927",
+  "taskId": "b9295583-57cc-48c1-b2b3-e62a1043deab",
+  "type": "campaign",
+  "title": "Change audience US/ES | Creo_1 | 45+",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-08-23T21:17:16.175Z",
+  "startedAt": "2026-08-23T21:16:59.433Z",
+  "finishedAt": "2026-08-23T21:17:16.174Z",
+  "durationMs": 16741,
+  "inputSummary": {
+    "campaignJobId": "c04b4dd3-b342-47e5-b481-86eb49cffbd4",
+    "accountKey": "N5_ADS",
+    "adAccountId": "act_1406992114702733",
+    "campaignName": "Change audience US/ES | Creo_1 | 45+",
+    "templateId": 12,
+    "pageId": "123064370885569",
+    "postId": "123064370885569_122328098150027427",
+    "adSetCount": 1,
+    "dailyBudget": 10,
+    "startTime": "2026-08-23T21:10:00.000Z",
+    "createPaused": true
+  },
+  "resultSummary": {
+    "campaignJobId": "c04b4dd3-b342-47e5-b481-86eb49cffbd4",
+    "objects": {
+      "campaignId": "120247279154730108",
+      "creativeId": "2143199733294060",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120247279155330108",
+          "name": "Change audience US/ES | Creo_1 | 45+ | AS 01"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120247279155950108",
+          "name": "Change audience US/ES | Creo_1 | 45+ | AD 01"
+        }
+      ]
+    },
+    "readback": {
+      "campaign": {
+        "id": "120247279154730108",
+        "name": "Change audience US/ES | Creo_1 | 45+",
+        "status": "PAUSED",
+        "effective_status": "PAUSED"
+      },
+      "creative": {
+        "id": "2143199733294060",
+        "name": "ES | Creo_1 | 45+ | Creative 2026-08-23-3422d042b292efa02abfb0c23a308889",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "advantage_plus_creative": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "audio": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_animation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_auto_crop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_background_gen": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_enhancement": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_text_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_touchups": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_uncrop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "music_generation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "standard_enhancements": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_generation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_optimizations": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_auto_crop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_filtering": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_highlights": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_uncrop": {
+              "enroll_status": "[MAX_DEPTH]"
+            }
+          }
+        },
+        "__fb_trace_id__": "FmRaTxUMJQv",
+        "__www_request_id__": "AexeoZgymqiG4-Zbo545bJ1"
+      },
+      "adSets": [
+        {
+          "id": "120247279155330108",
+          "name": "Change audience US/ES | Creo_1 | 45+ | AS 01",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-08-24T00:17:10+0300",
+          "daily_budget": "1000",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 45,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "935472558918197",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "__fb_trace_id__": "AZpkz9H9r7A",
+          "__www_request_id__": "AqhFXtmP3cUxmzG3UKW4Q4y"
+        }
+      ],
+      "ads": [
+        {
+          "id": "120247279155950108",
+          "name": "Change audience US/ES | Creo_1 | 45+ | AD 01",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "2143199733294060"
+          },
+          "__fb_trace_id__": "Fwojp05aSJF",
+          "__www_request_id__": "AW4tgOhFG6kyF2D3zwScL0Q"
+        }
+      ],
+      "warnings": [
+        "Ad set 1: Meta не підтвердила очікувані DSA beneficiary/payor"
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "c04b4dd3-b342-47e5-b481-86eb49cffbd4",
+    "accountKey": "N5_ADS",
+    "adAccountId": "act_1406992114702733",
+    "uniqueKey": "campaign-job:c04b4dd3-b342-47e5-b481-86eb49cffbd4"
+  }
+}

@@ -536,6 +536,9 @@ export default async function publishFacebookPersonalProfileMediaPost(
 
         if (capturePostUrl) {
             stage = "CAPTURE_POST_URL";
+            console.log("Чекаємо стабілізації перед пошуком нового permalink (щоб пост з'явився в фіді)");
+            await waitHuman("long", timingOptions);
+            console.log("Починаємо пошук нового post URL");
             postUrl = await waitForNewPostPermalink(
                 page,
                 previousPermalinks,

@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "id": "d94ddf7b-23a9-465f-a432-a21a86095ed7",
+  "taskId": "7f8c8f9f-b068-4b9d-962a-a263701e2d10",
+  "type": "campaign",
+  "title": "change_language US/ES | Creo_17 | 25+",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-08-24T03:07:23.930Z",
+  "startedAt": "2026-08-24T03:07:04.723Z",
+  "finishedAt": "2026-08-24T03:07:23.930Z",
+  "durationMs": 19207,
+  "inputSummary": {
+    "campaignJobId": "cc98988f-c0e7-4c65-864e-ee3aff563608",
+    "accountKey": "N5_ADS",
+    "adAccountId": "act_1666320148388374",
+    "campaignName": "change_language US/ES | Creo_17 | 25+",
+    "templateId": 12,
+    "pageId": "122096579090008341",
+    "postId": "122096579090008341_122371165244002102",
+    "adSetCount": 1,
+    "dailyBudget": 20,
+    "startTime": "2026-08-24T03:06:00.000Z",
+    "createPaused": true
+  },
+  "resultSummary": {
+    "campaignJobId": "cc98988f-c0e7-4c65-864e-ee3aff563608",
+    "objects": {
+      "campaignId": "120252647397020169",
+      "creativeId": "1064592952966833",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120252647397660169",
+          "name": "change_language US/ES | Creo_17 | 25+ | AS 01"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120252647398350169",
+          "name": "change_language US/ES | Creo_17 | 25+ | AD 01"
+        }
+      ]
+    },
+    "readback": {
+      "campaign": {
+        "id": "120252647397020169",
+        "name": "change_language US/ES | Creo_17 | 25+",
+        "status": "PAUSED",
+        "effective_status": "PAUSED"
+      },
+      "creative": {
+        "id": "1064592952966833",
+        "name": "change_language US/ES | Creo_17 | 25+ | Creative 2026-08-23-234c86b7672e9677a9211cef9b18f733",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "advantage_plus_creative": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "audio": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_animation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_auto_crop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_background_gen": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_enhancement": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_text_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_touchups": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_uncrop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "music_generation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "standard_enhancements": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_generation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_optimizations": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_auto_crop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_filtering": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_highlights": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_uncrop": {
+              "enroll_status": "[MAX_DEPTH]"
+            }
+          }
+        },
+        "__fb_trace_id__": "GSlaMjtx8AO",
+        "__www_request_id__": "AaRYfyHe5dsNS5poFKcZmui"
+      },
+      "adSets": [
+        {
+          "id": "120252647397660169",
+          "name": "change_language US/ES | Creo_17 | 25+ | AS 01",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-08-24T06:07:17+0300",
+          "daily_budget": "2000",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 45,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "935472558918197",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "__fb_trace_id__": "C/Y4MKyEmme",
+          "__www_request_id__": "AF_CEC-kC3h0CtuS3zth6jA"
+        }
+      ],
+      "ads": [
+        {
+          "id": "120252647398350169",
+          "name": "change_language US/ES | Creo_17 | 25+ | AD 01",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "1064592952966833"
+          },
+          "__fb_trace_id__": "Ck6IpfAKNEo",
+          "__www_request_id__": "AGw1A_hnmKqOS6sAL8Ztxh-"
+        }
+      ],
+      "warnings": [
+        "Ad set 1: Meta не підтвердила очікувані DSA beneficiary/payor"
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "cc98988f-c0e7-4c65-864e-ee3aff563608",
+    "accountKey": "N5_ADS",
+    "adAccountId": "act_1666320148388374",
+    "uniqueKey": "campaign-job:cc98988f-c0e7-4c65-864e-ee3aff563608"
+  }
+}

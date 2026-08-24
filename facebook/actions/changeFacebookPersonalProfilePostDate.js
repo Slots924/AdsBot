@@ -394,40 +394,6 @@ async function waitForInputDate(page, target, timeout) {
 }
 
 
-async function verifyPostDate(page, target, timeout) {
-    await page.waitForFunction((selector, expected) => {
-        const months = {
-            january: 1, february: 2, march: 3, april: 4,
-            may: 5, june: 6, july: 7, august: 8,
-            september: 9, october: 10, november: 11, december: 12,
-        };
-        const normalize = (value) => String(value ?? "")
-            .replace(/\s+/g, " ")
-            .trim();
-        const visible = (node) => {
-            const rectangle = node.getBoundingClientRect();
-            return rectangle.width > 0 && rectangle.height > 0;
-        };
-        return Array.from(document.querySelectorAll(selector))
-            .filter(visible)
-            .some((anchor) => {
-                const match = normalize(anchor.innerText).match(
-                    /^([A-Za-z]+)\s+(\d{1,2}),\s+(\d{4})$/i
-                );
-                if (!match) return false;
-                const iso = `${match[3]}-`
-                    + `${String(months[match[1].toLocaleLowerCase()]).padStart(2, "0")}-`
-                    + String(Number(match[2])).padStart(2, "0");
-                return iso === expected;
-            });
-    }, { timeout },
-    `${postDialogSelector} a[href*="story_fbid"], `
-        + `${postDialogSelector} a[href*="/posts/"], `
-        + `${postDialogSelector} a[href*="/photo/"]`,
-    target.isoDate);
-}
-
-
 export default async function changeFacebookPersonalProfilePostDate(
     page,
     {
@@ -635,11 +601,17 @@ export default async function changeFacebookPersonalProfilePostDate(
             );
         }
         await waitForEditDateDialog(page, timeout, false);
-
-        stage = "VERIFY_DATE";
-        await verifyPostDate(page, target, timeout);
+        await waitHuman("short", timingOptions);
         verified = true;
         status = facebookPersonalProfilePostDateStatuses.CHANGED;
+        report(
+            "facebook.personal_post_date.saved",
+            "Дату збережено після Done",
+            {
+                formattedDate,
+                isoDate: target.isoDate,
+            }
+        );
 
         if (closePostDialog) {
             stage = "CLOSE_POST";

@@ -33,3 +33,11 @@ export const personalProfilePhotoVideoButtonSelector =
 export const personalProfilePublishPostButtonSelector =
     `${personalProfileCreatePostDialogSelector} `
     + '[role="button"][aria-label="Post" i]';
+
+/** Перша картка стрічки особистого профілю. */
+export const personalProfileFirstFeedPostSelector =
+    '[aria-posinset="1"]';
+
+/** Перше службове посилання дати в першій картці стрічки. */
+export const personalProfileFirstFeedPostCftLinkSelector =
+    `${personalProfileFirstFeedPostSelector} a[href*="?__cft__[0]="]`;

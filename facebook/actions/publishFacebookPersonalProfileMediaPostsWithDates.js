@@ -1,6 +1,10 @@
+import { waitHuman } from "../browser/timing.js";
 import changeFacebookPersonalProfilePostDate, {
     parseFacebookPersonalProfilePostDate,
 } from "./changeFacebookPersonalProfilePostDate.js";
+import openFacebookPersonalProfileFirstFeedPost, {
+    readFirstFeedPostFingerprint,
+} from "./openFacebookPersonalProfileFirstFeedPost.js";
 import publishFacebookPersonalProfileMediaPost from "./publishFacebookPersonalProfileMediaPost.js";
 
 
@@ -9,6 +13,7 @@ export const facebookPersonalProfilePostsWithDatesStatuses = Object.freeze({
     INVALID_INPUT: "INVALID_INPUT",
     PUBLISH_PARTIAL: "PUBLISH_PARTIAL",
     POST_URL_CAPTURE_FAILED: "POST_URL_CAPTURE_FAILED",
+    FIRST_FEED_POST_OPEN_FAILED: "FIRST_FEED_POST_OPEN_FAILED",
     DATE_CHANGE_PARTIAL: "DATE_CHANGE_PARTIAL",
     ERROR: "ERROR",
 });
@@ -74,6 +79,15 @@ function validatePosts(posts) {
 }
 
 
+function skipPendingDates(items, status) {
+    for (const item of items) {
+        if (item.dateChangeStatus === "PENDING") {
+            item.dateChangeStatus = status;
+        }
+    }
+}
+
+
 export default async function publishFacebookPersonalProfileMediaPostsWithDates(
     page,
     {
@@ -87,6 +101,7 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
 ) {
     const startedAt = new Date().toISOString();
     const normalizedPosts = validatePosts(posts);
+    const timingOptions = { random, ...(sleep ? { sleep } : {}) };
     let stage = "VALIDATE_INPUT";
     let status = facebookPersonalProfilePostsWithDatesStatuses.ERROR;
     let errorDetails = null;
@@ -122,17 +137,29 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
             );
         }
 
-        report("facebook.personal_posts_with_dates.started", "Починаємо двофазну публікацію постів", {
-            postCount: items.length,
-        });
+        report(
+            "facebook.personal_posts_with_dates.started",
+            "Починаємо публікацію постів і зміну дат по одному",
+            {
+                postCount: items.length,
+            }
+        );
 
-        stage = "PUBLISH_ALL";
         for (const item of items) {
-            report("facebook.personal_posts_with_dates.publish.started", "Публікуємо пост", {
-                sequence: item.sequence,
-                mediaCount: item.mediaPaths.length,
-                targetDate: item.targetDate,
-            });
+            stage = "PUBLISH";
+            const previousFingerprint = await readFirstFeedPostFingerprint(
+                page
+            );
+            report(
+                "facebook.personal_posts_with_dates.publish.started",
+                "Публікуємо пост",
+                {
+                    sequence: item.sequence,
+                    mediaCount: item.mediaPaths.length,
+                    targetDate: item.targetDate,
+                    previousFingerprint,
+                }
+            );
             await emitProgress(onProgress, {
                 type: "post_publish_started",
                 sequence: item.sequence,
@@ -146,7 +173,7 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
                     timeout,
                     random,
                     ...(sleep ? { sleep } : {}),
-                    capturePostUrl: true,
+                    capturePostUrl: false,
                 }
             );
             item.publishResult = publishResult;
@@ -156,12 +183,6 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
                 : null;
             item.postId = publishResult.postId ?? null;
             item.postUrl = publishResult.postUrl ?? null;
-            if (!publishResult.success || !publishResult.postUrl) {
-                item.error = publishResult.error ?? {
-                    code: "FACEBOOK_PERSONAL_POST_URL_NOT_CAPTURED",
-                    message: "Пост опубліковано, але точний URL не знайдено",
-                };
-            }
 
             report(
                 "facebook.personal_posts_with_dates.publish.finished",
@@ -171,11 +192,9 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
                 {
                     sequence: item.sequence,
                     publishStatus: item.publishStatus,
-                    postUrl: item.postUrl,
-                    postId: item.postId,
-                    error: item.error,
+                    error: publishResult.error,
                 },
-                publishResult.success && item.postUrl ? "info" : "error"
+                publishResult.success ? "info" : "error"
             );
             await emitProgress(onProgress, {
                 type: "post_publish_finished",
@@ -184,55 +203,110 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
                 success: publishResult.success,
                 postUrl: item.postUrl,
             });
-        }
 
-        const publishFailures = items.filter((item) =>
-            !item.publishResult?.success
-        );
-        const missingUrls = items.filter((item) =>
-            item.publishResult?.success && !item.postUrl
-        );
-
-        if (publishFailures.length > 0) {
-            status = facebookPersonalProfilePostsWithDatesStatuses.PUBLISH_PARTIAL;
-            for (const item of items) {
-                if (item.dateChangeStatus === "PENDING") {
-                    item.dateChangeStatus = "SKIPPED_PUBLISH_INCOMPLETE";
-                }
+            if (!publishResult.success) {
+                item.error = publishResult.error;
+                status = facebookPersonalProfilePostsWithDatesStatuses
+                    .PUBLISH_PARTIAL;
+                skipPendingDates(items, "SKIPPED_PUBLISH_INCOMPLETE");
+                return buildResult();
             }
-            return buildResult();
-        }
-        if (missingUrls.length > 0) {
-            status = facebookPersonalProfilePostsWithDatesStatuses
-                .POST_URL_CAPTURE_FAILED;
-            for (const item of items) {
-                if (item.dateChangeStatus === "PENDING") {
-                    item.dateChangeStatus = "SKIPPED_URL_INCOMPLETE";
+
+            await waitHuman("short", timingOptions);
+
+            stage = "OPEN_POST";
+            report(
+                "facebook.personal_posts_with_dates.open.started",
+                "Відкриваємо перший пост стрічки по даті",
+                {
+                    sequence: item.sequence,
+                    previousFingerprint,
                 }
-            }
-            return buildResult();
-        }
-
-        stage = "CHANGE_ALL_DATES";
-        datePhaseStarted = true;
-        report("facebook.personal_posts_with_dates.date_phase.started", "Усі пости опубліковані; починаємо фазу зміни дат", {
-            postCount: items.length,
-        });
-        await emitProgress(onProgress, {
-            type: "date_change_phase_started",
-            total: items.length,
-        });
-
-        for (const item of items) {
-            report("facebook.personal_posts_with_dates.date.started", "Змінюємо дату точного поста", {
+            );
+            await emitProgress(onProgress, {
+                type: "first_feed_post_open_started",
                 sequence: item.sequence,
-                postUrl: item.postUrl,
-                targetDate: item.targetDate,
+                total: items.length,
             });
+
+            const openResult = await openFacebookPersonalProfileFirstFeedPost(
+                page,
+                {
+                    previousFingerprint,
+                    timeout,
+                    random,
+                    ...(sleep ? { sleep } : {}),
+                    logger,
+                }
+            );
+            item.postUrl = openResult.postUrl ?? item.postUrl;
+            item.postId = openResult.postId ?? item.postId;
+
+            report(
+                "facebook.personal_posts_with_dates.open.finished",
+                openResult.success
+                    ? "Відкрили пост і зчитали URL"
+                    : "Не вдалося відкрити перший пост стрічки",
+                {
+                    sequence: item.sequence,
+                    postUrl: item.postUrl,
+                    postId: item.postId,
+                    openStatus: openResult.status,
+                    error: openResult.error,
+                },
+                openResult.success ? "info" : "error"
+            );
+            await emitProgress(onProgress, {
+                type: "first_feed_post_open_finished",
+                sequence: item.sequence,
+                total: items.length,
+                success: openResult.success,
+                postUrl: item.postUrl,
+            });
+
+            if (!openResult.success) {
+                item.error = openResult.error ?? {
+                    code: "FACEBOOK_PERSONAL_FIRST_FEED_POST_OPEN_FAILED",
+                    message: "Не вдалося відкрити перший пост стрічки",
+                };
+                status = facebookPersonalProfilePostsWithDatesStatuses
+                    .FIRST_FEED_POST_OPEN_FAILED;
+                item.dateChangeStatus = "SKIPPED_OPEN_FAILED";
+                skipPendingDates(items, "SKIPPED_OPEN_INCOMPLETE");
+                return buildResult();
+            }
+
+            stage = "CHANGE_DATE";
+            if (!datePhaseStarted) {
+                datePhaseStarted = true;
+                report(
+                    "facebook.personal_posts_with_dates.date_phase.started",
+                    "Починаємо зміну дати відкритого поста",
+                    {
+                        sequence: item.sequence,
+                        postCount: items.length,
+                    }
+                );
+                await emitProgress(onProgress, {
+                    type: "date_change_phase_started",
+                    total: items.length,
+                    sequence: item.sequence,
+                });
+            }
+
+            report(
+                "facebook.personal_posts_with_dates.date.started",
+                "Змінюємо дату відкритого поста",
+                {
+                    sequence: item.sequence,
+                    postUrl: item.postUrl,
+                    targetDate: item.targetDate,
+                }
+            );
             const dateChangeResult = await changeFacebookPersonalProfilePostDate(
                 page,
                 {
-                    postUrl: item.postUrl,
+                    postUrl: null,
                     targetDate: item.targetDate,
                     timeout,
                     random,
@@ -246,26 +320,38 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
             item.dateChangeStatus = dateChangeResult.status;
             if (!dateChangeResult.success) {
                 item.error = dateChangeResult.error;
+                status = facebookPersonalProfilePostsWithDatesStatuses
+                    .DATE_CHANGE_PARTIAL;
+                skipPendingDates(items, "SKIPPED_DATE_INCOMPLETE");
+                report(
+                    "facebook.personal_posts_with_dates.date.finished",
+                    "Не вдалося змінити дату поста",
+                    {
+                        sequence: item.sequence,
+                        postUrl: item.postUrl,
+                        dateChangeStatus: item.dateChangeStatus,
+                        verified: dateChangeResult.verified,
+                        error: item.error,
+                    },
+                    "error"
+                );
+                return buildResult();
             }
+
             report(
                 "facebook.personal_posts_with_dates.date.finished",
-                dateChangeResult.success
-                    ? "Дату поста змінено й перевірено"
-                    : "Не вдалося змінити дату поста",
+                "Дату поста змінено й перевірено",
                 {
                     sequence: item.sequence,
                     postUrl: item.postUrl,
                     dateChangeStatus: item.dateChangeStatus,
                     verified: dateChangeResult.verified,
-                    error: item.error,
-                },
-                dateChangeResult.success ? "info" : "error"
+                }
             );
+            await waitHuman("short", timingOptions);
         }
 
-        status = items.every((item) => item.dateChangeResult?.success)
-            ? facebookPersonalProfilePostsWithDatesStatuses.COMPLETED
-            : facebookPersonalProfilePostsWithDatesStatuses.DATE_CHANGE_PARTIAL;
+        status = facebookPersonalProfilePostsWithDatesStatuses.COMPLETED;
     } catch (error) {
         if (status === facebookPersonalProfilePostsWithDatesStatuses.ERROR) {
             status = stage === "VALIDATE_INPUT"
@@ -316,7 +402,7 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
                 : "facebook.personal_posts_with_dates.partial",
             success
                 ? "Усі пости опубліковано, їхні дати змінено й перевірено"
-                : "Двофазну обробку завершено не повністю",
+                : "Обробку постів завершено не повністю",
             {
                 status,
                 publishedCount,
