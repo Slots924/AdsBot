@@ -17,6 +17,17 @@ function cleanDraft(input = {}) {
         browserMode: input.browserMode === "headless" ? "headless" : "visible",
         disableImages: input.disableImages === true,
         commentWorkerConcurrency: Math.min(5, Math.max(1, Number(input.commentWorkerConcurrency) || 5)),
+        commentWorkerProxyIds: Object.fromEntries(
+            Object.entries(input.commentWorkerProxyIds ?? {})
+                .filter(([workerId, proxyId]) => {
+                    const worker = Number(workerId);
+                    return Number.isInteger(worker)
+                        && worker >= 1
+                        && worker <= 5
+                        && String(proxyId ?? "").trim();
+                })
+                .map(([workerId, proxyId]) => [String(Number(workerId)), String(proxyId).trim()])
+        ),
     };
 }
 

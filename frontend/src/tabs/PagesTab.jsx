@@ -409,6 +409,7 @@ function CommentModal({
                 browserMode: settings.commentBrowserMode,
                 disableImages: settings.commentDisableImages,
                 commentWorkerConcurrency: settings.commentWorkerConcurrency,
+                commentWorkerProxyIds: settings.commentWorkerProxyIds,
             })));
         } catch (error) {
             onError(errorDetails(error));

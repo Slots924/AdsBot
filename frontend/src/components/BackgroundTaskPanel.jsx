@@ -6,6 +6,7 @@ import {
     ChevronRight,
     CircleStop,
     Clock3,
+    Flashlight,
     ListChecks,
     LoaderCircle,
     RotateCcw,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
+import WorkerProxyPicker from "./WorkerProxyPicker.jsx";
 
 
 const activeStatuses = new Set(["queued", "running"]);
@@ -45,6 +47,13 @@ function taskPercent(task) {
 }
 
 
+function taskProxyAlerts(task) {
+    return Array.isArray(task?.progress?.workerProxyAlerts)
+        ? task.progress.workerProxyAlerts
+        : [];
+}
+
+
 export default function BackgroundTaskPanel({
     tasks,
     collapsed,
@@ -53,11 +62,23 @@ export default function BackgroundTaskPanel({
     onError,
     openTaskId = null,
     onOpenTaskHandled = () => {},
+    proxies = [],
+    proxiesLoading = false,
+    commentWorkerProxyIds = {},
+    onCommentWorkerProxyIdsChange = () => {},
+    onCreateProxy,
+    onUpdateProxy,
+    onDeleteProxy,
+    onGetProxy,
+    onCheckProxy,
+    onCheckProxyConfig,
+    onRefreshProxyIp,
 }) {
     const [selected, setSelected] = useState(null);
     const [campaignJob, setCampaignJob] = useState(null);
     const [creativeJob, setCreativeJob] = useState(null);
     const [actionPending, setActionPending] = useState(false);
+    const [proxyPicker, setProxyPicker] = useState(null);
     const activeCount = useMemo(
         () => tasks.filter((task) => activeStatuses.has(task.status)).length,
         [tasks]
@@ -65,6 +86,10 @@ export default function BackgroundTaskPanel({
     const attentionCount = useMemo(
         () => tasks.filter((task) => activeStatuses.has(task.status)
             || ["failed", "interrupted", "completed_with_warnings"].includes(task.status)).length,
+        [tasks]
+    );
+    const proxyAlertTasks = useMemo(
+        () => tasks.filter((task) => taskProxyAlerts(task).length > 0),
         [tasks]
     );
     const selectedRetryable = selected
@@ -101,6 +126,20 @@ export default function BackgroundTaskPanel({
         onOpenTaskHandled();
     }, [openTaskId, tasks]);
 
+    const resolveProxyAlert = async (task, alert, payload) => {
+        await action(() => unwrap(window.adsBot.resolveBackgroundTaskAction(
+            task.id,
+            `comment-proxy:${alert.workerId}`,
+            payload
+        )));
+        if (payload.type === "replace" && payload.proxyId) {
+            onCommentWorkerProxyIdsChange({
+                ...commentWorkerProxyIds,
+                [String(alert.workerId)]: payload.proxyId,
+            });
+        }
+    };
+
     const action = async (operation) => {
         setActionPending(true);
         try {
@@ -120,7 +159,12 @@ export default function BackgroundTaskPanel({
                     <button className="icon-button" onClick={() => onCollapsedChange(!collapsed)} title={collapsed ? "Відкрити задачі" : "Згорнути задачі"}>
                         {collapsed ? <ChevronLeft size={17} /> : <ChevronRight size={17} />}
                     </button>
-                    {!collapsed && <><div><span className="eyebrow">Background</span><strong>Задачі</strong></div><b>{activeCount || tasks.length}</b></>}
+                      {!collapsed && <><div><span className="eyebrow">Background</span><strong>Задачі</strong></div><b>{activeCount || tasks.length}</b></>}
+                    {collapsed && proxyAlertTasks.length > 0 && (
+                        <span className="task-proxy-flashlight" title="Проксі воркера не працює">
+                            <Flashlight size={16} />
+                        </span>
+                    )}
                     {collapsed && attentionCount > 0 && <b className="task-rail-count">{attentionCount}</b>}
                 </header>
 
@@ -135,7 +179,15 @@ export default function BackgroundTaskPanel({
                                 const percent = taskPercent(task);
                                 return (
                                     <article key={task.id} className={`task-card ${task.status}`} onClick={() => openTask(task)}>
-                                        <div className="task-card-heading"><TaskIcon status={task.status} /><strong>{task.name}</strong></div>
+                                        <div className="task-card-heading">
+                                            <TaskIcon status={task.status} />
+                                            <strong>{task.name}</strong>
+                                            {taskProxyAlerts(task).length > 0 && (
+                                                <span className="task-proxy-flashlight" title="Проксі воркера не працює">
+                                                    <Flashlight size={15} />
+                                                </span>
+                                            )}
+                                        </div>
                                         <span>{statusLabels[task.status] || task.status}</span>
                                         <div className="task-card-progress"><i style={{ width: `${percent}%` }} /></div>
                                         <small>{task.waitingReason || task.progress?.message || task.error?.message || "—"}</small>
@@ -173,6 +225,31 @@ export default function BackgroundTaskPanel({
                             {(selected.progress?.objects?.campaignId || campaignJob?.objects?.campaignId) && <div className="wide"><span>Campaign ID</span><strong>{selected.progress?.objects?.campaignId || campaignJob.objects.campaignId}</strong></div>}
                         </div>
                         {selected.error && <div className="creation-error"><AlertCircle size={18} /><div><strong>{selected.error.message}</strong><span>{selected.error.code || "TASK_ERROR"}</span></div></div>}
+                        {taskProxyAlerts(selected).map((alert) => (
+                            <div className="task-proxy-alert" key={`${alert.workerId}-${alert.commentId}`}>
+                                <Flashlight size={16} />
+                                <div>
+                                    <strong>{alert.message}</strong>
+                                    <span>Можна пропустити цей коментар або замінити проксі воркера.</span>
+                                </div>
+                                <div className="task-proxy-alert-actions">
+                                    <button
+                                        className="secondary-button"
+                                        disabled={actionPending}
+                                        onClick={() => resolveProxyAlert(selected, alert, { type: "skip" })}
+                                    >
+                                        Пропустити коментар
+                                    </button>
+                                    <button
+                                        className="primary-button"
+                                        disabled={actionPending}
+                                        onClick={() => setProxyPicker({ task: selected, alert })}
+                                    >
+                                        Замінити проксі
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
                         {Array.isArray(selected.progress?.subtasks) && <div className="task-subtask-details">{selected.progress.subtasks.map((subtask) => <article key={subtask.id} className={subtask.status}><div><TaskIcon status={subtask.status}/><strong>{subtask.title}</strong></div><span>{statusLabels[subtask.status] || subtask.status}</span><small>{subtask.message || subtask.error?.message || "—"}</small></article>)}</div>}
                         <div className="form-actions">
                             {activeStatuses.has(selected.status) && <button className="secondary-button danger" disabled={actionPending} onClick={() => action(() => unwrap(window.adsBot.cancelBackgroundTask(selected.id)))}><CircleStop size={15} /> Зупинити</button>}
@@ -190,6 +267,30 @@ export default function BackgroundTaskPanel({
                         </div>
                     </div>
                 </div>
+            )}
+            {proxyPicker && (
+                <WorkerProxyPicker
+                    workerId={proxyPicker.alert.workerId}
+                    proxies={proxies}
+                    proxiesLoading={proxiesLoading}
+                    excludedIds={Object.entries(commentWorkerProxyIds)
+                        .filter(([workerId]) => Number(workerId) !== Number(proxyPicker.alert.workerId))
+                        .map(([, proxyId]) => proxyId)}
+                    onCreate={onCreateProxy}
+                    onUpdate={onUpdateProxy}
+                    onDelete={onDeleteProxy}
+                    onGet={onGetProxy}
+                    onCheck={onCheckProxy}
+                    onCheckConfig={onCheckProxyConfig}
+                    onRefreshIp={onRefreshProxyIp}
+                    onError={onError}
+                    onConfirm={async (proxyId) => {
+                        const { task, alert } = proxyPicker;
+                        setProxyPicker(null);
+                        await resolveProxyAlert(task, alert, { type: "replace", proxyId });
+                    }}
+                    onClose={() => setProxyPicker(null)}
+                />
             )}
         </>
     );

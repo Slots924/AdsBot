@@ -93,6 +93,30 @@ await assert.rejects(
     /не може бути порожньою/
 );
 
+const proxyAdsPower = new AdsPower();
+let proxyRequest = null;
+proxyAdsPower.request = async (method, url, data) => {
+    proxyRequest = { method, url, data };
+    return { data: { code: 0, data: {} } };
+};
+await proxyAdsPower.updateProfileProxy("profile-id-1880", {
+    proxy_soft: "other",
+    proxy_type: "socks5",
+    proxy_host: "proxy.example.com",
+    proxy_port: "10000",
+    proxy_user: "user",
+    proxy_password: "secret",
+    proxy_url: "https://provider.example/changeip/token",
+});
+assert.equal(proxyRequest.method, "post");
+assert.match(proxyRequest.url, /\/api\/v2\/browser-profile\/update$/);
+assert.equal(proxyRequest.data.profile_id, "profile-id-1880");
+assert.equal(proxyRequest.data.user_proxy_config.proxy_type, "socks5");
+await assert.rejects(
+    () => proxyAdsPower.updateProfileProxy("", { proxy_type: "socks5" }),
+    /profile_id/
+);
+
 assert.deepEqual(
     {
         mode: normalizeState({}).commentBrowserMode,
@@ -104,6 +128,13 @@ assert.equal(normalizeState({ commentBrowserMode: "headless" }).commentBrowserMo
 assert.equal(normalizeState({ commentBrowserMode: "broken" }).commentBrowserMode, "visible");
 assert.equal(normalizeState({ commentDisableImages: true }).commentDisableImages, true);
 assert.equal(normalizeState({ commentDisableImages: "true" }).commentDisableImages, false);
+assert.deepEqual(normalizeState({}).commentWorkerProxyIds, {});
+assert.deepEqual(
+    normalizeState({
+        commentWorkerProxyIds: { 1: "proxy-001", 9: "proxy-009", extra: "nope" },
+    }).commentWorkerProxyIds,
+    { 1: "proxy-001" }
+);
 assert.equal(normalizeState({}).logLevel, "info");
 assert.equal(normalizeState({ logLevel: "debug" }).logLevel, "debug");
 assert.equal(normalizeState({ logLevel: "trace" }).logLevel, "info");

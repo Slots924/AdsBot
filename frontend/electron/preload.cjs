@@ -20,6 +20,19 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("accounts:update", { accountKey, ...patch }),
     setAccountArchived: (accountKey, archived) =>
         ipcRenderer.invoke("accounts:archive-set", { accountKey, archived }),
+    getProxies: () => ipcRenderer.invoke("proxies:list"),
+    getProxy: (proxyId) => ipcRenderer.invoke("proxies:get", { proxyId }),
+    createProxy: (proxy) => ipcRenderer.invoke("proxies:create", proxy),
+    updateProxy: (proxyId, patch) =>
+        ipcRenderer.invoke("proxies:update", { proxyId, ...patch }),
+    deleteProxy: (proxyId) => ipcRenderer.invoke("proxies:delete", { proxyId }),
+    checkProxy: (proxyId) => ipcRenderer.invoke("proxies:check", { proxyId }),
+    checkProxyConfig: (config) =>
+        ipcRenderer.invoke("proxies:check-config", config),
+    refreshProxyIp: (proxyId) =>
+        ipcRenderer.invoke("proxies:refresh-ip", { proxyId }),
+    reorderProxies: (orderedIds) =>
+        ipcRenderer.invoke("proxies:reorder", { orderedIds }),
     getFanPages: (accountKey, force = false) =>
         ipcRenderer.invoke("pages:list", { accountKey, force }),
     loadClientWorkspace: (accountKey, force = false) =>
@@ -111,6 +124,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("tasks:clear-finished"),
     setCommentTaskConcurrency: (value) =>
         ipcRenderer.invoke("tasks:comment-concurrency-set", { value }),
+    resolveBackgroundTaskAction: (taskId, actionKey, payload) =>
+        ipcRenderer.invoke("tasks:resolve-action", { taskId, actionKey, payload }),
     getLogs: (filters) => ipcRenderer.invoke("logs:list", filters),
     getLogScopes: () => ipcRenderer.invoke("logs:scopes"),
     setLogLevel: (level) => ipcRenderer.invoke("logs:level-set", { level }),

@@ -90,7 +90,12 @@ export default class BackgroundTaskManager {
             input,
             metadata: { ...metadata, ...(uniqueKey ? { uniqueKey } : {}) },
         });
-        this.#runtimes.set(task.id, { runner, controller: new AbortController(), promise: null });
+        this.#runtimes.set(task.id, {
+            runner,
+            controller: new AbortController(),
+            promise: null,
+            pendingActions: new Map(),
+        });
         await this.#emit(task);
         this.#schedule();
         return publicTask(task);
@@ -143,6 +148,27 @@ export default class BackgroundTaskManager {
     async setCommentConcurrency(value) {
         this.commentConcurrency = this.#normalizeCommentConcurrency(value);
         return this.commentConcurrency;
+    }
+
+
+    async resolveAction(taskId, actionKey, payload = {}) {
+        const runtime = this.#runtimes.get(String(taskId));
+        if (!runtime) {
+            throw Object.assign(new Error("Фонову задачу не знайдено"), {
+                code: "BACKGROUND_TASK_NOT_FOUND",
+            });
+        }
+        const key = String(actionKey ?? "").trim();
+        const pending = runtime.pendingActions?.get(key);
+        if (!pending) {
+            throw Object.assign(new Error("Немає очікуваної дії"), {
+                code: "BACKGROUND_TASK_ACTION_NOT_PENDING",
+            });
+        }
+        runtime.pendingActions.delete(key);
+        pending.cleanup?.();
+        pending.resolve(payload);
+        return { ok: true };
     }
 
 
@@ -224,9 +250,40 @@ export default class BackgroundTaskManager {
         };
 
         try {
+            const waitForAction = (actionKey) => new Promise((resolve, reject) => {
+                if (runtime.controller.signal.aborted) {
+                    reject(Object.assign(new Error("Задачу перервано"), {
+                        name: "AbortError",
+                        code: "COMMENTING_ABORTED",
+                    }));
+                    return;
+                }
+                const key = String(actionKey ?? "").trim();
+                if (!key) {
+                    reject(new Error("Не вказано ключ дії задачі"));
+                    return;
+                }
+                const onAbort = () => {
+                    runtime.pendingActions.delete(key);
+                    reject(Object.assign(new Error("Задачу перервано"), {
+                        name: "AbortError",
+                        code: "COMMENTING_ABORTED",
+                    }));
+                };
+                runtime.controller.signal.addEventListener("abort", onAbort, { once: true });
+                runtime.pendingActions.set(key, {
+                    resolve: (value) => {
+                        runtime.controller.signal.removeEventListener("abort", onAbort);
+                        resolve(value);
+                    },
+                    cleanup: () => runtime.controller.signal.removeEventListener("abort", onAbort),
+                    reject,
+                });
+            });
             const invokeRunner = () => runtime.runner({
                 signal: runtime.controller.signal,
                 progress,
+                waitForAction,
                 task: publicTask(current),
             });
             const output = this.logger?.runWithContext
@@ -273,6 +330,14 @@ export default class BackgroundTaskManager {
                 error,
             });
         } finally {
+            for (const pending of runtime.pendingActions?.values() ?? []) {
+                pending.cleanup?.();
+                pending.reject?.(Object.assign(new Error("Задачу перервано"), {
+                    name: "AbortError",
+                    code: "COMMENTING_ABORTED",
+                }));
+            }
+            runtime.pendingActions?.clear();
             task.resources.forEach((resource) => this.#activeResources.delete(resource.key));
             this.#activeByType.set(task.type, Math.max(0, (this.#activeByType.get(task.type) ?? 1) - 1));
             this.#runtimes.delete(task.id);

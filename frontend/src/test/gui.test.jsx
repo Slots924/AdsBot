@@ -9,6 +9,8 @@ import { afterEach, beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
 import Sidebar from "../components/Sidebar.jsx";
+import ProxyStrip from "../components/ProxyStrip.jsx";
+import AccountsTab from "../tabs/AccountsTab.jsx";
 import SettingsModal from "../components/SettingsModal.jsx";
 import BackgroundTaskPanel from "../components/BackgroundTaskPanel.jsx";
 import AdAccountsTab from "../tabs/AdAccountsTab.jsx";
@@ -126,6 +128,240 @@ describe("GUI helpers", () => {
         fireEvent.click(screen.getByTitle("В архів"));
         await waitFor(() => expect(onSetArchived)
             .toHaveBeenCalledWith("fp_hub", true));
+    });
+
+    it("у standalone показує нижню кнопку додавання API-клієнта", () => {
+        render(
+            <Sidebar
+                standalone
+                accounts={[]}
+                selectedAccountKey=""
+                loading={false}
+                onSelect={vi.fn()}
+                onRefresh={vi.fn()}
+                onCreate={vi.fn()}
+                onUpdate={vi.fn()}
+                onSetArchived={vi.fn()}
+                onError={vi.fn()}
+            />
+        );
+
+        expect(screen.getByTitle("Додати акаунт")).toBeInTheDocument();
+        expect(screen.getByText("Додати API-клієнта")).toBeInTheDocument();
+        expect(screen.queryByText("AdsBot")).not.toBeInTheDocument();
+    });
+
+    it("показує проксі й перевіряє статус", async () => {
+        const onCheck = vi.fn().mockResolvedValue({
+            working: true,
+            ip: "203.0.113.10",
+        });
+        render(
+            <ProxyStrip
+                proxies={[{
+                    id: "proxy-001",
+                    adsPowerId: 14,
+                    name: "Київ",
+                    type: "socks5",
+                    host: "proxy.example.com",
+                    port: "10000",
+                    hasRefreshUrl: true,
+                }]}
+                loading={false}
+                onCreate={vi.fn()}
+                onUpdate={vi.fn()}
+                onDelete={vi.fn()}
+                onCheck={onCheck}
+                onRefreshIp={vi.fn()}
+                onError={vi.fn()}
+            />
+        );
+
+        expect(screen.getByText("14")).toBeInTheDocument();
+        expect(screen.getByText("Київ")).toBeInTheDocument();
+        expect(screen.getByText("API")).toBeInTheDocument();
+        fireEvent.click(screen.getByTitle("Перевірити статус"));
+        await waitFor(() => expect(onCheck).toHaveBeenCalledWith("proxy-001"));
+        expect(await screen.findByText("IP 203.0.113.10")).toBeInTheDocument();
+        expect(document.querySelector(".proxy-flashlight.on")).toBeInTheDocument();
+    });
+
+    it("крутить кнопку зміни IP і фарбує її після відповіді", async () => {
+        const onRefreshIp = vi.fn().mockResolvedValue({
+            working: false,
+            timedOut: true,
+        });
+        render(
+            <ProxyStrip
+                proxies={[{
+                    id: "proxy-001",
+                    adsPowerId: 9,
+                    name: "Одеса",
+                    type: "http",
+                    host: "proxy.example.com",
+                    port: "10000",
+                    hasRefreshUrl: true,
+                }]}
+                loading={false}
+                onCreate={vi.fn()}
+                onUpdate={vi.fn()}
+                onDelete={vi.fn()}
+                onCheck={vi.fn()}
+                onRefreshIp={onRefreshIp}
+                onError={vi.fn()}
+            />
+        );
+
+        fireEvent.click(screen.getByTitle("Оновити IP"));
+        await waitFor(() => expect(onRefreshIp).toHaveBeenCalledWith("proxy-001"));
+        expect(screen.getByTitle("Оновити IP").className).toContain("fail");
+    });
+
+    it("створює проксі через форму", async () => {
+        const onCreate = vi.fn().mockResolvedValue(undefined);
+        render(
+            <ProxyStrip
+                proxies={[]}
+                loading={false}
+                onCreate={onCreate}
+                onUpdate={vi.fn()}
+                onDelete={vi.fn()}
+                onCheck={vi.fn()}
+                onRefreshIp={vi.fn()}
+                onError={vi.fn()}
+            />
+        );
+
+        fireEvent.click(screen.getByTitle("Додати проксі"));
+        fireEvent.change(screen.getByLabelText("AdsPower ID"), {
+            target: { value: "14" },
+        });
+        fireEvent.change(screen.getByLabelText("Ім’я"), {
+            target: { value: "Київ" },
+        });
+        fireEvent.change(screen.getByLabelText("Хост"), {
+            target: { value: "proxy.example.com" },
+        });
+        fireEvent.change(screen.getByLabelText("Порт"), {
+            target: { value: "10000" },
+        });
+        fireEvent.click(screen.getByRole("button", { name: "Додати" }));
+        await waitFor(() => expect(onCreate).toHaveBeenCalledWith({
+            adsPowerId: "14",
+            name: "Київ",
+            type: "socks5",
+            host: "proxy.example.com",
+            port: "10000",
+            username: "",
+            password: "",
+            refreshUrl: "",
+        }));
+    });
+
+    it("заповнює поля проксі з вставленого рядка", async () => {
+        const onCreate = vi.fn().mockResolvedValue(undefined);
+        const onCheckConfig = vi.fn().mockResolvedValue({
+            working: true,
+            ip: "203.0.113.10",
+        });
+        render(
+            <ProxyStrip
+                proxies={[]}
+                loading={false}
+                onCreate={onCreate}
+                onUpdate={vi.fn()}
+                onDelete={vi.fn()}
+                onCheck={vi.fn()}
+                onCheckConfig={onCheckConfig}
+                onRefreshIp={vi.fn()}
+                onError={vi.fn()}
+            />
+        );
+
+        fireEvent.click(screen.getByTitle("Додати проксі"));
+        fireEvent.change(screen.getByLabelText("Вставити проксі"), {
+            target: {
+                value: "socks5://proxy.example.com:10000:demo-user:demo-pass[https://provider.example/changeip/token]",
+            },
+        });
+        fireEvent.click(screen.getByRole("button", { name: "ОК" }));
+        expect(screen.getByLabelText("Хост").value).toBe("proxy.example.com");
+        expect(screen.getByLabelText("Порт").value).toBe("10000");
+        expect(screen.getByLabelText("Логін проксі").value).toBe("demo-user");
+        fireEvent.click(screen.getByRole("button", { name: "Перевірити проксі" }));
+        await waitFor(() => expect(onCheckConfig).toHaveBeenCalled());
+        expect(await screen.findByText("IP 203.0.113.10")).toBeInTheDocument();
+    });
+
+    it("підставляє збережені дані проксі в форму редагування", async () => {
+        const onGet = vi.fn().mockResolvedValue({
+            id: "proxy-001",
+            adsPowerId: 14,
+            name: "Київ",
+            type: "socks5",
+            host: "proxy.example.com",
+            port: "10000",
+            username: "demo-user",
+            password: "demo-pass",
+            refreshUrl: "https://provider.example/changeip/token",
+        });
+        render(
+            <ProxyStrip
+                proxies={[{
+                    id: "proxy-001",
+                    adsPowerId: 14,
+                    name: "Київ",
+                    type: "socks5",
+                    host: "proxy.example.com",
+                    port: "10000",
+                    hasRefreshUrl: true,
+                }]}
+                loading={false}
+                onCreate={vi.fn()}
+                onUpdate={vi.fn()}
+                onDelete={vi.fn()}
+                onGet={onGet}
+                onCheck={vi.fn()}
+                onRefreshIp={vi.fn()}
+                onError={vi.fn()}
+            />
+        );
+
+        fireEvent.click(screen.getByTitle("Редагувати"));
+        await waitFor(() => expect(onGet).toHaveBeenCalledWith("proxy-001"));
+        expect(screen.getByLabelText("Логін проксі").value).toBe("demo-user");
+        expect(screen.getByLabelText("Пароль проксі").value).toBe("demo-pass");
+        expect(screen.getByLabelText("Посилання для зміни IP").value)
+            .toBe("https://provider.example/changeip/token");
+        expect(screen.queryByText(/залишаться без змін/)).not.toBeInTheDocument();
+    });
+
+    it("ставить дві полоси клієнтів і проксі поруч", () => {
+        render(
+            <AccountsTab
+                accounts={[]}
+                selectedAccountKey=""
+                accountsLoading={false}
+                onSelectAccount={vi.fn()}
+                onRefreshAccounts={vi.fn()}
+                onCreateAccount={vi.fn()}
+                onUpdateAccount={vi.fn()}
+                onSetArchived={vi.fn()}
+                proxies={[]}
+                proxiesLoading={false}
+                onCreateProxy={vi.fn()}
+                onUpdateProxy={vi.fn()}
+                onDeleteProxy={vi.fn()}
+                onCheckProxy={vi.fn()}
+                onRefreshProxyIp={vi.fn()}
+                onError={vi.fn()}
+            />
+        );
+
+        expect(document.querySelector(".accounts-workspace")).toBeInTheDocument();
+        expect(screen.getByText("API-клієнти")).toBeInTheDocument();
+        expect(screen.getByText("Проксі")).toBeInTheDocument();
+        expect(screen.getByTitle("Додати проксі")).toBeInTheDocument();
     });
 
     it("показує зрозумілий empty state для фанпейджів", async () => {
@@ -414,16 +650,19 @@ describe("GUI helpers", () => {
             target: { value: "140" },
         });
         expect(onScaleChange).toHaveBeenCalledWith(1.4);
+        fireEvent.change(screen.getByLabelText("Рівень логування"), {
+            target: { value: "debug" },
+        });
+        expect(onLogLevelChange).toHaveBeenCalledWith("debug");
+        fireEvent.click(screen.getByRole("button", { name: /Коментарі/ }));
         fireEvent.change(screen.getByLabelText("Режим браузера для коментарів"), {
             target: { value: "headless" },
         });
         expect(onCommentBrowserModeChange).toHaveBeenCalledWith("headless");
         fireEvent.click(screen.getByRole("checkbox", { name: /Не завантажувати зображення/ }));
         expect(onCommentDisableImagesChange).toHaveBeenCalledWith(true);
-        fireEvent.change(screen.getByLabelText("Рівень логування"), {
-            target: { value: "debug" },
-        });
-        expect(onLogLevelChange).toHaveBeenCalledWith("debug");
+        expect(screen.getByLabelText("Воркер 1")).toBeInTheDocument();
+        expect(screen.getByLabelText("Призначити проксі воркеру 1")).toBeInTheDocument();
     });
 
     it("показує збережені події та структуровані звіти", async () => {

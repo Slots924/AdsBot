@@ -154,6 +154,7 @@ export default function CreativeLaunchModal({
                 browserMode: settings.commentBrowserMode,
                 disableImages: settings.commentDisableImages,
                 commentWorkerConcurrency: settings.commentWorkerConcurrency,
+                commentWorkerProxyIds: settings.commentWorkerProxyIds,
             }));
             onQueued(result);
         } catch (error) {

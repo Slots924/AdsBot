@@ -88,4 +88,77 @@ await assert.rejects(cancelled, (error) => (
     error.name === "AbortError" && error.report?.interrupted === true
 ));
 
+const limited = await runParallelCommentingScenario({
+    adsPower: { getProfilesByGroupId: async () => profiles },
+    groupIds: ["group-1"],
+    comments: comments.slice(0, 2),
+    geo: "HU",
+    creativeName: "worker-proxy-test",
+    postUrl: "https://www.facebook.com/test/posts/1",
+    concurrency: 5,
+    workerProxies: {
+        1: { id: "proxy-001", type: "socks5", host: "a.example.com", port: "1" },
+        3: { id: "proxy-003", type: "socks5", host: "c.example.com", port: "3" },
+    },
+    getGender: (profile) => profile?.gender ?? null,
+    logger: { info() {}, warn() {}, error() {}, debug() {} },
+    executeComment: async ({ workerId, workerProxy }) => {
+        assert.ok([1, 3].includes(workerId));
+        assert.ok(workerProxy?.id);
+        return {
+            success: true,
+            profileNo: "1",
+            commentId: "ok",
+            cleanupErrors: [],
+        };
+    },
+});
+assert.equal(limited.report.concurrency, 2);
+assert.equal(limited.report.published.length, 2);
+
+const skippedProxy = await runParallelCommentingScenario({
+    adsPower: { getProfilesByGroupId: async () => profiles },
+    groupIds: ["group-1"],
+    comments: [{
+        id: "skip-1",
+        parent_id: null,
+        text: "root",
+        gender: "male",
+        should_write: true,
+        profile_key: null,
+    }],
+    geo: "HU",
+    creativeName: "skip-proxy-test",
+    postUrl: "https://www.facebook.com/test/posts/1",
+    concurrency: 1,
+    workerProxies: {
+        1: { id: "proxy-001", type: "socks5", host: "a.example.com", port: "1" },
+    },
+    getGender: (profile) => profile?.gender ?? null,
+    logger: { info() {}, warn() {}, error() {}, debug() {} },
+    executeComment: async () => ({
+        success: false,
+        skippedDueToProxy: true,
+        error: "Коментар пропущено через проксі воркера",
+        cleanupErrors: [],
+    }),
+});
+assert.equal(skippedProxy.report.published.length, 0);
+assert.equal(skippedProxy.report.failedComments.length, 0);
+assert.equal(skippedProxy.report.skipped.length, 1);
+
+const emptyWorkers = await runParallelCommentingScenario({
+    adsPower: { getProfilesByGroupId: async () => profiles },
+    groupIds: ["group-1"],
+    comments: comments.slice(0, 1),
+    geo: "HU",
+    creativeName: "empty-workers",
+    postUrl: "https://www.facebook.com/test/posts/1",
+    workerProxies: {},
+    getGender: (profile) => profile?.gender ?? null,
+    logger: { info() {}, warn() {}, error() {}, debug() {} },
+    executeComment: async () => ({ success: true, cleanupErrors: [] }),
+});
+assert.match(emptyWorkers.report.fatalError, /призначеною проксі/);
+
 console.log("Mock-перевірка паралельного коментування пройшла успішно");

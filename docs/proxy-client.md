@@ -11,17 +11,26 @@
   "proxies": [
     {
       "id": "proxy-001",
+      "adsPowerId": 14,
+      "name": "Київ",
       "type": "socks5",
       "host": "proxy.example.com",
       "port": "10000",
       "username": "REPLACE_WITH_USERNAME",
-      "password": "REPLACE_WITH_PASSWORD"
+      "password": "REPLACE_WITH_PASSWORD",
+      "refreshUrl": "https://provider.example/changeip/token"
     }
   ]
 }
 ```
 
-Підтримуються `socks5`, `http` та `https`. `id`, `type`, `host` і `port` обов'язкові; `username` і `password` можуть бути порожніми. ID не повинні дублюватися.
+Підтримуються `socks5`, `http`, `https` та `no_proxy`. Для робочої проксі `id`, `type`, `host` і `port` обов'язкові; `adsPowerId`, `name`, `username`, `password` і `refreshUrl` необов'язкові. `id` унікальний і створюється автоматично. `name` може повторюватися. `adsPowerId` якщо вказаний має бути цілим числом. Записи `no_proxy` не потрапляють у пул Graph API.
+
+У формі GUI можна вставити рядок AdsPower на кшталт `socks5://host:port:login:password[https://provider.example/changeip/token]`. Кнопка «ОК» розбирає його в окремі поля.
+
+`refreshUrl` — пряме посилання провайдера на зміну IP, як `proxy_url` в AdsPower. GUI надсилає GET на це посилання і чекає, поки проксі знову відповість, не довше 90 секунд. Під час коментування очікування після рефрешу обмежене 60 секундами. Логін, пароль і `refreshUrl` у renderer не повертаються.
+
+Порядок записів у `proxies.json` можна змінювати перетягуванням карток. Graph API за замовчуванням бере найвищу проксі в списку, крім `no_proxy`. Failover далі йде вниз по цьому ж порядку.
 
 ## Алгоритм failover
 

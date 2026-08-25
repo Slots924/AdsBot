@@ -82,6 +82,8 @@ export default async function runParallelCommentingScenario({
     browserMode = "visible",
     disableImages = false,
     concurrency = 5,
+    workerProxies = null,
+    onProxyUnavailable = null,
     logger,
     signal,
     onProgress,
@@ -89,6 +91,17 @@ export default async function runParallelCommentingScenario({
     getGender = getProfileGender,
 } = {}) {
     const workerLimit = normalizeConcurrency(concurrency);
+    const workerProxyMap = workerProxies && typeof workerProxies === "object"
+        ? new Map(Object.entries(workerProxies)
+            .map(([workerId, proxy]) => [Number(workerId), proxy])
+            .filter(([workerId, proxy]) => (
+                Number.isInteger(workerId)
+                && workerId >= 1
+                && workerId <= workerLimit
+                && proxy
+                && String(proxy.type ?? "").toLowerCase() !== "no_proxy"
+            )))
+        : null;
     const scenarioLogger = createScenarioLogger(logger);
     const report = {
         ...createReport({
@@ -100,7 +113,7 @@ export default async function runParallelCommentingScenario({
             disableImages,
         }),
         mode: "parallel",
-        concurrency: workerLimit,
+        concurrency: workerProxyMap ? workerProxyMap.size : workerLimit,
         interrupted: false,
         totalComments: Array.isArray(comments) ? comments.length : 0,
         maximumParallelism: 0,
@@ -129,7 +142,7 @@ export default async function runParallelCommentingScenario({
             failedComments: report.failedComments.length,
             failedProfiles: report.failedProfiles.length,
             activeWorkers: activeAttempts,
-            concurrency: workerLimit,
+            concurrency: report.concurrency,
             ...payload,
         };
         const invoke = () => onProgress(event);
@@ -328,6 +341,17 @@ export default async function runParallelCommentingScenario({
                         parentComment,
                         browserMode: report.browserMode,
                         disableImages: report.disableImages,
+                        workerId,
+                        workerProxy: workerProxyMap?.get(workerId) ?? null,
+                        onProxyUnavailable: workerProxyMap && typeof onProxyUnavailable === "function"
+                            ? async (info) => {
+                                const action = await onProxyUnavailable(info);
+                                if (action?.type === "replace" && action.proxy) {
+                                    workerProxyMap.set(Number(info.workerId), action.proxy);
+                                }
+                                return action;
+                            }
+                            : null,
                         logger: logger?.child?.("comment", {
                             commentId: comment.id,
                             profileNo,
@@ -336,6 +360,9 @@ export default async function runParallelCommentingScenario({
                         signal,
                     });
                     saveCleanupWarnings(result);
+                    if (result.skippedDueToProxy) {
+                        return result;
+                    }
                     if (!result.success && !result.aborted) {
                         report.failedProfiles.push({
                             profileNo,
@@ -371,6 +398,14 @@ export default async function runParallelCommentingScenario({
                 }
                 const result = await executeAttempt(profile, comment, parentComment, workerId);
                 if (result.aborted) throw createAbortError();
+                if (result.skippedDueToProxy) {
+                    return {
+                        published: false,
+                        skippedDueToProxy: true,
+                        attempts: 1,
+                        reason: result.error || "Коментар пропущено через проксі воркера",
+                    };
+                }
                 if (result.success) return { published: true, attempts: 1, profile };
                 brokenProfileKeys.add(comment.profile_key);
                 return {
@@ -389,6 +424,14 @@ export default async function runParallelCommentingScenario({
                 attempts += 1;
                 const result = await executeAttempt(profile, comment, parentComment, workerId);
                 if (result.aborted) throw createAbortError();
+                if (result.skippedDueToProxy) {
+                    return {
+                        published: false,
+                        skippedDueToProxy: true,
+                        attempts,
+                        reason: result.error || "Коментар пропущено через проксі воркера",
+                    };
+                }
                 if (result.success) {
                     if (comment.profile_key) {
                         profileKeyMap.set(comment.profile_key, String(profile.profile_no));
@@ -419,7 +462,20 @@ export default async function runParallelCommentingScenario({
                 ? await profileKeyMutex.run(comment.profile_key, execute)
                 : await execute();
 
-            if (!outcome.published) {
+            if (outcome.skippedDueToProxy) {
+                if (!terminalIds.has(comment.id)) {
+                    terminalIds.add(comment.id);
+                    report.skipped.push({
+                        commentId: comment.id,
+                        reason: outcome.reason,
+                        text: comment.text,
+                    });
+                }
+                skipDescendants(
+                    comment.id,
+                    `Батьківський коментар ${comment.id} не опубліковано`
+                );
+            } else if (!outcome.published) {
                 recordFailure(comment, outcome.reason, outcome.attempts);
                 skipDescendants(
                     comment.id,
@@ -456,7 +512,12 @@ export default async function runParallelCommentingScenario({
             runnable: runnable.size,
             concurrency: workerLimit,
         });
-        const freeWorkerIds = Array.from({ length: workerLimit }, (_, index) => index + 1);
+        if (workerProxyMap && workerProxyMap.size === 0) {
+            throw new Error("Немає воркерів із призначеною проксі");
+        }
+        const freeWorkerIds = workerProxyMap
+            ? [...workerProxyMap.keys()].sort((left, right) => left - right)
+            : Array.from({ length: workerLimit }, (_, index) => index + 1);
         while ((ready.length || runningOperations.size) && !signal?.aborted) {
             while (ready.length && freeWorkerIds.length && !signal?.aborted) {
                 const comment = ready.shift();

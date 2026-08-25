@@ -8,6 +8,7 @@ const defaultState = {
     uiScale: 1.3,
     createCampaignsPaused: true,
     commentWorkerConcurrency: 5,
+    commentWorkerProxyIds: {},
     commentBrowserMode: "visible",
     commentDisableImages: false,
     logLevel: "info",
@@ -30,6 +31,17 @@ function stringsFrom(source, fields) {
 }
 
 
+function normalizeCommentWorkerProxyIds(value) {
+    const result = {};
+    if (!value || typeof value !== "object" || Array.isArray(value)) return result;
+    for (let worker = 1; worker <= 5; worker += 1) {
+        const proxyId = String(value[worker] ?? value[String(worker)] ?? "").trim();
+        if (proxyId) result[String(worker)] = proxyId;
+    }
+    return result;
+}
+
+
 function normalizeState(state = {}) {
     const legacyTab = ["publish", "comments"].includes(state.activeTab) ? "pages" : state.activeTab;
     const allowedTabs = new Set(["accounts", "ads", "pages", "journal"]);
@@ -47,6 +59,7 @@ function normalizeState(state = {}) {
         commentWorkerConcurrency: Number.isFinite(Number(state.commentWorkerConcurrency))
             ? Math.min(5, Math.max(1, Math.round(Number(state.commentWorkerConcurrency))))
             : defaultState.commentWorkerConcurrency,
+        commentWorkerProxyIds: normalizeCommentWorkerProxyIds(state.commentWorkerProxyIds),
         commentBrowserMode: allowedCommentBrowserModes.has(state.commentBrowserMode)
             ? state.commentBrowserMode
             : defaultState.commentBrowserMode,
@@ -119,4 +132,4 @@ export default class AppStateStore {
 }
 
 
-export { defaultState, normalizeState };
+export { defaultState, normalizeCommentWorkerProxyIds, normalizeState };

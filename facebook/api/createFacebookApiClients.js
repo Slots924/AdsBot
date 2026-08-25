@@ -109,7 +109,9 @@ export default async function createFacebookApiClients({
         accountsConfig?.accounts?.filter((account) => account?.archived !== true)
     );
     const proxyHttpClient = new ProxyHttpClient({
-        proxies: proxiesConfig?.proxies,
+        proxies: (proxiesConfig?.proxies ?? []).filter((proxy) => (
+            String(proxy?.type ?? "").trim().toLowerCase() !== "no_proxy"
+        )),
         ...(httpClient ? { httpClient } : {}),
         ...(checkProxyFn ? { checkProxyFn } : {}),
     });

@@ -7,6 +7,8 @@ import setRandomPostReaction from "../../facebook/actions/setRandomPostReaction.
 import isPostAvailable from "../../facebook/post/checks/isPostAvailable.js";
 import commentOnPost from "../../facebook/workflows/commentOnPost.js";
 import replyToComment from "../../facebook/workflows/replyToComment.js";
+import ensureWorkerProxyReady from "../../services/proxy/ensureWorkerProxyReady.js";
+import toAdsPowerProxyConfig from "../../services/proxy/toAdsPowerProxyConfig.js";
 import ensureAdsPowerProfileReady from "../profile/ensureAdsPowerProfileReady.js";
 import ensureFacebookAccountActive from "../profile/ensureFacebookAccountActive.js";
 import ensureFacebookAccountLoggedIn from "../profile/ensureFacebookAccountLoggedIn.js";
@@ -20,6 +22,9 @@ export default async function executeCommentWithProfile({
     parentComment = null,
     browserMode = "visible",
     disableImages = false,
+    workerId = null,
+    workerProxy = null,
+    onProxyUnavailable = null,
     logger = console,
     signal,
 }) {
@@ -39,6 +44,8 @@ export default async function executeCommentWithProfile({
     let browser;
     let profileOpened = false;
     let abortCleanupPromise = null;
+    let originalProxyConfig = null;
+    let proxyApplied = false;
     const createAbortError = () => Object.assign(
         new Error("Виконання коментаря перервано"),
         { name: "AbortError", code: "COMMENTING_ABORTED" }
@@ -67,6 +74,19 @@ export default async function executeCommentWithProfile({
                 );
             }
         }
+        if (proxyApplied && originalProxyConfig && profile?.profile_id) {
+            proxyApplied = false;
+            try {
+                await adsPower.updateProfileProxy(
+                    profile.profile_id,
+                    originalProxyConfig
+                );
+            } catch (error) {
+                result.cleanupErrors.push(
+                    `AdsPower restore proxy: ${error.message}`
+                );
+            }
+        }
     };
     const handleAbort = () => {
         abortCleanupPromise ??= stopOpenedProfile();
@@ -76,10 +96,65 @@ export default async function executeCommentWithProfile({
 
     try {
         assertNotAborted();
+        let activeProfile = profile;
+        let currentProxy = workerProxy;
+
+        if (currentProxy) {
+            if (!profile?.profile_id) {
+                throw new Error("У профілю відсутній profile_id");
+            }
+
+            while (true) {
+                assertNotAborted();
+                result.stage = "REFRESH_PROXY";
+                const ready = await ensureWorkerProxyReady(currentProxy, {
+                    timeoutMs: 60000,
+                    signal,
+                });
+                if (ready.working) break;
+
+                if (typeof onProxyUnavailable !== "function") {
+                    result.skippedDueToProxy = true;
+                    result.error = "Проксі воркера недоступна";
+                    return result;
+                }
+
+                const action = await onProxyUnavailable({
+                    workerId,
+                    commentId: String(comment.id),
+                    proxy: currentProxy,
+                });
+                if (action?.type === "replace" && action.proxy) {
+                    currentProxy = action.proxy;
+                    continue;
+                }
+
+                result.skippedDueToProxy = true;
+                result.error = "Коментар пропущено через проксі воркера";
+                return result;
+            }
+
+            assertNotAborted();
+            result.stage = "APPLY_PROXY";
+            originalProxyConfig = profile.user_proxy_config
+                ? structuredClone(profile.user_proxy_config)
+                : { proxy_soft: "no_proxy", proxy_type: "no_proxy" };
+            const appliedConfig = toAdsPowerProxyConfig(currentProxy);
+            proxyApplied = true;
+            await adsPower.updateProfileProxy(
+                profile.profile_id,
+                appliedConfig
+            );
+            activeProfile = {
+                ...profile,
+                user_proxy_config: appliedConfig,
+            };
+        }
+
         const adsPowerReady =
             await ensureAdsPowerProfileReady(
                 adsPower,
-                profile
+                activeProfile
             );
 
         if (!adsPowerReady) {

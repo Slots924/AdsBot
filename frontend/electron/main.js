@@ -28,6 +28,7 @@ import TaskReportManager from "../../services/reports/TaskReportManager.js";
 import { configureRuntimeLogger } from "../../services/logging/runtimeLogger.js";
 import FacebookAccountManager
     from "../../facebook/accounts/FacebookAccountManager.js";
+import ProxyManager from "../../services/proxy/ProxyManager.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
 
@@ -148,6 +149,9 @@ async function createWindow() {
     facebookAccountManager = new FacebookAccountManager({
         accountsFile: appPaths.accounts,
     });
+    const proxyManager = new ProxyManager({
+        proxiesFile: appPaths.proxies,
+    });
     guiService = await AdsBotGuiService.create({
         facebookBackendOptions: {
             facebookApiClientsOptions: {
@@ -210,6 +214,7 @@ async function createWindow() {
         campaignCreationJournal,
         backgroundTaskManager,
         facebookAccountManager,
+        proxyManager,
         logger: appLogger,
         reportManager: taskReportManager,
         getWindow: () => mainWindow,

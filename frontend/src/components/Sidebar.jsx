@@ -121,12 +121,12 @@ export default function Sidebar({
     };
 
     return (
-        <aside className={`sidebar ${standalone ? "accounts-tab-sidebar" : ""}`}>
-            <div className="brand"><div className="brand-mark"><Bot size={22} /></div><div><strong>AdsBot</strong><span>Control center</span></div></div>
+        <aside className={`sidebar ${standalone ? "accounts-tab-sidebar resource-strip" : ""}`}>
+            {!standalone && <div className="brand"><div className="brand-mark"><Bot size={22} /></div><div><strong>AdsBot</strong><span>Control center</span></div></div>}
             <div className="sidebar-title-row">
-                <div><span className="eyebrow">Facebook</span><h2>Акаунти</h2></div>
+                <div><span className="eyebrow">Facebook</span><h2>{standalone ? "API-клієнти" : "Акаунти"}</h2></div>
                 <div className="sidebar-account-tools">
-                    <button className="icon-button" onClick={() => setEditor({ mode: "create" })} title="Додати акаунт"><Plus size={17} /></button>
+                    {!standalone && <button className="icon-button" onClick={() => setEditor({ mode: "create" })} title="Додати акаунт"><Plus size={17} /></button>}
                     <button className="icon-button" onClick={onRefresh} disabled={loading} title="Оновити акаунти"><RefreshCw className={loading ? "spin" : ""} size={17} /></button>
                 </div>
             </div>
@@ -151,12 +151,25 @@ export default function Sidebar({
                         </motion.div>
                     ))}
             </div>
-            <div className="sidebar-legend">
-                <span><i className="status-dot active" /> Активний</span>
-                <span><i className="status-dot inactive" /> Неактивний</span>
-                <span><i className="status-dot error" /> Помилка перевірки</span>
-                <span><i className="status-dot archived" /> В архіві</span>
-            </div>
+            {standalone && (
+                <button
+                    type="button"
+                    className="strip-add-button"
+                    title="Додати акаунт"
+                    onClick={() => setEditor({ mode: "create" })}
+                >
+                    <Plus size={18} />
+                    <span>Додати API-клієнта</span>
+                </button>
+            )}
+            {!standalone && (
+                <div className="sidebar-legend">
+                    <span><i className="status-dot active" /> Активний</span>
+                    <span><i className="status-dot inactive" /> Неактивний</span>
+                    <span><i className="status-dot error" /> Помилка перевірки</span>
+                    <span><i className="status-dot archived" /> В архіві</span>
+                </div>
+            )}
             {editor && <AccountEditor editor={editor} onClose={() => setEditor(null)} onSave={saveAccount} onError={onError} />}
         </aside>
     );

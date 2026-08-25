@@ -1,3 +1,7 @@
+import checkProxy from "../../services/proxy/checkProxy.js";
+import refreshProxyIp from "../../services/proxy/refreshProxyIp.js";
+
+
 function safeMessage(value) {
     return String(value || "Невідома помилка")
         .replace(/EAA[A-Za-z0-9_-]+/g, "[REDACTED]")
@@ -19,6 +23,57 @@ function serializeError(error) {
         itemIndex: error?.itemIndex ?? null,
         createdObjects: error?.createdObjects ?? null,
         jobId: error?.jobId ?? null,
+    };
+}
+
+
+async function resolveWorkerProxies(proxyManager, proxyIdsByWorker = {}) {
+    const result = {};
+    for (const [workerId, proxyId] of Object.entries(proxyIdsByWorker ?? {})) {
+        const id = Number(workerId);
+        if (!Number.isInteger(id) || id < 1 || id > 5) continue;
+        try {
+            const proxy = await proxyManager.getById(proxyId);
+            if (String(proxy?.type ?? "").toLowerCase() === "no_proxy") continue;
+            result[id] = proxy;
+        } catch {
+            // Проксі вже немає — такого воркера для коментування теж немає
+        }
+    }
+    return result;
+}
+
+
+function createProxyUnavailableHandler({
+    proxyManager,
+    progress,
+    waitForAction,
+}) {
+    let alerts = [];
+    return async ({ workerId, commentId, proxy }) => {
+        const alert = {
+            workerId,
+            commentId,
+            proxyId: proxy?.id ?? null,
+            proxyName: proxy?.name || proxy?.id || "",
+            message: `Воркер ${workerId}: проксі не працює`,
+        };
+        alerts = [...alerts.filter((item) => item.workerId !== workerId), alert];
+        await progress({
+            message: alert.message,
+            workerProxyAlerts: alerts,
+        });
+        try {
+            const action = await waitForAction(`comment-proxy:${workerId}`);
+            if (action?.type === "replace" && action.proxyId) {
+                const next = await proxyManager.getById(action.proxyId);
+                return { type: "replace", proxy: next };
+            }
+            return { type: "skip" };
+        } finally {
+            alerts = alerts.filter((item) => item.workerId !== workerId);
+            await progress({ workerProxyAlerts: alerts });
+        }
     };
 }
 
@@ -58,6 +113,9 @@ export default function registerIpcHandlers({
     campaignCreationJournal,
     backgroundTaskManager,
     facebookAccountManager,
+    proxyManager,
+    checkProxyFn = checkProxy,
+    refreshProxyIpFn = refreshProxyIp,
     logger,
     reportManager,
     getWindow,
@@ -207,6 +265,18 @@ export default function registerIpcHandlers({
     const refreshManagedAccounts = async () => mergeAccountStates(
         await guiService.refreshAccounts()
     );
+    const refreshClientsAfterProxyChange = async () => {
+        try {
+            await refreshManagedAccounts();
+        } catch (error) {
+            logger?.warn(
+                "proxies.clients-refresh-failed",
+                "Не вдалося перечитати Facebook-клієнти після зміни проксі",
+                { error }
+            );
+        }
+    };
+    const listProxies = async () => proxyManager.list();
     const sendCampaignProgress = (payload) => {
         const window = getWindow();
         if (window && !window.isDestroyed?.()) {
@@ -390,7 +460,7 @@ export default function registerIpcHandlers({
             resources: [{ key: "global-workflow", label: "глобальна черга" }],
             input: { workflowJobId: launchJob.id },
             metadata: { workflowJobId: launchJob.id, accountKey: launchJob.draft.accountKey, pageId: launchJob.draft.pageId },
-            runner: async ({ signal, progress }) => {
+            runner: async ({ signal, progress, waitForAction }) => {
                 let job = await creativeLaunchJournal.update(launchJob.id, { status: "running", errors: [] });
                 const draft = job.draft;
                 const setSubtask = async (id, patch) => {
@@ -506,13 +576,31 @@ export default function registerIpcHandlers({
                     const commentsBranch = async () => {
                         await setSubtask("comments", { status: "running", message: "Запускаємо паралельні коментарі" });
                         try {
+                            const workerProxies = await resolveWorkerProxies(
+                                proxyManager,
+                                draft.commentWorkerProxyIds
+                            );
                             const response = await guiService.runParallelComments({
                                 groupIds: draft.groupIds, comments: prepared.comments,
                                 geo: draft.geo, creativeName: draft.creativeName,
                                 postUrl: post.permalinkUrl, browserMode: draft.browserMode,
                                 disableImages: draft.disableImages, concurrency: draft.commentWorkerConcurrency,
+                                workerProxies,
+                                onProxyUnavailable: createProxyUnavailableHandler({
+                                    proxyManager,
+                                    progress,
+                                    waitForAction,
+                                }),
                                 signal,
-                                onProgress: (item) => setSubtask("comments", { status: "running", message: item.message, progress: item }),
+                                onProgress: async (item) => {
+                                    await setSubtask("comments", { status: "running", message: item.message, progress: item });
+                                    if (item.workerProxyAlerts) {
+                                        await progress({
+                                            message: item.message,
+                                            workerProxyAlerts: item.workerProxyAlerts,
+                                        });
+                                    }
+                                },
                             });
                             const report = response.report;
                             const warned = report.failedComments.length || report.skipped.length || report.cleanupWarnings.length;
@@ -576,6 +664,106 @@ export default function registerIpcHandlers({
         safeHandler(async ({ accountKey, archived }) => {
             await facebookAccountManager.setArchived(accountKey, archived);
             return refreshManagedAccounts();
+        })
+    );
+    ipcMain.handle("proxies:list", safeHandler(listProxies));
+    ipcMain.handle(
+        "proxies:get",
+        safeHandler(async ({ proxyId }) => proxyManager.getById(proxyId))
+    );
+    ipcMain.handle(
+        "proxies:create",
+        safeHandler(async (payload) => {
+            await proxyManager.create(payload);
+            await refreshClientsAfterProxyChange();
+            return listProxies();
+        })
+    );
+    ipcMain.handle(
+        "proxies:update",
+        safeHandler(async ({ proxyId, ...patch }) => {
+            await proxyManager.update(proxyId, patch);
+            await refreshClientsAfterProxyChange();
+            return listProxies();
+        })
+    );
+    ipcMain.handle(
+        "proxies:delete",
+        safeHandler(async ({ proxyId }) => {
+            await proxyManager.remove(proxyId);
+            await refreshClientsAfterProxyChange();
+            return listProxies();
+        })
+    );
+    ipcMain.handle(
+        "proxies:reorder",
+        safeHandler(async ({ orderedIds }) => {
+            await proxyManager.reorder(orderedIds);
+            await refreshClientsAfterProxyChange();
+            return listProxies();
+        })
+    );
+    ipcMain.handle(
+        "proxies:check",
+        safeHandler(async ({ proxyId }) => {
+            const proxy = await proxyManager.getById(proxyId);
+            const result = await checkProxyFn(proxy);
+            return {
+                proxyId: proxy.id,
+                working: Boolean(result?.working),
+                ip: result?.working ? result.ip ?? null : null,
+                error: result?.working ? null : result?.error ?? null,
+            };
+        })
+    );
+    ipcMain.handle(
+        "proxies:check-config",
+        safeHandler(async ({
+            proxyId,
+            type,
+            host,
+            port,
+            username,
+            password,
+        }) => {
+            const stored = proxyId
+                ? await proxyManager.getById(proxyId)
+                : null;
+            const proxy = {
+                type: String(type ?? stored?.type ?? "").trim().toLowerCase(),
+                host: String(host ?? "").trim() || stored?.host || "",
+                port: String(port ?? "").trim() || stored?.port || "",
+                username: String(username ?? "").length
+                    ? username
+                    : stored?.username || "",
+                password: String(password ?? "").length
+                    ? password
+                    : stored?.password || "",
+            };
+            if (proxy.type === "no_proxy") {
+                const error = new Error("Для режиму без проксі перевірка не потрібна");
+                error.code = "PROXY_CHECK_NOT_NEEDED";
+                throw error;
+            }
+            const result = await checkProxyFn(proxy);
+            return {
+                working: Boolean(result?.working),
+                ip: result?.working ? result.ip ?? null : null,
+                error: result?.working ? null : result?.error ?? null,
+            };
+        })
+    );
+    ipcMain.handle(
+        "proxies:refresh-ip",
+        safeHandler(async ({ proxyId }) => {
+            const proxy = await proxyManager.getById(proxyId);
+            const result = await refreshProxyIpFn(proxy);
+            return {
+                proxyId: proxy.id,
+                working: Boolean(result?.working),
+                timedOut: Boolean(result?.timedOut),
+                ip: result?.working ? result.ip ?? null : null,
+            };
         })
     );
     ipcMain.handle(
@@ -1148,6 +1336,7 @@ export default function registerIpcHandlers({
                     postUrl: payload.postUrl,
                     browserMode,
                     disableImages,
+                    commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
                 },
                 metadata: {
                     groupIds,
@@ -1155,13 +1344,23 @@ export default function registerIpcHandlers({
                     browserMode,
                     disableImages,
                 },
-                runner: async ({ signal, progress }) => {
+                runner: async ({ signal, progress, waitForAction }) => {
+                    const workerProxies = await resolveWorkerProxies(
+                        proxyManager,
+                        payload.commentWorkerProxyIds
+                    );
                     const summary = await guiService.runParallelCommentingCampaign({
                         ...payload,
                         groupIds,
                         browserMode,
                         disableImages,
                         concurrency: payload.commentWorkerConcurrency,
+                        workerProxies,
+                        onProxyUnavailable: createProxyUnavailableHandler({
+                            proxyManager,
+                            progress,
+                            waitForAction,
+                        }),
                         signal,
                         onProgress: progress,
                     });
@@ -1208,6 +1407,12 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "tasks:comment-concurrency-set",
         safeHandler(({ value }) => backgroundTaskManager.setCommentConcurrency(value))
+    );
+    ipcMain.handle(
+        "tasks:resolve-action",
+        safeHandler(({ taskId, actionKey, payload }) => (
+            backgroundTaskManager.resolveAction(taskId, actionKey, payload)
+        ))
     );
     ipcMain.handle(
         "logs:list",

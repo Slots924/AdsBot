@@ -452,11 +452,13 @@ export default class AdsBotGuiService {
     async runParallelComments({
         groupIds, comments, geo, creativeName, postUrl,
         browserMode = "visible", disableImages = false,
-        concurrency = 5, signal, onProgress,
+        concurrency = 5, workerProxies = null, onProxyUnavailable = null,
+        signal, onProgress,
     }) {
         return this.#runParallelCommentingScenario({
             adsPower: this.adsPower, groupIds, comments, geo, creativeName, postUrl,
-            browserMode, disableImages, concurrency, signal, onProgress,
+            browserMode, disableImages, concurrency, workerProxies, onProxyUnavailable,
+            signal, onProgress,
             logger: this.logger,
         });
     }

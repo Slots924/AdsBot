@@ -534,6 +534,50 @@ class AdsPower {
             );
         }
     }
+
+
+    // Ставить проксі на AdsPower-профіль
+    async updateProfileProxy(profileId, userProxyConfig) {
+        const normalizedProfileId = String(profileId ?? "").trim();
+
+        if (!normalizedProfileId) {
+            throw new Error("Не вказано profile_id AdsPower-профілю");
+        }
+
+        if (!userProxyConfig || typeof userProxyConfig !== "object") {
+            throw new Error("Не передано налаштування проксі AdsPower-профілю");
+        }
+
+        const url =
+            `${this.apiUrl}/api/v2/browser-profile/update`;
+
+        try {
+            const response = await this.request(
+                "post",
+                url,
+                {
+                    profile_id: normalizedProfileId,
+                    user_proxy_config: userProxyConfig,
+                }
+            );
+            const result = response.data;
+
+            if (result.code !== 0) {
+                throw new Error(result.msg);
+            }
+
+            return result.data ?? result;
+        } catch (error) {
+            const message =
+                error.response?.data?.msg
+                || error.message
+                || "Невідома помилка";
+
+            throw new Error(
+                `Не вдалося оновити проксі AdsPower-профілю ${normalizedProfileId}: ${message}`
+            );
+        }
+    }
 }
 
 

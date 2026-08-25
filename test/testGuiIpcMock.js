@@ -111,6 +111,36 @@ const facebookAccountManager = {
     async update() {},
     async setArchived() {},
 };
+const proxyManager = {
+    async list() {
+        return [{
+            id: "proxy-001",
+            adsPowerId: 14,
+            name: "Київ",
+            type: "socks5",
+            host: "proxy.example.com",
+            port: "10000",
+            hasUsername: true,
+            hasPassword: true,
+            hasRefreshUrl: true,
+        }];
+    },
+    async create() {},
+    async update() {},
+    async remove() {},
+    async reorder() {
+        return this.list();
+    },
+    async getById() {
+        return {
+            id: "proxy-001",
+            type: "socks5",
+            host: "proxy.example.com",
+            port: "10000",
+            refreshUrl: "https://provider.example/changeip/token",
+        };
+    },
+};
 let storedJob = null;
 const backgroundTasks = [];
 const enqueuedOptions = [];
@@ -286,6 +316,13 @@ registerIpcHandlers({
     campaignCreationJournal,
     backgroundTaskManager,
     facebookAccountManager,
+    proxyManager,
+    checkProxyFn: async () => ({ working: true, ip: "203.0.113.10" }),
+    refreshProxyIpFn: async () => ({
+        working: true,
+        timedOut: false,
+        ip: "203.0.113.10",
+    }),
     logger,
     reportManager,
     getWindow: () => ({
@@ -301,6 +338,52 @@ registerIpcHandlers({
     }),
 });
 
+assert.deepEqual(
+    await handlers.get("proxies:list")({}, {}),
+    {
+        ok: true,
+        data: [{
+            id: "proxy-001",
+            adsPowerId: 14,
+            name: "Київ",
+            type: "socks5",
+            host: "proxy.example.com",
+            port: "10000",
+            hasUsername: true,
+            hasPassword: true,
+            hasRefreshUrl: true,
+        }],
+    }
+);
+assert.deepEqual(
+    await handlers.get("proxies:check-config")({}, {
+        type: "socks5",
+        host: "proxy.example.com",
+        port: "10000",
+        username: "demo-user",
+        password: "demo-pass",
+    }),
+    {
+        ok: true,
+        data: {
+            working: true,
+            ip: "203.0.113.10",
+            error: null,
+        },
+    }
+);
+assert.deepEqual(
+    await handlers.get("proxies:check")({}, { proxyId: "proxy-001" }),
+    {
+        ok: true,
+        data: {
+            proxyId: "proxy-001",
+            working: true,
+            ip: "203.0.113.10",
+            error: null,
+        },
+    }
+);
 assert.deepEqual(
     await handlers.get("accounts:list")({}, {}),
     {

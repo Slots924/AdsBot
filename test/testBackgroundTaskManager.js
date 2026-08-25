@@ -122,6 +122,31 @@ try {
     await waitUntil(() => publicationStarted.length === 2);
     await waitUntil(async () => !(await manager.hasUnfinished()));
 
+    let waitedPayload = null;
+    const waitingTask = await manager.enqueue({
+        type: "comments",
+        name: "Waiting proxy",
+        resources: [{ key: "adspower-group:wait" }],
+        runner: async ({ waitForAction }) => {
+            waitedPayload = await waitForAction("comment-proxy:2");
+            return { result: { waited: true } };
+        },
+    });
+    await waitUntil(async () => {
+        const current = (await manager.list()).find((task) => task.id === waitingTask.id);
+        if (current?.status !== "running") return false;
+        try {
+            await manager.resolveAction(waitingTask.id, "comment-proxy:2", {
+                type: "skip",
+            });
+            return true;
+        } catch {
+            return false;
+        }
+    });
+    await waitUntil(async () => !(await manager.hasUnfinished()));
+    assert.deepEqual(waitedPayload, { type: "skip" });
+
     const orphan = await journal.create({ type: "comments", name: "Orphan" });
     const restoredJournal = new BackgroundTaskJournal({ tasksFile });
     await restoredJournal.initialize();
