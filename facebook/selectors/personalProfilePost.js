@@ -38,6 +38,10 @@ export const personalProfilePublishPostButtonSelector =
 export const personalProfileFirstFeedPostSelector =
     '[aria-posinset="1"]';
 
-/** Перше службове посилання дати в першій картці стрічки. */
+/** Службове посилання дати з маскою __cft__ у першій картці. */
 export const personalProfileFirstFeedPostCftLinkSelector =
     `${personalProfileFirstFeedPostSelector} a[href*="?__cft__[0]="]`;
+
+/** Permalink дати в першій картці, якщо Facebook не маскує href. */
+export const personalProfileFirstFeedPostPermalinkLinkSelector =
+    `${personalProfileFirstFeedPostSelector} a[href*="/permalink.php"]`;

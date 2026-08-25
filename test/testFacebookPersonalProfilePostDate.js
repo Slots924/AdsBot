@@ -7,6 +7,7 @@ import changeFacebookPersonalProfilePostDate, {
 import openFacebookPersonalProfileFirstFeedPost, {
     extractFacebookFeedPostId,
     facebookPersonalProfileFirstFeedPostStatuses,
+    isFeedFingerprintChanged,
     normalizeFacebookFeedPostUrl,
     readFirstFeedPostFingerprint,
 } from "../facebook/actions/openFacebookPersonalProfileFirstFeedPost.js";
@@ -16,6 +17,7 @@ import publishFacebookPersonalProfileMediaPostsWithDates, {
 import isPostAvailable from "../facebook/post/checks/isPostAvailable.js";
 import {
     personalProfileFirstFeedPostCftLinkSelector,
+    personalProfileFirstFeedPostPermalinkLinkSelector,
     personalProfileFirstFeedPostSelector,
 } from "../facebook/selectors/personalProfilePost.js";
 import { postDialogSelector } from "../facebook/selectors/post.js";
@@ -133,7 +135,10 @@ const timingOptions = {
 };
 
 function createFeedPage({
-    fingerprint = "https://www.facebook.com/photo/?fbid=111&__cft__[0]=abc",
+    fingerprint = {
+        cft: "https://www.facebook.com/photo/?fbid=111&__cft__[0]=abc",
+        permalink: null,
+    },
     openDialog = true,
     pageUrlAfterClick = "https://www.facebook.com/me",
     dialogPermalink = "https://www.facebook.com/photo/?fbid=111&__cft__[0]=abc",
@@ -175,9 +180,13 @@ function createFeedPage({
             return state.fingerprint;
         },
         async evaluateHandle(_callback, selector) {
-            const available = selector
-                === personalProfileFirstFeedPostCftLinkSelector
-                && Boolean(state.fingerprint);
+            const available = (
+                selector === personalProfileFirstFeedPostCftLinkSelector
+                && Boolean(state.fingerprint?.cft)
+            ) || (
+                selector === personalProfileFirstFeedPostPermalinkLinkSelector
+                && Boolean(state.fingerprint?.permalink)
+            );
             return createHandle(available);
         },
         async waitForFunction(callback, _options, ...args) {
@@ -194,8 +203,14 @@ function createFeedPage({
                 return createHandle();
             }
             if (firstArg === personalProfileFirstFeedPostCftLinkSelector) {
-                if (!state.fingerprint) {
+                if (!state.fingerprint?.cft) {
                     throw new Error("cft timeout");
+                }
+                return createHandle();
+            }
+            if (firstArg === personalProfileFirstFeedPostPermalinkLinkSelector) {
+                if (!state.fingerprint?.permalink) {
+                    throw new Error("permalink timeout");
                 }
                 return createHandle();
             }
@@ -233,8 +248,33 @@ function createFeedPage({
     };
 }
 
+assert.equal(
+    isFeedFingerprintChanged(
+        { cft: null, permalink: null },
+        { cft: "https://facebook.com/x?__cft__[0]=1", permalink: null }
+    ),
+    true
+);
+assert.equal(
+    isFeedFingerprintChanged(
+        { cft: "old", permalink: null },
+        { cft: "old", permalink: "https://www.facebook.com/permalink.php?story_fbid=1" }
+    ),
+    true
+);
+assert.equal(
+    isFeedFingerprintChanged(
+        { cft: "same", permalink: "same" },
+        { cft: "same", permalink: "same" }
+    ),
+    false
+);
+
 const missingCardPage = createFeedPage({ fingerprint: null });
-assert.equal(await readFirstFeedPostFingerprint(missingCardPage), null);
+assert.deepEqual(
+    await readFirstFeedPostFingerprint(missingCardPage),
+    { cft: null, permalink: null }
+);
 const missingCardResult = await openFacebookPersonalProfileFirstFeedPost(
     missingCardPage,
     {
@@ -250,9 +290,12 @@ assert.equal(
 );
 
 const openedPage = createFeedPage();
-assert.equal(
+assert.deepEqual(
     await readFirstFeedPostFingerprint(openedPage),
-    "https://www.facebook.com/photo/?fbid=111&__cft__[0]=abc"
+    {
+        cft: "https://www.facebook.com/photo/?fbid=111&__cft__[0]=abc",
+        permalink: null,
+    }
 );
 const openedResult = await openFacebookPersonalProfileFirstFeedPost(
     openedPage,
@@ -271,6 +314,34 @@ assert.equal(
 assert.equal(openedResult.postUrl, "https://www.facebook.com/photo/?fbid=111");
 assert.equal(openedResult.postId, "111");
 assert.equal(openedPage.state.dialogOpen, true);
+
+const permalinkPage = createFeedPage({
+    fingerprint: {
+        cft: null,
+        permalink: "https://www.facebook.com/permalink.php?story_fbid=999&id=123",
+    },
+    dialogPermalink:
+        "https://www.facebook.com/permalink.php?story_fbid=999&id=123",
+});
+assert.deepEqual(
+    await readFirstFeedPostFingerprint(permalinkPage),
+    {
+        cft: null,
+        permalink: "https://www.facebook.com/permalink.php?story_fbid=999&id=123",
+    }
+);
+const permalinkResult = await openFacebookPersonalProfileFirstFeedPost(
+    permalinkPage,
+    {
+        previousFingerprint: { cft: null, permalink: null },
+        timeout: 50,
+        logger,
+        ...timingOptions,
+    }
+);
+assert.equal(permalinkResult.success, true, JSON.stringify(permalinkResult));
+assert.equal(permalinkResult.postId, "999");
+assert.equal(permalinkPage.state.dialogOpen, true);
 
 const authorClickPage = createFeedPage({ openDialog: false });
 const authorClickResult = await openFacebookPersonalProfileFirstFeedPost(

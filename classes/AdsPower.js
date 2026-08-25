@@ -437,6 +437,60 @@ class AdsPower {
     }
 
 
+    // Отримує список тегів AdsPower
+    async listBrowserTags() {
+        const limit = 100;
+        const tags = [];
+        let page = 1;
+
+        try {
+            while (true) {
+                const url = `${this.apiUrl}/api/v2/browser-tags/list`;
+                const response = await this.request(
+                    "post",
+                    url,
+                    {
+                        page,
+                        page_size: limit,
+                    }
+                );
+                const result = response.data;
+
+                if (result.code !== 0) {
+                    throw new Error(result.msg);
+                }
+
+                const currentTags = result.data?.list;
+
+                if (!Array.isArray(currentTags)) {
+                    throw new Error(
+                        "AdsPower повернув некоректний список тегів"
+                    );
+                }
+
+                tags.push(...currentTags);
+
+                if (currentTags.length < limit) {
+                    break;
+                }
+
+                page += 1;
+            }
+
+            return tags;
+        } catch (error) {
+            const message =
+                error.response?.data?.msg
+                || error.message
+                || "Невідома помилка";
+
+            throw new Error(
+                `Не вдалося отримати список тегів AdsPower: ${message}`
+            );
+        }
+    }
+
+
     // Додає або замінює теги профілю
     async updateProfileTags(
         profileId,

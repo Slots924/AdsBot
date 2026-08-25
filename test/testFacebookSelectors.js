@@ -161,7 +161,8 @@ assert.deepEqual(facebookNameChangeSelectors, {
     profileDialog:
         'div[role="dialog"][aria-modal="true"][aria-labelledby] '
         + '[aria-hidden="false"]',
-    nameLink: 'a[role="link"][aria-label="Name"]',
+    nameLink:
+        '[role="dialog"][aria-modal="true"] [aria-label="Name" i]',
     nameDialog:
         'div[aria-label="Name"][aria-modal="true"][role="dialog"] '
         + '[aria-hidden="false"]',
@@ -213,7 +214,7 @@ assert.equal(
 );
 assert.equal(
     chooseProfilePictureMenuItemSelector,
-    'div[role="menu"] [role="menuitem"]'
+    'div[role="menuitem"]'
 );
 assert.equal(
     chooseProfilePictureDialogSelector,

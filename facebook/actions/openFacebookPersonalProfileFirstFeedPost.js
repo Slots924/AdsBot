@@ -3,6 +3,7 @@ import { humanClickElement } from "../browser/pointer.js";
 import { waitHuman } from "../browser/timing.js";
 import {
     personalProfileFirstFeedPostCftLinkSelector,
+    personalProfileFirstFeedPostPermalinkLinkSelector,
     personalProfileFirstFeedPostSelector,
 } from "../selectors/personalProfilePost.js";
 import { postDialogSelector } from "../selectors/post.js";
@@ -110,6 +111,29 @@ export function normalizeFacebookFeedPostUrl(value) {
 }
 
 
+export function createEmptyFeedFingerprint() {
+    return {
+        cft: null,
+        permalink: null,
+    };
+}
+
+
+export function isFeedFingerprintChanged(previous, current) {
+    const before = {
+        cft: previous?.cft ?? null,
+        permalink: previous?.permalink ?? null,
+    };
+    const after = {
+        cft: current?.cft ?? null,
+        permalink: current?.permalink ?? null,
+    };
+
+    return (after.cft != null && after.cft !== before.cft)
+        || (after.permalink != null && after.permalink !== before.permalink);
+}
+
+
 export function extractFacebookFeedPostId(postUrl) {
     if (!postUrl) return null;
 
@@ -126,10 +150,16 @@ export function extractFacebookFeedPostId(postUrl) {
 
 
 export async function readFirstFeedPostFingerprint(page) {
-    if (!page || typeof page.evaluate !== "function") return null;
+    if (!page || typeof page.evaluate !== "function") {
+        return createEmptyFeedFingerprint();
+    }
 
     try {
-        return await page.evaluate((linkSelector) => {
+        const fingerprint = await page.evaluate((
+            cardSelector,
+            cftSelector,
+            permalinkSelector
+        ) => {
             const visible = (node) => {
                 const rectangle = node.getBoundingClientRect();
                 const style = getComputedStyle(node);
@@ -139,12 +169,30 @@ export async function readFirstFeedPostFingerprint(page) {
                     && style.visibility !== "hidden"
                     && style.opacity !== "0";
             };
-            const link = Array.from(document.querySelectorAll(linkSelector))
+            const card = Array.from(document.querySelectorAll(cardSelector))
                 .find(visible);
-            return link?.href ?? null;
-        }, personalProfileFirstFeedPostCftLinkSelector);
+            if (!card) {
+                return { cft: null, permalink: null };
+            }
+            const cft = Array.from(card.querySelectorAll(cftSelector))
+                .find(visible);
+            const permalink = Array.from(card.querySelectorAll(permalinkSelector))
+                .find(visible);
+            return {
+                cft: cft?.href ?? null,
+                permalink: permalink?.href ?? null,
+            };
+        },
+        personalProfileFirstFeedPostSelector,
+        'a[href*="?__cft__[0]="]',
+        'a[href*="/permalink.php"]');
+
+        return {
+            cft: fingerprint?.cft ?? null,
+            permalink: fingerprint?.permalink ?? null,
+        };
     } catch {
-        return null;
+        return createEmptyFeedFingerprint();
     }
 }
 
@@ -154,7 +202,7 @@ async function waitForFirstFeedPostChange(
     previousFingerprint,
     timeout
 ) {
-    await page.waitForFunction((cardSelector, linkSelector, previous) => {
+    await page.waitForFunction((cardSelector, cftSelector, permalinkSelector, previous) => {
         const visible = (node) => {
             const rectangle = node.getBoundingClientRect();
             const style = getComputedStyle(node);
@@ -167,15 +215,19 @@ async function waitForFirstFeedPostChange(
         const card = Array.from(document.querySelectorAll(cardSelector))
             .find(visible);
         if (!card) return false;
-        const link = Array.from(card.querySelectorAll(linkSelector))
-            .find(visible);
-        const href = link?.href ?? null;
-        if (!href) return false;
-        return previous == null || href !== previous;
+        const cft = Array.from(card.querySelectorAll(cftSelector))
+            .find(visible)?.href ?? null;
+        const permalink = Array.from(card.querySelectorAll(permalinkSelector))
+            .find(visible)?.href ?? null;
+        const beforeCft = previous?.cft ?? null;
+        const beforePermalink = previous?.permalink ?? null;
+        return (cft != null && cft !== beforeCft)
+            || (permalink != null && permalink !== beforePermalink);
     }, { timeout },
     personalProfileFirstFeedPostSelector,
     'a[href*="?__cft__[0]="]',
-    previousFingerprint ?? null);
+    'a[href*="/permalink.php"]',
+    previousFingerprint ?? createEmptyFeedFingerprint());
 }
 
 
@@ -381,18 +433,23 @@ export default async function openFacebookPersonalProfileFirstFeedPost(
         }
 
         stage = "CLICK_DATE";
+        const currentFingerprint = await readFirstFeedPostFingerprint(page);
+        const dateLinkSelector = currentFingerprint.cft
+            ? personalProfileFirstFeedPostCftLinkSelector
+            : personalProfileFirstFeedPostPermalinkLinkSelector;
         report(
             "facebook.first_feed_post.click_date",
             "Клікаємо дату першого поста",
             {
-                selector: personalProfileFirstFeedPostCftLinkSelector,
+                selector: dateLinkSelector,
+                fingerprint: currentFingerprint,
             }
         );
         let initialLink;
         try {
             initialLink = await waitForVisibleElement(
                 page,
-                personalProfileFirstFeedPostCftLinkSelector,
+                dateLinkSelector,
                 { timeout }
             );
         } catch (error) {
@@ -403,7 +460,7 @@ export default async function openFacebookPersonalProfileFirstFeedPost(
                     status: facebookPersonalProfileFirstFeedPostStatuses
                         .CFT_LINK_NOT_FOUND,
                     stage,
-                    selector: personalProfileFirstFeedPostCftLinkSelector,
+                    selector: dateLinkSelector,
                     cause: error,
                 }
             );
@@ -414,7 +471,7 @@ export default async function openFacebookPersonalProfileFirstFeedPost(
         try {
             freshLink = await waitForVisibleElement(
                 page,
-                personalProfileFirstFeedPostCftLinkSelector,
+                dateLinkSelector,
                 { timeout }
             );
         } catch (error) {
@@ -425,7 +482,7 @@ export default async function openFacebookPersonalProfileFirstFeedPost(
                     status: facebookPersonalProfileFirstFeedPostStatuses
                         .CFT_LINK_NOT_FOUND,
                     stage,
-                    selector: personalProfileFirstFeedPostCftLinkSelector,
+                    selector: dateLinkSelector,
                     cause: error,
                 }
             );

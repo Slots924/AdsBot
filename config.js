@@ -9,3 +9,6 @@ export const MAN_TAG_ID = "1465524";
 
 // ID тегу Woman в AdsPower
 export const WOMAN_TAG_ID = "1465525";
+
+// ID тегу Change Name Error в AdsPower
+export const CHANGE_NAME_ERROR_TAG_ID = "1478605";

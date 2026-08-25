@@ -4,6 +4,9 @@ import path from "node:path";
 import { waitForVisibleElement } from "../browser/elements.js";
 import { humanClickElement } from "../browser/pointer.js";
 import { waitHuman } from "../browser/timing.js";
+import handlePostPublishModals from "../modals/handlePostPublishModals.js";
+import { postPublishModalDialogSelector }
+    from "../selectors/postPublishModals.js";
 import {
     personalProfileAudienceDoneButtonSelector,
     personalProfileAudienceRadioSelector,
@@ -423,6 +426,7 @@ export default async function publishFacebookPersonalProfileMediaPost(
         random = Math.random,
         sleep,
         capturePostUrl = false,
+        logger,
     } = {}
 ) {
     const startedAt = new Date().toISOString();
@@ -454,11 +458,25 @@ export default async function publishFacebookPersonalProfileMediaPost(
             timeout,
             timingOptions
         );
-        await waitForVisibleElement(
-            page,
+        await page.waitForFunction(
+            (selector) => Boolean(document.querySelector(selector)),
+            { timeout },
+            postPublishModalDialogSelector
+        );
+        await handlePostPublishModals(page, {
+            timeout,
+            timingOptions,
+            logger,
+        });
+        await page.waitForFunction(
+            (createPostSelector, photoVideoSelector) => Boolean(
+                document.querySelector(createPostSelector)
+                || document.querySelector(photoVideoSelector)
+            ),
+            { timeout },
             personalProfileCreatePostDialogSelector,
-            { timeout }
-        ).then((element) => element.dispose());
+            personalProfilePhotoVideoButtonSelector
+        );
         await waitHuman("long", timingOptions);
 
         stage = "ENSURE_PUBLIC";
@@ -528,6 +546,11 @@ export default async function publishFacebookPersonalProfileMediaPost(
             timingOptions,
             "medium"
         );
+        await handlePostPublishModals(page, {
+            timeout,
+            timingOptions,
+            logger,
+        });
         await page.waitForFunction(
             (selector) => !document.querySelector(selector),
             { timeout },

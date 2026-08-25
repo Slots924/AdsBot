@@ -18,7 +18,8 @@ export const facebookNameChangeSelectors = {
         'div[role="dialog"][aria-modal="true"][aria-labelledby] '
         + '[aria-hidden="false"]',
     /** Посилання на налаштування імені профілю. */
-    nameLink: 'a[role="link"][aria-label="Name"]',
+    nameLink:
+        '[role="dialog"][aria-modal="true"] [aria-label="Name" i]',
     /** Видимий вміст форми редагування імені. */
     nameDialog:
         'div[aria-label="Name"][aria-modal="true"][role="dialog"] '

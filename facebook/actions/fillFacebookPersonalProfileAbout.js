@@ -81,6 +81,12 @@ function trimField(value) {
 }
 
 
+function halfText(value) {
+    const text = String(value ?? "");
+    return text.slice(0, Math.floor(text.length / 2));
+}
+
+
 export function normalizeFacebookPersonalProfileAboutFields(fields) {
     if (fields == null || typeof fields !== "object" || Array.isArray(fields)) {
         return null;
@@ -217,12 +223,21 @@ function aboutDomRuntime(query) {
         selectors.leavePageDialog
     );
     const findInvalidNameDialog = () => Array.from(
-        document.querySelectorAll(selectors.modalDialog)
-    ).find((dialog) =>
-        visible(dialog)
-        && normalizeLoose(dialog.querySelector("h2")?.innerText)
-            === "invalid name"
-    ) ?? null;
+        document.querySelectorAll(
+            selectors.invalidNameDialog || selectors.modalDialog
+        )
+    ).find((dialog) => {
+        if (!visible(dialog)) return false;
+        const title = normalizeLoose(
+            dialog.querySelector("h2 span[dir='auto']")?.textContent
+            ?? dialog.querySelector("h2")?.innerText
+        );
+        const body = normalizeLoose(dialog.innerText);
+        return title === "invalid name"
+            || body.includes(
+                "creating content with this name is not allowed"
+            );
+    }) ?? null;
     const readCombobox = (inputSelector) => {
         const input = findVisible(document, inputSelector);
         if (!input) {
@@ -304,6 +319,19 @@ function aboutDomRuntime(query) {
             const snap = sectionSnapshot("Work");
             if (!snap.found) return false;
             return !snap.hasCompany && !snap.hasPosition && !snap.hasSave;
+        }
+        if (query.kind === "workSaveOutcome") {
+            if (findInvalidNameDialog()) {
+                return { invalidName: true, saved: false };
+            }
+            const snap = sectionSnapshot("Work");
+            if (!snap.found) return false;
+            const editorClosed = !snap.hasCompany
+                && !snap.hasPosition
+                && !snap.hasSave;
+            return editorClosed
+                ? { invalidName: false, saved: true }
+                : false;
         }
         if (query.kind === "collegeSaveOutcome") {
             if (findInvalidNameDialog()) {
@@ -411,7 +439,8 @@ function aboutDomRuntime(query) {
     }
     if (query.kind === "invalidNameClose") {
         const dialog = findInvalidNameDialog();
-        return findVisible(dialog, selectors.dialogOk)
+        return findVisible(dialog, selectors.invalidNameOk)
+            ?? findVisible(dialog, selectors.dialogOk)
             ?? findVisible(dialog, selectors.dialogClose);
     }
     return null;
@@ -497,6 +526,31 @@ export default async function fillFacebookPersonalProfileAbout(
             }
         );
         await handle?.dispose?.().catch(() => {});
+    };
+
+    const waitInspectValue = async (query, label, waitTimeout = timeout) => {
+        report("facebook.personal_about.wait", `Чекаємо: ${label}`, {
+            kind: query.kind,
+            title: query.title ?? null,
+            timeout: waitTimeout,
+        });
+        const handle = await page.waitForFunction(
+            aboutDomRuntime,
+            { timeout: waitTimeout },
+            {
+                mode: "inspect",
+                selectors: aboutSelectors,
+                ...query,
+            }
+        );
+        try {
+            if (typeof handle?.jsonValue === "function") {
+                return await handle.jsonValue();
+            }
+            return await inspect(query);
+        } finally {
+            await handle?.dispose?.().catch(() => {});
+        }
     };
 
     const findHandle = async (query, label) => {
@@ -640,7 +694,7 @@ export default async function fillFacebookPersonalProfileAbout(
             "Facebook показав Invalid Name",
             { previousField }
         );
-        await clickFreshQuery({ kind: "invalidNameClose" }, "OK/Close Invalid Name");
+        await clickFreshQuery({ kind: "invalidNameClose" }, "OK Invalid Name");
         await waitInspect(
             { kind: "invalidNameDialog", expectAbsent: true },
             "закриття Invalid Name"
@@ -648,6 +702,28 @@ export default async function fillFacebookPersonalProfileAbout(
         await pauseAfterChange("short");
         return true;
     };
+
+    const clickSectionSave = async (title, description) => {
+        await waitInspect(
+            {
+                mode: "find",
+                kind: "sectionField",
+                title,
+                field: "save",
+            },
+            `активний ${description}`
+        );
+        await clickFreshQuery(
+            {
+                kind: "sectionField",
+                title,
+                field: "save",
+            },
+            description
+        );
+    };
+
+    const shortenAfterInvalidName = (value) => halfText(value);
 
     const openSideTab = async (selector, description) => {
         await clickFreshSelector(selector, description);
@@ -1207,39 +1283,92 @@ export default async function fillFacebookPersonalProfileAbout(
                         aboutSelectors.position,
                         { charByChar: true }
                     );
-                    await waitInspect(
-                        {
-                            mode: "find",
-                            kind: "sectionField",
-                            title: "Work",
-                            field: "save",
-                        },
-                        "активний Save роботи"
-                    );
-                    await clickFreshQuery(
-                        {
-                            kind: "sectionField",
-                            title: "Work",
-                            field: "save",
-                        },
-                        "Save роботи"
-                    );
-                    await waitInspect(
-                        { kind: "workOutcome" },
-                        "поля роботи зникли після Save"
-                    );
-                    await pauseAfterChange("short");
-                    if (await dismissLeavePage(false)) {
+                    let companyValue = normalized.work.company;
+                    let positionValue = normalized.work.position;
+                    while (true) {
+                        await clickSectionSave("Work", "Save роботи");
+                        const outcome = await waitInspectValue(
+                            { kind: "workSaveOutcome" },
+                            "результат Save роботи"
+                        );
+                        await pauseAfterChange("short");
+                        if (outcome?.saved) {
+                            fieldStates.work.status =
+                                facebookPersonalProfileAboutFieldStatuses.FILLED;
+                            break;
+                        }
+                        const rejectedWorkName = Boolean(outcome?.invalidName)
+                            || await dismissInvalidName();
+                        if (outcome?.invalidName) {
+                            await dismissInvalidName();
+                        }
+                        if (rejectedWorkName) {
+                            companyValue = shortenAfterInvalidName(companyValue);
+                            positionValue = shortenAfterInvalidName(
+                                positionValue
+                            );
+                            report(
+                                "facebook.personal_about.invalid_name.retry",
+                                "Скорочуємо компанію і посаду після Invalid Name",
+                                {
+                                    company: companyValue,
+                                    position: positionValue,
+                                },
+                                "warn"
+                            );
+                            if (!companyValue && !positionValue) {
+                                throw new FacebookPersonalProfileAboutError(
+                                    "Facebook відхилив роботу, текст скоротився до порожнього",
+                                    {
+                                        code: "FACEBOOK_PERSONAL_ABOUT_INVALID_NAME",
+                                        stage,
+                                    }
+                                );
+                            }
+                            if (companyValue) {
+                                await fillSuggestionField(
+                                    {
+                                        kind: "sectionField",
+                                        title: "Work",
+                                        field: "company",
+                                    },
+                                    companyValue,
+                                    "Company",
+                                    aboutSelectors.company
+                                );
+                            }
+                            if (positionValue) {
+                                await fillSuggestionField(
+                                    {
+                                        kind: "sectionField",
+                                        title: "Work",
+                                        field: "position",
+                                    },
+                                    positionValue,
+                                    "Position",
+                                    aboutSelectors.position,
+                                    { charByChar: true }
+                                );
+                            }
+                            continue;
+                        }
+                        if (await dismissLeavePage(false)) {
+                            throw new FacebookPersonalProfileAboutError(
+                                "Роботу не збережено",
+                                {
+                                    code: "FACEBOOK_PERSONAL_ABOUT_WORK_UNSAVED",
+                                    stage,
+                                }
+                            );
+                        }
                         throw new FacebookPersonalProfileAboutError(
                             "Роботу не збережено",
                             {
-                                code: "FACEBOOK_PERSONAL_ABOUT_WORK_UNSAVED",
+                                code: "FACEBOOK_PERSONAL_ABOUT_WORK_NOT_SAVED",
                                 stage,
                             }
                         );
                     }
-                    fieldStates.work.status =
-                        facebookPersonalProfileAboutFieldStatuses.FILLED;
                 }
             } catch (error) {
                 markFailed("work", error);
@@ -1326,48 +1455,56 @@ export default async function fillFacebookPersonalProfileAbout(
                         "College name",
                         aboutSelectors.collegeName
                     );
-                    await waitInspect(
-                        {
-                            mode: "find",
-                            kind: "sectionField",
-                            title: "College",
-                            field: "save",
-                        },
-                        "активний Save коледжу"
-                    );
-                    await clickFreshQuery(
-                        {
-                            kind: "sectionField",
-                            title: "College",
-                            field: "save",
-                        },
-                        "Save коледжу"
-                    );
-                    const outcomeHandle = await page.waitForFunction(
-                        aboutDomRuntime,
-                        { timeout },
-                        {
-                            mode: "inspect",
-                            selectors: aboutSelectors,
-                            kind: "collegeSaveOutcome",
-                        }
-                    );
-                    const outcome = await outcomeHandle.jsonValue?.()
-                        ?? await inspect({
-                            kind: "collegeSaveOutcome",
-                        });
-                    await outcomeHandle?.dispose?.().catch(() => {});
-                    await pauseAfterChange("short");
-                    if (outcome?.invalidName || await dismissInvalidName()) {
-                        throw new FacebookPersonalProfileAboutError(
-                            "Facebook відхилив назву коледжу",
-                            {
-                                code: "FACEBOOK_PERSONAL_ABOUT_INVALID_NAME",
-                                stage,
-                            }
+                    let educationValue = normalized.education;
+                    while (true) {
+                        await clickSectionSave("College", "Save коледжу");
+                        const outcome = await waitInspectValue(
+                            { kind: "collegeSaveOutcome" },
+                            "результат Save коледжу"
                         );
-                    }
-                    if (!outcome?.saved) {
+                        await pauseAfterChange("short");
+                        if (outcome?.saved) {
+                            fieldStates.education.status =
+                                facebookPersonalProfileAboutFieldStatuses.FILLED;
+                            break;
+                        }
+                        const rejectedCollegeName = Boolean(
+                            outcome?.invalidName
+                        ) || await dismissInvalidName();
+                        if (outcome?.invalidName) {
+                            await dismissInvalidName();
+                        }
+                        if (rejectedCollegeName) {
+                            educationValue = shortenAfterInvalidName(
+                                educationValue
+                            );
+                            report(
+                                "facebook.personal_about.invalid_name.retry",
+                                "Скорочуємо освіту після Invalid Name",
+                                { education: educationValue },
+                                "warn"
+                            );
+                            if (!educationValue) {
+                                throw new FacebookPersonalProfileAboutError(
+                                    "Facebook відхилив назву коледжу",
+                                    {
+                                        code: "FACEBOOK_PERSONAL_ABOUT_INVALID_NAME",
+                                        stage,
+                                    }
+                                );
+                            }
+                            await fillSuggestionField(
+                                {
+                                    kind: "sectionField",
+                                    title: "College",
+                                    field: "college",
+                                },
+                                educationValue,
+                                "College name",
+                                aboutSelectors.collegeName
+                            );
+                            continue;
+                        }
                         throw new FacebookPersonalProfileAboutError(
                             "Коледж не збережено",
                             {
@@ -1376,8 +1513,6 @@ export default async function fillFacebookPersonalProfileAbout(
                             }
                         );
                     }
-                    fieldStates.education.status =
-                        facebookPersonalProfileAboutFieldStatuses.FILLED;
                 }
             } catch (error) {
                 markFailed("education", error);

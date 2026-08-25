@@ -21,6 +21,7 @@ import {
 
 
 const fileChooserTimeout = 15000;
+const chooseProfilePictureMenuText = "Choose profile picture";
 
 export const facebookAvatarChangeStatuses = Object.freeze({
     CHANGED: "CHANGED",
@@ -177,6 +178,173 @@ async function pauseAfterVisible(
 }
 
 
+async function findVisibleElementByText(page, selector, expectedText) {
+    const elements = await page.$$(selector);
+    let matchedElement = null;
+    const normalizedExpectedText = expectedText.toLocaleLowerCase();
+
+    for (const element of elements) {
+        try {
+            const text = await element.evaluate((node) =>
+                String(node.textContent ?? "").replace(/\s+/g, " ").trim()
+            );
+            const rectangle = await element.boundingBox();
+
+            if (
+                text.toLocaleLowerCase() === normalizedExpectedText
+                && rectangle
+            ) {
+                matchedElement = element;
+                break;
+            }
+        } catch {
+            // React міг замінити menuitem під час перевірки.
+        }
+    }
+
+    await Promise.all(elements
+        .filter((element) => element !== matchedElement)
+        .map((element) => element.dispose().catch(() => {})));
+
+    return matchedElement;
+}
+
+
+async function clickChooseProfilePictureMenuItem(
+    page,
+    {
+        timeout,
+        report,
+        stage,
+        timingOptions,
+        attempt,
+    }
+) {
+    try {
+        await page.waitForFunction(
+            (selector, expectedText) => {
+                const expected = String(expectedText ?? "")
+                    .replace(/\s+/g, " ")
+                    .trim()
+                    .toLocaleLowerCase();
+                return Array.from(document.querySelectorAll(selector))
+                    .some((node) => {
+                        const rectangle = node.getBoundingClientRect();
+                        const style = window.getComputedStyle(node);
+                        const text = String(node.textContent ?? "")
+                            .replace(/\s+/g, " ")
+                            .trim()
+                            .toLocaleLowerCase();
+                        return text === expected
+                            && rectangle.width > 0
+                            && rectangle.height > 0
+                            && style.display !== "none"
+                            && style.visibility !== "hidden"
+                            && style.opacity !== "0";
+                    });
+            },
+            { timeout },
+            chooseProfilePictureMenuItemSelector,
+            chooseProfilePictureMenuText
+        );
+    } catch (error) {
+        throw new FacebookAvatarChangeError(
+            "Не знайдено пункт меню «Choose profile picture»",
+            {
+                code: "FACEBOOK_AVATAR_MENU_ITEM_NOT_FOUND",
+                status: facebookAvatarChangeStatuses.ELEMENT_NOT_FOUND,
+                stage,
+                selector: chooseProfilePictureMenuItemSelector,
+                timeoutMs: timeout,
+                cause: error,
+            }
+        );
+    }
+
+    let element = await findVisibleElementByText(
+        page,
+        chooseProfilePictureMenuItemSelector,
+        chooseProfilePictureMenuText
+    );
+
+    if (!element) {
+        throw new FacebookAvatarChangeError(
+            "Не знайдено пункт меню «Choose profile picture»",
+            {
+                code: "FACEBOOK_AVATAR_MENU_ITEM_NOT_FOUND",
+                status: facebookAvatarChangeStatuses.ELEMENT_NOT_FOUND,
+                stage,
+                selector: chooseProfilePictureMenuItemSelector,
+                timeoutMs: timeout,
+            }
+        );
+    }
+
+    await element.dispose().catch(() => {});
+    await pauseAfterVisible(
+        "medium",
+        report,
+        stage,
+        "стабілізація React для menuitem «Choose profile picture»",
+        timingOptions
+    );
+    element = await findVisibleElementByText(
+        page,
+        chooseProfilePictureMenuItemSelector,
+        chooseProfilePictureMenuText
+    );
+
+    if (!element) {
+        throw new FacebookAvatarChangeError(
+            "Пункт меню «Choose profile picture» зник після React rerender",
+            {
+                code: "FACEBOOK_AVATAR_MENU_ITEM_DETACHED",
+                status: facebookAvatarChangeStatuses.ELEMENT_NOT_FOUND,
+                stage,
+                selector: chooseProfilePictureMenuItemSelector,
+                timeoutMs: timeout,
+            }
+        );
+    }
+
+    try {
+        await humanClickElement(page, element, {
+            beforeDelay: [100, 260],
+            holdDelay: [80, 170],
+            scrollDelay: [900, 1600],
+            random: timingOptions.random,
+            ...(timingOptions.sleep
+                ? { sleep: timingOptions.sleep }
+                : {}),
+            onEvent: (event) => report(
+                stage,
+                "Pointer event «Choose profile picture»: "
+                + event.type,
+                {
+                    ...event,
+                    selector: chooseProfilePictureMenuItemSelector,
+                    attempt,
+                }
+            ),
+        });
+    } catch (error) {
+        throw new FacebookAvatarChangeError(
+            `Не вдалося клікнути «Choose profile picture»: ${error.message}`,
+            {
+                code: "FACEBOOK_AVATAR_INTERACTION_FAILED",
+                status: facebookAvatarChangeStatuses.ELEMENT_NOT_FOUND,
+                stage,
+                selector: chooseProfilePictureMenuItemSelector,
+                timeoutMs: timeout,
+                cause: error,
+            }
+        );
+    } finally {
+        await element.dispose().catch(() => {});
+    }
+}
+
+
 async function clickFreshVisibleElement(
     page,
     selector,
@@ -304,19 +472,13 @@ async function openPictureDialog(
                         attempt,
                     }
                 );
-                await clickFreshVisibleElement(
-                    page,
-                    chooseProfilePictureMenuItemSelector,
-                    {
-                        timeout,
-                        report,
-                        stage,
-                        description: "Choose profile picture",
-                        stabilization: "medium",
-                        timingOptions,
-                        attempt,
-                    }
-                );
+                await clickChooseProfilePictureMenuItem(page, {
+                    timeout,
+                    report,
+                    stage,
+                    timingOptions,
+                    attempt,
+                });
             }
 
             const dialog = await waitForVisible(

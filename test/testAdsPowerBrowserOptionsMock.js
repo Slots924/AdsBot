@@ -154,4 +154,25 @@ try {
     await rm(stateDirectory, { recursive: true, force: true });
 }
 
+const listClient = new AdsPower();
+let listRequest = null;
+listClient.request = async (method, url, data) => {
+    listRequest = { method, url, data };
+    return {
+        data: {
+            code: 0,
+            data: {
+                list: [
+                    { id: "1478605", name: "Change Name Error", color: "red" },
+                ],
+            },
+        },
+    };
+};
+const tags = await listClient.listBrowserTags();
+assert.equal(listRequest.method, "post");
+assert.match(listRequest.url, /\/api\/v2\/browser-tags\/list$/);
+assert.deepEqual(listRequest.data, { page: 1, page_size: 100 });
+assert.equal(tags[0].id, "1478605");
+
 console.log("Mock-перевірка режимів браузера AdsPower пройшла успішно");

@@ -32,6 +32,7 @@ function createMockPage({
         actionsMenuVisible: false,
         previewVisible: false,
         currentSelector: null,
+        currentText: null,
         updateClicks: 0,
         actionsClicks: 0,
         chooseClicks: 0,
@@ -66,16 +67,19 @@ function createMockPage({
 
         return false;
     };
-    const createHandle = (selector, available = true) => ({
+    const createHandle = (selector, available = true, text = "") => ({
         asElement() {
             return available ? this : null;
         },
         async dispose() {
             state.disposedHandles += 1;
         },
-        async evaluate() {},
+        async evaluate() {
+            return text;
+        },
         async boundingBox() {
             state.currentSelector = selector;
+            state.currentText = text;
             return {
                 x: 100,
                 y: 150,
@@ -120,6 +124,17 @@ function createMockPage({
                 return createHandle("result");
             }
 
+            if (
+                args[0] === chooseProfilePictureMenuItemSelector
+                && String(args[1] ?? "").toLocaleLowerCase()
+                    === "choose profile picture"
+            ) {
+                if (!state.actionsMenuVisible) {
+                    throw new Error("timeout: Choose profile picture");
+                }
+                return createHandle(chooseProfilePictureMenuItemSelector);
+            }
+
             const [selector] = args;
 
             if (!selectorVisible(selector)) {
@@ -127,6 +142,19 @@ function createMockPage({
             }
 
             return createHandle(selector);
+        },
+        async $$(selector) {
+            if (
+                selector !== chooseProfilePictureMenuItemSelector
+                || !state.actionsMenuVisible
+            ) {
+                return [];
+            }
+
+            return [
+                createHandle(selector, true, "View profile picture"),
+                createHandle(selector, true, "CHOOSE PROFILE PICTURE"),
+            ];
         },
         async waitForFileChooser() {
             state.chooserCalls += 1;
@@ -162,6 +190,8 @@ function createMockPage({
                 } else if (
                     state.currentSelector
                     === chooseProfilePictureMenuItemSelector
+                    && String(state.currentText ?? "").toLocaleLowerCase()
+                        === "choose profile picture"
                 ) {
                     state.chooseClicks += 1;
                     state.actionsMenuVisible = false;

@@ -11,9 +11,9 @@ export const profilePictureActionsButtonSelector =
     'div[role="main"] '
     + 'div[role="button"][aria-label="Profile picture actions"]';
 
-/** Пункт вибору аватарки в меню дій поточного зображення. */
+/** Пункт меню дій аватарки; потрібний пункт уточнюється за текстом. */
 export const chooseProfilePictureMenuItemSelector =
-    'div[role="menu"] [role="menuitem"]';
+    'div[role="menuitem"]';
 
 /** Діалог вибору або попереднього перегляду аватарки. */
 export const chooseProfilePictureDialogSelector =

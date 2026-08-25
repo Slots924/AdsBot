@@ -62,6 +62,14 @@ export const personalProfileAboutComboboxOptionSelector =
 export const personalProfileAboutModalDialogSelector =
     '[role="dialog"][aria-modal="true"]';
 
+/** Модальне вікно Invalid Name після Save у About. */
+export const personalProfileAboutInvalidNameDialogSelector =
+    'div[role="dialog"][aria-modal="true"]';
+
+/** Кнопка OK у вікні Invalid Name. */
+export const personalProfileAboutInvalidNameOkButtonSelector =
+    'div[role="button"][aria-label="OK" i]';
+
 /** Попередження про незбережені зміни. */
 export const personalProfileAboutLeavePageDialogSelector =
     '[role="dialog"][aria-modal="true"][aria-label="Leave Page?" i]';
@@ -94,6 +102,8 @@ export const personalProfileAboutSelectors = Object.freeze({
     collegeName: personalProfileAboutCollegeNameComboboxSelector,
     comboboxOption: personalProfileAboutComboboxOptionSelector,
     modalDialog: personalProfileAboutModalDialogSelector,
+    invalidNameDialog: personalProfileAboutInvalidNameDialogSelector,
+    invalidNameOk: personalProfileAboutInvalidNameOkButtonSelector,
     leavePageDialog: personalProfileAboutLeavePageDialogSelector,
     leavePageButton: personalProfileAboutLeavePageButtonSelector,
     dialogClose: personalProfileAboutDialogCloseButtonSelector,

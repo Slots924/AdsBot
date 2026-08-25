@@ -174,6 +174,7 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
                     random,
                     ...(sleep ? { sleep } : {}),
                     capturePostUrl: false,
+                    logger,
                 }
             );
             item.publishResult = publishResult;

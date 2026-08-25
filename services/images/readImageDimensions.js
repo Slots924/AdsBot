@@ -1,15 +1,45 @@
-function createImageError(message) {
-    const error = new Error(message);
-    error.code = "PAGE_REBUILD_IMAGE_INVALID";
-    return error;
+function readJpegDimensions(buffer) {
+    if (buffer.length < 4 || buffer[0] !== 0xFF || buffer[1] !== 0xD8) {
+        return null;
+    }
+
+    let offset = 2;
+    while (offset + 9 < buffer.length) {
+        if (buffer[offset] !== 0xFF) {
+            offset += 1;
+            continue;
+        }
+
+        const marker = buffer[offset + 1];
+        if (marker === 0xC0 || marker === 0xC1 || marker === 0xC2) {
+            return {
+                width: buffer.readUInt16BE(offset + 7),
+                height: buffer.readUInt16BE(offset + 5),
+            };
+        }
+
+        if (marker === 0xD8 || marker === 0xD9 || marker === 0x01) {
+            offset += 2;
+            continue;
+        }
+
+        const size = buffer.readUInt16BE(offset + 2);
+        if (size < 2) break;
+        offset += 2 + size;
+    }
+
+    return null;
 }
 
 
-function readPng(buffer) {
-    const signature = "89504e470d0a1a0a";
-    if (buffer.length < 24 || buffer.subarray(0, 8).toString("hex") !== signature) {
+function readPngDimensions(buffer) {
+    if (
+        buffer.length < 24
+        || buffer.toString("ascii", 1, 4) !== "PNG"
+    ) {
         return null;
     }
+
     return {
         width: buffer.readUInt32BE(16),
         height: buffer.readUInt32BE(20),
@@ -17,55 +47,44 @@ function readPng(buffer) {
 }
 
 
-function readJpeg(buffer) {
-    if (buffer.length < 4 || buffer[0] !== 0xff || buffer[1] !== 0xd8) {
+function readWebpDimensions(buffer) {
+    if (
+        buffer.length < 30
+        || buffer.toString("ascii", 0, 4) !== "RIFF"
+        || buffer.toString("ascii", 8, 12) !== "WEBP"
+    ) {
         return null;
     }
 
-    let offset = 2;
-    while (offset + 8 < buffer.length) {
-        if (buffer[offset] !== 0xff) {
-            offset += 1;
-            continue;
-        }
-
-        const marker = buffer[offset + 1];
-        offset += 2;
-        if (marker === 0xd8 || marker === 0xd9) continue;
-        if (offset + 2 > buffer.length) break;
-
-        const length = buffer.readUInt16BE(offset);
-        if (length < 2 || offset + length > buffer.length) break;
-        const isSizeMarker = [
-            0xc0, 0xc1, 0xc2, 0xc3,
-            0xc5, 0xc6, 0xc7,
-            0xc9, 0xca, 0xcb,
-            0xcd, 0xce, 0xcf,
-        ].includes(marker);
-        if (isSizeMarker && length >= 7) {
-            return {
-                width: buffer.readUInt16BE(offset + 5),
-                height: buffer.readUInt16BE(offset + 3),
-            };
-        }
-        offset += length;
+    const chunk = buffer.toString("ascii", 12, 16);
+    if (chunk === "VP8X") {
+        return {
+            width: 1 + buffer.readUIntLE(24, 3),
+            height: 1 + buffer.readUIntLE(27, 3),
+        };
+    }
+    if (chunk === "VP8L") {
+        const bits = buffer.readUInt32LE(21);
+        return {
+            width: 1 + (bits & 0x3FFF),
+            height: 1 + ((bits >> 14) & 0x3FFF),
+        };
+    }
+    if (chunk === "VP8 ") {
+        return {
+            width: buffer.readUInt16LE(26),
+            height: buffer.readUInt16LE(28),
+        };
     }
 
     return null;
 }
 
 
-/** Повертає розміри JPG або PNG без декодування всього зображення. */
 export default function readImageDimensions(buffer, contentType) {
-    if (!Buffer.isBuffer(buffer) || buffer.length === 0) {
-        throw createImageError("Файл зображення порожній");
-    }
-
-    const dimensions = contentType === "image/png"
-        ? readPng(buffer)
-        : contentType === "image/jpeg" ? readJpeg(buffer) : null;
-    if (!dimensions?.width || !dimensions?.height) {
-        throw createImageError("Не вдалося визначити розміри JPG або PNG");
-    }
-    return dimensions;
+    if (!Buffer.isBuffer(buffer) || buffer.length === 0) return null;
+    if (contentType === "image/jpeg") return readJpegDimensions(buffer);
+    if (contentType === "image/png") return readPngDimensions(buffer);
+    if (contentType === "image/webp") return readWebpDimensions(buffer);
+    return null;
 }

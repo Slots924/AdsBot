@@ -5,8 +5,11 @@
 `publishFacebookPersonalProfileMediaPostsWithDates(page, options)` обробляє
 кожен пост окремо в одній вкладці: публікує медіа через
 `publishFacebookPersonalProfileMediaPost` з `capturePostUrl: false`, відкриває
-першу картку стрічки `[aria-posinset="1"]` кліком по першому
-`a[href*="?__cft__[0]="]`, зчитує `postUrl` з адреси вкладки або з відкритого
+першу картку стрічки `[aria-posinset="1"]`. До публікації зберігає два
+`href`: маска `a[href*="?__cft__[0]="]` і permalink
+`a[href*="/permalink.php"]`. Після публікації вважає пост новим, якщо
+змінився хоча б один із них. Дату клікає спочатку по `__cft__`, якщо його
+немає — по `permalink.php`. Зчитує `postUrl` з адреси вкладки або з відкритого
 діалогу і одразу змінює дату через `changeFacebookPersonalProfilePostDate`
 без повторної навігації (`postUrl: null`, `closePostDialog: true`).
 

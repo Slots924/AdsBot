@@ -102,6 +102,8 @@ function createAboutPage({
     collegeExists = false,
     leavePageOnSideTab = false,
     invalidNameOnCollegeSave = false,
+    invalidNameOnWorkSave = false,
+    invalidNameIfLongerThan = 0,
     comboboxOptions = null,
     comboboxAfterBackspaces = 0,
 } = {}) {
@@ -244,6 +246,13 @@ function createAboutPage({
         }
         if (query.kind === "workOutcome") {
             return !state.workEditing;
+        }
+        if (query.kind === "workSaveOutcome") {
+            if (state.invalidName) return { invalidName: true, saved: false };
+            if (!state.workEditing && state.workExists) {
+                return { invalidName: false, saved: true };
+            }
+            return false;
         }
         if (query.kind === "collegeSaveOutcome") {
             if (state.invalidName) return { invalidName: true, saved: false };
@@ -404,12 +413,29 @@ function createAboutPage({
                 state.saveActive = false;
             }
             if (target.title === "Work") {
+                const tooLong = invalidNameIfLongerThan > 0
+                    && (
+                        state.workCompany.length > invalidNameIfLongerThan
+                        || state.workPosition.length > invalidNameIfLongerThan
+                    );
+                if (
+                    invalidNameOnWorkSave
+                    && (invalidNameIfLongerThan === 0 || tooLong)
+                ) {
+                    state.invalidName = true;
+                    return;
+                }
                 state.workEditing = false;
                 state.workExists = true;
                 state.saveActive = false;
             }
             if (target.title === "College") {
-                if (invalidNameOnCollegeSave) {
+                const tooLong = invalidNameIfLongerThan > 0
+                    && state.collegeName.length > invalidNameIfLongerThan;
+                if (
+                    invalidNameOnCollegeSave
+                    && (invalidNameIfLongerThan === 0 || tooLong)
+                ) {
                     state.invalidName = true;
                     return;
                 }
@@ -625,6 +651,33 @@ assert.equal(
     facebookPersonalProfileAboutFieldStatuses.CLEARED
 );
 assert.ok(invalidNamePage.state.invalidNameCloses >= 1);
+
+const workRetryPage = createAboutPage({
+    invalidNameOnWorkSave: true,
+    invalidNameIfLongerThan: 4,
+});
+const workRetryResult = await fillFacebookPersonalProfileAbout(
+    workRetryPage,
+    {
+        fields: {
+            work: {
+                company: "ABCDEFGH",
+                position: "12345678",
+            },
+        },
+        timeout: 200,
+        logger: silentLogger,
+        ...timingOptions,
+    }
+);
+assert.equal(workRetryResult.success, true);
+assert.equal(
+    workRetryResult.fields.work.status,
+    facebookPersonalProfileAboutFieldStatuses.FILLED
+);
+assert.ok(workRetryPage.state.invalidNameCloses >= 1);
+assert.ok(workRetryPage.state.workCompany.length <= 4);
+assert.ok(workRetryPage.state.workPosition.length <= 4);
 
 const trimPage = createAboutPage({ comboboxAfterBackspaces: 2 });
 const trimResult = await fillFacebookPersonalProfileAbout(trimPage, {

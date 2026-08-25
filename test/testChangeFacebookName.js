@@ -87,7 +87,7 @@ assert.equal(
 );
 assert.equal(
     facebookNameChangeSelectors.nameLink,
-    'a[role="link"][aria-label="Name"]'
+    '[role="dialog"][aria-modal="true"] [aria-label="Name" i]'
 );
 
 console.log("changeFacebookName contract tests passed");

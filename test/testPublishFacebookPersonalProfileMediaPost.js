@@ -6,6 +6,8 @@ import path from "node:path";
 import publishFacebookPersonalProfileMediaPost, {
     facebookPersonalProfileMediaPostStatuses,
 } from "../facebook/actions/publishFacebookPersonalProfileMediaPost.js";
+import { postPublishModalDialogSelector }
+    from "../facebook/selectors/postPublishModals.js";
 import {
     personalProfileAudienceDoneButtonSelector,
     personalProfileAudienceRadioSelector,
@@ -32,6 +34,9 @@ function createMockPage({ applyPrivacy = true } = {}) {
 
     const selectorVisible = (selector) => {
         if (selector === personalProfileCreatePostDialogSelector) {
+            return state.dialogVisible;
+        }
+        if (selector === postPublishModalDialogSelector) {
             return state.dialogVisible;
         }
         if (selector === personalProfilePostPrivacyButtonSelector) {
@@ -114,6 +119,15 @@ function createMockPage({ applyPrivacy = true } = {}) {
             );
         },
         async waitForFunction(_callback, _options, ...args) {
+            if (
+                args[0] === personalProfileCreatePostDialogSelector
+                && args[1] === personalProfilePhotoVideoButtonSelector
+            ) {
+                if (!state.dialogVisible) {
+                    throw new Error("composer timeout");
+                }
+                return createHandle(args[0]);
+            }
             if (args.length === 2 && typeof args[1] === "string") {
                 const [selector, expectedText] = args;
                 const available = selector
