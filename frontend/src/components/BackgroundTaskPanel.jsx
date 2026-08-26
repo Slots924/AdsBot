@@ -6,6 +6,7 @@ import {
     ChevronRight,
     CircleStop,
     Clock3,
+    FileText,
     Flashlight,
     ListChecks,
     LoaderCircle,
@@ -191,6 +192,13 @@ export default function BackgroundTaskPanel({
                                         <span>{statusLabels[task.status] || task.status}</span>
                                         <div className="task-card-progress"><i style={{ width: `${percent}%` }} /></div>
                                         <small>{task.waitingReason || task.progress?.message || task.error?.message || "—"}</small>
+                                        {task.type === "account-setup" && task.progress && (
+                                            <div className="task-counters">
+                                                <span>✓ {task.progress.success || 0}</span>
+                                                <span>! {task.progress.completedWithError || 0}</span>
+                                                <span>× {task.progress.failed || 0}</span>
+                                            </div>
+                                        )}
                                         {task.type === "comments" && task.progress && (
                                             <div className="task-counters">
                                                 <span>✓ {task.progress.published || 0}</span>
@@ -262,6 +270,17 @@ export default function BackgroundTaskPanel({
                                 }
                             }}><Trash2 size={15} /> Очистити чернетку</button>}
                             {!activeStatuses.has(selected.status) && <button className="secondary-button danger" disabled={actionPending} onClick={() => action(async () => { await unwrap(window.adsBot.dismissBackgroundTask(selected.id)); setSelected(null); })}><Trash2 size={15} /> Прибрати</button>}
+                            {(selected.result?.reportPath || selected.metadata?.reportPath) && (
+                                <button
+                                    className="secondary-button"
+                                    disabled={actionPending}
+                                    onClick={() => action(() => unwrap(window.adsBot.openLocalPath(
+                                        selected.result?.reportPath || selected.metadata?.reportPath
+                                    )))}
+                                >
+                                    <FileText size={15} /> Відкрити звіт
+                                </button>
+                            )}
                             <span className="action-spacer" />
                             <button className="primary-button" onClick={() => setSelected(null)}>Закрити</button>
                         </div>

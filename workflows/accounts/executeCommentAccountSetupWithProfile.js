@@ -33,6 +33,7 @@ import markProfileGender from "../../services/profile/tags/markProfileGender.js"
 import markProfileAsChangeNameError from "../../services/profile/tags/markProfileAsChangeNameError.js";
 import ensureWorkerProxyReady from "../../services/proxy/ensureWorkerProxyReady.js";
 import toAdsPowerProxyConfig from "../../services/proxy/toAdsPowerProxyConfig.js";
+import { waitHuman } from "../../facebook/browser/timing.js";
 import ensureAdsPowerProfileReady from "../profile/ensureAdsPowerProfileReady.js";
 import ensureFacebookAccountActive from "../profile/ensureFacebookAccountActive.js";
 import ensureFacebookAccountLoggedIn from "../profile/ensureFacebookAccountLoggedIn.js";
@@ -534,6 +535,7 @@ export default async function executeCommentAccountSetupWithProfile({
                     reason: "Аватар уже змінено, крок пропущено",
                 });
             } else {
+                await waitHuman("long", { random });
                 const avatarAttempt = await tryProfilePhoto({
                     changeFn: changeAvatar,
                     page,
@@ -558,6 +560,7 @@ export default async function executeCommentAccountSetupWithProfile({
                     reason: "Обкладинку вже змінено, крок пропущено",
                 });
             } else {
+                await waitHuman("long", { random });
                 const coverAttempt = await tryProfilePhoto({
                     changeFn: changeCover,
                     page,

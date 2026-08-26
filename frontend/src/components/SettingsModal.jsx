@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
     ListChecks,
+    MessageSquare,
     MessageSquareText,
     Minus,
     Plus,
@@ -37,6 +38,12 @@ export default function SettingsModal({
     onCommentBrowserModeChange,
     commentDisableImages,
     onCommentDisableImagesChange,
+    accountSetupWorkerConcurrency = 5,
+    onAccountSetupWorkerConcurrencyChange = () => {},
+    accountSetupWorkerProxyIds = {},
+    onAccountSetupWorkerProxyIdsChange = () => {},
+    accountSetupBrowserMode = "visible",
+    onAccountSetupBrowserModeChange = () => {},
     logLevel,
     onLogLevelChange,
     proxies = [],
@@ -61,19 +68,26 @@ export default function SettingsModal({
         );
         onScaleChange(normalized / 100);
     };
-    const assignedIds = Object.entries(commentWorkerProxyIds)
+    const setupPicker = tab === "account-setup";
+    const activeProxyIds = setupPicker
+        ? accountSetupWorkerProxyIds
+        : commentWorkerProxyIds;
+    const assignedIds = Object.entries(activeProxyIds)
         .filter(([workerId]) => Number(workerId) !== pickerWorkerId)
         .map(([, proxyId]) => proxyId);
     const assignProxy = (workerId, proxyId) => {
-        onCommentWorkerProxyIdsChange({
-            ...commentWorkerProxyIds,
+        const next = {
+            ...activeProxyIds,
             [String(workerId)]: proxyId,
-        });
+        };
+        if (setupPicker) onAccountSetupWorkerProxyIdsChange(next);
+        else onCommentWorkerProxyIdsChange(next);
     };
     const clearProxy = (workerId) => {
-        const next = { ...commentWorkerProxyIds };
+        const next = { ...activeProxyIds };
         delete next[String(workerId)];
-        onCommentWorkerProxyIdsChange(next);
+        if (setupPicker) onAccountSetupWorkerProxyIdsChange(next);
+        else onCommentWorkerProxyIdsChange(next);
     };
 
     return (
@@ -105,6 +119,13 @@ export default function SettingsModal({
                             onClick={() => setTab("comments")}
                         >
                             <MessageSquareText size={15} /> Коментарі
+                        </button>
+                        <button
+                            type="button"
+                            className={tab === "account-setup" ? "active" : ""}
+                            onClick={() => setTab("account-setup")}
+                        >
+                            <MessageSquare size={15} /> Акаунти
                         </button>
                     </nav>
                     <div className="settings-body">
@@ -273,6 +294,83 @@ export default function SettingsModal({
                             </>
                         )}
 
+                        {tab === "account-setup" && (
+                            <>
+                                <p>Воркер без проксі для оформлення акаунтів не використовується.</p>
+                                <section className="scale-setting">
+                                    <div className="scale-setting-heading">
+                                        <span><ListChecks size={15} /> Браузери всередині оформлення</span>
+                                        <strong>{accountSetupWorkerConcurrency}</strong>
+                                    </div>
+                                    <div className="scale-controls task-concurrency-controls">
+                                        <button className="icon-button" disabled={accountSetupWorkerConcurrency <= 1} onClick={() => onAccountSetupWorkerConcurrencyChange(accountSetupWorkerConcurrency - 1)}><Minus size={15} /></button>
+                                        <input aria-label="Паралельні браузери оформлення акаунтів" type="range" min="1" max="5" step="1" value={accountSetupWorkerConcurrency} onChange={(event) => onAccountSetupWorkerConcurrencyChange(Number(event.target.value))} />
+                                        <button className="icon-button" disabled={accountSetupWorkerConcurrency >= 5} onClick={() => onAccountSetupWorkerConcurrencyChange(accountSetupWorkerConcurrency + 1)}><Plus size={15} /></button>
+                                    </div>
+                                    <div className="scale-labels"><span>1</span><span>5</span></div>
+                                    <div className="comment-worker-grid">
+                                        {Array.from({ length: accountSetupWorkerConcurrency }, (_, index) => {
+                                            const workerId = index + 1;
+                                            const proxyId = accountSetupWorkerProxyIds[String(workerId)];
+                                            const proxy = proxies.find((item) => item.id === proxyId);
+                                            return (
+                                                <div className="comment-worker" key={workerId}>
+                                                    <div className="comment-worker-id" aria-label={`Воркер оформлення ${workerId}`}>
+                                                        {workerId}
+                                                    </div>
+                                                    {proxy ? (
+                                                        <div className="comment-worker-proxy assigned">
+                                                            <button
+                                                                type="button"
+                                                                title="Змінити проксі"
+                                                                onClick={() => setPickerWorkerId(workerId)}
+                                                            >
+                                                                {proxy.name || proxy.id}
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="icon-button"
+                                                                title="Прибрати проксі"
+                                                                onClick={() => clearProxy(workerId)}
+                                                            >
+                                                                <X size={13} />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            className="comment-worker-proxy dashed"
+                                                            aria-label={`Призначити проксі воркеру оформлення ${workerId}`}
+                                                            onClick={() => setPickerWorkerId(workerId)}
+                                                        >
+                                                            <Plus size={18} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <small className="settings-hint">Це кількість AdsPower-профілів, які сценарій оформлення може використовувати одночасно.</small>
+                                </section>
+                                <section className="scale-setting comment-browser-setting">
+                                    <div className="scale-setting-heading">
+                                        <span>Браузер для оформлення</span>
+                                    </div>
+                                    <label className="field">
+                                        <span>Режим запуску AdsPower</span>
+                                        <select
+                                            aria-label="Режим браузера для оформлення акаунтів"
+                                            value={accountSetupBrowserMode}
+                                            onChange={(event) => onAccountSetupBrowserModeChange(event.target.value)}
+                                        >
+                                            <option value="visible">Звичайний браузер</option>
+                                            <option value="headless">Headless (без вікна)</option>
+                                        </select>
+                                    </label>
+                                </section>
+                            </>
+                        )}
+
                         <div className="form-actions settings-actions">
                             {tab === "general" && (
                                 <button className="secondary-button" onClick={() => change(130)}>
@@ -291,7 +389,7 @@ export default function SettingsModal({
                     proxies={proxies}
                     proxiesLoading={proxiesLoading}
                     excludedIds={assignedIds}
-                    selectedId={commentWorkerProxyIds[String(pickerWorkerId)] ?? null}
+                    selectedId={activeProxyIds[String(pickerWorkerId)] ?? null}
                     onCreate={onCreateProxy}
                     onUpdate={onUpdateProxy}
                     onDelete={onDeleteProxy}

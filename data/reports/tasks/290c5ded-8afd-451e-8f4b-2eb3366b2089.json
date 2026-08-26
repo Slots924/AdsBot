@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "290c5ded-8afd-451e-8f4b-2eb3366b2089",
+  "taskId": "f2ec95dd-a84d-4be3-a992-7c9d379a7b76",
+  "type": "account-setup",
+  "title": "Акаунти під коментарі · чехія · 1",
+  "status": "failed",
+  "createdAt": "2026-08-25T20:24:40.363Z",
+  "startedAt": "2026-08-25T20:24:07.593Z",
+  "finishedAt": "2026-08-25T20:24:40.362Z",
+  "durationMs": 32769,
+  "inputSummary": {
+    "profileNos": [
+      "1800"
+    ],
+    "geo": "чехія",
+    "maleCount": 1,
+    "femaleCount": 0,
+    "excludedGroupIds": [
+      "7398930"
+    ],
+    "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+    "browserMode": "visible",
+    "commentWorkerProxyIds": "[REDACTED]"
+  },
+  "resultSummary": {
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-25_23-24-40-359.md",
+    "fatalError": "Немає воркерів із призначеною проксі",
+    "success": 0,
+    "completedWithError": 0,
+    "failed": 0,
+    "skipped": 0
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Немає воркерів із призначеною проксі",
+      "code": "ACCOUNT_SETUP_FATAL_ERROR",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "1800"
+    ],
+    "geo": "чехія",
+    "browserMode": "visible"
+  }
+}

@@ -122,7 +122,7 @@ try {
                 cleanupErrors: [],
             }),
         }),
-        { message: /дволітерним кодом країни/ }
+        { message: /Вкажіть країну або аудиторію/ }
     );
 
     const nameFailed = await runParallelCommentAccountSetupScenario({

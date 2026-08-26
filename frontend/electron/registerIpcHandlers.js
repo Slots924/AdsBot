@@ -1,3 +1,6 @@
+import path from "node:path";
+
+import { appPaths } from "./paths.js";
 import checkProxy from "../../services/proxy/checkProxy.js";
 import refreshProxyIp from "../../services/proxy/refreshProxyIp.js";
 
@@ -1207,6 +1210,19 @@ export default function registerIpcHandlers({
         safeHandler(() => guiService.refreshAdsPowerGroups())
     );
     ipcMain.handle(
+        "groups:profiles",
+        safeHandler((payload) => guiService.getAdsPowerGroupProfiles(
+            payload?.groupId
+        ))
+    );
+    ipcMain.handle(
+        "profiles:move",
+        safeHandler((payload) => guiService.moveAdsPowerProfiles(
+            payload?.profileIds,
+            payload?.groupId
+        ))
+    );
+    ipcMain.handle(
         "post:publish",
         safeHandler(async (payload) => {
             const input = {
@@ -1389,6 +1405,93 @@ export default function registerIpcHandlers({
         })
     );
     ipcMain.handle(
+        "account-setup:run",
+        safeHandler(async (payload) => {
+            const browserMode = payload.browserMode === "headless"
+                ? "headless"
+                : "visible";
+            const profileNos = [...new Set((payload.profileNos ?? [])
+                .map((id) => String(id).trim())
+                .filter(Boolean))];
+            if (!profileNos.length) {
+                throw Object.assign(
+                    new Error("Оберіть хоча б один профіль AdsPower"),
+                    { code: "ACCOUNT_SETUP_PROFILES_REQUIRED" }
+                );
+            }
+            const geo = String(payload.geo ?? "").replace(/\s+/g, " ").trim();
+            const photosDirectory = String(payload.photosDirectory ?? "").trim();
+            const excludedGroupIds = [...new Set((payload.excludedGroupIds ?? [])
+                .map((id) => String(id).trim())
+                .filter(Boolean))];
+            const task = await backgroundTaskManager.enqueue({
+                type: "account-setup",
+                name: `Акаунти під коментарі · ${geo} · ${profileNos.length}`,
+                resources: profileNos.map((profileNo) => ({
+                    key: `adspower-profile:${profileNo}`,
+                    label: `AdsPower ${profileNo}`,
+                })),
+                input: {
+                    profileNos,
+                    geo,
+                    maleCount: payload.maleCount,
+                    femaleCount: payload.femaleCount,
+                    excludedGroupIds,
+                    photosDirectory,
+                    browserMode,
+                    commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
+                },
+                metadata: {
+                    profileNos,
+                    geo,
+                    browserMode,
+                },
+                runner: async ({ signal, progress, waitForAction }) => {
+                    const workerProxies = await resolveWorkerProxies(
+                        proxyManager,
+                        payload.commentWorkerProxyIds
+                    );
+                    const summary = await guiService.runCommentAccountSetup({
+                        profileNos,
+                        geo,
+                        maleCount: payload.maleCount,
+                        femaleCount: payload.femaleCount,
+                        excludedGroupIds,
+                        photosDirectory,
+                        browserMode,
+                        concurrency: payload.commentWorkerConcurrency,
+                        workerProxies,
+                        onProxyUnavailable: createProxyUnavailableHandler({
+                            proxyManager,
+                            progress,
+                            waitForAction,
+                        }),
+                        signal,
+                        onProgress: progress,
+                    });
+                    if (summary.fatalError && !signal.aborted) {
+                        const error = Object.assign(
+                            new Error(summary.fatalError),
+                            { code: "ACCOUNT_SETUP_FATAL_ERROR" }
+                        );
+                        error.reportDetails = {
+                            resultSummary: summary,
+                        };
+                        throw error;
+                    }
+                    return {
+                        result: summary,
+                        taskStatus: summary.failed || summary.completedWithError
+                            ? "completed_with_warnings"
+                            : "completed",
+                        reportDetails: { resultSummary: summary },
+                    };
+                },
+            });
+            return { taskId: task.id, task };
+        })
+    );
+    ipcMain.handle(
         "tasks:list",
         safeHandler(() => backgroundTaskManager.list())
     );
@@ -1539,6 +1642,36 @@ export default function registerIpcHandlers({
                 properties: ["openDirectory"],
             });
             return result.canceled ? null : result.filePaths[0] ?? null;
+        })
+    );
+    ipcMain.handle(
+        "dialog:select-account-photos-folder",
+        safeHandler(async () => {
+            const result = await dialog.showOpenDialog(getWindow(), {
+                title: "Виберіть папку з фото для акаунтів",
+                properties: ["openDirectory"],
+            });
+            return result.canceled ? null : result.filePaths[0] ?? null;
+        })
+    );
+    ipcMain.handle(
+        "app:open-path",
+        safeHandler(async ({ filePath }) => {
+            const resolved = path.resolve(String(filePath ?? ""));
+            const reportsRoot = appPaths.reports;
+            if (
+                resolved !== reportsRoot
+                && !resolved.startsWith(`${reportsRoot}${path.sep}`)
+            ) {
+                const error = new Error("Можна відкривати лише файли зі звітів");
+                error.code = "PATH_NOT_ALLOWED";
+                throw error;
+            }
+            const openError = await shell.openPath(resolved);
+            if (openError) {
+                throw new Error(openError);
+            }
+            return true;
         })
     );
     ipcMain.handle(

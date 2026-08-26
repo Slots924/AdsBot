@@ -18,6 +18,8 @@ import PublishTab from "../tabs/PublishTab.jsx";
 import TemplatesTab from "../tabs/TemplatesTab.jsx";
 import JournalTab from "../tabs/JournalTab.jsx";
 import { findGroupForGeo } from "../lib/groups.js";
+import { sortGroups, sortProfiles } from "../lib/commentAccountGroups.js";
+import CommentAccountsTab from "../tabs/CommentAccountsTab.jsx";
 
 
 describe("GUI helpers", () => {
@@ -45,6 +47,56 @@ describe("GUI helpers", () => {
         expect(findGroupForGeo(groups, " hu ")).toEqual(groups[1]);
         expect(findGroupForGeo(groups, "US")).toBeNull();
         expect(findGroupForGeo(groups, "bad")).toBeNull();
+    });
+
+    it("ставить обрані групи AdsPower зверху і сортує решту за абеткою", () => {
+        const groups = [
+            { groupId: "3", groupName: "Zeta" },
+            { groupId: "1", groupName: "Alpha" },
+            { groupId: "2", groupName: "Beta" },
+        ];
+        expect(sortGroups(groups, ["3"]).map((item) => item.groupId)).toEqual([
+            "3",
+            "1",
+            "2",
+        ]);
+        expect(sortProfiles(
+            [
+                { profileNo: "12", name: "B", tags: [] },
+                { profileNo: "2", name: "A", tags: [] },
+            ],
+            "profileNo",
+            "asc"
+        ).map((item) => item.profileNo)).toEqual(["2", "12"]);
+    });
+
+    it("показує вкладку акаунтів під коментарі з двома панелями груп", async () => {
+        window.adsBot.getAdsPowerGroupProfiles = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [
+                {
+                    profileId: "p1",
+                    profileNo: "10",
+                    name: "m_Test",
+                    tags: [{ name: "Man" }],
+                },
+            ],
+        });
+        render(
+            <CommentAccountsTab
+                groups={[
+                    { groupId: "1", groupName: "Alpha" },
+                    { groupId: "2", groupName: "Beta" },
+                ]}
+                onGroupsChange={vi.fn()}
+                favoriteGroupIds={[]}
+                onFavoriteGroupIdsChange={vi.fn()}
+                onError={vi.fn()}
+                showToast={vi.fn()}
+            />
+        );
+        expect(screen.getByText("Акаунти під коментарі")).toBeInTheDocument();
+        expect(screen.getAllByLabelText(/Група /).length).toBe(2);
     });
 
     it("показує безпечні дані й статуси Facebook-акаунтів", () => {

@@ -32,7 +32,6 @@ await writeFile(systemPromptFile, "System prompt", "utf8");
 try {
     let captured;
     const generator = new CommentAccountPersonaGenerator({
-        countriesFile,
         systemPromptFile,
         grokClient: {
             async generateJson(request) {
@@ -51,23 +50,23 @@ try {
     });
 
     const result = await generator.generate({
-        geo: "de",
+        geo: "поляки",
         maleCount: 1,
         femaleCount: 1,
         excludedNames: ["Jan"],
     });
-    assert.equal(result.geo, "DE");
+    assert.equal(result.geo, "поляки");
     assert.equal(result.profiles.length, 2);
     assert.equal(captured.schemaName, "comment_account_personas");
     assert.match(captured.prompt, /Заборонені імена: Jan/);
-    assert.match(captured.prompt, /Гео: DE \(Germany\)/);
+    assert.match(captured.prompt, /Країна для коментарів: поляки/);
 
     await assert.rejects(
         () => generator.generate({ geo: "DE", maleCount: 0, femaleCount: 0 }),
         { code: "PERSONA_VALIDATION_ERROR" }
     );
     await assert.rejects(
-        () => generator.generate({ geo: "D", maleCount: 1, femaleCount: 0 }),
+        () => generator.generate({ geo: "   ", maleCount: 1, femaleCount: 0 }),
         { code: "PERSONA_VALIDATION_ERROR" }
     );
 

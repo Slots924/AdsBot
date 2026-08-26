@@ -5,6 +5,10 @@ import runCommentingScenario
     from "../../scenarios/runCommentingScenario.js";
 import runParallelCommentingScenario
     from "../../scenarios/runParallelCommentingScenario.js";
+import runParallelCommentAccountSetupScenario
+    from "../../scenarios/runParallelCommentAccountSetupScenario.js";
+import CommentAccountPersonaGenerator
+    from "../personas/CommentAccountPersonaGenerator.js";
 import AdsPowerGroupService
     from "../adspower/AdsPowerGroupService.js";
 import CreativeManager from "../creatives/CreativeManager.js";
@@ -399,6 +403,153 @@ export default class AdsBotGuiService {
         const groups = await this.adsPowerGroupService.refreshGroups();
         this.logger.info(`Оновлено груп AdsPower: ${groups.length}`);
         return groups;
+    }
+
+
+    async getAdsPowerGroupProfiles(groupId) {
+        const normalizedGroupId = String(groupId ?? "").trim();
+        if (!normalizedGroupId) {
+            throw createGuiError(
+                "Не вказано ID групи AdsPower",
+                "GUI_VALIDATION_ERROR"
+            );
+        }
+        if (!this.adsPower) {
+            throw createGuiError(
+                "AdsPower не підключено",
+                "GUI_BACKEND_CONFIG_ERROR"
+            );
+        }
+
+        const profiles = await this.adsPower.getProfilesByGroupId(
+            normalizedGroupId
+        );
+        return profiles.map((profile) => ({
+            profileId: String(profile.profile_id ?? ""),
+            profileNo: String(profile.profile_no ?? ""),
+            name: String(profile.name ?? profile.username ?? ""),
+            groupId: String(profile.group_id ?? normalizedGroupId),
+            groupName: String(profile.group_name ?? ""),
+            tags: Array.isArray(profile.profile_tags)
+                ? profile.profile_tags.map((tag) => (
+                    typeof tag === "string"
+                        ? { id: "", name: tag }
+                        : {
+                            id: String(tag.id ?? tag.tag_id ?? ""),
+                            name: String(tag.name ?? tag.tag_name ?? ""),
+                            color: tag.color ?? null,
+                        }
+                )).filter((tag) => tag.name)
+                : [],
+        }));
+    }
+
+
+    async moveAdsPowerProfiles(profileIds, groupId) {
+        const normalizedGroupId = String(groupId ?? "").trim();
+        const ids = Array.isArray(profileIds)
+            ? [...new Set(profileIds.map((id) => String(id ?? "").trim()).filter(Boolean))]
+            : [];
+        if (!normalizedGroupId) {
+            throw createGuiError(
+                "Не вказано ID групи AdsPower",
+                "GUI_VALIDATION_ERROR"
+            );
+        }
+        if (ids.length === 0) {
+            throw createGuiError(
+                "Не вибрано профілі для переміщення",
+                "GUI_VALIDATION_ERROR"
+            );
+        }
+        if (!this.adsPower) {
+            throw createGuiError(
+                "AdsPower не підключено",
+                "GUI_BACKEND_CONFIG_ERROR"
+            );
+        }
+
+        for (const profileId of ids) {
+            await this.adsPower.updateProfileGroup(profileId, normalizedGroupId);
+        }
+        return { moved: ids.length, groupId: normalizedGroupId };
+    }
+
+
+    async runCommentAccountSetup({
+        profileNos,
+        geo,
+        maleCount,
+        femaleCount,
+        excludedGroupIds = [],
+        photosDirectory,
+        concurrency = 5,
+        workerProxies = null,
+        onProxyUnavailable = null,
+        browserMode = "visible",
+        signal,
+        onProgress,
+    } = {}) {
+        const numbers = [...new Set(
+            (Array.isArray(profileNos) ? profileNos : [])
+                .map((value) => String(value ?? "").trim())
+                .filter(Boolean)
+        )];
+        if (numbers.length === 0) {
+            throw createGuiError(
+                "Не вибрано профілі AdsPower",
+                "GUI_VALIDATION_ERROR"
+            );
+        }
+
+        const excludedNames = [];
+        for (const groupId of excludedGroupIds ?? []) {
+            const profiles = await this.getAdsPowerGroupProfiles(groupId);
+            for (const profile of profiles) {
+                const name = String(profile.name ?? "")
+                    .replace(/^[mf]_/i, "")
+                    .replace(/\s+/g, " ")
+                    .trim();
+                if (name) excludedNames.push(name);
+            }
+        }
+
+        const generator = new CommentAccountPersonaGenerator();
+        await onProgress?.({
+            stage: "personas",
+            message: "Grok генерує дані персонажів",
+        });
+        const personas = await generator.generate({
+            geo,
+            maleCount,
+            femaleCount,
+            excludedNames,
+        });
+        const { report } = await runParallelCommentAccountSetupScenario({
+            adsPower: this.adsPower,
+            profileNos: numbers,
+            personas: personas.profiles,
+            geo,
+            photosDirectory,
+            concurrency,
+            workerProxies,
+            onProxyUnavailable,
+            browserMode,
+            logger: this.logger,
+            signal,
+            onProgress,
+            reportsDirectory: this.reportsDirectory,
+        });
+        return {
+            reportPath: report.reportPath,
+            fatalError: report.fatalError,
+            success: report.profiles.filter((item) => item.outcome === "success").length,
+            completedWithError: report.profiles.filter((item) =>
+                item.outcome === "completed_with_error"
+            ).length,
+            failed: report.profiles.filter((item) => item.outcome === "failed").length,
+            skipped: report.profiles.filter((item) => item.outcome === "skipped").length,
+        };
     }
 
 

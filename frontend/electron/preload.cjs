@@ -105,10 +105,16 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("campaigns:create-cleanup", { jobId }),
     getAdsPowerGroups: () => ipcRenderer.invoke("groups:list"),
     refreshAdsPowerGroups: () => ipcRenderer.invoke("groups:refresh"),
+    getAdsPowerGroupProfiles: (groupId) =>
+        ipcRenderer.invoke("groups:profiles", { groupId }),
+    moveAdsPowerProfiles: (profileIds, groupId) =>
+        ipcRenderer.invoke("profiles:move", { profileIds, groupId }),
     publishCreativePost: (options) =>
         ipcRenderer.invoke("post:publish", options),
     runCommentingCampaign: (options) =>
         ipcRenderer.invoke("comments:run", options),
+    runCommentAccountSetup: (options) =>
+        ipcRenderer.invoke("account-setup:run", options),
     startCreativeLaunch: (options) =>
         ipcRenderer.invoke("creative-launch:start", options),
     getCreativeLaunch: (workflowJobId) =>
@@ -151,6 +157,10 @@ contextBridge.exposeInMainWorld("adsBot", {
     selectImage: () => ipcRenderer.invoke("dialog:select-image"),
     selectPageRebuildFolder: () =>
         ipcRenderer.invoke("dialog:select-page-rebuild-folder"),
+    selectAccountPhotosFolder: () =>
+        ipcRenderer.invoke("dialog:select-account-photos-folder"),
+    openLocalPath: (filePath) =>
+        ipcRenderer.invoke("app:open-path", { filePath }),
     openExternal: (url) => ipcRenderer.invoke("app:open-external", { url }),
     getDroppedFilePath: (file) => webUtils.getPathForFile(file),
     onLog: (callback) => subscribe("log:event", callback),

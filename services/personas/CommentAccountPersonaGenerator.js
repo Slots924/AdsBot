@@ -1,9 +1,15 @@
-import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import GrokClient from "../llm/grok/GrokClient.js";
 import loadGrokSystemPrompt
     from "../llm/grok/loadGrokSystemPrompt.js";
+
+
+const projectRoot = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../.."
+);
 
 
 const PERSONA_FIELDS = [
@@ -24,8 +30,8 @@ export const COMMENT_ACCOUNT_PERSONA_JSON_SCHEMA = {
     properties: {
         geo: {
             type: "string",
-            minLength: 2,
-            maxLength: 2,
+            minLength: 1,
+            maxLength: 80,
         },
         profiles: {
             type: "array",
@@ -108,11 +114,18 @@ function hasExactFields(value, fields) {
 
 
 export function normalizeGeoCode(geo) {
-    const normalizedGeo = String(geo ?? "").trim().toUpperCase();
+    const normalizedGeo = String(geo ?? "").replace(/\s+/g, " ").trim();
 
-    if (!/^[A-Z]{2}$/.test(normalizedGeo)) {
+    if (!normalizedGeo) {
         throw createPersonaError(
-            "Гео має бути дволітерним кодом країни, наприклад DE або US",
+            "Вкажіть країну або аудиторію, наприклад поляки або CZ",
+            "PERSONA_VALIDATION_ERROR"
+        );
+    }
+
+    if (normalizedGeo.length > 80) {
+        throw createPersonaError(
+            "Назва країни занадто довга",
             "PERSONA_VALIDATION_ERROR"
         );
     }
@@ -211,13 +224,7 @@ export function normalizeCommentAccountPersonas(value, {
         );
     }
 
-    const normalizedGeo = normalizeGeoCode(value.geo);
-    if (normalizedGeo !== geo) {
-        throw createPersonaError(
-            `Grok повернув geo ${normalizedGeo} замість ${geo}`,
-            "PERSONA_INVALID_RESPONSE"
-        );
-    }
+    const requestedGeo = normalizeGeoCode(geo);
 
     const profiles = value.profiles.map((persona, index) => {
         if (!isValidCommentAccountPersona(persona)) {
@@ -290,7 +297,7 @@ export function normalizeCommentAccountPersonas(value, {
     });
 
     return {
-        geo: normalizedGeo,
+        geo: requestedGeo,
         profiles,
     };
 }
@@ -298,7 +305,6 @@ export function normalizeCommentAccountPersonas(value, {
 
 function buildUserPrompt({
     geo,
-    countryName,
     maleCount,
     femaleCount,
     excludedNames,
@@ -308,11 +314,12 @@ function buildUserPrompt({
         : "немає";
 
     return [
-        `Гео: ${geo} (${countryName})`,
+        `Країна для коментарів: ${geo}`,
         `Чоловічих акаунтів: ${maleCount}`,
         `Жіночих акаунтів: ${femaleCount}`,
         `Заборонені імена: ${excludedText}`,
         "",
+        "Імена, мова, компанії й освіта мають пасувати саме до цієї аудиторії.",
         "Згенеруй валідний JSON з усіма персонажами.",
     ].join("\n");
 }
@@ -321,8 +328,10 @@ function buildUserPrompt({
 export default class CommentAccountPersonaGenerator {
     constructor({
         grokClient,
-        countriesFile = "./data/countries.json",
-        systemPromptFile = "./data/prompts/grok/generate-comment-account-personas.txt",
+        systemPromptFile = path.join(
+            projectRoot,
+            "data/prompts/grok/generate-comment-account-personas.txt"
+        ),
     } = {}) {
         this.grokClient = grokClient ?? new GrokClient();
 
@@ -333,13 +342,8 @@ export default class CommentAccountPersonaGenerator {
             );
         }
 
-        this.countriesFile = path.resolve(countriesFile);
         this.systemPromptFile = path.resolve(systemPromptFile);
-        this.#countriesPromise = null;
     }
-
-
-    #countriesPromise;
 
 
     async generate({
@@ -366,14 +370,11 @@ export default class CommentAccountPersonaGenerator {
             );
         }
 
-        const countries = await this.#loadCountries();
-        const countryName = countries[normalizedGeo] ?? normalizedGeo;
         const systemPrompt = await loadGrokSystemPrompt(this.systemPromptFile);
         const result = await this.grokClient.generateJson({
             systemPrompt,
             prompt: buildUserPrompt({
                 geo: normalizedGeo,
-                countryName,
                 maleCount: normalizedMaleCount,
                 femaleCount: normalizedFemaleCount,
                 excludedNames: normalizedExcludedNames,
@@ -388,34 +389,5 @@ export default class CommentAccountPersonaGenerator {
             femaleCount: normalizedFemaleCount,
             excludedNames: normalizedExcludedNames,
         });
-    }
-
-
-    async #loadCountries() {
-        if (!this.#countriesPromise) {
-            this.#countriesPromise = readFile(this.countriesFile, "utf8")
-                .then((content) => {
-                    const parsed = JSON.parse(content);
-                    if (!isPlainObject(parsed)) {
-                        throw new Error("Файл країн має бути об’єктом");
-                    }
-
-                    return Object.fromEntries(
-                        Object.entries(parsed).map(([code, name]) => [
-                            String(code).trim().toUpperCase(),
-                            String(name ?? "").trim(),
-                        ])
-                    );
-                })
-                .catch((error) => {
-                    this.#countriesPromise = null;
-                    throw createPersonaError(
-                        `Не вдалося прочитати список країн: ${error.message}`,
-                        "PERSONA_FILE_ERROR"
-                    );
-                });
-        }
-
-        return this.#countriesPromise;
     }
 }

@@ -590,6 +590,50 @@ class AdsPower {
     }
 
 
+    // Переміщує профіль в іншу групу AdsPower
+    async updateProfileGroup(profileId, groupId) {
+        const normalizedProfileId = String(profileId ?? "").trim();
+        const normalizedGroupId = String(groupId ?? "").trim();
+
+        if (!normalizedProfileId) {
+            throw new Error("Не вказано profile_id AdsPower-профілю");
+        }
+
+        if (!normalizedGroupId) {
+            throw new Error("Не вказано ID групи AdsPower");
+        }
+
+        const url = `${this.apiUrl}/api/v2/browser-profile/update`;
+
+        try {
+            const response = await this.request(
+                "post",
+                url,
+                {
+                    profile_id: normalizedProfileId,
+                    group_id: normalizedGroupId,
+                }
+            );
+            const result = response.data;
+
+            if (result.code !== 0) {
+                throw new Error(result.msg);
+            }
+
+            return result.data ?? result;
+        } catch (error) {
+            const message =
+                error.response?.data?.msg
+                || error.message
+                || "Невідома помилка";
+
+            throw new Error(
+                `Не вдалося перемістити профіль ${normalizedProfileId} у групу ${normalizedGroupId}: ${message}`
+            );
+        }
+    }
+
+
     // Ставить проксі на AdsPower-профіль
     async updateProfileProxy(profileId, userProxyConfig) {
         const normalizedProfileId = String(profileId ?? "").trim();

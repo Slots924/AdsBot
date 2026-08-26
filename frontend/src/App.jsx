@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BadgeDollarSign, Bot, BookOpen, PanelsTopLeft, Settings } from "lucide-react";
+import { BadgeDollarSign, Bot, BookOpen, MessageSquare, PanelsTopLeft, Settings } from "lucide-react";
 import BackgroundTaskPanel from "./components/BackgroundTaskPanel.jsx";
 import LogPanel from "./components/LogPanel.jsx";
 import { Modal, Toast } from "./components/Overlay.jsx";
@@ -9,12 +9,14 @@ import AdsWorkspaceTab from "./tabs/AdsWorkspaceTab.jsx";
 import AccountsTab from "./tabs/AccountsTab.jsx";
 import JournalTab from "./tabs/JournalTab.jsx";
 import PagesTab from "./tabs/PagesTab.jsx";
+import CommentAccountsTab from "./tabs/CommentAccountsTab.jsx";
 import { errorDetails, unwrap } from "./lib/api.js";
 
 const tabs = [
     { id: "accounts", label: "API-клієнти", icon: Bot },
     { id: "ads", label: "Рекламні кабінети", icon: BadgeDollarSign },
     { id: "pages", label: "Фанпейджі", icon: PanelsTopLeft },
+    { id: "comment-accounts", label: "Акаунти під коментарі", icon: MessageSquare },
     { id: "journal", label: "Журнал", icon: BookOpen },
 ];
 
@@ -31,6 +33,13 @@ export default function App() {
     const [workspaceCache, setWorkspaceCache] = useState({});
     const [workspaceLoading, setWorkspaceLoading] = useState(false);
     const [groups, setGroups] = useState([]);
+    const [favoriteGroupIds, setFavoriteGroupIds] = useState([]);
+    const [commentLeftGroupId, setCommentLeftGroupId] = useState("");
+    const [commentRightGroupId, setCommentRightGroupId] = useState("");
+    const [commentLeftSort, setCommentLeftSort] = useState({ column: "profileNo", direction: "asc" });
+    const [commentRightSort, setCommentRightSort] = useState({ column: "profileNo", direction: "asc" });
+    const [commentLeftSelectedIds, setCommentLeftSelectedIds] = useState([]);
+    const [commentRightSelectedIds, setCommentRightSelectedIds] = useState([]);
     const [logs, setLogs] = useState([]);
     const [tasks, setTasks] = useState([]);
     const [uiScale, setUiScale] = useState(1.3);
@@ -39,6 +48,9 @@ export default function App() {
     const [commentWorkerProxyIds, setCommentWorkerProxyIds] = useState({});
     const [commentBrowserMode, setCommentBrowserMode] = useState("visible");
     const [commentDisableImages, setCommentDisableImages] = useState(false);
+    const [accountSetupWorkerConcurrency, setAccountSetupWorkerConcurrency] = useState(5);
+    const [accountSetupWorkerProxyIds, setAccountSetupWorkerProxyIds] = useState({});
+    const [accountSetupBrowserMode, setAccountSetupBrowserMode] = useState("visible");
     const [defaultPixelId, setDefaultPixelId] = useState("");
     const [defaultUtm, setDefaultUtm] = useState("");
     const [logLevel, setLogLevel] = useState("info");
@@ -119,8 +131,19 @@ export default function App() {
                 setSelectedAccountKey(state.selectedAccountKey); setSelectedAdAccountId(state.selectedAdAccountId); setSelectedPageId(state.selectedPageId);
                 setUiScale(state.uiScale); setCreateCampaignsPaused(state.createCampaignsPaused); setCommentWorkerConcurrency(state.commentWorkerConcurrency);
                 setCommentWorkerProxyIds(state.commentWorkerProxyIds || {});
-                setCommentBrowserMode(state.commentBrowserMode); setCommentDisableImages(state.commentDisableImages); setDefaultPixelId(state.defaultPixelId); setDefaultUtm(state.defaultUtm);
+                setCommentBrowserMode(state.commentBrowserMode); setCommentDisableImages(state.commentDisableImages);
+                setAccountSetupWorkerConcurrency(state.accountSetupWorkerConcurrency ?? 5);
+                setAccountSetupWorkerProxyIds(state.accountSetupWorkerProxyIds || {});
+                setAccountSetupBrowserMode(state.accountSetupBrowserMode || "visible");
+                setDefaultPixelId(state.defaultPixelId); setDefaultUtm(state.defaultUtm);
                 setLogLevel(state.logLevel); setTaskPanelCollapsed(state.taskPanelCollapsed);
+                setFavoriteGroupIds(state.favoriteGroupIds || []);
+                setCommentLeftGroupId(state.commentLeftGroupId || "");
+                setCommentRightGroupId(state.commentRightGroupId || "");
+                setCommentLeftSort(state.commentLeftSort || { column: "profileNo", direction: "asc" });
+                setCommentRightSort(state.commentRightSort || { column: "profileNo", direction: "asc" });
+                setCommentLeftSelectedIds(state.commentLeftSelectedIds || []);
+                setCommentRightSelectedIds(state.commentRightSelectedIds || []);
                 await unwrap(window.adsBot.setUiScale(state.uiScale));
             } catch (error) { addLog("warn", "frontend", error.message); }
             await Promise.all([loadAccounts(true), loadProxies(), unwrap(window.adsBot.getAdsPowerGroups()).then(setGroups).catch(() => {}), refreshTasks().catch(() => {})]);
@@ -133,9 +156,9 @@ export default function App() {
     useEffect(() => { if (selectedAccount?.status === "active") loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status]);
     useEffect(() => {
         if (!hydrated) return undefined;
-        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId }).catch(() => {}), 250);
+        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, commentLeftSelectedIds, commentRightSelectedIds }).catch(() => {}), 250);
         return () => clearTimeout(timer);
-    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId]);
+    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, commentLeftSelectedIds, commentRightSelectedIds]);
 
     const updateWorkspacePages = (pages) => setWorkspaceCache((current) => ({
         ...current,
@@ -162,13 +185,15 @@ export default function App() {
     const updateProxy = async (proxyId, patch) => { setProxies(await unwrap(window.adsBot.updateProxy(proxyId, patch))); showToast("Проксі оновлено", "success"); };
     const deleteProxy = async (proxyId) => {
         setProxies(await unwrap(window.adsBot.deleteProxy(proxyId)));
-        setCommentWorkerProxyIds((current) => {
+        const forgetProxy = (current) => {
             const next = { ...current };
             for (const [workerId, assigned] of Object.entries(next)) {
                 if (assigned === proxyId) delete next[workerId];
             }
             return next;
-        });
+        };
+        setCommentWorkerProxyIds(forgetProxy);
+        setAccountSetupWorkerProxyIds(forgetProxy);
         showToast("Проксі видалено", "success");
     };
     const reorderProxies = async (orderedIds) => { setProxies(await unwrap(window.adsBot.reorderProxies(orderedIds))); };
@@ -203,12 +228,40 @@ export default function App() {
                         showToast={showToast}
                     />
                 )}
+                {activeTab === "comment-accounts" && (
+                    <CommentAccountsTab
+                        key="comment-accounts"
+                        groups={groups}
+                        onGroupsChange={setGroups}
+                        favoriteGroupIds={favoriteGroupIds}
+                        onFavoriteGroupIdsChange={setFavoriteGroupIds}
+                        leftGroupId={commentLeftGroupId}
+                        onLeftGroupIdChange={setCommentLeftGroupId}
+                        rightGroupId={commentRightGroupId}
+                        onRightGroupIdChange={setCommentRightGroupId}
+                        leftSort={commentLeftSort}
+                        onLeftSortChange={setCommentLeftSort}
+                        rightSort={commentRightSort}
+                        onRightSortChange={setCommentRightSort}
+                        leftSelectedIds={commentLeftSelectedIds}
+                        onLeftSelectedIdsChange={setCommentLeftSelectedIds}
+                        rightSelectedIds={commentRightSelectedIds}
+                        onRightSelectedIdsChange={setCommentRightSelectedIds}
+                        onError={setModal}
+                        showToast={showToast}
+                        settings={{
+                            accountSetupWorkerConcurrency,
+                            accountSetupWorkerProxyIds,
+                            accountSetupBrowserMode,
+                        }}
+                    />
+                )}
                 {activeTab === "journal" && <JournalTab key="journal" onError={setModal} showToast={showToast} onOpenTask={(id) => { setTaskPanelCollapsed(false); setTaskToOpen(id); }}/>}
             </AnimatePresence></div>
             <LogPanel logs={logs} onClear={() => setLogs([])}/>
         </main>
         <BackgroundTaskPanel tasks={tasks} collapsed={taskPanelCollapsed} onCollapsedChange={setTaskPanelCollapsed} onRefresh={refreshTasks} onError={setModal} openTaskId={taskToOpen} onOpenTaskHandled={() => setTaskToOpen(null)} proxies={proxies} proxiesLoading={proxiesLoading} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp}/>
         <Modal modal={modal} onClose={() => setModal(null)}/>
-        {settingsOpen && <SettingsModal scale={uiScale} onScaleChange={async (value) => setUiScale(await unwrap(window.adsBot.setUiScale(value)))} createCampaignsPaused={createCampaignsPaused} onCreateCampaignsPausedChange={setCreateCampaignsPaused} commentWorkerConcurrency={commentWorkerConcurrency} onCommentWorkerConcurrencyChange={setCommentWorkerConcurrency} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} defaultPixelId={defaultPixelId} onDefaultPixelIdChange={setDefaultPixelId} defaultUtm={defaultUtm} onDefaultUtmChange={setDefaultUtm} commentBrowserMode={commentBrowserMode} onCommentBrowserModeChange={setCommentBrowserMode} commentDisableImages={commentDisableImages} onCommentDisableImagesChange={setCommentDisableImages} logLevel={logLevel} onLogLevelChange={async (value) => setLogLevel(await unwrap(window.adsBot.setLogLevel(value)))} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onError={setModal} onClose={() => setSettingsOpen(false)}/>}<Toast toast={toast}/>
+        {settingsOpen && <SettingsModal scale={uiScale} onScaleChange={async (value) => setUiScale(await unwrap(window.adsBot.setUiScale(value)))} createCampaignsPaused={createCampaignsPaused} onCreateCampaignsPausedChange={setCreateCampaignsPaused} commentWorkerConcurrency={commentWorkerConcurrency} onCommentWorkerConcurrencyChange={setCommentWorkerConcurrency} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} defaultPixelId={defaultPixelId} onDefaultPixelIdChange={setDefaultPixelId} defaultUtm={defaultUtm} onDefaultUtmChange={setDefaultUtm} commentBrowserMode={commentBrowserMode} onCommentBrowserModeChange={setCommentBrowserMode} commentDisableImages={commentDisableImages} onCommentDisableImagesChange={setCommentDisableImages} accountSetupWorkerConcurrency={accountSetupWorkerConcurrency} onAccountSetupWorkerConcurrencyChange={setAccountSetupWorkerConcurrency} accountSetupWorkerProxyIds={accountSetupWorkerProxyIds} onAccountSetupWorkerProxyIdsChange={setAccountSetupWorkerProxyIds} accountSetupBrowserMode={accountSetupBrowserMode} onAccountSetupBrowserModeChange={setAccountSetupBrowserMode} logLevel={logLevel} onLogLevelChange={async (value) => setLogLevel(await unwrap(window.adsBot.setLogLevel(value)))} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onError={setModal} onClose={() => setSettingsOpen(false)}/>}<Toast toast={toast}/>
     </div>;
 }

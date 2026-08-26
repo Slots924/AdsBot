@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "id": "db606651-81cb-4b30-9540-77d6663ac99e",
+  "taskId": "b7b600bb-75de-443f-8363-cb85543cfd57",
+  "type": "account-setup",
+  "title": "Акаунти під коментарі · CZ · 1",
+  "status": "failed",
+  "createdAt": "2026-08-25T20:17:05.283Z",
+  "startedAt": "2026-08-25T20:17:04.968Z",
+  "finishedAt": "2026-08-25T20:17:05.282Z",
+  "durationMs": 314,
+  "inputSummary": {
+    "profileNos": [
+      "1800"
+    ],
+    "geo": "CZ",
+    "maleCount": 1,
+    "femaleCount": 0,
+    "excludedGroupIds": [
+      "7398930"
+    ],
+    "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+    "browserMode": "visible",
+    "commentWorkerProxyIds": "[REDACTED]"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Не вдалося прочитати список країн: ENOENT: no such file or directory, open 'C:\\Users\\Darkness\\Documents\\AdsBot\\frontend\\data\\countries.json'",
+      "code": "PERSONA_FILE_ERROR",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "1800"
+    ],
+    "geo": "CZ",
+    "browserMode": "visible"
+  }
+}
