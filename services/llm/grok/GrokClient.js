@@ -144,11 +144,12 @@ export default class GrokClient {
      * @param {object} options Дані запиту.
      * @param {string} options.systemPrompt Системний prompt.
      * @param {string} options.prompt Запит користувача.
+     * @param {boolean} [options.search=false] Якщо true — увімкнути web_search tool (доступ до інтернету) для запиту.
      * @returns {Promise<{text: string, responseId: string|null, model: string, usage: object|null}>}
      * @throws {Error} GROK_VALIDATION_ERROR, GROK_API_ERROR або GROK_EMPTY_RESPONSE.
      */
-    async generateText({ systemPrompt, prompt } = {}) {
-        const response = await this.#request({ systemPrompt, prompt });
+    async generateText({ systemPrompt, prompt, search = false } = {}) {
+        const response = await this.#request({ systemPrompt, prompt, search });
 
         return {
             text: response.text,
@@ -166,6 +167,7 @@ export default class GrokClient {
      * @param {string} options.prompt Запит користувача.
      * @param {object} options.schema JSON schema для відповіді.
      * @param {string} [options.schemaName="response"] Назва JSON schema.
+     * @param {boolean} [options.search=false] Якщо true — увімкнути web_search tool (доступ до інтернету) для запиту.
      * @returns {Promise<{data: object, responseId: string|null, model: string, usage: object|null}>}
      * @throws {Error} GROK_VALIDATION_ERROR, GROK_API_ERROR, GROK_EMPTY_RESPONSE або GROK_INVALID_JSON_RESPONSE.
      */
@@ -174,6 +176,7 @@ export default class GrokClient {
         prompt,
         schema,
         schemaName = "response",
+        search = false,
     } = {}) {
         const normalizedSchema = normalizeJsonSchema(schema, schemaName);
         const response = await this.#request({
@@ -187,11 +190,24 @@ export default class GrokClient {
                     strict: true,
                 },
             },
+            search,
         });
         let data;
 
         try {
-            data = JSON.parse(response.text);
+            let jsonText = response.text.trim();
+            // Remove markdown code blocks if present
+            jsonText = jsonText.replace(/^```(?:json)?\s*|\s*```$/gi, '').trim();
+            // Find the outermost JSON object or array
+            const firstBrace = jsonText.search(/[\{\[]/);
+            if (firstBrace > 0) {
+                jsonText = jsonText.substring(firstBrace);
+            }
+            const lastBrace = jsonText.lastIndexOf(jsonText.startsWith('{') ? '}' : ']') + 1;
+            if (lastBrace > 0 && lastBrace < jsonText.length) {
+                jsonText = jsonText.substring(0, lastBrace);
+            }
+            data = JSON.parse(jsonText);
         } catch {
             throw createGrokError(
                 "Grok API повернув невалідний JSON",
@@ -208,7 +224,7 @@ export default class GrokClient {
     }
 
 
-    async #request({ systemPrompt, prompt, text }) {
+    async #request({ systemPrompt, prompt, text, search = false }) {
         const normalizedSystemPrompt = normalizePrompt(
             systemPrompt,
             "System prompt"
@@ -218,6 +234,29 @@ export default class GrokClient {
         let response;
 
         try {
+            const requestData = {
+                model: this.model,
+                input: [
+                    {
+                        role: "system",
+                        content: normalizedSystemPrompt,
+                    },
+                    {
+                        role: "user",
+                        content: normalizedPrompt,
+                    },
+                ],
+                ...(text ? { text } : {}),
+            };
+
+            if (search) {
+                requestData.tools = [
+                    {
+                        type: "web_search",
+                    },
+                ];
+            }
+
             response = await this.httpClient.request({
                 method: "post",
                 url: this.apiUrl,
@@ -226,20 +265,7 @@ export default class GrokClient {
                     Authorization: `Bearer ${this.#apiKey}`,
                     "Content-Type": "application/json",
                 },
-                data: {
-                    model: this.model,
-                    input: [
-                        {
-                            role: "system",
-                            content: normalizedSystemPrompt,
-                        },
-                        {
-                            role: "user",
-                            content: normalizedPrompt,
-                        },
-                    ],
-                    ...(text ? { text } : {}),
-                },
+                data: requestData,
                 timeout: this.timeout,
             });
         } catch (error) {
