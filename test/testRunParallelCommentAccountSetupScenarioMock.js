@@ -147,6 +147,30 @@ try {
     });
     assert.equal(nameFailed.report.profiles[0].outcome, "failed");
     assert.equal(nameFailed.report.geo, "US");
+
+    let receivedBio = null;
+    const emptyBio = await runParallelCommentAccountSetupScenario({
+        adsPower: { getProfileByNo: async () => profiles[10] },
+        profileNos: [10],
+        personas: [{
+            ...createPersona("male", "Otto"),
+            bio: "",
+        }],
+        geo: "US",
+        reportsDirectory,
+        logger: { info() {}, warn() {}, error() {}, debug() {} },
+        executeSetup: async ({ persona }) => {
+            receivedBio = persona.bio;
+            return {
+                success: true,
+                outcome: "success",
+                profileNo: "10",
+                cleanupErrors: [],
+            };
+        },
+    });
+    assert.equal(emptyBio.report.profiles[0].outcome, "success");
+    assert.equal(receivedBio, "");
 } finally {
     await rm(reportsDirectory, { recursive: true, force: true });
 }

@@ -7,8 +7,8 @@ import runParallelCommentingScenario
     from "../../scenarios/runParallelCommentingScenario.js";
 import runParallelCommentAccountSetupScenario
     from "../../scenarios/runParallelCommentAccountSetupScenario.js";
-import CommentAccountPersonaGenerator
-    from "../personas/CommentAccountPersonaGenerator.js";
+import CommentAccountProfileData
+    from "../profiles/CommentAccountProfileData.js";
 import AdsPowerGroupService
     from "../adspower/AdsPowerGroupService.js";
 import CreativeManager from "../creatives/CreativeManager.js";
@@ -481,7 +481,6 @@ export default class AdsBotGuiService {
         geo,
         maleCount,
         femaleCount,
-        excludedGroupIds = [],
         photosDirectory,
         concurrency = 5,
         workerProxies = null,
@@ -502,33 +501,31 @@ export default class AdsBotGuiService {
             );
         }
 
-        const excludedNames = [];
-        for (const groupId of excludedGroupIds ?? []) {
-            const profiles = await this.getAdsPowerGroupProfiles(groupId);
-            for (const profile of profiles) {
-                const name = String(profile.name ?? "")
-                    .replace(/^[mf]_/i, "")
-                    .replace(/\s+/g, " ")
-                    .trim();
-                if (name) excludedNames.push(name);
-            }
-        }
-
-        const generator = new CommentAccountPersonaGenerator();
+        const provider = new CommentAccountProfileData();
         await onProgress?.({
             stage: "personas",
-            message: "Grok генерує дані персонажів",
+            message: "Готуємо дані профілів",
         });
-        const personas = await generator.generate({
+        const generated = await provider.getCommentAccountProfiles({
             geo,
             maleCount,
             femaleCount,
-            excludedNames,
         });
+        const personas = generated.profiles.map((profile) => ({
+            gender: profile.gender,
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            bio: "",
+            education: profile.university,
+            work: {
+                company: profile.company,
+                position: profile.profession,
+            },
+        }));
         const { report } = await runParallelCommentAccountSetupScenario({
             adsPower: this.adsPower,
             profileNos: numbers,
-            personas: personas.profiles,
+            personas,
             geo,
             photosDirectory,
             concurrency,

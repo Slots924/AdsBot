@@ -1,3 +1,4 @@
+import { stat } from "node:fs/promises";
 import path from "node:path";
 
 import { appPaths } from "./paths.js";
@@ -1421,9 +1422,6 @@ export default function registerIpcHandlers({
             }
             const geo = String(payload.geo ?? "").replace(/\s+/g, " ").trim();
             const photosDirectory = String(payload.photosDirectory ?? "").trim();
-            const excludedGroupIds = [...new Set((payload.excludedGroupIds ?? [])
-                .map((id) => String(id).trim())
-                .filter(Boolean))];
             const task = await backgroundTaskManager.enqueue({
                 type: "account-setup",
                 name: `Акаунти під коментарі · ${geo} · ${profileNos.length}`,
@@ -1436,7 +1434,6 @@ export default function registerIpcHandlers({
                     geo,
                     maleCount: payload.maleCount,
                     femaleCount: payload.femaleCount,
-                    excludedGroupIds,
                     photosDirectory,
                     browserMode,
                     commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
@@ -1456,7 +1453,6 @@ export default function registerIpcHandlers({
                         geo,
                         maleCount: payload.maleCount,
                         femaleCount: payload.femaleCount,
-                        excludedGroupIds,
                         photosDirectory,
                         browserMode,
                         concurrency: payload.commentWorkerConcurrency,
@@ -1646,11 +1642,22 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "dialog:select-account-photos-folder",
-        safeHandler(async () => {
-            const result = await dialog.showOpenDialog(getWindow(), {
+        safeHandler(async (payload = {}) => {
+            const requested = String(payload.defaultPath ?? "").trim();
+            const options = {
                 title: "Виберіть папку з фото для акаунтів",
                 properties: ["openDirectory"],
-            });
+            };
+            if (requested) {
+                try {
+                    if ((await stat(requested)).isDirectory()) {
+                        options.defaultPath = requested;
+                    }
+                } catch {
+                    // Якщо старої папки вже немає — відкриваємо звичайний вибір.
+                }
+            }
+            const result = await dialog.showOpenDialog(getWindow(), options);
             return result.canceled ? null : result.filePaths[0] ?? null;
         })
     );

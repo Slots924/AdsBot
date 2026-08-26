@@ -1,9 +1,11 @@
+import { useState } from "react";
 import {
     cleanup,
     fireEvent,
     render,
     screen,
     waitFor,
+    within,
 } from "@testing-library/react";
 import { afterEach, beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
@@ -17,6 +19,7 @@ import AdAccountsTab from "../tabs/AdAccountsTab.jsx";
 import PublishTab from "../tabs/PublishTab.jsx";
 import TemplatesTab from "../tabs/TemplatesTab.jsx";
 import JournalTab from "../tabs/JournalTab.jsx";
+import CreateCommentAccountsModal from "../components/CreateCommentAccountsModal.jsx";
 import { findGroupForGeo } from "../lib/groups.js";
 import { sortGroups, sortProfiles } from "../lib/commentAccountGroups.js";
 import CommentAccountsTab from "../tabs/CommentAccountsTab.jsx";
@@ -97,6 +100,114 @@ describe("GUI helpers", () => {
         );
         expect(screen.getByText("Акаунти під коментарі")).toBeInTheDocument();
         expect(screen.getAllByLabelText(/Група /).length).toBe(2);
+    });
+
+    it("верхня галочка вибирає всі профілі і гасне якщо вже є вибір", async () => {
+        function Harness() {
+            const [leftSelectedIds, setLeftSelectedIds] = useState([]);
+            return (
+                <CommentAccountsTab
+                    groups={[{ groupId: "1", groupName: "Alpha" }]}
+                    onGroupsChange={vi.fn()}
+                    favoriteGroupIds={[]}
+                    onFavoriteGroupIdsChange={vi.fn()}
+                    leftGroupId="1"
+                    leftSelectedIds={leftSelectedIds}
+                    onLeftSelectedIdsChange={setLeftSelectedIds}
+                    onError={vi.fn()}
+                    showToast={vi.fn()}
+                />
+            );
+        }
+        window.adsBot.getAdsPowerGroupProfiles = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [
+                { profileId: "p1", profileNo: "10", name: "m_One", tags: [] },
+                { profileId: "p2", profileNo: "11", name: "m_Two", tags: [] },
+            ],
+        });
+        render(<Harness />);
+        await waitFor(() => expect(screen.getByText("m_One")).toBeInTheDocument());
+        const headerCheckbox = document.querySelector(
+            ".campaign-table-head input[type='checkbox']"
+        );
+        expect(headerCheckbox.checked).toBe(false);
+        fireEvent.click(screen.getByText("m_One"));
+        expect(headerCheckbox.checked).toBe(true);
+        fireEvent.click(headerCheckbox);
+        expect(headerCheckbox.checked).toBe(false);
+        fireEvent.click(headerCheckbox);
+        expect(headerCheckbox.checked).toBe(true);
+        expect(document.querySelectorAll(".campaign-row.selected")).toHaveLength(2);
+    });
+
+    it("у вікні створення акаунтів країна вибирається зі списку кодів", async () => {
+        window.adsBot.getCountries = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [
+                { code: "DE", name: "Germany", aliases: [] },
+                { code: "GB", name: "United Kingdom", aliases: ["UK"] },
+                { code: "US", name: "United States", aliases: [] },
+            ],
+        });
+        render(
+            <CreateCommentAccountsModal
+                profiles={[{ profileId: "p1", profileNo: "10", name: "m_One" }]}
+                settings={{}}
+                onClose={vi.fn()}
+                onQueued={vi.fn()}
+                onError={vi.fn()}
+            />
+        );
+        await waitFor(() => expect(window.adsBot.getCountries).toHaveBeenCalled());
+        fireEvent.click(screen.getByRole("button", { name: "Цільова країна" }));
+        const options = within(
+            document.querySelector(".geo-select-list .select-options")
+        ).getAllByRole("button");
+        expect(options.map((item) => item.textContent)).toEqual(["DE", "GB", "US"]);
+        fireEvent.change(screen.getByPlaceholderText("Дволітерний код країни…"), {
+            target: { value: "uk" },
+        });
+        const filtered = within(
+            document.querySelector(".geo-select-list .select-options")
+        ).getAllByRole("button");
+        expect(filtered).toHaveLength(1);
+        expect(filtered[0]).toHaveTextContent("GB");
+        expect(screen.queryByText("Групи з іменами для виключення")).not.toBeInTheDocument();
+    });
+
+    it("відкриває вибір папки з останнім каталогом і не підставляє її сама", async () => {
+        window.adsBot.getCountries = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{ code: "CZ", name: "Czechia", aliases: [] }],
+        });
+        window.adsBot.selectAccountPhotosFolder = vi.fn().mockResolvedValue({
+            ok: true,
+            data: "C:/photos/CZ",
+        });
+        const onPhotosDirectoryChange = vi.fn();
+        render(
+            <CreateCommentAccountsModal
+                profiles={[{ profileId: "p1", profileNo: "10", name: "m_One" }]}
+                settings={{}}
+                lastPhotosDirectory="C:/photos/old"
+                onPhotosDirectoryChange={onPhotosDirectoryChange}
+                onClose={vi.fn()}
+                onQueued={vi.fn()}
+                onError={vi.fn()}
+            />
+        );
+        expect(screen.getByPlaceholderText("Оберіть папку…")).toHaveValue("");
+        fireEvent.click(screen.getByRole("button", { name: /Вибрати папку/ }));
+        await waitFor(() => {
+            expect(window.adsBot.selectAccountPhotosFolder).toHaveBeenCalledWith(
+                "C:/photos/old"
+            );
+        });
+        await waitFor(() => {
+            expect(screen.getByDisplayValue("C:/photos/CZ")).toBeInTheDocument();
+        });
+        expect(onPhotosDirectoryChange).toHaveBeenCalledWith("C:/photos/CZ");
     });
 
     it("показує безпечні дані й статуси Facebook-акаунтів", () => {
@@ -715,6 +826,37 @@ describe("GUI helpers", () => {
         expect(onCommentDisableImagesChange).toHaveBeenCalledWith(true);
         expect(screen.getByLabelText("Воркер 1")).toBeInTheDocument();
         expect(screen.getByLabelText("Призначити проксі воркеру 1")).toBeInTheDocument();
+        const onAccountSetupBrowserModeChange = vi.fn();
+        cleanup();
+        render(
+            <SettingsModal
+                scale={1.3}
+                onScaleChange={vi.fn()}
+                createCampaignsPaused
+                onCreateCampaignsPausedChange={vi.fn()}
+                commentWorkerConcurrency={5}
+                onCommentWorkerConcurrencyChange={vi.fn()}
+                defaultPixelId=""
+                onDefaultPixelIdChange={vi.fn()}
+                defaultUtm=""
+                onDefaultUtmChange={vi.fn()}
+                commentBrowserMode="visible"
+                onCommentBrowserModeChange={vi.fn()}
+                commentDisableImages={false}
+                onCommentDisableImagesChange={vi.fn()}
+                accountSetupBrowserMode="visible"
+                onAccountSetupBrowserModeChange={onAccountSetupBrowserModeChange}
+                logLevel="info"
+                onLogLevelChange={vi.fn()}
+                onClose={vi.fn()}
+            />
+        );
+        fireEvent.click(screen.getByRole("button", { name: /Акаунти/ }));
+        const headlessToggle = screen.getByRole("checkbox", { name: /Запускати без вікна/ });
+        expect(headlessToggle).not.toBeChecked();
+        fireEvent.click(headlessToggle);
+        expect(onAccountSetupBrowserModeChange).toHaveBeenCalledWith("headless");
+        expect(screen.getByLabelText("Воркер оформлення 1")).toBeInTheDocument();
     });
 
     it("показує збережені події та структуровані звіти", async () => {

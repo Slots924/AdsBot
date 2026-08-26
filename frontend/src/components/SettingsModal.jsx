@@ -356,16 +356,18 @@ export default function SettingsModal({
                                     <div className="scale-setting-heading">
                                         <span>Браузер для оформлення</span>
                                     </div>
-                                    <label className="field">
-                                        <span>Режим запуску AdsPower</span>
-                                        <select
-                                            aria-label="Режим браузера для оформлення акаунтів"
-                                            value={accountSetupBrowserMode}
-                                            onChange={(event) => onAccountSetupBrowserModeChange(event.target.value)}
-                                        >
-                                            <option value="visible">Звичайний браузер</option>
-                                            <option value="headless">Headless (без вікна)</option>
-                                        </select>
+                                    <label className="checkbox-line">
+                                        <input
+                                            type="checkbox"
+                                            checked={accountSetupBrowserMode === "headless"}
+                                            onChange={(event) => onAccountSetupBrowserModeChange(
+                                                event.target.checked ? "headless" : "visible"
+                                            )}
+                                        />
+                                        <span>
+                                            <strong>Запускати без вікна</strong>
+                                            <small>AdsPower відкриє браузер у фоні, без видимого вікна.</small>
+                                        </span>
                                     </label>
                                 </section>
                             </>

@@ -138,6 +138,20 @@ assert.deepEqual(
 assert.equal(normalizeState({}).logLevel, "info");
 assert.equal(normalizeState({ logLevel: "debug" }).logLevel, "debug");
 assert.equal(normalizeState({ logLevel: "trace" }).logLevel, "info");
+assert.equal(normalizeState({}).accountSetupPhotosDirectory, "");
+assert.equal(
+    normalizeState({
+        accountSetupPhotosDirectory: "C:/photos/CZ",
+    }).accountSetupPhotosDirectory,
+    "C:/photos/CZ"
+);
+assert.equal(
+    Object.hasOwn(normalizeState({
+        commentLeftSelectedIds: ["p1"],
+        commentRightSelectedIds: ["p2"],
+    }), "commentLeftSelectedIds"),
+    false
+);
 
 const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "adsbot-browser-settings-"));
 try {

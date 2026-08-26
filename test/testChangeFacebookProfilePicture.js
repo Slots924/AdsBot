@@ -107,6 +107,23 @@ function createMockPage({
             return { width: 1280, height: 900 };
         },
         async evaluateHandle(_callback, selector) {
+            if (selector && typeof selector === "object") {
+                if (selector.type === "text") {
+                    return createHandle(
+                        selector.candidateSelector,
+                        selectorVisible(selector.candidateSelector),
+                        selector.expectedText
+                    );
+                }
+
+                if (selector.type === "selector") {
+                    return createHandle(
+                        selector.selector,
+                        selectorVisible(selector.selector)
+                    );
+                }
+            }
+
             return createHandle(selector, selectorVisible(selector));
         },
         async waitForFunction(_callback, _options, ...args) {
@@ -122,6 +139,35 @@ function createMockPage({
                 state.dialogVisible = false;
                 state.avatarUrl = "https://facebook.test/new-avatar.jpg";
                 return createHandle("result");
+            }
+
+            const locator = args[0];
+
+            if (locator && typeof locator === "object") {
+                if (locator.type === "text") {
+                    if (!selectorVisible(locator.candidateSelector)) {
+                        throw new Error(
+                            `timeout: ${locator.expectedText}`
+                        );
+                    }
+
+                    return createHandle(
+                        locator.candidateSelector,
+                        true,
+                        locator.expectedText
+                    );
+                }
+
+                if (
+                    locator.type === "selector"
+                    && !selectorVisible(locator.selector)
+                ) {
+                    throw new Error(`timeout: ${locator.selector}`);
+                }
+
+                if (locator.type === "selector") {
+                    return createHandle(locator.selector);
+                }
             }
 
             if (
@@ -274,6 +320,14 @@ try {
         && Number.isFinite(entry.details.y)
         && Number.isInteger(entry.details.steps)
     ));
+    assert.equal(
+        result.diagnostics.some((entry) =>
+            String(entry.message ?? "").includes(
+                "фінальна стабілізація оновленого профілю"
+            )
+        ),
+        false
+    );
 
     const menuFallbackPage = createMockPage({
         cameraButtonVisible: false,
@@ -321,7 +375,7 @@ try {
         profilePictureImageSelector
     );
 
-    const dialogTimeoutPage = createMockPage({ openFailures: 2 });
+    const dialogTimeoutPage = createMockPage({ openFailures: 3 });
     const dialogTimeoutResult = await changeFacebookProfilePicture(
         dialogTimeoutPage,
         { imagePath, timeout: 100, logger: silentLogger, ...timingOptions }
@@ -330,7 +384,7 @@ try {
         dialogTimeoutResult.status,
         facebookAvatarChangeStatuses.ELEMENT_NOT_FOUND
     );
-    assert.equal(dialogTimeoutPage.state.updateClicks, 2);
+    assert.equal(dialogTimeoutPage.state.updateClicks, 3);
 
     const previewTimeoutPage = createMockPage({
         previewNeverAppears: true,

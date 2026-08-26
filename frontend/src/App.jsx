@@ -51,6 +51,7 @@ export default function App() {
     const [accountSetupWorkerConcurrency, setAccountSetupWorkerConcurrency] = useState(5);
     const [accountSetupWorkerProxyIds, setAccountSetupWorkerProxyIds] = useState({});
     const [accountSetupBrowserMode, setAccountSetupBrowserMode] = useState("visible");
+    const [accountSetupPhotosDirectory, setAccountSetupPhotosDirectory] = useState("");
     const [defaultPixelId, setDefaultPixelId] = useState("");
     const [defaultUtm, setDefaultUtm] = useState("");
     const [logLevel, setLogLevel] = useState("info");
@@ -135,6 +136,7 @@ export default function App() {
                 setAccountSetupWorkerConcurrency(state.accountSetupWorkerConcurrency ?? 5);
                 setAccountSetupWorkerProxyIds(state.accountSetupWorkerProxyIds || {});
                 setAccountSetupBrowserMode(state.accountSetupBrowserMode || "visible");
+                setAccountSetupPhotosDirectory(state.accountSetupPhotosDirectory || "");
                 setDefaultPixelId(state.defaultPixelId); setDefaultUtm(state.defaultUtm);
                 setLogLevel(state.logLevel); setTaskPanelCollapsed(state.taskPanelCollapsed);
                 setFavoriteGroupIds(state.favoriteGroupIds || []);
@@ -142,8 +144,6 @@ export default function App() {
                 setCommentRightGroupId(state.commentRightGroupId || "");
                 setCommentLeftSort(state.commentLeftSort || { column: "profileNo", direction: "asc" });
                 setCommentRightSort(state.commentRightSort || { column: "profileNo", direction: "asc" });
-                setCommentLeftSelectedIds(state.commentLeftSelectedIds || []);
-                setCommentRightSelectedIds(state.commentRightSelectedIds || []);
                 await unwrap(window.adsBot.setUiScale(state.uiScale));
             } catch (error) { addLog("warn", "frontend", error.message); }
             await Promise.all([loadAccounts(true), loadProxies(), unwrap(window.adsBot.getAdsPowerGroups()).then(setGroups).catch(() => {}), refreshTasks().catch(() => {})]);
@@ -156,9 +156,9 @@ export default function App() {
     useEffect(() => { if (selectedAccount?.status === "active") loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status]);
     useEffect(() => {
         if (!hydrated) return undefined;
-        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, commentLeftSelectedIds, commentRightSelectedIds }).catch(() => {}), 250);
+        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort }).catch(() => {}), 250);
         return () => clearTimeout(timer);
-    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, commentLeftSelectedIds, commentRightSelectedIds]);
+    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort]);
 
     const updateWorkspacePages = (pages) => setWorkspaceCache((current) => ({
         ...current,
@@ -249,6 +249,8 @@ export default function App() {
                         onRightSelectedIdsChange={setCommentRightSelectedIds}
                         onError={setModal}
                         showToast={showToast}
+                        lastPhotosDirectory={accountSetupPhotosDirectory}
+                        onPhotosDirectoryChange={setAccountSetupPhotosDirectory}
                         settings={{
                             accountSetupWorkerConcurrency,
                             accountSetupWorkerProxyIds,

@@ -709,6 +709,8 @@ button:focus-visible, input:focus-visible {
 .geo-select .select-options { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 3px; }
 .geo-select .select-option { justify-content: center; min-height: 40px; }
 .geo-select .select-option > svg { display: none; }
+.geo-select-list .select-options { display: flex; flex-direction: column; gap: 2px; max-height: 280px; }
+.geo-select-list .select-option { justify-content: flex-start; }
 .multi-select .select-menu { min-width: min(520px, calc(100vw - 80px)); }
 
 /* Фанпейджі */
@@ -776,7 +778,7 @@ button:focus-visible, input:focus-visible {
 @media (max-width: 720px) { .campaign-source-grid { grid-template-columns: 1fr; } }
 .action-modal { width: min(650px, calc(100vw - 36px)); }
 .account-setup-modal { width: min(760px, calc(100vw - 36px)); }
-.account-setup-modal .creative-fields-row { grid-template-columns: 140px 1fr 1fr; }
+.account-setup-modal .creative-fields-row { grid-template-columns: minmax(200px, 1.4fr) 1fr 1fr; }
 .account-setup-selected { margin: 8px 0 0; color: var(--muted); }
 .account-setup-list {
     display: flex;

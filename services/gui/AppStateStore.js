@@ -14,6 +14,7 @@ const defaultState = {
     accountSetupWorkerConcurrency: 5,
     accountSetupWorkerProxyIds: {},
     accountSetupBrowserMode: "visible",
+    accountSetupPhotosDirectory: "",
     logLevel: "info",
     defaultPixelId: "",
     defaultUtm: "",
@@ -27,8 +28,6 @@ const defaultState = {
     commentRightGroupId: "",
     commentLeftSort: { column: "profileNo", direction: "asc" },
     commentRightSort: { column: "profileNo", direction: "asc" },
-    commentLeftSelectedIds: [],
-    commentRightSelectedIds: [],
     lastPublishedPost: null,
 };
 
@@ -118,6 +117,7 @@ function normalizeState(state = {}) {
             "selectedAdAccountId",
             "commentLeftGroupId",
             "commentRightGroupId",
+            "accountSetupPhotosDirectory",
         ]),
         selectedGroupIds: Array.isArray(state.selectedGroupIds)
             ? state.selectedGroupIds.filter((id) => typeof id === "string")
@@ -131,8 +131,6 @@ function normalizeState(state = {}) {
             state.commentRightSort,
             defaultState.commentRightSort
         ),
-        commentLeftSelectedIds: normalizeIdList(state.commentLeftSelectedIds),
-        commentRightSelectedIds: normalizeIdList(state.commentRightSelectedIds),
         lastPublishedPost: (
             typeof state.lastPublishedPost?.accountKey === "string"
             && typeof state.lastPublishedPost?.pageId === "string"

@@ -2,6 +2,10 @@ import path from "node:path";
 
 import loadImageFromPath from "../../services/images/loadImageFromPath.js";
 import {
+    clickUntilConfirmed,
+    describeLocator,
+} from "../browser/confirmedClick.js";
+import {
     getFirstVisibleElement,
     waitForVisibleElement,
 } from "../browser/elements.js";
@@ -424,90 +428,122 @@ async function clickFreshVisibleElement(
 }
 
 
+async function clickUntilNextVisible(
+    page,
+    options,
+    { timeout, report, stage, timingOptions }
+) {
+    const selector = describeLocator(options.target);
+
+    try {
+        return await clickUntilConfirmed(page, {
+            ...options,
+            timeout,
+            confirmTimeout: timeout,
+            clickOptions: {
+                random: timingOptions.random,
+                ...(timingOptions.sleep
+                    ? { sleep: timingOptions.sleep }
+                    : {}),
+                onEvent: (event) => report(
+                    stage,
+                    `Pointer event «${options.description}»: ${event.type}`,
+                    {
+                        ...event,
+                        selector,
+                    }
+                ),
+            },
+            onStep: (message, details) => report(stage, message, details),
+        });
+    } catch (error) {
+        throw new FacebookAvatarChangeError(error.message, {
+            code: error?.code === "BROWSER_CLICK_NOT_CONFIRMED"
+                ? "FACEBOOK_AVATAR_INTERACTION_FAILED"
+                : "FACEBOOK_AVATAR_SELECTOR_TIMEOUT",
+            status: facebookAvatarChangeStatuses.ELEMENT_NOT_FOUND,
+            stage,
+            selector: error?.selector ?? selector,
+            timeoutMs: error?.timeoutMs ?? timeout,
+            cause: error,
+        });
+    }
+}
+
+
 async function openPictureDialog(
     page,
     { timeout, report, timingOptions }
 ) {
     const stage = "OPEN_PICTURE_DIALOG";
-    let lastError;
 
-    for (let attempt = 1; attempt <= 2; attempt += 1) {
-        if (await isVisible(page, chooseProfilePictureDialogSelector)) {
-            return;
-        }
-
-        try {
-            if (await isVisible(page, updateProfilePictureButtonSelector)) {
-                await clickFreshVisibleElement(
-                    page,
-                    updateProfilePictureButtonSelector,
-                    {
-                        timeout,
-                        report,
-                        stage,
-                        description: "Update profile picture",
-                        timingOptions,
-                        attempt,
-                    }
-                );
-            } else {
-                report(
-                    stage,
-                    "Кнопки камери немає, відкриваємо меню поточної аватарки",
-                    {
-                        attempt,
-                        selector: profilePictureActionsButtonSelector,
-                    }
-                );
-                await clickFreshVisibleElement(
-                    page,
-                    profilePictureActionsButtonSelector,
-                    {
-                        timeout,
-                        report,
-                        stage,
-                        description: "Profile picture actions",
-                        stabilization: "medium",
-                        timingOptions,
-                        attempt,
-                    }
-                );
-                await clickChooseProfilePictureMenuItem(page, {
-                    timeout,
-                    report,
-                    stage,
-                    timingOptions,
-                    attempt,
-                });
-            }
-
-            const dialog = await waitForVisible(
-                page,
-                chooseProfilePictureDialogSelector,
-                timeout,
-                stage
-            );
-            await dialog.dispose().catch(() => {});
-            return;
-        } catch (error) {
-            lastError = error;
-
-            if (attempt === 1) {
-                report(
-                    stage,
-                    "Діалог вибору аватарки не відкрився, перевіряємо стан перед retry",
-                    {
-                        attempt,
-                        selector: chooseProfilePictureDialogSelector,
-                        error: createErrorDetails(error),
-                    },
-                    { level: "warn" }
-                );
-            }
-        }
+    if (await isVisible(page, chooseProfilePictureDialogSelector)) {
+        return;
     }
 
-    throw lastError;
+    if (await isVisible(page, updateProfilePictureButtonSelector)) {
+        await clickUntilNextVisible(
+            page,
+            {
+                target: {
+                    selector: updateProfilePictureButtonSelector,
+                },
+                confirm: {
+                    selector: chooseProfilePictureDialogSelector,
+                },
+                description: "Update profile picture",
+            },
+            {
+                timeout,
+                report,
+                stage,
+                timingOptions,
+            }
+        );
+        return;
+    }
+
+    report(
+        stage,
+        "Кнопки камери немає, відкриваємо меню поточної аватарки",
+        {
+            selector: profilePictureActionsButtonSelector,
+        }
+    );
+    await clickUntilNextVisible(
+        page,
+        {
+            target: {
+                selector: profilePictureActionsButtonSelector,
+            },
+            confirm: {
+                candidateSelector: chooseProfilePictureMenuItemSelector,
+                expectedText: chooseProfilePictureMenuText,
+            },
+            description: "Profile picture actions",
+        },
+        {
+            timeout,
+            report,
+            stage,
+            timingOptions,
+        }
+    );
+    await clickChooseProfilePictureMenuItem(page, {
+        timeout,
+        report,
+        stage,
+        timingOptions,
+        attempt: 1,
+    });
+
+    const dialog = await waitForVisible(
+        page,
+        chooseProfilePictureDialogSelector,
+        timeout,
+        stage
+    );
+    await dialog.dispose().catch(() => {});
 }
 
 
@@ -880,14 +916,6 @@ export default async function changeFacebookProfilePicture(
                 }
             );
         }
-
-        await pauseAfterVisible(
-            "extraLong",
-            report,
-            stage,
-            "фінальна стабілізація оновленого профілю",
-            timingOptions
-        );
 
         return finish(facebookAvatarChangeStatuses.CHANGED);
     } catch (error) {

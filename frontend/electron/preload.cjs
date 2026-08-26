@@ -157,8 +157,10 @@ contextBridge.exposeInMainWorld("adsBot", {
     selectImage: () => ipcRenderer.invoke("dialog:select-image"),
     selectPageRebuildFolder: () =>
         ipcRenderer.invoke("dialog:select-page-rebuild-folder"),
-    selectAccountPhotosFolder: () =>
-        ipcRenderer.invoke("dialog:select-account-photos-folder"),
+    selectAccountPhotosFolder: (defaultPath) =>
+        ipcRenderer.invoke("dialog:select-account-photos-folder", {
+            defaultPath,
+        }),
     openLocalPath: (filePath) =>
         ipcRenderer.invoke("app:open-path", { filePath }),
     openExternal: (url) => ipcRenderer.invoke("app:open-external", { url }),

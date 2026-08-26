@@ -1,30 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FolderOpen, X } from "lucide-react";
 
-import MultiSelect from "./MultiSelect.jsx";
+import GeoSelect from "./GeoSelect.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 
 
 export default function CreateCommentAccountsModal({
     profiles,
-    groups,
     settings,
+    lastPhotosDirectory = "",
+    onPhotosDirectoryChange = () => {},
     onClose,
     onQueued,
     onError,
 }) {
+    const [countries, setCountries] = useState([]);
     const [draft, setDraft] = useState({
         geo: "",
         maleCount: String(profiles.length),
         femaleCount: "0",
-        excludedGroupIds: [],
         photosDirectory: "",
     });
     const [saving, setSaving] = useState(false);
-    const geo = String(draft.geo ?? "").replace(/\s+/g, " ").trim();
+    const geo = String(draft.geo ?? "").trim().toUpperCase();
     const maleCount = Number(draft.maleCount);
     const femaleCount = Number(draft.femaleCount);
-    const canSubmit = geo.length > 0
+    const canSubmit = /^[A-Z]{2}$/.test(geo)
         && Number.isInteger(maleCount)
         && Number.isInteger(femaleCount)
         && maleCount >= 0
@@ -32,16 +33,21 @@ export default function CreateCommentAccountsModal({
         && maleCount + femaleCount > 0
         && draft.photosDirectory;
 
+    useEffect(() => {
+        unwrap(window.adsBot.getCountries()).then(setCountries).catch(() => {});
+    }, []);
+
     const chooseFolder = async () => {
         try {
             const selected = await unwrap(
-                window.adsBot.selectAccountPhotosFolder()
+                window.adsBot.selectAccountPhotosFolder(lastPhotosDirectory)
             );
             if (selected) {
                 setDraft((current) => ({
                     ...current,
                     photosDirectory: selected,
                 }));
+                onPhotosDirectoryChange(selected);
             }
         } catch (error) {
             onError(errorDetails(error));
@@ -58,7 +64,6 @@ export default function CreateCommentAccountsModal({
                 geo,
                 maleCount,
                 femaleCount,
-                excludedGroupIds: draft.excludedGroupIds,
                 photosDirectory: draft.photosDirectory,
                 browserMode: settings.accountSetupBrowserMode,
                 commentWorkerConcurrency: settings.accountSetupWorkerConcurrency,
@@ -92,13 +97,15 @@ export default function CreateCommentAccountsModal({
                 <div className="creative-fields-row">
                     <label className="field geo-field">
                         <span>Цільова країна</span>
-                        <input
+                        <GeoSelect
+                            layout="list"
+                            countries={countries}
                             value={draft.geo}
-                            maxLength={80}
-                            placeholder="поляки"
-                            onChange={(event) => setDraft((current) => ({
+                            placeholder="Оберіть країну"
+                            ariaLabel="Цільова країна"
+                            onChange={(nextGeo) => setDraft((current) => ({
                                 ...current,
-                                geo: event.target.value,
+                                geo: nextGeo,
                             }))}
                         />
                     </label>
@@ -127,19 +134,6 @@ export default function CreateCommentAccountsModal({
                         />
                     </label>
                 </div>
-                <label className="field">
-                    <span>Групи з іменами для виключення</span>
-                    <MultiSelect
-                        items={groups}
-                        value={draft.excludedGroupIds}
-                        onChange={(excludedGroupIds) => setDraft((current) => ({
-                            ...current,
-                            excludedGroupIds,
-                        }))}
-                        placeholder="Оберіть групи AdsPower"
-                        searchPlaceholder="Назва або ID групи…"
-                    />
-                </label>
                 <label className="field">
                     <span>Папка з фото</span>
                     <div className="inline-field">

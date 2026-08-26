@@ -1,4 +1,623 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "9ec6cd85-a6f8-4e4a-b86f-ec325e234b77",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · CZ · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1804",
+          "label": "AdsPower 1804"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1804"
+        ],
+        "geo": "CZ",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1804"
+        ],
+        "geo": "CZ",
+        "browserMode": "visible",
+        "reportId": "d68109f4-a281-493f-8e62-0cf9dfef010d"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 1,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 0,
+        "currentProfileNo": "1804",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-26_20-22-30-893.md",
+        "fatalError": null,
+        "success": 1,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-26T17:14:51.567Z",
+      "startedAt": "2026-08-26T17:14:51.568Z",
+      "finishedAt": "2026-08-26T17:22:30.893Z",
+      "updatedAt": "2026-08-26T17:22:30.895Z"
+    },
+    {
+      "id": "120fa78f-d203-4a3a-bfe2-efd2ba79034e",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · CZ · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1804",
+          "label": "AdsPower 1804"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1804"
+        ],
+        "geo": "CZ",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1804"
+        ],
+        "geo": "CZ",
+        "browserMode": "visible",
+        "reportId": "349809a0-c55f-46e5-8b32-4e8c2a0774c6"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 1,
+        "currentProfileNo": "1804",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-26_20-14-26-000.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 1
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-26T17:14:25.456Z",
+      "startedAt": "2026-08-26T17:14:25.459Z",
+      "finishedAt": "2026-08-26T17:14:26.000Z",
+      "updatedAt": "2026-08-26T17:14:26.002Z"
+    },
+    {
+      "id": "483c301f-f70e-4398-9e22-ce366b168d7f",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · CZ · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1804",
+          "label": "AdsPower 1804"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1804"
+        ],
+        "geo": "CZ",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1804"
+        ],
+        "geo": "CZ",
+        "browserMode": "visible",
+        "reportId": "02b1495f-3b76-45dc-92fa-d432cfb7abf2"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 1,
+        "skipped": 0,
+        "currentProfileNo": "1804",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-26_18-38-22-893.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-26T15:36:38.865Z",
+      "startedAt": "2026-08-26T15:36:38.866Z",
+      "finishedAt": "2026-08-26T15:38:22.894Z",
+      "updatedAt": "2026-08-26T15:38:22.895Z"
+    },
+    {
+      "id": "c06b91c2-8040-4083-8b08-4d4d701f7a37",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · CZ · 2",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1381",
+          "label": "AdsPower 1381"
+        },
+        {
+          "key": "adspower-profile:1803",
+          "label": "AdsPower 1803"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1381",
+          "1803"
+        ],
+        "geo": "CZ",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1381",
+          "1803"
+        ],
+        "geo": "CZ",
+        "browserMode": "visible",
+        "reportId": "a9efdf2a-4d03-4c6b-b5cc-cf0bddd6b6f8"
+      },
+      "progress": {
+        "completed": 2,
+        "total": 2,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 2,
+        "currentProfileNo": "1803",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-26_18-34-07-661.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 2
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-26T15:34:06.310Z",
+      "startedAt": "2026-08-26T15:34:06.311Z",
+      "finishedAt": "2026-08-26T15:34:07.661Z",
+      "updatedAt": "2026-08-26T15:34:07.662Z"
+    },
+    {
+      "id": "bc32d791-c397-42cc-9888-b41ce5ce7dbe",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · CZ · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1803",
+          "label": "AdsPower 1803"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1803"
+        ],
+        "geo": "CZ",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1803"
+        ],
+        "geo": "CZ",
+        "browserMode": "visible",
+        "reportId": "8b85863c-360a-4aa8-b6b6-4e6aed6e5d8b"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 1,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 0,
+        "currentProfileNo": "1803",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-26_18-33-36-244.md",
+        "fatalError": null,
+        "success": 1,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-26T15:25:48.653Z",
+      "startedAt": "2026-08-26T15:25:48.655Z",
+      "finishedAt": "2026-08-26T15:33:36.245Z",
+      "updatedAt": "2026-08-26T15:33:36.247Z"
+    },
+    {
+      "id": "4d3c913b-b354-4652-9312-20c8e0dc0e3b",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · CZ · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1802",
+          "label": "AdsPower 1802"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1802"
+        ],
+        "geo": "CZ",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1802"
+        ],
+        "geo": "CZ",
+        "browserMode": "visible",
+        "reportId": "62db60c7-a5e0-4e10-a922-f82f9b07a517"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 0,
+        "currentProfileNo": "1802",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-26_17-05-08-993.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-26T13:55:59.613Z",
+      "startedAt": "2026-08-26T13:55:59.614Z",
+      "finishedAt": "2026-08-26T14:05:08.994Z",
+      "updatedAt": "2026-08-26T14:05:08.995Z"
+    },
+    {
+      "id": "4e97e4d3-920c-4ba2-a719-b2f0a795dd78",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · CZ · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1802",
+          "label": "AdsPower 1802"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1802"
+        ],
+        "geo": "CZ",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1802"
+        ],
+        "geo": "CZ",
+        "browserMode": "visible",
+        "reportId": "ca67c28d-eaa8-4adb-a3d3-c80aa019f408"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 1,
+        "skipped": 0,
+        "currentProfileNo": "1802",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-26_16-55-22-596.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-26T13:53:33.356Z",
+      "startedAt": "2026-08-26T13:53:33.357Z",
+      "finishedAt": "2026-08-26T13:55:22.596Z",
+      "updatedAt": "2026-08-26T13:55:22.598Z"
+    },
+    {
+      "id": "4cb72e53-9160-4771-bcd2-fe0b36e21ac9",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · CZ · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1801",
+          "label": "AdsPower 1801"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1801"
+        ],
+        "geo": "CZ",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1801"
+        ],
+        "geo": "CZ",
+        "browserMode": "visible",
+        "reportId": "b98dd8b1-9460-4bcd-9efb-18fd422242c3"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 0,
+        "currentProfileNo": "1801",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-26_16-43-42-516.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-26T13:34:23.522Z",
+      "startedAt": "2026-08-26T13:34:23.524Z",
+      "finishedAt": "2026-08-26T13:43:42.520Z",
+      "updatedAt": "2026-08-26T13:43:42.521Z"
+    },
+    {
+      "id": "88bbb302-5789-4f15-b2f4-0bf710edbe9c",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · CZ · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1808",
+          "label": "AdsPower 1808"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1808"
+        ],
+        "geo": "CZ",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "excludedGroupIds": [],
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1808"
+        ],
+        "geo": "CZ",
+        "browserMode": "visible",
+        "reportId": "480d1f49-82ac-4bed-b23d-09e3e35bbbd0"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 1,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 0,
+        "currentProfileNo": "1808",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-26_15-29-56-402.md",
+        "fatalError": null,
+        "success": 1,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-26T12:19:57.914Z",
+      "startedAt": "2026-08-26T12:19:57.915Z",
+      "finishedAt": "2026-08-26T12:29:56.403Z",
+      "updatedAt": "2026-08-26T12:29:56.404Z"
+    },
+    {
+      "id": "8d6d8dec-0304-4afb-8035-3487c4f4e2e5",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · CZ · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1883",
+          "label": "AdsPower 1883"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1883"
+        ],
+        "geo": "CZ",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "excludedGroupIds": [],
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ",
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1883"
+        ],
+        "geo": "CZ",
+        "browserMode": "visible",
+        "reportId": "67e585b9-c84e-40a0-a55a-1e25fff941dc"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 1,
+        "currentProfileNo": "1883",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-08-26_15-18-38-842.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 1
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-26T12:13:45.866Z",
+      "startedAt": "2026-08-26T12:13:45.867Z",
+      "finishedAt": "2026-08-26T12:18:38.846Z",
+      "updatedAt": "2026-08-26T12:18:38.847Z"
+    }
+  ]
 }

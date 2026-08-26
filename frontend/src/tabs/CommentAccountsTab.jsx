@@ -47,8 +47,7 @@ function GroupPane({
         () => sortProfiles(profiles, sortColumn, sortDirection),
         [profiles, sortColumn, sortDirection]
     );
-    const allSelected = sortedProfiles.length > 0
-        && sortedProfiles.every((item) => selectedIds.has(item.profileId));
+    const anySelected = sortedProfiles.some((item) => selectedIds.has(item.profileId));
     const sortMark = (column) => (
         sortColumn === column ? (sortDirection === "asc" ? " ▲" : " ▼") : ""
     );
@@ -96,7 +95,7 @@ function GroupPane({
                     <label>
                         <input
                             type="checkbox"
-                            checked={allSelected}
+                            checked={anySelected}
                             disabled={sortedProfiles.length === 0}
                             onChange={onToggleAll}
                         />
@@ -180,6 +179,8 @@ export default function CommentAccountsTab({
     onError,
     showToast,
     settings = {},
+    lastPhotosDirectory = "",
+    onPhotosDirectoryChange = () => {},
 }) {
     const [leftProfiles, setLeftProfiles] = useState([]);
     const [rightProfiles, setRightProfiles] = useState([]);
@@ -290,8 +291,7 @@ export default function CommentAccountsTab({
             side === "left" ? leftSort.column : rightSort.column,
             side === "left" ? leftSort.direction : rightSort.direction
         );
-        const ids = sorted.length > 0
-            && sorted.every((item) => selected.has(item.profileId))
+        const ids = sorted.some((item) => selected.has(item.profileId))
             ? []
             : sorted.map((item) => item.profileId);
         if (side === "left") onLeftSelectedIdsChange(ids);
@@ -431,8 +431,9 @@ export default function CommentAccountsTab({
             {createOpen && (
                 <CreateCommentAccountsModal
                     profiles={selectedProfiles}
-                    groups={groups}
                     settings={settings}
+                    lastPhotosDirectory={lastPhotosDirectory}
+                    onPhotosDirectoryChange={onPhotosDirectoryChange}
                     onClose={() => setCreateOpen(false)}
                     onQueued={() => {
                         setCreateOpen(false);

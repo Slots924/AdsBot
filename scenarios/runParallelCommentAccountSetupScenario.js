@@ -79,7 +79,7 @@ function normalizePersonas(personas) {
             gender: persona.gender,
             firstName: String(persona.firstName).trim(),
             lastName: String(persona.lastName).trim(),
-            bio: String(persona.bio).trim(),
+            bio: String(persona.bio ?? "").trim(),
             education: String(persona.education).trim(),
             work: {
                 company: String(persona.work.company).trim(),

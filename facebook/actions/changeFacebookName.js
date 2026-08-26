@@ -1,4 +1,9 @@
 import {
+    clickUntilConfirmed,
+    clickWhenStable,
+    describeLocator,
+} from "../browser/confirmedClick.js";
+import {
     getFirstVisibleElement,
     waitForVisibleElement,
 } from "../browser/elements.js";
@@ -198,6 +203,17 @@ async function humanClickElement(
         beforeDelay,
         holdDelay: [80, 170],
         steps: [9, 19],
+        ...createClickOptions(report, stage, description, selector),
+    });
+
+    report(stage, `Клікнули ЛКМ по «${description}»`, {
+        selector,
+    });
+}
+
+
+function createClickOptions(report, stage, description, selector) {
+    return {
         onEvent: (event) => {
             if (event.type === "delay") {
                 report(
@@ -229,11 +245,73 @@ async function humanClickElement(
                 { ...event, selector }
             );
         },
-    });
+    };
+}
 
-    report(stage, `Клікнули ЛКМ по «${description}»`, {
-        selector,
-    });
+
+function mapConfirmedClickErrorCode(error) {
+    if (
+        error?.code === "BROWSER_CLICK_NOT_CONFIRMED"
+        || error?.code === "BROWSER_ELEMENT_INTERACTION_FAILED"
+    ) {
+        return "FACEBOOK_NAME_ELEMENT_INTERACTION_FAILED";
+    }
+
+    return "FACEBOOK_NAME_SELECTOR_TIMEOUT";
+}
+
+
+async function runConfirmedClick(page, options, report, stage) {
+    const selector = describeLocator(options.target);
+
+    try {
+        return await clickUntilConfirmed(page, {
+            ...options,
+            clickOptions: createClickOptions(
+                report,
+                stage,
+                options.description,
+                selector
+            ),
+            onStep: (message, details) => report(stage, message, details),
+        });
+    } catch (error) {
+        throw new FacebookNameChangeError(error.message, {
+            code: mapConfirmedClickErrorCode(error),
+            stage,
+            selector: error.selector ?? selector,
+            timeoutMs: error.timeoutMs ?? null,
+            url: page.url(),
+            cause: error,
+        });
+    }
+}
+
+
+async function runStableClick(page, options, report, stage) {
+    const selector = describeLocator(options.target);
+
+    try {
+        return await clickWhenStable(page, {
+            ...options,
+            clickOptions: createClickOptions(
+                report,
+                stage,
+                options.description,
+                selector
+            ),
+            onStep: (message, details) => report(stage, message, details),
+        });
+    } catch (error) {
+        throw new FacebookNameChangeError(error.message, {
+            code: mapConfirmedClickErrorCode(error),
+            stage,
+            selector: error.selector ?? selector,
+            timeoutMs: error.timeoutMs ?? null,
+            url: page.url(),
+            cause: error,
+        });
+    }
 }
 
 async function humanClickSelector(
@@ -292,220 +370,6 @@ async function humanClickSelector(
     } finally {
         await target.handle.dispose().catch(() => {});
     }
-}
-
-
-async function humanClickFirstSelector(
-    page,
-    selector,
-    report,
-    stage,
-    description,
-    options = {}
-) {
-    const timeout = options.timeout ?? 30000;
-    report(stage, `Чекаємо перший видимий елемент: ${selector}`, {
-        selector,
-        timeout,
-        index: 0,
-    });
-
-    let element;
-
-    try {
-        element = await waitForVisibleElement(page, selector, {
-            timeout,
-            index: 0,
-        });
-    } catch (error) {
-        throw new FacebookNameChangeError(
-            `Не знайдено перший видимий елемент «${description}»`,
-            {
-                code: "FACEBOOK_NAME_SELECTOR_TIMEOUT",
-                stage,
-                selector: `${selector}[0]`,
-                timeoutMs: timeout,
-                url: page.url(),
-                cause: error,
-            }
-        );
-    }
-
-    report(stage, `Знайдено ${selector}[0]`, {
-        selector,
-        index: 0,
-    });
-
-    try {
-        try {
-            await humanClickElement(
-                page,
-                element,
-                report,
-                stage,
-                description,
-                options.pauseBeforeClick,
-                `${selector}[0]`
-            );
-        } catch (error) {
-            throw new FacebookNameChangeError(
-                `Не вдалося клікнути перший елемент «${description}»: ${error.message}`,
-                {
-                    code: "FACEBOOK_NAME_ELEMENT_INTERACTION_FAILED",
-                    stage,
-                    selector: `${selector}[0]`,
-                    url: page.url(),
-                    cause: error,
-                }
-            );
-        }
-    } finally {
-        await element.dispose().catch(() => {});
-    }
-}
-
-async function getVisibleElementByText(
-    page,
-    candidateSelector,
-    expectedText,
-    closestSelector = null
-) {
-    const handle = await page.evaluateHandle(
-        (selector, text, closest) => {
-            const normalize = (value) => String(value ?? "")
-                .replace(/\s+/g, " ")
-                .trim();
-            const candidate = Array.from(
-                document.querySelectorAll(selector)
-            ).find((element) => normalize(element.textContent) === text);
-            const target = closest
-                ? candidate?.closest(closest)
-                : candidate;
-
-            if (!target) {
-                return null;
-            }
-
-            const rectangle = target.getBoundingClientRect();
-            const style = window.getComputedStyle(target);
-            const visible = rectangle.width > 0
-                && rectangle.height > 0
-                && style.display !== "none"
-                && style.visibility !== "hidden"
-                && style.opacity !== "0";
-
-            return visible ? target : null;
-        },
-        candidateSelector,
-        expectedText,
-        closestSelector
-    );
-    const element = handle.asElement();
-
-    if (!element) {
-        await handle.dispose();
-        return null;
-    }
-
-    return { element, handle };
-}
-
-
-async function waitForTextButton(
-    page,
-    candidateSelector,
-    expectedText,
-    closestSelector,
-    report,
-    stage
-) {
-    const selectorDescription = closestSelector
-        ? `${candidateSelector} text="${expectedText}" -> closest(${closestSelector})`
-        : `${candidateSelector} text="${expectedText}"`;
-    const timeout = 30000;
-
-    report(stage, `Шукаємо кнопку з текстом «${expectedText}»`, {
-        candidateSelector,
-        closestSelector,
-        selector: selectorDescription,
-        timeout,
-    });
-
-    let readyHandle;
-
-    try {
-        readyHandle = await page.waitForFunction(
-            (selector, text, closest) => {
-                const normalize = (value) => String(value ?? "")
-                    .replace(/\s+/g, " ")
-                    .trim();
-
-                return Array.from(document.querySelectorAll(selector))
-                    .some((candidate) => {
-                        if (normalize(candidate.textContent) !== text) {
-                            return false;
-                        }
-
-                        const element = closest
-                            ? candidate.closest(closest)
-                            : candidate;
-
-                        if (!element) {
-                            return false;
-                        }
-
-                        const rectangle = element.getBoundingClientRect();
-                        const style = window.getComputedStyle(element);
-
-                        return rectangle.width > 0
-                            && rectangle.height > 0
-                            && style.display !== "none"
-                            && style.visibility !== "hidden"
-                            && style.opacity !== "0";
-                    });
-            },
-            { timeout },
-            candidateSelector,
-            expectedText,
-            closestSelector
-        );
-    } catch (error) {
-        throw new FacebookNameChangeError(
-            `Не знайдено кнопку «${expectedText}»`,
-            {
-                code: "FACEBOOK_NAME_SELECTOR_TIMEOUT",
-                stage,
-                selector: selectorDescription,
-                timeoutMs: timeout,
-                url: page.url(),
-                cause: error,
-            }
-        );
-    }
-
-    await readyHandle.dispose();
-
-    const target = await getVisibleElementByText(
-        page,
-        candidateSelector,
-        expectedText,
-        closestSelector
-    );
-
-    if (!target) {
-        throw new FacebookNameChangeError(
-            `Не знайдено кнопку «${expectedText}»`,
-            {
-                code: "FACEBOOK_NAME_ELEMENT_NOT_FOUND",
-                stage,
-                selector: selectorDescription,
-                url: page.url(),
-            }
-        );
-    }
-
-    report(stage, `Кнопку «${expectedText}» знайдено`);
-    return target;
 }
 
 
@@ -962,47 +826,23 @@ export default async function changeFacebookName(
         }
 
         stage = "OPEN_NAME_DIALOG";
-        await humanClickFirstSelector(
+        await runConfirmedClick(
             page,
-            selectors.nameLink,
+            {
+                target: {
+                    selector: selectors.nameLink,
+                    index: 0,
+                },
+                confirm: {
+                    selector: selectors.nameDialog,
+                },
+                description: "Name",
+            },
             report,
-            stage,
-            "Name"
+            stage
         );
 
         stage = "WAIT_NAME_DIALOG";
-        try {
-            await waitForVisibleSelector(
-                page,
-                selectors.nameDialog,
-                8000,
-                report,
-                stage
-            );
-        } catch (error) {
-            if (error?.code !== "FACEBOOK_NAME_SELECTOR_TIMEOUT") {
-                throw error;
-            }
-
-            report(
-                stage,
-                "Перший клік по Name не відкрив форму, повторюємо клік"
-            );
-            await humanClickFirstSelector(
-                page,
-                selectors.nameLink,
-                report,
-                stage,
-                "Name, повторний клік"
-            );
-            await waitForVisibleSelector(
-                page,
-                selectors.nameDialog,
-                30000,
-                report,
-                stage
-            );
-        }
         await waitRandom(
             1500,
             3000,
@@ -1049,94 +889,37 @@ export default async function changeFacebookName(
         );
 
         stage = "REVIEW_CHANGE";
-        const reviewButton = await waitForTextButton(
+        await runConfirmedClick(
             page,
-            "span",
-            "Review change",
-            '[role="button"]',
+            {
+                target: {
+                    candidateSelector: "span",
+                    expectedText: "Review change",
+                    closestSelector: '[role="button"]',
+                },
+                confirm: {
+                    candidateSelector: '[role="button"]',
+                    expectedText: "Done",
+                },
+                description: "Review change",
+            },
             report,
             stage
-        );
-
-        try {
-            try {
-                await humanClickElement(
-                    page,
-                    reviewButton.element,
-                    report,
-                    stage,
-                    "Review change",
-                    null,
-                    'span text="Review change" -> closest([role="button"])'
-                );
-            } catch (error) {
-                throw new FacebookNameChangeError(
-                    `Не вдалося клікнути Review change: ${error.message}`,
-                    {
-                        code: "FACEBOOK_NAME_ELEMENT_INTERACTION_FAILED",
-                        stage,
-                        selector:
-                            'span text="Review change" -> closest([role="button"])',
-                        url: page.url(),
-                        cause: error,
-                    }
-                );
-            }
-        } finally {
-            await reviewButton.handle.dispose().catch(() => {});
-        }
-
-        stage = "WAIT_PREVIEW";
-        await waitForVisibleSelector(
-            page,
-            selectors.anyNameDialog,
-            30000,
-            report,
-            stage
-        );
-        const doneButton = await waitForTextButton(
-            page,
-            '[role="button"]',
-            "Done",
-            null,
-            report,
-            stage
-        );
-        await waitRandom(
-            1500,
-            3000,
-            report,
-            stage,
-            "завантаження прев’ю нового імені"
         );
 
         stage = "SUBMIT_CHANGE";
-        try {
-            try {
-                await humanClickElement(
-                    page,
-                    doneButton.element,
-                    report,
-                    stage,
-                    "Done",
-                    { minimum: 1500, maximum: 3000 },
-                    '[role="button"] text="Done"'
-                );
-            } catch (error) {
-                throw new FacebookNameChangeError(
-                    `Не вдалося клікнути Done: ${error.message}`,
-                    {
-                        code: "FACEBOOK_NAME_ELEMENT_INTERACTION_FAILED",
-                        stage,
-                        selector: '[role="button"] text="Done"',
-                        url: page.url(),
-                        cause: error,
-                    }
-                );
-            }
-        } finally {
-            await doneButton.handle.dispose().catch(() => {});
-        }
+        await runStableClick(
+            page,
+            {
+                target: {
+                    candidateSelector: '[role="button"]',
+                    expectedText: "Done",
+                },
+                description: "Done",
+            },
+            report,
+            stage
+        );
 
         stage = "WAIT_RESULT";
         await waitForVisibleSelector(

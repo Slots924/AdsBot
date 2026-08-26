@@ -84,7 +84,7 @@ function normalizeGeoCode(geo) {
             "PROFILE_DATA_VALIDATION_ERROR"
         );
     }
-    return code;
+    return code === "GB" ? "UK" : code;
 }
 
 

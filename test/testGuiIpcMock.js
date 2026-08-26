@@ -6,6 +6,7 @@ import registerIpcHandlers
 
 const handlers = new Map();
 const openedUrls = [];
+const openedDialogs = [];
 const zoomFactors = [];
 const rendererEvents = [];
 const logger = {
@@ -292,6 +293,7 @@ registerIpcHandlers({
     ipcMain,
     dialog: {
         async showOpenDialog(_window, options) {
+            openedDialogs.push(options);
             return {
                 canceled: false,
                 filePaths: options.properties.includes("openDirectory")
@@ -583,6 +585,16 @@ assert.deepEqual(
 assert.deepEqual(
     await handlers.get("dialog:select-page-rebuild-folder")({}, {}),
     { ok: true, data: "C:/images/page" }
+);
+assert.deepEqual(
+    await handlers.get("dialog:select-account-photos-folder")({}, {
+        defaultPath: "C:/missing/photos",
+    }),
+    { ok: true, data: "C:/images/page" }
+);
+assert.equal(
+    openedDialogs.at(-1).defaultPath,
+    undefined
 );
 assert.equal(
     (await handlers.get("app:open-external")({}, {

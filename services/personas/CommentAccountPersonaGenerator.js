@@ -192,7 +192,7 @@ export function isValidCommentAccountPersona(persona) {
         && ["male", "female"].includes(persona.gender)
         && isNonEmptyString(persona.firstName)
         && isNonEmptyString(persona.lastName)
-        && isNonEmptyString(persona.bio)
+        && typeof persona.bio === "string"
         && isNonEmptyString(persona.education)
         && isValidWork(persona.work);
 }
