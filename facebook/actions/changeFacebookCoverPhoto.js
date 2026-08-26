@@ -2,6 +2,10 @@ import path from "node:path";
 
 import loadImageFromPath from "../../services/images/loadImageFromPath.js";
 import {
+    clickUntilConfirmed,
+    describeLocator,
+} from "../browser/confirmedClick.js";
+import {
     getFirstVisibleElement,
     waitForVisibleElement,
 } from "../browser/elements.js";
@@ -368,59 +372,77 @@ async function clickFreshMenuItem(
 }
 
 
+async function clickUntilNextVisible(
+    page,
+    options,
+    { timeout, report, stage, timingOptions }
+) {
+    const selector = describeLocator(options.target);
+
+    try {
+        return await clickUntilConfirmed(page, {
+            ...options,
+            timeout,
+            confirmTimeout: timeout,
+            clickOptions: {
+                random: timingOptions.random,
+                ...(timingOptions.sleep
+                    ? { sleep: timingOptions.sleep }
+                    : {}),
+                onEvent: (event) => report(
+                    stage,
+                    `Pointer event «${options.description}»: ${event.type}`,
+                    {
+                        ...event,
+                        selector,
+                    }
+                ),
+            },
+            onStep: (message, details) => report(stage, message, details),
+        });
+    } catch (error) {
+        throw new FacebookCoverPhotoChangeError(error.message, {
+            code: error?.code === "BROWSER_CLICK_NOT_CONFIRMED"
+                ? "FACEBOOK_COVER_INTERACTION_FAILED"
+                : "FACEBOOK_COVER_SELECTOR_TIMEOUT",
+            status: facebookCoverPhotoChangeStatuses.ELEMENT_NOT_FOUND,
+            stage,
+            selector: error?.selector ?? selector,
+            timeoutMs: error?.timeoutMs ?? timeout,
+            cause: error,
+        });
+    }
+}
+
+
 async function openCoverEditingMenu(
     page,
     { timeout, report, timingOptions }
 ) {
     const stage = "OPEN_COVER_MENU";
-    let lastError;
 
-    for (let attempt = 1; attempt <= 2; attempt += 1) {
-        if (await isVisible(page, coverPhotoEditingMenuSelector)) {
-            return;
-        }
-
-        try {
-            await clickFreshVisibleElement(
-                page,
-                editCoverPhotoButtonSelector,
-                {
-                    timeout,
-                    report,
-                    stage,
-                    description: "Edit cover photo",
-                    timingOptions,
-                    attempt,
-                }
-            );
-
-            const menu = await waitForVisible(
-                page,
-                coverPhotoEditingMenuSelector,
-                timeout,
-                stage
-            );
-            await menu.dispose().catch(() => {});
-            return;
-        } catch (error) {
-            lastError = error;
-
-            if (attempt === 1) {
-                report(
-                    stage,
-                    "Меню редагування шпалер не відкрилося, перевіряємо стан перед retry",
-                    {
-                        attempt,
-                        selector: coverPhotoEditingMenuSelector,
-                        error: createErrorDetails(error),
-                    },
-                    { level: "warn" }
-                );
-            }
-        }
+    if (await isVisible(page, coverPhotoEditingMenuSelector)) {
+        return;
     }
 
-    throw lastError;
+    await clickUntilNextVisible(
+        page,
+        {
+            target: {
+                selector: editCoverPhotoButtonSelector,
+            },
+            confirm: {
+                selector: coverPhotoEditingMenuSelector,
+            },
+            description: "Edit cover photo",
+        },
+        {
+            timeout,
+            report,
+            stage,
+            timingOptions,
+        }
+    );
 }
 
 
@@ -666,24 +688,16 @@ export default async function changeFacebookCoverPhoto(
 
         stage = "READ_CURRENT_COVER";
         previousCoverUrl = await readCoverUrl(page);
-
-        if (!previousCoverUrl) {
-            throw new FacebookCoverPhotoChangeError(
-                "Не знайдено поточні шпалери профілю",
-                {
-                    code: "FACEBOOK_CURRENT_COVER_NOT_FOUND",
-                    status: facebookCoverPhotoChangeStatuses.ELEMENT_NOT_FOUND,
-                    stage,
-                    selector: coverPhotoImageSelector,
-                    timeoutMs: timeout,
-                }
-            );
-        }
-
-        report(stage, "Збережено URL поточних шпалер", {
-            selector: coverPhotoImageSelector,
-            previousCoverUrl,
-        });
+        report(
+            stage,
+            previousCoverUrl
+                ? "Збережено URL поточних шпалер"
+                : "Поточної обкладинки немає, після збереження має з’явитись URL",
+            {
+                selector: coverPhotoImageSelector,
+                previousCoverUrl,
+            }
+        );
 
         stage = "OPEN_COVER_MENU";
         await openCoverEditingMenu(page, {
@@ -801,14 +815,6 @@ export default async function changeFacebookCoverPhoto(
                 }
             );
         }
-
-        await pauseAfterVisible(
-            "extraLong",
-            report,
-            stage,
-            "фінальна стабілізація оновленого профілю",
-            timingOptions
-        );
 
         return finish(facebookCoverPhotoChangeStatuses.CHANGED);
     } catch (error) {

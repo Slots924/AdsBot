@@ -45,6 +45,14 @@ assert.equal(
     }),
     '[role="button"] text="Done"'
 );
+assert.equal(
+    describeLocator({
+        candidateSelector: '[role="menu"] [role="menuitem"]',
+        expectedText: "Move to trash",
+        match: "includes",
+    }),
+    '[role="menu"] [role="menuitem"] text*="Move to trash"'
+);
 
 await assert.rejects(
     () => clickWhenStable({}, { target: {} }),

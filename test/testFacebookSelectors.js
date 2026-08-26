@@ -66,6 +66,13 @@ import {
     uploadProfilePhotoButtonSelector,
 } from "../facebook/selectors/profile.js";
 import {
+    getPersonalProfileFeedPostActionsButtonSelector,
+    getPersonalProfileFeedPostSelector,
+    personalProfileFeedPostActionButtonSelector,
+    personalProfileFeedPostMenuItemSelector,
+    personalProfileMoveToTrashButtonSelector,
+} from "../facebook/selectors/personalProfileFeedPosts.js";
+import {
     allPostCommentSelector as compatibleAllPostCommentSelector,
     postDialogSelector as compatiblePostDialogSelector,
 } from "../facebook/post/selectors.js";
@@ -249,8 +256,8 @@ assert.equal(
 );
 assert.equal(
     editCoverPhotoButtonSelector,
-    'div[role="main"] '
-    + 'div[role="button"][aria-label="Edit cover photo" i]'
+    '[aria-label*="cover photo" i][aria-label*="edit" i]'
+    + ':is([role="button"], [role="menu"])'
 );
 assert.equal(
     coverPhotoEditingMenuSelector,
@@ -331,6 +338,29 @@ assert.equal(
 assert.equal(
     personalProfilePostCloseButtonSelector,
     '[role="button"][aria-label="Close" i]'
+);
+
+assert.equal(
+    getPersonalProfileFeedPostSelector(1),
+    '[aria-posinset="1"]'
+);
+assert.equal(
+    getPersonalProfileFeedPostActionsButtonSelector(1),
+    '[aria-posinset="1"] [role="button"][aria-haspopup="menu"]'
+        + '[aria-label^="Actions for this post by" i]'
+);
+assert.equal(
+    personalProfileFeedPostMenuItemSelector,
+    '[role="menu"] [role="menuitem"]'
+);
+assert.equal(
+    personalProfileFeedPostActionButtonSelector,
+    '[role="button"]'
+);
+assert.equal(
+    personalProfileMoveToTrashButtonSelector,
+    '[role="dialog"][aria-label="Move to your trash?" i] '
+        + '[role="button"][aria-label="Move" i]'
 );
 
 assert.equal(compatiblePostDialogSelector, postDialogSelector);

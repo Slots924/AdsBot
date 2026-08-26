@@ -45,10 +45,10 @@ export const coverPhotoImageSelector =
     'div[role="main"] '
     + 'a[role="link"][aria-label="View profile cover photo" i] img';
 
-/** Кнопка відкриття меню редагування шпалер особистого профілю. */
+/** Кнопка або меню редагування шпалер особистого профілю. */
 export const editCoverPhotoButtonSelector =
-    'div[role="main"] '
-    + 'div[role="button"][aria-label="Edit cover photo" i]';
+    '[aria-label*="cover photo" i][aria-label*="edit" i]'
+    + ':is([role="button"], [role="menu"])';
 
 /** Меню з доступними способами редагування шпалер профілю. */
 export const coverPhotoEditingMenuSelector =

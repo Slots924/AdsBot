@@ -38,7 +38,7 @@ function createMockPage({
     };
     const selectorVisible = (selector) => {
         if (selector === editCoverPhotoButtonSelector) {
-            return Boolean(state.coverUrl) && !state.previewVisible;
+            return !state.previewVisible;
         }
         if (selector === coverPhotoEditingMenuSelector) {
             return state.menuVisible;
@@ -93,6 +93,15 @@ function createMockPage({
             return { width: 1280, height: 900 };
         },
         async evaluateHandle(_callback, selector) {
+            if (selector && typeof selector === "object") {
+                if (selector.type === "selector") {
+                    return createHandle(
+                        selector.selector,
+                        selectorVisible(selector.selector)
+                    );
+                }
+            }
+
             return createHandle(selector, selectorVisible(selector));
         },
         async waitForFunction(_callback, _options, ...args) {
@@ -109,6 +118,16 @@ function createMockPage({
                 state.previewVisible = false;
                 state.coverUrl = "https://facebook.test/new-cover.jpg";
                 return createHandle("result");
+            }
+
+            const locator = args[0];
+
+            if (locator && typeof locator === "object" && locator.type === "selector") {
+                if (!selectorVisible(locator.selector)) {
+                    throw new Error(`timeout: ${locator.selector}`);
+                }
+
+                return createHandle(locator.selector);
             }
 
             const [selector] = args;
@@ -228,6 +247,14 @@ try {
         && Number.isFinite(entry.details.y)
         && Number.isInteger(entry.details.steps)
     ));
+    assert.equal(
+        result.diagnostics.some((entry) =>
+            String(entry.message ?? "").includes(
+                "фінальна стабілізація оновленого профілю"
+            )
+        ),
+        false
+    );
 
     const openRetryPage = createMockPage({ openFailures: 1 });
     const openRetryResult = await changeFacebookCoverPhoto(
@@ -253,11 +280,14 @@ try {
         missingCoverPage,
         { imagePath, timeout: 100, logger: silentLogger, ...timingOptions }
     );
+    assert.equal(missingCoverResult.success, true);
+    assert.equal(missingCoverResult.previousCoverUrl, null);
     assert.equal(
-        missingCoverResult.status,
-        facebookCoverPhotoChangeStatuses.ELEMENT_NOT_FOUND
+        missingCoverResult.currentCoverUrl,
+        "https://facebook.test/new-cover.jpg"
     );
-    assert.equal(missingCoverResult.failedSelector, coverPhotoImageSelector);
+    assert.equal(missingCoverPage.state.editClicks, 1);
+    assert.equal(missingCoverPage.state.saveClicks, 1);
 
     const previewTimeoutPage = createMockPage({
         previewNeverAppears: true,

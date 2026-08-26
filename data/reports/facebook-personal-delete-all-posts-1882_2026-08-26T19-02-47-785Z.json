@@ -1,0 +1,64 @@
+{
+  "title": "Ручний тест видалення постів Facebook, профіль 1882",
+  "profileNo": 1882,
+  "browserMode": "visible",
+  "keepOpen": true,
+  "startedAt": "2026-08-26T19:01:39.157Z",
+  "finishedAt": "2026-08-26T19:02:47.785Z",
+  "finalUrl": "https://www.facebook.com/profile.php?id=61585195430778",
+  "action": {
+    "success": true,
+    "status": "CLEANED",
+    "stage": "COMPLETED",
+    "deletedCount": 3,
+    "hiddenCount": 3,
+    "processedCount": 6,
+    "startedAt": "2026-08-26T19:02:04.961Z",
+    "finishedAt": "2026-08-26T19:02:47.785Z",
+    "finalUrl": "https://www.facebook.com/profile.php?id=61585195430778",
+    "error": null
+  },
+  "progress": [
+    {
+      "at": "2026-08-26T19:02:11.992Z",
+      "type": "post_moved_to_trash",
+      "processedCount": 1,
+      "deletedCount": 1
+    },
+    {
+      "at": "2026-08-26T19:02:18.740Z",
+      "type": "post_moved_to_trash",
+      "processedCount": 2,
+      "deletedCount": 2
+    },
+    {
+      "at": "2026-08-26T19:02:24.633Z",
+      "type": "post_hidden",
+      "processedCount": 3,
+      "hiddenCount": 1,
+      "nextPosinset": 2
+    },
+    {
+      "at": "2026-08-26T19:02:30.362Z",
+      "type": "post_hidden",
+      "processedCount": 4,
+      "hiddenCount": 2,
+      "nextPosinset": 3
+    },
+    {
+      "at": "2026-08-26T19:02:35.925Z",
+      "type": "post_hidden",
+      "processedCount": 5,
+      "hiddenCount": 3,
+      "nextPosinset": 4
+    },
+    {
+      "at": "2026-08-26T19:02:42.766Z",
+      "type": "post_moved_to_trash",
+      "processedCount": 6,
+      "deletedCount": 3
+    }
+  ],
+  "error": null,
+  "cleanupErrors": []
+}

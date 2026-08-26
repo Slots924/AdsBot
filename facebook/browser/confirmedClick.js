@@ -48,8 +48,9 @@ export function describeLocator(locator) {
     const closest = normalized.closestSelector
         ? ` -> closest(${normalized.closestSelector})`
         : "";
+    const matchMark = normalized.match === "includes" ? "*" : "";
 
-    return `${normalized.candidateSelector} text="${normalized.expectedText}"${closest}`;
+    return `${normalized.candidateSelector} text${matchMark}="${normalized.expectedText}"${closest}`;
 }
 
 
@@ -85,6 +86,7 @@ function normalizeLocator(locator) {
             candidateSelector: locator.candidateSelector,
             expectedText: String(locator.expectedText),
             closestSelector: locator.closestSelector ?? null,
+            match: locator.match === "includes" ? "includes" : "exact",
         };
     }
 
@@ -137,11 +139,17 @@ export function waitForDomQuietInPage(locator, quietMs, timeout) {
         }
 
         const expected = normalize(locator.expectedText);
+        const matches = (actual) => {
+            const value = normalize(actual);
+            return locator.match === "includes"
+                ? value.includes(expected)
+                : value === expected;
+        };
 
         for (const candidate of document.querySelectorAll(
             locator.candidateSelector
         )) {
-            if (normalize(candidate.textContent) !== expected) {
+            if (!matches(candidate.textContent)) {
                 continue;
             }
 
@@ -242,11 +250,17 @@ export function isLocatorVisibleInPage(locator) {
     }
 
     const expected = normalize(locator.expectedText);
+    const matches = (actual) => {
+        const value = normalize(actual);
+        return locator.match === "includes"
+            ? value.includes(expected)
+            : value === expected;
+    };
 
     return Array.from(
         document.querySelectorAll(locator.candidateSelector)
     ).some((candidate) => {
-        if (normalize(candidate.textContent) !== expected) {
+        if (!matches(candidate.textContent)) {
             return false;
         }
 
@@ -291,11 +305,17 @@ export function findLocatorInPage(locator) {
     }
 
     const expected = normalize(locator.expectedText);
+    const matches = (actual) => {
+        const value = normalize(actual);
+        return locator.match === "includes"
+            ? value.includes(expected)
+            : value === expected;
+    };
 
     for (const candidate of document.querySelectorAll(
         locator.candidateSelector
     )) {
-        if (normalize(candidate.textContent) !== expected) {
+        if (!matches(candidate.textContent)) {
             continue;
         }
 
