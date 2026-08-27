@@ -1,3 +1,6 @@
+export const keitaroPageSizes = [50, 100, 150, 200];
+
+
 export const keitaroDatePresets = [
     { id: "today", label: "Сьогодні" },
     { id: "yesterday", label: "Учора" },

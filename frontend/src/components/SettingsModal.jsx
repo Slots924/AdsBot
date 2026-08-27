@@ -61,6 +61,8 @@ export default function SettingsModal({
     onError = () => {},
     keitaroAvailableGroupIds = [],
     onKeitaroAvailableGroupIdsChange = () => {},
+    keitaroConcurrency = 20,
+    onKeitaroConcurrencyChange = () => {},
     onClose,
 }) {
     const [tab, setTab] = useState("general");
@@ -340,6 +342,43 @@ export default function SettingsModal({
                         {tab === "keitaro" && (
                             <>
                                 <p>Оберіть групи кампаній, які можна відкривати на вкладці Keitaro.</p>
+                                <section className="scale-setting">
+                                    <div className="scale-setting-heading">
+                                        <span>Одночасні запити до Keitaro</span>
+                                        <strong>{keitaroConcurrency}</strong>
+                                    </div>
+                                    <div className="scale-controls task-concurrency-controls">
+                                        <button
+                                            className="icon-button"
+                                            type="button"
+                                            disabled={keitaroConcurrency <= 1}
+                                            onClick={() => onKeitaroConcurrencyChange(keitaroConcurrency - 1)}
+                                        >
+                                            <Minus size={15} />
+                                        </button>
+                                        <input
+                                            aria-label="Одночасні запити до Keitaro"
+                                            type="range"
+                                            min="1"
+                                            max="50"
+                                            step="1"
+                                            value={keitaroConcurrency}
+                                            onChange={(event) => onKeitaroConcurrencyChange(
+                                                Number(event.target.value)
+                                            )}
+                                        />
+                                        <button
+                                            className="icon-button"
+                                            type="button"
+                                            disabled={keitaroConcurrency >= 50}
+                                            onClick={() => onKeitaroConcurrencyChange(keitaroConcurrency + 1)}
+                                        >
+                                            <Plus size={15} />
+                                        </button>
+                                    </div>
+                                    <div className="scale-labels"><span>1</span><span>50</span></div>
+                                    <small className="settings-hint">Якщо треба багато змін, програма шле їх не всі разом, а пачками по цій кількості. При 429 зачекає і повторить.</small>
+                                </section>
                                 <section className="scale-setting">
                                     <button
                                         type="button"

@@ -37,6 +37,14 @@ await keitaro.listCampaignGroups();
 assert.equal(captured.at(-1).url, "https://tracker.example.com/admin_api/v1/groups");
 assert.equal(captured.at(-1).params.type, "campaigns");
 
+await keitaro.sendBatch([
+    { method: "PUT", path: "campaigns/72", params: { name: "A" } },
+    { method: "PUT", path: "campaigns/73", params: { name: "B" } },
+]);
+assert.equal(captured.at(-1).url, "https://tracker.example.com/admin_api/v1/?batch");
+assert.equal(captured.at(-1).method, "POST");
+assert.equal(captured.at(-1).data.length, 2);
+
 await keitaro.cloneCampaign(12, { name: "Copy" });
 assert.equal(
     captured.at(-1).url,
@@ -65,6 +73,7 @@ assert.equal(
     "https://tracker.example.com/admin_api/v1/campaigns/3/restore"
 );
 
+assert.throws(() => keitaro.sendBatch([]), /batch/);
 assert.throws(() => keitaro.getCampaign(""), /ID кампанії/);
 assert.throws(() => keitaro.buildReport(null), /звіт/);
 
@@ -75,6 +84,63 @@ assert.equal(normalizeState({}).activeTab, "accounts");
 assert.equal(normalizeState({ activeTab: "keitaro" }).activeTab, "keitaro");
 assert.deepEqual(normalizeState({}).keitaroAvailableGroupIds, []);
 assert.equal(normalizeState({}).keitaroGroupId, "all");
+let inflight = 0;
+let maxInflight = 0;
+const limitedClient = {
+    async request() {
+        inflight += 1;
+        maxInflight = Math.max(maxInflight, inflight);
+        await new Promise((resolve) => setTimeout(resolve, 40));
+        inflight -= 1;
+        return { status: 200, data: { ok: true } };
+    },
+};
+const limitedKeitaro = new Keitaro({
+    apiKey: "TEST_KEITARO_KEY",
+    apiUrl: "https://tracker.example.com",
+    concurrency: 2,
+    httpClient: limitedClient,
+});
+await Promise.all([
+    limitedKeitaro.getCampaign(1),
+    limitedKeitaro.getCampaign(2),
+    limitedKeitaro.getCampaign(3),
+]);
+assert.equal(maxInflight, 2);
+assert.equal(limitedKeitaro.setConcurrency(99), 50);
+assert.equal(limitedKeitaro.setConcurrency(0), 1);
+
+let rateCalls = 0;
+const rateClient = {
+    async request() {
+        rateCalls += 1;
+        if (rateCalls === 1) {
+            const error = new Error("Too Many Requests");
+            error.response = {
+                status: 429,
+                headers: { "retry-after": "0" },
+                data: { error: "Too Many Requests" },
+            };
+            throw error;
+        }
+        return { status: 200, data: { ok: true } };
+    },
+};
+const rateKeitaro = new Keitaro({
+    apiKey: "TEST_KEITARO_KEY",
+    apiUrl: "https://tracker.example.com",
+    httpClient: rateClient,
+});
+const rateResult = await rateKeitaro.getCampaign(8);
+assert.equal(rateResult.ok, true);
+assert.equal(rateCalls, 2);
+
+assert.equal(normalizeState({}).keitaroConcurrency, 20);
+assert.equal(normalizeState({ keitaroConcurrency: 8 }).keitaroConcurrency, 8);
+assert.equal(normalizeState({ keitaroConcurrency: 99 }).keitaroConcurrency, 50);
+assert.equal(normalizeState({}).keitaroPageSize, 50);
+assert.equal(normalizeState({ keitaroPageSize: 150 }).keitaroPageSize, 150);
+assert.equal(normalizeState({ keitaroPageSize: 12 }).keitaroPageSize, 50);
 assert.equal(normalizeState({ keitaroDatePreset: "broken" }).keitaroDatePreset, "today");
 assert.deepEqual(
     normalizeState({ keitaroVisibleColumns: ["clicks", "nope"] }).keitaroVisibleColumns,

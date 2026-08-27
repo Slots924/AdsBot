@@ -26,7 +26,9 @@ These instructions also apply to Keitaro.js.
 
 All HTTP requests to the Keitaro Admin API must go through the internal request() method.
 Never call axios.post(), axios.get(), axios.request(), or another Axios method directly inside public Keitaro methods.
-Request queueing must remain centralized inside request().
+Request queueing and concurrency limiting must remain centralized inside request().
+Do not send unbounded parallel Keitaro HTTP calls from public methods.
+429 Too Many Requests must be retried inside request() after a delay.
 A failed request must not permanently block the request queue.
 
 В папці test лежать тести їх запускати не потрібно вони чисто для мене.

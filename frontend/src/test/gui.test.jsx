@@ -933,6 +933,7 @@ describe("GUI helpers", () => {
         expect(screen.getByText("Beta")).toBeInTheDocument();
         fireEvent.click(screen.getByLabelText("Вибрати кампанію Beta"));
         expect(screen.getByText("Вибрано: 1")).toBeInTheDocument();
+        expect(screen.getByLabelText("Кампаній на сторінці")).toHaveValue("50");
     });
 
     it("дозволяє обрати доступні групи Keitaro в налаштуваннях", async () => {
@@ -965,6 +966,7 @@ describe("GUI helpers", () => {
             />
         );
         fireEvent.click(screen.getByRole("button", { name: /Keitaro/ }));
+        expect(screen.getByLabelText("Одночасні запити до Keitaro")).toHaveValue("20");
         expect(await screen.findByText("Nutra")).toBeInTheDocument();
         fireEvent.click(screen.getByRole("checkbox", { name: /Nutra/ }));
         expect(onKeitaroAvailableGroupIdsChange).toHaveBeenCalledWith(["10"]);

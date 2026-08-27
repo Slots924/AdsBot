@@ -3,9 +3,14 @@ import path from "node:path";
 
 import {
     defaultKeitaroColumnWidths,
+    defaultKeitaroConcurrency,
+    defaultKeitaroPageSize,
     defaultKeitaroVisibleColumns,
     keitaroColumnIds,
+    keitaroConcurrencyMax,
+    keitaroConcurrencyMin,
     keitaroDatePresets,
+    keitaroPageSizes,
 } from "../keitaro/reportColumns.js";
 
 
@@ -44,6 +49,8 @@ const defaultState = {
     keitaroColumnOrder: [...keitaroColumnIds],
     keitaroColumnWidths: { ...defaultKeitaroColumnWidths },
     keitaroVisibleColumns: [...defaultKeitaroVisibleColumns],
+    keitaroPageSize: defaultKeitaroPageSize,
+    keitaroConcurrency: defaultKeitaroConcurrency,
 };
 
 
@@ -85,6 +92,7 @@ function normalizeCommentWorkerProxyIds(value) {
 
 const keitaroColumnIdSet = new Set(keitaroColumnIds);
 const keitaroDatePresetSet = new Set(keitaroDatePresets);
+const keitaroPageSizeSet = new Set(keitaroPageSizes);
 
 
 function normalizeKeitaroSort(value) {
@@ -218,6 +226,17 @@ function normalizeState(state = {}) {
         keitaroVisibleColumns: normalizeKeitaroVisibleColumns(
             state.keitaroVisibleColumns
         ),
+        keitaroPageSize: keitaroPageSizeSet.has(Number(state.keitaroPageSize))
+            ? Number(state.keitaroPageSize)
+            : defaultState.keitaroPageSize,
+        keitaroConcurrency: (() => {
+            const value = Math.round(Number(state.keitaroConcurrency));
+            if (!Number.isFinite(value)) return defaultState.keitaroConcurrency;
+            return Math.min(
+                keitaroConcurrencyMax,
+                Math.max(keitaroConcurrencyMin, value)
+            );
+        })(),
     };
 }
 

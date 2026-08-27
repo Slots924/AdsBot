@@ -63,6 +63,11 @@ export default class KeitaroGuiService {
     }
 
 
+    setConcurrency(value) {
+        return this.keitaro.setConcurrency(value);
+    }
+
+
     async listCampaignGroups() {
         const groups = await this.keitaro.listAllCampaignGroups();
         return groups

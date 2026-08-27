@@ -65,6 +65,31 @@ function extractErrorMessage(error) {
 }
 
 
+const defaultConcurrency = 20;
+const minConcurrency = 1;
+const maxConcurrency = 50;
+const maxRateLimitRetries = 6;
+
+
+function normalizeConcurrency(value) {
+    const number = Math.round(Number(value));
+    if (!Number.isFinite(number)) return defaultConcurrency;
+    return Math.min(maxConcurrency, Math.max(minConcurrency, number));
+}
+
+
+function retryAfterMs(error) {
+    const header = error?.response?.headers?.["retry-after"]
+        ?? error?.response?.headers?.["Retry-After"];
+    if (header === undefined || header === null || header === "") return null;
+    const seconds = Number(header);
+    if (Number.isFinite(seconds) && seconds >= 0) {
+        return Math.min(60000, seconds * 1000);
+    }
+    return null;
+}
+
+
 function normalizeList(payload) {
     if (Array.isArray(payload)) return payload;
     if (Array.isArray(payload?.list)) return payload.list;
@@ -80,7 +105,8 @@ class Keitaro {
         apiKey = process.env.KEITARO_API_KEY,
         apiUrl = process.env.KEITARO_API_URL,
         timeout = 60000,
-        requestDelay = 0,
+        concurrency = defaultConcurrency,
+        rateLimitRetries = maxRateLimitRetries,
         httpClient = axios,
     } = {}) {
         this.apiKey = String(apiKey ?? "").trim();
@@ -89,12 +115,14 @@ class Keitaro {
         this.timeout = Number.isFinite(timeout) && timeout > 0
             ? timeout
             : 60000;
-        this.requestDelay = Number.isFinite(requestDelay) && requestDelay > 0
-            ? requestDelay
-            : 0;
+        this.concurrency = normalizeConcurrency(concurrency);
+        this.rateLimitRetries = Number.isFinite(Number(rateLimitRetries))
+            && Number(rateLimitRetries) > 0
+            ? Math.round(Number(rateLimitRetries))
+            : maxRateLimitRetries;
         this.httpClient = httpClient;
-        this.lastRequestTime = 0;
-        this.requestQueue = Promise.resolve();
+        this.activeRequests = 0;
+        this.concurrencyWaiters = [];
     }
 
 
@@ -102,6 +130,36 @@ class Keitaro {
         return new Promise((resolve) => {
             setTimeout(resolve, milliseconds);
         });
+    }
+
+
+    setConcurrency(value) {
+        this.concurrency = normalizeConcurrency(value);
+        while (
+            this.activeRequests < this.concurrency
+            && this.concurrencyWaiters.length > 0
+        ) {
+            const next = this.concurrencyWaiters.shift();
+            if (next) next();
+        }
+        return this.concurrency;
+    }
+
+
+    async runLimited(operation) {
+        if (this.activeRequests >= this.concurrency) {
+            await new Promise((resolve) => {
+                this.concurrencyWaiters.push(resolve);
+            });
+        }
+        this.activeRequests += 1;
+        try {
+            return await operation();
+        } finally {
+            this.activeRequests = Math.max(0, this.activeRequests - 1);
+            const next = this.concurrencyWaiters.shift();
+            if (next) next();
+        }
     }
 
 
@@ -125,74 +183,98 @@ class Keitaro {
 
 
     // Усі запити до Keitaro проходять через цей метод
-    async request(method, endpoint, data = null, params = null) {
+    async request(method, endpoint, data = null, params = null, options = {}) {
         const sendRequest = async () => {
             this.ensureConfigured();
-            const startedAt = Date.now();
             const logger = getLogger("keitaro");
-            const timePassed = Date.now() - this.lastRequestTime;
-            const timeToWait = Math.max(0, this.requestDelay - timePassed);
-
-            if (timeToWait > 0) {
-                await this.wait(timeToWait);
-            }
-
-            this.lastRequestTime = Date.now();
             const path = String(endpoint ?? "");
-            const url = `${this.apiUrl}/admin_api/v1${
+            const url = options.url || `${this.apiUrl}/admin_api/v1${
                 path.startsWith("/") ? path : `/${path}`
             }`;
 
-            logger.debug("keitaro.request", "Надсилаємо запит до Keitaro", {
-                method,
-                endpoint: path,
-            });
-
-            try {
-                const response = await this.httpClient.request({
-                    method,
-                    url,
-                    data,
-                    params,
-                    headers: {
-                        "Api-Key": this.apiKey,
-                        "Content-Type": "application/json",
-                        Accept: "application/json",
-                    },
-                    timeout: this.timeout,
-                });
-                logger.debug("keitaro.response", "Keitaro відповів", {
+            for (let attempt = 1; ; attempt += 1) {
+                const startedAt = Date.now();
+                logger.debug("keitaro.request", "Надсилаємо запит до Keitaro", {
                     method,
                     endpoint: path,
-                    durationMs: Date.now() - startedAt,
-                    status: response.status,
+                    attempt,
                 });
-                return response.data ?? null;
-            } catch (error) {
-                const message = extractErrorMessage(error);
-                logger.error(
-                    "keitaro.request.failed",
-                    "Запит до Keitaro завершився помилкою",
-                    {
+                try {
+                    const response = await this.httpClient.request({
+                        method,
+                        url,
+                        data,
+                        params,
+                        headers: {
+                            "Api-Key": this.apiKey,
+                            "Content-Type": "application/json",
+                            Accept: "application/json",
+                        },
+                        timeout: this.timeout,
+                    });
+                    logger.debug("keitaro.response", "Keitaro відповів", {
                         method,
                         endpoint: path,
                         durationMs: Date.now() - startedAt,
-                        status: error?.response?.status ?? null,
-                        error: message,
+                        status: response.status,
+                    });
+                    return response.data ?? null;
+                } catch (error) {
+                    const status = error?.response?.status ?? null;
+                    if (status === 429 && attempt <= this.rateLimitRetries) {
+                        const waitMs = retryAfterMs(error)
+                            ?? Math.min(15000, 1000 * (2 ** (attempt - 1)));
+                        logger.warn(
+                            "keitaro.rate-limit",
+                            "Keitaro просить зачекати (429). Повторимо запит.",
+                            {
+                                method,
+                                endpoint: path,
+                                attempt,
+                                waitMs,
+                            }
+                        );
+                        await this.wait(waitMs);
+                        continue;
                     }
-                );
-                throw createKeitaroError(message, "KEITARO_API_ERROR", {
-                    httpStatus: error?.response?.status ?? null,
-                });
+                    const message = extractErrorMessage(error);
+                    logger.error(
+                        "keitaro.request.failed",
+                        "Запит до Keitaro завершився помилкою",
+                        {
+                            method,
+                            endpoint: path,
+                            durationMs: Date.now() - startedAt,
+                            status,
+                            error: message,
+                        }
+                    );
+                    throw createKeitaroError(message, "KEITARO_API_ERROR", {
+                        httpStatus: status,
+                    });
+                }
             }
         };
 
-        const currentRequest = this.requestQueue.then(
-            sendRequest,
-            sendRequest
+        return this.runLimited(sendRequest);
+    }
+
+
+    sendBatch(operations) {
+        if (!Array.isArray(operations) || operations.length === 0) {
+            throw createKeitaroError(
+                "Для batch потрібен непорожній масив запитів",
+                "KEITARO_VALIDATION_ERROR"
+            );
+        }
+        this.ensureConfigured();
+        return this.request(
+            "POST",
+            "/?batch",
+            operations,
+            null,
+            { url: `${this.apiUrl}/admin_api/v1/?batch` }
         );
-        this.requestQueue = currentRequest.catch(() => {});
-        return currentRequest;
     }
 
 
@@ -670,4 +752,4 @@ class Keitaro {
 
 
 export default Keitaro;
-export { createKeitaroError, normalizeList };
+export { createKeitaroError, normalizeConcurrency, normalizeList };

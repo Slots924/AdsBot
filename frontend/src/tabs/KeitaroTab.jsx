@@ -14,6 +14,7 @@ import {
     formatKeitaroValue,
     keitaroColumns,
     keitaroDatePresets,
+    keitaroPageSizes,
     sortKeitaroCampaigns,
     visibleKeitaroColumns,
 } from "../lib/keitaro.js";
@@ -44,6 +45,8 @@ export default function KeitaroTab({
     onColumnWidthsChange = () => {},
     visibleColumns = ["id", "name", "clicks", "conversions", "revenue"],
     onVisibleColumnsChange = () => {},
+    pageSize = 50,
+    onPageSizeChange = () => {},
     onError = () => {},
 }) {
     const [groups, setGroups] = useState([]);
@@ -52,6 +55,7 @@ export default function KeitaroTab({
     const [groupsLoading, setGroupsLoading] = useState(false);
     const [error, setError] = useState("");
     const [selectedIds, setSelectedIds] = useState([]);
+    const [page, setPage] = useState(1);
     const [gearOpen, setGearOpen] = useState(false);
     const requestSequence = useRef(0);
     const gearRef = useRef(null);
@@ -81,9 +85,13 @@ export default function KeitaroTab({
         ),
         [campaigns, search, sort]
     );
+    const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize) || 1);
+    const currentPage = Math.min(page, pageCount);
+    const pageStart = (currentPage - 1) * pageSize;
+    const paged = filtered.slice(pageStart, pageStart + pageSize);
     const selectedSet = useMemo(() => new Set(selectedIds.map(String)), [selectedIds]);
-    const allVisibleSelected = filtered.length > 0
-        && filtered.every((campaign) => selectedSet.has(String(campaign.id)));
+    const allVisibleSelected = paged.length > 0
+        && paged.every((campaign) => selectedSet.has(String(campaign.id)));
     const gridTemplate = [
         "36px",
         ...columns.map((column) => `${columnWidths[column.id] || column.width}px`),
@@ -133,6 +141,10 @@ export default function KeitaroTab({
     useEffect(() => {
         loadGroups();
     }, []);
+
+    useEffect(() => {
+        setPage(1);
+    }, [search, selectedGroupId, datePreset, pageSize, sort.column, sort.direction]);
 
     useEffect(() => {
         if (selectedGroupId !== "all" && !availableSet.has(String(selectedGroupId))) {
@@ -191,7 +203,13 @@ export default function KeitaroTab({
     };
 
     const toggleAll = () => {
-        setSelectedIds(allVisibleSelected ? [] : filtered.map((item) => String(item.id)));
+        const pageIds = paged.map((item) => String(item.id));
+        if (allVisibleSelected) {
+            const hide = new Set(pageIds);
+            setSelectedIds((current) => current.filter((id) => !hide.has(id)));
+            return;
+        }
+        setSelectedIds((current) => [...new Set([...current, ...pageIds])]);
     };
 
     const toggleRow = (id) => {
@@ -385,7 +403,7 @@ export default function KeitaroTab({
                     {!loading && !error && availableGroupIds.length > 0 && filtered.length === 0 && (
                         <div className="campaign-empty">Кампаній за цим фільтром немає.</div>
                     )}
-                    {!loading && filtered.map((campaign) => {
+                    {!loading && paged.map((campaign) => {
                         const checked = selectedSet.has(String(campaign.id));
                         return (
                             <label
@@ -429,6 +447,44 @@ export default function KeitaroTab({
                             </label>
                         );
                     })}
+                </div>
+                <div className="keitaro-pager">
+                    <span>
+                        {filtered.length === 0
+                            ? "Кампаній немає"
+                            : `${pageStart + 1}–${Math.min(pageStart + paged.length, filtered.length)} з ${filtered.length}`}
+                    </span>
+                    <div className="keitaro-pager-pages">
+                        <button
+                            type="button"
+                            className="secondary-button"
+                            disabled={currentPage <= 1}
+                            onClick={() => setPage(currentPage - 1)}
+                        >
+                            Назад
+                        </button>
+                        <span>Сторінка {currentPage} з {pageCount}</span>
+                        <button
+                            type="button"
+                            className="secondary-button"
+                            disabled={currentPage >= pageCount}
+                            onClick={() => setPage(currentPage + 1)}
+                        >
+                            Далі
+                        </button>
+                    </div>
+                    <label className="keitaro-page-size">
+                        На сторінці
+                        <select
+                            aria-label="Кампаній на сторінці"
+                            value={pageSize}
+                            onChange={(event) => onPageSizeChange(Number(event.target.value))}
+                        >
+                            {keitaroPageSizes.map((size) => (
+                                <option key={size} value={size}>{size}</option>
+                            ))}
+                        </select>
+                    </label>
                 </div>
             </div>
         </motion.section>

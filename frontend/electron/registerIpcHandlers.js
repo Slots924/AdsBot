@@ -1618,7 +1618,11 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "state:save",
-        safeHandler((payload) => appStateStore.save(payload))
+        safeHandler(async (payload) => {
+            const saved = await appStateStore.save(payload);
+            keitaroGuiService?.setConcurrency(saved.keitaroConcurrency);
+            return saved;
+        })
     );
     ipcMain.handle(
         "app:set-zoom",

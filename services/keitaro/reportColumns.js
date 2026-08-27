@@ -78,10 +78,22 @@ const keitaroDatePresets = [
 ];
 
 
+const keitaroPageSizes = [50, 100, 150, 200];
+const defaultKeitaroPageSize = 50;
+const defaultKeitaroConcurrency = 20;
+const keitaroConcurrencyMin = 1;
+const keitaroConcurrencyMax = 50;
+
+
 export {
     defaultKeitaroColumnWidths,
+    defaultKeitaroConcurrency,
+    defaultKeitaroPageSize,
     defaultKeitaroVisibleColumns,
     keitaroColumnIds,
+    keitaroConcurrencyMax,
+    keitaroConcurrencyMin,
     keitaroDatePresets,
+    keitaroPageSizes,
     keitaroReportMetrics,
 };

@@ -201,6 +201,7 @@ async function createWindow() {
     creativeLaunchJournal = new CreativeLaunchJournal({ jobsFile: appPaths.creativeLaunchJobs });
 
     const keitaroGuiService = new KeitaroGuiService();
+    keitaroGuiService.setConcurrency(restoredState.keitaroConcurrency);
 
     registerIpcHandlers({
         ipcMain,
