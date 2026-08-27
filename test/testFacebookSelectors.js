@@ -45,6 +45,11 @@ import {
     topLevelCommentSelector,
 } from "../facebook/selectors/post.js";
 import {
+    createNewAccountSelector,
+    logInButtonSelector,
+    useAnotherProfileSelector,
+} from "../facebook/selectors/login.js";
+import {
     getReactionOptionSelector,
     reactionButtonSelector,
     reactionsToolbarSelector,
@@ -378,6 +383,35 @@ assert.equal(
 assert.equal(
     compatibleOrderingMenuItemSelector,
     commentOrderingMenuItemSelector
+);
+
+assert.match(
+    createNewAccountSelector,
+    /a\[aria-label="Create new account" i\]/
+);
+assert.match(
+    createNewAccountSelector,
+    /a\[aria-label="Neues Konto erstellen" i\]/
+);
+assert.match(
+    createNewAccountSelector,
+    /a\[aria-label="Створити новий обліковий запис" i\]/
+);
+assert.match(
+    useAnotherProfileSelector,
+    /\[role="button"\]\[aria-label="Use another profile" i\]/
+);
+assert.match(
+    useAnotherProfileSelector,
+    /\[role="button"\]\[aria-label="Використати інший профіль" i\]/
+);
+assert.match(
+    logInButtonSelector,
+    /\[role="button"\]\[aria-label="Log In" i\]/
+);
+assert.match(
+    logInButtonSelector,
+    /\[role="button"\]\[aria-label="Увійти" i\]/
 );
 
 console.log("Facebook selector contract tests passed");

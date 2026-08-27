@@ -53,6 +53,13 @@ assert.equal(
     }),
     '[role="menu"] [role="menuitem"] text*="Move to trash"'
 );
+assert.equal(
+    describeLocator({
+        check: () => true,
+        description: "вікно поста",
+    }),
+    "вікно поста"
+);
 
 await assert.rejects(
     () => clickWhenStable({}, { target: {} }),

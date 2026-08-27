@@ -171,6 +171,12 @@ function createFeedPage({
         },
         async evaluate(callback) {
             const source = String(callback);
+            if (callback?.name === "waitForDomQuietInPage") {
+                return true;
+            }
+            if (callback?.name === "isVisiblePostWindowInPage") {
+                return state.dialogOpen;
+            }
             if (source.includes("innerWidth")) {
                 return { width: 1280, height: 900 };
             }
@@ -223,7 +229,13 @@ function createFeedPage({
                 }
                 return createHandle();
             }
-            if (firstArg === postDialogSelector) {
+            if (
+                callback?.name === "isVisiblePostWindowInPage"
+                || (
+                    firstArg === postDialogSelector
+                    && !source.includes("story_fbid")
+                )
+            ) {
                 if (!state.dialogOpen) {
                     throw new Error("dialog timeout");
                 }

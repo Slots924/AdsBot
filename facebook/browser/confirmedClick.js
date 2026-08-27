@@ -39,6 +39,10 @@ export function matchesLocatorText(actual, expected) {
 export function describeLocator(locator) {
     const normalized = normalizeLocator(locator);
 
+    if (normalized.type === "check") {
+        return normalized.description;
+    }
+
     if (normalized.type === "selector") {
         return normalized.index === null
             ? normalized.selector
@@ -57,6 +61,15 @@ export function describeLocator(locator) {
 function normalizeLocator(locator) {
     if (!locator || typeof locator !== "object") {
         throw new TypeError("Локатор елемента має бути об’єктом");
+    }
+
+    if (typeof locator.check === "function") {
+        return {
+            type: "check",
+            check: locator.check,
+            args: Array.isArray(locator.args) ? locator.args : [],
+            description: locator.description || "перевірка стану",
+        };
     }
 
     if (typeof locator.selector === "string" && locator.selector.trim() !== "") {
@@ -362,6 +375,10 @@ export async function waitForDomQuiet(
     const normalized = normalizeLocator(locator);
     validateQuietOptions(quietMs, timeout);
 
+    if (normalized.type === "check") {
+        return false;
+    }
+
     try {
         return Boolean(
             await page.evaluate(
@@ -377,8 +394,21 @@ export async function waitForDomQuiet(
 }
 
 
+function createCheckHandle() {
+    return { dispose: async () => {} };
+}
+
+
 async function getVisibleLocator(page, locator) {
     const normalized = normalizeLocator(locator);
+
+    if (normalized.type === "check") {
+        const visible = await page.evaluate(
+            normalized.check,
+            ...normalized.args
+        );
+        return visible ? createCheckHandle() : null;
+    }
 
     if (normalized.type === "selector") {
         return getFirstVisibleElement(page, normalized.selector, {
@@ -400,6 +430,32 @@ async function getVisibleLocator(page, locator) {
 
 async function waitForVisibleLocator(page, locator, { timeout = 30000 } = {}) {
     const normalized = normalizeLocator(locator);
+
+    if (normalized.type === "check") {
+        let readyHandle;
+
+        try {
+            readyHandle = await page.waitForFunction(
+                normalized.check,
+                { timeout },
+                ...normalized.args
+            );
+        } catch (error) {
+            throw new ConfirmedClickError(
+                `Не знайдено видимий елемент: ${describeLocator(normalized)}`,
+                {
+                    code: "BROWSER_ELEMENT_TIMEOUT",
+                    selector: describeLocator(normalized),
+                    timeoutMs: timeout,
+                    cause: error,
+                }
+            );
+        } finally {
+            await disposeHandle(readyHandle);
+        }
+
+        return createCheckHandle();
+    }
 
     if (normalized.type === "selector") {
         return waitForVisibleElement(page, normalized.selector, {

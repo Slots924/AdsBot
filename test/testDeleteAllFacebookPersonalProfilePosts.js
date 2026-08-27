@@ -30,6 +30,7 @@ function createMockPage({ posts = [] } = {}) {
         trashClicks: 0,
         moveClicks: 0,
         hideClicks: 0,
+        reloadCalls: 0,
         currentSelector: null,
     };
 
@@ -101,6 +102,9 @@ function createMockPage({ posts = [] } = {}) {
         url() {
             return "https://www.facebook.com/me";
         },
+        async reload() {
+            state.reloadCalls += 1;
+        },
         async evaluate(fn, ...args) {
             if (fn.name === "readPostSnapshotInPage") {
                 return snapshotOf(args[0]);
@@ -150,6 +154,10 @@ function createMockPage({ posts = [] } = {}) {
                 : missingHandle;
         },
         async waitForFunction(fn, _options, ...args) {
+            if (String(fn).includes("readyState")) {
+                return { async dispose() {} };
+            }
+
             if (fn.name === "detectPostMenuActionInPage") {
                 if (!state.menuOpen) {
                     throw new Error("timeout: menu action");
@@ -285,13 +293,15 @@ assert.equal(
     true
 );
 
+const emptyPage = createMockPage({ posts: [] });
 const empty = await deleteAllFacebookPersonalProfilePosts(
-    createMockPage({ posts: [] }),
+    emptyPage,
     { timeout: 100, logger: silentLogger, ...timingOptions }
 );
 assert.equal(empty.status, facebookPersonalProfilePostDeletionStatuses.NO_POSTS);
 assert.equal(empty.success, true);
 assert.equal(empty.processedCount, 0);
+assert.equal(emptyPage.state.reloadCalls, 1);
 
 const trashPage = createMockPage({
     posts: [{ id: "one", text: "First post" }],
@@ -311,6 +321,7 @@ assert.equal(trashPage.state.actionsClicks, 1);
 assert.equal(trashPage.state.trashClicks, 1);
 assert.equal(trashPage.state.moveClicks, 1);
 assert.equal(trashPage.state.posts.length, 0);
+assert.equal(trashPage.state.reloadCalls, 1);
 
 const hidePage = createMockPage({
     posts: [{ id: "sys", action: "hide", text: "Updated cover photo" }],

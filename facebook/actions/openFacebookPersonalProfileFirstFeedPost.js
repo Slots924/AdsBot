@@ -1,6 +1,7 @@
-import { waitForVisibleElement } from "../browser/elements.js";
-import { humanClickElement } from "../browser/pointer.js";
-import { waitHuman } from "../browser/timing.js";
+import {
+    clickUntilConfirmed,
+    describeLocator,
+} from "../browser/confirmedClick.js";
 import {
     personalProfileFirstFeedPostCftLinkSelector,
     personalProfileFirstFeedPostPermalinkLinkSelector,
@@ -231,33 +232,32 @@ async function waitForFirstFeedPostChange(
 }
 
 
-async function waitForPostWindow(page, timeout) {
-    await page.waitForFunction((selector) => {
-        const normalize = (value) => String(value ?? "")
-            .replace(/\s+/g, " ")
-            .trim();
-        const visible = (node) => {
-            const rectangle = node.getBoundingClientRect();
-            const style = getComputedStyle(node);
-            return rectangle.width > 0
-                && rectangle.height > 0
-                && style.display !== "none"
-                && style.visibility !== "hidden"
-                && style.opacity !== "0";
-        };
-        return Array.from(document.querySelectorAll(selector))
-            .filter(visible)
-            .some((dialog) => {
-                const ids = normalize(dialog.getAttribute("aria-labelledby"))
-                    .split(" ")
-                    .filter(Boolean);
-                const heading = normalize(ids
-                    .map((id) => document.getElementById(id)?.innerText)
-                    .filter(Boolean)
-                    .join(" "));
-                return /['\u2019](?:s\s+)?post$/i.test(heading);
-            });
-    }, { timeout }, postDialogSelector);
+export function isVisiblePostWindowInPage(selector) {
+    const normalize = (value) => String(value ?? "")
+        .replace(/\s+/g, " ")
+        .trim();
+    const visible = (node) => {
+        const rectangle = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        return rectangle.width > 0
+            && rectangle.height > 0
+            && style.display !== "none"
+            && style.visibility !== "hidden"
+            && style.opacity !== "0";
+    };
+
+    return Array.from(document.querySelectorAll(selector))
+        .filter(visible)
+        .some((dialog) => {
+            const ids = normalize(dialog.getAttribute("aria-labelledby"))
+                .split(" ")
+                .filter(Boolean);
+            const heading = normalize(ids
+                .map((id) => document.getElementById(id)?.innerText)
+                .filter(Boolean)
+                .join(" "));
+            return /['\u2019](?:s\s+)?post$/i.test(heading);
+        });
 }
 
 
@@ -445,71 +445,59 @@ export default async function openFacebookPersonalProfileFirstFeedPost(
                 fingerprint: currentFingerprint,
             }
         );
-        let initialLink;
-        try {
-            initialLink = await waitForVisibleElement(
-                page,
-                dateLinkSelector,
-                { timeout }
-            );
-        } catch (error) {
-            throw new FacebookPersonalProfileFirstFeedPostError(
-                "У першій картці немає посилання дати",
-                {
-                    code: "FACEBOOK_PERSONAL_FIRST_FEED_POST_CFT_NOT_FOUND",
-                    status: facebookPersonalProfileFirstFeedPostStatuses
-                        .CFT_LINK_NOT_FOUND,
-                    stage,
-                    selector: dateLinkSelector,
-                    cause: error,
-                }
-            );
-        }
-        await initialLink.dispose().catch(() => {});
-        await waitHuman("short", timingOptions);
-        let freshLink;
-        try {
-            freshLink = await waitForVisibleElement(
-                page,
-                dateLinkSelector,
-                { timeout }
-            );
-        } catch (error) {
-            throw new FacebookPersonalProfileFirstFeedPostError(
-                "Посилання дати зникло перед кліком",
-                {
-                    code: "FACEBOOK_PERSONAL_FIRST_FEED_POST_CFT_NOT_FOUND",
-                    status: facebookPersonalProfileFirstFeedPostStatuses
-                        .CFT_LINK_NOT_FOUND,
-                    stage,
-                    selector: dateLinkSelector,
-                    cause: error,
-                }
-            );
-        }
-        try {
-            await humanClickElement(page, freshLink, {
-                beforeDelay: [100, 240],
-                holdDelay: [70, 150],
-                scrollDelay: [250, 550],
-                ...timingOptions,
-            });
-        } finally {
-            await freshLink.dispose().catch(() => {});
-        }
 
-        stage = "WAIT_DIALOG";
         try {
-            await waitForPostWindow(page, timeout);
+            await clickUntilConfirmed(page, {
+                target: { selector: dateLinkSelector },
+                confirm: {
+                    check: isVisiblePostWindowInPage,
+                    args: [postDialogSelector],
+                    description: "вікно поста",
+                },
+                description: "дата поста",
+                timeout,
+                confirmTimeout: timeout,
+                clickOptions: {
+                    beforeDelay: [100, 240],
+                    holdDelay: [70, 150],
+                    scrollDelay: [250, 550],
+                    ...timingOptions,
+                    onEvent: (event) => report(
+                        "facebook.first_feed_post.click_date",
+                        `Pointer event «дата поста»: ${event.type}`,
+                        {
+                            ...event,
+                            selector: dateLinkSelector,
+                        }
+                    ),
+                },
+                onStep: (message, details) => report(
+                    "facebook.first_feed_post.click_date",
+                    message,
+                    details
+                ),
+            });
         } catch (error) {
+            const selector = error?.selector
+                ?? describeLocator({ selector: dateLinkSelector });
+            const missedDate = error?.code === "BROWSER_ELEMENT_TIMEOUT"
+                && selector === dateLinkSelector;
+
             throw new FacebookPersonalProfileFirstFeedPostError(
-                "Клік по даті не відкрив модальне вікно поста",
+                missedDate
+                    ? "У першій картці немає посилання дати"
+                    : "Клік по даті не відкрив модальне вікно поста",
                 {
-                    code: "FACEBOOK_PERSONAL_FIRST_FEED_POST_OPEN_FAILED",
-                    status: facebookPersonalProfileFirstFeedPostStatuses
-                        .FIRST_FEED_POST_OPEN_FAILED,
-                    stage,
-                    selector: postDialogSelector,
+                    code: missedDate
+                        ? "FACEBOOK_PERSONAL_FIRST_FEED_POST_CFT_NOT_FOUND"
+                        : "FACEBOOK_PERSONAL_FIRST_FEED_POST_OPEN_FAILED",
+                    status: missedDate
+                        ? facebookPersonalProfileFirstFeedPostStatuses
+                            .CFT_LINK_NOT_FOUND
+                        : facebookPersonalProfileFirstFeedPostStatuses
+                            .FIRST_FEED_POST_OPEN_FAILED,
+                    stage: missedDate ? "CLICK_DATE" : "WAIT_DIALOG",
+                    selector: missedDate ? dateLinkSelector : postDialogSelector,
                     cause: error,
                 }
             );

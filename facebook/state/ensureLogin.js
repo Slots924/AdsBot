@@ -1,9 +1,8 @@
 import detectLoginStatus from "./detectLoginStatus.js";
-import loginInLoggedOut from "./loginInLoggedOut.js";
-import loginInLoginRequired from "./loginInLoginRequired.js";
+import login from "./login.js";
 
 
-async function ensureLogin(page) {
+async function ensureLogin(page, options = {}) {
     try {
         const loginStatus = await detectLoginStatus(page);
 
@@ -11,13 +10,7 @@ async function ensureLogin(page) {
             return true;
         }
 
-        let loginSucceeded = false;
-
-        if (loginStatus === "LOGGED_OUT") {
-            loginSucceeded = await loginInLoggedOut(page);
-        } else if (loginStatus === "LOGIN_REQUIRED") {
-            loginSucceeded = await loginInLoginRequired(page);
-        }
+        const loginSucceeded = await login(page, options);
 
         if (!loginSucceeded) {
             return false;

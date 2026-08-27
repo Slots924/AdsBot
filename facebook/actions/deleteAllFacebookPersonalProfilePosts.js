@@ -5,6 +5,7 @@ import {
     waitForDomQuiet,
 } from "../browser/confirmedClick.js";
 import { waitForVisibleElement } from "../browser/elements.js";
+import { wait } from "../browser/timing.js";
 import {
     getPersonalProfileFeedPostActionsButtonSelector,
     getPersonalProfileFeedPostSelector,
@@ -14,6 +15,8 @@ import {
 } from "../selectors/personalProfileFeedPosts.js";
 
 
+const reloadWaitMs = 5000;
+const firstPostSearchTimeout = 10000;
 const postSearchTimeout = 5000;
 const menuActionTimeout = 15000;
 const hideConfirmTimeout = 15000;
@@ -586,19 +589,39 @@ export default async function deleteAllFacebookPersonalProfilePosts(
             );
         }
 
+        stage = "RELOAD_FEED";
+        report(stage, `Пауза ${reloadWaitMs} мс перед перезавантаженням стрічки`, {
+            delayMs: reloadWaitMs,
+        });
+        await wait(reloadWaitMs, {
+            ...(timingOptions.sleep ? { sleep: timingOptions.sleep } : {}),
+        });
+        report(stage, "Перезавантажуємо сторінку профілю");
+        await page.reload({
+            waitUntil: "domcontentloaded",
+            timeout,
+        });
+        await page.waitForFunction(
+            () => document.readyState === "complete",
+            { timeout }
+        );
+
         let posinset = 1;
 
         while (processedCount < maxPostsToClean) {
             stage = "FIND_FEED_POST";
+            const searchTimeout = processedCount === 0 && posinset === 1
+                ? firstPostSearchTimeout
+                : postSearchTimeout;
             report(stage, `Шукаємо пост ${posinset}`, {
                 posinset,
-                timeout: postSearchTimeout,
+                timeout: searchTimeout,
             });
 
             const postFound = await waitForFeedPost(
                 page,
                 posinset,
-                postSearchTimeout
+                searchTimeout
             );
 
             if (!postFound) {
