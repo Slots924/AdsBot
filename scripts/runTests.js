@@ -48,6 +48,8 @@ const backendSuites = {
         "test/testPageRebuildWorkflowMock.js",
         "test/testFacebookPixelsMock.js",
         "test/testGrokClientMock.js",
+        "test/testKeitaroClientMock.js",
+        "test/testKeitaroGuiServiceMock.js",
         "test/testGuiIpcMock.js",
         "test/testPagePreferencesStore.js",
         "test/testRemoteDataCacheStore.js",

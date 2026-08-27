@@ -151,6 +151,9 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("templates:duplicate", { id }),
     deleteTemplate: (id) =>
         ipcRenderer.invoke("templates:delete", { id }),
+    getKeitaroCampaignGroups: () => ipcRenderer.invoke("keitaro:groups-list"),
+    getKeitaroCampaignsReport: (options) =>
+        ipcRenderer.invoke("keitaro:campaigns-report", options),
     loadAppState: () => ipcRenderer.invoke("state:load"),
     saveAppState: (state) => ipcRenderer.invoke("state:save", state),
     setUiScale: (scale) => ipcRenderer.invoke("app:set-zoom", { scale }),

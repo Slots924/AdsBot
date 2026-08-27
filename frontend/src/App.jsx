@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BadgeDollarSign, Bot, BookOpen, MessageSquare, PanelsTopLeft, Settings } from "lucide-react";
+import { BadgeDollarSign, BarChart3, Bot, BookOpen, MessageSquare, PanelsTopLeft, Settings } from "lucide-react";
 import BackgroundTaskPanel from "./components/BackgroundTaskPanel.jsx";
 import LogPanel from "./components/LogPanel.jsx";
 import { Modal, Toast } from "./components/Overlay.jsx";
@@ -10,6 +10,7 @@ import AccountsTab from "./tabs/AccountsTab.jsx";
 import JournalTab from "./tabs/JournalTab.jsx";
 import PagesTab from "./tabs/PagesTab.jsx";
 import CommentAccountsTab from "./tabs/CommentAccountsTab.jsx";
+import KeitaroTab from "./tabs/KeitaroTab.jsx";
 import { errorDetails, unwrap } from "./lib/api.js";
 
 const tabs = [
@@ -17,6 +18,7 @@ const tabs = [
     { id: "ads", label: "Рекламні кабінети", icon: BadgeDollarSign },
     { id: "pages", label: "Фанпейджі", icon: PanelsTopLeft },
     { id: "comment-accounts", label: "Акаунти під коментарі", icon: MessageSquare },
+    { id: "keitaro", label: "Keitaro", icon: BarChart3 },
     { id: "journal", label: "Журнал", icon: BookOpen },
 ];
 
@@ -40,6 +42,20 @@ export default function App() {
     const [commentRightSort, setCommentRightSort] = useState({ column: "profileNo", direction: "asc" });
     const [commentLeftSelectedIds, setCommentLeftSelectedIds] = useState([]);
     const [commentRightSelectedIds, setCommentRightSelectedIds] = useState([]);
+    const [keitaroAvailableGroupIds, setKeitaroAvailableGroupIds] = useState([]);
+    const [keitaroSearch, setKeitaroSearch] = useState("");
+    const [keitaroGroupId, setKeitaroGroupId] = useState("all");
+    const [keitaroDatePreset, setKeitaroDatePreset] = useState("today");
+    const [keitaroSort, setKeitaroSort] = useState({ column: "clicks", direction: "desc" });
+    const [keitaroColumnOrder, setKeitaroColumnOrder] = useState([
+        "id", "name", "group", "state", "clicks", "uniqueClicks", "bots",
+        "conversions", "sales", "leads", "rejected", "cr", "cost", "revenue",
+        "profit", "roi", "epc", "cpc",
+    ]);
+    const [keitaroColumnWidths, setKeitaroColumnWidths] = useState({});
+    const [keitaroVisibleColumns, setKeitaroVisibleColumns] = useState([
+        "id", "name", "clicks", "conversions", "revenue",
+    ]);
     const [logs, setLogs] = useState([]);
     const [tasks, setTasks] = useState([]);
     const [uiScale, setUiScale] = useState(1.3);
@@ -144,6 +160,16 @@ export default function App() {
                 setCommentRightGroupId(state.commentRightGroupId || "");
                 setCommentLeftSort(state.commentLeftSort || { column: "profileNo", direction: "asc" });
                 setCommentRightSort(state.commentRightSort || { column: "profileNo", direction: "asc" });
+                setKeitaroAvailableGroupIds(state.keitaroAvailableGroupIds || []);
+                setKeitaroSearch(state.keitaroSearch || "");
+                setKeitaroGroupId(state.keitaroGroupId || "all");
+                setKeitaroDatePreset(state.keitaroDatePreset || "today");
+                setKeitaroSort(state.keitaroSort || { column: "clicks", direction: "desc" });
+                setKeitaroColumnOrder(state.keitaroColumnOrder || keitaroColumnOrder);
+                setKeitaroColumnWidths(state.keitaroColumnWidths || {});
+                setKeitaroVisibleColumns(state.keitaroVisibleColumns || [
+                    "id", "name", "clicks", "conversions", "revenue",
+                ]);
                 await unwrap(window.adsBot.setUiScale(state.uiScale));
             } catch (error) { addLog("warn", "frontend", error.message); }
             await Promise.all([loadAccounts(true), loadProxies(), unwrap(window.adsBot.getAdsPowerGroups()).then(setGroups).catch(() => {}), refreshTasks().catch(() => {})]);
@@ -156,9 +182,9 @@ export default function App() {
     useEffect(() => { if (selectedAccount?.status === "active") loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status]);
     useEffect(() => {
         if (!hydrated) return undefined;
-        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort }).catch(() => {}), 250);
+        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns }).catch(() => {}), 250);
         return () => clearTimeout(timer);
-    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort]);
+    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns]);
 
     const updateWorkspacePages = (pages) => setWorkspaceCache((current) => ({
         ...current,
@@ -258,12 +284,33 @@ export default function App() {
                         }}
                     />
                 )}
+                {activeTab === "keitaro" && (
+                    <KeitaroTab
+                        key="keitaro"
+                        availableGroupIds={keitaroAvailableGroupIds}
+                        search={keitaroSearch}
+                        onSearchChange={setKeitaroSearch}
+                        selectedGroupId={keitaroGroupId}
+                        onSelectedGroupIdChange={setKeitaroGroupId}
+                        datePreset={keitaroDatePreset}
+                        onDatePresetChange={setKeitaroDatePreset}
+                        sort={keitaroSort}
+                        onSortChange={setKeitaroSort}
+                        columnOrder={keitaroColumnOrder}
+                        onColumnOrderChange={setKeitaroColumnOrder}
+                        columnWidths={keitaroColumnWidths}
+                        onColumnWidthsChange={setKeitaroColumnWidths}
+                        visibleColumns={keitaroVisibleColumns}
+                        onVisibleColumnsChange={setKeitaroVisibleColumns}
+                        onError={setModal}
+                    />
+                )}
                 {activeTab === "journal" && <JournalTab key="journal" onError={setModal} showToast={showToast} onOpenTask={(id) => { setTaskPanelCollapsed(false); setTaskToOpen(id); }}/>}
             </AnimatePresence></div>
             <LogPanel logs={logs} onClear={() => setLogs([])}/>
         </main>
         <BackgroundTaskPanel tasks={tasks} collapsed={taskPanelCollapsed} onCollapsedChange={setTaskPanelCollapsed} onRefresh={refreshTasks} onError={setModal} openTaskId={taskToOpen} onOpenTaskHandled={() => setTaskToOpen(null)} proxies={proxies} proxiesLoading={proxiesLoading} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp}/>
         <Modal modal={modal} onClose={() => setModal(null)}/>
-        {settingsOpen && <SettingsModal scale={uiScale} onScaleChange={async (value) => setUiScale(await unwrap(window.adsBot.setUiScale(value)))} createCampaignsPaused={createCampaignsPaused} onCreateCampaignsPausedChange={setCreateCampaignsPaused} commentWorkerConcurrency={commentWorkerConcurrency} onCommentWorkerConcurrencyChange={setCommentWorkerConcurrency} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} defaultPixelId={defaultPixelId} onDefaultPixelIdChange={setDefaultPixelId} defaultUtm={defaultUtm} onDefaultUtmChange={setDefaultUtm} commentBrowserMode={commentBrowserMode} onCommentBrowserModeChange={setCommentBrowserMode} commentDisableImages={commentDisableImages} onCommentDisableImagesChange={setCommentDisableImages} accountSetupWorkerConcurrency={accountSetupWorkerConcurrency} onAccountSetupWorkerConcurrencyChange={setAccountSetupWorkerConcurrency} accountSetupWorkerProxyIds={accountSetupWorkerProxyIds} onAccountSetupWorkerProxyIdsChange={setAccountSetupWorkerProxyIds} accountSetupBrowserMode={accountSetupBrowserMode} onAccountSetupBrowserModeChange={setAccountSetupBrowserMode} logLevel={logLevel} onLogLevelChange={async (value) => setLogLevel(await unwrap(window.adsBot.setLogLevel(value)))} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onError={setModal} onClose={() => setSettingsOpen(false)}/>}<Toast toast={toast}/>
+        {settingsOpen && <SettingsModal scale={uiScale} onScaleChange={async (value) => setUiScale(await unwrap(window.adsBot.setUiScale(value)))} createCampaignsPaused={createCampaignsPaused} onCreateCampaignsPausedChange={setCreateCampaignsPaused} commentWorkerConcurrency={commentWorkerConcurrency} onCommentWorkerConcurrencyChange={setCommentWorkerConcurrency} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} defaultPixelId={defaultPixelId} onDefaultPixelIdChange={setDefaultPixelId} defaultUtm={defaultUtm} onDefaultUtmChange={setDefaultUtm} commentBrowserMode={commentBrowserMode} onCommentBrowserModeChange={setCommentBrowserMode} commentDisableImages={commentDisableImages} onCommentDisableImagesChange={setCommentDisableImages} accountSetupWorkerConcurrency={accountSetupWorkerConcurrency} onAccountSetupWorkerConcurrencyChange={setAccountSetupWorkerConcurrency} accountSetupWorkerProxyIds={accountSetupWorkerProxyIds} onAccountSetupWorkerProxyIdsChange={setAccountSetupWorkerProxyIds} accountSetupBrowserMode={accountSetupBrowserMode} onAccountSetupBrowserModeChange={setAccountSetupBrowserMode} logLevel={logLevel} onLogLevelChange={async (value) => setLogLevel(await unwrap(window.adsBot.setLogLevel(value)))} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} keitaroAvailableGroupIds={keitaroAvailableGroupIds} onKeitaroAvailableGroupIdsChange={setKeitaroAvailableGroupIds} onError={setModal} onClose={() => setSettingsOpen(false)}/>}<Toast toast={toast}/>
     </div>;
 }

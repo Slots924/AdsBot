@@ -29,6 +29,7 @@ import { configureRuntimeLogger } from "../../services/logging/runtimeLogger.js"
 import FacebookAccountManager
     from "../../facebook/accounts/FacebookAccountManager.js";
 import ProxyManager from "../../services/proxy/ProxyManager.js";
+import KeitaroGuiService from "../../services/keitaro/KeitaroGuiService.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
 
@@ -199,11 +200,14 @@ async function createWindow() {
     });
     creativeLaunchJournal = new CreativeLaunchJournal({ jobsFile: appPaths.creativeLaunchJobs });
 
+    const keitaroGuiService = new KeitaroGuiService();
+
     registerIpcHandlers({
         ipcMain,
         dialog,
         shell,
         guiService,
+        keitaroGuiService,
         templateManager,
         appStateStore,
         adAccountPreferencesStore,

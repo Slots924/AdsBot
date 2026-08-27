@@ -23,6 +23,7 @@ import CreateCommentAccountsModal from "../components/CreateCommentAccountsModal
 import { findGroupForGeo } from "../lib/groups.js";
 import { sortGroups, sortProfiles } from "../lib/commentAccountGroups.js";
 import CommentAccountsTab from "../tabs/CommentAccountsTab.jsx";
+import KeitaroTab from "../tabs/KeitaroTab.jsx";
 
 
 describe("GUI helpers", () => {
@@ -857,6 +858,116 @@ describe("GUI helpers", () => {
         fireEvent.click(headlessToggle);
         expect(onAccountSetupBrowserModeChange).toHaveBeenCalledWith("headless");
         expect(screen.getByLabelText("Воркер оформлення 1")).toBeInTheDocument();
+    });
+
+    it("показує кампанії Keitaro, пошук і лічильник галочок", async () => {
+        window.adsBot.getKeitaroCampaignGroups = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{ id: "10", name: "Nutra" }],
+        });
+        window.adsBot.getKeitaroCampaignsReport = vi.fn().mockResolvedValue({
+            ok: true,
+            data: {
+                campaigns: [
+                    {
+                        id: "1",
+                        name: "Alpha",
+                        groupId: "10",
+                        groupName: "Nutra",
+                        state: "active",
+                        clicks: 10,
+                        conversions: 2,
+                        revenue: 5,
+                        uniqueClicks: 8,
+                        bots: 0,
+                        sales: 1,
+                        leads: 2,
+                        rejected: 0,
+                        cr: 20,
+                        cost: 1,
+                        profit: 4,
+                        roi: 400,
+                        epc: 0.5,
+                        cpc: 0.1,
+                    },
+                    {
+                        id: "2",
+                        name: "Beta",
+                        groupId: "10",
+                        groupName: "Nutra",
+                        state: "disabled",
+                        clicks: 3,
+                        conversions: 0,
+                        revenue: 0,
+                        uniqueClicks: 3,
+                        bots: 0,
+                        sales: 0,
+                        leads: 0,
+                        rejected: 0,
+                        cr: 0,
+                        cost: 0,
+                        profit: 0,
+                        roi: 0,
+                        epc: 0,
+                        cpc: 0,
+                    },
+                ],
+            },
+        });
+        function Harness() {
+            const [search, setSearch] = useState("");
+            return (
+                <KeitaroTab
+                    availableGroupIds={["10"]}
+                    search={search}
+                    onSearchChange={setSearch}
+                />
+            );
+        }
+        render(<Harness />);
+        expect(await screen.findByText("Alpha")).toBeInTheDocument();
+        fireEvent.change(screen.getByLabelText("Пошук кампаній Keitaro"), {
+            target: { value: "Beta" },
+        });
+        expect(screen.queryByText("Alpha")).not.toBeInTheDocument();
+        expect(screen.getByText("Beta")).toBeInTheDocument();
+        fireEvent.click(screen.getByLabelText("Вибрати кампанію Beta"));
+        expect(screen.getByText("Вибрано: 1")).toBeInTheDocument();
+    });
+
+    it("дозволяє обрати доступні групи Keitaro в налаштуваннях", async () => {
+        window.adsBot.getKeitaroCampaignGroups = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{ id: "10", name: "Nutra" }],
+        });
+        const onKeitaroAvailableGroupIdsChange = vi.fn();
+        render(
+            <SettingsModal
+                scale={1.3}
+                onScaleChange={vi.fn()}
+                createCampaignsPaused
+                onCreateCampaignsPausedChange={vi.fn()}
+                commentWorkerConcurrency={5}
+                onCommentWorkerConcurrencyChange={vi.fn()}
+                defaultPixelId=""
+                onDefaultPixelIdChange={vi.fn()}
+                defaultUtm=""
+                onDefaultUtmChange={vi.fn()}
+                commentBrowserMode="visible"
+                onCommentBrowserModeChange={vi.fn()}
+                commentDisableImages={false}
+                onCommentDisableImagesChange={vi.fn()}
+                logLevel="info"
+                onLogLevelChange={vi.fn()}
+                keitaroAvailableGroupIds={[]}
+                onKeitaroAvailableGroupIdsChange={onKeitaroAvailableGroupIdsChange}
+                onClose={vi.fn()}
+            />
+        );
+        fireEvent.click(screen.getByRole("button", { name: /Keitaro/ }));
+        expect(await screen.findByText("Nutra")).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("checkbox", { name: /Nutra/ }));
+        expect(onKeitaroAvailableGroupIdsChange).toHaveBeenCalledWith(["10"]);
     });
 
     it("показує збережені події та структуровані звіти", async () => {

@@ -22,4 +22,11 @@ POST /api/v2/browser-tags/delete    — повністю видалити тег
 POST /api/v2/browser-profile/update — додати, замінити або змінити теги конкретного профілю.
 
 
+These instructions also apply to Keitaro.js.
+
+All HTTP requests to the Keitaro Admin API must go through the internal request() method.
+Never call axios.post(), axios.get(), axios.request(), or another Axios method directly inside public Keitaro methods.
+Request queueing must remain centralized inside request().
+A failed request must not permanently block the request queue.
+
 В папці test лежать тести їх запускати не потрібно вони чисто для мене.

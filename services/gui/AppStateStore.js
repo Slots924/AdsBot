@@ -1,6 +1,13 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import {
+    defaultKeitaroColumnWidths,
+    defaultKeitaroVisibleColumns,
+    keitaroColumnIds,
+    keitaroDatePresets,
+} from "../keitaro/reportColumns.js";
+
 
 const defaultState = {
     activeTab: "accounts",
@@ -29,6 +36,14 @@ const defaultState = {
     commentLeftSort: { column: "profileNo", direction: "asc" },
     commentRightSort: { column: "profileNo", direction: "asc" },
     lastPublishedPost: null,
+    keitaroAvailableGroupIds: [],
+    keitaroSearch: "",
+    keitaroGroupId: "all",
+    keitaroDatePreset: "today",
+    keitaroSort: { column: "clicks", direction: "desc" },
+    keitaroColumnOrder: [...keitaroColumnIds],
+    keitaroColumnWidths: { ...defaultKeitaroColumnWidths },
+    keitaroVisibleColumns: [...defaultKeitaroVisibleColumns],
 };
 
 
@@ -68,6 +83,55 @@ function normalizeCommentWorkerProxyIds(value) {
 }
 
 
+const keitaroColumnIdSet = new Set(keitaroColumnIds);
+const keitaroDatePresetSet = new Set(keitaroDatePresets);
+
+
+function normalizeKeitaroSort(value) {
+    return {
+        column: keitaroColumnIdSet.has(value?.column)
+            ? value.column
+            : defaultState.keitaroSort.column,
+        direction: value?.direction === "asc" ? "asc" : "desc",
+    };
+}
+
+
+function normalizeKeitaroColumnOrder(value) {
+    const requested = Array.isArray(value)
+        ? value.map((id) => String(id ?? "").trim()).filter((id) => keitaroColumnIdSet.has(id))
+        : [];
+    const unique = [...new Set(requested)];
+    return [
+        ...unique,
+        ...keitaroColumnIds.filter((id) => !unique.includes(id)),
+    ];
+}
+
+
+function normalizeKeitaroColumnWidths(value) {
+    const widths = { ...defaultKeitaroColumnWidths };
+    if (!value || typeof value !== "object" || Array.isArray(value)) return widths;
+    for (const id of keitaroColumnIds) {
+        const width = Number(value[id]);
+        if (Number.isFinite(width)) {
+            widths[id] = Math.min(640, Math.max(64, Math.round(width)));
+        }
+    }
+    return widths;
+}
+
+
+function normalizeKeitaroVisibleColumns(value) {
+    const requested = Array.isArray(value)
+        ? [...new Set(
+            value.map((id) => String(id ?? "").trim()).filter((id) => keitaroColumnIdSet.has(id))
+        )]
+        : [];
+    return requested.length > 0 ? requested : [...defaultKeitaroVisibleColumns];
+}
+
+
 function normalizeState(state = {}) {
     const legacyTab = ["publish", "comments"].includes(state.activeTab) ? "pages" : state.activeTab;
     const allowedTabs = new Set([
@@ -75,6 +139,7 @@ function normalizeState(state = {}) {
         "ads",
         "pages",
         "comment-accounts",
+        "keitaro",
         "journal",
     ]);
     const allowedCommentBrowserModes = new Set(["visible", "headless"]);
@@ -141,6 +206,18 @@ function normalizeState(state = {}) {
             "pageId",
             "postId",
         ]) : null,
+        keitaroAvailableGroupIds: normalizeIdList(state.keitaroAvailableGroupIds),
+        keitaroSearch: String(state.keitaroSearch ?? ""),
+        keitaroGroupId: String(state.keitaroGroupId ?? "").trim() || "all",
+        keitaroDatePreset: keitaroDatePresetSet.has(state.keitaroDatePreset)
+            ? state.keitaroDatePreset
+            : defaultState.keitaroDatePreset,
+        keitaroSort: normalizeKeitaroSort(state.keitaroSort),
+        keitaroColumnOrder: normalizeKeitaroColumnOrder(state.keitaroColumnOrder),
+        keitaroColumnWidths: normalizeKeitaroColumnWidths(state.keitaroColumnWidths),
+        keitaroVisibleColumns: normalizeKeitaroVisibleColumns(
+            state.keitaroVisibleColumns
+        ),
     };
 }
 

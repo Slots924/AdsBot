@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
+    ChevronDown,
     ListChecks,
     MessageSquare,
     MessageSquareText,
@@ -12,6 +13,8 @@ import {
     X,
     ZoomIn,
 } from "lucide-react";
+
+import { errorDetails, unwrap } from "../lib/api.js";
 
 import WorkerProxyPicker from "./WorkerProxyPicker.jsx";
 
@@ -56,10 +59,15 @@ export default function SettingsModal({
     onCheckProxyConfig,
     onRefreshProxyIp,
     onError = () => {},
+    keitaroAvailableGroupIds = [],
+    onKeitaroAvailableGroupIdsChange = () => {},
     onClose,
 }) {
     const [tab, setTab] = useState("general");
     const [pickerWorkerId, setPickerWorkerId] = useState(null);
+    const [keitaroGroupsOpen, setKeitaroGroupsOpen] = useState(true);
+    const [keitaroGroups, setKeitaroGroups] = useState([]);
+    const [keitaroGroupsLoading, setKeitaroGroupsLoading] = useState(false);
     const percentage = Math.round(scale * 100);
     const change = (nextPercentage) => {
         const normalized = Math.min(
@@ -68,6 +76,34 @@ export default function SettingsModal({
         );
         onScaleChange(normalized / 100);
     };
+    useEffect(() => {
+        if (tab !== "keitaro") return undefined;
+        let cancelled = false;
+        setKeitaroGroupsLoading(true);
+        if (typeof window.adsBot?.getKeitaroCampaignGroups !== "function") {
+            setKeitaroGroupsLoading(false);
+            return undefined;
+        }
+        unwrap(window.adsBot.getKeitaroCampaignGroups())
+            .then((groups) => {
+                if (!cancelled) setKeitaroGroups(groups ?? []);
+            })
+            .catch((error) => {
+                if (!cancelled) {
+                    onError({
+                        ...errorDetails(error),
+                        title: "Не вдалося завантажити групи Keitaro",
+                    });
+                }
+            })
+            .finally(() => {
+                if (!cancelled) setKeitaroGroupsLoading(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [tab]);
+
     const setupPicker = tab === "account-setup";
     const activeProxyIds = setupPicker
         ? accountSetupWorkerProxyIds
@@ -126,6 +162,13 @@ export default function SettingsModal({
                             onClick={() => setTab("account-setup")}
                         >
                             <MessageSquare size={15} /> Акаунти
+                        </button>
+                        <button
+                            type="button"
+                            className={tab === "keitaro" ? "active" : ""}
+                            onClick={() => setTab("keitaro")}
+                        >
+                            <ListChecks size={15} /> Keitaro
                         </button>
                     </nav>
                     <div className="settings-body">
@@ -290,6 +333,55 @@ export default function SettingsModal({
                                             <small>Економить трафік лише на зображеннях. Відео, шрифти та інші ресурси продовжують завантажуватися.</small>
                                         </span>
                                     </label>
+                                </section>
+                            </>
+                        )}
+
+                        {tab === "keitaro" && (
+                            <>
+                                <p>Оберіть групи кампаній, які можна відкривати на вкладці Keitaro.</p>
+                                <section className="scale-setting">
+                                    <button
+                                        type="button"
+                                        className="select-trigger"
+                                        aria-expanded={keitaroGroupsOpen}
+                                        onClick={() => setKeitaroGroupsOpen((current) => !current)}
+                                    >
+                                        <span>
+                                            <strong>Групи кампаній</strong>
+                                            <small>Вибрано: {keitaroAvailableGroupIds.length}</small>
+                                        </span>
+                                        <ChevronDown size={17} />
+                                    </button>
+                                    {keitaroGroupsOpen && (
+                                        <div className="keitaro-groups">
+                                            {keitaroGroupsLoading && <div>Завантажуємо групи…</div>}
+                                            {!keitaroGroupsLoading && keitaroGroups.length === 0 && (
+                                                <div>Груп кампаній не знайдено.</div>
+                                            )}
+                                            {keitaroGroups.map((group) => {
+                                                const groupId = String(group.id);
+                                                const checked = keitaroAvailableGroupIds.includes(groupId);
+                                                return (
+                                                    <label key={groupId}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={checked}
+                                                            onChange={() => onKeitaroAvailableGroupIdsChange(
+                                                                checked
+                                                                    ? keitaroAvailableGroupIds.filter((id) => id !== groupId)
+                                                                    : [...keitaroAvailableGroupIds, groupId]
+                                                            )}
+                                                        />
+                                                        <span>
+                                                            {group.name}
+                                                            <small> · {groupId}</small>
+                                                        </span>
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </section>
                             </>
                         )}

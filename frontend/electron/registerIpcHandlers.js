@@ -122,6 +122,7 @@ export default function registerIpcHandlers({
     refreshProxyIpFn = refreshProxyIp,
     logger,
     reportManager,
+    keitaroGuiService,
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
@@ -1588,6 +1589,28 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "templates:delete",
         safeHandler(({ id }) => templateManager.delete(id))
+    );
+    ipcMain.handle(
+        "keitaro:groups-list",
+        safeHandler(() => {
+            if (!keitaroGuiService) {
+                const error = new Error("Сервіс Keitaro не підключено");
+                error.code = "KEITARO_UNAVAILABLE";
+                throw error;
+            }
+            return keitaroGuiService.listCampaignGroups();
+        })
+    );
+    ipcMain.handle(
+        "keitaro:campaigns-report",
+        safeHandler((payload) => {
+            if (!keitaroGuiService) {
+                const error = new Error("Сервіс Keitaro не підключено");
+                error.code = "KEITARO_UNAVAILABLE";
+                throw error;
+            }
+            return keitaroGuiService.getCampaignsReport(payload);
+        })
     );
     ipcMain.handle(
         "state:load",
