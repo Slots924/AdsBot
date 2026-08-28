@@ -24,6 +24,7 @@ export const facebookNameChangeStatuses = Object.freeze({
     FORCED_ACCOUNT_SWITCH: "FORCED_ACCOUNT_SWITCH",
     UNEXPECTED_PAGE: "UNEXPECTED_PAGE",
     ELEMENT_NOT_FOUND: "ELEMENT_NOT_FOUND",
+    NAME_BUTTON_FAILED: "NAME_BUTTON_FAILED",
     UNKNOWN_RESULT: "UNKNOWN_RESULT",
     ERROR: "ERROR",
 });
@@ -635,6 +636,7 @@ export default async function changeFacebookName(
         const errorStatus = [
             facebookNameChangeStatuses.ERROR,
             facebookNameChangeStatuses.ELEMENT_NOT_FOUND,
+            facebookNameChangeStatuses.NAME_BUTTON_FAILED,
             facebookNameChangeStatuses.UNKNOWN_RESULT,
             facebookNameChangeStatuses.UNEXPECTED_PAGE,
         ].includes(status);
@@ -826,21 +828,43 @@ export default async function changeFacebookName(
         }
 
         stage = "OPEN_NAME_DIALOG";
-        await runConfirmedClick(
-            page,
-            {
-                target: {
-                    selector: selectors.nameLink,
-                    index: 0,
+        try {
+            await runConfirmedClick(
+                page,
+                {
+                    target: {
+                        selector: selectors.nameLink,
+                        index: 0,
+                    },
+                    confirm: {
+                        selector: selectors.nameDialog,
+                    },
+                    description: "Name",
                 },
-                confirm: {
-                    selector: selectors.nameDialog,
+                report,
+                stage
+            );
+        } catch (error) {
+            const errorDetails = createErrorDetails(error, {
+                stage,
+                url: page.url(),
+            });
+            report(
+                stage,
+                "Не вдалося натиснути кнопку Name, поля імені не з’явились",
+                errorDetails,
+                {
+                    level: "error",
+                    event: "facebook.name_change.name_button_failed",
+                }
+            );
+            return finish(facebookNameChangeStatuses.NAME_BUTTON_FAILED, {
+                error: {
+                    ...errorDetails,
+                    message: "Не вдалося натиснути кнопку Name",
                 },
-                description: "Name",
-            },
-            report,
-            stage
-        );
+            });
+        }
 
         stage = "WAIT_NAME_DIALOG";
         await waitRandom(

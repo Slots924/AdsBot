@@ -220,6 +220,11 @@ export default async function executeCommentAccountSetupWithProfile({
     const ensureActive = actions.ensureActive ?? ensureFacebookAccountActive;
     const ensureReady = actions.ensureAdsPowerReady
         ?? ensureAdsPowerProfileReady;
+    const connectBrowser = actions.connectBrowser
+        ?? ((browserData) => puppeteer.connect({
+            browserWSEndpoint: browserData.ws.puppeteer,
+            defaultViewport: null,
+        }));
     const markNameError = actions.markChangeNameError
         ?? markProfileAsChangeNameError;
     const markGender = actions.markGender ?? markProfileGender;
@@ -424,10 +429,7 @@ export default async function executeCommentAccountSetupWithProfile({
 
         assertNotAborted();
         result.stage = "CONNECT_BROWSER";
-        browser = await puppeteer.connect({
-            browserWSEndpoint: browserData.ws.puppeteer,
-            defaultViewport: null,
-        });
+        browser = await connectBrowser(browserData);
         const pages = await browser.pages();
         const page = pages[0] ?? await browser.newPage();
 
@@ -481,12 +483,17 @@ export default async function executeCommentAccountSetupWithProfile({
                     || nameResult?.status
                     || "Не вдалося змінити ім’я",
             });
-            try {
-                await markNameError(adsPower, profile);
-            } catch (error) {
-                result.cleanupErrors.push(
-                    `Change Name Error tag: ${error.message}`
-                );
+            if (
+                nameResult?.status
+                !== facebookNameChangeStatuses.NAME_BUTTON_FAILED
+            ) {
+                try {
+                    await markNameError(adsPower, profile);
+                } catch (error) {
+                    result.cleanupErrors.push(
+                        `Change Name Error tag: ${error.message}`
+                    );
+                }
             }
             result.error = result.steps.name.error;
             return result;

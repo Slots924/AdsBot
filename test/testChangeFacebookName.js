@@ -35,6 +35,10 @@ const invalidResult = await changeFacebookName(page, {
 });
 
 assert.equal(invalidResult.success, false);
+assert.equal(
+    facebookNameChangeStatuses.NAME_BUTTON_FAILED,
+    "NAME_BUTTON_FAILED"
+);
 assert.equal(invalidResult.status, facebookNameChangeStatuses.ERROR);
 assert.equal(invalidResult.stage, "VALIDATE_INPUT");
 assert.equal(invalidResult.error.code, "FACEBOOK_NAME_INVALID_INPUT");

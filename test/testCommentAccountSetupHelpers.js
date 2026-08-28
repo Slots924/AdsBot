@@ -15,6 +15,7 @@ import hasChangeNameErrorTag from "../services/profile/tags/hasChangeNameErrorTa
 import markProfileAsChangeNameError from "../services/profile/tags/markProfileAsChangeNameError.js";
 import markProfileGender from "../services/profile/tags/markProfileGender.js";
 import createRandomPostDates from "../services/accounts/randomPostDates.js";
+import { facebookNameChangeStatuses } from "../facebook/actions/changeFacebookName.js";
 import executeCommentAccountSetupWithProfile
     from "../workflows/accounts/executeCommentAccountSetupWithProfile.js";
 
@@ -151,6 +152,65 @@ const forcedSetup = await executeCommentAccountSetupWithProfile({
 });
 assert.equal(forcedSetup.outcome, "failed");
 assert.equal(forcedSetup.error, "stop-after-skip-name");
+
+let nameErrorTagged = false;
+let profileClosed = false;
+const nameButtonFailedSetup = await executeCommentAccountSetupWithProfile({
+    adsPower: {
+        async openProfile() {
+            return { ws: { puppeteer: "ws://test" } };
+        },
+        async closeProfile() {
+            profileClosed = true;
+        },
+    },
+    profile: {
+        profile_no: "77",
+        profile_id: "id-77",
+        profile_tags: [],
+    },
+    persona: createPersonaForSkip(),
+    logger: { info() {}, warn() {}, error() {} },
+    actions: {
+        ensureAdsPowerReady: async () => true,
+        connectBrowser: async () => ({
+            async pages() {
+                return [{
+                    url() {
+                        return "https://www.facebook.com/";
+                    },
+                }];
+            },
+            disconnect() {},
+        }),
+        openPage: async () => {},
+        ensureLoggedIn: async () => true,
+        ensureActive: async () => true,
+        ensureEnglish: async () => {},
+        changeName: async () => ({
+            success: false,
+            status: facebookNameChangeStatuses.NAME_BUTTON_FAILED,
+            error: { message: "Не вдалося натиснути кнопку Name" },
+        }),
+        markChangeNameError: async () => {
+            nameErrorTagged = true;
+            return { added: true };
+        },
+    },
+});
+assert.equal(nameButtonFailedSetup.outcome, "failed");
+assert.equal(nameButtonFailedSetup.success, false);
+assert.equal(nameButtonFailedSetup.nameChanged, false);
+assert.equal(
+    nameButtonFailedSetup.error,
+    "Не вдалося натиснути кнопку Name"
+);
+assert.equal(
+    nameButtonFailedSetup.steps.name.status,
+    facebookNameChangeStatuses.NAME_BUTTON_FAILED
+);
+assert.equal(nameErrorTagged, false);
+assert.equal(profileClosed, true);
 
 console.log("Перевірка хелперів оформлення акаунтів пройшла успішно");
 
