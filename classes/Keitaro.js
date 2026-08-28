@@ -92,11 +92,54 @@ function retryAfterMs(error) {
 
 function normalizeList(payload) {
     if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.streams)) return payload.streams;
     if (Array.isArray(payload?.list)) return payload.list;
     if (Array.isArray(payload?.items)) return payload.items;
     if (Array.isArray(payload?.data)) return payload.data;
     if (Array.isArray(payload?.rows)) return payload.rows;
     return [];
+}
+
+
+function streamPayloadFromTemplate(stream = {}) {
+    const payload = structuredClone(stream ?? {});
+    for (const key of [
+        "id",
+        "campaign_id",
+        "campaignId",
+        "position",
+        "created_at",
+        "updated_at",
+        "is_monitoring",
+        "monitoring_url",
+    ]) {
+        delete payload[key];
+    }
+    payload.landings = normalizeList(payload.landings).map((landing) => ({
+        landing_id: Number(landing?.landing_id ?? landing?.id),
+        share: Number.isFinite(Number(landing?.share)) ? Number(landing.share) : 100,
+        state: landing?.state === "disabled" ? "disabled" : "active",
+    })).filter((landing) => Number.isInteger(landing.landing_id) && landing.landing_id > 0);
+    payload.offers = normalizeList(payload.offers).map((offer) => ({
+        offer_id: Number(offer?.offer_id ?? offer?.id),
+        share: Number.isFinite(Number(offer?.share)) ? Number(offer.share) : 100,
+        state: offer?.state === "disabled" ? "disabled" : "active",
+    })).filter((offer) => Number.isInteger(offer.offer_id) && offer.offer_id > 0);
+    payload.filters = normalizeList(payload.filters).map((filter) => {
+        const item = structuredClone(filter);
+        for (const key of ["id", "stream_id", "oid", "created_at", "updated_at"]) {
+            delete item[key];
+        }
+        return item;
+    });
+    payload.triggers = normalizeList(payload.triggers).map((trigger) => {
+        const item = structuredClone(trigger);
+        for (const key of ["id", "stream_id", "oid", "created_at", "updated_at", "next_run_at"]) {
+            delete item[key];
+        }
+        return item;
+    });
+    return payload;
 }
 
 
@@ -107,6 +150,7 @@ class Keitaro {
         timeout = 60000,
         concurrency = defaultConcurrency,
         rateLimitRetries = maxRateLimitRetries,
+        retryOnRateLimit = false,
         httpClient = axios,
     } = {}) {
         this.apiKey = String(apiKey ?? "").trim();
@@ -120,6 +164,7 @@ class Keitaro {
             && Number(rateLimitRetries) > 0
             ? Math.round(Number(rateLimitRetries))
             : maxRateLimitRetries;
+        this.retryOnRateLimit = Boolean(retryOnRateLimit);
         this.httpClient = httpClient;
         this.activeRequests = 0;
         this.concurrencyWaiters = [];
@@ -221,7 +266,11 @@ class Keitaro {
                     return response.data ?? null;
                 } catch (error) {
                     const status = error?.response?.status ?? null;
-                    if (status === 429 && attempt <= this.rateLimitRetries) {
+                    if (
+                        this.retryOnRateLimit
+                        && status === 429
+                        && attempt <= this.rateLimitRetries
+                    ) {
                         const waitMs = retryAfterMs(error)
                             ?? Math.min(15000, 1000 * (2 ** (attempt - 1)));
                         logger.warn(
@@ -356,6 +405,81 @@ class Keitaro {
         );
     }
 
+
+    async applyStreamTemplateToCampaigns({
+        campaignIds = [],
+        stream,
+        mode = "add",
+        replacePosition = null,
+    } = {}) {
+        const ids = [...new Set(normalizeList(campaignIds)
+            .map((id) => Number(id))
+            .filter((id) => Number.isInteger(id) && id > 0))];
+        if (ids.length === 0) {
+            throw createKeitaroError(
+                "Потрібно вибрати хоча б одну кампанію",
+                "KEITARO_VALIDATION_ERROR"
+            );
+        }
+        if (!stream || typeof stream !== "object") {
+            throw createKeitaroError(
+                "Шаблон потоку порожній",
+                "KEITARO_VALIDATION_ERROR"
+            );
+        }
+        const normalizedMode = mode === "replace" ? "replace" : "add";
+        const position = Number(replacePosition);
+        if (normalizedMode === "replace" && (!Number.isInteger(position) || position < 1)) {
+            throw createKeitaroError(
+                "Для заміни вкажіть номер потоку в кампанії",
+                "KEITARO_VALIDATION_ERROR"
+            );
+        }
+        const payload = streamPayloadFromTemplate(stream);
+
+        let operations;
+        if (normalizedMode === "replace") {
+            const streamLists = await Promise.allSettled(
+                ids.map((campaignId) => this.getCampaignStreams(campaignId))
+            );
+            operations = ids.map((campaignId, index) => {
+                const response = streamLists[index];
+                if (response.status === "rejected") {
+                    return Promise.reject(response.reason);
+                }
+                const streams = normalizeList(response.value);
+                const target = streams.find((item) => Number(item?.position) === position)
+                    ?? streams[position - 1];
+                if (!target?.id) {
+                    return Promise.reject(createKeitaroError(
+                        `У кампанії ${campaignId} немає потоку №${position}`,
+                        "KEITARO_STREAM_NOT_FOUND",
+                        { campaignId, replacePosition: position }
+                    ));
+                }
+                return this.updateStream(target.id, {
+                    ...payload,
+                    campaign_id: campaignId,
+                    position: Number(target.position) || position,
+                });
+            });
+        } else {
+            operations = ids.map((campaignId) => this.createStream({
+                ...payload,
+                campaign_id: campaignId,
+            }));
+        }
+
+        const settled = await Promise.allSettled(operations);
+        return settled.map((result, index) => ({
+            campaignId: ids[index],
+            ok: result.status === "fulfilled",
+            ...(result.status === "fulfilled"
+                ? { stream: result.value }
+                : { error: extractErrorMessage(result.reason) }),
+        }));
+    }
+
     updateCampaignCosts(id, data) {
         return this.request(
             "POST",
@@ -432,7 +556,7 @@ class Keitaro {
     }
 
     listAllOffers(params = {}) {
-        return this.listAll("offers", params);
+        return this.listOffers(params).then(normalizeList);
     }
 
     getOffer(id) {
@@ -461,28 +585,32 @@ class Keitaro {
 
     // Landings
     listLandings(params = {}) {
-        return this.request("GET", "/landings", null, params);
+        return this.request("GET", "/landing_pages", null, params);
     }
 
     listAllLandings(params = {}) {
-        return this.listAll("landings", params);
+        return this.listLandings(params).then(normalizeList);
+    }
+
+    listStreamFilters(params = {}) {
+        return this.request("GET", "/stream_filters", null, params);
     }
 
     getLanding(id) {
         return this.request(
             "GET",
-            `/landings/${requireId(id, "ID лендінгу")}`
+            `/landing_pages/${requireId(id, "ID лендінгу")}`
         );
     }
 
     createLanding(data) {
-        return this.request("POST", "/landings", data ?? {});
+        return this.request("POST", "/landing_pages", data ?? {});
     }
 
     updateLanding(id, data) {
         return this.request(
             "PUT",
-            `/landings/${requireId(id, "ID лендінгу")}`,
+            `/landing_pages/${requireId(id, "ID лендінгу")}`,
             data ?? {}
         );
     }
@@ -490,7 +618,7 @@ class Keitaro {
     deleteLanding(id) {
         return this.request(
             "DELETE",
-            `/landings/${requireId(id, "ID лендінгу")}`
+            `/landing_pages/${requireId(id, "ID лендінгу")}`
         );
     }
 

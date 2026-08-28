@@ -30,6 +30,7 @@ import FacebookAccountManager
     from "../../facebook/accounts/FacebookAccountManager.js";
 import ProxyManager from "../../services/proxy/ProxyManager.js";
 import KeitaroGuiService from "../../services/keitaro/KeitaroGuiService.js";
+import KeitaroStreamTemplateManager from "../../services/keitaro/KeitaroStreamTemplateManager.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
 
@@ -200,8 +201,12 @@ async function createWindow() {
     });
     creativeLaunchJournal = new CreativeLaunchJournal({ jobsFile: appPaths.creativeLaunchJobs });
 
-    const keitaroGuiService = new KeitaroGuiService();
+    const keitaroGuiService = new KeitaroGuiService({ countryCatalog });
     keitaroGuiService.setConcurrency(restoredState.keitaroConcurrency);
+    const keitaroStreamTemplateManager = new KeitaroStreamTemplateManager({
+        templatesFile: appPaths.keitaroStreamTemplates,
+    });
+    await keitaroStreamTemplateManager.list();
 
     registerIpcHandlers({
         ipcMain,
@@ -209,6 +214,7 @@ async function createWindow() {
         shell,
         guiService,
         keitaroGuiService,
+        keitaroStreamTemplateManager,
         templateManager,
         appStateStore,
         adAccountPreferencesStore,

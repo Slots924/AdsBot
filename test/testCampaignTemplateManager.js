@@ -123,6 +123,8 @@ try {
             secret: "not-saved",
         },
         createCampaignsPaused: false,
+        createAdSetsPaused: false,
+        createAdsPaused: true,
         unsafe: "not-saved",
     });
     const state = await stateStore.load();
@@ -133,6 +135,8 @@ try {
     assert.equal(state.defaultPixelId, "123");
     assert.equal(state.defaultUtm, "utm_source=test");
     assert.equal(state.createCampaignsPaused, false);
+    assert.equal(state.createAdSetsPaused, false);
+    assert.equal(state.createAdsPaused, true);
     assert.deepEqual(state.lastPublishedPost, {
         accountKey: "account-1",
         pageId: "10",

@@ -55,8 +55,8 @@ try {
     const creative = {
         creative: "Post <LINK>",
         comments: [
-            { id: "1", text: "Comment <LINK>" },
-            { id: "2", text: "No marker" },
+            { id: "1", parent_id: null, text: "Comment <LINK>" },
+            { id: "2", parent_id: "1", text: "No marker" },
         ],
     };
     assert.deepEqual(
@@ -71,6 +71,12 @@ try {
         })[0].text,
         "Plain"
     );
+    assert.deepEqual(
+        prepareCommentsForCampaign({ creative, flattenReplies: true })
+            .map((comment) => comment.parent_id),
+        [null, null]
+    );
+    assert.equal(creative.comments[1].parent_id, "1");
 
     const facebookBackend = {
         async getAccounts() {
@@ -139,6 +145,7 @@ try {
         finishScenario = resolve;
     });
     const scenarioOptions = [];
+    const parallelScenarioOptions = [];
     const guiService = new AdsBotGuiService({
         facebookBackend,
         facebookBackendFactory: async () => facebookBackend,
@@ -152,6 +159,26 @@ try {
         runCommentingScenarioFn: async (options) => {
             scenarioOptions.push(options);
             return scenarioPromise;
+        },
+        runParallelCommentingScenarioFn: async (options) => {
+            parallelScenarioOptions.push(options);
+            return {
+                report: {
+                    groupIds: options.groupIds,
+                    geo: options.geo,
+                    creativeName: options.creativeName,
+                    postUrl: options.postUrl,
+                    browserMode: options.browserMode,
+                    disableImages: options.disableImages,
+                    published: [],
+                    skipped: [],
+                    failedComments: [],
+                    failedProfiles: [],
+                    cleanupWarnings: [],
+                    fatalError: null,
+                    interrupted: false,
+                },
+            };
         },
         logger: {
             info: (message) => logs.push(message),
@@ -222,6 +249,17 @@ try {
     assert.equal(scenarioOptions[0].disableImages, true);
     assert.equal(scenarioOptions[1].browserMode, "visible");
     assert.equal(scenarioOptions[1].disableImages, false);
+    await guiService.runParallelCommentingCampaign({
+        groupIds: ["2"],
+        geo: "HU",
+        creativeName: "138",
+        postUrl: "https://www.facebook.com/ad",
+        commentTarget: "ad",
+    });
+    assert.deepEqual(
+        parallelScenarioOptions[0].comments.map((comment) => comment.parent_id),
+        [null, null]
+    );
     assert(logs.length > 0);
 
     console.log("Mock-перевірка AdsBotGuiService пройшла успішно");

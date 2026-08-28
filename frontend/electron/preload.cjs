@@ -154,6 +154,26 @@ contextBridge.exposeInMainWorld("adsBot", {
     getKeitaroCampaignGroups: () => ipcRenderer.invoke("keitaro:groups-list"),
     getKeitaroCampaignsReport: (options) =>
         ipcRenderer.invoke("keitaro:campaigns-report", options),
+    getKeitaroCampaignsList: (options) =>
+        ipcRenderer.invoke("keitaro:campaigns-list", options),
+    getKeitaroCampaignStats: (options) =>
+        ipcRenderer.invoke("keitaro:campaigns-stats", options),
+    getKeitaroLandingPages: (options) => ipcRenderer.invoke("keitaro:landing-pages-list", options),
+    getKeitaroOffers: (options) => ipcRenderer.invoke("keitaro:offers-list", options),
+    getKeitaroAssetGroups: (kind) => ipcRenderer.invoke("keitaro:asset-groups-list", { kind }),
+    getKeitaroCountries: () => ipcRenderer.invoke("keitaro:countries-list"),
+    getKeitaroStreamTemplates: () =>
+        ipcRenderer.invoke("keitaro-stream-templates:list"),
+    createKeitaroStreamTemplate: (payload) =>
+        ipcRenderer.invoke("keitaro-stream-templates:create", payload),
+    updateKeitaroStreamTemplate: (id, payload) =>
+        ipcRenderer.invoke("keitaro-stream-templates:update", { id, ...payload }),
+    duplicateKeitaroStreamTemplate: (id) =>
+        ipcRenderer.invoke("keitaro-stream-templates:duplicate", { id }),
+    deleteKeitaroStreamTemplate: (id) =>
+        ipcRenderer.invoke("keitaro-stream-templates:delete", { id }),
+    applyKeitaroStreamTemplate: (payload) =>
+        ipcRenderer.invoke("keitaro-stream-templates:apply", payload),
     loadAppState: () => ipcRenderer.invoke("state:load"),
     saveAppState: (state) => ipcRenderer.invoke("state:save", state),
     setUiScale: (scale) => ipcRenderer.invoke("app:set-zoom", { scale }),

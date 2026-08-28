@@ -18,6 +18,7 @@ const settings = {
     commentWorkerConcurrency: 5,
     commentBrowserMode: "visible",
     commentDisableImages: false,
+    commentWorkerProxyIds: { 1: "proxy-1" },
     defaultPixelId: "30",
     defaultUtm: "utm_source=adsbot",
 };
@@ -30,6 +31,7 @@ describe("Дизайн workspace фанпейджів", () => {
                 ok: true,
                 data: [
                     { code: "DE", name: "Germany" },
+                    { code: "HU", name: "Hungary" },
                     { code: "UK", name: "United Kingdom" },
                 ],
             }),
@@ -114,6 +116,10 @@ describe("Дизайн workspace фанпейджів", () => {
                 ok: true,
                 data: { taskId: "task-rebuild" },
             }),
+            runCommentingCampaign: vi.fn().mockResolvedValue({
+                ok: true,
+                data: { task: { id: "comments-task" } },
+            }),
         };
         Object.assign(navigator, {
             clipboard: { writeText: vi.fn().mockResolvedValue(undefined) },
@@ -155,6 +161,79 @@ describe("Дизайн workspace фанпейджів", () => {
         expect(screen.getByTitle("Відкрити фанку у Facebook")).toBeInTheDocument();
         expect(screen.getByTitle("Копіювати посилання на пост")).toBeInTheDocument();
         expect(screen.getByTitle("Відкрити пост у Facebook")).toBeInTheDocument();
+    });
+
+    it("запускає ручне коментування рекламної об’яви без реплаїв", async () => {
+        const showToast = vi.fn();
+        render(
+            <PagesTab
+                selectedAccount={{ accountKey: "client", status: "active" }}
+                pages={[{
+                    id: "10",
+                    name: "Deutschland Page",
+                    geo: "HU",
+                    creativeName: "1",
+                    isFavorite: true,
+                }]}
+                adAccounts={[]}
+                groups={[{ groupId: "hu-group", groupName: "Comments [HU]" }]}
+                selectedPageId="10"
+                setSelectedPageId={vi.fn()}
+                onPagesChange={vi.fn()}
+                onRefresh={vi.fn()}
+                settings={settings}
+                onError={vi.fn()}
+                showToast={showToast}
+            />
+        );
+
+        await waitFor(() => expect(window.adsBot.getCountries)
+            .toHaveBeenCalledTimes(1));
+        fireEvent.click(screen.getByRole("button", {
+            name: "Закоментити рекламну об’яву",
+        }));
+        expect(screen.getByText(
+            "Реплаї будуть опубліковані як окремі звичайні коментарі."
+        )).toBeInTheDocument();
+        const commentGeo = document.querySelector(
+            ".comment-creative-fields-row .geo-select-list"
+        );
+        expect(commentGeo).toBeInTheDocument();
+        fireEvent.click(within(commentGeo).getByRole("button", { name: "GEO" }));
+        fireEvent.change(screen.getByPlaceholderText("Дволітерний код країни…"), {
+            target: { value: "hu" },
+        });
+        const geoOptions = within(document.querySelector(
+            ".comment-creative-fields-row .select-options"
+        )).getAllByRole("button");
+        expect(geoOptions).toHaveLength(1);
+        expect(geoOptions[0]).toHaveTextContent("HU");
+        fireEvent.click(geoOptions[0]);
+        fireEvent.change(screen.getByLabelText("Посилання на рекламну об’яву"), {
+            target: { value: "https://www.facebook.com/ads/example" },
+        });
+        const submit = screen.getByRole("button", { name: "У чергу" });
+        expect(submit).toBeEnabled();
+        fireEvent.click(submit);
+
+        await waitFor(() => expect(window.adsBot.runCommentingCampaign)
+            .toHaveBeenCalledWith({
+                accountKey: "client",
+                browserMode: "visible",
+                commentTarget: "ad",
+                commentWorkerConcurrency: 5,
+                commentWorkerProxyIds: { 1: "proxy-1" },
+                creativeName: "1",
+                disableImages: false,
+                geo: "HU",
+                groupIds: ["hu-group"],
+                postUrl: "https://www.facebook.com/ads/example",
+                siteUrl: "",
+            }));
+        expect(showToast).toHaveBeenCalledWith(
+            "Коментування поставлено в чергу",
+            "success"
+        );
     });
 
     it("окремо оновлює список і вибрану фанку, не ховаючи старі пости", async () => {

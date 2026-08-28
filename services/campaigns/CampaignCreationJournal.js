@@ -17,6 +17,14 @@ function cleanInput(input = {}) {
         dailyBudget: Number(input.dailyBudget),
         startTime: String(input.startTime ?? ""),
         createPaused: input.createPaused !== false,
+        createAdSetsPaused: input.createAdSetsPaused !== false,
+        createAdsPaused: input.createAdsPaused !== false,
+        creativeMode: input.creativeMode === "image" ? "image" : "post",
+        geo: String(input.geo ?? ""),
+        creativeName: String(input.creativeName ?? ""),
+        siteUrl: String(input.siteUrl ?? ""),
+        imagePath: String(input.imagePath ?? ""),
+        callToActionType: String(input.callToActionType ?? "NO_BUTTON"),
     };
 }
 

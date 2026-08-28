@@ -24,6 +24,7 @@ import { findGroupForGeo } from "../lib/groups.js";
 import { sortGroups, sortProfiles } from "../lib/commentAccountGroups.js";
 import CommentAccountsTab from "../tabs/CommentAccountsTab.jsx";
 import KeitaroTab from "../tabs/KeitaroTab.jsx";
+import KeitaroWorkspaceTab from "../tabs/KeitaroWorkspaceTab.jsx";
 
 
 describe("GUI helpers", () => {
@@ -34,6 +35,7 @@ describe("GUI helpers", () => {
             getLogs: vi.fn().mockResolvedValue({ ok: true, data: { items: [], nextCursor: null } }),
             getLogScopes: vi.fn().mockResolvedValue({ ok: true, data: [] }),
             getReports: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+            getKeitaroCountries: vi.fn().mockResolvedValue({ ok: true, data: [] }),
         };
     });
 
@@ -865,7 +867,7 @@ describe("GUI helpers", () => {
             ok: true,
             data: [{ id: "10", name: "Nutra" }],
         });
-        window.adsBot.getKeitaroCampaignsReport = vi.fn().mockResolvedValue({
+        window.adsBot.getKeitaroCampaignsList = vi.fn().mockResolvedValue({
             ok: true,
             data: {
                 campaigns: [
@@ -875,20 +877,6 @@ describe("GUI helpers", () => {
                         groupId: "10",
                         groupName: "Nutra",
                         state: "active",
-                        clicks: 10,
-                        conversions: 2,
-                        revenue: 5,
-                        uniqueClicks: 8,
-                        bots: 0,
-                        sales: 1,
-                        leads: 2,
-                        rejected: 0,
-                        cr: 20,
-                        cost: 1,
-                        profit: 4,
-                        roi: 400,
-                        epc: 0.5,
-                        cpc: 0.1,
                     },
                     {
                         id: "2",
@@ -896,23 +884,25 @@ describe("GUI helpers", () => {
                         groupId: "10",
                         groupName: "Nutra",
                         state: "disabled",
-                        clicks: 3,
-                        conversions: 0,
-                        revenue: 0,
-                        uniqueClicks: 3,
-                        bots: 0,
-                        sales: 0,
-                        leads: 0,
-                        rejected: 0,
-                        cr: 0,
-                        cost: 0,
-                        profit: 0,
-                        roi: 0,
-                        epc: 0,
-                        cpc: 0,
                     },
                 ],
+                selectedGroupIds: ["10"],
             },
+        });
+        window.adsBot.getKeitaroCampaignStats = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [
+                { id: "1", clicks: 10, conversions: 2, revenue: 5 },
+                { id: "2", clicks: 3, conversions: 0, revenue: 0 },
+            ],
+        });
+        window.adsBot.getKeitaroStreamTemplates = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{ id: 1, name: "White 423" }],
+        });
+        window.adsBot.applyKeitaroStreamTemplate = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{ campaignId: 2, ok: true }],
         });
         function Harness() {
             const [search, setSearch] = useState("");
@@ -933,7 +923,76 @@ describe("GUI helpers", () => {
         expect(screen.getByText("Beta")).toBeInTheDocument();
         fireEvent.click(screen.getByLabelText("Вибрати кампанію Beta"));
         expect(screen.getByText("Вибрано: 1")).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Додати шаблон" }));
+        expect(await screen.findByRole("dialog", { name: "Додати шаблон до кампаній" })).toBeInTheDocument();
+        fireEvent.change(screen.getByText("Додати потік").closest("select"), {
+            target: { value: "replace" },
+        });
+        expect(screen.getByText("Номер потоку в кампанії")).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Застосувати" }));
+        await waitFor(() => expect(window.adsBot.applyKeitaroStreamTemplate).toHaveBeenCalledWith({
+            templateId: 1,
+            campaignIds: ["2"],
+            mode: "replace",
+            replacePosition: 1,
+        }));
         expect(screen.getByLabelText("Кампаній на сторінці")).toHaveValue("50");
+    });
+
+    it("має підвкладки кампаній і шаблонів потоків Keitaro", async () => {
+        window.adsBot.getKeitaroCampaignGroups = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [],
+        });
+        window.adsBot.getKeitaroStreamTemplates = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{
+                id: 1,
+                name: "White (копія потоку 423)",
+                sourceStreamId: 423,
+                stream: { filters: [{ name: "bot" }], landings: [{ landing_id: 68 }] },
+            }],
+        });
+        window.adsBot.getKeitaroLandingPages = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [],
+        });
+        window.adsBot.getKeitaroOffers = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [],
+        });
+        window.adsBot.getKeitaroCountries = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{ code: "JP", name: "Japan" }],
+        });
+        window.adsBot.getKeitaroAssetGroups = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{ id: "41", name: "JP" }],
+        });
+        function Harness() {
+            const [subtab, setSubtab] = useState("campaigns");
+            return (
+                <KeitaroWorkspaceTab
+                    availableGroupIds={[]}
+                    keitaroSubtab={subtab}
+                    onKeitaroSubtabChange={setSubtab}
+                />
+            );
+        }
+        render(<Harness />);
+        expect(screen.getByRole("button", { name: "Кампанії" })).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Шаблони потоків" }));
+        expect(await screen.findByText("White (копія потоку 423)")).toBeInTheDocument();
+        expect(window.adsBot.getKeitaroAssetGroups).not.toHaveBeenCalled();
+        fireEvent.click(screen.getByRole("button", { name: /Редагувати/ }));
+        fireEvent.click(screen.getByRole("button", { name: /Схема/ }));
+        fireEvent.click(screen.getByRole("button", { name: "Додати лендінги" }));
+        expect(await screen.findByRole("dialog", { name: "Вибір лендінгів" })).toBeInTheDocument();
+        expect(window.adsBot.getKeitaroAssetGroups).toHaveBeenCalledWith("landings");
+        fireEvent.change(screen.getByText("Оберіть групу").closest("select"), {
+            target: { value: "41" },
+        });
+        await waitFor(() => expect(window.adsBot.getKeitaroLandingPages).toHaveBeenCalledWith({ groupId: "41" }));
     });
 
     it("дозволяє обрати доступні групи Keitaro в налаштуваннях", async () => {

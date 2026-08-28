@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import {
     AlertCircle,
     LoaderCircle,
+    Plus,
     RefreshCw,
     Search,
     Settings2,
+    X,
 } from "lucide-react";
 
 import SearchSelect from "../components/SearchSelect.jsx";
@@ -29,6 +31,24 @@ function matchesSearch(campaign, query) {
 }
 
 
+const emptyCampaignStats = {
+    clicks: 0,
+    uniqueClicks: 0,
+    bots: 0,
+    conversions: 0,
+    sales: 0,
+    leads: 0,
+    rejected: 0,
+    cr: 0,
+    cost: 0,
+    revenue: 0,
+    profit: 0,
+    roi: 0,
+    epc: 0,
+    cpc: 0,
+};
+
+
 export default function KeitaroTab({
     availableGroupIds = [],
     search = "",
@@ -48,15 +68,19 @@ export default function KeitaroTab({
     pageSize = 50,
     onPageSizeChange = () => {},
     onError = () => {},
+    showToast = () => {},
 }) {
     const [groups, setGroups] = useState([]);
     const [campaigns, setCampaigns] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [statsLoading, setStatsLoading] = useState(false);
+    const [statsError, setStatsError] = useState("");
     const [groupsLoading, setGroupsLoading] = useState(false);
     const [error, setError] = useState("");
     const [selectedIds, setSelectedIds] = useState([]);
     const [page, setPage] = useState(1);
     const [gearOpen, setGearOpen] = useState(false);
+    const [templateModalOpen, setTemplateModalOpen] = useState(false);
     const requestSequence = useRef(0);
     const gearRef = useRef(null);
     const dragColumn = useRef("");
@@ -111,20 +135,45 @@ export default function KeitaroTab({
         }
     };
 
-    const loadCampaigns = async () => {
+    const loadCampaigns = async (forceRefresh = false) => {
         const sequence = requestSequence.current + 1;
         requestSequence.current = sequence;
         setLoading(true);
+        setStatsLoading(false);
+        setStatsError("");
         setError("");
+        setCampaigns([]);
+        setSelectedIds([]);
         try {
-            const result = await unwrap(window.adsBot.getKeitaroCampaignsReport({
+            const result = await unwrap(window.adsBot.getKeitaroCampaignsList({
                 groupId: selectedGroupId,
                 datePreset,
                 availableGroupIds,
+                forceRefresh,
             }));
             if (sequence !== requestSequence.current) return;
             setCampaigns(result.campaigns ?? []);
             setSelectedIds([]);
+            setLoading(false);
+            setStatsLoading(true);
+            try {
+                const stats = await unwrap(window.adsBot.getKeitaroCampaignStats({
+                    selectedGroupIds: result.selectedGroupIds ?? [],
+                    datePreset,
+                }));
+                if (sequence !== requestSequence.current) return;
+                const statsById = new Map((stats ?? []).map((item) => [String(item.id), item]));
+                setCampaigns((current) => current.map((campaign) => ({
+                    ...campaign,
+                    ...emptyCampaignStats,
+                    ...(statsById.get(String(campaign.id)) ?? {}),
+                })));
+            } catch (statsError) {
+                if (sequence !== requestSequence.current) return;
+                setStatsError(`Статистику не завантажено: ${statsError.message}`);
+            } finally {
+                if (sequence === requestSequence.current) setStatsLoading(false);
+            }
         } catch (loadError) {
             if (sequence !== requestSequence.current) return;
             setCampaigns([]);
@@ -288,13 +337,16 @@ export default function KeitaroTab({
                     ariaLabel="Група кампаній Keitaro"
                     disabled={availableGroups.length === 0}
                 />
+                <span className={`keitaro-stats-status ${statsError ? "error" : ""}`}>
+                    {statsLoading ? "Статистика оновлюється…" : statsError}
+                </span>
                 <button
                     type="button"
                     className="secondary-button"
-                    disabled={loading || availableGroupIds.length === 0}
-                    onClick={loadCampaigns}
+                    disabled={loading || statsLoading || availableGroupIds.length === 0}
+                    onClick={() => loadCampaigns(true)}
                 >
-                    <RefreshCw className={loading ? "spin" : ""} size={16} />
+                    <RefreshCw className={loading || statsLoading ? "spin" : ""} size={16} />
                     Оновити
                 </button>
                 <div className="keitaro-gear" ref={gearRef}>
@@ -327,6 +379,14 @@ export default function KeitaroTab({
 
             <div className="keitaro-meta">
                 <span>Вибрано: {selectedIds.length}</span>
+                <button
+                    type="button"
+                    className="primary-button"
+                    disabled={selectedIds.length === 0}
+                    onClick={() => setTemplateModalOpen(true)}
+                >
+                    <Plus size={15} /> Додати шаблон
+                </button>
                 {groupsLoading && <small>Оновлюємо групи…</small>}
             </div>
 
@@ -387,13 +447,13 @@ export default function KeitaroTab({
                     ))}
                 </div>
                 <div className="keitaro-scroll">
-                    {loading && (
+                    {loading && campaigns.length === 0 && (
                         <div className="campaign-loading">
                             <LoaderCircle className="spin" size={21} />
                             Завантажуємо кампанії Keitaro…
                         </div>
                     )}
-                    {!loading && error && (
+                    {!loading && error && campaigns.length === 0 && (
                         <div className="campaign-error">
                             <AlertCircle size={24} />
                             <strong>Не вдалося завантажити дані</strong>
@@ -487,7 +547,82 @@ export default function KeitaroTab({
                     </label>
                 </div>
             </div>
+            {templateModalOpen && (
+                <ApplyStreamTemplateModal
+                    campaignIds={selectedIds}
+                    onClose={() => setTemplateModalOpen(false)}
+                    onError={onError}
+                    showToast={showToast}
+                />
+            )}
         </motion.section>
+    );
+}
+
+
+function ApplyStreamTemplateModal({ campaignIds, onClose, onError, showToast }) {
+    const [templates, setTemplates] = useState([]);
+    const [templateId, setTemplateId] = useState("");
+    const [mode, setMode] = useState("add");
+    const [replacePosition, setReplacePosition] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [applying, setApplying] = useState(false);
+
+    useEffect(() => {
+        unwrap(window.adsBot.getKeitaroStreamTemplates())
+            .then((items) => {
+                setTemplates(items ?? []);
+                setTemplateId(String(items?.[0]?.id ?? ""));
+            })
+            .catch((error) => onError({
+                ...errorDetails(error),
+                title: "Не вдалося завантажити шаблони потоків",
+            }))
+            .finally(() => setLoading(false));
+    }, []);
+
+    const apply = async () => {
+        setApplying(true);
+        try {
+            const results = await unwrap(window.adsBot.applyKeitaroStreamTemplate({
+                templateId: Number(templateId),
+                campaignIds,
+                mode,
+                replacePosition: mode === "replace" ? Number(replacePosition) : null,
+            }));
+            const succeeded = results.filter((item) => item.ok).length;
+            const failed = results.length - succeeded;
+            if (failed > 0) {
+                onError({
+                    title: "Шаблон застосовано не до всіх кампаній",
+                    message: `Успішно: ${succeeded}. З помилкою: ${failed}.`,
+                    details: results.filter((item) => !item.ok)
+                        .map((item) => `Кампанія ${item.campaignId}: ${item.error}`).join("\n"),
+                });
+                return;
+            }
+            showToast(`Шаблон застосовано до ${succeeded} кампаній`, "success");
+            onClose();
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося застосувати шаблон потоку" });
+        } finally {
+            setApplying(false);
+        }
+    };
+
+    return (
+        <div className="stream-editor-overlay" role="dialog" aria-modal="true" aria-label="Додати шаблон до кампаній">
+            <div className="apply-stream-modal">
+                <header><div><h2>Додати шаблон</h2><p>Вибрано кампаній: {campaignIds.length}</p></div><button type="button" className="icon-button" onClick={onClose}><X size={18} /></button></header>
+                <div className="apply-stream-body">
+                    <label className="stream-field"><span>Шаблон потоку</span><select value={templateId} disabled={loading} onChange={(event) => setTemplateId(event.target.value)}><option value="">Оберіть шаблон</option>{templates.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+                    <label className="stream-field"><span>Що зробити</span><select value={mode} onChange={(event) => setMode(event.target.value)}><option value="add">Додати потік</option><option value="replace">Замінити потік у вибраних кампаніях</option></select></label>
+                    {mode === "replace" && <label className="stream-field replace-position"><span>Номер потоку в кампанії</span><input type="number" min="1" step="1" value={replacePosition} onChange={(event) => setReplacePosition(event.target.value)} /><small>Наприклад, 1 — перший потік у кожній вибраній кампанії. Його позиція збережеться.</small></label>}
+                    {mode === "replace" && <div className="stream-warning">Параметри потоку з цим номером будуть замінені даними шаблону в кожній вибраній кампанії.</div>}
+                </div>
+                <footer><button type="button" className="secondary-button" onClick={onClose}>Скасувати</button><button type="button" className="primary-button" disabled={applying || loading || !templateId || (mode === "replace" && Number(replacePosition) < 1)} onClick={apply}>{applying && <LoaderCircle className="spin" size={16} />} Застосувати</button></footer>
+            </div>
+        </div>
     );
 }
 

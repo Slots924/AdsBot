@@ -91,7 +91,7 @@ const result = await fillFacebookPersonalProfileAbout(page, {
 
 `FacebookGraphApi.getAdPixels(adAccountId)` проходить cursor-пагінацію `/{act_id}/adspixels` і повертає лише `{ id, name }`. Page token, access token, cookie та proxy-поля не потрапляють у backend facade або renderer.
 
-`preflightLeadCampaign()` і `createLeadCampaign()` тепер приймають `pixelId` та `utm` як runtime-параметри. Campaign template v5 містить лише targeting, placements, devices, DSA, enhancements і budget sharing. Старі `pixel`/`utm` під час нормалізації шаблону відкидаються й не переносяться до глобальних defaults.
+`preflightLeadCampaign()` і `createLeadCampaign()` приймають `pixelId` та `utm` як runtime-параметри. Для оголошення із зображенням `creativeMode=image` backend підставляє `<LINK>`, бере перший непорожній рядок у headline, решту — в primary text, завантажує файл через `/{act_id}/adimages` і створює `object_story_spec.link_data`.
 
 GUI-контракти: `workspace:client-load`, `pages:posts-with-links`, `pages:posts-delete`, `pages:post-delete`, `ads:pixels-list` та `creative-launch:start/get/retry`. Creative launch не викликає campaign/comments як вкладені background tasks: обидві гілки запускаються безпосередньо всередині parent runner і тому не створюють deadlock глобальної черги.
 
@@ -232,9 +232,12 @@ if (!selectedFacebookApiClient) {
 | `deletePagePosts({pageId, posts})` | `{ deleted, failed }` | Послідовно видаляє передані canonical post ID цієї фанпейджі та повертає частковий результат. |
 | `createPageTextPost(options)` | `{ postId }` | Публікує текстовий пост через `/feed`. |
 | `createPagePhotoPost(options)` | `{ postId, photoId }` | Публікує одну фотографію через `/photos`. |
+| `hidePagePostLinkPreview(options)` | `{ success, post, attachments }` | Приховує Open Graph-прев'ю посилання через `og_hide_object_attachment=true` і повторно читає вкладення поста для перевірки перед рекламою. |
+| `getAdCreativeDetails(options)` | `object` | Повторно читає destination, effective post ID та creative enhancements для контрольної перевірки. |
+| `getAdCreativePreviews(options)` | `object[]` | Генерує HTML-прев'ю Creative у форматі Meta, за замовчуванням desktop feed. |
 | `getPagePost(options)` | `object` | Отримує пост за ID для підтвердження публікації. |
 | `preflightLeadCampaign(options)` | `object` | Перевіряє `ads_management`, РК, сторінку, пост, Pixel, targeting і campaign payload через `validate_only`. |
-| `createLeadCampaign(options, onProgress)` | `object` | Поетапно створює website lead campaign, creative, ad sets та ads; у ручному режимі campaign PAUSED, а ad sets та ads ACTIVE. |
+| `createLeadCampaign(options, onProgress)` | `object` | Поетапно створює website lead campaign, creative, ad sets та ads із готового поста або локального зображення. Статуси campaign, Ad Set та ad задаються незалежно. |
 | `deleteCampaignDraft(objects, onProgress)` | `{ deleted, failed }` | Видаляє тільки Graph ID із журналу конкретної спроби. |
 
 Приклад:
@@ -297,12 +300,10 @@ retry або cleanup.
 Pixel, зовнішнє посилання у пості, валюту та timezone. Campaign payload
 перевіряється через `execution_options=["validate_only"]`. Ad set та ad залежать
 від реальних parent ID, тому для них `validate_only` виконується поетапно після
-створення відповідного parent. Campaign створюється PAUSED; коли
-`createPaused=true`, ad sets та ads отримують власний статус ACTIVE, але не
-показуються через effective status батьківської campaign. Після ручної
-перевірки достатньо активувати campaign. Для `createPaused=false` дочірні
-об’єкти залишаються PAUSED до успішного завершення всіх кроків і лише потім
-активуються разом із campaign.
+створення відповідного parent. Campaign, Ad Set та ad спочатку створюються
+PAUSED. Після успішного створення активуються тільки рівні, для яких відповідний
+прапорець `createPaused`, `createAdSetsPaused` або `createAdsPaused` дорівнює
+`false`. Порядок активації: ad → ad set → campaign.
 
 Майстер передає canonical `pageId_postId` вибраного поста. Належність поста
 вибраній сторінці, його опублікований стан і наявність зовнішнього website URL
@@ -313,8 +314,11 @@ Pixel, зовнішнє посилання у пості, валюту та time
 
 `createLeadCampaign()` використовує `OUTCOME_LEADS`,
 `OFFSITE_CONVERSIONS`, Pixel event `LEAD`, бюджети ad set і ручний targeting з
-`advantage_audience=0`. Creative посилається на готовий `object_story_id`,
-отримує `url_tags` та явні `OPT_OUT` для відомих creative enhancements.
+`advantage_audience=0`. Creative посилається на готовий `object_story_id` або
+містить `object_story_spec.link_data`, отримує `url_tags` та явні `OPT_OUT`
+для відомих creative enhancements. Для image ad значення `NO_BUTTON` не додає
+`call_to_action`; системне згортання тексту з написом `See more` API Facebook
+не контролює.
 За наявності обмежень шаблону targeting також отримує `device_platforms` і
 `user_os`; порожні масиви означають усі пристрої та всі мобільні ОС.
 

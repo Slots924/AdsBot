@@ -192,7 +192,7 @@ assert.equal(targeting.targeting_automation.advantage_audience, 0);
 assert.deepEqual(targeting.device_platforms, ["mobile"]);
 assert.deepEqual(targeting.user_os, ["iOS"]);
 assert.equal(actualAdSet.data.get("daily_budget"), "500");
-assert.equal(actualAdSet.data.get("status"), "ACTIVE");
+assert.equal(actualAdSet.data.get("status"), "PAUSED");
 assert.equal(actualAdSet.data.has("destination_type"), false);
 assert.equal(actualAdSet.data.get("dsa_beneficiary"), "Meta Beneficiary LLC");
 assert.equal(actualAdSet.data.get("dsa_payor"), "Meta Payor LLC");
@@ -218,7 +218,7 @@ const actualAd = requests.find((request) => (
     && request.url.endsWith("/act_1/ads")
     && !isValidate(request)
 ));
-assert.equal(actualAd.data.get("status"), "ACTIVE");
+assert.equal(actualAd.data.get("status"), "PAUSED");
 
 const postBodies = requests
     .filter((request) => request.method === "post")

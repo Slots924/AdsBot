@@ -151,6 +151,8 @@ export default function CreativeLaunchModal({
                 dailyBudget: Number(draft.dailyBudget),
                 campaignNameManual: manualName,
                 createPaused: settings.createCampaignsPaused,
+                createAdSetsPaused: settings.createAdSetsPaused,
+                createAdsPaused: settings.createAdsPaused,
                 browserMode: settings.commentBrowserMode,
                 disableImages: settings.commentDisableImages,
                 commentWorkerConcurrency: settings.commentWorkerConcurrency,

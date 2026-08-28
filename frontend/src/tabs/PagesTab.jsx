@@ -390,13 +390,16 @@ function PublicationModal({
 
 
 function CommentModal({
-    page, post, accountKey, countries, groups, settings, onClose, onQueued, onError,
+    page, post = null, commentTarget = "post", accountKey, countries, groups,
+    settings, onClose, onQueued, onError,
 }) {
+    const isAd = commentTarget === "ad";
     const defaultGroup = findGroupForGeo(groups, page.geo);
     const [draft, setDraft] = useState({
         geo: page.geo || "",
         creativeName: page.creativeName || "",
         siteUrl: "",
+        postUrl: post?.permalinkUrl || "",
         groupIds: defaultGroup ? [String(defaultGroup.groupId)] : [],
     });
     const submit = async (event) => {
@@ -405,7 +408,7 @@ function CommentModal({
             onQueued(await unwrap(window.adsBot.runCommentingCampaign({
                 ...draft,
                 accountKey,
-                postUrl: post.permalinkUrl,
+                commentTarget,
                 browserMode: settings.commentBrowserMode,
                 disableImages: settings.commentDisableImages,
                 commentWorkerConcurrency: settings.commentWorkerConcurrency,
@@ -421,15 +424,30 @@ function CommentModal({
                 <button type="button" className="modal-close" onClick={onClose}>
                     <X size={17} />
                 </button>
-                <span className="eyebrow">Пост {post.id}</span>
-                <h2>Закоментити пост</h2>
-                <div className="creative-fields-row">
+                <span className="eyebrow">
+                    {post ? `Пост ${post.id}` : isAd ? "Рекламна об’ява" : "Facebook-пост"}
+                </span>
+                <h2>{isAd ? "Закоментити рекламну об’яву" : "Закоментити пост"}</h2>
+                <label className="field">
+                    <span>Посилання на {isAd ? "рекламну об’яву" : "пост"}</span>
+                    <input
+                        type="url"
+                        value={draft.postUrl}
+                        onChange={(event) => setDraft((current) => ({
+                            ...current,
+                            postUrl: event.target.value,
+                        }))}
+                        placeholder="https://www.facebook.com/..."
+                    />
+                </label>
+                <div className="creative-fields-row comment-creative-fields-row">
                     <label className="field geo-field">
                         <span>GEO</span>
                         <GeoSelect
                             countries={countries}
                             value={draft.geo}
                             onChange={(geo) => setDraft((current) => ({ ...current, geo }))}
+                            layout="list"
                         />
                     </label>
                     <label className="field">
@@ -453,6 +471,11 @@ function CommentModal({
                         }))}
                     />
                 </label>
+                {isAd && (
+                    <div className="notice info comment-ad-hint">
+                        Реплаї будуть опубліковані як окремі звичайні коментарі.
+                    </div>
+                )}
                 <label className="field">
                     <span>Акаунти для коментарів</span>
                     <MultiSelect
@@ -470,7 +493,7 @@ function CommentModal({
                     </button>
                     <button
                         className="primary-button"
-                        disabled={!draft.geo || !draft.creativeName || !draft.groupIds.length}
+                        disabled={!draft.postUrl.trim() || !draft.geo || !draft.creativeName || !draft.groupIds.length}
                     >
                         У чергу
                     </button>
@@ -914,6 +937,24 @@ export default function PagesTab({
                                 <div className="page-actions">
                                     <button
                                         className="secondary-button"
+                                        onClick={() => setAction({
+                                            type: "comment-manual",
+                                            commentTarget: "post",
+                                        })}
+                                    >
+                                        <MessageSquareText size={16} />Закоментити пост
+                                    </button>
+                                    <button
+                                        className="secondary-button"
+                                        onClick={() => setAction({
+                                            type: "comment-manual",
+                                            commentTarget: "ad",
+                                        })}
+                                    >
+                                        <Megaphone size={16} />Закоментити рекламну об’яву
+                                    </button>
+                                    <button
+                                        className="secondary-button"
                                         onClick={() => setAction({ type: "publish" })}
                                     >
                                         <Send size={16} />Запостити креатив
@@ -1057,6 +1098,19 @@ export default function PagesTab({
                     onError={onError}
                 />
             )}
+            {action?.type === "comment-manual" && (
+                <CommentModal
+                    page={selected}
+                    commentTarget={action.commentTarget}
+                    accountKey={accountKey}
+                    countries={countries}
+                    groups={groups}
+                    settings={settings}
+                    onClose={() => setAction(null)}
+                    onQueued={() => queued("Коментування поставлено в чергу")}
+                    onError={onError}
+                />
+            )}
             {action?.type === "campaign-select" && (
                 <CampaignAccountModal
                     accountKey={accountKey}
@@ -1075,6 +1129,8 @@ export default function PagesTab({
                     accountKey={accountKey}
                     adAccount={action.adAccount}
                     createPaused={settings.createCampaignsPaused}
+                    createAdSetsPaused={settings.createAdSetsPaused}
+                    createAdsPaused={settings.createAdsPaused}
                     defaultPixelId={settings.defaultPixelId}
                     defaultUtm={settings.defaultUtm}
                     initialPageId={selected.id}

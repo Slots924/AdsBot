@@ -1,0 +1,128 @@
+{
+  "version": 2,
+  "nextId": 3,
+  "templates": [
+    {
+      "id": 1,
+      "createdAt": "2026-08-27T18:22:36.644Z",
+      "updatedAt": "2026-08-27T19:20:38.098Z",
+      "name": "White (копія потоку 423)",
+      "sourceStreamId": 423,
+      "stream": {
+        "type": "regular",
+        "name": "White",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": false,
+        "filter_or": true,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [
+          {
+            "id": 821,
+            "stream_id": 423,
+            "name": "os",
+            "mode": "accept",
+            "payload": [
+              "Arch Linux",
+              "GNU/Linux",
+              "VectorLinux"
+            ],
+            "oid": 821
+          },
+          {
+            "id": 820,
+            "stream_id": 423,
+            "name": "bot",
+            "mode": "accept",
+            "payload": null,
+            "oid": 820
+          },
+          {
+            "id": 819,
+            "stream_id": 423,
+            "name": "country",
+            "mode": "reject",
+            "payload": [
+              "JP"
+            ],
+            "oid": 819
+          },
+          {
+            "id": 818,
+            "stream_id": 423,
+            "name": "proxy",
+            "mode": "accept",
+            "payload": null,
+            "oid": 818
+          }
+        ],
+        "landings": [
+          {
+            "id": 416,
+            "stream_id": 423,
+            "landing_id": 68,
+            "state": "active",
+            "share": 100,
+            "created_at": "2026-02-22 10:28:09",
+            "updated_at": "2026-03-04 21:49:34",
+            "name": ""
+          }
+        ],
+        "offers": [],
+        "triggers": [],
+        "action_options": null
+      }
+    },
+    {
+      "id": 2,
+      "createdAt": "2026-08-27T19:18:13.323Z",
+      "updatedAt": "2026-08-28T08:25:18.590Z",
+      "name": "test",
+      "sourceStreamId": null,
+      "stream": {
+        "type": "regular",
+        "name": "test",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": false,
+        "filter_or": false,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [],
+        "landings": [
+          {
+            "landing_id": 76,
+            "name": "👩 White [LV]",
+            "groupId": "87",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "offers": [
+          {
+            "offer_id": 1378,
+            "name": "LT [RealSexClub - CPL SOI [EE LT] WEB/MOB 45+] Low Maturity:      | 4.96€ | 50  HYITA",
+            "groupId": "47",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1376,
+            "name": "LT [RealSexClub - CPL SOI [EE LT] WEB/MOB 45+] High Maturity:    | 4.96€ | 50 HYITA",
+            "groupId": "47",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "triggers": []
+      }
+    }
+  ]
+}

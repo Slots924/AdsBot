@@ -115,12 +115,14 @@ export default function prepareCreativeForCampaign({
  * @param {object} options Дані кампанії коментування.
  * @param {{comments: object[]}} options.creative Креатив із коментарями.
  * @param {string} [options.siteUrl] Необов'язкове HTTP/HTTPS посилання.
+ * @param {boolean} [options.flattenReplies] Перетворює реплаї на звичайні коментарі.
  * @returns {object[]}
  * @throws {Error} CREATIVE_LINK_VALIDATION_ERROR.
  */
 export function prepareCommentsForCampaign({
     creative,
     siteUrl = "",
+    flattenReplies = false,
 } = {}) {
     if (
         !creative
@@ -140,6 +142,7 @@ export function prepareCommentsForCampaign({
 
     return creative.comments.map((comment) => ({
         ...comment,
+        ...(flattenReplies ? { parent_id: null } : {}),
         text: replaceLink(comment.text, normalizedSiteUrl).text,
     }));
 }

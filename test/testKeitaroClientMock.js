@@ -16,6 +16,19 @@ const httpClient = {
         if (config.method === "GET" && String(config.url).endsWith("/campaigns")) {
             return { status: 200, data: [{ id: 1, name: "Offer 1" }] };
         }
+        if (config.method === "GET" && String(config.url).endsWith("/offers")) {
+            return { status: 200, data: [{ id: 21, name: "Offer 21" }] };
+        }
+        if (config.method === "GET" && String(config.url).endsWith("/landing_pages")) {
+            return { status: 200, data: [{ id: 68, name: "Landing 68" }] };
+        }
+        if (config.method === "GET" && /\/campaigns\/\d+\/streams$/.test(String(config.url))) {
+            const campaignId = Number(String(config.url).match(/campaigns\/(\d+)/)?.[1]);
+            return { status: 200, data: [{ id: campaignId * 100, position: 1 }] };
+        }
+        if (config.method === "GET" && String(config.url).endsWith("/stream_filters")) {
+            return { status: 200, data: [{ value: "country" }] };
+        }
         return { status: 200, data: { ok: true, id: 7 } };
     },
 };
@@ -33,6 +46,15 @@ assert.equal(captured[0].url, "https://tracker.example.com/admin_api/v1/campaign
 assert.equal(captured[0].headers["Api-Key"], "TEST_KEITARO_KEY");
 assert.equal(captured[0].params.limit, 50);
 
+const offers = await keitaro.listAllOffers();
+const landings = await keitaro.listAllLandings();
+assert.deepEqual(offers, [{ id: 21, name: "Offer 21" }]);
+assert.deepEqual(landings, [{ id: 68, name: "Landing 68" }]);
+assert.equal(captured.at(-2).params.limit, undefined);
+assert.equal(captured.at(-2).params.offset, undefined);
+assert.equal(captured.at(-1).params.limit, undefined);
+assert.equal(captured.at(-1).params.offset, undefined);
+
 await keitaro.listCampaignGroups();
 assert.equal(captured.at(-1).url, "https://tracker.example.com/admin_api/v1/groups");
 assert.equal(captured.at(-1).params.type, "campaigns");
@@ -45,6 +67,42 @@ assert.equal(captured.at(-1).url, "https://tracker.example.com/admin_api/v1/?bat
 assert.equal(captured.at(-1).method, "POST");
 assert.equal(captured.at(-1).data.length, 2);
 
+const addedStreams = await keitaro.applyStreamTemplateToCampaigns({
+    campaignIds: [11, 12],
+    stream: {
+        id: 423,
+        name: "White",
+        position: 1,
+        filters: [{ id: 821, stream_id: 423, oid: 821, name: "country", mode: "reject", payload: ["JP"] }],
+        landings: [{ landing_id: 68, name: "White [JP]", share: 100 }],
+        offers: [],
+    },
+});
+assert.equal(addedStreams.every((item) => item.ok), true);
+const createRequests = captured.filter((item) => item.method === "POST" && item.url.endsWith("/streams"));
+assert.deepEqual(createRequests.slice(-2).map((item) => item.data.campaign_id), [11, 12]);
+assert.equal("position" in createRequests.at(-1).data, false);
+assert.deepEqual(createRequests.at(-1).data.landings, [{
+    landing_id: 68,
+    share: 100,
+    state: "active",
+}]);
+assert.deepEqual(createRequests.at(-1).data.filters, [{
+    name: "country",
+    mode: "reject",
+    payload: ["JP"],
+}]);
+
+const replacedStreams = await keitaro.applyStreamTemplateToCampaigns({
+    campaignIds: [11, 12],
+    stream: { name: "Black", landings: [], offers: [] },
+    mode: "replace",
+    replacePosition: 1,
+});
+assert.equal(replacedStreams.every((item) => item.ok), true);
+const updateRequests = captured.filter((item) => item.method === "PUT" && /\/streams\/\d+$/.test(item.url));
+assert.deepEqual(updateRequests.slice(-2).map((item) => item.url.split("/").at(-1)), ["1100", "1200"]);
+assert.deepEqual(await keitaro.listStreamFilters(), [{ value: "country" }]);
 await keitaro.cloneCampaign(12, { name: "Copy" });
 assert.equal(
     captured.at(-1).url,
@@ -129,11 +187,29 @@ const rateClient = {
 const rateKeitaro = new Keitaro({
     apiKey: "TEST_KEITARO_KEY",
     apiUrl: "https://tracker.example.com",
+    retryOnRateLimit: true,
     httpClient: rateClient,
 });
 const rateResult = await rateKeitaro.getCampaign(8);
 assert.equal(rateResult.ok, true);
 assert.equal(rateCalls, 2);
+
+let skipCalls = 0;
+const skipClient = {
+    async request() {
+        skipCalls += 1;
+        const error = new Error("Too Many Requests");
+        error.response = { status: 429, data: { error: "Too Many Requests" } };
+        throw error;
+    },
+};
+const skipKeitaro = new Keitaro({
+    apiKey: "TEST_KEITARO_KEY",
+    apiUrl: "https://tracker.example.com",
+    httpClient: skipClient,
+});
+await assert.rejects(() => skipKeitaro.getCampaign(9), /Too Many Requests/);
+assert.equal(skipCalls, 1);
 
 assert.equal(normalizeState({}).keitaroConcurrency, 20);
 assert.equal(normalizeState({ keitaroConcurrency: 8 }).keitaroConcurrency, 8);

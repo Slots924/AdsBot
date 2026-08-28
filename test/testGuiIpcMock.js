@@ -458,12 +458,14 @@ const commentingTask = await handlers.get("comments:run")({}, {
     postUrl: "https://www.facebook.com/post",
     browserMode: "headless",
     disableImages: true,
+    commentTarget: "ad",
 });
 assert.equal(commentingTask.ok, true);
 assert.equal(commentingTask.data.task.type, "comments");
 assert.equal(commentingTask.data.task.status, "queued");
 assert.equal(commentingTask.data.task.input.browserMode, "headless");
 assert.equal(commentingTask.data.task.input.disableImages, true);
+assert.equal(commentingTask.data.task.input.commentTarget, "ad");
 assert.equal(commentingTask.data.task.metadata.browserMode, "headless");
 assert.equal(commentingTask.data.task.metadata.disableImages, true);
 assert.equal(JSON.stringify(commentingTask.data.task).includes("accessToken"), false);

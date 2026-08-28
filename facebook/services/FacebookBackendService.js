@@ -278,7 +278,39 @@ export default class FacebookBackendService {
 
     async createLeadCampaign(accountKey, options, onProgress) {
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
-        return facebookApiClient.createLeadCampaign(options, onProgress);
+        if (
+            options?.creativeMode !== "image"
+            || options?.resume?.creativeId
+        ) {
+            return facebookApiClient.createLeadCampaign(options, onProgress);
+        }
+
+        const prepared = await this.prepareCreative({
+            geo: options.geo,
+            creativeName: options.creativeName,
+            siteUrl: options.siteUrl,
+        });
+        const lines = String(prepared.creative ?? "")
+            .replace(/\r\n/g, "\n")
+            .split("\n");
+        const headlineIndex = lines.findIndex((line) => line.trim());
+        if (headlineIndex === -1) {
+            throw createBackendError(
+                "Креатив не містить тексту для рекламного оголошення",
+                "CAMPAIGN_AD_CREATIVE_EMPTY"
+            );
+        }
+        const image = await this.#loadImageFromPath(options.imagePath);
+        return facebookApiClient.createLeadCampaign({
+            ...options,
+            adCreative: {
+                headline: lines[headlineIndex].trim(),
+                primaryText: lines.slice(headlineIndex + 1).join("\n").trim(),
+                siteUrl: options.siteUrl,
+                callToActionType: options.callToActionType,
+                image,
+            },
+        }, onProgress);
     }
 
 

@@ -18,6 +18,10 @@ export const appPaths = {
     ),
     groups: path.join(projectRoot, "data/adspower-groups.json"),
     templates: path.join(projectRoot, "data/campaign-templates.json"),
+    keitaroStreamTemplates: path.join(
+        projectRoot,
+        "data/keitaro-stream-templates.json"
+    ),
     campaignCreationJobs: path.join(
         projectRoot,
         "data/campaign-creation-jobs.json"

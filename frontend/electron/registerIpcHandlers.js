@@ -123,6 +123,7 @@ export default function registerIpcHandlers({
     logger,
     reportManager,
     keitaroGuiService,
+    keitaroStreamTemplateManager,
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
@@ -393,6 +394,9 @@ export default function registerIpcHandlers({
                     dailyBudget: job.input.dailyBudget,
                     startTime: job.input.startTime,
                     createPaused: job.input.createPaused,
+                    createAdSetsPaused: job.input.createAdSetsPaused,
+                    createAdsPaused: job.input.createAdsPaused,
+                    creativeMode: job.input.creativeMode,
                 },
                 resultSummary: { objects: error.createdObjects ?? job.objects },
                 errors: [safeError],
@@ -443,6 +447,9 @@ export default function registerIpcHandlers({
                             dailyBudget: job.input.dailyBudget,
                             startTime: job.input.startTime,
                             createPaused: job.input.createPaused,
+                            createAdSetsPaused: job.input.createAdSetsPaused,
+                            createAdsPaused: job.input.createAdsPaused,
+                            creativeMode: job.input.creativeMode,
                         },
                         resultSummary: {
                             campaignJobId: job.id,
@@ -1327,6 +1334,7 @@ export default function registerIpcHandlers({
                 ? "headless"
                 : "visible";
             const disableImages = payload.disableImages === true;
+            const commentTarget = payload.commentTarget === "ad" ? "ad" : "post";
             const groupIds = [...new Set((payload.groupIds ?? [])
                 .map((id) => String(id).trim())
                 .filter(Boolean))];
@@ -1341,7 +1349,7 @@ export default function registerIpcHandlers({
             ]));
             const task = await backgroundTaskManager.enqueue({
                 type: "comments",
-                name: `Коментарі · ${String(payload.geo ?? "").toUpperCase()} · ${String(payload.creativeName ?? "")}`,
+                name: `${commentTarget === "ad" ? "Коментарі об’яви" : "Коментарі поста"} · ${String(payload.geo ?? "").toUpperCase()} · ${String(payload.creativeName ?? "")}`,
                 resources: groupIds.map((groupId) => ({
                     key: `adspower-group:${groupId}`,
                     label: labels.get(groupId) || `AdsPower ${groupId}`,
@@ -1354,6 +1362,7 @@ export default function registerIpcHandlers({
                     postUrl: payload.postUrl,
                     browserMode,
                     disableImages,
+                    commentTarget,
                     commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
                 },
                 metadata: {
@@ -1372,6 +1381,7 @@ export default function registerIpcHandlers({
                         groupIds,
                         browserMode,
                         disableImages,
+                        commentTarget,
                         concurrency: payload.commentWorkerConcurrency,
                         workerProxies,
                         onProxyUnavailable: createProxyUnavailableHandler({
@@ -1592,7 +1602,7 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "keitaro:groups-list",
-        safeHandler(() => {
+        safeHandler((options) => {
             if (!keitaroGuiService) {
                 const error = new Error("Сервіс Keitaro не підключено");
                 error.code = "KEITARO_UNAVAILABLE";
@@ -1610,6 +1620,90 @@ export default function registerIpcHandlers({
                 throw error;
             }
             return keitaroGuiService.getCampaignsReport(payload);
+        })
+    );
+    ipcMain.handle(
+        "keitaro:campaigns-list",
+        safeHandler((payload) => {
+            if (!keitaroGuiService) {
+                const error = new Error("Сервіс Keitaro не підключено");
+                error.code = "KEITARO_UNAVAILABLE";
+                throw error;
+            }
+            return keitaroGuiService.getCampaignsList(payload);
+        })
+    );
+    ipcMain.handle(
+        "keitaro:campaigns-stats",
+        safeHandler((payload) => {
+            if (!keitaroGuiService) {
+                const error = new Error("Сервіс Keitaro не підключено");
+                error.code = "KEITARO_UNAVAILABLE";
+                throw error;
+            }
+            return keitaroGuiService.getCampaignStats(payload);
+        })
+    );
+    ipcMain.handle(
+        "keitaro:landing-pages-list",
+        safeHandler((options) => {
+            if (!keitaroGuiService) {
+                const error = new Error("Сервіс Keitaro не підключено");
+                error.code = "KEITARO_UNAVAILABLE";
+                throw error;
+            }
+            return keitaroGuiService.listLandingPages(options);
+        })
+    );
+    ipcMain.handle(
+        "keitaro:offers-list",
+        safeHandler((options) => {
+            if (!keitaroGuiService) {
+                const error = new Error("Сервіс Keitaro не підключено");
+                error.code = "KEITARO_UNAVAILABLE";
+                throw error;
+            }
+            return keitaroGuiService.listOffers(options);
+        })
+    );
+    ipcMain.handle(
+        "keitaro:asset-groups-list",
+        safeHandler(({ kind }) => keitaroGuiService.listAssetGroups(kind))
+    );
+    ipcMain.handle(
+        "keitaro:countries-list",
+        safeHandler(() => keitaroGuiService.listCountries())
+    );
+    ipcMain.handle(
+        "keitaro-stream-templates:list",
+        safeHandler(() => keitaroStreamTemplateManager.list())
+    );
+    ipcMain.handle(
+        "keitaro-stream-templates:create",
+        safeHandler((payload) => keitaroStreamTemplateManager.create(payload))
+    );
+    ipcMain.handle(
+        "keitaro-stream-templates:update",
+        safeHandler(({ id, ...payload }) => keitaroStreamTemplateManager.update(id, payload))
+    );
+    ipcMain.handle(
+        "keitaro-stream-templates:duplicate",
+        safeHandler(({ id }) => keitaroStreamTemplateManager.duplicate(id))
+    );
+    ipcMain.handle(
+        "keitaro-stream-templates:delete",
+        safeHandler(({ id }) => keitaroStreamTemplateManager.delete(id))
+    );
+    ipcMain.handle(
+        "keitaro-stream-templates:apply",
+        safeHandler(async ({ templateId, campaignIds, mode, replacePosition }) => {
+            const template = await keitaroStreamTemplateManager.get(templateId);
+            return keitaroGuiService.applyStreamTemplate({
+                campaignIds,
+                stream: template.stream,
+                mode,
+                replacePosition,
+            });
         })
     );
     ipcMain.handle(

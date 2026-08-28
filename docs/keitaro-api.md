@@ -40,8 +40,29 @@ const report = await keitaro.buildReport({
 
 Публічні методи не викликають Axios напряму. Усі HTTP-запити йдуть через
 `request()`. Одночасно виконується обмежена кількість запитів (стандартно 20,
-змінюється в налаштуваннях Keitaro, `setConcurrency()`). Якщо трекер відповідає
-429, запит чекає і повторюється. Помилка одного запиту не блокує наступні.
+змінюється в налаштуваннях Keitaro, `setConcurrency()`). Повтор при 429 зараз
+вимкнений: помилка не зупиняє чергу, йде наступний запит. Увімкнути пізніше:
+`retryOnRateLimit: true`.
+
+## Пагінація списків
+
+Не можна припускати, що кожен endpoint Keitaro підтримує `limit` і `offset`.
+Перед використанням загального `listAll()` перевірте конкретний endpoint двома
+запитами: `offset: 0` та `offset: limit`. Якщо перші ID збігаються, endpoint
+повертає весь список одразу; повторні запити лише дублюватимуть дані й
+сповільнюватимуть GUI.
+
+У поточному Keitaro перевірено:
+
+| Ресурс | Поведінка | Метод у проєкті |
+| --- | --- | --- |
+| Кампанії (`/campaigns`) | `offset` працює, сторінки мають різні ID | `listAllCampaigns()` через `listAll()` |
+| Лендінги (`/landing_pages`) | один запит повертає повний список, `offset` ігнорується | `listAllLandings()` — один запит |
+| Офери (`/offers`) | один запит повертає повний список, `offset` ігнорується | `listAllOffers()` — один запит |
+
+Списки лендінгів та оферів кешуються у `KeitaroGuiService` до закриття
+програми. Вибір групи фільтрує вже кешований список, тому не завантажує каталог
+повторно.
 
 Кілька змін одним HTTP-запитом: `sendBatch(operations)` надсилає
 `POST /admin_api/v1/?batch`. Тіло — масив `{ method, path, params }`.
@@ -61,6 +82,7 @@ const report = await keitaro.buildReport({
 | `cloneCampaign(id, data)` | `POST /campaigns/{id}/clone` |
 | `restoreCampaign(id)` | `POST /campaigns/{id}/restore` |
 | `getCampaignStreams(id)` | `GET /campaigns/{id}/streams` |
+| `applyStreamTemplateToCampaigns(options)` | паралельно створює або замінює потік у вибраних кампаніях |
 | `updateCampaignCosts(id, data)` | `POST /campaigns/{id}/update_costs` |
 | `enableCampaign(id)` | `PUT /campaigns/{id}` зі `state: "active"` |
 | `disableCampaign(id)` | `PUT /campaigns/{id}` зі `state: "disabled"` |
@@ -77,6 +99,12 @@ const report = await keitaro.buildReport({
 
 CRUD: `list/get/create/update/delete` для `Offer`, `Landing`, `Stream`.
 Для повного списку є `listAllOffers`, `listAllLandings`, `listAllStreams`.
+У цьому Keitaro офери й лендінги повертаються одним повним списком, тому їхні
+методи не запускають offset-пагінацію та не дублюють один і той самий запит.
+Доступність country-фільтра редактор перевіряє через офіційний метод
+`listStreamFilters()` (`GET /stream_filters`). Після цього показує локальний
+ISO-довідник назв країн; у payload потоку передаються дволітерні коди, які
+використовує Keitaro.
 
 ### Джерела, партнерки, домени, групи, користувачі
 
@@ -105,6 +133,11 @@ CRUD для `TrafficSource`, `AffiliateNetwork`, `Domain`, `Group`, `User`.
 `KeitaroGuiService` збирає групи кампаній і звіт для вкладки Keitaro. Renderer
 не отримує API-ключ. Доступні групи зберігаються в `data/app-state.json` як
 `keitaroAvailableGroupIds`.
+
+Шаблони потоків зберігаються локально, але повністю зберігають невідомі поля
+потоку Keitaro. Поля `id`, `campaign_id` і `position` вилучаються, бо для кожної
+цільової кампанії вони свої. Застосування виконується паралельно через клас `Keitaro`, а
+ліміт одночасних HTTP-запитів і далі контролює його внутрішній `request()`.
 
 ## Помилки
 

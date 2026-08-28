@@ -29,6 +29,10 @@ export default function SettingsModal({
     onScaleChange,
     createCampaignsPaused,
     onCreateCampaignsPausedChange,
+    createAdSetsPaused = true,
+    onCreateAdSetsPausedChange = () => {},
+    createAdsPaused = true,
+    onCreateAdsPausedChange = () => {},
     commentWorkerConcurrency,
     onCommentWorkerConcurrencyChange,
     commentWorkerProxyIds = {},
@@ -224,7 +228,33 @@ export default function SettingsModal({
                                         />
                                         <span>
                                             <strong>Залишати campaign на паузі</strong>
-                                            <small>Ad sets та ads будуть ACTIVE, але не витрачатимуть бюджет, доки campaign PAUSED.</small>
+                                            <small>Новостворений campaign матиме статус PAUSED.</small>
+                                        </span>
+                                    </label>
+                                    <label className="checkbox-line">
+                                        <input
+                                            type="checkbox"
+                                            checked={createAdSetsPaused}
+                                            onChange={(event) => onCreateAdSetsPausedChange(
+                                                event.target.checked
+                                            )}
+                                        />
+                                        <span>
+                                            <strong>Залишати Ad Set на паузі</strong>
+                                            <small>Новостворені набори реклами матимуть статус PAUSED.</small>
+                                        </span>
+                                    </label>
+                                    <label className="checkbox-line">
+                                        <input
+                                            type="checkbox"
+                                            checked={createAdsPaused}
+                                            onChange={(event) => onCreateAdsPausedChange(
+                                                event.target.checked
+                                            )}
+                                        />
+                                        <span>
+                                            <strong>Залишати оголошення на паузі</strong>
+                                            <small>Новостворені рекламні оголошення матимуть статус PAUSED.</small>
                                         </span>
                                     </label>
                                 </section>

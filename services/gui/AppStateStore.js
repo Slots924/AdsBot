@@ -19,6 +19,8 @@ const defaultState = {
     adsSubtab: "accounts",
     uiScale: 1.3,
     createCampaignsPaused: true,
+    createAdSetsPaused: true,
+    createAdsPaused: true,
     commentWorkerConcurrency: 5,
     commentWorkerProxyIds: {},
     commentBrowserMode: "visible",
@@ -51,6 +53,7 @@ const defaultState = {
     keitaroVisibleColumns: [...defaultKeitaroVisibleColumns],
     keitaroPageSize: defaultKeitaroPageSize,
     keitaroConcurrency: defaultKeitaroConcurrency,
+    keitaroSubtab: "campaigns",
 };
 
 
@@ -161,6 +164,8 @@ function normalizeState(state = {}) {
             ? Math.min(1.5, Math.max(0.8, requestedScale))
             : defaultState.uiScale,
         createCampaignsPaused: state.createCampaignsPaused !== false,
+        createAdSetsPaused: state.createAdSetsPaused !== false,
+        createAdsPaused: state.createAdsPaused !== false,
         commentWorkerConcurrency: Number.isFinite(Number(state.commentWorkerConcurrency))
             ? Math.min(5, Math.max(1, Math.round(Number(state.commentWorkerConcurrency))))
             : defaultState.commentWorkerConcurrency,
@@ -237,6 +242,7 @@ function normalizeState(state = {}) {
                 Math.max(keitaroConcurrencyMin, value)
             );
         })(),
+        keitaroSubtab: state.keitaroSubtab === "streams" ? "streams" : "campaigns",
     };
 }
 

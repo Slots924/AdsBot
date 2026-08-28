@@ -615,7 +615,11 @@ export default class AdsBotGuiService {
     async runParallelCommentingCampaign(options = {}) {
         if (!this.#creativeManager) this.#creativeManager = this.#creativeManagerFactory();
         const creative = await this.#creativeManager.getCreative(options.geo, options.creativeName);
-        const comments = prepareCommentsForCampaign({ creative, siteUrl: options.siteUrl ?? "" });
+        const comments = prepareCommentsForCampaign({
+            creative,
+            siteUrl: options.siteUrl ?? "",
+            flattenReplies: options.commentTarget === "ad",
+        });
         const response = await this.runParallelComments({ ...options, comments });
         const report = response.report;
         return {

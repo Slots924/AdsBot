@@ -94,6 +94,8 @@ export default function CampaignCreationWizard({
     accountKey,
     adAccount,
     createPaused,
+    createAdSetsPaused = true,
+    createAdsPaused = true,
     defaultPixelId = "",
     defaultUtm = "",
     initialPageId = "",
@@ -333,6 +335,8 @@ export default function CampaignCreationWizard({
         dailyBudget: Number(form.dailyBudget),
         startTime: zonedValueToIso(form.startTime, timezone),
         createPaused,
+        createAdSetsPaused,
+        createAdsPaused,
         pixelId: form.pixelId.trim(),
         utm: form.utm,
     });

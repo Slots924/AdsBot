@@ -5,6 +5,7 @@ import { performance } from "node:perf_hooks";
 const backendSuites = {
     campaign: [
         "test/testFacebookCampaignCreationMock.js",
+        "test/testFacebookImageAdCreationMock.js",
         "test/testCampaignCreationJournal.js",
         "test/testBackgroundTaskManager.js",
         "test/testGuiIpcMock.js",
@@ -31,6 +32,7 @@ const backendSuites = {
         "test/testEnsureWorkerProxyReady.js",
         "test/testFacebookBackendServiceMock.js",
         "test/testFacebookCampaignCreationMock.js",
+        "test/testFacebookImageAdCreationMock.js",
         "test/testFacebookCampaignsMock.js",
         "test/testFacebookBrowserPrimitives.js",
         "test/testFacebookLogin.js",
@@ -39,6 +41,7 @@ const backendSuites = {
         "test/testOpenFacebookUserProfile.js",
         "test/testFacebookPagePostsMock.js",
         "test/testFacebookPagePublishingMock.js",
+        "test/testFacebookPostLinkPreviewMock.js",
         "test/testFacebookPersonalProfilePostDate.js",
         "test/testFillFacebookPersonalProfileAbout.js",
         "test/testHandlePostPublishModals.js",
@@ -50,6 +53,7 @@ const backendSuites = {
         "test/testGrokClientMock.js",
         "test/testKeitaroClientMock.js",
         "test/testKeitaroGuiServiceMock.js",
+        "test/testKeitaroStreamTemplateManager.js",
         "test/testGuiIpcMock.js",
         "test/testPagePreferencesStore.js",
         "test/testRemoteDataCacheStore.js",

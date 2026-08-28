@@ -1418,6 +1418,37 @@ export default class FacebookGraphApi {
     }
 
 
+    /** Повертає безпечні для перевірки поля рекламного Creative. */
+    async getAdCreativeDetails({ creativeId } = {}) {
+        const id = normalizeObjectId(
+            creativeId,
+            "CAMPAIGN_CREATIVE_ID_INVALID",
+            "Creative ID"
+        );
+        return this.#readObject(id, [
+            "id", "name", "effective_object_story_id", "object_story_spec",
+            "degrees_of_freedom_spec",
+        ]);
+    }
+
+
+    /** Генерує HTML-прев'ю рекламного Creative у вибраному форматі Meta. */
+    async getAdCreativePreviews({
+        creativeId,
+        adFormat = "DESKTOP_FEED_STANDARD",
+    } = {}) {
+        const id = normalizeObjectId(
+            creativeId,
+            "CAMPAIGN_CREATIVE_ID_INVALID",
+            "Creative ID"
+        );
+        const data = await this.#request(`/${id}/previews`, {
+            ad_format: String(adFormat ?? "").trim(),
+        });
+        return Array.isArray(data?.data) ? data.data : [];
+    }
+
+
     /**
      * Видаляє масив публікацій вибраної фанпейджі та повертає частковий результат.
      * Приймає canonical ID або об'єкти з полем id/postId.
@@ -1538,6 +1569,62 @@ export default class FacebookGraphApi {
 
 
     /**
+     * Приховує автоматично створене Open Graph-прев'ю посилання у пості.
+     * Після зміни повторно читає пост, щоб викликальний код міг перевірити
+     * фактичні вкладення до створення реклами.
+     * @param {object} options Дані поста.
+     * @param {string} options.pageId ID фанпейджі.
+     * @param {string} options.postId Canonical ID поста або його короткий ID.
+     * @returns {Promise<{success: boolean, post: object, attachments: object[]}>}
+     */
+    async hidePagePostLinkPreview({ pageId, postId } = {}) {
+        const normalizedPageId = normalizeObjectId(
+            pageId,
+            "FACEBOOK_PAGE_ID_INVALID",
+            "ID фанпейджі"
+        );
+        const rawPostId = String(postId ?? "").trim();
+        const storyId = rawPostId.includes("_")
+            ? rawPostId
+            : `${normalizedPageId}_${normalizeObjectId(
+                rawPostId,
+                "FACEBOOK_POST_ID_INVALID",
+                "Post ID"
+            )}`;
+        if (!storyId.startsWith(`${normalizedPageId}_`)) {
+            throw createValidationError(
+                "Вказаний пост не належить вибраній фанпейджі",
+                "FACEBOOK_POST_PAGE_MISMATCH"
+            );
+        }
+
+        const page = await this.#getCampaignPage(normalizedPageId);
+        const changed = await this.#request(`/${storyId}`, {}, {
+            method: "post",
+            data: toFormData({ og_hide_object_attachment: true }),
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            accessToken: page.pageAccessToken,
+            retryOnConnectionError: false,
+            outcomeUnknownCode: "FACEBOOK_POST_UPDATE_OUTCOME_UNKNOWN",
+            outcomeUnknownMessage: "Не вдалося визначити, чи Meta приховала прев'ю посилання. Перевірте пост вручну перед повтором.",
+        });
+        const post = await this.#request(`/${storyId}`, {
+            fields: campaignPostFields,
+        }, { accessToken: page.pageAccessToken });
+
+        return {
+            success: changed?.success === true,
+            post,
+            attachments: Array.isArray(post?.attachments?.data)
+                ? post.attachments.data
+                : [],
+        };
+    }
+
+
+    /**
      * Отримує ID поста, створеного під час завантаження фотографії.
      * @param {object} options Дані фотографії.
      * @param {string} options.photoId ID фотографії.
@@ -1603,6 +1690,29 @@ export default class FacebookGraphApi {
     }
 
 
+    async #uploadAdImage(adAccountId, image) {
+        const body = new FormData();
+        body.set("filename", new Blob([image.buffer], {
+            type: image.contentType,
+        }), image.filename);
+        const data = await this.#request(`/${adAccountId}/adimages`, {}, {
+            method: "post",
+            data: body,
+            retryOnConnectionError: false,
+            outcomeUnknownCode: "FACEBOOK_WRITE_OUTCOME_UNKNOWN",
+            outcomeUnknownMessage: "Не вдалося визначити, чи Meta завантажила рекламне зображення. Перевірте Ads Manager перед повтором.",
+        });
+        const uploaded = Object.values(data.images ?? {})[0];
+        if (!uploaded?.hash) {
+            throw createValidationError(
+                "Meta не повернула hash завантаженого рекламного зображення",
+                "CAMPAIGN_AD_IMAGE_HASH_MISSING"
+            );
+        }
+        return uploaded.hash;
+    }
+
+
     async #readObject(id, fields) {
         return this.#request(`/${id}`, { fields: fields.join(",") });
     }
@@ -1616,6 +1726,8 @@ export default class FacebookGraphApi {
         pixelId,
         dailyBudget,
         startTime,
+        creativeMode = "post",
+        siteUrl = "",
     }) {
         const accountId = normalizeAdAccountId(adAccountId);
         const normalizedPageId = normalizeObjectId(
@@ -1623,19 +1735,39 @@ export default class FacebookGraphApi {
             "CAMPAIGN_PAGE_ID_INVALID",
             "ID фанпейджі"
         );
-        const rawPostId = String(postId ?? "").trim();
-        const storyId = rawPostId.includes("_")
-            ? rawPostId
-            : `${normalizedPageId}_${normalizeObjectId(
-                rawPostId,
-                "CAMPAIGN_POST_ID_INVALID",
-                "Post ID"
-            )}`;
-        if (!storyId.startsWith(`${normalizedPageId}_`)) {
-            throw createValidationError(
-                "Вказаний пост не належить вибраній фанпейджі",
-                "CAMPAIGN_POST_PAGE_MISMATCH"
-            );
+        const imageCreative = creativeMode === "image";
+        let storyId = null;
+        if (imageCreative) {
+            let destination;
+            try {
+                destination = new URL(String(siteUrl ?? "").trim());
+            } catch {
+                throw createValidationError(
+                    "Вкажіть коректне посилання на офер",
+                    "CAMPAIGN_SITE_URL_INVALID"
+                );
+            }
+            if (!["http:", "https:"].includes(destination.protocol)) {
+                throw createValidationError(
+                    "Посилання на офер має починатися з http:// або https://",
+                    "CAMPAIGN_SITE_URL_INVALID"
+                );
+            }
+        } else {
+            const rawPostId = String(postId ?? "").trim();
+            storyId = rawPostId.includes("_")
+                ? rawPostId
+                : `${normalizedPageId}_${normalizeObjectId(
+                    rawPostId,
+                    "CAMPAIGN_POST_ID_INVALID",
+                    "Post ID"
+                )}`;
+            if (!storyId.startsWith(`${normalizedPageId}_`)) {
+                throw createValidationError(
+                    "Вказаний пост не належить вибраній фанпейджі",
+                    "CAMPAIGN_POST_PAGE_MISMATCH"
+                );
+            }
         }
         if (!pixelId) {
             throw createValidationError(
@@ -1685,20 +1817,22 @@ export default class FacebookGraphApi {
         }
 
         const page = await this.#getCampaignPage(normalizedPageId);
-        const post = await this.#request(`/${storyId}`, {
-            fields: campaignPostFields,
-        }, { accessToken: page.pageAccessToken });
-        if (post.is_published === false) {
-            throw createValidationError(
-                "Пост не опублікований",
-                "CAMPAIGN_POST_NOT_PUBLISHED"
-            );
-        }
-        if (!hasExternalWebsiteUrl(post)) {
-            throw createValidationError(
-                "У пості не знайдено посилання на зовнішній сайт",
-                "CAMPAIGN_POST_WEBSITE_URL_REQUIRED"
-            );
+        if (!imageCreative) {
+            const post = await this.#request(`/${storyId}`, {
+                fields: campaignPostFields,
+            }, { accessToken: page.pageAccessToken });
+            if (post.is_published === false) {
+                throw createValidationError(
+                    "Пост не опублікований",
+                    "CAMPAIGN_POST_NOT_PUBLISHED"
+                );
+            }
+            if (!hasExternalWebsiteUrl(post)) {
+                throw createValidationError(
+                    "У пості не знайдено посилання на зовнішній сайт",
+                    "CAMPAIGN_POST_WEBSITE_URL_REQUIRED"
+                );
+            }
         }
 
         const pixels = await this.#getAll(`/${accountId}/adspixels`, {
@@ -1770,6 +1904,9 @@ export default class FacebookGraphApi {
             template,
             adSetCount,
             createPaused = true,
+            createAdSetsPaused = true,
+            createAdsPaused = true,
+            adCreative = null,
             utm = "",
             resume = {},
         } = options;
@@ -1787,8 +1924,6 @@ export default class FacebookGraphApi {
                 "CAMPAIGN_NAME_REQUIRED"
             );
         }
-        const childStatus = createPaused ? "ACTIVE" : "PAUSED";
-
         const objects = {
             campaignId: resume.campaignId ?? null,
             creativeId: resume.creativeId ?? null,
@@ -1828,15 +1963,68 @@ export default class FacebookGraphApi {
 
             currentStage = "creative";
             if (!objects.creativeId) {
-                const creativeFields = {
-                    name: `${name} | Creative`,
-                    object_story_id: preflight.postId,
-                    url_tags: String(utm ?? "").trim(),
-                    degrees_of_freedom_spec: buildEnhancementsOptOut(),
-                    ...(preflight.instagramActorId
-                        ? { instagram_actor_id: preflight.instagramActorId }
-                        : {}),
-                };
+                let creativeFields;
+                if (options.creativeMode === "image") {
+                    if (!adCreative?.image) {
+                        throw createValidationError(
+                            "Не передано зображення рекламного оголошення",
+                            "CAMPAIGN_AD_IMAGE_REQUIRED"
+                        );
+                    }
+                    const imageHash = await this.#uploadAdImage(
+                        preflight.adAccountId,
+                        adCreative.image
+                    );
+                    const callToActionType = String(
+                        adCreative.callToActionType ?? "NO_BUTTON"
+                    ).trim().toUpperCase();
+                    if (!new Set([
+                        "NO_BUTTON",
+                        "LEARN_MORE",
+                        "SHOP_NOW",
+                        "SIGN_UP",
+                    ]).has(callToActionType)) {
+                        throw createValidationError(
+                            "Непідтримуваний тип кнопки рекламного оголошення",
+                            "CAMPAIGN_AD_CALL_TO_ACTION_INVALID"
+                        );
+                    }
+                    creativeFields = {
+                        name: `${name} | Creative`,
+                        object_story_spec: {
+                            page_id: preflight.pageId,
+                            link_data: {
+                                image_hash: imageHash,
+                                link: String(adCreative.siteUrl ?? "").trim(),
+                                name: String(adCreative.headline ?? "").trim(),
+                                message: String(adCreative.primaryText ?? "").trim(),
+                                ...(callToActionType !== "NO_BUTTON" ? {
+                                    call_to_action: {
+                                        type: callToActionType,
+                                        value: {
+                                            link: String(adCreative.siteUrl ?? "").trim(),
+                                        },
+                                    },
+                                } : {}),
+                            },
+                        },
+                        url_tags: String(utm ?? "").trim(),
+                        degrees_of_freedom_spec: buildEnhancementsOptOut(),
+                        ...(preflight.instagramActorId
+                            ? { instagram_actor_id: preflight.instagramActorId }
+                            : {}),
+                    };
+                } else {
+                    creativeFields = {
+                        name: `${name} | Creative`,
+                        object_story_id: preflight.postId,
+                        url_tags: String(utm ?? "").trim(),
+                        degrees_of_freedom_spec: buildEnhancementsOptOut(),
+                        ...(preflight.instagramActorId
+                            ? { instagram_actor_id: preflight.instagramActorId }
+                            : {}),
+                    };
+                }
                 await this.#writeObject(
                     `/${preflight.adAccountId}/adcreatives`,
                     creativeFields,
@@ -1868,7 +2056,7 @@ export default class FacebookGraphApi {
                         },
                         targeting: preflight.targeting,
                         start_time: preflight.startTime,
-                        status: childStatus,
+                        status: "PAUSED",
                         ...(preflight.dsa ? {
                             dsa_beneficiary: preflight.dsa.beneficiary,
                             dsa_payor: preflight.dsa.payor,
@@ -1897,7 +2085,7 @@ export default class FacebookGraphApi {
                         name: `${name} | AD ${ordinal}`,
                         adset_id: adSet.id,
                         creative: { creative_id: objects.creativeId },
-                        status: childStatus,
+                        status: "PAUSED",
                     };
                     await this.#writeObject(
                         `/${preflight.adAccountId}/ads`,
@@ -1916,18 +2104,24 @@ export default class FacebookGraphApi {
                 }
             }
 
-            if (!createPaused) {
+            if (!createAdsPaused || !createAdSetsPaused || !createPaused) {
                 currentStage = "activation";
-                for (const ad of objects.ads) {
-                    await this.#writeObject(`/${ad.id}`, { status: "ACTIVE" });
+                if (!createAdsPaused) {
+                    for (const ad of objects.ads) {
+                        await this.#writeObject(`/${ad.id}`, { status: "ACTIVE" });
+                    }
                 }
-                for (const adSet of objects.adSets) {
-                    await this.#writeObject(`/${adSet.id}`, { status: "ACTIVE" });
+                if (!createAdSetsPaused) {
+                    for (const adSet of objects.adSets) {
+                        await this.#writeObject(`/${adSet.id}`, { status: "ACTIVE" });
+                    }
                 }
-                await this.#writeObject(`/${objects.campaignId}`, {
-                    status: "ACTIVE",
-                });
-                await emit("activation", { message: "Об’єкти активовано" });
+                if (!createPaused) {
+                    await this.#writeObject(`/${objects.campaignId}`, {
+                        status: "ACTIVE",
+                    });
+                }
+                await emit("activation", { message: "Вибрані об’єкти активовано" });
             }
 
             currentStage = "readback";
@@ -1939,7 +2133,10 @@ export default class FacebookGraphApi {
                 ),
                 this.#readObject(
                     objects.creativeId,
-                    ["id", "name", "degrees_of_freedom_spec"]
+                    [
+                        "id", "name", "degrees_of_freedom_spec",
+                        "effective_object_story_id", "object_story_spec",
+                    ]
                 ),
                 Promise.all(objects.adSets.map((item) => this.#readObject(
                     item.id,

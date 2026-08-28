@@ -19,6 +19,8 @@ import {
 import { errorDetails, unwrap } from "../lib/api.js";
 import CampaignCreationWizard
     from "../components/CampaignCreationWizard.jsx";
+import ImageAdCreationModal
+    from "../components/ImageAdCreationModal.jsx";
 
 
 const datePresets = [
@@ -266,6 +268,8 @@ export default function AdAccountsTab({
     selectedId: controlledSelectedId,
     setSelectedId: setControlledSelectedId,
     createCampaignsPaused = true,
+    createAdSetsPaused = true,
+    createAdsPaused = true,
     defaultPixelId = "",
     defaultUtm = "",
     lastPublishedPost = null,
@@ -282,6 +286,7 @@ export default function AdAccountsTab({
     const [renameEditor, setRenameEditor] = useState(null);
     const [renaming, setRenaming] = useState(false);
     const [campaignWizardOpen, setCampaignWizardOpen] = useState(false);
+    const [imageAdModalOpen, setImageAdModalOpen] = useState(false);
     const requestSequence = useRef(0);
     const campaignCacheRef = useRef({});
     const campaignRequestIds = useRef({});
@@ -656,9 +661,14 @@ export default function AdAccountsTab({
                                     </div>
                                     <div className="ad-detail-actions">
                                         {selected.status === "active" && (
-                                            <button className="primary-button" onClick={() => setCampaignWizardOpen(true)}>
-                                                <Megaphone size={16} /> Створити кампанію
-                                            </button>
+                                            <>
+                                                <button className="primary-button" onClick={() => setCampaignWizardOpen(true)}>
+                                                    <Megaphone size={16} /> Створити кампанію
+                                                </button>
+                                                <button className="secondary-button" onClick={() => setImageAdModalOpen(true)}>
+                                                    <Megaphone size={16} /> Опублікувати рекламне оголошення
+                                                </button>
+                                            </>
                                         )}
                                         {selected.status !== "active" && (
                                             <div className="reason-card">
@@ -758,12 +768,31 @@ export default function AdAccountsTab({
                     accountKey={accountKey}
                     adAccount={selected}
                     createPaused={createCampaignsPaused}
+                    createAdSetsPaused={createAdSetsPaused}
+                    createAdsPaused={createAdsPaused}
                     defaultPixelId={defaultPixelId}
                     defaultUtm={defaultUtm}
                     lastPublishedPost={lastPublishedPost}
                     onClose={() => setCampaignWizardOpen(false)}
                     onSuccess={() => {
                         showToast("Кампанію додано в чергу", "success");
+                    }}
+                />
+            )}
+            {imageAdModalOpen && selected && (
+                <ImageAdCreationModal
+                    accountKey={accountKey}
+                    adAccount={selected}
+                    settings={{
+                        createCampaignsPaused,
+                        createAdSetsPaused,
+                        createAdsPaused,
+                        defaultPixelId,
+                        defaultUtm,
+                    }}
+                    onClose={() => setImageAdModalOpen(false)}
+                    onSuccess={() => {
+                        showToast("Рекламне оголошення додано в чергу", "success");
                     }}
                 />
             )}
