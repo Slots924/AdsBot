@@ -2,8 +2,11 @@ import { waitHuman } from "../browser/timing.js";
 import changeFacebookPersonalProfilePostDate, {
     parseFacebookPersonalProfilePostDate,
 } from "./changeFacebookPersonalProfilePostDate.js";
-import openFacebookPersonalProfileFirstFeedPost, {
+import {
+    extractFacebookFeedPostId,
+    normalizeFacebookFeedPostUrl,
     readFirstFeedPostFingerprint,
+    waitForFirstFeedPostChange,
 } from "./openFacebookPersonalProfileFirstFeedPost.js";
 import publishFacebookPersonalProfileMediaPost from "./publishFacebookPersonalProfileMediaPost.js";
 
@@ -215,67 +218,82 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
 
             await waitHuman("short", timingOptions);
 
-            stage = "OPEN_POST";
+            stage = "WAIT_FEED_POST";
             report(
-                "facebook.personal_posts_with_dates.open.started",
-                "Відкриваємо перший пост стрічки по даті",
+                "facebook.personal_posts_with_dates.feed.wait",
+                "Чекаємо нову першу картку стрічки",
                 {
                     sequence: item.sequence,
                     previousFingerprint,
                 }
             );
             await emitProgress(onProgress, {
-                type: "first_feed_post_open_started",
+                type: "first_feed_post_ready_started",
                 sequence: item.sequence,
                 total: items.length,
             });
 
-            const openResult = await openFacebookPersonalProfileFirstFeedPost(
-                page,
-                {
+            try {
+                await waitForFirstFeedPostChange(
+                    page,
                     previousFingerprint,
-                    timeout,
-                    random,
-                    ...(sleep ? { sleep } : {}),
-                    logger,
-                }
-            );
-            item.postUrl = openResult.postUrl ?? item.postUrl;
-            item.postId = openResult.postId ?? item.postId;
-
-            report(
-                "facebook.personal_posts_with_dates.open.finished",
-                openResult.success
-                    ? "Відкрили пост і зчитали URL"
-                    : "Не вдалося відкрити перший пост стрічки",
-                {
-                    sequence: item.sequence,
-                    postUrl: item.postUrl,
-                    postId: item.postId,
-                    openStatus: openResult.status,
-                    error: openResult.error,
-                },
-                openResult.success ? "info" : "error"
-            );
-            await emitProgress(onProgress, {
-                type: "first_feed_post_open_finished",
-                sequence: item.sequence,
-                total: items.length,
-                success: openResult.success,
-                postUrl: item.postUrl,
-            });
-
-            if (!openResult.success) {
-                item.error = openResult.error ?? {
+                    timeout
+                );
+            } catch (error) {
+                item.error = {
                     code: "FACEBOOK_PERSONAL_FIRST_FEED_POST_OPEN_FAILED",
-                    message: "Не вдалося відкрити перший пост стрічки",
+                    message: "Перша картка стрічки не з’явилась або не змінилася",
                 };
                 status = facebookPersonalProfilePostsWithDatesStatuses
                     .FIRST_FEED_POST_OPEN_FAILED;
                 item.dateChangeStatus = "SKIPPED_OPEN_FAILED";
                 skipPendingDates(items, "SKIPPED_OPEN_INCOMPLETE");
+                report(
+                    "facebook.personal_posts_with_dates.feed.failed",
+                    item.error.message,
+                    {
+                        sequence: item.sequence,
+                        previousFingerprint,
+                        error: item.error,
+                        cause: error.message,
+                    },
+                    "error"
+                );
+                await emitProgress(onProgress, {
+                    type: "first_feed_post_ready_finished",
+                    sequence: item.sequence,
+                    total: items.length,
+                    success: false,
+                    postUrl: item.postUrl,
+                });
                 return buildResult();
             }
+
+            const fingerprint = await readFirstFeedPostFingerprint(page);
+            const capturedUrl = normalizeFacebookFeedPostUrl(
+                fingerprint.permalink || fingerprint.cft
+            );
+            item.postUrl = capturedUrl ?? item.postUrl;
+            item.postId = extractFacebookFeedPostId(item.postUrl)
+                ?? item.postId;
+
+            report(
+                "facebook.personal_posts_with_dates.feed.ready",
+                "Нова картка стрічки з’явилась",
+                {
+                    sequence: item.sequence,
+                    postUrl: item.postUrl,
+                    postId: item.postId,
+                    fingerprint,
+                }
+            );
+            await emitProgress(onProgress, {
+                type: "first_feed_post_ready_finished",
+                sequence: item.sequence,
+                total: items.length,
+                success: true,
+                postUrl: item.postUrl,
+            });
 
             stage = "CHANGE_DATE";
             if (!datePhaseStarted) {
@@ -314,7 +332,8 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
                     ...(sleep ? { sleep } : {}),
                     logger,
                     onProgress,
-                    closePostDialog: true,
+                    closePostDialog: false,
+                    fromFeed: true,
                 }
             );
             item.dateChangeResult = dateChangeResult;

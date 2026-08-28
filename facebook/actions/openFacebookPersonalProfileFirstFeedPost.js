@@ -198,7 +198,7 @@ export async function readFirstFeedPostFingerprint(page) {
 }
 
 
-async function waitForFirstFeedPostChange(
+export async function waitForFirstFeedPostChange(
     page,
     previousFingerprint,
     timeout

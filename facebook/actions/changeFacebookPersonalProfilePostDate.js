@@ -1,7 +1,12 @@
 import openPageWithoutPopups from "./openPageWithoutPopups.js";
+import {
+    clickUntilConfirmed,
+    describeLocator,
+} from "../browser/confirmedClick.js";
 import { humanClickElement } from "../browser/pointer.js";
 import { waitHuman } from "../browser/timing.js";
 import isPostAvailable from "../post/checks/isPostAvailable.js";
+import { getPersonalProfileFeedPostActionsButtonSelector } from "../selectors/personalProfileFeedPosts.js";
 import { postDialogSelector } from "../selectors/post.js";
 import {
     personalProfileEditDateCancelButtonSelector,
@@ -341,6 +346,90 @@ async function clickFreshElement(
 }
 
 
+const feedPostPosinset = 1;
+const editDateMenuText = "Edit date";
+
+
+export function isEditDateDialogVisibleInPage(selector) {
+    const normalize = (value) => String(value ?? "")
+        .replace(/\s+/g, " ")
+        .trim();
+    const visible = (node) => {
+        const rectangle = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        return rectangle.width > 0
+            && rectangle.height > 0
+            && style.display !== "none"
+            && style.visibility !== "hidden"
+            && style.opacity !== "0";
+    };
+
+    return Array.from(document.querySelectorAll(selector))
+        .filter(visible)
+        .some((dialog) => {
+            const ids = normalize(dialog.getAttribute("aria-labelledby"))
+                .split(" ")
+                .filter(Boolean);
+            return /^edit date$/i.test(normalize(ids
+                .map((id) => document.getElementById(id)?.innerText)
+                .filter(Boolean)
+                .join(" ")));
+        });
+}
+
+
+async function clickUntilNextVisible(
+    page,
+    options,
+    {
+        timeout,
+        report,
+        stage,
+        timingOptions,
+        notFoundStatus,
+        notConfirmedStatus,
+        notFoundCode,
+        notConfirmedCode,
+    }
+) {
+    const selector = describeLocator(options.target);
+
+    try {
+        return await clickUntilConfirmed(page, {
+            ...options,
+            timeout,
+            confirmTimeout: timeout,
+            clickOptions: {
+                beforeDelay: [100, 240],
+                holdDelay: [70, 150],
+                scrollDelay: [250, 550],
+                ...timingOptions,
+                onEvent: (event) => report(
+                    stage,
+                    event.type === "mouse_move"
+                        ? `Наводимо курсор на «${options.description}»`
+                        : `Pointer event «${options.description}»: ${event.type}`,
+                    {
+                        ...event,
+                        selector,
+                    }
+                ),
+            },
+            onStep: (message, details) => report(stage, message, details),
+        });
+    } catch (error) {
+        const notConfirmed = error?.code === "BROWSER_CLICK_NOT_CONFIRMED";
+        throw new FacebookPersonalProfilePostDateError(error.message, {
+            code: notConfirmed ? notConfirmedCode : notFoundCode,
+            status: notConfirmed ? notConfirmedStatus : notFoundStatus,
+            stage,
+            selector: error?.selector ?? selector,
+            cause: error,
+        });
+    }
+}
+
+
 async function waitForEditDateDialog(page, timeout, shouldExist = true) {
     await page.waitForFunction((selector, expected) => {
         const normalize = (value) => String(value ?? "")
@@ -405,6 +494,7 @@ export default async function changeFacebookPersonalProfilePostDate(
         logger = console,
         onProgress = null,
         closePostDialog = true,
+        fromFeed = false,
     } = {}
 ) {
     const startedAt = new Date().toISOString();
@@ -456,7 +546,7 @@ export default async function changeFacebookPersonalProfilePostDate(
             targetDate: target.isoDate,
         });
 
-        if (normalizedPostUrl) {
+        if (normalizedPostUrl && !fromFeed) {
             stage = "OPEN_POST";
             report("facebook.personal_post_date.navigation", "Відкриваємо точний URL поста", {
                 postUrl: normalizedPostUrl,
@@ -464,64 +554,139 @@ export default async function changeFacebookPersonalProfilePostDate(
             await openPageWithoutPopups(page, normalizedPostUrl, { timeout });
         }
 
-        stage = "WAIT_POST";
-        report("facebook.personal_post_date.selector.search", "Шукаємо універсальне модальне вікно поста", {
-            selector: postDialogSelector,
-        });
-        await waitForPostWindow(page, timeout);
-        if (!await isPostAvailable(page, { logger })) {
-            throw new FacebookPersonalProfilePostDateError(
-                "Пост не відкрився або його контент недоступний",
-                {
-                    code: "FACEBOOK_PERSONAL_POST_DATE_POST_UNAVAILABLE",
-                    status: facebookPersonalProfilePostDateStatuses.POST_NOT_AVAILABLE,
-                    stage,
-                    selector: postDialogSelector,
-                }
+        if (fromFeed) {
+            const actionsSelector = getPersonalProfileFeedPostActionsButtonSelector(
+                feedPostPosinset
             );
-        }
-        report("facebook.personal_post_date.selector.found", "Модальне вікно поста знайдено", {
-            selector: postDialogSelector,
-        });
+            const editDateItem = {
+                candidateSelector: personalProfilePostMenuItemSelector,
+                expectedText: editDateMenuText,
+            };
 
-        stage = "OPEN_ACTIONS";
-        if (!await clickFreshElement(
-            page,
-            "actions",
-            personalProfilePostActionsButtonSelector,
-            timeout,
-            timingOptions,
-            report
-        )) {
-            throw new FacebookPersonalProfilePostDateError(
-                "Не знайдено меню дій поста",
+            stage = "OPEN_ACTIONS";
+            report(
+                "facebook.personal_post_date.selector.search",
+                "Шукаємо меню трьох крапок у картці стрічки",
                 {
-                    code: "FACEBOOK_PERSONAL_POST_DATE_ACTIONS_NOT_FOUND",
-                    status: facebookPersonalProfilePostDateStatuses.ACTIONS_NOT_FOUND,
-                    stage,
-                    selector: personalProfilePostActionsButtonSelector,
+                    selector: actionsSelector,
                 }
             );
-        }
+            await clickUntilNextVisible(
+                page,
+                {
+                    target: { selector: actionsSelector },
+                    confirm: editDateItem,
+                    description: "меню поста",
+                },
+                {
+                    timeout,
+                    report,
+                    stage,
+                    timingOptions,
+                    notFoundStatus:
+                        facebookPersonalProfilePostDateStatuses.ACTIONS_NOT_FOUND,
+                    notConfirmedStatus:
+                        facebookPersonalProfilePostDateStatuses.EDIT_DATE_NOT_FOUND,
+                    notFoundCode: "FACEBOOK_PERSONAL_POST_DATE_ACTIONS_NOT_FOUND",
+                    notConfirmedCode:
+                        "FACEBOOK_PERSONAL_POST_DATE_MENU_ITEM_NOT_FOUND",
+                }
+            );
 
-        stage = "OPEN_EDIT_DATE";
-        if (!await clickFreshElement(
-            page,
-            "editDateMenuItem",
-            personalProfilePostMenuItemSelector,
-            timeout,
-            timingOptions,
-            report
-        )) {
-            throw new FacebookPersonalProfilePostDateError(
-                "У меню поста не знайдено Edit date",
+            stage = "OPEN_EDIT_DATE";
+            report(
+                "facebook.personal_post_date.selector.search",
+                "Шукаємо пункт Edit date",
                 {
-                    code: "FACEBOOK_PERSONAL_POST_DATE_MENU_ITEM_NOT_FOUND",
-                    status: facebookPersonalProfilePostDateStatuses.EDIT_DATE_NOT_FOUND,
-                    stage,
-                    selector: personalProfilePostMenuItemSelector,
+                    selector: describeLocator(editDateItem),
                 }
             );
+            await clickUntilNextVisible(
+                page,
+                {
+                    target: editDateItem,
+                    confirm: {
+                        check: isEditDateDialogVisibleInPage,
+                        args: [personalProfileEditDateDialogSelector],
+                        description: "вікно Edit Date",
+                    },
+                    description: "Edit date",
+                },
+                {
+                    timeout,
+                    report,
+                    stage,
+                    timingOptions,
+                    notFoundStatus:
+                        facebookPersonalProfilePostDateStatuses.EDIT_DATE_NOT_FOUND,
+                    notConfirmedStatus:
+                        facebookPersonalProfilePostDateStatuses.DIALOG_NOT_OPENED,
+                    notFoundCode:
+                        "FACEBOOK_PERSONAL_POST_DATE_MENU_ITEM_NOT_FOUND",
+                    notConfirmedCode:
+                        "FACEBOOK_PERSONAL_POST_DATE_DIALOG_NOT_OPENED",
+                }
+            );
+        } else {
+            stage = "WAIT_POST";
+            report("facebook.personal_post_date.selector.search", "Шукаємо універсальне модальне вікно поста", {
+                selector: postDialogSelector,
+            });
+            await waitForPostWindow(page, timeout);
+            if (!await isPostAvailable(page, { logger })) {
+                throw new FacebookPersonalProfilePostDateError(
+                    "Пост не відкрився або його контент недоступний",
+                    {
+                        code: "FACEBOOK_PERSONAL_POST_DATE_POST_UNAVAILABLE",
+                        status: facebookPersonalProfilePostDateStatuses.POST_NOT_AVAILABLE,
+                        stage,
+                        selector: postDialogSelector,
+                    }
+                );
+            }
+            report("facebook.personal_post_date.selector.found", "Модальне вікно поста знайдено", {
+                selector: postDialogSelector,
+            });
+
+            stage = "OPEN_ACTIONS";
+            if (!await clickFreshElement(
+                page,
+                "actions",
+                personalProfilePostActionsButtonSelector,
+                timeout,
+                timingOptions,
+                report
+            )) {
+                throw new FacebookPersonalProfilePostDateError(
+                    "Не знайдено меню дій поста",
+                    {
+                        code: "FACEBOOK_PERSONAL_POST_DATE_ACTIONS_NOT_FOUND",
+                        status: facebookPersonalProfilePostDateStatuses.ACTIONS_NOT_FOUND,
+                        stage,
+                        selector: personalProfilePostActionsButtonSelector,
+                    }
+                );
+            }
+
+            stage = "OPEN_EDIT_DATE";
+            if (!await clickFreshElement(
+                page,
+                "editDateMenuItem",
+                personalProfilePostMenuItemSelector,
+                timeout,
+                timingOptions,
+                report
+            )) {
+                throw new FacebookPersonalProfilePostDateError(
+                    "У меню поста не знайдено Edit date",
+                    {
+                        code: "FACEBOOK_PERSONAL_POST_DATE_MENU_ITEM_NOT_FOUND",
+                        status: facebookPersonalProfilePostDateStatuses.EDIT_DATE_NOT_FOUND,
+                        stage,
+                        selector: personalProfilePostMenuItemSelector,
+                    }
+                );
+            }
         }
         await waitForEditDateDialog(page, timeout, true);
         await waitHuman("short", timingOptions);
@@ -613,7 +778,7 @@ export default async function changeFacebookPersonalProfilePostDate(
             }
         );
 
-        if (closePostDialog) {
+        if (closePostDialog && !fromFeed) {
             stage = "CLOSE_POST";
             postDialogClosed = await clickFreshElement(
                 page,

@@ -4,14 +4,15 @@
 
 `publishFacebookPersonalProfileMediaPostsWithDates(page, options)` обробляє
 кожен пост окремо в одній вкладці: публікує медіа через
-`publishFacebookPersonalProfileMediaPost` з `capturePostUrl: false`, відкриває
+`publishFacebookPersonalProfileMediaPost` з `capturePostUrl: false`, чекає
 першу картку стрічки `[aria-posinset="1"]`. До публікації зберігає два
 `href`: маска `a[href*="?__cft__[0]="]` і permalink
 `a[href*="/permalink.php"]`. Після публікації вважає пост новим, якщо
-змінився хоча б один із них. Дату клікає спочатку по `__cft__`, якщо його
-немає — по `permalink.php`. Зчитує `postUrl` з адреси вкладки або з відкритого
-діалогу і одразу змінює дату через `changeFacebookPersonalProfilePostDate`
-без повторної навігації (`postUrl: null`, `closePostDialog: true`).
+змінився хоча б один із них. Вікно поста не відкриває: `postUrl` зчитує
+з картки стрічки і змінює дату через `changeFacebookPersonalProfilePostDate`
+з `fromFeed: true`. Три крапки картки і пункт `Edit date` натискаються
+через `clickUntilConfirmed` (стабілізація DOM, наведення курсора, повтор,
+якщо меню не з’явилось).
 
 ```js
 const result = await publishFacebookPersonalProfileMediaPostsWithDates(page, {
@@ -34,12 +35,13 @@ const result = await publishFacebookPersonalProfileMediaPostsWithDates(page, {
 Дати підтримують `MM/DD/YYYY`, `YYYY-MM-DD` та англійський формат
 `Month D, YYYY`. Екшен вводить `MM/DD/YYYY` безпосередньо в React-combobox,
 натискає `Enter`, перевіряє відформатовану дату в полі і натискає `Done`.
-Після `Done` дата вважається зміненою, timestamp у вікні поста не
-перевіряється. Далі вікно поста закривається. Час поста не змінюється.
+Після `Done` дата вважається зміненою, timestamp у стрічці не
+перевіряється. Вікно поста не відкривається і не закривається. Час поста
+не змінюється.
 
-Якщо публікація неуспішна або перший пост стрічки не відкрився, цикл
+Якщо публікація неуспішна або перша картка стрічки не з’явилась, цикл
 зупиняється, щоб не клікнути чужу стару картку. `datePhaseStarted`
-стає `true`, коли починається перша зміна дати відкритого поста, а не після
+стає `true`, коли починається перша зміна дати з меню картки, а не після
 збору всіх URL. Основні статуси: `COMPLETED`, `PUBLISH_PARTIAL`,
 `FIRST_FEED_POST_OPEN_FAILED`, `POST_URL_CAPTURE_FAILED`,
 `DATE_CHANGE_PARTIAL`, `INVALID_INPUT`, `ERROR`. Звіт містить

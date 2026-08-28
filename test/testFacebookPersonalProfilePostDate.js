@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import changeFacebookPersonalProfilePostDate, {
     facebookPersonalProfilePostDateStatuses,
+    isEditDateDialogVisibleInPage,
     parseFacebookPersonalProfilePostDate,
 } from "../facebook/actions/changeFacebookPersonalProfilePostDate.js";
 import openFacebookPersonalProfileFirstFeedPost, {
@@ -10,16 +11,22 @@ import openFacebookPersonalProfileFirstFeedPost, {
     isFeedFingerprintChanged,
     normalizeFacebookFeedPostUrl,
     readFirstFeedPostFingerprint,
+    waitForFirstFeedPostChange,
 } from "../facebook/actions/openFacebookPersonalProfileFirstFeedPost.js";
 import publishFacebookPersonalProfileMediaPostsWithDates, {
     facebookPersonalProfilePostsWithDatesStatuses,
 } from "../facebook/actions/publishFacebookPersonalProfileMediaPostsWithDates.js";
 import isPostAvailable from "../facebook/post/checks/isPostAvailable.js";
+import { getPersonalProfileFeedPostActionsButtonSelector } from "../facebook/selectors/personalProfileFeedPosts.js";
 import {
     personalProfileFirstFeedPostCftLinkSelector,
     personalProfileFirstFeedPostPermalinkLinkSelector,
     personalProfileFirstFeedPostSelector,
 } from "../facebook/selectors/personalProfilePost.js";
+import {
+    personalProfileEditDateDialogSelector,
+    personalProfilePostMenuItemSelector,
+} from "../facebook/selectors/personalProfilePostDate.js";
 import { postDialogSelector } from "../facebook/selectors/post.js";
 
 
@@ -502,5 +509,217 @@ assert.equal(
 assert.equal(savedWithoutVisibleTimestamp.verified, true);
 assert.equal(savedWithoutVisibleTimestamp.postDialogClosed, true);
 assert.equal(savedWithoutVisibleTimestamp.formattedDate, "Mar 21, 2024");
+
+assert.equal(
+    /edit date/i.test("EDIT DATE"),
+    true
+);
+assert.equal(
+    isEditDateDialogVisibleInPage.toString().includes("edit date"),
+    true
+);
+
+await assert.rejects(
+    () => waitForFirstFeedPostChange(missingCardPage, null, 50)
+);
+
+function createFeedDatePage({
+    hasActions = true,
+    menuItemText = "EDIT DATE",
+} = {}) {
+    const actionsSelector = getPersonalProfileFeedPostActionsButtonSelector(1);
+    const state = {
+        hasActions,
+        menuOpen: false,
+        editDateOpen: false,
+        formattedDate: "Just now",
+        currentSelector: null,
+        currentKind: null,
+    };
+
+    const createHandle = (selector, kind = null, available = true) => ({
+        kind,
+        selector,
+        asElement() {
+            return available ? this : null;
+        },
+        async dispose() {},
+        async evaluate() {
+            return kind === "dateInput" ? state.formattedDate : "";
+        },
+        async boundingBox() {
+            state.currentSelector = selector;
+            state.currentKind = kind;
+            return available
+                ? { x: 140, y: 160, width: 90, height: 28 }
+                : null;
+        },
+    });
+    const missingHandle = {
+        asElement: () => null,
+        async dispose() {},
+    };
+    const isEditDateItem = (locator) => {
+        const expected = String(locator?.expectedText ?? "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLocaleLowerCase();
+        const actual = String(menuItemText)
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLocaleLowerCase();
+        return expected === actual
+            && locator?.candidateSelector === personalProfilePostMenuItemSelector;
+    };
+    const isActionsSelector = (selector) =>
+        typeof selector === "string"
+        && selector === actionsSelector;
+
+    return {
+        state,
+        url() {
+            return "https://www.facebook.com/me";
+        },
+        async evaluate(callback) {
+            if (callback?.name === "waitForDomQuietInPage") {
+                return true;
+            }
+            if (callback?.name === "isEditDateDialogVisibleInPage") {
+                return state.editDateOpen;
+            }
+            const source = String(callback);
+            if (source.includes("innerWidth")) {
+                return { width: 1280, height: 900 };
+            }
+            return [];
+        },
+        async evaluateHandle(_callback, first, second) {
+            if (typeof first === "string") {
+                return isActionsSelector(first) && state.hasActions
+                    ? createHandle(first, "actions")
+                    : missingHandle;
+            }
+            if (first && typeof first === "object") {
+                if (isEditDateItem(first)) {
+                    return state.menuOpen
+                        ? createHandle(
+                            personalProfilePostMenuItemSelector,
+                            "editDateMenuItem"
+                        )
+                        : missingHandle;
+                }
+                if (first.selector) {
+                    return isActionsSelector(first.selector) && state.hasActions
+                        ? createHandle(first.selector, "actions")
+                        : missingHandle;
+                }
+                if (typeof second === "string") {
+                    const available = {
+                        dateInput: state.editDateOpen,
+                        done: state.editDateOpen,
+                        cancel: state.editDateOpen,
+                    }[second] ?? false;
+                    return createHandle(second, second, available);
+                }
+            }
+            return missingHandle;
+        },
+        async waitForFunction(callback, _options, ...args) {
+            const [firstArg, secondArg] = args;
+            if (callback?.name === "isEditDateDialogVisibleInPage") {
+                if (!state.editDateOpen) {
+                    throw new Error("edit date dialog timeout");
+                }
+                return createHandle(personalProfileEditDateDialogSelector);
+            }
+            if (isEditDateItem(firstArg)) {
+                if (!state.menuOpen) {
+                    throw new Error("edit date menu timeout");
+                }
+                return createHandle(personalProfilePostMenuItemSelector);
+            }
+            if (typeof firstArg === "string" && typeof secondArg === "boolean") {
+                if (state.editDateOpen !== secondArg) {
+                    throw new Error("edit date dialog timeout");
+                }
+                return createHandle(personalProfileEditDateDialogSelector);
+            }
+            if (isActionsSelector(firstArg)) {
+                if (!state.hasActions) {
+                    throw new Error("actions timeout");
+                }
+                return createHandle(firstArg, "actions");
+            }
+            throw new Error(`selector timeout: ${firstArg}`);
+        },
+        keyboard: {
+            async down() {},
+            async up() {},
+            async press() {},
+            async type() {
+                state.formattedDate = "Mar 21, 2024";
+            },
+        },
+        mouse: {
+            async move() {},
+            async down() {},
+            async up() {
+                if (state.currentKind === "actions") {
+                    state.menuOpen = true;
+                    return;
+                }
+                if (state.currentKind === "editDateMenuItem") {
+                    state.menuOpen = false;
+                    state.editDateOpen = true;
+                    return;
+                }
+                if (state.currentKind === "done") {
+                    state.editDateOpen = false;
+                }
+            },
+        },
+    };
+}
+
+const feedDatePage = createFeedDatePage();
+const feedDateResult = await changeFacebookPersonalProfilePostDate(
+    feedDatePage,
+    {
+        targetDate: "03/21/2024",
+        timeout: 200,
+        logger,
+        fromFeed: true,
+        closePostDialog: false,
+        ...timingOptions,
+    }
+);
+assert.equal(feedDateResult.success, true, JSON.stringify(feedDateResult));
+assert.equal(
+    feedDateResult.status,
+    facebookPersonalProfilePostDateStatuses.CHANGED
+);
+assert.equal(feedDateResult.verified, true);
+assert.equal(feedDateResult.postDialogClosed, false);
+assert.equal(feedDateResult.formattedDate, "Mar 21, 2024");
+assert.equal(feedDatePage.state.menuOpen, false);
+assert.equal(feedDatePage.state.editDateOpen, false);
+
+const missingActionsPage = createFeedDatePage({ hasActions: false });
+const missingActionsResult = await changeFacebookPersonalProfilePostDate(
+    missingActionsPage,
+    {
+        targetDate: "03/21/2024",
+        timeout: 50,
+        logger,
+        fromFeed: true,
+        closePostDialog: false,
+        ...timingOptions,
+    }
+);
+assert.equal(missingActionsResult.success, false);
+assert.equal(
+    missingActionsResult.status,
+    facebookPersonalProfilePostDateStatuses.ACTIONS_NOT_FOUND
+);
 
 console.log("Facebook personal profile post date tests passed");
