@@ -1,8 +1,10 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import { SUPPORTED_TEMPLATE_LANGUAGE_IDS } from "./LanguageCatalog.js";
 
-export const TEMPLATE_SCHEMA_VERSION = 5;
+
+export const TEMPLATE_SCHEMA_VERSION = 6;
 export const TEMPLATE_GENDERS = new Set(["any", "male", "female"]);
 export const TEMPLATE_DEVICE_PLATFORMS = new Set(["mobile", "desktop"]);
 export const TEMPLATE_OPERATING_SYSTEMS = new Set(["Android", "iOS"]);
@@ -25,6 +27,14 @@ function uniqueStrings(values = []) {
             .map((value) => String(value ?? "").trim())
             .filter(Boolean)
     )];
+}
+
+
+function normalizeLanguages(input) {
+    const values = Array.isArray(input) ? input : [];
+    return [...new Set(values.map((value) => Number(value)).filter((value) => (
+        Number.isInteger(value) && SUPPORTED_TEMPLATE_LANGUAGE_IDS.has(value)
+    )))];
 }
 
 
@@ -101,6 +111,7 @@ export function normalizeTemplateInput(input = {}) {
         countryCodes: uniqueStrings(input.countryCodes)
             .map((code) => code.toUpperCase())
             .filter((code) => /^[A-Z]{2}$/.test(code)),
+        locales: normalizeLanguages(input.locales),
         gender,
         ageMin,
         ageMax,

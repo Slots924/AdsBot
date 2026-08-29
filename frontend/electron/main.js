@@ -17,6 +17,7 @@ import PageRebuildJournal from "../../services/workflows/PageRebuildJournal.js";
 import CampaignTemplateManager
     from "../../services/templates/CampaignTemplateManager.js";
 import CountryCatalog from "../../services/templates/CountryCatalog.js";
+import LanguageCatalog from "../../services/templates/LanguageCatalog.js";
 import CampaignCreationJournal
     from "../../services/campaigns/CampaignCreationJournal.js";
 import BackgroundTaskJournal
@@ -57,6 +58,7 @@ let pagePreferencesStore = null;
 let remoteDataCacheStore = null;
 let creativeLaunchJournal = null;
 let countryCatalog = null;
+let languageCatalog = null;
 let campaignCreationJournal = null;
 let facebookAccountManager = null;
 let backgroundTaskManager = null;
@@ -176,6 +178,7 @@ async function createWindow() {
     countryCatalog = new CountryCatalog({
         countriesFile: appPaths.countries,
     });
+    languageCatalog = new LanguageCatalog();
     campaignCreationJournal = new CampaignCreationJournal({
         jobsFile: appPaths.campaignCreationJobs,
     });
@@ -222,6 +225,7 @@ async function createWindow() {
         remoteDataCacheStore,
         creativeLaunchJournal,
         countryCatalog,
+        languageCatalog,
         campaignCreationJournal,
         backgroundTaskManager,
         facebookAccountManager,

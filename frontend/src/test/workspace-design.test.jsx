@@ -329,9 +329,10 @@ describe("Дизайн workspace фанпейджів", () => {
         fireEvent.click(screen.getByRole("button", { name: "Рекламний акаунт" }));
         const options = within(document.querySelector(".campaign-account-modal .select-options"))
             .getAllByRole("button");
-        expect(options[0]).toHaveTextContent("act_1");
+        expect(options[0]).toHaveTextContent("Active name");
+        expect(options[0]).toHaveTextContent("ID act_1");
         expect(options[1]).toHaveTextContent("act_2");
-        expect(screen.queryByText("Active name")).not.toBeInTheDocument();
+        expect(screen.getByPlaceholderText("Пошук за ID або назвою…")).toBeInTheDocument();
         expect(screen.queryByText("Disabled name")).not.toBeInTheDocument();
     });
 

@@ -114,6 +114,7 @@ export default function registerIpcHandlers({
     remoteDataCacheStore,
     creativeLaunchJournal,
     countryCatalog,
+    languageCatalog,
     campaignCreationJournal,
     backgroundTaskManager,
     facebookAccountManager,
@@ -1583,6 +1584,10 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "countries:list",
         safeHandler(() => countryCatalog.list())
+    );
+    ipcMain.handle(
+        "languages:list",
+        safeHandler(() => languageCatalog.list())
     );
     ipcMain.handle(
         "templates:create",

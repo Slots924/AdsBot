@@ -21,12 +21,12 @@ export default function AdAccountSelect({ accounts, value, onChange, disabled })
             value={value}
             onChange={onChange}
             getId={(account) => account.id}
-            getTitle={(account) => account.id}
-            getSubtitle={() => ""}
-            getSearchText={(account) => account.id}
+            getTitle={(account) => account.status === "active" ? (account.localName || account.id) : account.id}
+            getSubtitle={(account) => account.status === "active" && account.localName ? `ID ${account.id}` : ""}
+            getSearchText={(account) => `${account.id} ${account.localName || ""}`}
             getStatus={(account) => account.status === "active" ? "active" : "inactive"}
             placeholder="Оберіть ID рекламного акаунта"
-            searchPlaceholder="Пошук лише за ID…"
+            searchPlaceholder="Пошук за ID або назвою…"
             emptyText="Рекламний акаунт не знайдено"
             ariaLabel="Рекламний акаунт"
             disabled={disabled}

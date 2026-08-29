@@ -16,6 +16,51 @@ function emitLog(logger, level, message, fields = {}) {
 }
 
 
+async function waitForPostDialog(page, selector, logger) {
+    if (typeof page.waitForFunction !== "function") return;
+
+    emitLog(logger, "info", "Очікуємо до 5 секунд появу модального вікна поста", {
+        selector,
+        timeoutMs: 5_000,
+    });
+
+    try {
+        await page.waitForFunction((postSelector) => {
+            const visible = (node) => {
+                const rectangle = node.getBoundingClientRect();
+                const style = getComputedStyle(node);
+                return rectangle.width > 0
+                    && rectangle.height > 0
+                    && style.display !== "none"
+                    && style.visibility !== "hidden"
+                    && style.opacity !== "0";
+            };
+            const normalize = (value) => String(value ?? "")
+                .replace(/\s+/g, " ")
+                .trim();
+            const accessibleName = (dialog) => normalize(
+                String(dialog.getAttribute("aria-labelledby") ?? "")
+                    .split(" ")
+                    .filter(Boolean)
+                    .map((id) => document.getElementById(id)?.innerText)
+                    .filter(Boolean)
+                    .join(" ")
+            );
+
+            return Array.from(document.querySelectorAll(postSelector))
+                .some((dialog) => visible(dialog)
+                    && /['\u2019](?:s\s+)?post$/i.test(accessibleName(dialog)));
+        }, { timeout: 5_000 }, selector);
+    } catch (error) {
+        if (error?.name !== "TimeoutError") throw error;
+
+        emitLog(logger, "info", "Модальне вікно поста не з'явилося за 5 секунд", {
+            selector,
+        });
+    }
+}
+
+
 export default async function isPostAvailable(
     page,
     { logger = console } = {}
@@ -24,6 +69,7 @@ export default async function isPostAvailable(
         emitLog(logger, "info", "Шукаємо видиме модальне вікно поста", {
             selector: availablePostSelector,
         });
+        await waitForPostDialog(page, availablePostSelector, logger);
         const result = await page.evaluate((selector) => {
             const normalize = (value) => String(value ?? "")
                 .replace(/\s+/g, " ")

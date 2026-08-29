@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
+import SearchSelect from "../components/SearchSelect.jsx";
 
 
 const placementOptions = [
@@ -29,6 +30,7 @@ function emptyDraft() {
     return {
         name: "",
         countryCodes: [],
+        locales: [],
         gender: "any",
         ageMin: 18,
         ageMax: 65,
@@ -58,6 +60,7 @@ function cloneTemplate(template) {
         ...emptyDraft(),
         ...template,
         countryCodes: [...(template.countryCodes ?? [])],
+        locales: [...(template.locales ?? [])],
         devicePlatforms: [...(template.devicePlatforms ?? [])],
         operatingSystems: [...(template.operatingSystems ?? [])],
         placements: {
@@ -71,6 +74,7 @@ function cloneTemplate(template) {
 export default function TemplatesTab({ onError, showToast }) {
     const [templates, setTemplates] = useState([]);
     const [countries, setCountries] = useState([]);
+    const [languages, setLanguages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [busyId, setBusyId] = useState(null);
     const [editor, setEditor] = useState(null);
@@ -81,12 +85,16 @@ export default function TemplatesTab({ onError, showToast }) {
     const load = async () => {
         setLoading(true);
         try {
-            const [loadedTemplates, loadedCountries] = await Promise.all([
+            const [loadedTemplates, loadedCountries, loadedLanguages] = await Promise.all([
                 unwrap(window.adsBot.getTemplates()),
                 unwrap(window.adsBot.getCountries()),
+                unwrap(window.adsBot.getLanguages
+                    ? window.adsBot.getLanguages()
+                    : { ok: true, data: [] }),
             ]);
             setTemplates(loadedTemplates);
             setCountries(loadedCountries);
+            setLanguages(loadedLanguages);
         } catch (error) {
             onError({
                 ...errorDetails(error),
@@ -266,7 +274,7 @@ export default function TemplatesTab({ onError, showToast }) {
                         <span>{template.countryCodes?.join(", ") || "Країни не вибрані"}</span>
                         <span className={template.countryCodes?.length ? "" : "muted-value"}>
                             {template.countryCodes?.length
-                                ? `${template.countryCodes.join(", ")} · ${template.ageMin}–${template.ageMax === 65 ? "65+" : template.ageMax}`
+                                ? `${template.countryCodes.join(", ")} · ${template.locales?.length ? `${template.locales.length} мов` : "мова не вибрана"} · ${template.ageMin}–${template.ageMax === 65 ? "65+" : template.ageMax}`
                                 : "Потрібно доповнити"}
                         </span>
                         <time>{formatUpdatedAt(template.updatedAt)}</time>
@@ -307,6 +315,22 @@ export default function TemplatesTab({ onError, showToast }) {
                                 <div className="selected-countries">
                                     {draft.countryCodes.map((code) => <button type="button" key={code} onClick={() => toggleCountry(code)}>{code} <X size={11} /></button>)}
                                 </div>
+                                <label className="field"><span>Мови реклами</span><SearchSelect
+                                    items={languages}
+                                    value={draft.locales}
+                                    multiple
+                                    onChange={(value) => setDraft((current) => ({ ...current, locales: value }))}
+                                    getId={(language) => language.id}
+                                    getTitle={(language) => language.name}
+                                    getSubtitle={(language) => language.code}
+                                    getSearchText={(language) => `${language.name} ${language.code} ${(language.aliases ?? []).join(" ")}`}
+                                    placeholder="Оберіть одну або кілька мов"
+                                    searchPlaceholder="Пошук мови…"
+                                    emptyText="Мову не знайдено"
+                                    ariaLabel="Мови реклами"
+                                    className="language-select"
+                                /></label>
+                                <small className="field-hint">Можна вибрати одну або кілька мов. Порожній список означає, що фільтр мов не застосовується.</small>
                                 <div className="template-editor-fields three-columns">
                                     <label className="field"><span>Стать</span><select value={draft.gender} onChange={(event) => setDraft((current) => ({ ...current, gender: event.target.value }))}><option value="any">Будь-яка</option><option value="male">Чоловіча</option><option value="female">Жіноча</option></select></label>
                                     <label className="field"><span>Вік від</span><select value={draft.ageMin} onChange={(event) => setDraft((current) => { const ageMin = Number(event.target.value); return { ...current, ageMin, ageMax: Math.max(ageMin, current.ageMax) }; })}>{ageOptions.map((age) => <option key={age} value={age}>{age}</option>)}</select></label>

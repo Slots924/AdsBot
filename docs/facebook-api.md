@@ -324,6 +324,13 @@ PAUSED. Після успішного створення активуються 
 За наявності обмежень шаблону targeting також отримує `device_platforms` і
 `user_os`; порожні масиви означають усі пристрої та всі мобільні ОС.
 
+Мовний фільтр шаблону передається в Meta як `targeting.locales` — масив
+числових ID мов Meta. Порожній список мов не додає `locales` до targeting,
+тобто для старих шаблонів без вибраної мови поведінка залишається без
+мовного обмеження. Доступні мови та їхні ID централізовані в
+`services/templates/LanguageCatalog.js`; у шаблоні вони зберігаються в полі
+`locales`.
+
 Для existing Page post поле `destination_type` навмисно не передається. Meta
 Ads Manager так само залишає його `UNDEFINED`, а website-конверсію визначає
 через `OFFSITE_CONVERSIONS` і promoted object із Pixel event `LEAD`. Явне

@@ -143,6 +143,7 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("reports:export-markdown", { reportId }),
     getTemplates: () => ipcRenderer.invoke("templates:list"),
     getCountries: () => ipcRenderer.invoke("countries:list"),
+    getLanguages: () => ipcRenderer.invoke("languages:list"),
     createTemplate: (template) =>
         ipcRenderer.invoke("templates:create", template),
     updateTemplate: (id, template) =>

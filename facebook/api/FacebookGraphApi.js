@@ -305,6 +305,7 @@ function buildTargeting(template) {
         age_min: template.ageMin,
         age_max: template.ageMax,
         geo_locations: { countries: template.countryCodes },
+        ...(template.locales?.length ? { locales: template.locales } : {}),
         publisher_platforms: publisherPlatforms,
         ...(facebookPositions.length
             ? { facebook_positions: facebookPositions }

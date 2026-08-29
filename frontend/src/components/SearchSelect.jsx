@@ -11,6 +11,7 @@ export default function SearchSelect({
     getSubtitle = (item) => item.id,
     getSearchText,
     getStatus,
+    multiple = false,
     placeholder = "Оберіть значення",
     searchPlaceholder = "Пошук…",
     emptyText = "Нічого не знайдено",
@@ -21,7 +22,13 @@ export default function SearchSelect({
     const root = useRef(null);
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    const selected = items.find((item) => String(getId(item)) === String(value));
+    const selectedItems = multiple
+        ? items.filter((item) => (Array.isArray(value) ? value : [])
+            .some((itemId) => String(getId(item)) === String(itemId)))
+        : [];
+    const selected = multiple
+        ? null
+        : items.find((item) => String(getId(item)) === String(value));
     const filtered = useMemo(() => {
         const needle = query.trim().toLocaleLowerCase();
         if (!needle) return items;
@@ -52,12 +59,16 @@ export default function SearchSelect({
                 onClick={() => setOpen((current) => !current)}
             >
                 <span className="select-trigger-value">
-                    {selected && getStatus && (
+                    {!multiple && selected && getStatus && (
                         <i className={`select-status status-dot ${getStatus(selected)}`} />
                     )}
                     <span>
-                        <strong>{selected ? getTitle(selected) : placeholder}</strong>
-                        {subtitle && <small>{subtitle}</small>}
+                        <strong>{multiple
+                            ? (selectedItems.length ? `${selectedItems.length} вибрано` : placeholder)
+                            : (selected ? getTitle(selected) : placeholder)}</strong>
+                        {multiple
+                            ? selectedItems.length > 0 && <small>{selectedItems.map(getTitle).join(", ")}</small>
+                            : subtitle && <small>{subtitle}</small>}
                     </span>
                 </span>
                 <ChevronDown size={17} />
@@ -87,6 +98,13 @@ export default function SearchSelect({
                                     className="select-option"
                                     key={id}
                                     onClick={() => {
+                                        if (multiple) {
+                                            const current = Array.isArray(value) ? value : [];
+                                            onChange(current.some((itemId) => String(itemId) === String(id))
+                                                ? current.filter((itemId) => String(itemId) !== String(id))
+                                                : [...current, id]);
+                                            return;
+                                        }
                                         onChange(id);
                                         setOpen(false);
                                         setQuery("");
@@ -101,7 +119,9 @@ export default function SearchSelect({
                                             {optionSubtitle && <small>{optionSubtitle}</small>}
                                         </span>
                                     </span>
-                                    {String(id) === String(value) && <Check size={16} />}
+                                    {(multiple
+                                        ? (Array.isArray(value) && value.some((itemId) => String(itemId) === String(id)))
+                                        : String(id) === String(value)) && <Check size={16} />}
                                 </button>
                             );
                         })}

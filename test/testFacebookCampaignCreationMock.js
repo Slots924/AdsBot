@@ -112,6 +112,7 @@ const api = new FacebookGraphApi({
 const template = {
     pixel: "30",
     countryCodes: ["HU", "US"],
+    locales: [5, 6],
     gender: "female",
     ageMin: 25,
     ageMax: 44,
@@ -187,6 +188,7 @@ const actualAdSet = requests.find((request) => (
 ));
 const targeting = JSON.parse(actualAdSet.data.get("targeting"));
 assert.deepEqual(targeting.geo_locations.countries, ["HU", "US"]);
+assert.deepEqual(targeting.locales, [5, 6]);
 assert.deepEqual(targeting.genders, [2]);
 assert.equal(targeting.targeting_automation.advantage_audience, 0);
 assert.deepEqual(targeting.device_platforms, ["mobile"]);

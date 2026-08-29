@@ -67,6 +67,10 @@ const logger = {
     },
 };
 const availablePage = {
+    waitCalls: 0,
+    async waitForFunction() {
+        this.waitCalls += 1;
+    },
     async evaluate() {
         return {
             available: true,
@@ -77,11 +81,17 @@ const availablePage = {
     },
 };
 assert.equal(await isPostAvailable(availablePage, { logger }), true);
+assert.equal(availablePage.waitCalls, 1);
 assert.ok(logEvents.some(({ message }) =>
     message.includes("Модальне вікно доступного поста знайдено")
 ));
 
 const unavailablePage = {
+    async waitForFunction() {
+        const error = new Error("Timed out");
+        error.name = "TimeoutError";
+        throw error;
+    },
     async evaluate() {
         return {
             available: false,

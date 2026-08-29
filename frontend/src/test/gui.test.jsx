@@ -535,7 +535,6 @@ describe("GUI helpers", () => {
             ok: true,
             data: [],
         });
-
         render(
             <PublishTab
                 selectedAccount={{
@@ -633,6 +632,10 @@ describe("GUI helpers", () => {
             ok: true,
             data: [],
         });
+        window.adsBot.getLanguages = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [],
+        });
         window.adsBot.createTemplate = vi.fn().mockResolvedValue({
             ok: true,
             data: {
@@ -675,6 +678,7 @@ describe("GUI helpers", () => {
         expect(window.adsBot.createTemplate).toHaveBeenCalledWith({
             name: "AT Slot",
             countryCodes: [],
+            locales: [],
             gender: "any",
             ageMin: 18,
             ageMax: 65,
