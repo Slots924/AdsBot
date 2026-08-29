@@ -58,20 +58,6 @@ export function stream423Template() {
     };
 }
 
-function normalizeFilter(filter = {}) {
-    const payload = filter.payload;
-    return {
-        ...clone(filter),
-        name: String(filter.name ?? "country").trim() || "country",
-        mode: filter.mode === "reject" ? "reject" : "accept",
-        payload: Array.isArray(payload)
-            ? payload.map((item) => String(item ?? "").trim()).filter(Boolean)
-            : payload == null || payload === ""
-                ? null
-                : clone(payload),
-    };
-}
-
 function normalizeAsset(item = {}, idKey) {
     const id = Number(item[idKey] ?? item.id);
     return {
@@ -83,33 +69,22 @@ function normalizeAsset(item = {}, idKey) {
     };
 }
 
-function streamWithoutPlacement(source = {}) {
-    const stream = clone(source ?? {});
-    for (const key of ["id", "campaign_id", "campaignId", "position", "created_at", "updated_at", "is_monitoring", "monitoring_url"]) {
-        delete stream[key];
-    }
-    return stream;
-}
-
 export function normalizeStreamDraft(input = {}) {
     const source = input.stream ?? input;
     const stream = {
         ...emptyStreamDraft(),
-        ...streamWithoutPlacement(source),
         name: String(source.name ?? input.name ?? "").trim(),
         comments: String(source.comments ?? source.notes ?? ""),
-        type: ["regular", "forced", "default"].includes(source.type)
-            ? source.type
-            : "regular",
-        state: source.state === "disabled" ? "disabled" : "active",
-        schema: String(source.schema ?? "landings"),
-        collect_clicks: Boolean(source.collect_clicks),
-        filter_or: Boolean(source.filter_or),
+        type: "regular",
+        state: "active",
+        schema: "landings",
+        collect_clicks: true,
+        filter_or: false,
         weight: Number.isFinite(Number(source.weight)) ? Number(source.weight) : 100,
-        offer_selection: String(source.offer_selection ?? "before_click"),
+        offer_selection: "before_click",
         action_type: String(source.action_type ?? "http"),
         action_payload: String(source.action_payload ?? ""),
-        filters: Array.isArray(source.filters) ? source.filters.map(normalizeFilter) : [],
+        filters: [],
         landings: Array.isArray(source.landings)
             ? source.landings.map((item) => normalizeAsset(item, "landing_id"))
             : [],

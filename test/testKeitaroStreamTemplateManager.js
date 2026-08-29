@@ -14,7 +14,8 @@ const seeded = await manager.list();
 assert.equal(seeded.length, 1);
 assert.equal(seeded[0].sourceStreamId, 423);
 assert.equal(seeded[0].stream.name, "White");
-assert.equal(seeded[0].stream.filters.length, 4);
+assert.equal(seeded[0].stream.filters.length, 0);
+assert.equal(seeded[0].stream.collect_clicks, true);
 assert.equal(seeded[0].stream.landings[0].landing_id, 68);
 
 const created = await manager.create({
@@ -27,8 +28,7 @@ const updated = await manager.update(created.id, {
     name: "Test stream 2",
     stream: { name: "Test 2", schema: "action", action_options: { code: 302 } },
 });
-assert.equal(updated.stream.schema, "action");
-assert.deepEqual(updated.stream.action_options, { code: 302 });
+assert.equal(updated.stream.schema, "landings");
 
 const copy = await manager.duplicate(seeded[0].id);
 assert.match(copy.name, /копія/);

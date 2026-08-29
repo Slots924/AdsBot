@@ -1,86 +1,43 @@
 {
   "version": 2,
-  "nextId": 3,
+  "nextId": 9,
   "templates": [
     {
       "id": 1,
       "createdAt": "2026-08-27T18:22:36.644Z",
-      "updatedAt": "2026-08-27T19:20:38.098Z",
-      "name": "White (копія потоку 423)",
+      "updatedAt": "2026-08-29T10:23:15.309Z",
+      "name": "US(es) OFFERS",
       "sourceStreamId": 423,
       "stream": {
         "type": "regular",
-        "name": "White",
+        "name": "US(es) OFFERS",
         "comments": "",
         "state": "active",
         "schema": "landings",
-        "collect_clicks": false,
-        "filter_or": true,
+        "collect_clicks": true,
+        "filter_or": false,
         "weight": 100,
         "offer_selection": "before_click",
         "action_type": "http",
         "action_payload": "",
-        "filters": [
+        "filters": [],
+        "landings": [],
+        "offers": [
           {
-            "id": 821,
-            "stream_id": 423,
-            "name": "os",
-            "mode": "accept",
-            "payload": [
-              "Arch Linux",
-              "GNU/Linux",
-              "VectorLinux"
-            ],
-            "oid": 821
-          },
-          {
-            "id": 820,
-            "stream_id": 423,
-            "name": "bot",
-            "mode": "accept",
-            "payload": null,
-            "oid": 820
-          },
-          {
-            "id": 819,
-            "stream_id": 423,
-            "name": "country",
-            "mode": "reject",
-            "payload": [
-              "JP"
-            ],
-            "oid": 819
-          },
-          {
-            "id": 818,
-            "stream_id": 423,
-            "name": "proxy",
-            "mode": "accept",
-            "payload": null,
-            "oid": 818
-          }
-        ],
-        "landings": [
-          {
-            "id": 416,
-            "stream_id": 423,
-            "landing_id": 68,
+            "offer_id": 1779,
+            "name": "US | ES [Gentleflirt] | LP1 ES | 4.8$ | 20",
+            "groupId": "213",
             "state": "active",
-            "share": 100,
-            "created_at": "2026-02-22 10:28:09",
-            "updated_at": "2026-03-04 21:49:34",
-            "name": ""
+            "share": 100
           }
         ],
-        "offers": [],
-        "triggers": [],
-        "action_options": null
+        "triggers": []
       }
     },
     {
       "id": 2,
       "createdAt": "2026-08-27T19:18:13.323Z",
-      "updatedAt": "2026-08-28T08:25:18.590Z",
+      "updatedAt": "2026-08-28T19:49:31.108Z",
       "name": "test",
       "sourceStreamId": null,
       "stream": {
@@ -89,7 +46,7 @@
         "comments": "",
         "state": "active",
         "schema": "landings",
-        "collect_clicks": false,
+        "collect_clicks": true,
         "filter_or": false,
         "weight": 100,
         "offer_selection": "before_click",
@@ -102,7 +59,7 @@
             "name": "👩 White [LV]",
             "groupId": "87",
             "state": "active",
-            "share": 100
+            "share": 0
           }
         ],
         "offers": [
@@ -111,12 +68,429 @@
             "name": "LT [RealSexClub - CPL SOI [EE LT] WEB/MOB 45+] Low Maturity:      | 4.96€ | 50  HYITA",
             "groupId": "47",
             "state": "active",
-            "share": 100
+            "share": 0
           },
           {
             "offer_id": 1376,
             "name": "LT [RealSexClub - CPL SOI [EE LT] WEB/MOB 45+] High Maturity:    | 4.96€ | 50 HYITA",
             "groupId": "47",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1369,
+            "name": "RO | [WAP FlirtyConnects SOI] | Default | 2.00 USD | 20",
+            "groupId": "50",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1668,
+            "name": "RO | [flirtaproape] | LP1 | 1.2€ | 50",
+            "groupId": "50",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1669,
+            "name": "RO | [FlirtyConnects] | LP1 | 1.8$ | 50",
+            "groupId": "50",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1200,
+            "name": "RO | [naughtycharm] | Default | 2.00 USD | 20 OFF",
+            "groupId": "50",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1199,
+            "name": "RO | [CautJumatatea] | 63Link | 1.44 EUR | 20",
+            "groupId": "50",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "triggers": []
+      }
+    },
+    {
+      "id": 3,
+      "createdAt": "2026-08-29T08:59:00.199Z",
+      "updatedAt": "2026-08-29T08:59:00.199Z",
+      "name": "DE OFFERS",
+      "sourceStreamId": null,
+      "stream": {
+        "type": "regular",
+        "name": "DE OFFERS",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": true,
+        "filter_or": false,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [],
+        "landings": [
+          {
+            "landing_id": 142,
+            "name": "DE Modal",
+            "groupId": "167",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "offers": [
+          {
+            "offer_id": 1408,
+            "name": "DE | [DirektFlirten] | Landing110Human | 6.4€ | 50 (best sales)",
+            "groupId": "76",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1305,
+            "name": "DE | [VerborgeneFlirts] | Landing64Link | 4.80€ | 50",
+            "groupId": "76",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1302,
+            "name": "DE | [VerborgeneFlirts] | Landing110MatureHuman2 | 4.80€ | 50 (best)",
+            "groupId": "76",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1110,
+            "name": "DE | [Nachbarsmatch] | Landing110MatureHuman2 | 5.2 EUR | 100",
+            "groupId": "76",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 716,
+            "name": "DE [DirektFlirten] | Landing2milf | 7.36 € | 350(best)",
+            "groupId": "76",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 406,
+            "name": "💩SHAVE DE [110] ♦DeutscherCupid DOI / DE 100 cap 6 $",
+            "groupId": "76",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "triggers": []
+      }
+    },
+    {
+      "id": 4,
+      "createdAt": "2026-08-29T09:02:43.335Z",
+      "updatedAt": "2026-08-29T09:02:43.335Z",
+      "name": "AT OFFERS",
+      "sourceStreamId": null,
+      "stream": {
+        "type": "regular",
+        "name": "AT OFFERS",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": true,
+        "filter_or": false,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [],
+        "landings": [],
+        "offers": [
+          {
+            "offer_id": 1904,
+            "name": "AT | [Triffonline] | LP1 | 8$ | 20",
+            "groupId": "72",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1312,
+            "name": "AT | [GeheimeFantasien] | Landing2milf | 11.20€ | 100 (best)",
+            "groupId": "72",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 621,
+            "name": "AT [VersteckteLust] 63Link | 6.4€ | 100",
+            "groupId": "72",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 620,
+            "name": "AT [VersteckteLust] 5Mature | 6.4€ | 100",
+            "groupId": "72",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "triggers": []
+      }
+    },
+    {
+      "id": 5,
+      "createdAt": "2026-08-29T09:07:58.257Z",
+      "updatedAt": "2026-08-29T09:07:58.257Z",
+      "name": "HU OFFERS",
+      "sourceStreamId": null,
+      "stream": {
+        "type": "regular",
+        "name": "HU OFFERS",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": true,
+        "filter_or": false,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [],
+        "landings": [],
+        "offers": [
+          {
+            "offer_id": 1907,
+            "name": "HU | [FlortVaros] | Landing2milf | 2.72€ | 50",
+            "groupId": "70",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1384,
+            "name": "HU | [meet-n-hook] | Default | 2.4€ | 20",
+            "groupId": "70",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 615,
+            "name": "HU Global [Smart-Link] TT",
+            "groupId": "70",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 557,
+            "name": "HU [Titkosromanc] 110MatureHuman 2.8€ | 50 (chapa)",
+            "groupId": "70",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 555,
+            "name": "HU [Titkosromanc] 63Link 2.8€ | 50 (chapa) (best)",
+            "groupId": "70",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 412,
+            "name": "HU ♦408♦ FlortHely DOI / HU | 2€ | 40",
+            "groupId": "70",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "triggers": []
+      }
+    },
+    {
+      "id": 6,
+      "createdAt": "2026-08-29T09:11:50.738Z",
+      "updatedAt": "2026-08-29T09:11:50.738Z",
+      "name": "AU OFFERS",
+      "sourceStreamId": null,
+      "stream": {
+        "type": "regular",
+        "name": "AU OFFERS",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": true,
+        "filter_or": false,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [],
+        "landings": [],
+        "offers": [
+          {
+            "offer_id": 1673,
+            "name": "AU | [Findmilfs] | 9516 | 7.6€ | 50 (best)",
+            "groupId": "73",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1429,
+            "name": "AU | [MatchLocalOzzies] | LP8080NALink | 6.00€ | 70",
+            "groupId": "73",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1426,
+            "name": "AU | [MatchLocalOzzies] | LP277Link | 6.00€ | 70",
+            "groupId": "73",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1259,
+            "name": "AU | [FlirtingChatbox] | Landing110maturehuman2 | 5.20€ | 50",
+            "groupId": "73",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1258,
+            "name": "AU | [FlirtingChatbox] | Landing97mature | 5.20€ | 50",
+            "groupId": "73",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1257,
+            "name": "AU | [FlirtingChatbox] | Landing64default | 5.20€ | 50",
+            "groupId": "73",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1256,
+            "name": "AU | [FlirtingChatbox] | Landing110maturesexy | 5.20€ | 50",
+            "groupId": "73",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 697,
+            "name": "AU [AffairAndLust] LP1750 | 4,72€ | 80 (best)",
+            "groupId": "73",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "triggers": []
+      }
+    },
+    {
+      "id": 7,
+      "createdAt": "2026-08-29T09:15:42.756Z",
+      "updatedAt": "2026-08-29T09:15:42.756Z",
+      "name": "CZ OFFERS",
+      "sourceStreamId": null,
+      "stream": {
+        "type": "regular",
+        "name": "CZ OFFERS",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": true,
+        "filter_or": false,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [],
+        "landings": [],
+        "offers": [
+          {
+            "offer_id": 1914,
+            "name": "CZ | [VasnivyFlirt] | LP407 | 3.44$ | 20",
+            "groupId": "68",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1912,
+            "name": "CZ | [VasnivyFlirt] | LP110 | 3.44$ | 20",
+            "groupId": "68",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1911,
+            "name": "CZ | [VasnivyFlirt] | 1755 | 3.44$ | 20",
+            "groupId": "68",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1824,
+            "name": "CZ | ⛓ [CasualDatingNEW] ONE | Medium | 3.5 | 60",
+            "groupId": "68",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1520,
+            "name": "CZ | [HolkyOdVedle] | Landing2Milf | 2.8€ | 100",
+            "groupId": "68",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 772,
+            "name": "💩SHAVE CZ [HolkyOdVedle ] 63Mature | 2.8€ | 100",
+            "groupId": "68",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "triggers": []
+      }
+    },
+    {
+      "id": 8,
+      "createdAt": "2026-08-29T10:21:57.581Z",
+      "updatedAt": "2026-08-29T10:21:57.581Z",
+      "name": "US OFFERS",
+      "sourceStreamId": null,
+      "stream": {
+        "type": "regular",
+        "name": "US OFFERS",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": true,
+        "filter_or": false,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [],
+        "landings": [],
+        "offers": [
+          {
+            "offer_id": 1490,
+            "name": "US CA AU 45+ | [Secretspotdating] | Default | 7.80 USD | 20",
+            "groupId": "115",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1488,
+            "name": "US CA AU 45+ | [Flirtfordate] | LP208 | 9.4 USD | 20 (best)",
+            "groupId": "115",
             "state": "active",
             "share": 100
           }

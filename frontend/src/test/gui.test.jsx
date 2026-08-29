@@ -984,8 +984,7 @@ describe("GUI helpers", () => {
         fireEvent.click(screen.getByRole("button", { name: "Шаблони потоків" }));
         expect(await screen.findByText("White (копія потоку 423)")).toBeInTheDocument();
         expect(window.adsBot.getKeitaroAssetGroups).not.toHaveBeenCalled();
-        fireEvent.click(screen.getByRole("button", { name: /Редагувати/ }));
-        fireEvent.click(screen.getByRole("button", { name: /Схема/ }));
+        fireEvent.click(screen.getByText("White (копія потоку 423)"));
         fireEvent.click(screen.getByRole("button", { name: "Додати лендінги" }));
         expect(await screen.findByRole("dialog", { name: "Вибір лендінгів" })).toBeInTheDocument();
         expect(window.adsBot.getKeitaroAssetGroups).toHaveBeenCalledWith("landings");
