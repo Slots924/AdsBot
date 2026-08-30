@@ -163,6 +163,9 @@ contextBridge.exposeInMainWorld("adsBot", {
     getKeitaroOffers: (options) => ipcRenderer.invoke("keitaro:offers-list", options),
     getKeitaroAssetGroups: (kind) => ipcRenderer.invoke("keitaro:asset-groups-list", { kind }),
     getKeitaroCountries: () => ipcRenderer.invoke("keitaro:countries-list"),
+    getKeitaroDomains: () => ipcRenderer.invoke("keitaro:domains-list"),
+    getKeitaroTrafficSources: () => ipcRenderer.invoke("keitaro:traffic-sources-list"),
+    createKeitaroCampaign: (payload) => ipcRenderer.invoke("keitaro:campaign-create", payload),
     getKeitaroStreamTemplates: () =>
         ipcRenderer.invoke("keitaro-stream-templates:list"),
     createKeitaroStreamTemplate: (payload) =>
@@ -175,6 +178,10 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("keitaro-stream-templates:delete", { id }),
     applyKeitaroStreamTemplate: (payload) =>
         ipcRenderer.invoke("keitaro-stream-templates:apply", payload),
+    getKeitaroCampaignSettings: () =>
+        ipcRenderer.invoke("keitaro-campaign-settings:get"),
+    saveKeitaroCampaignSettings: (payload) =>
+        ipcRenderer.invoke("keitaro-campaign-settings:save", payload),
     loadAppState: () => ipcRenderer.invoke("state:load"),
     saveAppState: (state) => ipcRenderer.invoke("state:save", state),
     setUiScale: (scale) => ipcRenderer.invoke("app:set-zoom", { scale }),

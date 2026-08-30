@@ -123,8 +123,9 @@ export default function registerIpcHandlers({
     refreshProxyIpFn = refreshProxyIp,
     logger,
     reportManager,
-    keitaroGuiService,
-    keitaroStreamTemplateManager,
+        keitaroGuiService,
+        keitaroStreamTemplateManager,
+        keitaroCampaignSettingsManager,
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
@@ -1680,6 +1681,14 @@ export default function registerIpcHandlers({
         safeHandler(() => keitaroGuiService.listCountries())
     );
     ipcMain.handle(
+        "keitaro:domains-list",
+        safeHandler(() => keitaroGuiService.listDomains())
+    );
+    ipcMain.handle(
+        "keitaro:traffic-sources-list",
+        safeHandler(() => keitaroGuiService.listTrafficSources())
+    );
+    ipcMain.handle(
         "keitaro-stream-templates:list",
         safeHandler(() => keitaroStreamTemplateManager.list())
     );
@@ -1708,6 +1717,26 @@ export default function registerIpcHandlers({
                 stream: template.stream,
                 mode,
                 replacePosition,
+            });
+        })
+    );
+    ipcMain.handle(
+        "keitaro-campaign-settings:get",
+        safeHandler(() => keitaroCampaignSettingsManager.get())
+    );
+    ipcMain.handle(
+        "keitaro-campaign-settings:save",
+        safeHandler((payload) => keitaroCampaignSettingsManager.save(payload))
+    );
+    ipcMain.handle(
+        "keitaro:campaign-create",
+        safeHandler(async ({ streamTemplateId, ...payload }) => {
+            const streamTemplate = streamTemplateId
+                ? await keitaroStreamTemplateManager.get(streamTemplateId)
+                : null;
+            return keitaroGuiService.createCampaignWithWhiteStream({
+                ...payload,
+                streamTemplate,
             });
         })
     );

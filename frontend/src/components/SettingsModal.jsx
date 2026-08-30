@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
     ChevronDown,
@@ -17,6 +17,7 @@ import {
 import { errorDetails, unwrap } from "../lib/api.js";
 
 import WorkerProxyPicker from "./WorkerProxyPicker.jsx";
+import KeitaroCampaignSettings from "./KeitaroCampaignSettings.jsx";
 
 
 const minimumScale = 80;
@@ -63,6 +64,7 @@ export default function SettingsModal({
     onCheckProxyConfig,
     onRefreshProxyIp,
     onError = () => {},
+    showToast,
     keitaroAvailableGroupIds = [],
     onKeitaroAvailableGroupIdsChange = () => {},
     keitaroConcurrency = 20,
@@ -74,6 +76,7 @@ export default function SettingsModal({
     const [keitaroGroupsOpen, setKeitaroGroupsOpen] = useState(true);
     const [keitaroGroups, setKeitaroGroups] = useState([]);
     const [keitaroGroupsLoading, setKeitaroGroupsLoading] = useState(false);
+    const settingsBodyRef = useRef(null);
     const percentage = Math.round(scale * 100);
     const change = (nextPercentage) => {
         const normalized = Math.min(
@@ -82,6 +85,9 @@ export default function SettingsModal({
         );
         onScaleChange(normalized / 100);
     };
+    useEffect(() => {
+        settingsBodyRef.current?.scrollTo?.({ top: 0 });
+    }, [tab]);
     useEffect(() => {
         if (tab !== "keitaro") return undefined;
         let cancelled = false;
@@ -177,7 +183,7 @@ export default function SettingsModal({
                             <ListChecks size={15} /> Keitaro
                         </button>
                     </nav>
-                    <div className="settings-body">
+                    <div className="settings-body" ref={settingsBodyRef}>
                         {tab === "general" && (
                             <>
                                 <p>Зміни застосовуються одразу та зберігаються після закриття програми.</p>
@@ -452,6 +458,10 @@ export default function SettingsModal({
                                         </div>
                                     )}
                                 </section>
+                                <KeitaroCampaignSettings
+                                    onError={onError}
+                                    showToast={showToast}
+                                />
                             </>
                         )}
 

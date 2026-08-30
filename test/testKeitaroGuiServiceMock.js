@@ -127,4 +127,58 @@ assert.deepEqual((await service.listLandingPages({ groupId: "41" })).map((item) 
 assert.deepEqual((await service.listLandingPages({ groupId: "all" })).map((item) => item.id), ["68", "69"]);
 assert.equal(keitaro.landingCalls, 1);
 
+let campaignPayload = null;
+const createdStreams = [];
+keitaro.getStream = async (id) => {
+    assert.equal(id, 774);
+    return {
+        id: 774,
+        campaign_id: 99,
+        name: "Source",
+        filters: [{ id: 1, name: "country", mode: "accept", payload: ["DE"] }],
+        landings: [{ id: 5, landing_id: 68, share: 100, state: "active" }],
+        offers: [],
+    };
+};
+keitaro.getTrafficSource = async () => ({
+    parameters: {
+        sub_id_6: { name: "sub_id_6", placeholder: "", alias: "Pixel ID" },
+        sub_id_12: { name: "sub_id_12", placeholder: "", alias: "CAPI token" },
+    },
+});
+keitaro.createCampaign = async (payload) => {
+    campaignPayload = payload;
+    return { id: 42 };
+};
+keitaro.createStream = async (payload) => {
+    createdStreams.push(payload);
+    return { id: createdStreams.length };
+};
+await service.createCampaignWithWhiteStream({
+    name: "AT [001_W] Pixel_935",
+    groupId: "7",
+    domainId: "8",
+    trafficSourceId: "9",
+    pixelId: "935",
+    pixelToken: "public-token",
+    geo: "AT",
+    excludedCountries: ["DE"],
+    landingIds: ["123"],
+    identifier: "AJ001T",
+    streamTemplate: { stream: { name: "Second", landings: [], offers: [], filters: [] } },
+});
+assert.equal(campaignPayload.parameters.sub_id_6.placeholder, "935");
+assert.equal(campaignPayload.parameters.sub_id_12.placeholder, "public-token");
+assert.equal(campaignPayload.parameters.sub_id_6.alias, "Pixel ID");
+assert.equal(campaignPayload.parameters.sub_id_12.alias, "CAPI token");
+assert.equal(campaignPayload.alias, "AJ001T");
+assert.equal(createdStreams.length, 2);
+assert.equal(createdStreams[0].position, 1);
+assert.equal(createdStreams[0].name, "White");
+assert.equal(createdStreams[0].comments, "AJ001T");
+assert.deepEqual(createdStreams[0].filters.at(-1), {
+    name: "country", mode: "reject", payload: ["AT", "DE"],
+});
+assert.equal(createdStreams[1].position, 2);
+
 console.log("Перевірка Keitaro GUI-сервісу пройшла успішно");

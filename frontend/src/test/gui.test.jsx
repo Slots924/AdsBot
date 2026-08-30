@@ -36,6 +36,14 @@ describe("GUI helpers", () => {
             getLogScopes: vi.fn().mockResolvedValue({ ok: true, data: [] }),
             getReports: vi.fn().mockResolvedValue({ ok: true, data: [] }),
             getKeitaroCountries: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+            getKeitaroDomains: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+            getKeitaroCampaignSettings: vi.fn().mockResolvedValue({
+                ok: true,
+                data: { pixels: [], defaultPixelId: "", domainsByGeo: {} },
+            }),
+            saveKeitaroCampaignSettings: vi.fn().mockImplementation((payload) => (
+                Promise.resolve({ ok: true, data: payload })
+            )),
         };
     });
 
@@ -927,18 +935,17 @@ describe("GUI helpers", () => {
         expect(screen.getByText("Beta")).toBeInTheDocument();
         fireEvent.click(screen.getByLabelText("Вибрати кампанію Beta"));
         expect(screen.getByText("Вибрано: 1")).toBeInTheDocument();
-        fireEvent.click(screen.getByRole("button", { name: "Додати шаблон" }));
-        expect(await screen.findByRole("dialog", { name: "Додати шаблон до кампаній" })).toBeInTheDocument();
-        fireEvent.change(screen.getByText("Додати потік").closest("select"), {
-            target: { value: "replace" },
-        });
+        fireEvent.click(screen.getByRole("button", { name: "Застосувати шаблон" }));
+        expect(await screen.findByRole("dialog", { name: "Застосувати шаблон до кампаній" })).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Шаблон потоку" }));
+        fireEvent.click(await screen.findByRole("button", { name: /White 423/ }));
         expect(screen.getByText("Номер потоку в кампанії")).toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: "Застосувати" }));
         await waitFor(() => expect(window.adsBot.applyKeitaroStreamTemplate).toHaveBeenCalledWith({
             templateId: 1,
             campaignIds: ["2"],
             mode: "replace",
-            replacePosition: 1,
+            replacePosition: 2,
         }));
         expect(screen.getByLabelText("Кампаній на сторінці")).toHaveValue("50");
     });
@@ -1030,6 +1037,8 @@ describe("GUI helpers", () => {
         fireEvent.click(screen.getByRole("button", { name: /Keitaro/ }));
         expect(screen.getByLabelText("Одночасні запити до Keitaro")).toHaveValue("20");
         expect(await screen.findByText("Nutra")).toBeInTheDocument();
+        expect(await screen.findByRole("heading", { name: "Пікселі" })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Домени за GEO" })).toBeInTheDocument();
         fireEvent.click(screen.getByRole("checkbox", { name: /Nutra/ }));
         expect(onKeitaroAvailableGroupIdsChange).toHaveBeenCalledWith(["10"]);
     });

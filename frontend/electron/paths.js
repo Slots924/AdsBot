@@ -22,6 +22,10 @@ export const appPaths = {
         projectRoot,
         "data/keitaro-stream-templates.json"
     ),
+    keitaroCampaignSettings: path.join(
+        projectRoot,
+        "data/keitaro-campaign-settings.json"
+    ),
     campaignCreationJobs: path.join(
         projectRoot,
         "data/campaign-creation-jobs.json"

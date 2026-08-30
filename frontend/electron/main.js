@@ -31,6 +31,7 @@ import FacebookAccountManager
     from "../../facebook/accounts/FacebookAccountManager.js";
 import ProxyManager from "../../services/proxy/ProxyManager.js";
 import KeitaroGuiService from "../../services/keitaro/KeitaroGuiService.js";
+import KeitaroCampaignSettingsManager from "../../services/keitaro/KeitaroCampaignSettingsManager.js";
 import KeitaroStreamTemplateManager from "../../services/keitaro/KeitaroStreamTemplateManager.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
@@ -209,7 +210,11 @@ async function createWindow() {
     const keitaroStreamTemplateManager = new KeitaroStreamTemplateManager({
         templatesFile: appPaths.keitaroStreamTemplates,
     });
+    const keitaroCampaignSettingsManager = new KeitaroCampaignSettingsManager({
+        settingsFile: appPaths.keitaroCampaignSettings,
+    });
     await keitaroStreamTemplateManager.list();
+    await keitaroCampaignSettingsManager.get();
 
     registerIpcHandlers({
         ipcMain,
@@ -218,6 +223,7 @@ async function createWindow() {
         guiService,
         keitaroGuiService,
         keitaroStreamTemplateManager,
+        keitaroCampaignSettingsManager,
         templateManager,
         appStateStore,
         adAccountPreferencesStore,

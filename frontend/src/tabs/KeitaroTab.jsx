@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import SearchSelect from "../components/SearchSelect.jsx";
+import KeitaroCampaignCreateModal from "../components/KeitaroCampaignCreateModal.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import {
     formatKeitaroValue,
@@ -81,6 +82,7 @@ export default function KeitaroTab({
     const [page, setPage] = useState(1);
     const [gearOpen, setGearOpen] = useState(false);
     const [templateModalOpen, setTemplateModalOpen] = useState(false);
+    const [campaignCreateOpen, setCampaignCreateOpen] = useState(false);
     const requestSequence = useRef(0);
     const gearRef = useRef(null);
     const dragColumn = useRef("");
@@ -299,6 +301,7 @@ export default function KeitaroTab({
                     <h1>Keitaro</h1>
                     <p>Кампанії з кліками, конверсіями та доходом за вибраний період.</p>
                 </div>
+                <button type="button" className="primary-button" onClick={() => setCampaignCreateOpen(true)}><Plus size={16} /> Створити кампанію</button>
             </div>
 
             <div className="keitaro-toolbar">
@@ -385,7 +388,7 @@ export default function KeitaroTab({
                     disabled={selectedIds.length === 0}
                     onClick={() => setTemplateModalOpen(true)}
                 >
-                    <Plus size={15} /> Додати шаблон
+                    <Plus size={15} /> Застосувати шаблон
                 </button>
                 {groupsLoading && <small>Оновлюємо групи…</small>}
             </div>
@@ -555,6 +558,7 @@ export default function KeitaroTab({
                     showToast={showToast}
                 />
             )}
+            {campaignCreateOpen && <KeitaroCampaignCreateModal onClose={() => setCampaignCreateOpen(false)} onError={onError} showToast={showToast} onCreated={() => loadCampaigns(true)} />}
         </motion.section>
     );
 }
@@ -563,16 +567,21 @@ export default function KeitaroTab({
 function ApplyStreamTemplateModal({ campaignIds, onClose, onError, showToast }) {
     const [templates, setTemplates] = useState([]);
     const [templateId, setTemplateId] = useState("");
-    const [mode, setMode] = useState("add");
-    const [replacePosition, setReplacePosition] = useState(1);
+    const [mode, setMode] = useState("replace");
+    const [replacePosition, setReplacePosition] = useState(2);
     const [loading, setLoading] = useState(true);
     const [applying, setApplying] = useState(false);
 
     useEffect(() => {
         unwrap(window.adsBot.getKeitaroStreamTemplates())
             .then((items) => {
-                setTemplates(items ?? []);
-                setTemplateId(String(items?.[0]?.id ?? ""));
+                const sorted = [...(items ?? [])].sort((left, right) => (
+                    String(left.name ?? "").localeCompare(String(right.name ?? ""), "uk-UA", {
+                        numeric: true,
+                        sensitivity: "base",
+                    })
+                ));
+                setTemplates(sorted);
             })
             .catch((error) => onError({
                 ...errorDetails(error),
@@ -611,11 +620,11 @@ function ApplyStreamTemplateModal({ campaignIds, onClose, onError, showToast }) 
     };
 
     return (
-        <div className="stream-editor-overlay" role="dialog" aria-modal="true" aria-label="Додати шаблон до кампаній">
+        <div className="stream-editor-overlay" role="dialog" aria-modal="true" aria-label="Застосувати шаблон до кампаній">
             <div className="apply-stream-modal">
-                <header><div><h2>Додати шаблон</h2><p>Вибрано кампаній: {campaignIds.length}</p></div><button type="button" className="icon-button" onClick={onClose}><X size={18} /></button></header>
+                <header><div><h2>Застосувати шаблон</h2><p>Вибрано кампаній: {campaignIds.length}</p></div><button type="button" className="icon-button" onClick={onClose}><X size={18} /></button></header>
                 <div className="apply-stream-body">
-                    <label className="stream-field"><span>Шаблон потоку</span><select value={templateId} disabled={loading} onChange={(event) => setTemplateId(event.target.value)}><option value="">Оберіть шаблон</option>{templates.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+                    <label className="stream-field"><span>Шаблон потоку</span><SearchSelect items={templates} value={templateId} onChange={(value) => setTemplateId(String(value))} getId={(item) => item.id} getTitle={(item) => item.name} getSubtitle={(item) => `ID ${item.id}`} placeholder="Оберіть шаблон" searchPlaceholder="Пошук шаблону…" emptyText="Шаблонів не знайдено" ariaLabel="Шаблон потоку" disabled={loading} /></label>
                     <label className="stream-field"><span>Що зробити</span><select value={mode} onChange={(event) => setMode(event.target.value)}><option value="add">Додати потік</option><option value="replace">Замінити потік у вибраних кампаніях</option></select></label>
                     {mode === "replace" && <label className="stream-field replace-position"><span>Номер потоку в кампанії</span><input type="number" min="1" step="1" value={replacePosition} onChange={(event) => setReplacePosition(event.target.value)} /><small>Наприклад, 1 — перший потік у кожній вибраній кампанії. Його позиція збережеться.</small></label>}
                     {mode === "replace" && <div className="stream-warning">Параметри потоку з цим номером будуть замінені даними шаблону в кожній вибраній кампанії.</div>}

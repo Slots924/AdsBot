@@ -61,6 +61,14 @@ function extractErrorMessage(error) {
     if (typeof payload?.message === "string" && payload.message.trim()) {
         return payload.message.trim();
     }
+    if (payload && typeof payload === "object") {
+        const details = Object.entries(payload)
+            .flatMap(([field, messages]) => (Array.isArray(messages) ? messages : [messages])
+                .filter((message) => typeof message === "string" && message.trim())
+                .map((message) => `${field}: ${message.trim()}`))
+            .join("; ");
+        if (details) return details.slice(0, 2000);
+    }
     return error?.message || "Невідома помилка Keitaro";
 }
 

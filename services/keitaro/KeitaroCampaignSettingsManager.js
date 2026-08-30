@@ -1,0 +1,81 @@
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import path from "node:path";
+
+
+function normalizePixel(value = {}) {
+    const id = String(value.id ?? crypto.randomUUID()).trim();
+    const name = String(value.name ?? "").trim();
+    const pixelId = String(value.pixelId ?? value.pixel_id ?? "").trim();
+    const token = String(value.token ?? "").trim();
+    if (!name || !pixelId || !token) {
+        throw new Error("Для пікселя потрібні назва, ID і токен");
+    }
+    return { id, name, pixelId, token };
+}
+
+
+function normalizeStore(value = {}) {
+    const pixels = Array.isArray(value.pixels)
+        ? value.pixels.map(normalizePixel)
+        : [];
+    const ids = new Set(pixels.map((pixel) => pixel.id));
+    const domainsByGeo = Object.fromEntries(Object.entries(value.domainsByGeo ?? {})
+        .map(([geo, domainIds]) => [
+            String(geo).trim().toUpperCase(),
+            [...new Set((Array.isArray(domainIds) ? domainIds : [])
+                .map((id) => String(id).trim()).filter(Boolean))].slice(0, 1),
+        ])
+        .filter(([geo, domainIds]) => geo && domainIds.length));
+    return {
+        pixels,
+        defaultPixelId: ids.has(String(value.defaultPixelId ?? ""))
+            ? String(value.defaultPixelId)
+            : (pixels[0]?.id ?? ""),
+        domainsByGeo,
+    };
+}
+
+
+export default class KeitaroCampaignSettingsManager {
+    #operation = Promise.resolve();
+
+    constructor({ settingsFile = "./data/keitaro-campaign-settings.json" } = {}) {
+        this.settingsFile = settingsFile;
+    }
+
+    get() {
+        return this.#enqueue(async () => structuredClone(await this.#read()));
+    }
+
+    save(value) {
+        return this.#enqueue(async () => {
+            const store = normalizeStore(value);
+            await this.#write(store);
+            return structuredClone(store);
+        });
+    }
+
+    #enqueue(operation) {
+        const result = this.#operation.then(operation, operation);
+        this.#operation = result.catch(() => {});
+        return result;
+    }
+
+    async #read() {
+        try {
+            return normalizeStore(JSON.parse(await readFile(this.settingsFile, "utf8")));
+        } catch (error) {
+            if (error.code !== "ENOENT") throw error;
+            const store = normalizeStore();
+            await this.#write(store);
+            return store;
+        }
+    }
+
+    async #write(store) {
+        await mkdir(path.dirname(this.settingsFile), { recursive: true });
+        const temporary = `${this.settingsFile}.tmp`;
+        await writeFile(temporary, `${JSON.stringify(store, null, 2)}\n`, "utf8");
+        await rename(temporary, this.settingsFile);
+    }
+}

@@ -77,6 +77,66 @@ function formatGroup(group) {
 }
 
 
+function copyStreamForCampaign(stream = {}) {
+    const copy = structuredClone(stream);
+    for (const key of [
+        "id", "campaign_id", "campaignId", "position", "created_at",
+        "updated_at", "is_monitoring", "monitoring_url",
+    ]) delete copy[key];
+    copy.landings = normalizeList(copy.landings).map((item) => ({
+        landing_id: Number(item?.landing_id ?? item?.id),
+        share: Number(item?.share) || 100,
+        state: item?.state === "disabled" ? "disabled" : "active",
+    })).filter((item) => Number.isInteger(item.landing_id) && item.landing_id > 0);
+    copy.offers = normalizeList(copy.offers).map((item) => ({
+        offer_id: Number(item?.offer_id ?? item?.id),
+        share: Number(item?.share) || 100,
+        state: item?.state === "disabled" ? "disabled" : "active",
+    })).filter((item) => Number.isInteger(item.offer_id) && item.offer_id > 0);
+    copy.filters = normalizeList(copy.filters).map((item) => {
+        const filter = structuredClone(item);
+        for (const key of ["id", "stream_id", "oid", "created_at", "updated_at"]) delete filter[key];
+        return filter;
+    });
+    return copy;
+}
+
+
+function withCapiPixelParameters(source, pixelId, token) {
+    const parameters = structuredClone(source ?? {});
+    if (Array.isArray(parameters)) {
+        const set = (name, value) => {
+            const item = parameters.find((entry) => String(entry?.name ?? entry?.key) === name);
+            if (item) item.value = value;
+            else parameters.push({ name, value });
+        };
+        set("sub_id_6", pixelId);
+        set("sub_id_12", token);
+        return parameters;
+    }
+    const setPlaceholder = (name, placeholder) => {
+        const current = parameters[name];
+        if (current && typeof current === "object" && !Array.isArray(current)) {
+            current.placeholder = placeholder;
+            return;
+        }
+        parameters[name] = { name, placeholder, alias: "" };
+    };
+    setPlaceholder("sub_id_6", pixelId);
+    setPlaceholder("sub_id_12", token);
+    return parameters;
+}
+
+
+function campaignAlias(identifier) {
+    const value = String(identifier ?? "")
+        .replace(/[^a-zA-Z0-9_-]+/g, "-")
+        .replace(/[-_]{2,}/g, "-")
+        .replace(/^[-_]+|[-_]+$/g, "");
+    return value.slice(0, 100);
+}
+
+
 export default class KeitaroGuiService {
     constructor({ keitaro, keitaroFactory, countryCatalog } = {}) {
         this.keitaro = keitaro ?? (keitaroFactory ? keitaroFactory() : new Keitaro());
@@ -127,6 +187,80 @@ export default class KeitaroGuiService {
         const type = kind === "offers" ? "offers" : "landings";
         const groups = await this.keitaro.listAllGroups({ type });
         return groups.map(formatGroup).filter((group) => group.id);
+    }
+
+    async listDomains() {
+        return (await this.keitaro.listAllDomains())
+            .map((item) => ({
+                id: String(item?.id ?? "").trim(),
+                name: String(item?.name ?? item?.domain ?? "").trim()
+                    || "Без назви",
+            }))
+            .filter((item) => item.id)
+            .sort((left, right) => left.name.localeCompare(right.name, "uk-UA", {
+                numeric: true,
+                sensitivity: "base",
+            }));
+    }
+
+    async listTrafficSources() {
+        return (await this.keitaro.listAllTrafficSources())
+            .map((item) => ({ id: String(item?.id ?? "").trim(), name: String(item?.name ?? "").trim() || "Без назви" }))
+            .filter((item) => item.id)
+            .sort((left, right) => left.name.localeCompare(right.name, "uk-UA", { numeric: true, sensitivity: "base" }));
+    }
+
+    async createCampaignWithWhiteStream({
+        name,
+        groupId,
+        domainId,
+        trafficSourceId,
+        pixelId,
+        pixelToken,
+        geo,
+        excludedCountries = [],
+        landingIds = [],
+        identifier = "",
+        streamTemplate = null,
+    } = {}) {
+        if (!name || !groupId || !domainId || !trafficSourceId || !pixelId || !pixelToken || !geo) {
+            throw new Error("Заповніть назву, групу, домен, GEO, піксель і джерело трафіку");
+        }
+        const [source, trafficSource] = await Promise.all([
+            this.keitaro.getStream(774),
+            this.keitaro.getTrafficSource(trafficSourceId),
+        ]);
+        const campaign = await this.keitaro.createCampaign({
+            name: String(name).trim(),
+            alias: campaignAlias(identifier),
+            group_id: Number(groupId),
+            domain_id: Number(domainId),
+            traffic_source_id: Number(trafficSourceId),
+            state: "active",
+            parameters: withCapiPixelParameters(trafficSource?.parameters, pixelId, pixelToken),
+        });
+        const campaignId = Number(campaign?.id ?? campaign?.campaign?.id);
+        if (!Number.isInteger(campaignId) || campaignId < 1) {
+            throw new Error("Keitaro не повернув ID створеної кампанії");
+        }
+        const countries = [...new Set([geo, ...excludedCountries].map((item) => String(item).trim().toUpperCase()).filter(Boolean))];
+        const white = copyStreamForCampaign(source);
+        white.name = "White";
+        white.comments = String(identifier).trim();
+        white.position = 1;
+        white.landings = landingIds.map((id) => ({ landing_id: Number(id), share: 100, state: "active" }))
+            .filter((item) => Number.isInteger(item.landing_id) && item.landing_id > 0);
+        white.filters = white.filters.filter((item) => item.name !== "country");
+        white.filters.push({ name: "country", mode: "reject", payload: countries });
+        const whiteStream = await this.keitaro.createStream({ ...white, campaign_id: campaignId });
+        let templateStream = null;
+        if (streamTemplate?.stream) {
+            const template = copyStreamForCampaign(streamTemplate.stream);
+            template.position = 2;
+            templateStream = await this.keitaro.createStream({ ...template, campaign_id: campaignId });
+        }
+        this.campaignsCache = null;
+        return { campaign, whiteStream, templateStream };
     }
 
 
