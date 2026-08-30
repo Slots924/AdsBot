@@ -132,7 +132,7 @@ try {
     assert.deepEqual(calls.upload, ["post-1.jpg", "post-2.jpg"]);
     assert.equal(calls.publish.filter((id) => id === "photo-post-1.jpg").length, 1);
     assert.equal(calls.publish.filter((id) => id === "photo-post-2.jpg").length, 2);
-    assert.deepEqual(new Set(calls.hide), new Set(["10_avatar", "10_cover"]));
+    assert.deepEqual(calls.hide, []);
     assert.deepEqual(new Set(calls.delete), new Set(["old-photo", "10_old"]));
 
     const journalText = await readFile(jobsFile, "utf8");

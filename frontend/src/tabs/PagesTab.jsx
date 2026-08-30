@@ -136,7 +136,7 @@ function PageRebuildModal({
     onError,
 }) {
     const [requirements, setRequirements] = useState(null);
-    const [imagesDirectory, setImagesDirectory] = useState("");
+    const [imagePaths, setImagePaths] = useState([]);
     const [pageCreatedAt, setPageCreatedAt] = useState("");
     const [confirmed, setConfirmed] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -160,12 +160,12 @@ function PageRebuildModal({
         };
     }, [accountKey, page.id, onError]);
 
-    const chooseFolder = async () => {
+    const chooseImages = async () => {
         try {
             const selected = await unwrap(
-                window.adsBot.selectPageRebuildFolder()
+                window.adsBot.selectPageRebuildImages()
             );
-            if (selected) setImagesDirectory(selected);
+            if (selected?.length) setImagePaths(selected);
         } catch (error) {
             onError(errorDetails(error));
         }
@@ -177,7 +177,7 @@ function PageRebuildModal({
             const result = await unwrap(window.adsBot.startPageRebuild({
                 accountKey,
                 pageId: page.id,
-                imagesDirectory,
+                imagePaths,
                 ...(requirements?.requiresPageCreatedAt
                     ? { pageCreatedAt }
                     : {}),
@@ -191,7 +191,7 @@ function PageRebuildModal({
     };
     const canSubmit = Boolean(
         requirements
-        && imagesDirectory
+        && imagePaths.length >= 3
         && confirmed
         && (!requirements.requiresPageCreatedAt || pageCreatedAt)
     );
@@ -232,13 +232,14 @@ function PageRebuildModal({
                     <div className="page-rebuild-folder-row">
                         <input
                             readOnly
-                            value={imagesDirectory}
+                            value={imagePaths.map((file) => file.split(/[\\/]/).pop()).join(", ")}
+                            title={imagePaths.join("\n")}
                             placeholder="Папку не вибрано"
                         />
                         <button
                             type="button"
                             className="secondary-button"
-                            onClick={chooseFolder}
+                            onClick={chooseImages}
                             disabled={saving}
                         >
                             <FolderOpen size={16} />

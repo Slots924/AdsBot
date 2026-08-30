@@ -5,13 +5,11 @@ import path from "node:path";
 import loadImageFromPath from "../images/loadImageFromPath.js";
 import readImageDimensions from "../images/readImageDimensions.js";
 
-
 function createPreparationError(message, code = "PAGE_REBUILD_FOLDER_INVALID") {
     const error = new Error(message);
     error.code = code;
     return error;
 }
-
 
 const compareNames = (left, right) => left.filename.localeCompare(
     right.filename,
@@ -19,32 +17,18 @@ const compareNames = (left, right) => left.filename.localeCompare(
     { numeric: true, sensitivity: "base" }
 );
 
-
 function roleMarker(filename, marker) {
     const stem = path.basename(filename, path.extname(filename));
     return new RegExp(`^${marker}(?:$|[ _.-])`).test(stem);
 }
 
-
 function isAvatarCandidate(image) {
-    if (!image.dimensions) return false;
-    const ratio = image.dimensions.width / image.dimensions.height;
-    return image.dimensions.width >= 320
-        && image.dimensions.height >= 320
-        && ratio >= 0.8
-        && ratio <= 1.25;
+    return image.dimensions?.width >= 320 && image.dimensions?.height >= 320;
 }
-
 
 function isCoverCandidate(image) {
-    if (!image.dimensions) return false;
-    const ratio = image.dimensions.width / image.dimensions.height;
-    return image.dimensions.width >= 820
-        && image.dimensions.height >= 312
-        && ratio >= 2.2
-        && ratio <= 3;
+    return image.dimensions?.width >= 820 && image.dimensions?.height >= 312;
 }
-
 
 function chooseRolePair(images, random) {
     const avatars = images.filter(isAvatarCandidate);
@@ -59,7 +43,7 @@ function chooseRolePair(images, random) {
         })));
     if (!pairs.length) {
         throw createPreparationError(
-            "У папці немає окремих придатних фотографій для avatar і cover",
+            "У вибраних файлах немає окремих фото потрібного мінімального розміру для avatar і cover",
             "PAGE_REBUILD_ROLE_IMAGES_MISSING"
         );
     }
@@ -68,35 +52,37 @@ function chooseRolePair(images, random) {
     return bestPairs[Math.floor(random() * bestPairs.length)];
 }
 
-
-/** Перевіряє папку і формує незмінний план використання її зображень. */
+/** Перевіряє вибрані файли й формує незмінний план пересетаплення. */
 export default async function preparePageRebuild({
     imagesDirectory,
+    imagePaths = [],
     imageLoader = loadImageFromPath,
     random = Math.random,
 } = {}) {
-    const directory = path.resolve(String(imagesDirectory ?? "").trim());
-    if (!String(imagesDirectory ?? "").trim()) {
-        throw createPreparationError("Не вказано папку із фотографіями");
-    }
-
-    let entries;
-    try {
-        entries = await readdir(directory, { withFileTypes: true });
-    } catch {
-        throw createPreparationError("Не вдалося прочитати папку із фотографіями");
-    }
-
     const supportedExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
-    const files = entries
-        .filter((entry) => entry.isFile())
-        .filter((entry) => supportedExtensions.has(
-            path.extname(entry.name).toLowerCase()
-        ))
-        .map((entry) => path.join(directory, entry.name));
+    const selectedPaths = [...new Set((Array.isArray(imagePaths) ? imagePaths : [])
+        .map((file) => String(file ?? "").trim()).filter(Boolean))]
+        .filter((file) => supportedExtensions.has(path.extname(file).toLowerCase()));
+    let files = selectedPaths;
+    const directoryInput = String(imagesDirectory ?? "").trim();
+    if (!files.length) {
+        if (!directoryInput) {
+            throw createPreparationError("Не вибрано фотографії для пересетаплення");
+        }
+        const directory = path.resolve(directoryInput);
+        let entries;
+        try {
+            entries = await readdir(directory, { withFileTypes: true });
+        } catch {
+            throw createPreparationError("Не вдалося прочитати папку з фотографіями");
+        }
+        files = entries.filter((entry) => entry.isFile())
+            .filter((entry) => supportedExtensions.has(path.extname(entry.name).toLowerCase()))
+            .map((entry) => path.join(directory, entry.name));
+    }
     if (files.length < 3) {
         throw createPreparationError(
-            "У папці має бути щонайменше три зображення: avatar, cover і один пост",
+            "Потрібно вибрати щонайменше три зображення: avatar, cover і один пост",
             "PAGE_REBUILD_IMAGES_MISSING"
         );
     }
@@ -118,25 +104,23 @@ export default async function preparePageRebuild({
         });
     }
     images.sort(compareNames);
-
     const { avatar, cover } = chooseRolePair(images, random);
     const posts = images.filter((image) => (
-        image.absolutePath !== avatar.absolutePath
-        && image.absolutePath !== cover.absolutePath
+        image.absolutePath !== avatar.absolutePath && image.absolutePath !== cover.absolutePath
     ));
     if (!posts.length) {
         throw createPreparationError(
-            "Після вибору avatar і cover не залишилося фотографій для постів",
+            "Після вибору avatar і cover не залишилося фото для постів",
             "PAGE_REBUILD_POST_IMAGES_MISSING"
         );
     }
     const fingerprint = createHash("sha256").update(JSON.stringify(
         images.map(({ filename, size, digest }) => ({ filename, size, digest }))
     )).digest("hex");
-
     const safeImage = ({ digest: _digest, ...image }) => image;
     return {
-        imagesDirectory: directory,
+        imagesDirectory: directoryInput ? path.resolve(directoryInput) : null,
+        imagePaths: files.map((file) => path.resolve(file)),
         fingerprint,
         avatar: safeImage(avatar),
         cover: safeImage(cover),

@@ -1,0 +1,221 @@
+{
+  "title": "Діагностичний тест Facebook Page API",
+  "accountKey": "fp_hub",
+  "pageId": "122454390947141",
+  "imagesDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Other",
+  "operation": "all",
+  "startedAt": "2026-08-30T18:18:29.343Z",
+  "finishedAt": "2026-08-30T18:19:01.430Z",
+  "success": true,
+  "results": [
+    {
+      "operation": "info",
+      "startedAt": "2026-08-30T18:18:29.346Z",
+      "finishedAt": "2026-08-30T18:18:31.662Z",
+      "success": true,
+      "image": null,
+      "result": {
+        "details": {
+          "id": "122454390947141",
+          "name": "Henrik Solberg",
+          "pictureUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAIAAACRXR/mAAAAAXNSR0IB2cksfwAAAfVJREFUWIXt10FrE0EUwPF57022SbaYUAltkyJRkB4K7cVL8aDfxY/mB9GD36CgElK9mcZoIkHa3Zmd9zxsGwL2MrPbNpT5n5KwLL+dnczOwrv3S7V54UMDbi+yfIosnyLLp8jyKbJ82lCWrvd0ALD6LCLB56mTJSLMvPoKAOtKr+phiUiSJF++js7OPidJopQyxpwcHx0evjTGBOBqGy0AMMYul3+bzS2lVJblxtgHHq2VTGsiQqWU1hRsqn/Ki1xP9CrzfXMXiMjyKbJ8iiyfHh3rlgWz2hK6XuAqDwBEWBTuxiNKKWPs+jFI4dccwgIAa22W5Ts7XRHFzIjonLuY/iSim2Ow3WoFP4K8WSLSaOjpdPbh46fh8Nmgv5embcc8Gp3P5wutdUlJkkan+2R9+3W3rHIkfs8Xxpjx+ffx+BtpzY6VktKEiHmeHxz0u52OtYF7mxCWc24yuSCiZnOLWUSEEAFARMr7q7U+OT66100zABRFgYgicnmZAQIClCZmYebt7fT09FWv9/S+t4GI+PbN69ns14/JdLH4c3WVOcdE2G63dnd7L54P07RVxRTIKu/O/v7eYNBndkXhyj+j1hoRi8JWNFXanVp7vUoBABGJSPlLlReeGlj/vxJW16x6dM/EOy2yfIosnyLLp8jyKbJ8+gejXNxBh2ctuwAAAABJRU5ErkJggg=="
+        },
+        "requirements": {
+          "pageId": "122454390947141",
+          "pageName": "Henrik Solberg",
+          "pageCreatedAt": null,
+          "requiresPageCreatedAt": true
+        },
+        "snapshot": {
+          "posts": [],
+          "photos": [
+            {
+              "id": "122110966382020023",
+              "createdTime": "2023-08-31T18:05:23+0000",
+              "name": "",
+              "albumId": "122110966400020023",
+              "albumName": "Profile pictures"
+            }
+          ]
+        },
+        "posts": []
+      },
+      "error": null
+    },
+    {
+      "operation": "avatar",
+      "startedAt": "2026-08-30T18:18:31.662Z",
+      "finishedAt": "2026-08-30T18:18:40.399Z",
+      "success": true,
+      "image": "29557479_053_5abe.jpg",
+      "result": {
+        "photoId": "122339383916020023",
+        "recovered": false
+      },
+      "error": null
+    },
+    {
+      "operation": "cover",
+      "startedAt": "2026-08-30T18:18:40.399Z",
+      "finishedAt": "2026-08-30T18:18:48.404Z",
+      "success": true,
+      "image": "12496997_012_976f.jpg",
+      "result": {
+        "photoId": "122339384000020023",
+        "recovered": false
+      },
+      "error": null
+    },
+    {
+      "operation": "post",
+      "startedAt": "2026-08-30T18:18:48.404Z",
+      "finishedAt": "2026-08-30T18:18:54.229Z",
+      "success": true,
+      "image": "29557479_060_2d6c.jpg",
+      "result": {
+        "postId": "122454390947141_122339384138020023",
+        "photoId": "122339384108020023"
+      },
+      "error": null
+    },
+    {
+      "operation": "backdated",
+      "startedAt": "2026-08-30T18:18:54.229Z",
+      "finishedAt": "2026-08-30T18:19:01.430Z",
+      "success": true,
+      "image": "34031794_001_0ba5.jpg",
+      "result": {
+        "uploaded": {
+          "photoId": "122339384174020023",
+          "recovered": false
+        },
+        "post": {
+          "postId": "122454390947141_122339384234020023"
+        },
+        "backdatedTime": "2026-08-27T18:18:57.378Z"
+      },
+      "error": null
+    }
+  ],
+  "log": [
+    {
+      "at": "2026-08-30T18:18:29.343Z",
+      "level": "info",
+      "message": "Початок тесту Facebook Page API",
+      "accountKey": "fp_hub",
+      "pageId": "122454390947141",
+      "imagesDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Other",
+      "operation": "all",
+      "note": "Токени та cookies у звіт не записуються"
+    },
+    {
+      "at": "2026-08-30T18:18:29.345Z",
+      "level": "info",
+      "message": "Знайдено файли зображень",
+      "count": 18
+    },
+    {
+      "at": "2026-08-30T18:18:29.346Z",
+      "level": "info",
+      "message": "Операція info: старт"
+    },
+    {
+      "at": "2026-08-30T18:18:31.662Z",
+      "level": "info",
+      "message": "Операція info: успішно",
+      "image": null,
+      "result": {
+        "details": {
+          "id": "122454390947141",
+          "name": "Henrik Solberg",
+          "pictureUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAIAAACRXR/mAAAAAXNSR0IB2cksfwAAAfVJREFUWIXt10FrE0EUwPF57022SbaYUAltkyJRkB4K7cVL8aDfxY/mB9GD36CgElK9mcZoIkHa3Zmd9zxsGwL2MrPbNpT5n5KwLL+dnczOwrv3S7V54UMDbi+yfIosnyLLp8jyKbJ82lCWrvd0ALD6LCLB56mTJSLMvPoKAOtKr+phiUiSJF++js7OPidJopQyxpwcHx0evjTGBOBqGy0AMMYul3+bzS2lVJblxtgHHq2VTGsiQqWU1hRsqn/Ki1xP9CrzfXMXiMjyKbJ8iiyfHh3rlgWz2hK6XuAqDwBEWBTuxiNKKWPs+jFI4dccwgIAa22W5Ts7XRHFzIjonLuY/iSim2Ow3WoFP4K8WSLSaOjpdPbh46fh8Nmgv5embcc8Gp3P5wutdUlJkkan+2R9+3W3rHIkfs8Xxpjx+ffx+BtpzY6VktKEiHmeHxz0u52OtYF7mxCWc24yuSCiZnOLWUSEEAFARMr7q7U+OT66100zABRFgYgicnmZAQIClCZmYebt7fT09FWv9/S+t4GI+PbN69ns14/JdLH4c3WVOcdE2G63dnd7L54P07RVxRTIKu/O/v7eYNBndkXhyj+j1hoRi8JWNFXanVp7vUoBABGJSPlLlReeGlj/vxJW16x6dM/EOy2yfIosnyLLp8jyKbJ8+gejXNxBh2ctuwAAAABJRU5ErkJggg=="
+        },
+        "requirements": {
+          "pageId": "122454390947141",
+          "pageName": "Henrik Solberg",
+          "pageCreatedAt": null,
+          "requiresPageCreatedAt": true
+        },
+        "snapshot": {
+          "posts": [],
+          "photos": [
+            {
+              "id": "122110966382020023",
+              "createdTime": "2023-08-31T18:05:23+0000",
+              "name": "",
+              "albumId": "122110966400020023",
+              "albumName": "Profile pictures"
+            }
+          ]
+        },
+        "posts": []
+      }
+    },
+    {
+      "at": "2026-08-30T18:18:31.662Z",
+      "level": "info",
+      "message": "Операція avatar: старт"
+    },
+    {
+      "at": "2026-08-30T18:18:40.399Z",
+      "level": "info",
+      "message": "Операція avatar: успішно",
+      "image": "29557479_053_5abe.jpg",
+      "result": {
+        "photoId": "122339383916020023",
+        "recovered": false
+      }
+    },
+    {
+      "at": "2026-08-30T18:18:40.399Z",
+      "level": "info",
+      "message": "Операція cover: старт"
+    },
+    {
+      "at": "2026-08-30T18:18:48.404Z",
+      "level": "info",
+      "message": "Операція cover: успішно",
+      "image": "12496997_012_976f.jpg",
+      "result": {
+        "photoId": "122339384000020023",
+        "recovered": false
+      }
+    },
+    {
+      "at": "2026-08-30T18:18:48.404Z",
+      "level": "info",
+      "message": "Операція post: старт"
+    },
+    {
+      "at": "2026-08-30T18:18:54.229Z",
+      "level": "info",
+      "message": "Операція post: успішно",
+      "image": "29557479_060_2d6c.jpg",
+      "result": {
+        "postId": "122454390947141_122339384138020023",
+        "photoId": "122339384108020023"
+      }
+    },
+    {
+      "at": "2026-08-30T18:18:54.229Z",
+      "level": "info",
+      "message": "Операція backdated: старт"
+    },
+    {
+      "at": "2026-08-30T18:19:01.430Z",
+      "level": "info",
+      "message": "Операція backdated: успішно",
+      "image": "34031794_001_0ba5.jpg",
+      "result": {
+        "uploaded": {
+          "photoId": "122339384174020023",
+          "recovered": false
+        },
+        "post": {
+          "postId": "122454390947141_122339384234020023"
+        },
+        "backdatedTime": "2026-08-27T18:18:57.378Z"
+      }
+    }
+  ]
+}

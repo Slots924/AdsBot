@@ -298,7 +298,9 @@ registerIpcHandlers({
                 canceled: false,
                 filePaths: options.properties.includes("openDirectory")
                     ? ["C:/images/page"]
-                    : ["C:/images/post.jpg"],
+                    : options.properties.includes("multiSelections")
+                        ? ["C:/images/1.jpg", "C:/images/2.jpg", "C:/images/3.jpg"]
+                        : ["C:/images/post.jpg"],
             };
         },
     },
@@ -585,8 +587,8 @@ assert.deepEqual(
     { ok: true, data: "C:/images/post.jpg" }
 );
 assert.deepEqual(
-    await handlers.get("dialog:select-page-rebuild-folder")({}, {}),
-    { ok: true, data: "C:/images/page" }
+    await handlers.get("dialog:select-page-rebuild-images")({}, {}),
+    { ok: true, data: ["C:/images/1.jpg", "C:/images/2.jpg", "C:/images/3.jpg"] }
 );
 assert.deepEqual(
     await handlers.get("dialog:select-account-photos-folder")({}, {

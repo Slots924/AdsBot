@@ -187,8 +187,8 @@ contextBridge.exposeInMainWorld("adsBot", {
     setUiScale: (scale) => ipcRenderer.invoke("app:set-zoom", { scale }),
     selectImage: () => ipcRenderer.invoke("dialog:select-image"),
     selectImages: () => ipcRenderer.invoke("dialog:select-images"),
-    selectPageRebuildFolder: () =>
-        ipcRenderer.invoke("dialog:select-page-rebuild-folder"),
+    selectPageRebuildImages: () =>
+        ipcRenderer.invoke("dialog:select-page-rebuild-images"),
     selectAccountPhotosFolder: (defaultPath) =>
         ipcRenderer.invoke("dialog:select-account-photos-folder", {
             defaultPath,

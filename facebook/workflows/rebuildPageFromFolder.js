@@ -104,6 +104,7 @@ export default async function rebuildPageFromFolder({
     accountKey,
     pageId,
     imagesDirectory,
+    imagePaths = [],
     pageCreatedAt,
     imageLoader = loadImageFromPath,
     prepare = preparePageRebuild,
@@ -139,7 +140,12 @@ export default async function rebuildPageFromFolder({
                 "PAGE_REBUILD_CREATED_AT_REQUIRED"
             );
         }
-        const prepared = await prepare({ imagesDirectory, imageLoader, random });
+        const prepared = await prepare({
+            imagesDirectory,
+            imagePaths,
+            imageLoader,
+            random,
+        });
         const dates = createSchedule({
             count: prepared.posts.length,
             pageCreatedAt: createdAt,
@@ -180,6 +186,55 @@ export default async function rebuildPageFromFolder({
             });
         }
         assertNotAborted(signal);
+
+        await progress({
+            stage: "cleanup",
+            completed: 1,
+            total: 5,
+            message: "Видаляємо доступні старі фото та пости",
+        });
+        for (const photo of job.snapshot.photos) {
+            const id = String(photo.id);
+            if (job.cleanup.deletedPhotoIds.includes(id)) continue;
+            assertNotAborted(signal);
+            const result = await optionalMutation({
+                operation: () => facebookApiClient.deletePageObject({ pageId, objectId: id }),
+                job,
+                journal,
+                stage: "delete-photo",
+                objectId: id,
+            });
+            job = result.job;
+            if (result.completed) {
+                job = await journal.update(job.id, {
+                    cleanup: {
+                        ...job.cleanup,
+                        deletedPhotoIds: [...job.cleanup.deletedPhotoIds, id],
+                    },
+                });
+            }
+        }
+        for (const post of job.snapshot.posts) {
+            const id = String(post.id);
+            if (job.cleanup.deletedPostIds.includes(id)) continue;
+            assertNotAborted(signal);
+            const result = await optionalMutation({
+                operation: () => facebookApiClient.deletePageObject({ pageId, objectId: id }),
+                job,
+                journal,
+                stage: "delete-post",
+                objectId: id,
+            });
+            job = result.job;
+            if (result.completed) {
+                job = await journal.update(job.id, {
+                    cleanup: {
+                        ...job.cleanup,
+                        deletedPostIds: [...job.cleanup.deletedPostIds, id],
+                    },
+                });
+            }
+        }
 
         if (!job.avatar) {
             await progress({
@@ -248,92 +303,9 @@ export default async function rebuildPageFromFolder({
         }
         assertNotAborted(signal);
 
-        const oldPostIds = new Set(job.snapshot.posts.map((post) => String(post.id)));
-        const afterAppearance = await facebookApiClient.getPageRebuildSnapshot({ pageId });
-        const appearancePhotoIds = new Set([
-            String(job.avatar?.photoId ?? ""),
-            String(job.cover?.photoId ?? ""),
-        ].filter(Boolean));
-        const newStories = afterAppearance.posts.filter((post) => (
-            !oldPostIds.has(String(post.id))
-            && (post.story || appearancePhotoIds.has(String(post.objectId ?? "")))
-        ));
-        for (const story of newStories) {
-            if (job.cleanup.hiddenPostIds.includes(String(story.id))) continue;
-            assertNotAborted(signal);
-            const result = await optionalMutation({
-                operation: () => facebookApiClient.hidePagePost({
-                    pageId,
-                    postId: story.id,
-                }),
-                job,
-                journal,
-                stage: "hide-story",
-                objectId: story.id,
-            });
-            job = result.job;
-            if (result.completed) {
-                job = await journal.update(job.id, {
-                    cleanup: {
-                        ...job.cleanup,
-                        hiddenPostIds: [...job.cleanup.hiddenPostIds, String(story.id)],
-                    },
-                });
-            }
-        }
-
-        await progress({
-            stage: "cleanup",
-            completed: 3,
-            total: 5,
-            message: "Видаляємо старі фотографії та пости",
-        });
-        for (const photo of job.snapshot.photos) {
-            const id = String(photo.id);
-            if (job.cleanup.deletedPhotoIds.includes(id)) continue;
-            assertNotAborted(signal);
-            const result = await optionalMutation({
-                operation: () => facebookApiClient.deletePageObject({ pageId, objectId: id }),
-                job,
-                journal,
-                stage: "delete-photo",
-                objectId: id,
-            });
-            job = result.job;
-            if (result.completed) {
-                job = await journal.update(job.id, {
-                    cleanup: {
-                        ...job.cleanup,
-                        deletedPhotoIds: [...job.cleanup.deletedPhotoIds, id],
-                    },
-                });
-            }
-        }
-        for (const post of job.snapshot.posts) {
-            const id = String(post.id);
-            if (job.cleanup.deletedPostIds.includes(id)) continue;
-            assertNotAborted(signal);
-            const result = await optionalMutation({
-                operation: () => facebookApiClient.deletePageObject({ pageId, objectId: id }),
-                job,
-                journal,
-                stage: "delete-post",
-                objectId: id,
-            });
-            job = result.job;
-            if (result.completed) {
-                job = await journal.update(job.id, {
-                    cleanup: {
-                        ...job.cleanup,
-                        deletedPostIds: [...job.cleanup.deletedPostIds, id],
-                    },
-                });
-            }
-        }
-
         await progress({
             stage: "publication",
-            completed: 4,
+            completed: 3,
             total: 5,
             message: `Публікуємо ${job.plan.posts.length} фото з минулими датами`,
         });

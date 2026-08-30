@@ -995,7 +995,7 @@ export default class FacebookGraphApi {
         const page = await this.#getRebuildPage(pageId);
         const [posts, photos] = await Promise.all([
             this.#getAllWithAccessToken(`/${page.id}/feed`, {
-                fields: "id,created_time,is_hidden,message,object_id,status_type,story",
+                fields: "id,created_time,is_hidden,message,status_type,story",
                 limit: 100,
             }, page.pageAccessToken),
             this.#getAllWithAccessToken(`/${page.id}/photos`, {
@@ -1010,7 +1010,7 @@ export default class FacebookGraphApi {
                 createdTime: post.created_time ?? null,
                 isHidden: post.is_hidden === true,
                 message: post.message ?? "",
-                objectId: post.object_id ? String(post.object_id) : null,
+                objectId: null,
                 statusType: post.status_type ?? null,
                 story: post.story ?? "",
             })),

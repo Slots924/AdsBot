@@ -901,6 +901,7 @@ export default function registerIpcHandlers({
                 accountKey,
                 pageId,
                 imagesDirectory: payload.imagesDirectory,
+                imagePaths: payload.imagePaths,
                 pageCreatedAt: payload.pageCreatedAt ?? null,
             },
             metadata: { accountKey, pageId },
@@ -909,6 +910,7 @@ export default function registerIpcHandlers({
                     accountKey,
                     pageId,
                     imagesDirectory: payload.imagesDirectory,
+                    imagePaths: payload.imagePaths,
                     pageCreatedAt: payload.pageCreatedAt,
                 }, progress, signal);
                 await updateCacheSafely(
@@ -1803,13 +1805,17 @@ export default function registerIpcHandlers({
         })
     );
     ipcMain.handle(
-        "dialog:select-page-rebuild-folder",
+        "dialog:select-page-rebuild-images",
         safeHandler(async () => {
             const result = await dialog.showOpenDialog(getWindow(), {
                 title: "Виберіть папку для пересетаплення фанпейджа",
-                properties: ["openDirectory"],
+                properties: ["openFile", "multiSelections"],
+                filters: [{
+                    name: "Зображення",
+                    extensions: ["jpg", "jpeg", "png", "webp"],
+                }],
             });
-            return result.canceled ? null : result.filePaths[0] ?? null;
+            return result.canceled ? [] : result.filePaths;
         })
     );
     ipcMain.handle(

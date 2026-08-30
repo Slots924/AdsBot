@@ -108,9 +108,9 @@ describe("Дизайн workspace фанпейджів", () => {
                     requiresPageCreatedAt: true,
                 },
             }),
-            selectPageRebuildFolder: vi.fn().mockResolvedValue({
+            selectPageRebuildImages: vi.fn().mockResolvedValue({
                 ok: true,
-                data: "C:/images/page",
+                data: ["C:/images/1.jpg", "C:/images/2.jpg", "C:/images/3.jpg"],
             }),
             startPageRebuild: vi.fn().mockResolvedValue({
                 ok: true,
@@ -426,7 +426,7 @@ describe("Дизайн workspace фанпейджів", () => {
         const submit = screen.getByRole("button", { name: "Пересетапити фанку" });
         expect(submit).toBeDisabled();
         fireEvent.click(screen.getByRole("button", { name: "Вибрати папку" }));
-        expect(await screen.findByDisplayValue("C:/images/page")).toBeInTheDocument();
+        expect(await screen.findByDisplayValue("1.jpg, 2.jpg, 3.jpg")).toBeInTheDocument();
         fireEvent.change(await screen.findByLabelText("Дата створення фанпейджа"), {
             target: { value: "2024-01-01" },
         });
@@ -440,7 +440,7 @@ describe("Дизайн workspace фанпейджів", () => {
             .toHaveBeenCalledWith({
                 accountKey: "client",
                 pageId: "10",
-                imagesDirectory: "C:/images/page",
+                imagePaths: ["C:/images/1.jpg", "C:/images/2.jpg", "C:/images/3.jpg"],
                 pageCreatedAt: "2024-01-01",
             }));
         expect(showToast).toHaveBeenCalledWith(
