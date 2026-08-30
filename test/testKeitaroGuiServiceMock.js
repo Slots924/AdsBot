@@ -177,6 +177,7 @@ assert.equal(campaignPayload.parameters.sub_id_12.placeholder, "public-token");
 assert.equal(campaignPayload.parameters.sub_id_6.alias, "Pixel ID");
 assert.equal(campaignPayload.parameters.sub_id_12.alias, "CAPI token");
 assert.equal(campaignPayload.alias, "AJ001T");
+assert.equal(campaignPayload.cost_auto, true);
 assert.equal(createdStreams.length, 2);
 assert.equal(createdStreams[0].position, 1);
 assert.equal(createdStreams[0].name, "White");

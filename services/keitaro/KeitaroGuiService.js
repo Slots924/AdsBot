@@ -238,6 +238,7 @@ export default class KeitaroGuiService {
             domain_id: Number(domainId),
             traffic_source_id: Number(trafficSourceId),
             state: "active",
+            cost_auto: true,
             parameters: withCapiPixelParameters(trafficSource?.parameters, pixelId, pixelToken),
         });
         const campaignId = Number(campaign?.id ?? campaign?.campaign?.id);
