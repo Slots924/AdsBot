@@ -22,7 +22,7 @@ import AdAccountSelect from "../components/AdAccountSelect.jsx";
 import CampaignCreationWizard from "../components/CampaignCreationWizard.jsx";
 import CreativeLaunchModal from "../components/CreativeLaunchModal.jsx";
 import GeoSelect from "../components/GeoSelect.jsx";
-import ImageDropzone from "../components/ImageDropzone.jsx";
+import ImageListDropzone from "../components/ImageListDropzone.jsx";
 import MultiSelect from "../components/MultiSelect.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import { findGroupForGeo } from "../lib/groups.js";
@@ -305,6 +305,7 @@ function PublicationModal({
         creativeName: page.creativeName || "",
         siteUrl: "",
         imagePath: "",
+        imagePaths: [],
     });
     const [saving, setSaving] = useState(false);
     const submit = async (event) => {
@@ -363,11 +364,12 @@ function PublicationModal({
                 </label>
                 <label className="field">
                     <span>Зображення</span>
-                    <ImageDropzone
-                        value={draft.imagePath}
-                        onChange={(imagePath) => setDraft((current) => ({
+                    <ImageListDropzone
+                        value={draft.imagePaths}
+                        onChange={(imagePaths) => setDraft((current) => ({
                             ...current,
-                            imagePath,
+                            imagePaths,
+                            imagePath: "",
                         }))}
                         disabled={saving}
                     />

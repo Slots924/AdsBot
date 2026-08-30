@@ -143,6 +143,7 @@ export default async function publishPagePost({
     pageId,
     message = "",
     image,
+    images = [],
 } = {}) {
     if (
         !facebookApiClient?.getFanPageById
@@ -158,7 +159,11 @@ export default async function publishPagePost({
 
     const normalizedPageId = String(pageId ?? "").trim();
     const normalizedMessage = String(message ?? "").trim();
-    const normalizedImage = normalizeImage(image);
+    const normalizedImages = (Array.isArray(images) && images.length
+        ? images
+        : image === undefined ? [] : [image]
+    ).map(normalizeImage);
+    const normalizedImage = normalizedImages[0] ?? null;
 
     if (!normalizedPageId) {
         throw createWorkflowError(
@@ -195,12 +200,19 @@ export default async function publishPagePost({
 
     if (normalizedImage) {
         type = "photo";
-        const createdPhoto = await facebookApiClient.createPagePhotoPost({
-            pageId: normalizedPageId,
-            pageAccessToken: page.pageAccessToken,
-            message: normalizedMessage,
-            image: normalizedImage,
-        });
+        const createdPhoto = normalizedImages.length > 1
+            ? await facebookApiClient.createPageMultiPhotoPost({
+                pageId: normalizedPageId,
+                pageAccessToken: page.pageAccessToken,
+                message: normalizedMessage,
+                images: normalizedImages,
+            })
+            : await facebookApiClient.createPagePhotoPost({
+                pageId: normalizedPageId,
+                pageAccessToken: page.pageAccessToken,
+                message: normalizedMessage,
+                image: normalizedImage,
+            });
 
         postId = createdPhoto.postId;
 

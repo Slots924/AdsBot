@@ -557,6 +557,7 @@ export default class AdsBotGuiService {
         creativeName,
         siteUrl,
         imagePath = "",
+        imagePaths = [],
     } = {}, onProgress) {
         const progress = async (payload) => {
             if (typeof onProgress === "function") await onProgress(payload);
@@ -579,6 +580,7 @@ export default class AdsBotGuiService {
             pageId,
             message: preparedCreative.creative,
             imagePath,
+            imagePaths,
         }, progress);
         await progress({ stage: "verification", completed: total, total, message: "Пост опубліковано та перевірено" });
         this.logger.info(`Пост підтверджено: ${post.postId}`);
@@ -591,9 +593,9 @@ export default class AdsBotGuiService {
     }
 
 
-    async publishPreparedPost({ accountKey, pageId, message, imagePath = "" }, onProgress) {
+    async publishPreparedPost({ accountKey, pageId, message, imagePath = "", imagePaths = [] }, onProgress) {
         await this.#assertActiveAccount(accountKey);
-        return this.#facebookBackend.publishPost({ accountKey, pageId, message, imagePath }, onProgress);
+        return this.#facebookBackend.publishPost({ accountKey, pageId, message, imagePath, imagePaths }, onProgress);
     }
 
 

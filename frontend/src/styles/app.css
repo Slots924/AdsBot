@@ -338,6 +338,12 @@ button:focus-visible, input:focus-visible {
 .dropzone-copy strong, .dropzone-copy span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dropzone-copy strong { color: #d8d9e5; font-size: var(--font-control); }
 .dropzone-copy span { color: var(--muted); font-size: var(--font-meta); }
+.post-image-list { display: grid; gap: 8px; margin-top: 10px; }
+.post-image-item { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid rgba(132,114,255,.2); border-radius: 10px; background: rgba(132,114,255,.04); }
+.post-image-item img { width: 52px; height: 52px; object-fit: cover; border-radius: 7px; background: rgba(255,255,255,.06); }
+.post-image-item strong { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.post-image-item > div { display: flex; gap: 4px; }
+.post-image-position { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: #fff; font-size: 12px; background: var(--accent); }
 
 .primary-button, .secondary-button, .link-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 11px; cursor: pointer; transition: transform .2s, opacity .2s, border-color .2s; }
 .primary-button { min-height: 42px; padding: 0 17px; border: 0; color: white; background: linear-gradient(135deg, var(--accent), var(--accent-two)); box-shadow: 0 10px 26px rgba(94,78,232,.25); font-size: var(--font-control); font-weight: 800; }

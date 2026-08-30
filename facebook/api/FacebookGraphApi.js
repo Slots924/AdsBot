@@ -1569,6 +1569,47 @@ export default class FacebookGraphApi {
     }
 
 
+    async createPageMultiPhotoPost({ pageId, pageAccessToken, message, images }) {
+        const photoIds = [];
+
+        for (const image of images) {
+            const body = new FormData();
+            body.set("source", new Blob([image.buffer], {
+                type: image.contentType,
+            }), image.filename);
+            body.set("published", "false");
+            const data = await this.#request(`/${pageId}/photos`, {}, {
+                method: "post",
+                data: body,
+                accessToken: pageAccessToken,
+                retryOnConnectionError: false,
+            });
+            if (!data?.id) {
+                throw createValidationError(
+                    "Facebook не повернув ID завантаженої фотографії",
+                    "FACEBOOK_POST_PHOTO_ID_MISSING"
+                );
+            }
+            photoIds.push(String(data.id));
+        }
+
+        const body = new URLSearchParams();
+        body.set("attached_media", JSON.stringify(photoIds.map((photoId) => ({
+            media_fbid: photoId,
+        }))));
+        if (message) body.set("message", message);
+        const data = await this.#request(`/${pageId}/feed`, {}, {
+            method: "post",
+            data: body,
+            accessToken: pageAccessToken,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            retryOnConnectionError: false,
+        });
+
+        return { postId: data?.id ?? null, photoIds };
+    }
+
+
     /**
      * Приховує автоматично створене Open Graph-прев'ю посилання у пості.
      * Після зміни повторно читає пост, щоб викликальний код міг перевірити

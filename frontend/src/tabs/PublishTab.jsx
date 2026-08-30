@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { LoaderCircle, Send } from "lucide-react";
 
-import ImageDropzone from "../components/ImageDropzone.jsx";
+import ImageListDropzone from "../components/ImageListDropzone.jsx";
 import SearchSelect from "../components/SearchSelect.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 
@@ -28,6 +28,7 @@ export default function PublishTab({
         creativeName: "",
         siteUrl: "",
         imagePath: "",
+        imagePaths: [],
     });
     const pageId = controlledPageId ?? localPageId;
     const setPageId = setControlledPageId ?? setLocalPageId;
@@ -156,9 +157,9 @@ export default function PublishTab({
                 </div>
 
                 <div className="section-label"><span>03</span> Зображення <small>необов’язково</small></div>
-                <ImageDropzone
-                    value={form.imagePath}
-                    onChange={(imagePath) => setForm((current) => ({ ...current, imagePath }))}
+                <ImageListDropzone
+                    value={form.imagePaths ?? (form.imagePath ? [form.imagePath] : [])}
+                    onChange={(imagePaths) => setForm((current) => ({ ...current, imagePaths, imagePath: "" }))}
                     disabled={publishing}
                 />
 

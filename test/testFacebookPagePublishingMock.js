@@ -253,6 +253,38 @@ const photoResult = await publishPagePost({
 assert.equal(photoResult.postId, "page-1_photo-post");
 assert.equal(photoResult.verified, true);
 
+let multiPhotoRequest = null;
+const multiPhotoResult = await publishPagePost({
+    facebookApiClient: {
+        async getFanPageById() {
+            return { pageAccessToken: "PAGE_TOKEN" };
+        },
+        async createPageTextPost() {},
+        async createPagePhotoPost() {},
+        async createPageMultiPhotoPost(request) {
+            multiPhotoRequest = request;
+            return { postId: "page-1_multi-photo-post" };
+        },
+        async getPagePost() {
+            return {
+                id: "page-1_multi-photo-post",
+                message: "Галерея",
+                createdTime: "2026-01-01T00:00:00+0000",
+                permalinkUrl: "https://facebook.test/multi-photo-post",
+                isPublished: true,
+            };
+        },
+    },
+    pageId: "page-1",
+    message: "Галерея",
+    images: [
+        { buffer: Buffer.from("first"), filename: "first.jpg", contentType: "image/jpeg" },
+        { buffer: Buffer.from("second"), filename: "second.png", contentType: "image/png" },
+    ],
+});
+assert.equal(multiPhotoResult.postId, "page-1_multi-photo-post");
+assert.deepEqual(multiPhotoRequest.images.map((image) => image.filename), ["first.jpg", "second.png"]);
+
 await assert.rejects(
     publishPagePost({
         facebookApiClient,

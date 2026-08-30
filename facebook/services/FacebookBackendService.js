@@ -354,23 +354,27 @@ export default class FacebookBackendService {
         pageId,
         message = "",
         imagePath = "",
+        imagePaths = [],
     } = {}, onProgress) {
         const progress = async (payload) => {
             if (typeof onProgress === "function") await onProgress(payload);
         };
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
-        const normalizedImagePath = String(imagePath ?? "").trim();
-        const total = normalizedImagePath ? 4 : 3;
-        if (normalizedImagePath) {
+        const normalizedImagePaths = [...new Set([
+            ...(Array.isArray(imagePaths) ? imagePaths : []),
+            imagePath,
+        ].map((item) => String(item ?? "").trim()).filter(Boolean))];
+        const total = 3 + normalizedImagePaths.length;
+        if (normalizedImagePaths.length) {
             await progress({ stage: "image", completed: 1, total, message: "Завантажуємо файл зображення" });
         }
-        const image = normalizedImagePath
-            ? await this.#loadImageFromPath(normalizedImagePath)
-            : undefined;
+        const images = await Promise.all(normalizedImagePaths.map(
+            (path) => this.#loadImageFromPath(path)
+        ));
 
         await progress({
             stage: "publication",
-            completed: normalizedImagePath ? 2 : 1,
+            completed: normalizedImagePaths.length ? normalizedImagePaths.length + 1 : 1,
             total,
             message: "Публікуємо пост у Facebook",
         });
@@ -379,7 +383,8 @@ export default class FacebookBackendService {
             facebookApiClient,
             pageId,
             message,
-            image,
+            image: images[0],
+            images,
         });
     }
 }

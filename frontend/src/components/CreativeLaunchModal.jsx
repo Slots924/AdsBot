@@ -3,7 +3,7 @@ import { LoaderCircle, Pencil, RefreshCw, X } from "lucide-react";
 
 import AdAccountSelect from "./AdAccountSelect.jsx";
 import GeoSelect from "./GeoSelect.jsx";
-import ImageDropzone from "./ImageDropzone.jsx";
+import ImageListDropzone from "./ImageListDropzone.jsx";
 import MultiSelect from "./MultiSelect.jsx";
 import SearchSelect from "./SearchSelect.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
@@ -33,6 +33,7 @@ export default function CreativeLaunchModal({
         creativeName: page.creativeName || "",
         siteUrl: "",
         imagePath: "",
+        imagePaths: [],
         deleteOldPosts: true,
         groupIds: [],
         templateId: "",
@@ -253,9 +254,13 @@ export default function CreativeLaunchModal({
                         </label>
                         <label className="field">
                             <span>Зображення</span>
-                            <ImageDropzone
-                                value={draft.imagePath}
-                                onChange={(value) => update("imagePath", value)}
+                            <ImageListDropzone
+                                value={draft.imagePaths}
+                                onChange={(value) => setDraft((current) => ({
+                                    ...current,
+                                    imagePaths: value,
+                                    imagePath: "",
+                                }))}
                                 disabled={saving}
                             />
                         </label>

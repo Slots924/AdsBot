@@ -186,6 +186,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     saveAppState: (state) => ipcRenderer.invoke("state:save", state),
     setUiScale: (scale) => ipcRenderer.invoke("app:set-zoom", { scale }),
     selectImage: () => ipcRenderer.invoke("dialog:select-image"),
+    selectImages: () => ipcRenderer.invoke("dialog:select-images"),
     selectPageRebuildFolder: () =>
         ipcRenderer.invoke("dialog:select-page-rebuild-folder"),
     selectAccountPhotosFolder: (defaultPath) =>

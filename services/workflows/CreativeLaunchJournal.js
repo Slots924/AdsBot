@@ -8,6 +8,7 @@ function cleanDraft(input = {}) {
         accountKey: String(input.accountKey ?? ""), pageId: String(input.pageId ?? ""),
         geo: String(input.geo ?? "").trim().toUpperCase(), creativeName: String(input.creativeName ?? "").trim().replace(/^Creo_/i, ""),
         siteUrl: String(input.siteUrl ?? "").trim(), imagePath: String(input.imagePath ?? ""),
+        imagePaths: [...new Set((input.imagePaths ?? []).map((item) => String(item ?? "").trim()).filter(Boolean))],
         deleteOldPosts: input.deleteOldPosts !== false, groupIds: [...new Set((input.groupIds ?? []).map(String))],
         campaignName: String(input.campaignName ?? "").trim(), campaignNameManual: input.campaignNameManual === true,
         templateId: Number(input.templateId), adAccountId: String(input.adAccountId ?? ""),

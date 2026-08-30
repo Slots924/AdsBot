@@ -202,6 +202,20 @@ assert.deepEqual(loadedImagePaths, [
     "C:/images/photo.jpg",
 ]);
 
+await facebookBackend.publishPost({
+    accountKey: "active",
+    pageId: "page-4",
+    imagePaths: ["C:/images/first.jpg", "C:/images/second.png"],
+});
+assert.deepEqual(
+    publishedRequests.at(-1).images.map((image) => image.filename),
+    ["photo.jpg", "photo.jpg"]
+);
+assert.deepEqual(loadedImagePaths.slice(-2), [
+    "C:/images/first.jpg",
+    "C:/images/second.png",
+]);
+
 await assert.rejects(
     facebookBackend.getFanPages("missing"),
     { code: "FACEBOOK_ACCOUNT_NOT_FOUND" }

@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "id": "230f18b0-c590-4db3-ab35-00845a116674",
+  "taskId": "a0ccb274-612b-42bc-afba-f56edac80d97",
+  "type": "campaign",
+  "title": "CZ | Creo_5 | 30+",
+  "status": "failed",
+  "createdAt": "2026-08-30T17:49:18.348Z",
+  "startedAt": "2026-08-30T17:48:42.391Z",
+  "finishedAt": "2026-08-30T17:49:18.347Z",
+  "durationMs": 35956,
+  "inputSummary": {
+    "campaignJobId": "b6297331-eaaa-4217-801f-454b20f43dad",
+    "accountKey": "fp_hub",
+    "adAccountId": "act_1663840034754735",
+    "campaignName": "CZ | Creo_5 | 30+",
+    "templateId": 3,
+    "pageId": "122095021922007590",
+    "postId": "122095021922007590_122343978464009055",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-08-31T03:00:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "52511352248716",
+      "creativeId": "1860053322068911",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "52511352265516",
+          "name": "CZ | Creo_5 | 30+ | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "52511352288316",
+          "name": "CZ | Creo_5 | 30+ | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "52511352305716",
+          "name": "CZ | Creo_5 | 30+ | AS 03"
+        },
+        {
+          "index": 3,
+          "id": "52511352317516",
+          "name": "CZ | Creo_5 | 30+ | AS 04"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "52511352282116",
+          "name": "CZ | Creo_5 | 30+ | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "52511352299716",
+          "name": "CZ | Creo_5 | 30+ | AD 02"
+        },
+        {
+          "index": 2,
+          "id": "52511352313316",
+          "name": "CZ | Creo_5 | 30+ | AD 03"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "An unexpected error has occurred. Please retry your request later.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 2,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "ad",
+      "itemIndex": 3,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "b6297331-eaaa-4217-801f-454b20f43dad",
+    "accountKey": "fp_hub",
+    "adAccountId": "act_1663840034754735",
+    "uniqueKey": "campaign-job:b6297331-eaaa-4217-801f-454b20f43dad"
+  }
+}

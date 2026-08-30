@@ -524,7 +524,7 @@ export default function registerIpcHandlers({
                     abort();
                     const post = await guiService.publishPreparedPost({
                         accountKey: draft.accountKey, pageId: draft.pageId,
-                        message: prepared.creative, imagePath: draft.imagePath,
+                        message: prepared.creative, imagePath: draft.imagePath, imagePaths: draft.imagePaths,
                     }, async (item) => setSubtask("publication", { status: "running", message: item.message, progress: item }));
                     await updateCacheSafely(async () => {
                         await remoteDataCacheStore.removePosts(
@@ -1243,6 +1243,9 @@ export default function registerIpcHandlers({
                 creativeName: String(payload.creativeName ?? "").trim(),
                 siteUrl: String(payload.siteUrl ?? "").trim(),
                 imagePath: String(payload.imagePath ?? ""),
+                imagePaths: [...new Set((payload.imagePaths ?? [])
+                    .map((item) => String(item ?? "").trim())
+                    .filter(Boolean))],
             };
             const task = await backgroundTaskManager.enqueue({
                 type: "publication",
@@ -1783,6 +1786,20 @@ export default function registerIpcHandlers({
                 }],
             });
             return result.canceled ? null : result.filePaths[0] ?? null;
+        })
+    );
+    ipcMain.handle(
+        "dialog:select-images",
+        safeHandler(async () => {
+            const result = await dialog.showOpenDialog(getWindow(), {
+                title: "Виберіть фотографії для Facebook-поста",
+                properties: ["openFile", "multiSelections"],
+                filters: [{
+                    name: "Зображення",
+                    extensions: ["jpg", "jpeg", "png", "webp"],
+                }],
+            });
+            return result.canceled ? [] : result.filePaths;
         })
     );
     ipcMain.handle(
