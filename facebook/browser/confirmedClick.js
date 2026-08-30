@@ -518,6 +518,7 @@ async function clickLocator(page, locator, {
     timeout,
     quietMs,
     quietTimeout,
+    requireQuiet,
     description,
     clickOptions,
     onStep,
@@ -553,6 +554,17 @@ async function clickLocator(page, locator, {
         { selector, quiet }
     );
 
+    if (!quiet && requireQuiet) {
+        throw new ConfirmedClickError(
+            `DOM для «${description}» не стабілізувався за ${quietTimeout} мс`,
+            {
+                code: "BROWSER_DOM_NOT_STABLE",
+                selector,
+                timeoutMs: quietTimeout,
+            }
+        );
+    }
+
     await emitStep(onStep, `Шукаємо свіжий елемент «${description}»`, {
         selector,
     });
@@ -587,6 +599,7 @@ export async function clickWhenStable(page, {
     timeout = 30000,
     quietMs = 300,
     quietTimeout = 5000,
+    requireQuiet = false,
     clickOptions = {},
     onStep = null,
 } = {}) {
@@ -596,6 +609,7 @@ export async function clickWhenStable(page, {
         timeout,
         quietMs,
         quietTimeout,
+        requireQuiet,
         description,
         clickOptions,
         onStep,
@@ -612,6 +626,7 @@ export async function clickUntilConfirmed(page, {
     confirmTimeout = 15000,
     quietMs = 300,
     quietTimeout = 5000,
+    requireQuiet = false,
     clickOptions = {},
     onStep = null,
 } = {}) {
@@ -665,6 +680,7 @@ export async function clickUntilConfirmed(page, {
                 timeout,
                 quietMs,
                 quietTimeout,
+                requireQuiet,
                 description,
                 clickOptions,
                 onStep,

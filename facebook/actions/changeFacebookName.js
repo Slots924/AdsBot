@@ -251,10 +251,15 @@ function createClickOptions(report, stage, description, selector) {
 
 
 function mapConfirmedClickErrorCode(error) {
-    if (
-        error?.code === "BROWSER_CLICK_NOT_CONFIRMED"
-        || error?.code === "BROWSER_ELEMENT_INTERACTION_FAILED"
-    ) {
+    if (error?.code === "BROWSER_CLICK_NOT_CONFIRMED") {
+        return "FACEBOOK_NAME_DIALOG_NOT_OPENED";
+    }
+
+    if (error?.code === "BROWSER_DOM_NOT_STABLE") {
+        return "FACEBOOK_NAME_DOM_NOT_STABLE";
+    }
+
+    if (error?.code === "BROWSER_ELEMENT_INTERACTION_FAILED") {
         return "FACEBOOK_NAME_ELEMENT_INTERACTION_FAILED";
     }
 
@@ -840,6 +845,11 @@ export default async function changeFacebookName(
                         selector: selectors.nameDialog,
                     },
                     description: "Name",
+                    attempts: 1,
+                    confirmTimeout: 15000,
+                    quietMs: 3000,
+                    quietTimeout: 15000,
+                    requireQuiet: true,
                 },
                 report,
                 stage

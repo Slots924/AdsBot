@@ -154,14 +154,17 @@ assert.equal(forcedSetup.outcome, "failed");
 assert.equal(forcedSetup.error, "stop-after-skip-name");
 
 let nameErrorTagged = false;
-let profileClosed = false;
+let profileCloseCount = 0;
+let profileOpenCount = 0;
+let nameChangeCount = 0;
 const nameButtonFailedSetup = await executeCommentAccountSetupWithProfile({
     adsPower: {
         async openProfile() {
+            profileOpenCount += 1;
             return { ws: { puppeteer: "ws://test" } };
         },
         async closeProfile() {
-            profileClosed = true;
+            profileCloseCount += 1;
         },
     },
     profile: {
@@ -187,11 +190,17 @@ const nameButtonFailedSetup = await executeCommentAccountSetupWithProfile({
         ensureLoggedIn: async () => true,
         ensureActive: async () => true,
         ensureEnglish: async () => {},
-        changeName: async () => ({
-            success: false,
-            status: facebookNameChangeStatuses.NAME_BUTTON_FAILED,
-            error: { message: "Не вдалося натиснути кнопку Name" },
-        }),
+        changeName: async () => {
+            nameChangeCount += 1;
+            return {
+                success: false,
+                status: facebookNameChangeStatuses.NAME_BUTTON_FAILED,
+                error: {
+                    code: "FACEBOOK_NAME_DIALOG_NOT_OPENED",
+                    message: "Не вдалося натиснути кнопку Name",
+                },
+            };
+        },
         markChangeNameError: async () => {
             nameErrorTagged = true;
             return { added: true };
@@ -210,7 +219,9 @@ assert.equal(
     facebookNameChangeStatuses.NAME_BUTTON_FAILED
 );
 assert.equal(nameErrorTagged, false);
-assert.equal(profileClosed, true);
+assert.equal(nameChangeCount, 2);
+assert.equal(profileOpenCount, 2);
+assert.equal(profileCloseCount, 2);
 
 console.log("Перевірка хелперів оформлення акаунтів пройшла успішно");
 

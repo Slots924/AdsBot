@@ -48,6 +48,11 @@ const acceptedDeleteStatuses = new Set([
     facebookPersonalProfilePostDeletionStatuses.CLEANED,
     facebookPersonalProfilePostDeletionStatuses.NO_POSTS,
 ]);
+const restartableNameChangeErrorCodes = new Set([
+    "FACEBOOK_NAME_DIALOG_NOT_OPENED",
+    "FACEBOOK_NAME_DOM_NOT_STABLE",
+]);
+const MAX_NAME_PROFILE_RESTARTS = 1;
 
 
 function createStep(fields = {}) {
@@ -252,6 +257,7 @@ export default async function executeCommentAccountSetupWithProfile({
         nameChanged: false,
     };
     let browser;
+    let page;
     let profileOpened = false;
     let abortCleanupPromise = null;
     let originalProxyConfig = null;
@@ -297,6 +303,65 @@ export default async function executeCommentAccountSetupWithProfile({
                 );
             }
         }
+    };
+    const closeBrowserProfileForNameRetry = async () => {
+        if (browser) {
+            try {
+                browser.disconnect();
+            } catch (error) {
+                result.cleanupErrors.push(
+                    `Puppeteer disconnect before name retry: ${error.message}`
+                );
+            }
+            browser = null;
+        }
+        if (profileOpened) {
+            profileOpened = false;
+            try {
+                await adsPower.closeProfile(profileNo);
+            } catch (error) {
+                result.cleanupErrors.push(
+                    `AdsPower closeProfile before name retry: ${error.message}`
+                );
+            }
+        }
+    };
+    const openReadyFacebookProfile = async () => {
+        assertNotAborted();
+        result.stage = "OPEN_PROFILE";
+        const browserData = await adsPower.openProfile(profileNo, {
+            browserMode: browserMode === "headless" ? "headless" : "visible",
+            disableImages: disableImages === true,
+        });
+        profileOpened = true;
+
+        assertNotAborted();
+        result.stage = "CONNECT_BROWSER";
+        browser = await connectBrowser(browserData);
+        const pages = await browser.pages();
+        page = pages[0] ?? await browser.newPage();
+
+        assertNotAborted();
+        result.stage = "OPEN_FACEBOOK";
+        await openPage(page, "https://www.facebook.com/");
+
+        assertNotAborted();
+        result.stage = "FACEBOOK_LOGIN";
+        const loggedIn = await ensureLoggedIn(adsPower, profile, page);
+        if (!loggedIn) {
+            throw new Error("Не вдалося підтвердити вхід у Facebook");
+        }
+
+        assertNotAborted();
+        result.stage = "FACEBOOK_ACTIVE";
+        const active = await ensureActive(adsPower, profile, page);
+        if (!active) {
+            throw new Error("Facebook-акаунт не активний");
+        }
+
+        assertNotAborted();
+        result.stage = "ENSURE_ENGLISH";
+        await ensureLanguage(page);
     };
     const handleAbort = () => {
         abortCleanupPromise ??= stopOpenedProfile();
@@ -419,41 +484,7 @@ export default async function executeCommentAccountSetupWithProfile({
             throw new Error("AdsPower-профіль не готовий до роботи");
         }
 
-        assertNotAborted();
-        result.stage = "OPEN_PROFILE";
-        const browserData = await adsPower.openProfile(profileNo, {
-            browserMode: browserMode === "headless" ? "headless" : "visible",
-            disableImages: disableImages === true,
-        });
-        profileOpened = true;
-
-        assertNotAborted();
-        result.stage = "CONNECT_BROWSER";
-        browser = await connectBrowser(browserData);
-        const pages = await browser.pages();
-        const page = pages[0] ?? await browser.newPage();
-
-        assertNotAborted();
-        result.stage = "OPEN_FACEBOOK";
-        await openPage(page, "https://www.facebook.com/");
-
-        assertNotAborted();
-        result.stage = "FACEBOOK_LOGIN";
-        const loggedIn = await ensureLoggedIn(adsPower, profile, page);
-        if (!loggedIn) {
-            throw new Error("Не вдалося підтвердити вхід у Facebook");
-        }
-
-        assertNotAborted();
-        result.stage = "FACEBOOK_ACTIVE";
-        const active = await ensureActive(adsPower, profile, page);
-        if (!active) {
-            throw new Error("Facebook-акаунт не активний");
-        }
-
-        assertNotAborted();
-        result.stage = "ENSURE_ENGLISH";
-        await ensureLanguage(page);
+        await openReadyFacebookProfile();
 
         assertNotAborted();
         result.stage = "CHANGE_NAME";
@@ -464,11 +495,32 @@ export default async function executeCommentAccountSetupWithProfile({
                 reason: "Ім’я вже змінено, крок пропущено",
             });
         } else {
-        const nameResult = await changeName(page, {
-            firstName: persona.firstName,
-            lastName: persona.lastName,
-            logger,
-        });
+        let nameResult;
+        for (
+            let restartAttempt = 0;
+            restartAttempt <= MAX_NAME_PROFILE_RESTARTS;
+            restartAttempt += 1
+        ) {
+            nameResult = await changeName(page, {
+                firstName: persona.firstName,
+                lastName: persona.lastName,
+                logger,
+            });
+            const shouldRestart = !nameResult?.success
+                && restartAttempt < MAX_NAME_PROFILE_RESTARTS
+                && restartableNameChangeErrorCodes.has(nameResult?.error?.code);
+            if (!shouldRestart) break;
+
+            result.stage = "RESTART_PROFILE_FOR_NAME";
+            logger.info?.(
+                "facebook.name_change.profile_restart",
+                "Форма зміни імені не відкрилася; перезапускаємо профіль для єдиної повторної спроби",
+                { profileNo, restartAttempt: restartAttempt + 1 }
+            );
+            await closeBrowserProfileForNameRetry();
+            await waitHuman("long", { random });
+            await openReadyFacebookProfile();
+        }
         if (nameResult?.success) {
             result.nameChanged = true;
             result.steps.name = createStep({

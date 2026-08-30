@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "id": "2e2d2171-bb19-427b-97ee-66deb04efc89",
+  "taskId": "3446d8f3-9869-4a32-bf18-8be340733fdd",
+  "type": "campaign",
+  "title": "CZ | Creo_4 | 30+",
+  "status": "failed",
+  "createdAt": "2026-08-30T07:25:52.520Z",
+  "startedAt": "2026-08-30T07:25:40.776Z",
+  "finishedAt": "2026-08-30T07:25:52.520Z",
+  "durationMs": 11744,
+  "inputSummary": {
+    "campaignJobId": "61851c4e-907d-4ebc-b22a-a6ca4006d46a",
+    "accountKey": "fp_hub",
+    "adAccountId": "act_3307428522795629",
+    "campaignName": "CZ | Creo_4 | 30+",
+    "templateId": 3,
+    "pageId": "122094610958010842",
+    "postId": "122094610958010842_122373395432005310",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-08-30T07:25:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120250907217480267",
+      "creativeId": "4378122469185092",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120250907217750267",
+          "name": "CZ | Creo_4 | 30+ | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Cannot create ad because the media in the post has been edited. Please edit the ad or use a new post.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 2632,
+      "graphSubcode": 2446102,
+      "graphUserTitle": "Ad Creative is Incompatible with the Post",
+      "graphUserMessage": "Cannot create ad because the media in the post has been edited. Please edit the ad or use a new post.",
+      "stage": "ad",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "61851c4e-907d-4ebc-b22a-a6ca4006d46a",
+    "accountKey": "fp_hub",
+    "adAccountId": "act_3307428522795629",
+    "uniqueKey": "campaign-job:61851c4e-907d-4ebc-b22a-a6ca4006d46a"
+  }
+}
