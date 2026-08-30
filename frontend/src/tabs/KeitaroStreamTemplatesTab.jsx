@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Copy, LoaderCircle, Minus, Plus, Search, Trash2, X } from "lucide-react";
+import { ChevronDown, Copy, LoaderCircle, Minus, Plus, Search, Trash2, X } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
 
@@ -124,7 +124,7 @@ function TemplateDetails({ draft, savedDraft = activeSavedDraft, setDraft, savin
         const exists = stream[kind].some((item) => String(item[idKey]) === String(source.id));
         patchStream({ [kind]: exists ? stream[kind].filter((item) => String(item[idKey]) !== String(source.id)) : [...stream[kind], { [idKey]: Number(source.id), name: source.name, groupId: source.groupId || "", state: "active", share: 100 }] });
     };
-    return <><header className="stream-detail-head"><div><h2>{draft.id ? "Налаштування шаблону" : "Новий шаблон"}</h2><p>Тип «звичайний», рахування кліків, увімкнений стан, схема «лендінги та офери», вибір оферу перед кліком і відсутність фільтрів задаються автоматично.</p></div><button type="button" className="primary-button" disabled={saving || !hasChanges || !(draft.name || stream.name).trim()} onClick={onSave}>{savingProp && <LoaderCircle className="spin" size={16} />} Зберегти</button></header><div className="stream-detail-body"><section className="stream-panel stream-main-fields"><label className="stream-field"><span>Назва шаблону</span><input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Наприклад, White JP" /></label><label className="stream-field"><span>Назва потоку</span><input value={stream.name} onChange={(event) => patchStream({ name: event.target.value })} placeholder="Назва, яка з'явиться у Keitaro" /></label></section><AssetSection title="Лендінги" kind="landings" assets={stream.landings} idKey="landing_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ landings: stream.landings.filter((_, current) => current !== index) })} /><AssetSection title="Офери" kind="offers" assets={stream.offers} idKey="offer_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ offers: stream.offers.filter((_, current) => current !== index) })} /></div>{pickerKind && <AssetPickerModal kind={pickerKind} selectedAssets={stream[pickerKind]} onClose={() => setPickerKind("")} onToggle={(asset) => toggleAsset(pickerKind, asset)} />}</>;
+    return <><header className="stream-detail-head"><div><h2>{draft.id ? "Налаштування шаблону" : "Новий шаблон"}</h2><p>Тип «звичайний», рахування кліків, увімкнений стан, схема «лендінги та офери», вибір оферу перед кліком і відсутність фільтрів задаються автоматично.</p></div><button type="button" className="primary-button" disabled={saving || !hasChanges || !(draft.name || stream.name).trim()} onClick={onSave}>{savingProp && <LoaderCircle className="spin" size={16} />} Зберегти</button></header><div className="stream-detail-body"><section className="stream-panel stream-main-fields"><label className="stream-field"><span>Назва шаблону</span><input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Наприклад, White JP" /></label><label className="stream-field"><span>Назва потоку</span><input value={stream.name} onChange={(event) => patchStream({ name: event.target.value })} placeholder="Назва, яка з'явиться у Keitaro" /></label></section><AssetSection title="Лендінги" kind="landings" assets={stream.landings} idKey="landing_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ landings: stream.landings.filter((_, current) => current !== index) })} /><AssetSection title="Офери" kind="offers" assets={stream.offers} idKey="offer_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ offers: stream.offers.filter((_, current) => current !== index) })} /></div>{pickerKind && <AssetPickerModal kind={pickerKind} templateId={draft.id ?? "new"} selectedAssets={stream[pickerKind]} onClose={() => setPickerKind("")} onToggle={(asset) => toggleAsset(pickerKind, asset)} />}</>;
 }
 
 function AssetSection({ title, kind, assets, idKey, onOpenPicker, onPatch, onRemove }) {
@@ -134,8 +134,47 @@ function AssetSection({ title, kind, assets, idKey, onOpenPicker, onPatch, onRem
     })}</section>;
 }
 
-function AssetPickerModal({ kind, selectedAssets, onClose, onToggle }) {
-    const storageKey = `adsbot.keitaro-asset-picker.${kind}`;
+function AssetGroupSearch({ groups, value, onChange, disabled = false, title }) {
+    const root = useRef(null);
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+    const selected = groups.find((group) => String(group.id) === String(value)) ?? groups[0];
+    const visible = useMemo(() => {
+        const needle = query.trim().toLocaleLowerCase();
+        return needle ? groups.filter((group) => group.name.toLocaleLowerCase().includes(needle)) : groups;
+    }, [groups, query]);
+
+    useEffect(() => {
+        const close = (event) => {
+            if (!root.current?.contains(event.target)) setOpen(false);
+        };
+        document.addEventListener("mousedown", close);
+        return () => document.removeEventListener("mousedown", close);
+    }, []);
+
+    return <div ref={root} className={`asset-group-search ${open ? "open" : ""}`}>
+        <div className="asset-group-search-input">
+            <Search size={16} />
+            <input
+                value={open ? query : selected?.name ?? "Усі"}
+                disabled={disabled}
+                placeholder="Пошук групи…"
+                aria-label={`Пошук групи ${title}ів`}
+                onFocus={() => { setQuery(""); setOpen(true); }}
+                onChange={(event) => { setQuery(event.target.value); setOpen(true); }}
+                onKeyDown={(event) => { if (event.key === "Escape") setOpen(false); }}
+            />
+            <ChevronDown size={16} />
+        </div>
+        {open && !disabled && <div className="asset-group-search-menu">
+            {visible.length === 0 && <div className="asset-group-search-empty">Групу не знайдено.</div>}
+            {visible.map((group) => <button type="button" key={group.id} className={String(group.id) === String(value) ? "selected" : ""} onClick={() => { onChange(group.id); setQuery(""); setOpen(false); }}>{group.name}</button>)}
+        </div>}
+    </div>;
+}
+
+function AssetPickerModal({ kind, templateId, selectedAssets, onClose, onToggle }) {
+    const storageKey = `adsbot.keitaro-asset-picker.${templateId || "new"}.${kind}`;
     const storage = typeof localStorage !== "undefined"
         && typeof localStorage.getItem === "function"
         && typeof localStorage.setItem === "function"
@@ -147,12 +186,13 @@ function AssetPickerModal({ kind, selectedAssets, onClose, onToggle }) {
     } catch {
         // Пошкоджені локальні налаштування не повинні блокувати вибір елементів.
     }
-    const [groups, setGroups] = useState([]); const [groupId, setGroupId] = useState(savedPicker.groupId || ""); const [assets, setAssets] = useState([]); const [groupsLoading, setGroupsLoading] = useState(true); const [assetsLoading, setAssetsLoading] = useState(false); const [query, setQuery] = useState(savedPicker.query || "");
+    const [groups, setGroups] = useState([]); const [groupId, setGroupId] = useState(savedPicker.groupId || "all"); const [assets, setAssets] = useState([]); const [groupsLoading, setGroupsLoading] = useState(true); const [assetsLoading, setAssetsLoading] = useState(false); const [query, setQuery] = useState(savedPicker.query || "");
     const title = kind === "offers" ? "офер" : "лендінг"; const idKey = kind === "offers" ? "offer_id" : "landing_id";
     useEffect(() => { unwrap(window.adsBot.getKeitaroAssetGroups(kind)).then((items) => setGroups([...(items ?? [])].sort((left, right) => left.name.localeCompare(right.name, "uk-UA", { numeric: true, sensitivity: "base" })))).catch(() => setGroups([])).finally(() => setGroupsLoading(false)); }, [kind]);
     useEffect(() => { if (!groupId) { setAssets([]); return; } setAssetsLoading(true); const request = kind === "offers" ? window.adsBot.getKeitaroOffers({ groupId }) : window.adsBot.getKeitaroLandingPages({ groupId }); unwrap(request).then((items) => setAssets(items ?? [])).catch(() => setAssets([])).finally(() => setAssetsLoading(false)); }, [kind, groupId]);
     useEffect(() => { storage?.setItem(storageKey, JSON.stringify({ groupId, query })); }, [storage, storageKey, groupId, query]);
     const visible = useMemo(() => { const needle = query.trim().toLocaleLowerCase(); return needle ? assets.filter((item) => `${item.id} ${item.name}`.toLocaleLowerCase().includes(needle)) : assets; }, [assets, query]);
     const selectedIds = new Set(selectedAssets.map((item) => String(item[idKey])));
-    return <div className="asset-picker-overlay" role="dialog" aria-modal="true" aria-label={`Вибір ${title}ів`}><div className="asset-picker-modal"><header><div><h3>Додати {title}и</h3><p>Натискайте «+», щоб додати кілька елементів. Повторне натискання прибирає елемент.</p></div><button type="button" className="icon-button" aria-label="Закрити" onClick={onClose}><X size={18} /></button></header><div className="asset-picker-body"><label className="stream-field"><span>Група {title}ів</span><select value={groupId} disabled={groupsLoading} onChange={(event) => setGroupId(event.target.value)}><option value="">Оберіть групу</option><option value="all">Усі групи</option>{groups.map((group) => <option key={group.id} value={group.id}>{group.name}</option>)}</select></label>{groupId && <label className="keitaro-search asset-picker-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Пошук ${title}ів…`} /></label>}{groupsLoading && <div className="campaign-loading"><LoaderCircle className="spin" size={19} /> Завантажуємо групи…</div>}{!groupsLoading && !groupId && <div className="stream-empty-line">Оберіть групу або «Усі групи».</div>}{assetsLoading && <div className="campaign-loading"><LoaderCircle className="spin" size={19} /> Завантажуємо {title}и…</div>}{!assetsLoading && groupId && <div className="asset-picker-list">{visible.length === 0 && <div className="stream-empty-line">У цій групі нічого не знайдено.</div>}{visible.map((asset) => { const selected = selectedIds.has(String(asset.id)); return <button type="button" key={asset.id} className={`asset-picker-item ${selected ? "selected" : ""}`} onClick={() => onToggle(asset)}><span><strong>{asset.name}</strong><small>ID {asset.id}</small></span>{selected ? <Minus size={17} /> : <Plus size={17} />}</button>; })}</div>}</div></div></div>;
+    const groupItems = [{ id: "all", name: "Усі" }, ...groups];
+    return <div className="asset-picker-overlay" role="dialog" aria-modal="true" aria-label={`Вибір ${title}ів`}><div className="asset-picker-modal"><header><div><h3>Додати {title}и</h3><p>Натискайте «+», щоб додати кілька елементів. Повторне натискання прибирає елемент.</p></div><button type="button" className="icon-button" aria-label="Закрити" onClick={onClose}><X size={18} /></button></header><div className="asset-picker-body"><div className="asset-picker-toolbar"><div className="asset-picker-search-field"><span>Пошук</span><label className="keitaro-search asset-picker-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Пошук ${title}ів за назвою…`} /></label></div><div className="asset-picker-group"><span>Група</span><AssetGroupSearch groups={groupItems} value={groupId} onChange={setGroupId} disabled={groupsLoading} title={title} /></div></div>{groupsLoading && <div className="campaign-loading"><LoaderCircle className="spin" size={19} /> Завантажуємо групи…</div>}{assetsLoading && <div className="campaign-loading"><LoaderCircle className="spin" size={19} /> Завантажуємо {title}и…</div>}{!assetsLoading && <div className="asset-picker-list">{visible.length === 0 && <div className="stream-empty-line">У цій групі нічого не знайдено.</div>}{visible.map((asset) => { const selected = selectedIds.has(String(asset.id)); return <button type="button" key={asset.id} className={`asset-picker-item ${selected ? "selected" : ""}`} onClick={() => onToggle(asset)}><span><strong>{asset.name}</strong><small>ID {asset.id}</small></span>{selected ? <Minus size={17} /> : <Plus size={17} />}</button>; })}</div>}</div></div></div>;
 }

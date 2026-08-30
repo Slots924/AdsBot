@@ -130,11 +130,16 @@ assert.equal(keitaro.landingCalls, 1);
 let campaignPayload = null;
 const createdStreams = [];
 keitaro.getStream = async (id) => {
-    assert.equal(id, 774);
+    assert.equal(id, 3119);
     return {
-        id: 774,
+        id: 3119,
         campaign_id: 99,
         name: "Source",
+        state: "active",
+        schema: "landings",
+        collect_clicks: true,
+        uniqueness_method: "ip_ua",
+        uniqueness_use_cookies: true,
         filters: [{ id: 1, name: "country", mode: "accept", payload: ["DE"] }],
         landings: [{ id: 5, landing_id: 68, share: 100, state: "active" }],
         offers: [],
@@ -163,7 +168,7 @@ await service.createCampaignWithWhiteStream({
     pixelToken: "public-token",
     geo: "AT",
     excludedCountries: ["DE"],
-    landingIds: ["123"],
+    landings: [{ landing_id: "123", share: 65, state: "disabled" }],
     identifier: "AJ001T",
     streamTemplate: { stream: { name: "Second", landings: [], offers: [], filters: [] } },
 });
@@ -176,6 +181,11 @@ assert.equal(createdStreams.length, 2);
 assert.equal(createdStreams[0].position, 1);
 assert.equal(createdStreams[0].name, "White");
 assert.equal(createdStreams[0].comments, "AJ001T");
+assert.equal(createdStreams[0].schema, "landings");
+assert.equal(createdStreams[0].collect_clicks, true);
+assert.equal(createdStreams[0].uniqueness_method, "ip_ua");
+assert.equal(createdStreams[0].uniqueness_use_cookies, true);
+assert.deepEqual(createdStreams[0].landings, [{ landing_id: 123, share: 65, state: "disabled" }]);
 assert.deepEqual(createdStreams[0].filters.at(-1), {
     name: "country", mode: "reject", payload: ["AT", "DE"],
 });

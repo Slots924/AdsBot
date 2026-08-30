@@ -220,6 +220,7 @@ export default class KeitaroGuiService {
         geo,
         excludedCountries = [],
         landingIds = [],
+        landings = [],
         identifier = "",
         streamTemplate = null,
     } = {}) {
@@ -227,7 +228,7 @@ export default class KeitaroGuiService {
             throw new Error("Заповніть назву, групу, домен, GEO, піксель і джерело трафіку");
         }
         const [source, trafficSource] = await Promise.all([
-            this.keitaro.getStream(774),
+            this.keitaro.getStream(3119),
             this.keitaro.getTrafficSource(trafficSourceId),
         ]);
         const campaign = await this.keitaro.createCampaign({
@@ -248,8 +249,16 @@ export default class KeitaroGuiService {
         white.name = "White";
         white.comments = String(identifier).trim();
         white.position = 1;
-        white.landings = landingIds.map((id) => ({ landing_id: Number(id), share: 100, state: "active" }))
-            .filter((item) => Number.isInteger(item.landing_id) && item.landing_id > 0);
+        const configuredLandings = Array.isArray(landings) && landings.length
+            ? landings
+            : Array.isArray(landingIds) && landingIds.length
+                ? landingIds.map((id) => ({ landing_id: id, share: 100, state: "active" }))
+                : [{ landing_id: 123, share: 100, state: "active" }];
+        white.landings = configuredLandings.map((item) => ({
+            landing_id: Number(item?.landing_id ?? item?.id),
+            share: Number.isFinite(Number(item?.share)) ? Number(item.share) : 100,
+            state: item?.state === "disabled" ? "disabled" : "active",
+        })).filter((item) => Number.isInteger(item.landing_id) && item.landing_id > 0);
         white.filters = white.filters.filter((item) => item.name !== "country");
         white.filters.push({ name: "country", mode: "reject", payload: countries });
         const whiteStream = await this.keitaro.createStream({ ...white, campaign_id: campaignId });

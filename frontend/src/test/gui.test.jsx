@@ -999,9 +999,12 @@ describe("GUI helpers", () => {
         fireEvent.click(screen.getByRole("button", { name: "Додати лендінги" }));
         expect(await screen.findByRole("dialog", { name: "Вибір лендінгів" })).toBeInTheDocument();
         expect(window.adsBot.getKeitaroAssetGroups).toHaveBeenCalledWith("landings");
-        fireEvent.change(screen.getByText("Оберіть групу").closest("select"), {
-            target: { value: "41" },
-        });
+        await waitFor(() => expect(window.adsBot.getKeitaroLandingPages).toHaveBeenCalledWith({ groupId: "all" }));
+        const groupSearch = screen.getByRole("textbox", { name: "Пошук групи лендінгів" });
+        expect(groupSearch).toHaveValue("Усі");
+        fireEvent.focus(groupSearch);
+        fireEvent.change(groupSearch, { target: { value: "JP" } });
+        fireEvent.click(screen.getByRole("button", { name: "JP" }));
         await waitFor(() => expect(window.adsBot.getKeitaroLandingPages).toHaveBeenCalledWith({ groupId: "41" }));
     });
 
