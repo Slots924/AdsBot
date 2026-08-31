@@ -41,6 +41,15 @@
 - Не виконувати небезпечні операції з реальними профілями AdsPower без прямої вказівки користувача.
 - Після зміни публічного контракту Facebook API, Keitaro API або proxy client оновлювати відповідний документ у папці `docs`.
 
+## Сірий дизайн Keitaro
+
+- Фрази користувача «сірий дизайн», «як у шаблонах потоків», «як на скрині Keitaro», `Keitaro Gray` і `Keitaro Gray UI` означають дизайн-систему `Keitaro Gray UI`.
+- Перед створенням або зміною такого інтерфейсу повністю прочитати `docs/design/keitaro-gray-ui.md`.
+- Кольори, геометрію та стани брати з `frontend/src/styles/keitaro-gray.css`.
+- Спочатку використовувати готові компоненти з `frontend/src/components/gray-ui/`, а не дублювати їхню розмітку та CSS.
+- Візуальний еталон знаходиться у `frontend/src/design/KeitaroGrayShowcase.jsx` і відкривається через `?gray-ui=1`.
+- Не переводити інші частини GUI на цей стиль без прямого прохання користувача або без потреби поточного завдання.
+
 ## Спілкування з користувачем
 
 - Завжди спілкуйся українською мовою.
@@ -133,6 +142,8 @@ AdsBot/
 - `frontend/src/tabs/` — вкладки GUI: акаунти, сторінки, публікації, кампанії, Keitaro тощо.
 - `frontend/src/lib/` — frontend API-клієнти та допоміжні функції.
 - `frontend/src/styles/` — стилі GUI.
+- `frontend/src/components/gray-ui/` — повторно використовувані компоненти сірого дизайну `Keitaro Gray UI`.
+- `frontend/src/design/KeitaroGrayShowcase.jsx` — живий візуальний еталон `Keitaro Gray UI`.
 - `frontend/src/test/` — frontend-тести Vitest.
 - `frontend/package.json` — залежності й команди frontend-частини.
 - `frontend/dist/` — зібрана GUI-версія; генерується під час build і не редагується вручну.

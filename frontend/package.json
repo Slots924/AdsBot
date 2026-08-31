@@ -6,6 +6,7 @@
   "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron electron/main.js --dev\"",
+    "design:gray": "vite --host 127.0.0.1 --open /?gray-ui=1",
     "build": "vite build",
     "scale:test": "set ELECTRON_RUN_AS_NODE=&& electron electron/scaleDiagnostics.js",
     "test": "vitest run"
