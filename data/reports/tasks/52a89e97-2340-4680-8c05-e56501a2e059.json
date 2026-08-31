@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "id": "52a89e97-2340-4680-8c05-e56501a2e059",
+  "taskId": "4e8bc3d7-70c7-467f-9d12-32aecbe65d66",
+  "type": "campaign",
+  "title": "CZ | Creo_4 | 30+ · повтор",
+  "status": "failed",
+  "createdAt": "2026-08-31T07:01:27.877Z",
+  "startedAt": "2026-08-31T07:01:17.435Z",
+  "finishedAt": "2026-08-31T07:01:27.876Z",
+  "durationMs": 10441,
+  "inputSummary": {
+    "campaignJobId": "51d57e9c-73ee-4cdc-b7c3-78ccb1b071ab",
+    "accountKey": "fp_hub",
+    "adAccountId": "act_4490065777944548",
+    "campaignName": "CZ | Creo_4 | 30+",
+    "templateId": 3,
+    "pageId": "122094610958010842",
+    "postId": "122094610958010842_122373395432005310",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-08-31T06:57:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "52542929028304",
+      "creativeId": "1099308006033751",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "52542929041504",
+          "name": "CZ | Creo_4 | 30+ | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "52542929052304",
+          "name": "CZ | Creo_4 | 30+ | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "52542929049104",
+          "name": "CZ | Creo_4 | 30+ | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "52542929397304",
+          "name": "CZ | Creo_4 | 30+ | AD 02"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Ad Sets may not be added to archived Campaigns.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 100,
+      "graphSubcode": 1487866,
+      "graphUserTitle": "Campaign Archived",
+      "graphUserMessage": "Ad Sets may not be added to archived Campaigns.",
+      "stage": "adset",
+      "itemIndex": 2,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "51d57e9c-73ee-4cdc-b7c3-78ccb1b071ab",
+    "accountKey": "fp_hub",
+    "adAccountId": "act_4490065777944548",
+    "uniqueKey": "campaign-job:51d57e9c-73ee-4cdc-b7c3-78ccb1b071ab"
+  }
+}

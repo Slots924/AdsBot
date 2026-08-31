@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "7f22dfaf-796e-49c8-bfd5-ab8de14bab8b",
+  "taskId": "a91cb8c6-8cdd-4e6d-b856-4a52b2ba3033",
+  "type": "campaign",
+  "title": "CH | Creo_138 | 30+",
+  "status": "interrupted",
+  "createdAt": "2026-08-31T07:04:40.315Z",
+  "startedAt": "2026-08-31T07:04:36.135Z",
+  "finishedAt": "2026-08-31T07:04:40.314Z",
+  "durationMs": 4179,
+  "inputSummary": {
+    "campaignJobId": "221181f1-a389-410b-8a5c-f6930f51b0d1",
+    "accountKey": "fp_hub",
+    "adAccountId": "act_945164835158253",
+    "campaignName": "CH | Creo_138 | 30+",
+    "templateId": 3,
+    "pageId": "122096677100010617",
+    "postId": "122096677100010617_122379489920002091",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-08-31T07:04:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": null,
+      "creativeId": null,
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Створення кампанії перервано",
+      "code": "CAMPAIGN_CREATION_INTERRUPTED",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "preflight",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "221181f1-a389-410b-8a5c-f6930f51b0d1",
+    "accountKey": "fp_hub",
+    "adAccountId": "act_945164835158253",
+    "uniqueKey": "campaign-job:221181f1-a389-410b-8a5c-f6930f51b0d1"
+  }
+}

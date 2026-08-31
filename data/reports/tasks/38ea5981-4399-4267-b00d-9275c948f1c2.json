@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "id": "38ea5981-4399-4267-b00d-9275c948f1c2",
+  "taskId": "86bc01d0-7d29-4417-a93d-b383ee6a3e37",
+  "type": "campaign",
+  "title": "CZ | Creo_4 | 30+",
+  "status": "failed",
+  "createdAt": "2026-08-31T06:58:34.599Z",
+  "startedAt": "2026-08-31T06:58:05.125Z",
+  "finishedAt": "2026-08-31T06:58:34.598Z",
+  "durationMs": 29473,
+  "inputSummary": {
+    "campaignJobId": "51d57e9c-73ee-4cdc-b7c3-78ccb1b071ab",
+    "accountKey": "fp_hub",
+    "adAccountId": "act_4490065777944548",
+    "campaignName": "CZ | Creo_4 | 30+",
+    "templateId": 3,
+    "pageId": "122094610958010842",
+    "postId": "122094610958010842_122373395432005310",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-08-31T06:57:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "52542929028304",
+      "creativeId": "1099308006033751",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "52542929041504",
+          "name": "CZ | Creo_4 | 30+ | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "52542929052304",
+          "name": "CZ | Creo_4 | 30+ | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "52542929049104",
+          "name": "CZ | Creo_4 | 30+ | AD 01"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Не вдалося визначити, чи Meta застосувала зміну. Не повторюйте операцію до ручної перевірки Ads Manager.",
+      "code": "FACEBOOK_WRITE_OUTCOME_UNKNOWN",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "ad",
+      "itemIndex": 1,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "51d57e9c-73ee-4cdc-b7c3-78ccb1b071ab",
+    "accountKey": "fp_hub",
+    "adAccountId": "act_4490065777944548",
+    "uniqueKey": "campaign-job:51d57e9c-73ee-4cdc-b7c3-78ccb1b071ab"
+  }
+}

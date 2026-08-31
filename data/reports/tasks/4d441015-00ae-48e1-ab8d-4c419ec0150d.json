@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "id": "4d441015-00ae-48e1-ab8d-4c419ec0150d",
+  "taskId": "d22a71a5-4011-4704-a5ec-c25730160d2d",
+  "type": "creative-launch",
+  "title": "HU | Creo_4 | 30+",
+  "status": "failed",
+  "createdAt": "2026-08-30T20:27:48.314Z",
+  "startedAt": "2026-08-30T20:27:47.158Z",
+  "finishedAt": "2026-08-30T20:27:48.313Z",
+  "durationMs": 1155,
+  "inputSummary": {
+    "workflowJobId": "d28beb84-aa58-4a70-8aa5-5f368356e7e8",
+    "accountKey": "Test",
+    "pageId": "1191005344101425"
+  },
+  "resultSummary": {
+    "post": null,
+    "subtasks": [
+      {
+        "id": "publication",
+        "title": "Підготовка і публікація",
+        "status": "running",
+        "progress": {},
+        "message": "Перевіряємо дані й готуємо креатив"
+      },
+      {
+        "id": "campaign",
+        "title": "Створення кампанії",
+        "status": "pending",
+        "progress": {}
+      },
+      {
+        "id": "comments",
+        "title": "Коментування",
+        "status": "pending",
+        "progress": {}
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Pixel недоступний вибраному РК",
+      "code": "CAMPAIGN_PIXEL_ACCESS_DENIED",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": null,
+      "itemIndex": null,
+      "createdObjects": null,
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "workflowJobId": "d28beb84-aa58-4a70-8aa5-5f368356e7e8",
+    "accountKey": "Test",
+    "pageId": "1191005344101425",
+    "uniqueKey": "creative-launch:d28beb84-aa58-4a70-8aa5-5f368356e7e8"
+  }
+}
