@@ -18,14 +18,17 @@ const keitaro = {
     async listAllCampaigns() {
         this.campaignCalls += 1;
         return [
-            { id: 1, name: "CAM 1", group_id: 10, state: "active" },
+            { id: 1, name: "CAM 1", group_id: 10, state: "active", url: "https://tracker.test/A1?utm_source=test" },
             { id: 2, name: "CAM 2", group_id: 20, state: "disabled" },
             { id: 3, name: "CAM 3", group_id: 30, state: "active" },
         ];
     },
     async buildReport(payload) {
-        assert.equal(payload.dimensions[0], "campaign_id");
+        assert.ok(["campaign_id", "offer_id"].includes(payload.dimensions[0]));
         assert.ok(payload.metrics.includes("clicks"));
+        if (payload.dimensions[0] === "offer_id") {
+            return { rows: [{ offer_id: 71, clicks: "20", sales: "3", revenue: "12" }] };
+        }
         return {
             rows: [
                 { campaign_id: 1, clicks: "11", conversions: "2", revenue: "30.5" },
@@ -46,6 +49,21 @@ const keitaro = {
             { id: 68, name: "White", group_id: 41 },
             { id: 69, name: "Other", group_id: 42 },
         ];
+    },
+    async listAllOffers() {
+        return [
+            { id: 71, name: "ZA | [Gentlove] | Default", group_id: 36, affiliate_network_id: 8 },
+            { id: 72, name: "ZA | [Gentlove] | 151mf_mob", group_id: 36, affiliate_network_id: 8 },
+        ];
+    },
+    async listAllAffiliateNetworks() {
+        return [{ id: 8, name: "Lead Network" }];
+    },
+    async moveCampaignsToGroup(campaignIds, groupId) {
+        return campaignIds.map((id) => ({ id, ok: Number(groupId) === 20 }));
+    },
+    async moveOffersToGroup(offerIds, groupId) {
+        return offerIds.map((id) => ({ id, ok: Number(groupId) === 36 }));
     },
 };
 
@@ -69,6 +87,7 @@ assert.equal(allAvailable.campaigns.length, 2);
 assert.equal(allAvailable.campaigns[0].clicks, 11);
 assert.equal(allAvailable.campaigns[0].conversions, 2);
 assert.equal(allAvailable.campaigns[0].revenue, 30.5);
+assert.equal(allAvailable.campaigns[0].url, "https://tracker.test/A1");
 assert.equal(allAvailable.campaigns[1].clicks, 0);
 assert.deepEqual(allAvailable.groups.map((item) => item.id), ["20", "10"]);
 
@@ -126,6 +145,13 @@ assert.deepEqual(await service.listAssetGroups("landings"), [{ id: "41", name: "
 assert.deepEqual((await service.listLandingPages({ groupId: "41" })).map((item) => item.id), ["68"]);
 assert.deepEqual((await service.listLandingPages({ groupId: "all" })).map((item) => item.id), ["68", "69"]);
 assert.equal(keitaro.landingCalls, 1);
+const offerReport = await service.getOffersReport({ groupId: "36" });
+assert.equal(offerReport.offers.length, 2);
+assert.equal(offerReport.offers[0].affiliateNetworkName, "Lead Network");
+assert.equal(offerReport.offers[0].clicks, 20);
+assert.equal(offerReport.offers[1].clicks, 0);
+assert.equal((await service.moveCampaignsToGroup({ campaignIds: [1], groupId: 20 }))[0].ok, true);
+assert.equal((await service.moveOffersToGroup({ offerIds: [71], groupId: 36 }))[0].ok, true);
 
 let campaignPayload = null;
 const createdStreams = [];

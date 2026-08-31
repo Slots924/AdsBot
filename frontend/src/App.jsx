@@ -59,6 +59,7 @@ export default function App() {
     const [keitaroPageSize, setKeitaroPageSize] = useState(50);
     const [keitaroConcurrency, setKeitaroConcurrency] = useState(20);
     const [keitaroSubtab, setKeitaroSubtab] = useState("campaigns");
+    const [keitaroOffersGrouped, setKeitaroOffersGrouped] = useState(false);
     const [logs, setLogs] = useState([]);
     const [tasks, setTasks] = useState([]);
     const [uiScale, setUiScale] = useState(1.3);
@@ -178,6 +179,7 @@ export default function App() {
                 setKeitaroPageSize(state.keitaroPageSize || 50);
                 setKeitaroConcurrency(state.keitaroConcurrency || 20);
                 setKeitaroSubtab(state.keitaroSubtab || "campaigns");
+                setKeitaroOffersGrouped(state.keitaroOffersGrouped === true);
                 await unwrap(window.adsBot.setUiScale(state.uiScale));
             } catch (error) { addLog("warn", "frontend", error.message); }
             await Promise.all([loadAccounts(true), loadProxies(), unwrap(window.adsBot.getAdsPowerGroups()).then(setGroups).catch(() => {}), refreshTasks().catch(() => {})]);
@@ -190,9 +192,9 @@ export default function App() {
     useEffect(() => { if (selectedAccount?.status === "active") loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status]);
     useEffect(() => {
         if (!hydrated) return undefined;
-        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab }).catch(() => {}), 250);
+        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped }).catch(() => {}), 250);
         return () => clearTimeout(timer);
-    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab]);
+    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped]);
 
     const updateWorkspacePages = (pages) => setWorkspaceCache((current) => ({
         ...current,
@@ -297,6 +299,8 @@ export default function App() {
                         key="keitaro"
                         keitaroSubtab={keitaroSubtab}
                         onKeitaroSubtabChange={setKeitaroSubtab}
+                        keitaroOffersGrouped={keitaroOffersGrouped}
+                        onKeitaroOffersGroupedChange={setKeitaroOffersGrouped}
                         availableGroupIds={keitaroAvailableGroupIds}
                         search={keitaroSearch}
                         onSearchChange={setKeitaroSearch}

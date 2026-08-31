@@ -54,6 +54,7 @@ const defaultState = {
     keitaroPageSize: defaultKeitaroPageSize,
     keitaroConcurrency: defaultKeitaroConcurrency,
     keitaroSubtab: "campaigns",
+    keitaroOffersGrouped: false,
 };
 
 
@@ -242,7 +243,10 @@ function normalizeState(state = {}) {
                 Math.max(keitaroConcurrencyMin, value)
             );
         })(),
-        keitaroSubtab: state.keitaroSubtab === "streams" ? "streams" : "campaigns",
+        keitaroSubtab: ["offers", "streams"].includes(state.keitaroSubtab)
+            ? state.keitaroSubtab
+            : "campaigns",
+        keitaroOffersGrouped: state.keitaroOffersGrouped === true,
     };
 }
 

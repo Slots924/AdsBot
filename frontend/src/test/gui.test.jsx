@@ -896,6 +896,7 @@ describe("GUI helpers", () => {
                         groupId: "10",
                         groupName: "Nutra",
                         state: "disabled",
+                        url: "https://love-night.bar/A4JT?utm_source=test",
                     },
                 ],
                 selectedGroupIds: ["10"],
@@ -937,8 +938,8 @@ describe("GUI helpers", () => {
         expect(screen.getByText("Вибрано: 1")).toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: "Застосувати шаблон" }));
         expect(await screen.findByRole("dialog", { name: "Застосувати шаблон до кампаній" })).toBeInTheDocument();
-        fireEvent.click(screen.getByRole("button", { name: "Шаблон потоку" }));
-        fireEvent.click(await screen.findByRole("button", { name: /White 423/ }));
+        fireEvent.focus(screen.getByRole("combobox", { name: "Шаблон потоку" }));
+        fireEvent.click(await screen.findByRole("option", { name: /White 423/ }));
         expect(screen.getByText("Номер потоку в кампанії")).toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: "Застосувати" }));
         await waitFor(() => expect(window.adsBot.applyKeitaroStreamTemplate).toHaveBeenCalledWith({
@@ -948,6 +949,44 @@ describe("GUI helpers", () => {
             replacePosition: 2,
         }));
         expect(screen.getByLabelText("Кампаній на сторінці")).toHaveValue("50");
+    });
+
+    it("групує офери Keitaro та переносить вибрані в іншу групу", async () => {
+        window.adsBot.getKeitaroCampaignGroups = vi.fn().mockResolvedValue({ ok: true, data: [] });
+        window.adsBot.getKeitaroOffersReport = vi.fn().mockResolvedValue({
+            ok: true,
+            data: {
+                groups: [{ id: "36", name: "Offers ZA" }, { id: "40", name: "Archive" }],
+                offers: [
+                    { id: "71", name: "ZA | [Gentlove] | Default", groupId: "36", groupName: "Offers ZA", affiliateNetworkId: "8", affiliateNetworkName: "Lead Network", state: "active", clicks: 10, conversions: 2, sales: 1, epc: 0.5, revenue: 5 },
+                    { id: "72", name: "ZA | [Gentlove] | 151mf_mob", groupId: "36", groupName: "Offers ZA", affiliateNetworkId: "8", affiliateNetworkName: "Lead Network", state: "active", clicks: 20, conversions: 3, sales: 2, epc: 0.5, revenue: 10 },
+                ],
+            },
+        });
+        window.adsBot.moveKeitaroOffersToGroup = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [{ id: 71, ok: true }, { id: 72, ok: true }],
+        });
+        function Harness() {
+            const [subtab, setSubtab] = useState("campaigns");
+            const [grouped, setGrouped] = useState(false);
+            return <KeitaroWorkspaceTab availableGroupIds={[]} keitaroSubtab={subtab} onKeitaroSubtabChange={setSubtab} keitaroOffersGrouped={grouped} onKeitaroOffersGroupedChange={setGrouped} />;
+        }
+        render(<Harness />);
+        fireEvent.click(screen.getByRole("button", { name: "Офери" }));
+        expect(await screen.findByText("ZA | [Gentlove] | Default")).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("switch", { name: "Групувати офери" }));
+        expect(screen.getByText("ZA | [Gentlove]")).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Розгорнути групу ZA | [Gentlove]" }));
+        expect(screen.getByLabelText("Вибрати підофер ZA | [Gentlove] | Default")).toBeInTheDocument();
+        expect(screen.getByLabelText("Вибрати підофер ZA | [Gentlove] | 151mf_mob")).toBeInTheDocument();
+        fireEvent.click(screen.getByLabelText("Вибрати офер ZA | [Gentlove]"));
+        fireEvent.click(screen.getByRole("button", { name: "Перенести" }));
+        const moveDialog = screen.getByRole("dialog", { name: "Перенести офери" });
+        fireEvent.focus(within(moveDialog).getByRole("combobox", { name: "Нова група" }));
+        fireEvent.click(screen.getByRole("option", { name: "Archive" }));
+        fireEvent.click(within(moveDialog).getByRole("button", { name: "Перенести" }));
+        await waitFor(() => expect(window.adsBot.moveKeitaroOffersToGroup).toHaveBeenCalledWith({ offerIds: ["71", "72"], groupId: "40" }));
     });
 
     it("має підвкладки кампаній і шаблонів потоків Keitaro", async () => {

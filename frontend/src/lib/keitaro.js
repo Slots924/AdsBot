@@ -1,4 +1,4 @@
-export const keitaroPageSizes = [50, 100, 150, 200];
+export const keitaroPageSizes = [50, 100, 150, 200, 500];
 
 
 export const keitaroDatePresets = [
@@ -32,10 +32,45 @@ export const keitaroColumns = [
 ];
 
 
+export const keitaroOfferColumns = [
+    { id: "id", label: "ID", type: "id", width: 76 },
+    { id: "name", label: "Назва офера", type: "text", width: 330 },
+    { id: "affiliateNetworkName", label: "Мережа", type: "text", width: 170 },
+    { id: "group", label: "Група", type: "text", width: 160 },
+    { id: "state", label: "Статус", type: "state", width: 104 },
+    ...keitaroColumns.filter((column) => !["id", "name", "group", "state"].includes(column.id)),
+];
+
+
+export const defaultKeitaroOfferColumns = [
+    "name",
+    "affiliateNetworkName",
+    "clicks",
+    "conversions",
+    "sales",
+    "epc",
+    "revenue",
+];
+
+
+export const keitaroMetricIds = [
+    "clicks", "uniqueClicks", "bots", "conversions", "sales", "leads",
+    "rejected", "cost", "revenue", "profit",
+];
+
+
 export function visibleKeitaroColumns(order, visible) {
     const visibleSet = new Set((visible ?? []).map(String));
     return (order ?? [])
         .map((id) => keitaroColumns.find((column) => column.id === id))
+        .filter((column) => column && visibleSet.has(column.id));
+}
+
+
+export function visibleColumnsFrom(sourceColumns, order, visible) {
+    const visibleSet = new Set((visible ?? []).map(String));
+    return (order ?? [])
+        .map((id) => sourceColumns.find((column) => column.id === id))
         .filter((column) => column && visibleSet.has(column.id));
 }
 
@@ -86,4 +121,60 @@ export function formatKeitaroValue(column, value) {
         }).format(value)}%`;
     }
     return String(value);
+}
+
+
+export function summarizeKeitaroRows(rows = []) {
+    const total = Object.fromEntries(keitaroMetricIds.map((id) => [id, 0]));
+    for (const row of rows) {
+        for (const id of keitaroMetricIds) total[id] += Number(row?.[id]) || 0;
+    }
+    total.cr = total.clicks > 0 ? (total.conversions / total.clicks) * 100 : 0;
+    total.roi = total.cost > 0 ? (total.profit / total.cost) * 100 : 0;
+    total.epc = total.clicks > 0 ? total.revenue / total.clicks : 0;
+    total.cpc = total.clicks > 0 ? total.cost / total.clicks : 0;
+    return total;
+}
+
+
+function offerIdentity(offer) {
+    const name = String(offer?.name ?? "").trim();
+    const geo = name.match(/^\s*([A-Za-z]{2})(?:\s|\|)/)?.[1]?.toUpperCase() || "—";
+    const product = name.match(/\[([^\]]+)\]/)?.[1]?.trim().toLocaleLowerCase() || name.toLocaleLowerCase();
+    return { geo, product };
+}
+
+
+export function groupKeitaroOffers(offers = []) {
+    const groups = new Map();
+    for (const offer of offers) {
+        const identity = offerIdentity(offer);
+        const key = [
+            offer.groupId,
+            identity.geo,
+            identity.product,
+            offer.affiliateNetworkId || offer.affiliateNetworkName,
+        ].join("::");
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(offer);
+    }
+    return [...groups.values()].map((children) => {
+        // API може повернути офери не за порядком створення, тому найстарший
+        // офер визначаємо за найменшим числовим ID.
+        const oldest = [...children].sort((left, right) => {
+            const leftId = Number(left.id);
+            const rightId = Number(right.id);
+            if (Number.isFinite(leftId) && Number.isFinite(rightId)) return leftId - rightId;
+            return String(left.id).localeCompare(String(right.id), "uk-UA", { numeric: true });
+        })[0];
+        const identity = offerIdentity(oldest);
+        return {
+            ...oldest,
+            ...summarizeKeitaroRows(children),
+            id: oldest.id,
+            sourceIds: children.map((item) => String(item.id)),
+            children,
+            name: `${identity.geo} | [${oldest.name.match(/\[([^\]]+)\]/)?.[1]?.trim() || oldest.name}]`,
+        };
+    });
 }

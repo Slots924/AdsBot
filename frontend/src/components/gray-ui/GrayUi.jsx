@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ChevronDown, Search, Trash2, X } from "lucide-react";
 import "../../styles/keitaro-gray.css";
 
@@ -22,8 +22,20 @@ export function GraySearch({ value, onChange, placeholder, ariaLabel = placehold
     return <label className="kg-search"><Search size={16} /><input value={value} onChange={onChange} placeholder={placeholder} aria-label={ariaLabel} /></label>;
 }
 
-export function GraySelect({ items, value, onChange, placeholder = "Оберіть значення", ariaLabel, defaultOpen = false }) {
+export function GraySelect({
+    items,
+    value,
+    onChange,
+    placeholder = "Оберіть значення",
+    searchPlaceholder = "Пошук…",
+    emptyText = "Нічого не знайдено.",
+    ariaLabel,
+    defaultOpen = false,
+    disabled = false,
+}) {
     const root = useRef(null);
+    const input = useRef(null);
+    const listboxId = useId();
     const [open, setOpen] = useState(defaultOpen);
     const [query, setQuery] = useState("");
     const selected = items.find((item) => String(item.id) === String(value));
@@ -33,16 +45,72 @@ export function GraySelect({ items, value, onChange, placeholder = "Оберіт
     }, [items, query]);
 
     useEffect(() => {
-        const close = (event) => { if (!root.current?.contains(event.target)) setOpen(false); };
+        const close = (event) => {
+            if (!root.current?.contains(event.target)) {
+                setOpen(false);
+                setQuery("");
+            }
+        };
         document.addEventListener("mousedown", close);
         return () => document.removeEventListener("mousedown", close);
     }, []);
 
     return <div ref={root} className={`kg-select ${open ? "open" : ""}`}>
-        <button type="button" className="kg-select-trigger" aria-label={ariaLabel} aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((current) => !current)}><span>{selected?.name ?? placeholder}</span><ChevronDown size={16} /></button>
-        {open && <div className="kg-select-menu" role="listbox">
-            <GraySearch value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Пошук…" ariaLabel={`Пошук: ${ariaLabel ?? placeholder}`} />
-            {visible.length === 0 && <div className="kg-select-empty">Нічого не знайдено.</div>}
+        <div className={`kg-select-trigger ${disabled ? "disabled" : ""}`}>
+            <Search size={16} aria-hidden="true" />
+            <input
+                ref={input}
+                role="combobox"
+                aria-label={ariaLabel}
+                aria-autocomplete="list"
+                aria-controls={listboxId}
+                aria-expanded={open}
+                disabled={disabled}
+                value={open ? query : (selected?.name ?? "")}
+                placeholder={open ? searchPlaceholder : placeholder}
+                onFocus={() => {
+                    if (disabled) return;
+                    setQuery("");
+                    setOpen(true);
+                }}
+                onChange={(event) => {
+                    setQuery(event.target.value);
+                    setOpen(true);
+                }}
+                onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                        setOpen(false);
+                        setQuery("");
+                        input.current?.blur();
+                    }
+                    if (event.key === "Enter" && open && visible[0]) {
+                        event.preventDefault();
+                        onChange(visible[0].id);
+                        setOpen(false);
+                        setQuery("");
+                    }
+                }}
+            />
+            <button
+                type="button"
+                className="kg-select-chevron"
+                aria-label={open ? "Згорнути список" : "Розгорнути список"}
+                disabled={disabled}
+                onClick={() => {
+                    if (disabled) return;
+                    setQuery("");
+                    if (open) {
+                        setOpen(false);
+                        input.current?.blur();
+                    } else {
+                        setOpen(true);
+                        input.current?.focus();
+                    }
+                }}
+            ><ChevronDown size={16} /></button>
+        </div>
+        {open && !disabled && <div id={listboxId} className="kg-select-menu" role="listbox">
+            {visible.length === 0 && <div className="kg-select-empty">{emptyText}</div>}
             {visible.map((item) => <button type="button" role="option" aria-selected={String(item.id) === String(value)} key={item.id} className={`kg-select-option ${String(item.id) === String(value) ? "selected" : ""}`} onClick={() => { onChange(item.id); setQuery(""); setOpen(false); }}>{item.name}</button>)}
         </div>}
     </div>;

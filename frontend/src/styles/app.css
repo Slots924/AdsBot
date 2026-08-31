@@ -835,6 +835,14 @@ button:focus-visible, input:focus-visible {
 .account-setup-hint { display: block; margin-top: 12px; line-height: 1.5; }
 .action-modal > .field, .action-modal > .creative-fields-row { margin-top: 15px; }
 .comment-ad-hint { margin-top: 15px; }
+.publication-comments-toggle { display: flex; align-items: flex-start; gap: 9px; margin-top: 16px; padding: 11px 12px; border: 1px solid #414141; border-radius: 7px; color: #e4e4e4; background: #242424; cursor: pointer; }
+.publication-comments-toggle input { margin-top: 3px; accent-color: #6cb5f2; }
+.publication-comments-toggle span { display: grid; gap: 4px; }
+.publication-comments-toggle small { color: #929292; font-size: 12px; font-weight: 400; }
+.publication-comments-settings { display: grid; gap: 8px; min-width: 0; margin: 15px 0 0; padding: 13px 12px 12px; border: 1px solid #414141; border-radius: 7px; background: #202020; }
+.publication-comments-settings legend { padding: 0 5px; color: #e4e4e4; font-size: 14px; font-weight: 650; }
+.publication-comments-settings p { margin: 0; color: #929292; font-size: 12px; line-height: 1.4; }
+.publication-comments-settings.disabled { opacity: .48; }
 .campaign-account-modal { width: min(620px, calc(100vw - 36px)); }
 .page-rebuild-modal { width: min(690px, calc(100vw - 36px)); }
 .page-rebuild-modal > .field { margin-top: 16px; }

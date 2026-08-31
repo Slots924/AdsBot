@@ -106,10 +106,40 @@
     color: var(--kg-text);
     background: var(--kg-control);
     text-align: left;
-    cursor: pointer;
+    cursor: text;
 }
 .kg-select.open .kg-select-trigger,
-.kg-select-trigger:focus-visible { border-color: var(--kg-focus); outline: 0; }
+.kg-select-trigger:focus-within { border-color: var(--kg-focus); outline: 0; }
+.kg-select-trigger > svg { flex: 0 0 auto; color: #858b98; }
+.kg-select-trigger input {
+    min-width: 0;
+    flex: 1;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    color: var(--kg-text);
+    background: transparent;
+    font: 400 14px/1.4 var(--kg-font);
+}
+.kg-select-trigger input::placeholder { color: var(--kg-text-soft); }
+.kg-select-trigger.disabled { color: var(--kg-text-soft); background: #191919; cursor: not-allowed; }
+.kg-select-chevron {
+    display: grid;
+    flex: 0 0 28px;
+    place-items: center;
+    width: 28px;
+    height: 30px;
+    margin-right: -7px;
+    padding: 0;
+    border: 0;
+    color: var(--kg-text-muted);
+    background: transparent;
+    cursor: pointer;
+}
+.kg-select-chevron:disabled { cursor: not-allowed; }
+.kg-select-chevron svg { transition: transform .15s; }
+.kg-select.open .kg-select-chevron svg { transform: rotate(180deg); }
 .kg-select-menu {
     position: absolute;
     z-index: 80;
@@ -124,7 +154,6 @@
     background: var(--kg-control);
     box-shadow: var(--kg-shadow-menu);
 }
-.kg-select-search { margin-bottom: 5px; }
 .kg-select-option {
     display: block;
     width: 100%;

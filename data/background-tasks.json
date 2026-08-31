@@ -1,4 +1,639 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "1727cafa-c1af-4c3e-981d-83ae305b3f19",
+      "type": "creative-launch",
+      "name": "HU | Creo_1 | 30+",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "global-workflow",
+          "label": "глобальна черга"
+        }
+      ],
+      "input": {
+        "workflowJobId": "c7f14ff4-a70d-4049-8f2a-3cb15b8cf4fa"
+      },
+      "metadata": {
+        "workflowJobId": "c7f14ff4-a70d-4049-8f2a-3cb15b8cf4fa",
+        "accountKey": "Test",
+        "pageId": "1191005344101425",
+        "uniqueKey": "creative-launch:c7f14ff4-a70d-4049-8f2a-3cb15b8cf4fa",
+        "reportId": "8652200c-d667-4827-9120-b3cb7d5fff5d"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "subtasks": [
+          {
+            "id": "publication",
+            "title": "Підготовка і публікація",
+            "status": "completed",
+            "progress": {
+              "stage": "publication",
+              "completed": 2,
+              "total": 4,
+              "message": "Публікуємо пост у Facebook"
+            },
+            "message": "Пост опубліковано та перевірено",
+            "result": {
+              "postId": "1191005344101425_122111983857404731",
+              "pageId": "1191005344101425",
+              "type": "photo",
+              "message": "Mit művelt ez a nimfomániás\n\nEgy hónapja regisztráltam egy társkereső oldalon (https://anikoset.lol/H1) ha valaki még ott lóg, írjon a kommentekbe,\nnem vártam sokat, gondoltam mint mindig likeolok egy kicsit, írogatok, aztán jön a fagy a csajoktól, de nem most srácok, ezúttal tuti nem🫣.\n\nAz első lány akivel elkezdtünk írni már hívott magához, rögtön az első srácok. Kicsit ledöbbentem és ideges lettem, hozzá vagyok szokva hogy én írok ilyet először nem a lány, ezért valahogy lehülyültem és mindent viccre fordítottam, így elhalt az egész. De aztán jött a legérdekesebb\n\nKb 20 perc múlva belefutottam egy nimfomániásba, a lány 25, hollywoodi sztár alakja, csupa feszes, hosszú lábak, vékony, uhhh álom. Azt mondta kell segítség, el kell tolni a kanapét, és hívott magához, ezúttal már nem hülyültem el, összeszedtem magam és elmentem.\n\nOdaérek, kopogok az ajtón, és ő teljesen meztelenül nyit, semmi rajta, láttátok volna az arcomat😄😄.\nNa és rögtön nekiálltunk, ahogy a szájával dolgozott, ahogy hajlott közben, beleszerettem😂😂\n\nAztán még több lányhoz is elmentem erről az oldalról, volt D-s mell is, szilikon szépség is, de a nimfomániást nem tudom elfelejteni, írtam neki többször, de nem értem mit rontottam el, vagy már elvesztette az érdeklődését, az oldalon mindig látom hogy online de whatsapp-on nem válaszol, nem tudom.\n\nVégül most már találtam magamnak néhány lányt állandó találkozókra, ahogy megértettem néhány lány nem kevesebbet akar mint a férfiak, néha még többet is.",
+              "permalinkUrl": "https://www.facebook.com/61592141946590/posts/pfbid02ts9SVLD9G4oxmfRqkEN7LBzUvJp5XaJBGorMNSknTZLKXZ16B6yJiKgLFaEJg58Sl",
+              "createdTime": "2026-08-31T14:02:58+0000",
+              "verified": true
+            }
+          },
+          {
+            "id": "campaign",
+            "title": "Створення кампанії",
+            "status": "completed",
+            "progress": {
+              "stage": "complete",
+              "completed": 13,
+              "total": 13,
+              "message": "Створення завершено",
+              "objects": {
+                "campaignId": "52621904933382",
+                "creativeId": "2021419368525645",
+                "adSets": [
+                  {
+                    "index": 0,
+                    "id": "52621904957582",
+                    "name": "HU | Creo_1 | 30+ | AS 01"
+                  },
+                  {
+                    "index": 1,
+                    "id": "52621905014382",
+                    "name": "HU | Creo_1 | 30+ | AS 02"
+                  },
+                  {
+                    "index": 2,
+                    "id": "52621905074182",
+                    "name": "HU | Creo_1 | 30+ | AS 03"
+                  },
+                  {
+                    "index": 3,
+                    "id": "52621905092582",
+                    "name": "HU | Creo_1 | 30+ | AS 04"
+                  },
+                  {
+                    "index": 4,
+                    "id": "52621905133982",
+                    "name": "HU | Creo_1 | 30+ | AS 05"
+                  }
+                ],
+                "ads": [
+                  {
+                    "index": 0,
+                    "id": "52621904985382",
+                    "name": "HU | Creo_1 | 30+ | AD 01"
+                  },
+                  {
+                    "index": 1,
+                    "id": "52621905050582",
+                    "name": "HU | Creo_1 | 30+ | AD 02"
+                  },
+                  {
+                    "index": 2,
+                    "id": "52621905083582",
+                    "name": "HU | Creo_1 | 30+ | AD 03"
+                  },
+                  {
+                    "index": 3,
+                    "id": "52621905114782",
+                    "name": "HU | Creo_1 | 30+ | AD 04"
+                  },
+                  {
+                    "index": 4,
+                    "id": "52621905146182",
+                    "name": "HU | Creo_1 | 30+ | AD 05"
+                  }
+                ]
+              }
+            },
+            "message": "Кампанію створено",
+            "result": {
+              "objects": {
+                "campaignId": "52621904933382",
+                "creativeId": "2021419368525645",
+                "adSets": [
+                  {
+                    "index": 0,
+                    "id": "52621904957582",
+                    "name": "HU | Creo_1 | 30+ | AS 01"
+                  },
+                  {
+                    "index": 1,
+                    "id": "52621905014382",
+                    "name": "HU | Creo_1 | 30+ | AS 02"
+                  },
+                  {
+                    "index": 2,
+                    "id": "52621905074182",
+                    "name": "HU | Creo_1 | 30+ | AS 03"
+                  },
+                  {
+                    "index": 3,
+                    "id": "52621905092582",
+                    "name": "HU | Creo_1 | 30+ | AS 04"
+                  },
+                  {
+                    "index": 4,
+                    "id": "52621905133982",
+                    "name": "HU | Creo_1 | 30+ | AS 05"
+                  }
+                ],
+                "ads": [
+                  {
+                    "index": 0,
+                    "id": "52621904985382",
+                    "name": "HU | Creo_1 | 30+ | AD 01"
+                  },
+                  {
+                    "index": 1,
+                    "id": "52621905050582",
+                    "name": "HU | Creo_1 | 30+ | AD 02"
+                  },
+                  {
+                    "index": 2,
+                    "id": "52621905083582",
+                    "name": "HU | Creo_1 | 30+ | AD 03"
+                  },
+                  {
+                    "index": 3,
+                    "id": "52621905114782",
+                    "name": "HU | Creo_1 | 30+ | AD 04"
+                  },
+                  {
+                    "index": 4,
+                    "id": "52621905146182",
+                    "name": "HU | Creo_1 | 30+ | AD 05"
+                  }
+                ]
+              },
+              "preflight": {
+                "adAccountId": "act_1936463160328259",
+                "accountName": "Элина Усова",
+                "currency": "USD",
+                "timezoneName": "Europe/Kiev",
+                "pageId": "1191005344101425",
+                "pageName": "Gergő Németh",
+                "postId": "1191005344101425_122111983857404731",
+                "pixel": {
+                  "id": "1086160047321919",
+                  "name": "Myr_2"
+                },
+                "instagramActorId": null,
+                "dailyBudgetMinor": "4000",
+                "startTime": "2026-08-31T14:01:00.000Z",
+                "targeting": {
+                  "age_min": 30,
+                  "age_max": 65,
+                  "geo_locations": {
+                    "countries": [
+                      "HU"
+                    ]
+                  },
+                  "publisher_platforms": [
+                    "facebook"
+                  ],
+                  "facebook_positions": [
+                    "feed"
+                  ],
+                  "genders": [
+                    1
+                  ],
+                  "targeting_automation": {
+                    "advantage_audience": 0
+                  }
+                },
+                "dsa": {
+                  "beneficiary": "Onion Grock",
+                  "payor": "Onion Grock",
+                  "beneficiarySource": "template",
+                  "payorSource": "template",
+                  "requiredForEurope": true
+                }
+              },
+              "readback": {
+                "campaign": {
+                  "id": "52621904933382",
+                  "name": "HU | Creo_1 | 30+",
+                  "status": "PAUSED",
+                  "effective_status": "PAUSED"
+                },
+                "creative": {
+                  "id": "2021419368525645",
+                  "name": "HU | Creo_1 | 30+ | Creative 2026-08-31-0e5dc00bb8fc87cbf46876baa84218b6",
+                  "degrees_of_freedom_spec": {
+                    "creative_features_spec": {
+                      "advantage_plus_creative": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "audio": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "image_animation": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "image_auto_crop": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "image_background_gen": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "image_brightness_and_contrast": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "image_enhancement": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "image_text_translation": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "image_touchups": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "image_uncrop": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "music_generation": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "standard_enhancements": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "text_generation": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "text_optimizations": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "text_translation": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "video_auto_crop": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "video_filtering": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "video_highlights": {
+                        "enroll_status": "OPT_OUT"
+                      },
+                      "video_uncrop": {
+                        "enroll_status": "OPT_OUT"
+                      }
+                    }
+                  },
+                  "effective_object_story_id": "1191005344101425_122111983857404731",
+                  "__fb_trace_id__": "H7vPClV7try",
+                  "__www_request_id__": "AKbotXeVzQ5mQgJliUBaCQI"
+                },
+                "adSets": [
+                  {
+                    "id": "52621904957582",
+                    "name": "HU | Creo_1 | 30+ | AS 01",
+                    "status": "PAUSED",
+                    "effective_status": "PAUSED",
+                    "start_time": "2026-08-31T17:03:16+0300",
+                    "daily_budget": "4000",
+                    "targeting": {
+                      "age_max": 65,
+                      "age_min": 30,
+                      "genders": [
+                        1
+                      ],
+                      "geo_locations": {
+                        "countries": [
+                          "HU"
+                        ],
+                        "location_types": [
+                          "home",
+                          "recent"
+                        ]
+                      },
+                      "targeting_relaxation_types": {
+                        "lookalike": 0,
+                        "custom_audience": 0
+                      },
+                      "targeting_automation": {
+                        "advantage_audience": 0
+                      },
+                      "publisher_platforms": [
+                        "facebook"
+                      ],
+                      "facebook_positions": [
+                        "feed"
+                      ]
+                    },
+                    "promoted_object": {
+                      "pixel_id": "1086160047321919",
+                      "custom_event_type": "LEAD",
+                      "smart_pse_enabled": false
+                    },
+                    "dsa_beneficiary": "Onion Grock",
+                    "dsa_payor": "Onion Grock",
+                    "__fb_trace_id__": "FOHEh1vEbNX",
+                    "__www_request_id__": "AklH0IizORu8LvkHODNVM0e"
+                  },
+                  {
+                    "id": "52621905014382",
+                    "name": "HU | Creo_1 | 30+ | AS 02",
+                    "status": "PAUSED",
+                    "effective_status": "PAUSED",
+                    "start_time": "2026-08-31T17:03:24+0300",
+                    "daily_budget": "4000",
+                    "targeting": {
+                      "age_max": 65,
+                      "age_min": 30,
+                      "genders": [
+                        1
+                      ],
+                      "geo_locations": {
+                        "countries": [
+                          "HU"
+                        ],
+                        "location_types": [
+                          "home",
+                          "recent"
+                        ]
+                      },
+                      "targeting_relaxation_types": {
+                        "lookalike": 0,
+                        "custom_audience": 0
+                      },
+                      "targeting_automation": {
+                        "advantage_audience": 0
+                      },
+                      "publisher_platforms": [
+                        "facebook"
+                      ],
+                      "facebook_positions": [
+                        "feed"
+                      ]
+                    },
+                    "promoted_object": {
+                      "pixel_id": "1086160047321919",
+                      "custom_event_type": "LEAD",
+                      "smart_pse_enabled": false
+                    },
+                    "dsa_beneficiary": "Onion Grock",
+                    "dsa_payor": "Onion Grock",
+                    "__fb_trace_id__": "AqjEd39FGl/",
+                    "__www_request_id__": "ATRmJpPf6zT6bAOsfAxYeLA"
+                  },
+                  {
+                    "id": "52621905074182",
+                    "name": "HU | Creo_1 | 30+ | AS 03",
+                    "status": "PAUSED",
+                    "effective_status": "PAUSED",
+                    "start_time": "2026-08-31T17:03:33+0300",
+                    "daily_budget": "4000",
+                    "targeting": {
+                      "age_max": 65,
+                      "age_min": 30,
+                      "genders": [
+                        1
+                      ],
+                      "geo_locations": {
+                        "countries": [
+                          "HU"
+                        ],
+                        "location_types": [
+                          "home",
+                          "recent"
+                        ]
+                      },
+                      "targeting_relaxation_types": {
+                        "lookalike": 0,
+                        "custom_audience": 0
+                      },
+                      "targeting_automation": {
+                        "advantage_audience": 0
+                      },
+                      "publisher_platforms": [
+                        "facebook"
+                      ],
+                      "facebook_positions": [
+                        "feed"
+                      ]
+                    },
+                    "promoted_object": {
+                      "pixel_id": "1086160047321919",
+                      "custom_event_type": "LEAD",
+                      "smart_pse_enabled": false
+                    },
+                    "dsa_beneficiary": "Onion Grock",
+                    "dsa_payor": "Onion Grock",
+                    "__fb_trace_id__": "DAouajcF9rY",
+                    "__www_request_id__": "AsWhcD3xfYxacIzqvQajy03"
+                  },
+                  {
+                    "id": "52621905092582",
+                    "name": "HU | Creo_1 | 30+ | AS 04",
+                    "status": "PAUSED",
+                    "effective_status": "IN_PROCESS",
+                    "start_time": "2026-08-31T17:03:41+0300",
+                    "daily_budget": "4000",
+                    "targeting": {
+                      "age_max": 65,
+                      "age_min": 30,
+                      "genders": [
+                        1
+                      ],
+                      "geo_locations": {
+                        "countries": [
+                          "HU"
+                        ],
+                        "location_types": [
+                          "home",
+                          "recent"
+                        ]
+                      },
+                      "targeting_relaxation_types": {
+                        "lookalike": 0,
+                        "custom_audience": 0
+                      },
+                      "targeting_automation": {
+                        "advantage_audience": 0
+                      },
+                      "publisher_platforms": [
+                        "facebook"
+                      ],
+                      "facebook_positions": [
+                        "feed"
+                      ]
+                    },
+                    "promoted_object": {
+                      "pixel_id": "1086160047321919",
+                      "custom_event_type": "LEAD",
+                      "smart_pse_enabled": false
+                    },
+                    "dsa_beneficiary": "Onion Grock",
+                    "dsa_payor": "Onion Grock",
+                    "__fb_trace_id__": "E2k+lN3sBn2",
+                    "__www_request_id__": "A1nkt6IbobIwjr_iXgtHjl-"
+                  },
+                  {
+                    "id": "52621905133982",
+                    "name": "HU | Creo_1 | 30+ | AS 05",
+                    "status": "PAUSED",
+                    "effective_status": "IN_PROCESS",
+                    "start_time": "2026-08-31T17:03:50+0300",
+                    "daily_budget": "4000",
+                    "targeting": {
+                      "age_max": 65,
+                      "age_min": 30,
+                      "genders": [
+                        1
+                      ],
+                      "geo_locations": {
+                        "countries": [
+                          "HU"
+                        ],
+                        "location_types": [
+                          "home",
+                          "recent"
+                        ]
+                      },
+                      "targeting_relaxation_types": {
+                        "lookalike": 0,
+                        "custom_audience": 0
+                      },
+                      "targeting_automation": {
+                        "advantage_audience": 0
+                      },
+                      "publisher_platforms": [
+                        "facebook"
+                      ],
+                      "facebook_positions": [
+                        "feed"
+                      ]
+                    },
+                    "promoted_object": {
+                      "pixel_id": "1086160047321919",
+                      "custom_event_type": "LEAD",
+                      "smart_pse_enabled": false
+                    },
+                    "dsa_beneficiary": "Onion Grock",
+                    "dsa_payor": "Onion Grock",
+                    "__fb_trace_id__": "Ej3idgmZ+La",
+                    "__www_request_id__": "A8Dipj2FGXgWgZdJdrTnHYH"
+                  }
+                ],
+                "ads": [
+                  {
+                    "id": "52621904985382",
+                    "name": "HU | Creo_1 | 30+ | AD 01",
+                    "status": "PAUSED",
+                    "effective_status": "IN_PROCESS",
+                    "creative": {
+                      "id": "2021419368525645"
+                    },
+                    "__fb_trace_id__": "AaV2GeylZJQ",
+                    "__www_request_id__": "AKlRfEQpmnkecpbP5tdsNY1"
+                  },
+                  {
+                    "id": "52621905050582",
+                    "name": "HU | Creo_1 | 30+ | AD 02",
+                    "status": "PAUSED",
+                    "effective_status": "IN_PROCESS",
+                    "creative": {
+                      "id": "2021419368525645"
+                    },
+                    "__fb_trace_id__": "DclevogBh9l",
+                    "__www_request_id__": "AbHeTa369C6BkMHWbOTTtNQ"
+                  },
+                  {
+                    "id": "52621905083582",
+                    "name": "HU | Creo_1 | 30+ | AD 03",
+                    "status": "PAUSED",
+                    "effective_status": "IN_PROCESS",
+                    "creative": {
+                      "id": "2021419368525645"
+                    },
+                    "__fb_trace_id__": "DxYO5jetSGg",
+                    "__www_request_id__": "AuY7173kphFYIAq98oviTGk"
+                  },
+                  {
+                    "id": "52621905114782",
+                    "name": "HU | Creo_1 | 30+ | AD 04",
+                    "status": "PAUSED",
+                    "effective_status": "IN_PROCESS",
+                    "creative": {
+                      "id": "2021419368525645"
+                    },
+                    "__fb_trace_id__": "ElASCuoA0I3",
+                    "__www_request_id__": "AlkAYTlb4ryNA4SO42g14j6"
+                  },
+                  {
+                    "id": "52621905146182",
+                    "name": "HU | Creo_1 | 30+ | AD 05",
+                    "status": "PAUSED",
+                    "effective_status": "IN_PROCESS",
+                    "creative": {
+                      "id": "2021419368525645"
+                    },
+                    "__fb_trace_id__": "C1+dvtyOfG1",
+                    "__www_request_id__": "A_fdRuttxjFwqt-5bhLvb7X"
+                  }
+                ],
+                "warnings": []
+              },
+              "createPaused": true
+            }
+          },
+          {
+            "id": "comments",
+            "title": "Коментування",
+            "status": "completed_with_warnings",
+            "progress": {
+              "completed": 16,
+              "total": 16,
+              "published": 15,
+              "skipped": 1,
+              "failedComments": 0,
+              "failedProfiles": 3,
+              "activeWorkers": 0,
+              "concurrency": 1,
+              "stage": "report",
+              "message": "Формуємо структурований звіт"
+            },
+            "message": "Коментарі: 15 успішно",
+            "result": {
+              "published": 15,
+              "failed": 0,
+              "skipped": 1
+            }
+          }
+        ]
+      },
+      "result": {
+        "workflowJobId": "c7f14ff4-a70d-4049-8f2a-3cb15b8cf4fa",
+        "post": {
+          "postId": "1191005344101425_122111983857404731",
+          "pageId": "1191005344101425",
+          "type": "photo",
+          "message": "Mit művelt ez a nimfomániás\n\nEgy hónapja regisztráltam egy társkereső oldalon (https://anikoset.lol/H1) ha valaki még ott lóg, írjon a kommentekbe,\nnem vártam sokat, gondoltam mint mindig likeolok egy kicsit, írogatok, aztán jön a fagy a csajoktól, de nem most srácok, ezúttal tuti nem🫣.\n\nAz első lány akivel elkezdtünk írni már hívott magához, rögtön az első srácok. Kicsit ledöbbentem és ideges lettem, hozzá vagyok szokva hogy én írok ilyet először nem a lány, ezért valahogy lehülyültem és mindent viccre fordítottam, így elhalt az egész. De aztán jött a legérdekesebb\n\nKb 20 perc múlva belefutottam egy nimfomániásba, a lány 25, hollywoodi sztár alakja, csupa feszes, hosszú lábak, vékony, uhhh álom. Azt mondta kell segítség, el kell tolni a kanapét, és hívott magához, ezúttal már nem hülyültem el, összeszedtem magam és elmentem.\n\nOdaérek, kopogok az ajtón, és ő teljesen meztelenül nyit, semmi rajta, láttátok volna az arcomat😄😄.\nNa és rögtön nekiálltunk, ahogy a szájával dolgozott, ahogy hajlott közben, beleszerettem😂😂\n\nAztán még több lányhoz is elmentem erről az oldalról, volt D-s mell is, szilikon szépség is, de a nimfomániást nem tudom elfelejteni, írtam neki többször, de nem értem mit rontottam el, vagy már elvesztette az érdeklődését, az oldalon mindig látom hogy online de whatsapp-on nem válaszol, nem tudom.\n\nVégül most már találtam magamnak néhány lányt állandó találkozókra, ahogy megértettem néhány lány nem kevesebbet akar mint a férfiak, néha még többet is.",
+          "permalinkUrl": "https://www.facebook.com/61592141946590/posts/pfbid02ts9SVLD9G4oxmfRqkEN7LBzUvJp5XaJBGorMNSknTZLKXZ16B6yJiKgLFaEJg58Sl",
+          "createdTime": "2026-08-31T14:02:58+0000",
+          "verified": true
+        },
+        "warnings": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-08-31T14:02:45.004Z",
+      "startedAt": "2026-08-31T14:02:45.006Z",
+      "finishedAt": "2026-08-31T14:29:51.156Z",
+      "updatedAt": "2026-08-31T14:29:51.158Z"
+    }
+  ]
 }

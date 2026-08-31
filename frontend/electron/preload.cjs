@@ -159,8 +159,12 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("keitaro:campaigns-list", options),
     getKeitaroCampaignStats: (options) =>
         ipcRenderer.invoke("keitaro:campaigns-stats", options),
+    moveKeitaroCampaignsToGroup: (payload) =>
+        ipcRenderer.invoke("keitaro:campaigns-move", payload),
     getKeitaroLandingPages: (options) => ipcRenderer.invoke("keitaro:landing-pages-list", options),
     getKeitaroOffers: (options) => ipcRenderer.invoke("keitaro:offers-list", options),
+    getKeitaroOffersReport: (options) => ipcRenderer.invoke("keitaro:offers-report", options),
+    moveKeitaroOffersToGroup: (payload) => ipcRenderer.invoke("keitaro:offers-move", payload),
     getKeitaroAssetGroups: (kind) => ipcRenderer.invoke("keitaro:asset-groups-list", { kind }),
     getKeitaroCountries: () => ipcRenderer.invoke("keitaro:countries-list"),
     getKeitaroDomains: () => ipcRenderer.invoke("keitaro:domains-list"),

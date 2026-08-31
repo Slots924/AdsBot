@@ -120,6 +120,10 @@ describe("Дизайн workspace фанпейджів", () => {
                 ok: true,
                 data: { task: { id: "comments-task" } },
             }),
+            publishCreativePost: vi.fn().mockResolvedValue({
+                ok: true,
+                data: { task: { id: "publication-task" } },
+            }),
         };
         Object.assign(navigator, {
             clipboard: { writeText: vi.fn().mockResolvedValue(undefined) },
@@ -234,6 +238,44 @@ describe("Дизайн workspace фанпейджів", () => {
             "Коментування поставлено в чергу",
             "success"
         );
+    });
+
+    it("дозволяє опублікувати об’яву й автоматично прокоментувати її", async () => {
+        render(
+            <PagesTab
+                selectedAccount={{ accountKey: "client", status: "active" }}
+                pages={[{ id: "10", name: "Deutschland Page", geo: "HU", creativeName: "1", isFavorite: true }]}
+                adAccounts={[]}
+                groups={[{ groupId: "hu-group", groupName: "Comments [HU]" }]}
+                selectedPageId="10"
+                setSelectedPageId={vi.fn()}
+                onPagesChange={vi.fn()}
+                onRefresh={vi.fn()}
+                settings={settings}
+                onError={vi.fn()}
+                showToast={vi.fn()}
+            />
+        );
+
+        fireEvent.click(await screen.findByRole("button", { name: "Запостити креатив" }));
+        const groupSelect = screen.getByRole("button", { name: "Акаунти для коментарів" });
+        expect(groupSelect).not.toBeDisabled();
+        fireEvent.click(screen.getByLabelText("Вимкнути коментування"));
+        expect(groupSelect).toBeDisabled();
+        expect(screen.getByRole("button", { name: "Опублікувати" })).toBeDisabled();
+
+        fireEvent.click(screen.getByLabelText("Вимкнути коментування"));
+        fireEvent.change(screen.getByLabelText("Offer URL"), {
+            target: { value: "https://example.com/offer" },
+        });
+        fireEvent.click(screen.getByRole("button", { name: "Опублікувати та прокоментувати" }));
+
+        await waitFor(() => expect(window.adsBot.publishCreativePost).toHaveBeenCalledWith(expect.objectContaining({
+            accountKey: "client",
+            pageId: "10",
+            commentGroupIds: ["hu-group"],
+            commentBrowserMode: "visible",
+        })));
     });
 
     it("окремо оновлює список і вибрану фанку, не ховаючи старі пости", async () => {

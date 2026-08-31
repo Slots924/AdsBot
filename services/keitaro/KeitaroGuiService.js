@@ -61,6 +61,35 @@ function rangeFromPreset(preset) {
 }
 
 
+function reportRange(datePreset, dateRange) {
+    const from = String(dateRange?.from ?? "").trim();
+    const to = String(dateRange?.to ?? "").trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to)) {
+        return {
+            from: from <= to ? from : to,
+            to: from <= to ? to : from,
+            timezone: "Europe/Kyiv",
+        };
+    }
+    return rangeFromPreset(datePreset);
+}
+
+
+function campaignBaseUrl(campaign = {}) {
+    const direct = String(
+        campaign.url ?? campaign.campaign_url ?? campaign.tracking_url ?? ""
+    ).trim();
+    if (direct) return direct.split("?")[0];
+    const domainSource = campaign.domain?.name ?? campaign.domain?.domain
+        ?? campaign.domain_name ?? campaign.domain ?? "";
+    const domain = String(domainSource).trim().replace(/\/+$/, "");
+    const alias = String(campaign.alias ?? campaign.slug ?? "").trim().replace(/^\/+/, "");
+    if (!domain || !alias) return "";
+    const origin = /^https?:\/\//i.test(domain) ? domain : `https://${domain}`;
+    return `${origin}/${alias}`.split("?")[0];
+}
+
+
 function campaignState(value) {
     const normalized = String(value ?? "").trim().toLowerCase();
     if (normalized === "active" || normalized === "1") return "active";
@@ -169,13 +198,21 @@ export default class KeitaroGuiService {
     }
 
 
-    async listOffers({ groupId = "all" } = {}) {
+    async listOffers({ groupId = "all", forceRefresh = false } = {}) {
+        if (forceRefresh) this.offersCache = null;
         const offers = this.offersCache ?? await this.keitaro.listAllOffers();
         this.offersCache = offers;
         return offers.map((item) => ({
             id: String(item?.id ?? "").trim(),
             name: String(item?.name ?? "").trim() || "Без назви",
             groupId: String(item?.group_id ?? item?.groupId ?? "").trim(),
+            affiliateNetworkId: String(
+                item?.affiliate_network_id ?? item?.affiliateNetworkId ?? ""
+            ).trim(),
+            affiliateNetworkName: String(
+                item?.affiliate_network?.name ?? item?.affiliate_network_name
+                ?? item?.affiliateNetworkName ?? ""
+            ).trim(),
             state: item?.state === "disabled" ? "disabled" : "active",
         })).filter((item) => item.id && (
             groupId === "all" || item.groupId === String(groupId)
@@ -340,17 +377,20 @@ export default class KeitaroGuiService {
         groupId = "all",
         availableGroupIds = [],
         datePreset = "today",
+        dateRange = null,
         forceRefresh = false,
     } = {}) {
         const list = await this.getCampaignsList({
             groupId,
             availableGroupIds,
             datePreset,
+            dateRange,
             forceRefresh,
         });
         const stats = await this.getCampaignStats({
             selectedGroupIds: list.selectedGroupIds,
             datePreset,
+            dateRange,
         });
         const statsById = new Map(stats.map((item) => [item.id, item]));
         return {
@@ -368,6 +408,7 @@ export default class KeitaroGuiService {
         groupId = "all",
         availableGroupIds = [],
         datePreset = "today",
+        dateRange = null,
         forceRefresh = false,
     } = {}) {
         const available = [...new Set(
@@ -391,7 +432,7 @@ export default class KeitaroGuiService {
                 groups,
                 selectedGroupIds,
                 datePreset,
-                range: rangeFromPreset(datePreset),
+                range: reportRange(datePreset, dateRange),
             };
         }
 
@@ -412,6 +453,7 @@ export default class KeitaroGuiService {
                     groupId: groupKey,
                     groupName: groupNameById.get(groupKey) || "",
                     state: campaignState(campaign?.state),
+                    url: campaignBaseUrl(campaign),
                 };
             });
 
@@ -420,18 +462,22 @@ export default class KeitaroGuiService {
             groups,
             selectedGroupIds,
             datePreset,
-            range: rangeFromPreset(datePreset),
+            range: reportRange(datePreset, dateRange),
         };
     }
 
 
-    async getCampaignStats({ selectedGroupIds = [], datePreset = "today" } = {}) {
+    async getCampaignStats({
+        selectedGroupIds = [],
+        datePreset = "today",
+        dateRange = null,
+    } = {}) {
         if (!Array.isArray(selectedGroupIds) || selectedGroupIds.length === 0) {
             return [];
         }
 
         const report = await this.keitaro.buildReport({
-            range: rangeFromPreset(datePreset),
+            range: reportRange(datePreset, dateRange),
             dimensions: ["campaign_id"],
             metrics: keitaroReportMetrics,
             filters: selectedGroupIds.length === 1
@@ -468,5 +514,76 @@ export default class KeitaroGuiService {
                 cpc: numberOrZero(row.cpc),
             };
         }).filter(Boolean);
+    }
+
+
+    async getOffersReport({
+        groupId = "all",
+        datePreset = "today",
+        dateRange = null,
+        forceRefresh = false,
+    } = {}) {
+        const [groups, offers, networks] = await Promise.all([
+            this.listAssetGroups("offers"),
+            this.listOffers({ groupId, forceRefresh }),
+            this.keitaro.listAllAffiliateNetworks(),
+        ]);
+        const networkNameById = new Map(normalizeList(networks).map((item) => [
+            String(item?.id ?? ""),
+            String(item?.name ?? "").trim() || "Без назви",
+        ]));
+        const groupNameById = new Map(groups.map((item) => [item.id, item.name]));
+        const report = await this.keitaro.buildReport({
+            range: reportRange(datePreset, dateRange),
+            dimensions: ["offer_id"],
+            metrics: keitaroReportMetrics,
+        });
+        const statsById = new Map(normalizeList(report).map((row) => {
+            const id = String(row?.offer_id ?? row?.offerId ?? "").trim();
+            return [id, {
+                ...emptyCampaignStats(),
+                clicks: numberOrZero(row.clicks),
+                uniqueClicks: numberOrZero(row.campaign_unique_clicks ?? row.unique_clicks),
+                bots: numberOrZero(row.bots),
+                conversions: numberOrZero(row.conversions),
+                sales: numberOrZero(row.sales),
+                leads: numberOrZero(row.leads),
+                rejected: numberOrZero(row.rejected),
+                cr: numberOrZero(row.crs ?? row.cr),
+                cost: numberOrZero(row.cost),
+                revenue: numberOrZero(row.revenue),
+                profit: numberOrZero(row.profit),
+                roi: numberOrZero(row.roi),
+                epc: numberOrZero(row.epc),
+                cpc: numberOrZero(row.cpc),
+            }];
+        }).filter(([id]) => id));
+        return {
+            groups,
+            range: reportRange(datePreset, dateRange),
+            offers: offers.map((offer) => ({
+                ...offer,
+                groupName: groupNameById.get(offer.groupId) || "",
+                affiliateNetworkName: offer.affiliateNetworkName
+                    || networkNameById.get(offer.affiliateNetworkId)
+                    || "Без мережі",
+                ...emptyCampaignStats(),
+                ...(statsById.get(offer.id) ?? {}),
+            })),
+        };
+    }
+
+
+    async moveCampaignsToGroup({ campaignIds = [], groupId } = {}) {
+        const results = await this.keitaro.moveCampaignsToGroup(campaignIds, groupId);
+        this.campaignsCache = null;
+        return results;
+    }
+
+
+    async moveOffersToGroup({ offerIds = [], groupId } = {}) {
+        const results = await this.keitaro.moveOffersToGroup(offerIds, groupId);
+        this.offersCache = null;
+        return results;
     }
 }

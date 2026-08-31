@@ -23,6 +23,18 @@ function requireId(value, label) {
 }
 
 
+function requirePositiveInteger(value, label) {
+    const id = Number(requireId(value, label));
+    if (!Number.isInteger(id) || id < 1) {
+        throw createKeitaroError(
+            `${label} має бути додатним числом`,
+            "KEITARO_VALIDATION_ERROR"
+        );
+    }
+    return id;
+}
+
+
 function normalizeBaseUrl(value) {
     const apiUrl = String(value ?? "").trim();
     if (!apiUrl) return "";
@@ -505,6 +517,30 @@ class Keitaro {
     }
 
 
+    async moveCampaignsToGroup(campaignIds = [], groupId) {
+        const ids = [...new Set(normalizeList(campaignIds)
+            .map((id) => Number(id))
+            .filter((id) => Number.isInteger(id) && id > 0))];
+        const targetGroupId = requirePositiveInteger(groupId, "ID групи кампаній");
+        if (ids.length === 0) {
+            throw createKeitaroError(
+                "Потрібно вибрати хоча б одну кампанію",
+                "KEITARO_VALIDATION_ERROR"
+            );
+        }
+        const settled = await Promise.allSettled(
+            ids.map((id) => this.updateCampaign(id, { group_id: targetGroupId }))
+        );
+        return settled.map((result, index) => ({
+            id: ids[index],
+            ok: result.status === "fulfilled",
+            ...(result.status === "fulfilled"
+                ? { campaign: result.value }
+                : { error: extractErrorMessage(result.reason) }),
+        }));
+    }
+
+
     // Групи кампаній у цьому Keitaro — це /groups?type=campaigns
     listCampaignGroups(params = {}) {
         return this.request("GET", "/groups", null, {
@@ -588,6 +624,30 @@ class Keitaro {
             "DELETE",
             `/offers/${requireId(id, "ID офера")}`
         );
+    }
+
+
+    async moveOffersToGroup(offerIds = [], groupId) {
+        const ids = [...new Set(normalizeList(offerIds)
+            .map((id) => Number(id))
+            .filter((id) => Number.isInteger(id) && id > 0))];
+        const targetGroupId = requirePositiveInteger(groupId, "ID групи оферів");
+        if (ids.length === 0) {
+            throw createKeitaroError(
+                "Потрібно вибрати хоча б один офер",
+                "KEITARO_VALIDATION_ERROR"
+            );
+        }
+        const settled = await Promise.allSettled(
+            ids.map((id) => this.updateOffer(id, { group_id: targetGroupId }))
+        );
+        return settled.map((result, index) => ({
+            id: ids[index],
+            ok: result.status === "fulfilled",
+            ...(result.status === "fulfilled"
+                ? { offer: result.value }
+                : { error: extractErrorMessage(result.reason) }),
+        }));
     }
 
 

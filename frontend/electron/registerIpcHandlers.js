@@ -1248,22 +1248,48 @@ export default function registerIpcHandlers({
                 imagePaths: [...new Set((payload.imagePaths ?? [])
                     .map((item) => String(item ?? "").trim())
                     .filter(Boolean))],
+                disableComments: payload.disableComments === true,
+                commentGroupIds: [...new Set((payload.commentGroupIds ?? [])
+                    .map((id) => String(id).trim())
+                    .filter(Boolean))],
+                commentBrowserMode: payload.commentBrowserMode === "headless"
+                    ? "headless"
+                    : "visible",
+                commentDisableImages: payload.commentDisableImages === true,
+                commentWorkerConcurrency: Math.min(5, Math.max(1, Number(payload.commentWorkerConcurrency) || 5)),
+                commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
             };
+            if (!input.disableComments && !input.commentGroupIds.length) throw Object.assign(
+                new Error("Оберіть хоча б одну AdsPower-групу або вимкніть коментування"),
+                { code: "PUBLICATION_COMMENTING_GROUP_REQUIRED" }
+            );
+            const groups = input.disableComments ? [] : await guiService.getAdsPowerGroups();
+            const groupLabels = new Map(groups.map((group) => [
+                String(group.groupId),
+                group.groupName,
+            ]));
             const task = await backgroundTaskManager.enqueue({
                 type: "publication",
                 name: `Публікація · ${input.geo} · ${input.creativeName}`,
-                resources: [{
-                    key: "facebook-page-publish",
-                    label: "черга публікації Facebook-постів",
-                }],
+                resources: [
+                    {
+                        key: "facebook-page-publish",
+                        label: "черга публікації Facebook-постів",
+                    },
+                    ...input.commentGroupIds.map((groupId) => ({
+                        key: `adspower-group:${groupId}`,
+                        label: groupLabels.get(groupId) || `AdsPower ${groupId}`,
+                    })),
+                ],
                 input,
                 metadata: {
                     accountKey: input.accountKey,
                     pageId: input.pageId,
                     geo: input.geo,
                     creativeName: input.creativeName,
+                    commentsEnabled: !input.disableComments,
                 },
-                runner: async ({ signal, progress }) => {
+                runner: async ({ signal, progress, waitForAction }) => {
                     const taskProgress = async (patch) => {
                         if (signal.aborted) throw Object.assign(new Error("Публікацію скасовано"), { name: "AbortError" });
                         return progress(patch);
@@ -1304,6 +1330,40 @@ export default function registerIpcHandlers({
                         geo: input.geo,
                         creativeName: input.creativeName,
                     });
+                    let commentSummary = null;
+                    if (!input.disableComments) {
+                        if (!post.permalinkUrl) throw Object.assign(
+                            new Error("Facebook не повернув посилання на опублікований пост для коментування"),
+                            { code: "PUBLICATION_PERMALINK_REQUIRED" }
+                        );
+                        const workerProxies = await resolveWorkerProxies(
+                            proxyManager,
+                            input.commentWorkerProxyIds
+                        );
+                        commentSummary = await guiService.runParallelCommentingCampaign({
+                            groupIds: input.commentGroupIds,
+                            geo: input.geo,
+                            creativeName: input.creativeName,
+                            siteUrl: input.siteUrl,
+                            postUrl: post.permalinkUrl,
+                            browserMode: input.commentBrowserMode,
+                            disableImages: input.commentDisableImages,
+                            commentTarget: "ad",
+                            concurrency: input.commentWorkerConcurrency,
+                            workerProxies,
+                            onProxyUnavailable: createProxyUnavailableHandler({
+                                proxyManager,
+                                progress,
+                                waitForAction,
+                            }),
+                            signal,
+                            onProgress: progress,
+                        });
+                    }
+                    const commentPublicSummary = commentSummary
+                        ? { ...commentSummary }
+                        : null;
+                    if (commentPublicSummary) delete commentPublicSummary.reportDetails;
                     const result = {
                         accountKey: input.accountKey,
                         pageId: input.pageId,
@@ -1314,9 +1374,22 @@ export default function registerIpcHandlers({
                         permalinkUrl: post.permalinkUrl,
                         type: post.type,
                         verified: post.verified,
+                        comments: commentPublicSummary,
                     };
+                    if (commentSummary?.fatalError && !signal.aborted) {
+                        const error = Object.assign(new Error(commentSummary.fatalError), {
+                            code: "PUBLICATION_COMMENTING_FATAL_ERROR",
+                        });
+                        error.reportDetails = commentSummary.reportDetails;
+                        throw error;
+                    }
                     return {
                         result,
+                        taskStatus: commentSummary && (
+                            commentSummary.failedComments
+                            || commentSummary.failedProfiles
+                            || commentSummary.skipped
+                        ) ? "completed_with_warnings" : "completed",
                         reportDetails: {
                             inputSummary: {
                                 accountKey: input.accountKey,
@@ -1325,8 +1398,11 @@ export default function registerIpcHandlers({
                                 creativeName: input.creativeName,
                                 siteUrl: input.siteUrl,
                                 hasImage: Boolean(input.imagePath),
+                                disableComments: input.disableComments,
+                                commentGroupIds: input.commentGroupIds,
                             },
                             resultSummary: result,
+                            commentReport: commentSummary?.reportDetails ?? null,
                         },
                     };
                 },
@@ -1656,6 +1732,10 @@ export default function registerIpcHandlers({
         })
     );
     ipcMain.handle(
+        "keitaro:campaigns-move",
+        safeHandler((payload) => keitaroGuiService.moveCampaignsToGroup(payload))
+    );
+    ipcMain.handle(
         "keitaro:landing-pages-list",
         safeHandler((options) => {
             if (!keitaroGuiService) {
@@ -1676,6 +1756,14 @@ export default function registerIpcHandlers({
             }
             return keitaroGuiService.listOffers(options);
         })
+    );
+    ipcMain.handle(
+        "keitaro:offers-report",
+        safeHandler((payload) => keitaroGuiService.getOffersReport(payload))
+    );
+    ipcMain.handle(
+        "keitaro:offers-move",
+        safeHandler((payload) => keitaroGuiService.moveOffersToGroup(payload))
     );
     ipcMain.handle(
         "keitaro:asset-groups-list",

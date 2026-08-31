@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { GrayAssetRow, GraySelect } from "../components/gray-ui/index.js";
 import KeitaroGrayShowcase from "../design/KeitaroGrayShowcase.jsx";
+import { groupKeitaroOffers } from "../lib/keitaro.js";
 
 afterEach(() => cleanup());
 
@@ -19,11 +20,13 @@ describe("Keitaro Gray UI", () => {
         const onChange = vi.fn();
         render(<GraySelect items={[{ id: "all", name: "Усі" }, { id: "archive", name: "Archive" }]} value="all" onChange={onChange} ariaLabel="Група" />);
 
-        fireEvent.click(screen.getByRole("button", { name: "Група" }));
-        fireEvent.change(screen.getByRole("textbox", { name: "Пошук: Група" }), { target: { value: "arch" } });
+        const select = screen.getByRole("combobox", { name: "Група" });
+        fireEvent.focus(select);
+        fireEvent.change(select, { target: { value: "arch" } });
         fireEvent.click(screen.getByRole("option", { name: "Archive" }));
 
         expect(onChange).toHaveBeenCalledWith("archive");
+        expect(screen.getAllByRole("combobox", { name: "Група" })).toHaveLength(1);
     });
 
     it("передає зміни стану картки офера", () => {
@@ -33,5 +36,15 @@ describe("Keitaro Gray UI", () => {
         fireEvent.click(screen.getByRole("button", { name: "Вимк." }));
 
         expect(onEnabledChange).toHaveBeenCalledWith(false);
+    });
+
+    it("показує ID найстаршого офера у згрупованому офері", () => {
+        const [group] = groupKeitaroOffers([
+            { id: "72", name: "ZA | [Gentlove] | 151mf_mob", groupId: "36", affiliateNetworkId: "8" },
+            { id: "71", name: "ZA | [Gentlove] | Default", groupId: "36", affiliateNetworkId: "8" },
+        ]);
+
+        expect(group.id).toBe("71");
+        expect(group.sourceIds).toEqual(["72", "71"]);
     });
 });

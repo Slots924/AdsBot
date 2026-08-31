@@ -86,6 +86,7 @@ const report = await keitaro.buildReport({
 | `updateCampaignCosts(id, data)` | `POST /campaigns/{id}/update_costs` |
 | `enableCampaign(id)` | `PUT /campaigns/{id}` зі `state: "active"` |
 | `disableCampaign(id)` | `PUT /campaigns/{id}` зі `state: "disabled"` |
+| `moveCampaignsToGroup(campaignIds, groupId)` | Масово оновлює `group_id` вибраних кампаній |
 
 ### Групи кампаній
 
@@ -98,6 +99,7 @@ const report = await keitaro.buildReport({
 ### Офери, лендінги, потоки
 
 CRUD: `list/get/create/update/delete` для `Offer`, `Landing`, `Stream`.
+Для масового перенесення оферів між групами є `moveOffersToGroup(offerIds, groupId)`.
 Для повного списку є `listAllOffers`, `listAllLandings`, `listAllStreams`.
 У цьому Keitaro офери й лендінги повертаються одним повним списком, тому їхні
 методи не запускають offset-пагінацію та не дублюють один і той самий запит.
@@ -128,11 +130,30 @@ CRUD для `TrafficSource`, `AffiliateNetwork`, `Domain`, `Group`, `User`.
 `buildReport(payload)` надсилає `POST /report/build`. Для вкладки GUI потрібні
 кампанії з метриками кліків, конверсій і доходу.
 
+GUI також будує звіт оферів із виміром `offer_id`. Період звіту може бути
+готовим пресетом або власним діапазоном `dateRange: { from, to }`.
+
 ## GUI
 
 `KeitaroGuiService` збирає групи кампаній і звіт для вкладки Keitaro. Renderer
 не отримує API-ключ. Доступні групи зберігаються в `data/app-state.json` як
 `keitaroAvailableGroupIds`.
+
+Підвкладка «Кампанії» показує повноекранну таблицю, підтримує зміну порядку й
+ширини колонок, копіювання базової URL кампанії без query-параметрів, підсумок
+поточної сторінки або вибраних рядків та масове перенесення до іншої групи.
+
+Підвкладка «Офери» використовує `getOffersReport()` у `KeitaroGuiService`,
+пошук і фільтр групи. Режим групування об'єднує офери лише за одночасного збігу
+групи, GEO на початку назви, тексту в квадратних дужках і партнерської мережі.
+Лічильники групи сумуються, а `CR`, `ROI`, `EPC` і `CPC` перераховуються із
+загальних значень.
+
+Згрупований офер показується як один батьківський рядок з агрегованими
+показниками. Після розгортання під ним відображаються компактні дочірні рядки
+кожного офера з його власними показниками. Стан перемикача групування
+зберігається в `data/app-state.json` як `keitaroOffersGrouped`. Для кампаній і
+оферів доступний розмір сторінки до 500 елементів.
 
 Шаблони потоків зберігаються локально. Для них зафіксовано безпечний контракт:
 звичайний увімкнений потік із рахуванням кліків, схемою `landings`, вибором оферу

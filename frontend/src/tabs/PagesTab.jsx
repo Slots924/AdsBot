@@ -299,14 +299,17 @@ function PageRebuildModal({
 
 
 function PublicationModal({
-    page, accountKey, countries, onClose, onQueued, onError,
+    page, accountKey, countries, groups, settings, onClose, onQueued, onError,
 }) {
+    const defaultGroup = findGroupForGeo(groups, page.geo);
     const [draft, setDraft] = useState({
         geo: page.geo || "",
         creativeName: page.creativeName || "",
         siteUrl: "",
         imagePath: "",
         imagePaths: [],
+        disableComments: false,
+        groupIds: defaultGroup ? [String(defaultGroup.groupId)] : [],
     });
     const [saving, setSaving] = useState(false);
     const submit = async (event) => {
@@ -317,6 +320,11 @@ function PublicationModal({
                 ...draft,
                 accountKey,
                 pageId: page.id,
+                commentGroupIds: draft.disableComments ? [] : draft.groupIds,
+                commentBrowserMode: settings.commentBrowserMode,
+                commentDisableImages: settings.commentDisableImages,
+                commentWorkerConcurrency: settings.commentWorkerConcurrency,
+                commentWorkerProxyIds: settings.commentWorkerProxyIds,
             })));
         } catch (error) {
             onError(errorDetails(error));
@@ -375,15 +383,40 @@ function PublicationModal({
                         disabled={saving}
                     />
                 </label>
+                <label className="publication-comments-toggle">
+                    <input
+                        type="checkbox"
+                        aria-label="Вимкнути коментування"
+                        checked={draft.disableComments}
+                        onChange={(event) => setDraft((current) => ({
+                            ...current,
+                            disableComments: event.target.checked,
+                        }))}
+                        disabled={saving}
+                    />
+                    <span>
+                        <strong>Вимкнути коментування</strong>
+                        <small>Після публікації пост залишиться без коментарів.</small>
+                    </span>
+                </label>
+                <fieldset className={`publication-comments-settings ${draft.disableComments ? "disabled" : ""}`} disabled={draft.disableComments || saving}>
+                    <legend>Акаунти для коментарів</legend>
+                    <p>Після успішної публікації пост буде автоматично прокоментований.</p>
+                    <MultiSelect
+                        items={groups}
+                        value={draft.groupIds}
+                        onChange={(groupIds) => setDraft((current) => ({ ...current, groupIds }))}
+                    />
+                </fieldset>
                 <div className="form-actions">
                     <button type="button" className="secondary-button" onClick={onClose}>
                         Скасувати
                     </button>
                     <button
                         className="primary-button"
-                        disabled={saving || !draft.geo || !draft.creativeName || !draft.siteUrl}
+                        disabled={saving || !draft.geo || !draft.creativeName || !draft.siteUrl || (!draft.disableComments && !draft.groupIds.length)}
                     >
-                        Опублікувати
+                        {draft.disableComments ? "Опублікувати" : "Опублікувати та прокоментувати"}
                     </button>
                 </div>
             </form>
@@ -1083,6 +1116,8 @@ export default function PagesTab({
                     page={selected}
                     accountKey={accountKey}
                     countries={countries}
+                    groups={groups}
+                    settings={settings}
                     onClose={() => setAction(null)}
                     onQueued={() => queued("Публікацію поставлено в чергу")}
                     onError={onError}

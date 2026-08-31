@@ -567,11 +567,13 @@ const queuedPost = await handlers.get("post:publish")({}, {
     geo: "HU",
     creativeName: "138",
     siteUrl: "https://example.com",
+    disableComments: true,
 });
 assert.equal(queuedPost.ok, true);
 assert.equal(queuedPost.data.task.type, "publication");
 assert.equal(queuedPost.data.task.status, "queued");
 assert.equal(queuedPost.data.task.input.creativeName, "138");
+assert.equal(queuedPost.data.task.input.disableComments, true);
 await assert.rejects(
     enqueuedOptions.find((item) => item.type === "publication").runner({
         signal: new AbortController().signal,

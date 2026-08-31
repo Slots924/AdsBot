@@ -110,6 +110,13 @@ assert.equal(
 );
 assert.equal(captured.at(-1).method, "POST");
 
+const movedCampaigns = await keitaro.moveCampaignsToGroup([12, 13], 20);
+assert.equal(movedCampaigns.every((item) => item.ok), true);
+assert.deepEqual(captured.slice(-2).map((item) => item.data.group_id), [20, 20]);
+const movedOffers = await keitaro.moveOffersToGroup([21, 22], 36);
+assert.equal(movedOffers.every((item) => item.ok), true);
+assert.deepEqual(captured.slice(-2).map((item) => item.data.group_id), [36, 36]);
+
 await keitaro.buildReport({
     range: { from: "2026-08-01", to: "2026-08-27" },
     dimensions: ["campaign_id"],
@@ -142,6 +149,9 @@ assert.equal(normalizeState({}).activeTab, "accounts");
 assert.equal(normalizeState({ activeTab: "keitaro" }).activeTab, "keitaro");
 assert.deepEqual(normalizeState({}).keitaroAvailableGroupIds, []);
 assert.equal(normalizeState({}).keitaroGroupId, "all");
+assert.equal(normalizeState({ keitaroSubtab: "offers" }).keitaroSubtab, "offers");
+assert.equal(normalizeState({ keitaroOffersGrouped: true }).keitaroOffersGrouped, true);
+assert.equal(normalizeState({ keitaroPageSize: 500 }).keitaroPageSize, 500);
 let inflight = 0;
 let maxInflight = 0;
 const limitedClient = {

@@ -78,7 +78,7 @@ const keitaroDatePresets = [
 ];
 
 
-const keitaroPageSizes = [50, 100, 150, 200];
+const keitaroPageSizes = [50, 100, 150, 200, 500];
 const defaultKeitaroPageSize = 50;
 const defaultKeitaroConcurrency = 20;
 const keitaroConcurrencyMin = 1;
