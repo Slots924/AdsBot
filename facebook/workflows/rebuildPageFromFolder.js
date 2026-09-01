@@ -106,6 +106,7 @@ export default async function rebuildPageFromFolder({
     imagesDirectory,
     imagePaths = [],
     pageCreatedAt,
+    preserveDates = false,
     imageLoader = loadImageFromPath,
     prepare = preparePageRebuild,
     createSchedule = createBackdatedSchedule,
@@ -134,7 +135,7 @@ export default async function rebuildPageFromFolder({
         const requirements = await facebookApiClient
             .getPageRebuildRequirements({ pageId });
         const createdAt = requirements.pageCreatedAt || String(pageCreatedAt ?? "").trim();
-        if (!createdAt) {
+        if (!preserveDates && !createdAt) {
             throw createWorkflowError(
                 "Meta не повернула дату створення; вкажіть її вручну",
                 "PAGE_REBUILD_CREATED_AT_REQUIRED"
@@ -146,7 +147,7 @@ export default async function rebuildPageFromFolder({
             imageLoader,
             random,
         });
-        const dates = createSchedule({
+        const dates = preserveDates ? [] : createSchedule({
             count: prepared.posts.length,
             pageCreatedAt: createdAt,
             now,
@@ -154,18 +155,19 @@ export default async function rebuildPageFromFolder({
         });
         const plan = {
             imagesDirectory: prepared.imagesDirectory,
-            pageCreatedAt: createdAt,
+            pageCreatedAt: preserveDates ? null : createdAt,
+            preserveDates,
             avatar: prepared.avatar,
             cover: prepared.cover,
             posts: prepared.posts.map((image, index) => ({
                 ...image,
-                backdatedTime: dates[index],
+                backdatedTime: preserveDates ? null : dates[index],
             })),
         };
         ({ job, resumed } = await journal.startOrResume({
             accountKey,
             pageId,
-            fingerprint: prepared.fingerprint,
+            fingerprint: `${prepared.fingerprint}:preserve-dates:${preserveDates}`,
             plan,
         }));
         await progress({
@@ -307,7 +309,9 @@ export default async function rebuildPageFromFolder({
             stage: "publication",
             completed: 3,
             total: 5,
-            message: `Публікуємо ${job.plan.posts.length} фото з минулими датами`,
+            message: job.plan.preserveDates
+                ? `Публікуємо ${job.plan.posts.length} фото без зміни дат`
+                : `Публікуємо ${job.plan.posts.length} фото з минулими датами`,
         });
         for (let index = 0; index < job.plan.posts.length; index += 1) {
             const planned = job.plan.posts[index];
@@ -342,13 +346,21 @@ export default async function rebuildPageFromFolder({
             if (!publication.postId) {
                 let posted;
                 try {
-                    posted = await facebookApiClient.createBackdatedPhotoPost({
-                        pageId,
-                        photoId: publication.photoId,
-                        backdatedTime: publication.backdatedTime,
-                    });
+                    posted = job.plan.preserveDates
+                        ? await facebookApiClient.createCurrentPhotoPost({
+                            pageId,
+                            photoId: publication.photoId,
+                        })
+                        : await facebookApiClient.createBackdatedPhotoPost({
+                            pageId,
+                            photoId: publication.photoId,
+                            backdatedTime: publication.backdatedTime,
+                        });
                 } catch (error) {
-                    if (error?.code !== "FACEBOOK_BACKDATED_POST_OUTCOME_UNKNOWN") {
+                    if (![
+                        "FACEBOOK_BACKDATED_POST_OUTCOME_UNKNOWN",
+                        "FACEBOOK_CURRENT_POST_OUTCOME_UNKNOWN",
+                    ].includes(error?.code)) {
                         throw error;
                     }
                     const postId = await facebookApiClient.getPagePhotoStory({

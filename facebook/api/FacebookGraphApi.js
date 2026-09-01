@@ -1268,6 +1268,31 @@ export default class FacebookGraphApi {
     }
 
 
+    /** Створює звичайний фото-пост без зміни дати публікації. */
+    async createCurrentPhotoPost({ pageId, photoId } = {}) {
+        const page = await this.#getRebuildPage(pageId);
+        const body = new URLSearchParams();
+        body.set("attached_media", JSON.stringify([{ media_fbid: String(photoId) }]));
+        body.set("published", "true");
+        const data = await this.#request(`/${page.id}/feed`, {}, {
+            method: "post",
+            data: body,
+            accessToken: page.pageAccessToken,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            retryOnConnectionError: false,
+            outcomeUnknownCode: "FACEBOOK_CURRENT_POST_OUTCOME_UNKNOWN",
+            outcomeUnknownMessage: "Не вдалося визначити, чи Meta створила фото-пост",
+        });
+        if (!data?.id) {
+            throw createValidationError(
+                "Meta не повернула ID фото-поста",
+                "PAGE_REBUILD_POST_ID_MISSING"
+            );
+        }
+        return { postId: String(data.id) };
+    }
+
+
     async getPagePhotoStory({ pageId, photoId } = {}) {
         const page = await this.#getRebuildPage(pageId);
         return this.getPhotoPostId({

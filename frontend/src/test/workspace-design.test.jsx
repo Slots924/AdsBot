@@ -484,6 +484,7 @@ describe("Дизайн workspace фанпейджів", () => {
                 pageId: "10",
                 imagePaths: ["C:/images/1.jpg", "C:/images/2.jpg", "C:/images/3.jpg"],
                 pageCreatedAt: "2024-01-01",
+                preserveDates: false,
             }));
         expect(showToast).toHaveBeenCalledWith(
             "Пересетаплення фанпейджа поставлено в чергу",

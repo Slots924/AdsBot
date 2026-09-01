@@ -17,6 +17,7 @@ const calls = {
     cover: 0,
     upload: [],
     publish: [],
+    currentPublish: [],
     delete: [],
     hide: [],
 };
@@ -76,6 +77,10 @@ const facebookApiClient = {
         }
         return { postId: `10_${photoId}` };
     },
+    async createCurrentPhotoPost({ photoId }) {
+        calls.currentPublish.push(photoId);
+        return { postId: `10_current_${photoId}` };
+    },
     async getPagePostForPage({ postId }) {
         return { id: postId };
     },
@@ -134,6 +139,22 @@ try {
     assert.equal(calls.publish.filter((id) => id === "photo-post-2.jpg").length, 2);
     assert.deepEqual(calls.hide, []);
     assert.deepEqual(new Set(calls.delete), new Set(["old-photo", "10_old"]));
+
+    const preservedDatesResult = await rebuildPageFromFolder({
+        facebookApiClient,
+        journal,
+        accountKey: "client",
+        pageId: "10",
+        imagesDirectory: "C:/images",
+        preserveDates: true,
+        prepare,
+        imageLoader,
+        createSchedule: () => {
+            throw new Error("Розклад не має створюватися, коли дати збережено");
+        },
+    });
+    assert.deepEqual(calls.currentPublish, ["photo-post-1.jpg", "photo-post-2.jpg"]);
+    assert(preservedDatesResult.publications.every((item) => item.backdatedTime === null));
 
     const journalText = await readFile(jobsFile, "utf8");
     assert(!journalText.includes("accessToken"));

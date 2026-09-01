@@ -67,8 +67,12 @@ const proxyHttpClient = {
                 JSON.parse(config.data.get("attached_media")),
                 [{ media_fbid: "post-photo" }]
             );
-            assert.equal(config.data.get("backdated_time_granularity"), "day");
             assert.equal(config.data.get("published"), "true");
+            if (config.data.has("backdated_time")) {
+                assert.equal(config.data.get("backdated_time_granularity"), "day");
+            } else {
+                assert.equal(config.data.has("backdated_time_granularity"), false);
+            }
             return { data: { id: "10_post" } };
         }
         if (pathname === "/post-photo" && config.method === "get") {
@@ -118,6 +122,11 @@ const post = await api.createBackdatedPhotoPost({
     backdatedTime: "2024-03-01T00:00:00.000Z",
 });
 assert.equal(post.postId, "10_post");
+const currentPost = await api.createCurrentPhotoPost({
+    pageId: "10",
+    photoId: uploaded.photoId,
+});
+assert.equal(currentPost.postId, "10_post");
 assert.equal(await api.getPagePhotoStory({ pageId: "10", photoId: "post-photo" }), "10_post");
 assert.equal((await api.getPagePostForPage({ pageId: "10", postId: "10_post" })).id, "10_post");
 assert(requests.every((request) => !String(request.url).includes("access_token")));

@@ -2,6 +2,54 @@
   "version": 1,
   "tasks": [
     {
+      "id": "e5d226d2-bad8-4989-9599-5aae95eb85da",
+      "type": "page-rebuild",
+      "name": "Пересетаплення фанпейджа · 1282077088329728",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-page:tr_1:1282077088329728",
+          "label": "фанпейджа 1282077088329728"
+        }
+      ],
+      "input": {
+        "accountKey": "tr_1",
+        "pageId": "1282077088329728",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\15\\1.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\15\\2.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\15\\494718539_9754626811240170_6820055799443881524_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\15\\499388061_9896923113677205_2364098055442224047_n.jpg"
+        ],
+        "pageCreatedAt": "2026-09-01"
+      },
+      "metadata": {
+        "accountKey": "tr_1",
+        "pageId": "1282077088329728",
+        "uniqueKey": "page-rebuild:tr_1:1282077088329728",
+        "reportId": "72931005-6b61-441a-8c50-c4838c61b02c"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 5,
+        "stage": "failed",
+        "message": "У діапазоні дат недостатньо унікальних днів для всіх фотографій"
+      },
+      "result": null,
+      "error": {
+        "message": "У діапазоні дат недостатньо унікальних днів для всіх фотографій",
+        "code": "PAGE_REBUILD_DATE_RANGE_TOO_SMALL",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-09-01T17:19:31.677Z",
+      "startedAt": "2026-09-01T17:19:31.680Z",
+      "finishedAt": "2026-09-01T17:19:32.935Z",
+      "updatedAt": "2026-09-01T17:19:32.938Z"
+    },
+    {
       "id": "1727cafa-c1af-4c3e-981d-83ae305b3f19",
       "type": "creative-launch",
       "name": "HU | Creo_1 | 30+",

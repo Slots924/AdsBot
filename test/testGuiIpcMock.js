@@ -145,6 +145,7 @@ const proxyManager = {
 let storedJob = null;
 const backgroundTasks = [];
 const enqueuedOptions = [];
+let rebuildOptions = null;
 const backgroundTaskManager = {
     async enqueue(options) {
         enqueuedOptions.push(options);
@@ -233,6 +234,7 @@ const guiService = {
         };
     },
     async rebuildPageFromFolder(options, onProgress) {
+        rebuildOptions = options;
         await onProgress({
             stage: "complete",
             completed: 5,
@@ -498,11 +500,12 @@ const rebuildTask = await handlers.get("pages:rebuild-start")({}, {
     accountKey: "fp_hub",
     pageId: "10",
     imagesDirectory: "C:/images/page",
-    pageCreatedAt: "2024-01-01",
+    preserveDates: true,
 });
 assert.equal(rebuildTask.ok, true);
 assert.equal(rebuildTask.data.task.type, "page-rebuild");
 assert.equal(rebuildTask.data.task.metadata.pageId, "10");
+assert.equal(rebuildTask.data.task.input.preserveDates, true);
 assert.equal(
     enqueuedOptions.find((item) => item.type === "page-rebuild")
         .resources[0].key,
@@ -515,6 +518,7 @@ const rebuildOutput = await enqueuedOptions
         progress: async () => {},
     });
 assert.equal(rebuildOutput.result.publications[0].postId, "10_post");
+assert.equal(rebuildOptions.preserveDates, true);
 assert.deepEqual(
     await handlers.get("ads:list")({}, { accountKey: "fp_hub" }),
     {

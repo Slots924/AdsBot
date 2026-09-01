@@ -138,6 +138,7 @@ function PageRebuildModal({
     const [requirements, setRequirements] = useState(null);
     const [imagePaths, setImagePaths] = useState([]);
     const [pageCreatedAt, setPageCreatedAt] = useState("");
+    const [preserveDates, setPreserveDates] = useState(false);
     const [confirmed, setConfirmed] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -178,7 +179,8 @@ function PageRebuildModal({
                 accountKey,
                 pageId: page.id,
                 imagePaths,
-                ...(requirements?.requiresPageCreatedAt
+                preserveDates,
+                ...(requirements?.requiresPageCreatedAt && !preserveDates
                     ? { pageCreatedAt }
                     : {}),
             }));
@@ -193,7 +195,7 @@ function PageRebuildModal({
         requirements
         && imagePaths.length >= 3
         && confirmed
-        && (!requirements.requiresPageCreatedAt || pageCreatedAt)
+        && (preserveDates || !requirements.requiresPageCreatedAt || pageCreatedAt)
     );
 
     return (
@@ -254,7 +256,16 @@ function PageRebuildModal({
                         Перевіряємо доступ до фанпейджа…
                     </div>
                 )}
-                {requirements?.requiresPageCreatedAt && (
+                <label className="page-rebuild-confirmation">
+                    <input
+                        type="checkbox"
+                        checked={preserveDates}
+                        onChange={(event) => setPreserveDates(event.target.checked)}
+                    />
+                    <span>Не змінювати дати</span>
+                </label>
+
+                {requirements?.requiresPageCreatedAt && !preserveDates && (
                     <label className="field">
                         <span>Дата створення фанпейджа</span>
                         <input

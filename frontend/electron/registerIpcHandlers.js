@@ -903,6 +903,7 @@ export default function registerIpcHandlers({
                 imagesDirectory: payload.imagesDirectory,
                 imagePaths: payload.imagePaths,
                 pageCreatedAt: payload.pageCreatedAt ?? null,
+                preserveDates: payload.preserveDates === true,
             },
             metadata: { accountKey, pageId },
             runner: async ({ signal, progress }) => {
@@ -912,6 +913,7 @@ export default function registerIpcHandlers({
                     imagesDirectory: payload.imagesDirectory,
                     imagePaths: payload.imagePaths,
                     pageCreatedAt: payload.pageCreatedAt,
+                    preserveDates: payload.preserveDates === true,
                 }, progress, signal);
                 await updateCacheSafely(
                     () => remoteDataCacheStore.clearPosts(accountKey, pageId),
