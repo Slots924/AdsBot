@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "id": "a8c0f430-38e4-4d76-857d-18624155ae6e",
+  "taskId": "29722dd5-877b-4b4a-9e40-0c132f87174c",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 1282077088329728",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-01T17:27:48.367Z",
+  "startedAt": "2026-09-01T17:27:06.607Z",
+  "finishedAt": "2026-09-01T17:27:48.366Z",
+  "durationMs": 41759,
+  "inputSummary": {
+    "accountKey": "tr_1",
+    "pageId": "1282077088329728"
+  },
+  "resultSummary": {
+    "pageId": "1282077088329728",
+    "avatar": {
+      "file": "1.jpg",
+      "photoId": "122104660791455744"
+    },
+    "cover": {
+      "file": "2.jpg",
+      "photoId": "122104661097455744"
+    },
+    "cleanup": {
+      "deletedPostIds": [
+        "1282077088329728_122104647975455744"
+      ],
+      "deletedPhotoIds": [],
+      "hiddenPostIds": []
+    },
+    "publications": [
+      {
+        "file": "494718539_9754626811240170_6820055799443881524_n.jpg",
+        "photoId": "122104661199455744",
+        "postId": "1282077088329728_122104661241455744",
+        "backdatedTime": null
+      },
+      {
+        "file": "499388061_9896923113677205_2364098055442224047_n.jpg",
+        "photoId": "122104661325455744",
+        "postId": "1282077088329728_122104661373455744",
+        "backdatedTime": null
+      }
+    ],
+    "warnings": [
+      {
+        "stage": "delete-photo",
+        "objectId": "122104647855455744",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      }
+    ],
+    "resumed": false
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "tr_1",
+    "pageId": "1282077088329728",
+    "uniqueKey": "page-rebuild:tr_1:1282077088329728"
+  }
+}
