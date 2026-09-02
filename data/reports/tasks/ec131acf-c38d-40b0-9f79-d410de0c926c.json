@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "id": "ec131acf-c38d-40b0-9f79-d410de0c926c",
+  "taskId": "8c5817ad-1920-4391-9d2c-a780c0ebdb7f",
+  "type": "campaign",
+  "title": "HU | Creo_17 | 30+",
+  "status": "failed",
+  "createdAt": "2026-09-02T16:10:44.055Z",
+  "startedAt": "2026-09-02T16:09:23.304Z",
+  "finishedAt": "2026-09-02T16:10:44.054Z",
+  "durationMs": 80750,
+  "inputSummary": {
+    "campaignJobId": "845b82b9-d5ec-4ea8-bc8a-4b76eb605f43",
+    "accountKey": "Test",
+    "adAccountId": "act_1936463160328259",
+    "campaignName": "HU | Creo_17 | 30+",
+    "templateId": 13,
+    "pageId": "1270278699505547",
+    "postId": "1270278699505547_122101654617460526",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-09-02T16:09:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "52622418012982",
+      "creativeId": "2053044225578252",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "52622418038382",
+          "name": "HU | Creo_17 | 30+ | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "52622418066582",
+          "name": "HU | Creo_17 | 30+ | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "52622418083182",
+          "name": "HU | Creo_17 | 30+ | AS 03"
+        },
+        {
+          "index": 3,
+          "id": "52622418104982",
+          "name": "HU | Creo_17 | 30+ | AS 04"
+        },
+        {
+          "index": 4,
+          "id": "52622418121582",
+          "name": "HU | Creo_17 | 30+ | AS 05"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "52622418060982",
+          "name": "HU | Creo_17 | 30+ | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "52622418076382",
+          "name": "HU | Creo_17 | 30+ | AD 02"
+        },
+        {
+          "index": 2,
+          "id": "52622418096982",
+          "name": "HU | Creo_17 | 30+ | AD 03"
+        },
+        {
+          "index": 3,
+          "id": "52622418115782",
+          "name": "HU | Creo_17 | 30+ | AD 04"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Не вдалося визначити, чи Meta застосувала зміну. Не повторюйте операцію до ручної перевірки Ads Manager.",
+      "code": "FACEBOOK_WRITE_OUTCOME_UNKNOWN",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "ad",
+      "itemIndex": 4,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "845b82b9-d5ec-4ea8-bc8a-4b76eb605f43",
+    "accountKey": "Test",
+    "adAccountId": "act_1936463160328259",
+    "uniqueKey": "campaign-job:845b82b9-d5ec-4ea8-bc8a-4b76eb605f43"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "id": "45872966-e45b-49a0-bcea-979f9f85003a",
+  "taskId": "4abe1b39-c44d-4542-b362-523667b8be2b",
+  "type": "publication",
+  "title": "Публікація · ES · 1",
+  "status": "failed",
+  "createdAt": "2026-09-02T20:47:41.364Z",
+  "startedAt": "2026-09-02T20:37:45.037Z",
+  "finishedAt": "2026-09-02T20:47:41.363Z",
+  "durationMs": 596326,
+  "inputSummary": {
+    "groupIds": [
+      "8083415",
+      "8512647"
+    ],
+    "geo": "ES",
+    "creativeName": "1",
+    "postUrl": "https://www.facebook.com/61581733337385/posts/pfbid02abvGQbbSN3yam2nyYv84tRRHfHCBY8eeJKkcpuXQw4Kj14GTtazjvESwsP5S77Sxl",
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "published": [
+      {
+        "commentId": "1",
+        "actionType": "comment",
+        "profileNo": "789",
+        "gender": "female",
+        "profileKey": null,
+        "text": "Oh, yo conozco esa web, tengo una amiga, es una brujita, y está todo el rato ahí. Chicos, buscad mujeres decentes."
+      }
+    ],
+    "skipped": [
+      {
+        "commentId": "10.2",
+        "reason": "should_write=false",
+        "text": "https://this-night.cyou/UJ1ES"
+      }
+    ],
+    "failedComments": [
+      {
+        "commentId": "2",
+        "actionType": "comment",
+        "reason": "Не вдалося відкрити потрібний Facebook-допис: POST_NOT_OPENED",
+        "attempts": 1,
+        "text": "Jaja, yo también conozco a esa ninfómana, creo que la conoce todo el que ha entrado alguna vez en esa web. Sí, es realmente buena, pero parece que su objetivo es acostarse con todo el mundo."
+      }
+    ],
+    "failedProfiles": [
+      {
+        "profileNo": "421",
+        "commentId": "2",
+        "stage": "OPEN_POST_VIA_AUTHOR_PAGE",
+        "error": "Не вдалося відкрити потрібний Facebook-допис: POST_NOT_OPENED"
+      }
+    ],
+    "uncertain": []
+  },
+  "counters": {
+    "published": 1,
+    "skipped": 1,
+    "failedComments": 1,
+    "failedProfiles": 1
+  },
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Не вдалося відкрити потрібний Facebook-допис: POST_NOT_OPENED",
+      "code": "PUBLICATION_COMMENTING_FATAL_ERROR",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "tr_1",
+    "pageId": "886440057876450",
+    "geo": "ES",
+    "creativeName": "1",
+    "commentsEnabled": true
+  }
+}

@@ -147,6 +147,46 @@ assert.equal(skippedProxy.report.published.length, 0);
 assert.equal(skippedProxy.report.failedComments.length, 0);
 assert.equal(skippedProxy.report.skipped.length, 1);
 
+let postOpenAttempts = 0;
+const retryAfterPostOpenFailure = await runParallelCommentingScenario({
+    adsPower: {
+        getProfilesByGroupId: async () => [
+            { profile_no: "first", gender: "male" },
+            { profile_no: "second", gender: "male" },
+        ],
+    },
+    groupIds: ["group-1"],
+    comments: [{
+        id: "retry-post-open",
+        parent_id: null,
+        text: "root",
+        gender: "male",
+        should_write: true,
+        profile_key: null,
+    }],
+    geo: "HU",
+    creativeName: "retry-post-open",
+    postUrl: "https://www.facebook.com/test/posts/1",
+    concurrency: 1,
+    getGender: (profile) => profile?.gender ?? null,
+    logger: { info() {}, warn() {}, error() {}, debug() {} },
+    executeComment: async () => {
+        postOpenAttempts += 1;
+        return postOpenAttempts === 1
+            ? {
+                success: false,
+                stage: "OPEN_POST_VIA_AUTHOR_PAGE",
+                error: "Не вдалося відкрити потрібний Facebook-допис: first_post_not_found",
+                cleanupErrors: [],
+            }
+            : { success: true, cleanupErrors: [] };
+    },
+});
+assert.equal(retryAfterPostOpenFailure.report.published.length, 1);
+assert.equal(postOpenAttempts, 2);
+assert.equal(retryAfterPostOpenFailure.report.failedProfiles.length, 1);
+assert.equal(retryAfterPostOpenFailure.report.fatalError, null);
+
 const emptyWorkers = await runParallelCommentingScenario({
     adsPower: { getProfilesByGroupId: async () => profiles },
     groupIds: ["group-1"],

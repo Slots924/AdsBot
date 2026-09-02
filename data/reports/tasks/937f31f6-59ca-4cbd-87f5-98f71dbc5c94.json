@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "937f31f6-59ca-4cbd-87f5-98f71dbc5c94",
+  "taskId": "4da0bad6-2d71-42ff-b62d-f9e67af6f3da",
+  "type": "facebook-api-client-sync",
+  "title": "Синхронізація API-клієнта Test",
+  "status": "failed",
+  "createdAt": "2026-09-02T15:29:39.714Z",
+  "startedAt": "2026-09-02T15:29:38.388Z",
+  "finishedAt": "2026-09-02T15:29:39.713Z",
+  "durationMs": 1325,
+  "inputSummary": {
+    "accountKey": "Test",
+    "adsPowerProfileNo": "1894"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "AdsPower-профіль не готовий до роботи",
+      "code": null,
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "Test",
+    "uniqueKey": "facebook-api-client-sync:Test"
+  }
+}

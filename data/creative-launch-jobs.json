@@ -2,6 +2,90 @@
   "version": 1,
   "jobs": [
     {
+      "id": "a9ba5c85-5f4d-445a-86eb-966efd1ebfa1",
+      "parentJobId": null,
+      "mode": "full",
+      "draft": {
+        "accountKey": "Test",
+        "pageId": "1270278699505547",
+        "geo": "HU",
+        "creativeName": "133",
+        "siteUrl": "https://two-night.click/HJ133",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Downloads\\762829933_122325643460007675_5689537905500061894_n.jpg"
+        ],
+        "deleteOldPosts": true,
+        "groupIds": [
+          "8278298"
+        ],
+        "campaignName": "HU | Creo_133 | 30+",
+        "campaignNameManual": false,
+        "templateId": 13,
+        "adAccountId": "act_1936463160328259",
+        "pixelId": "935472558918197",
+        "utm": "utm_campaign={{campaign.name}}&utm_source={{site_source_name}}&utm_placement={{placement}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}&adset_name={{adset.name}}&pixel=935472558918197&ad_name={{ad.name}}&token=EAAO4j3xpxc0BQonZByfnlBQFWU4AwumNaDVgnJ2t5TjX7tM2uH6mtPo0pPPErZCaYqHD6aBZADmliglIL2pQOexQNUwbnNFDCpScCoOFjZCXlK67ZAKLZBqzL3psQmG5Ev9Nt8bBFDRexQL3pIg3MOjeoGe3o5XAhpsvg9TSESpk68suZCOa9gbX9vKQfLLRwZDZD",
+        "adSetCount": 5,
+        "dailyBudget": 20,
+        "startTime": "2026-09-02T18:21:00.000Z",
+        "createPaused": true,
+        "createAdSetsPaused": false,
+        "createAdsPaused": false,
+        "browserMode": "visible",
+        "disableImages": false,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-002"
+        }
+      },
+      "status": "failed",
+      "post": null,
+      "campaignJobId": null,
+      "cleanup": {
+        "deleted": [],
+        "failed": []
+      },
+      "subtasks": [
+        {
+          "id": "publication",
+          "title": "Підготовка і публікація",
+          "status": "running",
+          "progress": {},
+          "message": "Перевіряємо дані й готуємо креатив"
+        },
+        {
+          "id": "campaign",
+          "title": "Створення кампанії",
+          "status": "pending",
+          "progress": {}
+        },
+        {
+          "id": "comments",
+          "title": "Коментування",
+          "status": "pending",
+          "progress": {}
+        }
+      ],
+      "commentsResume": null,
+      "errors": [
+        {
+          "message": "Pixel недоступний вибраному РК",
+          "code": "CAMPAIGN_PIXEL_ACCESS_DENIED",
+          "httpStatus": null,
+          "graphCode": null,
+          "graphSubcode": null,
+          "graphUserTitle": null,
+          "graphUserMessage": null,
+          "stage": null,
+          "itemIndex": null,
+          "createdObjects": null,
+          "jobId": null
+        }
+      ],
+      "createdAt": "2026-09-02T18:23:01.398Z",
+      "updatedAt": "2026-09-02T18:23:03.094Z"
+    },
+    {
       "id": "93828ff0-e447-4f94-a85e-035ba4c54862",
       "parentJobId": null,
       "mode": "full",

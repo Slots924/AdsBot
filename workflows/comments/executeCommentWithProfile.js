@@ -237,7 +237,6 @@ export default async function executeCommentWithProfile({
         });
 
         if (!result.postOpen.success) {
-            result.stopTask = true;
             throw new Error(
                 `Не вдалося відкрити потрібний Facebook-допис: ${result.postOpen.status}`
             );
