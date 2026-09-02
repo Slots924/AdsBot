@@ -184,10 +184,12 @@ function CountryExclusionSection({ countries, value, onChange }) {
 }
 
 export default function KeitaroCampaignCreateModal({
-  onClose,
-  onError,
-  showToast,
-  onCreated,
+    onClose,
+    onError,
+    showToast,
+    onCreated,
+    initialGeo = "",
+    initialCreativeName = "",
 }) {
   const [settings, setSettings] = useState({
     pixels: [],
@@ -203,8 +205,8 @@ export default function KeitaroCampaignCreateModal({
   const [landingGroups, setLandingGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [geo, setGeo] = useState("");
-  const [creativeName, setCreativeName] = useState("");
+  const [geo, setGeo] = useState(initialGeo);
+  const [creativeName, setCreativeName] = useState(initialCreativeName);
   const [pixelKey, setPixelKey] = useState("");
   const [manualPixel, setManualPixel] = useState(false);
   const [pixelId, setPixelId] = useState("");

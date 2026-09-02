@@ -4,6 +4,7 @@ import { ImagePlus, LoaderCircle, X } from "lucide-react";
 import { errorDetails, unwrap } from "../lib/api.js";
 import GeoSelect from "./GeoSelect.jsx";
 import ImageDropzone from "./ImageDropzone.jsx";
+import KeitaroCampaignPickerModal from "./KeitaroCampaignPickerModal.jsx";
 
 
 function localDateTime(date = new Date()) {
@@ -16,6 +17,7 @@ export default function ImageAdCreationModal({
     accountKey,
     adAccount,
     settings,
+    keitaroAvailableGroupIds = [],
     onClose,
     onSuccess,
 }) {
@@ -27,6 +29,7 @@ export default function ImageAdCreationModal({
     const [submitting, setSubmitting] = useState(false);
     const [failure, setFailure] = useState(null);
     const [overrideTracking, setOverrideTracking] = useState(false);
+    const [keitaroPickerOpen, setKeitaroPickerOpen] = useState(false);
     const [form, setForm] = useState({
         geo: "",
         creativeName: "",
@@ -172,7 +175,7 @@ export default function ImageAdCreationModal({
                             </label>
                             <label className="field field-wide">
                                 <span>Посилання на офер</span>
-                                <input type="url" value={form.siteUrl} onChange={(event) => change("siteUrl", event.target.value)} placeholder="https://example.com/offer" />
+                                <div className="resource-select-row"><input type="url" value={form.siteUrl} onChange={(event) => change("siteUrl", event.target.value)} placeholder="https://example.com/offer" /><button type="button" className="secondary-button" onClick={() => setKeitaroPickerOpen(true)}>Вибрати кампанію</button></div>
                             </label>
                             <label className="field">
                                 <span>Шаблон кампанії</span>
@@ -252,6 +255,7 @@ export default function ImageAdCreationModal({
                     </button>
                 </div>
             </form>
+            {keitaroPickerOpen && <KeitaroCampaignPickerModal geo={form.geo} creativeName={form.creativeName} availableGroupIds={keitaroAvailableGroupIds} onClose={() => setKeitaroPickerOpen(false)} onError={(error) => setFailure(error)} onSelect={(url) => { change("siteUrl", url); setKeitaroPickerOpen(false); }} />}
         </div>
     );
 }

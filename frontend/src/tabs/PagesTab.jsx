@@ -23,6 +23,7 @@ import CampaignCreationWizard from "../components/CampaignCreationWizard.jsx";
 import CreativeLaunchModal from "../components/CreativeLaunchModal.jsx";
 import GeoSelect from "../components/GeoSelect.jsx";
 import ImageListDropzone from "../components/ImageListDropzone.jsx";
+import KeitaroCampaignPickerModal from "../components/KeitaroCampaignPickerModal.jsx";
 import MultiSelect from "../components/MultiSelect.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import { findGroupForGeo } from "../lib/groups.js";
@@ -323,6 +324,7 @@ function PublicationModal({
         groupIds: defaultGroup ? [String(defaultGroup.groupId)] : [],
     });
     const [saving, setSaving] = useState(false);
+    const [keitaroPickerOpen, setKeitaroPickerOpen] = useState(false);
     const submit = async (event) => {
         event.preventDefault();
         setSaving(true);
@@ -373,14 +375,24 @@ function PublicationModal({
                 </div>
                 <label className="field">
                     <span>Offer URL</span>
-                    <input
-                        type="url"
-                        value={draft.siteUrl}
-                        onChange={(event) => setDraft((current) => ({
-                            ...current,
-                            siteUrl: event.target.value,
-                        }))}
-                    />
+                    <div className="resource-select-row">
+                        <input
+                            type="url"
+                            value={draft.siteUrl}
+                            onChange={(event) => setDraft((current) => ({
+                                ...current,
+                                siteUrl: event.target.value,
+                            }))}
+                        />
+                        <button
+                            type="button"
+                            className="secondary-button"
+                            disabled={saving}
+                            onClick={() => setKeitaroPickerOpen(true)}
+                        >
+                            Вибрати кампанію
+                        </button>
+                    </div>
                 </label>
                 <label className="field">
                     <span>Зображення</span>
@@ -431,6 +443,19 @@ function PublicationModal({
                     </button>
                 </div>
             </form>
+            {keitaroPickerOpen && (
+                <KeitaroCampaignPickerModal
+                    geo={draft.geo}
+                    creativeName={draft.creativeName}
+                    availableGroupIds={settings.keitaroAvailableGroupIds ?? []}
+                    onClose={() => setKeitaroPickerOpen(false)}
+                    onError={onError}
+                    onSelect={(siteUrl) => {
+                        setDraft((current) => ({ ...current, siteUrl }));
+                        setKeitaroPickerOpen(false);
+                    }}
+                />
+            )}
         </div>
     );
 }

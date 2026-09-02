@@ -793,6 +793,13 @@ button:focus-visible, input:focus-visible {
 .geo-field { min-width: 0; }
 .resource-select-row { display: flex; align-items: stretch; gap: 8px; }
 .resource-select-row > .select { flex: 1; min-width: 0; }
+.resource-select-row > input { flex: 1; min-width: 0; }
+.keitaro-picker-modal { display: flex; width: min(1440px, calc(100vw - 56px)); height: min(860px, calc(100vh - 56px)); max-height: calc(100vh - 56px); flex-direction: column; }
+.keitaro-picker-list { display: grid; flex: 1; gap: 7px; min-height: 0; margin-top: 14px; overflow-y: auto; }
+.keitaro-picker-row { display: grid; gap: 3px; width: 100%; padding: 11px 13px; border: 1px solid var(--stroke); border-radius: 11px; color: #c8ccda; text-align: left; background: rgba(255,255,255,.025); cursor: pointer; }
+.keitaro-picker-row:hover, .keitaro-picker-row.selected { border-color: rgba(132,114,255,.62); background: rgba(132,114,255,.11); }
+.keitaro-picker-row strong { color: #f3f4ff; font-size: var(--font-control); }
+.keitaro-picker-row span, .keitaro-picker-row small { overflow: hidden; color: #8a91a4; font-size: var(--font-meta); text-overflow: ellipsis; white-space: nowrap; }
 .resource-refresh-button { flex: 0 0 46px; width: 46px; height: 46px; border-radius: 9px; }
 .campaign-launch-section > .field + .field { margin-top: 14px; }
 .tracking-toggle { margin-top: 15px; }
@@ -1181,7 +1188,7 @@ button:focus-visible, input:focus-visible {
 .keitaro-inline-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
 .keitaro-inline-grid .wide { grid-column: 1 / -1; }
 .keitaro-inline-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 15px; }
-.keitaro-campaign-overlay { z-index: 105; background: rgba(8, 9, 12, .82); }
+.keitaro-campaign-overlay { z-index: 210; background: rgba(8, 9, 12, .82); }
 .keitaro-campaign-editor { display: flex; flex-direction: column; width: min(1180px, 100%); max-height: calc(100vh - 48px); margin: auto; overflow: hidden; border: 1px solid #414349; border-radius: 13px; color: #eee; background: #1b1c1f; box-shadow: 0 30px 90px rgba(0,0,0,.6); }
 .keitaro-campaign-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 20px 22px 16px; border-bottom: 1px solid #3d3f45; background: #191a1d; }
 .keitaro-campaign-head h2 { margin: 4px 0; font-size: 22px; }

@@ -88,7 +88,7 @@ export default function App() {
 
     const selectedAccount = useMemo(() => accounts.find((item) => item.accountKey === selectedAccountKey) || null, [accounts, selectedAccountKey]);
     const workspace = workspaceCache[selectedAccountKey] || { adAccounts: [], pages: [] };
-    const settings = { createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, defaultPixelId, defaultUtm };
+    const settings = { createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, defaultPixelId, defaultUtm, keitaroAvailableGroupIds };
     const showToast = (message, type = "info") => { setToast({ message, type }); window.setTimeout(() => setToast(null), 3200); };
     const addLog = (level, scope, message) => window.adsBot.writeRendererLog({ level, event: `${scope}.message`, message }).catch(() => {});
     const applyAccounts = (next) => { setAccounts(next); setSelectedAccountKey((current) => next.some((item) => item.accountKey === current && !item.archived) ? current : ""); };
@@ -274,7 +274,7 @@ export default function App() {
             </nav>
             <div className="content-scroll"><AnimatePresence mode="wait">
                 {activeTab === "accounts" && <motion.section key="accounts" className="accounts-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><AccountsTab accounts={accounts} selectedAccountKey={selectedAccountKey} accountsLoading={accountsLoading} onSelectAccount={selectAccount} onRefreshAccounts={() => loadAccounts(true)} onCreateAccount={createAccount} onUpdateAccount={updateAccount} onSetArchived={archiveAccount} onSyncAccount={syncAccount} onOpenAccountProfile={openAccountProfile} onCloseAccountProfile={closeAccountProfile} syncingAccountKeys={syncingApiClientKeys} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onReorderProxies={reorderProxies} onError={setModal}/></motion.section>}
-                {activeTab === "ads" && <AdsWorkspaceTab key="ads" adsSubtab={adsSubtab} onSubtabChange={setAdsSubtab} selectedAccount={selectedAccount} workspaceAccounts={workspace.adAccounts} onWorkspaceAccountsChange={updateWorkspaceAccounts} onError={setModal} showToast={showToast} addLog={addLog} selectedId={selectedAdAccountId} setSelectedId={setSelectedAdAccountId} createCampaignsPaused={createCampaignsPaused} createAdSetsPaused={createAdSetsPaused} createAdsPaused={createAdsPaused} defaultPixelId={defaultPixelId} defaultUtm={defaultUtm}/>}
+                {activeTab === "ads" && <AdsWorkspaceTab key="ads" adsSubtab={adsSubtab} onSubtabChange={setAdsSubtab} selectedAccount={selectedAccount} workspaceAccounts={workspace.adAccounts} onWorkspaceAccountsChange={updateWorkspaceAccounts} onError={setModal} showToast={showToast} addLog={addLog} selectedId={selectedAdAccountId} setSelectedId={setSelectedAdAccountId} createCampaignsPaused={createCampaignsPaused} createAdSetsPaused={createAdSetsPaused} createAdsPaused={createAdsPaused} defaultPixelId={defaultPixelId} defaultUtm={defaultUtm} keitaroAvailableGroupIds={keitaroAvailableGroupIds}/>}
                 {activeTab === "pages" && (
                     <PagesTab
                         key="pages"

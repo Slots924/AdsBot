@@ -6,6 +6,7 @@ import GeoSelect from "./GeoSelect.jsx";
 import ImageListDropzone from "./ImageListDropzone.jsx";
 import MultiSelect from "./MultiSelect.jsx";
 import SearchSelect from "./SearchSelect.jsx";
+import KeitaroCampaignPickerModal from "./KeitaroCampaignPickerModal.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import { findGroupForGeo } from "../lib/groups.js";
 
@@ -28,6 +29,7 @@ export default function CreativeLaunchModal({
     const [manualName, setManualName] = useState(false);
     const [overrideTracking, setOverrideTracking] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [keitaroPickerOpen, setKeitaroPickerOpen] = useState(false);
     const [draft, setDraft] = useState({
         geo: page.geo || "",
         creativeName: page.creativeName || "",
@@ -245,12 +247,7 @@ export default function CreativeLaunchModal({
                         </div>
                         <label className="field">
                             <span>Посилання на офер</span>
-                            <input
-                                type="url"
-                                value={draft.siteUrl}
-                                onChange={(event) => update("siteUrl", event.target.value)}
-                                placeholder="https://…"
-                            />
+                            <div className="resource-select-row"><input type="url" value={draft.siteUrl} onChange={(event) => update("siteUrl", event.target.value)} placeholder="https://…" /><button type="button" className="secondary-button" onClick={() => setKeitaroPickerOpen(true)}>Вибрати кампанію</button></div>
                         </label>
                         <label className="field">
                             <span>Зображення</span>
@@ -418,6 +415,7 @@ export default function CreativeLaunchModal({
                     </button>
                 </div>
             </form>
+            {keitaroPickerOpen && <KeitaroCampaignPickerModal geo={draft.geo} creativeName={draft.creativeName} availableGroupIds={settings.keitaroAvailableGroupIds ?? []} onClose={() => setKeitaroPickerOpen(false)} onError={onError} onSelect={(url) => { update("siteUrl", url); setKeitaroPickerOpen(false); }} />}
         </div>
     );
 }

@@ -272,6 +272,7 @@ export default function AdAccountsTab({
     createAdsPaused = true,
     defaultPixelId = "",
     defaultUtm = "",
+    keitaroAvailableGroupIds = [],
     lastPublishedPost = null,
     workspaceAccounts = null,
     onWorkspaceRefresh = null,
@@ -790,6 +791,7 @@ export default function AdAccountsTab({
                         defaultPixelId,
                         defaultUtm,
                     }}
+                    keitaroAvailableGroupIds={keitaroAvailableGroupIds}
                     onClose={() => setImageAdModalOpen(false)}
                     onSuccess={() => {
                         showToast("Рекламне оголошення додано в чергу", "success");
