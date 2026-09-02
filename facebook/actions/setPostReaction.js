@@ -6,7 +6,8 @@ import {
     getFirstVisibleElement,
     waitForVisibleElement,
 } from "../browser/elements.js";
-import { waitHuman, waitRandom } from "../browser/timing.js";
+import { waitForDomQuiet } from "../browser/confirmedClick.js";
+import { wait, waitHuman, waitRandom } from "../browser/timing.js";
 import {
     getReactionOptionSelector,
     reactionButtonSelector,
@@ -21,6 +22,27 @@ const reactionNames = {
     sad: "Sad",
     angry: "Angry",
 };
+const reactionButtonTimeout = 15000;
+const reactionDomQuietTimeout = 5000;
+const reactionDomQuietMs = 300;
+
+
+async function isElementReady(element) {
+    return element.evaluate((target) => {
+        if (!target?.isConnected) {
+            return false;
+        }
+
+        const rectangle = target.getBoundingClientRect();
+        const style = window.getComputedStyle(target);
+
+        return rectangle.width > 0
+            && rectangle.height > 0
+            && style.display !== "none"
+            && style.visibility !== "hidden"
+            && style.opacity !== "0";
+    });
+}
 
 
 async function moveToReaction(page, element) {
@@ -37,6 +59,10 @@ async function moveToReaction(page, element) {
 
 async function clickReaction(page, element) {
     if (!await moveToReaction(page, element)) {
+        return false;
+    }
+
+    if (!await isElementReady(element)) {
         return false;
     }
 
@@ -59,22 +85,23 @@ async function setPostReaction(page, reaction = "like") {
             return false;
         }
 
-        const currentReaction = await page.evaluate(
-            (selector) => document.querySelector(selector)
-                ?.getAttribute("aria-label"),
-            reactionButtonSelector
+        await wait(2000);
+
+        const initialReactionButton = await waitForVisibleElement(
+            page,
+            reactionButtonSelector,
+            { timeout: reactionButtonTimeout }
         );
+        await initialReactionButton.dispose();
 
-        if (!currentReaction) {
-            console.log("Не знайдено кнопку реакції");
-            return false;
-        }
-
-        if (currentReaction !== "Like") {
-            console.log(`Реакція вже стоїть: ${currentReaction}`);
-            return false;
-        }
-
+        await waitForDomQuiet(
+            page,
+            { selector: reactionButtonSelector },
+            {
+                quietMs: reactionDomQuietMs,
+                timeout: reactionDomQuietTimeout,
+            }
+        );
         const reactionButton = await getFirstVisibleElement(
             page,
             reactionButtonSelector
@@ -82,6 +109,21 @@ async function setPostReaction(page, reaction = "like") {
 
         if (!reactionButton) {
             console.log("Не знайдено кнопку Like");
+            return false;
+        }
+
+        const currentReaction = await reactionButton.evaluate(
+            (target) => target.getAttribute("aria-label")
+        );
+        if (!currentReaction) {
+            await reactionButton.dispose();
+            console.log("Не знайдено кнопку реакції");
+            return false;
+        }
+
+        if (currentReaction !== "Like") {
+            await reactionButton.dispose();
+            console.log(`Реакція вже стоїть: ${currentReaction}`);
             return false;
         }
 
@@ -108,17 +150,31 @@ async function setPostReaction(page, reaction = "like") {
             const toolbar = await waitForVisibleElement(
                 page,
                 reactionsToolbarSelector,
-                { timeout: 15000 }
+                { timeout: reactionButtonTimeout }
             );
             await toolbar.dispose();
 
             const reactionOptionSelector =
                 getReactionOptionSelector(reactionName);
 
-            const reactionOption = await waitForVisibleElement(
+            const initialReactionOption = await waitForVisibleElement(
                 page,
                 reactionOptionSelector,
-                { timeout: 15000 }
+                { timeout: reactionButtonTimeout }
+            );
+            await initialReactionOption.dispose();
+
+            await waitForDomQuiet(
+                page,
+                { selector: reactionOptionSelector },
+                {
+                    quietMs: reactionDomQuietMs,
+                    timeout: reactionDomQuietTimeout,
+                }
+            );
+            const reactionOption = await getFirstVisibleElement(
+                page,
+                reactionOptionSelector
             );
 
             if (!reactionOption) {
@@ -139,7 +195,6 @@ async function setPostReaction(page, reaction = "like") {
         }
 
         await waitHuman("medium");
-
         const reactionAfterClick = await page.evaluate(
             (selector) => document.querySelector(selector)
                 ?.getAttribute("aria-label"),
