@@ -4,9 +4,10 @@ import configureFacebookAutomationWindow
     from "../../facebook/browser/configureFacebookAutomationWindow.js";
 import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
 import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
+import openFacebookPostViaAuthorPage
+    from "../../facebook/actions/openFacebookPostViaAuthorPage.js";
 import scrollToPostLikeButton from "../../facebook/actions/scrollToPostLikeButton.js";
 import setRandomPostReaction from "../../facebook/actions/setRandomPostReaction.js";
-import isPostAvailable from "../../facebook/post/checks/isPostAvailable.js";
 import commentOnPost from "../../facebook/workflows/commentOnPost.js";
 import replyToComment from "../../facebook/workflows/replyToComment.js";
 import ensureWorkerProxyReady from "../../services/proxy/ensureWorkerProxyReady.js";
@@ -40,6 +41,8 @@ export default async function executeCommentWithProfile({
         profileNo,
         commentId: String(comment.id),
         stage: "ADSPOWER_READY",
+        postOpen: null,
+        stopTask: false,
         error: null,
         cleanupErrors: [],
     };
@@ -227,14 +230,17 @@ export default async function executeCommentWithProfile({
         await ensureEnglish(page);
 
         assertNotAborted();
-        result.stage = "OPEN_POST";
-        await openPageWithoutPopups(page, postUrl);
+        result.stage = "OPEN_POST_VIA_AUTHOR_PAGE";
+        result.postOpen = await openFacebookPostViaAuthorPage(page, {
+            postUrl,
+            logger,
+        });
 
-        result.stage = "POST_AVAILABLE";
-        const postAvailable = await isPostAvailable(page);
-
-        if (!postAvailable) {
-            throw new Error("Facebook-пост недоступний");
+        if (!result.postOpen.success) {
+            result.stopTask = true;
+            throw new Error(
+                `Не вдалося відкрити потрібний Facebook-допис: ${result.postOpen.status}`
+            );
         }
 
         assertNotAborted();

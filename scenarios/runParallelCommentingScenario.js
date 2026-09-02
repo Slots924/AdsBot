@@ -128,6 +128,7 @@ export default async function runParallelCommentingScenario({
     let progressQueue = Promise.resolve();
     let activeAttempts = 0;
     let abortError = null;
+    let stopTaskError = null;
 
     const completedCount = () => report.published.length
         + report.skipped.length
@@ -407,6 +408,14 @@ export default async function runParallelCommentingScenario({
                     };
                 }
                 if (result.success) return { published: true, attempts: 1, profile };
+                if (result.stopTask) {
+                    return {
+                        published: false,
+                        stopTask: true,
+                        attempts: 1,
+                        reason: result.error,
+                    };
+                }
                 brokenProfileKeys.add(comment.profile_key);
                 return {
                     published: false,
@@ -439,6 +448,14 @@ export default async function runParallelCommentingScenario({
                     return { published: true, attempts, profile };
                 }
                 lastError = result.error;
+                if (result.stopTask) {
+                    return {
+                        published: false,
+                        stopTask: true,
+                        attempts,
+                        reason: result.error,
+                    };
+                }
                 if (getActionType(comment) === "reply") break;
             }
             return {
@@ -462,7 +479,14 @@ export default async function runParallelCommentingScenario({
                 ? await profileKeyMutex.run(comment.profile_key, execute)
                 : await execute();
 
-            if (outcome.skippedDueToProxy) {
+            if (outcome.stopTask) {
+                recordFailure(comment, outcome.reason, outcome.attempts);
+                skipDescendants(
+                    comment.id,
+                    `Батьківський коментар ${comment.id} не опубліковано`
+                );
+                stopTaskError ??= new Error(outcome.reason);
+            } else if (outcome.skippedDueToProxy) {
                 if (!terminalIds.has(comment.id)) {
                     terminalIds.add(comment.id);
                     report.skipped.push({
@@ -518,8 +542,17 @@ export default async function runParallelCommentingScenario({
         const freeWorkerIds = workerProxyMap
             ? [...workerProxyMap.keys()].sort((left, right) => left - right)
             : Array.from({ length: workerLimit }, (_, index) => index + 1);
-        while ((ready.length || runningOperations.size) && !signal?.aborted) {
-            while (ready.length && freeWorkerIds.length && !signal?.aborted) {
+        while (
+            (ready.length || runningOperations.size)
+            && !signal?.aborted
+            && !stopTaskError
+        ) {
+            while (
+                ready.length
+                && freeWorkerIds.length
+                && !signal?.aborted
+                && !stopTaskError
+            ) {
                 const comment = ready.shift();
                 const workerId = freeWorkerIds.shift();
                 let operation;
@@ -539,6 +572,7 @@ export default async function runParallelCommentingScenario({
         }
         if (signal?.aborted) throw createAbortError();
         await Promise.all(runningOperations);
+        if (stopTaskError) throw stopTaskError;
 
         runnable.forEach((comment) => {
             if (terminalIds.has(comment.id) || queuedIds.has(comment.id)) return;

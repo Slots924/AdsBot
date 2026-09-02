@@ -35,8 +35,8 @@ export const replyInputSelector =
 
 /** Поле введення нового коментаря під постом. */
 export const commentInputSelector =
-    'form[role="presentation"] '
-    + 'div[contenteditable="true"][role="textbox"]';
+    '[role="dialog"] [role="textbox"][contenteditable="true"]'
+    + '[data-lexical-editor="true"]';
 
 /** Кнопка поточного порядку сортування коментарів. */
 export const commentOrderingButtonSelector =

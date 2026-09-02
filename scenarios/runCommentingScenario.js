@@ -503,6 +503,10 @@ export default async function runCommentingScenario({
                         comment.gender
                     );
                 } else {
+                    if (result.stopTask) {
+                        throw new Error(result.error);
+                    }
+
                     brokenProfileKeys.add(comment.profile_key);
                     report.failedComments.push({
                         commentId: comment.id,
@@ -537,6 +541,10 @@ export default async function runCommentingScenario({
 
                 if (!result.success) {
                     lastError = result.error;
+
+                    if (result.stopTask) {
+                        throw new Error(result.error);
+                    }
 
                     if (getActionType(comment) === "reply") {
                         break;

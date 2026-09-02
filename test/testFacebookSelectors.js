@@ -131,7 +131,8 @@ assert.equal(
 );
 assert.equal(
     commentInputSelector,
-    'form[role="presentation"] div[contenteditable="true"][role="textbox"]'
+    '[role="dialog"] [role="textbox"][contenteditable="true"]'
+    + '[data-lexical-editor="true"]'
 );
 assert.equal(
     commentOrderingButtonSelector,

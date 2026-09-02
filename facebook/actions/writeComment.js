@@ -1,17 +1,35 @@
-import { waitForVisibleElement } from "../browser/elements.js";
+import { waitForDomQuiet } from "../browser/confirmedClick.js";
+import {
+    getFirstVisibleElement,
+    waitForVisibleElement,
+} from "../browser/elements.js";
 import { humanClickElement } from "../browser/pointer.js";
-import { waitHuman } from "../browser/timing.js";
+import { wait, waitHuman } from "../browser/timing.js";
 import { commentInputSelector } from "../selectors/post.js";
 
 
 async function clickCommentInput(page) {
-    const input = await waitForVisibleElement(page, commentInputSelector, {
+    const initialInput = await waitForVisibleElement(page, commentInputSelector, {
         timeout: 15000,
     });
+    await initialInput.dispose();
+
+    await waitForDomQuiet(
+        page,
+        { selector: commentInputSelector },
+        { quietMs: 300, timeout: 5000 }
+    );
+
+    const input = await getFirstVisibleElement(page, commentInputSelector);
+
+    if (!input) {
+        throw new Error("Поле введення коментаря зникло після стабілізації DOM");
+    }
 
     try {
+        await wait(1500);
         await humanClickElement(page, input, {
-            beforeDelay: [60, 140],
+            beforeDelay: null,
             holdDelay: [70, 160],
         });
     } finally {
