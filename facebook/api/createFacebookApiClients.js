@@ -31,6 +31,9 @@ function normalizeAccounts(accounts) {
         const accessToken = String(account?.accessToken ?? "").trim();
         const cookie = String(account?.cookie ?? "").trim();
         const userAgent = String(account?.userAgent ?? "").trim();
+        const adsPowerProfileNo = String(
+            account?.adsPowerProfileNo ?? ""
+        ).trim();
 
         if (!accountKey) {
             throw new Error(
@@ -42,6 +45,12 @@ function normalizeAccounts(accounts) {
             throw new Error(
                 `accountKey "${accountKey}" дублюється`
             );
+        }
+
+        const credentialsMissing = !accessToken || !userAgent || !cookie;
+        if (credentialsMissing && adsPowerProfileNo) {
+            // API-клієнт очікує фонову синхронізацію з AdsPower.
+            return null;
         }
 
         if (!accessToken) {
@@ -86,7 +95,7 @@ function normalizeAccounts(accounts) {
             facebookUserId: String(account?.facebookUserId ?? ""),
             metadata: account?.metadata ?? {},
         };
-    });
+    }).filter(Boolean);
 }
 
 

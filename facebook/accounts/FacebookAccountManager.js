@@ -41,6 +41,19 @@ function normalizeAccountKey(value) {
 }
 
 
+function normalizeAdsPowerProfileNo(value) {
+    const profileNo = String(value ?? "").trim();
+    if (!profileNo) return "";
+    if (!/^\d+$/.test(profileNo)) {
+        throw createAccountError(
+            "Номер AdsPower має містити лише цифри",
+            "ADSPOWER_PROFILE_NO_INVALID"
+        );
+    }
+    return profileNo;
+}
+
+
 function isFacebookCookieDomain(value) {
     const domain = String(value ?? "")
         .trim()
@@ -140,6 +153,7 @@ function safeAccount(account) {
         hasUserAgent: Boolean(String(account.userAgent ?? "").trim()),
         hasAccessToken: Boolean(String(account.accessToken ?? "").trim()),
         hasCookie: Boolean(String(account.cookie ?? "").trim()),
+        adsPowerProfileNo: String(account.adsPowerProfileNo ?? "").trim(),
     };
 }
 
@@ -184,13 +198,16 @@ export default class FacebookAccountManager {
             }
             const userAgent = String(input.userAgent ?? "").trim();
             const accessToken = String(input.accessToken ?? "").trim();
-            if (!userAgent) {
+            const adsPowerProfileNo = normalizeAdsPowerProfileNo(
+                input.adsPowerProfileNo
+            );
+            if (!adsPowerProfileNo && !userAgent) {
                 throw createAccountError(
                     "Вкажіть userAgent",
                     "FACEBOOK_ACCOUNT_USER_AGENT_REQUIRED"
                 );
             }
-            if (!accessToken) {
+            if (!adsPowerProfileNo && !accessToken) {
                 throw createAccountError(
                     "Вкажіть accessToken",
                     "FACEBOOK_ACCOUNT_ACCESS_TOKEN_REQUIRED"
@@ -202,7 +219,8 @@ export default class FacebookAccountManager {
                 facebookUserId: "",
                 userAgent,
                 accessToken,
-                cookie: normalizeFacebookCookie(input.cookie),
+                cookie: input.cookie ? normalizeFacebookCookie(input.cookie) : "",
+                adsPowerProfileNo,
                 metadata: {},
                 archived: false,
             };
@@ -236,6 +254,11 @@ export default class FacebookAccountManager {
             if (accessToken) account.accessToken = accessToken;
             if (cookie && (typeof cookie !== "string" || cookie.length)) {
                 account.cookie = normalizeFacebookCookie(cookie);
+            }
+            if (String(input.adsPowerProfileNo ?? "").trim()) {
+                account.adsPowerProfileNo = normalizeAdsPowerProfileNo(
+                    input.adsPowerProfileNo
+                );
             }
             await this.#write(store);
             return safeAccount(account);

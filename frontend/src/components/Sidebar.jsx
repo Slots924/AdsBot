@@ -14,7 +14,7 @@ import { errorDetails } from "../lib/api.js";
 
 
 function emptyAccountDraft() {
-    return { accountKey: "", userAgent: "", accessToken: "", cookie: "" };
+    return { accountKey: "", adsPowerProfileNo: "", userAgent: "", accessToken: "", cookie: "" };
 }
 
 
@@ -22,6 +22,7 @@ function AccountEditor({ editor, onClose, onSave, onError }) {
     const [draft, setDraft] = useState(() => ({
         ...emptyAccountDraft(),
         accountKey: editor.accountKey ?? "",
+        adsPowerProfileNo: editor.adsPowerProfileNo ?? "",
     }));
     const [saving, setSaving] = useState(false);
     const update = (field) => (event) => setDraft((current) => ({
@@ -30,10 +31,11 @@ function AccountEditor({ editor, onClose, onSave, onError }) {
     }));
     const creating = editor.mode === "create";
     const canSave = creating
-        ? draft.accountKey.trim() && draft.userAgent.trim()
-            && draft.accessToken.trim() && draft.cookie.trim()
-        : draft.userAgent.trim() || draft.accessToken.trim()
-            || draft.cookie.trim();
+        ? draft.accountKey.trim() && (draft.adsPowerProfileNo.trim() || (
+            draft.userAgent.trim() && draft.accessToken.trim() && draft.cookie.trim()
+        ))
+        : draft.adsPowerProfileNo.trim() || draft.userAgent.trim()
+            || draft.accessToken.trim() || draft.cookie.trim();
 
     const submit = async (event) => {
         event.preventDefault();
@@ -64,6 +66,7 @@ function AccountEditor({ editor, onClose, onSave, onError }) {
                 {!creating && <p>Порожні поля залишаться без змін. Поточні секрети з міркувань безпеки не показуються.</p>}
                 <div className="template-editor-fields">
                     <label className="field"><span>accountKey</span><input autoFocus={creating} readOnly={!creating} value={draft.accountKey} onChange={update("accountKey")} placeholder="fp_hub_2" /></label>
+                    <label className="field"><span>AdsPower № (необов'язково)</span><input inputMode="numeric" value={draft.adsPowerProfileNo} onChange={update("adsPowerProfileNo")} placeholder="1791" /><small className="field-hint">З номером AdsPower можна створити клієнт без token, cookie і userAgent — їх додасть синхронізація.</small></label>
                     <label className="field"><span>userAgent</span><textarea rows="3" value={draft.userAgent} onChange={update("userAgent")} placeholder={creating ? "Mozilla/5.0…" : "Залишити без змін"} /></label>
                     <label className="field"><span>accessToken</span><textarea rows="3" value={draft.accessToken} onChange={update("accessToken")} placeholder={creating ? "Access token" : "Залишити без змін"} /></label>
                     <label className="field">
@@ -91,6 +94,8 @@ export default function Sidebar({
     onCreate,
     onUpdate,
     onSetArchived,
+    onSync = async () => {},
+    syncingAccountKeys = [],
     onError,
     standalone = false,
 }) {
@@ -119,6 +124,17 @@ export default function Sidebar({
             setBusyKey(null);
         }
     };
+    const sync = async (event, account) => {
+        event.stopPropagation();
+        setBusyKey(account.accountKey);
+        try {
+            await onSync(account.accountKey);
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося додати синхронізацію в чергу" });
+        } finally {
+            setBusyKey(null);
+        }
+    };
 
     return (
         <aside className={`sidebar ${standalone ? "accounts-tab-sidebar resource-strip" : ""}`}>
@@ -141,10 +157,15 @@ export default function Sidebar({
                                     <strong>{account.accountKey}</strong>
                                     <span>{account.archived ? "В архіві" : account.name || "Без імені"}</span>
                                     <small>{account.facebookUserId || "ID не вказано"}</small>
+                                    {account.adsPowerProfileNo && <small>AdsPower № {account.adsPowerProfileNo}</small>}
                                     {account.error?.message && <em>{account.error.message}</em>}
                                 </span>
                             </button>
                             <span className="account-card-tools">
+                                {account.adsPowerProfileNo && (() => {
+                                    const syncing = syncingAccountKeys.includes(account.accountKey);
+                                    return <button type="button" className="icon-button" title="Синхронізувати з AdsPower" disabled={busyKey === account.accountKey || syncing || account.archived} onClick={(event) => sync(event, account)}>{busyKey === account.accountKey || syncing ? <LoaderCircle className="spin" size={13} /> : <RefreshCw size={13} />}</button>;
+                                })()}
                                 <button type="button" className="icon-button" title="Редагувати" onClick={(event) => { event.stopPropagation(); setEditor({ mode: "edit", accountKey: account.accountKey }); }}><Pencil size={13} /></button>
                                 <button type="button" className={`icon-button ${account.archived ? "" : "danger"}`} title={account.archived ? "Відновити" : "В архів"} disabled={busyKey === account.accountKey} onClick={(event) => toggleArchive(event, account)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : account.archived ? <ArchiveRestore size={13} /> : <X size={13} />}</button>
                             </span>

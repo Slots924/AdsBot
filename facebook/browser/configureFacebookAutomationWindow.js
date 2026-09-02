@@ -1,6 +1,6 @@
 export const facebookAutomationWindowSize = Object.freeze({
     width: 1280,
-    height: 1350,
+    height: 1440,
     deviceScaleFactor: 1,
 });
 

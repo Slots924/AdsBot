@@ -28,6 +28,8 @@ const defaultState = {
     accountSetupWorkerConcurrency: 5,
     accountSetupWorkerProxyIds: {},
     accountSetupBrowserMode: "visible",
+    apiClientsBrowserMode: "visible",
+    apiClientsDisableImages: false,
     accountSetupPhotosDirectory: "",
     logLevel: "info",
     defaultPixelId: "",
@@ -186,6 +188,10 @@ function normalizeState(state = {}) {
         )
             ? state.accountSetupBrowserMode
             : defaultState.accountSetupBrowserMode,
+        apiClientsBrowserMode: allowedCommentBrowserModes.has(
+            state.apiClientsBrowserMode
+        ) ? state.apiClientsBrowserMode : defaultState.apiClientsBrowserMode,
+        apiClientsDisableImages: state.apiClientsDisableImages === true,
         logLevel: state.logLevel === "debug" ? "debug" : "info",
         defaultPixelId: String(state.defaultPixelId ?? "").trim(),
         defaultUtm: String(state.defaultUtm ?? ""),

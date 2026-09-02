@@ -41,6 +41,18 @@ try {
     assert(!("accessToken" in created));
     assert(!("cookie" in created));
 
+    const adspowerOnly = await manager.create({
+        accountKey: "client_2",
+        adsPowerProfileNo: "1791",
+    });
+    assert.equal(adspowerOnly.adsPowerProfileNo, "1791");
+    assert.equal(adspowerOnly.hasAccessToken, false);
+
+    const updatedWithoutCredentials = await manager.update("client_2", {
+        adsPowerProfileNo: "1792",
+    });
+    assert.equal(updatedWithoutCredentials.adsPowerProfileNo, "1792");
+
     await assert.rejects(manager.create({
         accountKey: "CLIENT_1",
         userAgent: "agent",

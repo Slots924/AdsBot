@@ -11,6 +11,8 @@ export default function AccountsTab({
     onCreateAccount,
     onUpdateAccount,
     onSetArchived,
+    onSyncAccount,
+    syncingAccountKeys = [],
     proxies,
     proxiesLoading,
     onCreateProxy,
@@ -36,6 +38,8 @@ export default function AccountsTab({
                     onCreate={onCreateAccount}
                     onUpdate={onUpdateAccount}
                     onSetArchived={onSetArchived}
+                    onSync={onSyncAccount}
+                    syncingAccountKeys={syncingAccountKeys}
                     onError={onError}
                 />
                 <ProxyStrip

@@ -73,6 +73,8 @@ export default function App() {
     const [accountSetupWorkerConcurrency, setAccountSetupWorkerConcurrency] = useState(5);
     const [accountSetupWorkerProxyIds, setAccountSetupWorkerProxyIds] = useState({});
     const [accountSetupBrowserMode, setAccountSetupBrowserMode] = useState("visible");
+    const [apiClientsBrowserMode, setApiClientsBrowserMode] = useState("visible");
+    const [apiClientsDisableImages, setApiClientsDisableImages] = useState(false);
     const [accountSetupPhotosDirectory, setAccountSetupPhotosDirectory] = useState("");
     const [defaultPixelId, setDefaultPixelId] = useState("");
     const [defaultUtm, setDefaultUtm] = useState("");
@@ -127,6 +129,9 @@ export default function App() {
                 return next.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             });
             if (event.type === "updated" && ["completed", "completed_with_warnings"].includes(event.task?.status)) {
+                if (event.task.type === "facebook-api-client-sync") {
+                    loadAccounts(true).catch(() => {});
+                }
                 if (event.task.type === "publication" && event.task.result?.pageId) {
                     const result = event.task.result;
                     setWorkspaceCache((current) => {
@@ -158,6 +163,8 @@ export default function App() {
                 setAccountSetupWorkerConcurrency(state.accountSetupWorkerConcurrency ?? 5);
                 setAccountSetupWorkerProxyIds(state.accountSetupWorkerProxyIds || {});
                 setAccountSetupBrowserMode(state.accountSetupBrowserMode || "visible");
+                setApiClientsBrowserMode(state.apiClientsBrowserMode || "visible");
+                setApiClientsDisableImages(state.apiClientsDisableImages === true);
                 setAccountSetupPhotosDirectory(state.accountSetupPhotosDirectory || "");
                 setDefaultPixelId(state.defaultPixelId); setDefaultUtm(state.defaultUtm);
                 setLogLevel(state.logLevel); setTaskPanelCollapsed(state.taskPanelCollapsed);
@@ -192,9 +199,9 @@ export default function App() {
     useEffect(() => { if (selectedAccount?.status === "active") loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status]);
     useEffect(() => {
         if (!hydrated) return undefined;
-        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped }).catch(() => {}), 250);
+        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, apiClientsBrowserMode, apiClientsDisableImages, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped }).catch(() => {}), 250);
         return () => clearTimeout(timer);
-    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped]);
+    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, apiClientsBrowserMode, apiClientsDisableImages, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped]);
 
     const updateWorkspacePages = (pages) => setWorkspaceCache((current) => ({
         ...current,
@@ -216,6 +223,18 @@ export default function App() {
     const createAccount = async (input) => { applyAccounts(await unwrap(window.adsBot.createAccount(input))); showToast("API-клієнта створено", "success"); };
     const updateAccount = async (key, patch) => { applyAccounts(await unwrap(window.adsBot.updateAccount(key, patch))); setWorkspaceCache((current) => { const next = { ...current }; delete next[key]; return next; }); showToast("API-клієнта оновлено", "success"); };
     const archiveAccount = async (key, archived) => applyAccounts(await unwrap(window.adsBot.setAccountArchived(key, archived)));
+    const syncAccount = async (key) => {
+        const result = await unwrap(window.adsBot.syncAccountFromAdsPower(key, {
+            browserMode: apiClientsBrowserMode,
+            disableImages: apiClientsDisableImages,
+        }));
+        setTasks((current) => [result.task, ...current.filter((task) => task.id !== result.task.id)]);
+        showToast("Синхронізацію API-клієнта додано до черги", "success");
+    };
+    const syncingApiClientKeys = tasks
+        .filter((task) => task.type === "facebook-api-client-sync" && ["queued", "running"].includes(task.status))
+        .map((task) => task.metadata?.accountKey)
+        .filter(Boolean);
     const selectAccount = (key) => { setSelectedAccountKey(key); setActiveTab("ads"); loadWorkspace(key); };
     const createProxy = async (input) => { setProxies(await unwrap(window.adsBot.createProxy(input))); showToast("Проксі додано", "success"); };
     const updateProxy = async (proxyId, patch) => { setProxies(await unwrap(window.adsBot.updateProxy(proxyId, patch))); showToast("Проксі оновлено", "success"); };
@@ -246,7 +265,7 @@ export default function App() {
                 <button className="icon-button settings-trigger" onClick={() => setSettingsOpen(true)}><Settings size={17}/></button>
             </nav>
             <div className="content-scroll"><AnimatePresence mode="wait">
-                {activeTab === "accounts" && <motion.section key="accounts" className="accounts-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><AccountsTab accounts={accounts} selectedAccountKey={selectedAccountKey} accountsLoading={accountsLoading} onSelectAccount={selectAccount} onRefreshAccounts={() => loadAccounts(true)} onCreateAccount={createAccount} onUpdateAccount={updateAccount} onSetArchived={archiveAccount} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onReorderProxies={reorderProxies} onError={setModal}/></motion.section>}
+                {activeTab === "accounts" && <motion.section key="accounts" className="accounts-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><AccountsTab accounts={accounts} selectedAccountKey={selectedAccountKey} accountsLoading={accountsLoading} onSelectAccount={selectAccount} onRefreshAccounts={() => loadAccounts(true)} onCreateAccount={createAccount} onUpdateAccount={updateAccount} onSetArchived={archiveAccount} onSyncAccount={syncAccount} syncingAccountKeys={syncingApiClientKeys} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onReorderProxies={reorderProxies} onError={setModal}/></motion.section>}
                 {activeTab === "ads" && <AdsWorkspaceTab key="ads" adsSubtab={adsSubtab} onSubtabChange={setAdsSubtab} selectedAccount={selectedAccount} workspaceAccounts={workspace.adAccounts} onWorkspaceAccountsChange={updateWorkspaceAccounts} onError={setModal} showToast={showToast} addLog={addLog} selectedId={selectedAdAccountId} setSelectedId={setSelectedAdAccountId} createCampaignsPaused={createCampaignsPaused} createAdSetsPaused={createAdSetsPaused} createAdsPaused={createAdsPaused} defaultPixelId={defaultPixelId} defaultUtm={defaultUtm}/>}
                 {activeTab === "pages" && (
                     <PagesTab
@@ -328,6 +347,6 @@ export default function App() {
         </main>
         <BackgroundTaskPanel tasks={tasks} collapsed={taskPanelCollapsed} onCollapsedChange={setTaskPanelCollapsed} onRefresh={refreshTasks} onError={setModal} openTaskId={taskToOpen} onOpenTaskHandled={() => setTaskToOpen(null)} proxies={proxies} proxiesLoading={proxiesLoading} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp}/>
         <Modal modal={modal} onClose={() => setModal(null)}/>
-        {settingsOpen && <SettingsModal scale={uiScale} onScaleChange={async (value) => setUiScale(await unwrap(window.adsBot.setUiScale(value)))} createCampaignsPaused={createCampaignsPaused} onCreateCampaignsPausedChange={setCreateCampaignsPaused} createAdSetsPaused={createAdSetsPaused} onCreateAdSetsPausedChange={setCreateAdSetsPaused} createAdsPaused={createAdsPaused} onCreateAdsPausedChange={setCreateAdsPaused} commentWorkerConcurrency={commentWorkerConcurrency} onCommentWorkerConcurrencyChange={setCommentWorkerConcurrency} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} defaultPixelId={defaultPixelId} onDefaultPixelIdChange={setDefaultPixelId} defaultUtm={defaultUtm} onDefaultUtmChange={setDefaultUtm} commentBrowserMode={commentBrowserMode} onCommentBrowserModeChange={setCommentBrowserMode} commentDisableImages={commentDisableImages} onCommentDisableImagesChange={setCommentDisableImages} accountSetupWorkerConcurrency={accountSetupWorkerConcurrency} onAccountSetupWorkerConcurrencyChange={setAccountSetupWorkerConcurrency} accountSetupWorkerProxyIds={accountSetupWorkerProxyIds} onAccountSetupWorkerProxyIdsChange={setAccountSetupWorkerProxyIds} accountSetupBrowserMode={accountSetupBrowserMode} onAccountSetupBrowserModeChange={setAccountSetupBrowserMode} logLevel={logLevel} onLogLevelChange={async (value) => setLogLevel(await unwrap(window.adsBot.setLogLevel(value)))} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} keitaroAvailableGroupIds={keitaroAvailableGroupIds} onKeitaroAvailableGroupIdsChange={setKeitaroAvailableGroupIds} keitaroConcurrency={keitaroConcurrency} onKeitaroConcurrencyChange={setKeitaroConcurrency} showToast={showToast} onError={setModal} onClose={() => setSettingsOpen(false)}/>}<Toast toast={toast}/>
+        {settingsOpen && <SettingsModal scale={uiScale} onScaleChange={async (value) => setUiScale(await unwrap(window.adsBot.setUiScale(value)))} createCampaignsPaused={createCampaignsPaused} onCreateCampaignsPausedChange={setCreateCampaignsPaused} createAdSetsPaused={createAdSetsPaused} onCreateAdSetsPausedChange={setCreateAdSetsPaused} createAdsPaused={createAdsPaused} onCreateAdsPausedChange={setCreateAdsPaused} commentWorkerConcurrency={commentWorkerConcurrency} onCommentWorkerConcurrencyChange={setCommentWorkerConcurrency} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} defaultPixelId={defaultPixelId} onDefaultPixelIdChange={setDefaultPixelId} defaultUtm={defaultUtm} onDefaultUtmChange={setDefaultUtm} commentBrowserMode={commentBrowserMode} onCommentBrowserModeChange={setCommentBrowserMode} commentDisableImages={commentDisableImages} onCommentDisableImagesChange={setCommentDisableImages} accountSetupWorkerConcurrency={accountSetupWorkerConcurrency} onAccountSetupWorkerConcurrencyChange={setAccountSetupWorkerConcurrency} accountSetupWorkerProxyIds={accountSetupWorkerProxyIds} onAccountSetupWorkerProxyIdsChange={setAccountSetupWorkerProxyIds} accountSetupBrowserMode={accountSetupBrowserMode} onAccountSetupBrowserModeChange={setAccountSetupBrowserMode} apiClientsBrowserMode={apiClientsBrowserMode} onApiClientsBrowserModeChange={setApiClientsBrowserMode} apiClientsDisableImages={apiClientsDisableImages} onApiClientsDisableImagesChange={setApiClientsDisableImages} logLevel={logLevel} onLogLevelChange={async (value) => setLogLevel(await unwrap(window.adsBot.setLogLevel(value)))} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} keitaroAvailableGroupIds={keitaroAvailableGroupIds} onKeitaroAvailableGroupIdsChange={setKeitaroAvailableGroupIds} keitaroConcurrency={keitaroConcurrency} onKeitaroConcurrencyChange={setKeitaroConcurrency} showToast={showToast} onError={setModal} onClose={() => setSettingsOpen(false)}/>}<Toast toast={toast}/>
     </div>;
 }

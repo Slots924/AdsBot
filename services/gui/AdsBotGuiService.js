@@ -7,6 +7,8 @@ import runParallelCommentingScenario
     from "../../scenarios/runParallelCommentingScenario.js";
 import runParallelCommentAccountSetupScenario
     from "../../scenarios/runParallelCommentAccountSetupScenario.js";
+import syncFacebookApiClientFromAdsPowerProfile
+    from "../../facebook/workflows/syncFacebookApiClientFromAdsPowerProfile.js";
 import CommentAccountProfileData
     from "../profiles/CommentAccountProfileData.js";
 import AdsPowerGroupService
@@ -234,6 +236,14 @@ export default class AdsBotGuiService {
         );
         this.logger.info(`Оновлено Facebook-акаунтів: ${accounts.length}`);
         return accounts;
+    }
+
+
+    async syncFacebookApiClientFromAdsPowerProfile(options = {}) {
+        return syncFacebookApiClientFromAdsPowerProfile({
+            adsPower: this.adsPower,
+            ...options,
+        });
     }
 
 

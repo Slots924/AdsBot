@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
+    Bot,
     ChevronDown,
     ListChecks,
     MessageSquare,
@@ -52,6 +53,10 @@ export default function SettingsModal({
     onAccountSetupWorkerProxyIdsChange = () => {},
     accountSetupBrowserMode = "visible",
     onAccountSetupBrowserModeChange = () => {},
+    apiClientsBrowserMode = "visible",
+    onApiClientsBrowserModeChange = () => {},
+    apiClientsDisableImages = false,
+    onApiClientsDisableImagesChange = () => {},
     logLevel,
     onLogLevelChange,
     proxies = [],
@@ -181,6 +186,13 @@ export default function SettingsModal({
                             onClick={() => setTab("keitaro")}
                         >
                             <ListChecks size={15} /> Keitaro
+                        </button>
+                        <button
+                            type="button"
+                            className={tab === "api-clients" ? "active" : ""}
+                            onClick={() => setTab("api-clients")}
+                        >
+                            <Bot size={15} /> API-клієнти
                         </button>
                     </nav>
                     <div className="settings-body" ref={settingsBodyRef}>
@@ -538,6 +550,33 @@ export default function SettingsModal({
                                         <span>
                                             <strong>Запускати без вікна</strong>
                                             <small>AdsPower відкриє браузер у фоні, без видимого вікна.</small>
+                                        </span>
+                                    </label>
+                                </section>
+                            </>
+                        )}
+
+                        {tab === "api-clients" && (
+                            <>
+                                <p>Синхронізація запускається окремою задачею в загальній черзі. Розмір браузера завжди встановлюється для половини 2K-монітора.</p>
+                                <section className="scale-setting comment-browser-setting">
+                                    <div className="scale-setting-heading"><span>Браузер для API-клієнтів</span></div>
+                                    <label className="checkbox-line">
+                                        <input
+                                            type="checkbox"
+                                            checked={apiClientsBrowserMode === "headless"}
+                                            onChange={(event) => onApiClientsBrowserModeChange(event.target.checked ? "headless" : "visible")}
+                                        />
+                                        <span>
+                                            <strong>Відкривати API-клієнти в безголовому режимі</strong>
+                                            <small>Якщо увімкнено, синхронізація запускає AdsPower без видимого вікна.</small>
+                                        </span>
+                                    </label>
+                                    <label className="checkbox-line">
+                                        <input type="checkbox" checked={apiClientsDisableImages} onChange={(event) => onApiClientsDisableImagesChange(event.target.checked)} />
+                                        <span>
+                                            <strong>Не завантажувати зображення</strong>
+                                            <small>Під час синхронізації AdsPower не завантажує зображення.</small>
                                         </span>
                                     </label>
                                 </section>

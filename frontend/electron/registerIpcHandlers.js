@@ -674,6 +674,45 @@ export default function registerIpcHandlers({
         })
     );
     ipcMain.handle(
+        "accounts:sync-from-adspower",
+        safeHandler(async ({ accountKey, browserMode, disableImages }) => {
+            const normalizedKey = String(accountKey ?? "").trim();
+            const account = (await facebookAccountManager.list()).find((item) => (
+                item.accountKey.toLowerCase() === normalizedKey.toLowerCase()
+            ));
+            if (!account) throw Object.assign(new Error("API-клієнт не знайдено"), { code: "FACEBOOK_ACCOUNT_NOT_FOUND" });
+            if (!account.adsPowerProfileNo) throw Object.assign(new Error("Для API-клієнта не вказано номер AdsPower"), { code: "ADSPOWER_PROFILE_NO_REQUIRED" });
+            const task = await backgroundTaskManager.enqueue({
+                type: "facebook-api-client-sync",
+                name: `Синхронізація API-клієнта ${account.accountKey}`,
+                uniqueKey: `facebook-api-client-sync:${account.accountKey}`,
+                resources: [{ key: `adspower-profile:${account.adsPowerProfileNo}`, label: `AdsPower №${account.adsPowerProfileNo}` }],
+                input: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo },
+                metadata: { accountKey: account.accountKey },
+                runner: async ({ signal, progress }) => {
+                    const credentials = await guiService.syncFacebookApiClientFromAdsPowerProfile({
+                        profileNo: account.adsPowerProfileNo,
+                        browserMode: browserMode === "headless" ? "headless" : "visible",
+                        disableImages: disableImages === true,
+                        signal,
+                        onProgress: progress,
+                    });
+                    await facebookAccountManager.update(account.accountKey, {
+                        userAgent: credentials.userAgent,
+                        accessToken: credentials.accessToken,
+                        cookie: credentials.cookies,
+                    });
+                    await refreshManagedAccounts();
+                    return {
+                        result: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo, userAgentUpdated: true, accessTokenUpdated: true, cookieUpdated: true },
+                        reportDetails: { inputSummary: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo }, resultSummary: { credentialsUpdated: true } },
+                    };
+                },
+            });
+            return { taskId: task.id, task };
+        })
+    );
+    ipcMain.handle(
         "accounts:archive-set",
         safeHandler(async ({ accountKey, archived }) => {
             await facebookAccountManager.setArchived(accountKey, archived);
