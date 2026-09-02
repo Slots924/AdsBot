@@ -753,6 +753,13 @@ export default function registerIpcHandlers({
             return refreshManagedAccounts();
         })
     );
+    ipcMain.handle(
+        "accounts:delete",
+        safeHandler(async ({ accountKey }) => {
+            await facebookAccountManager.delete(accountKey);
+            return refreshManagedAccounts();
+        })
+    );
     ipcMain.handle("proxies:list", safeHandler(listProxies));
     ipcMain.handle(
         "proxies:get",

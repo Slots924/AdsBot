@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "da426445-2e91-4ed0-ac70-37d9536215cf",
+  "taskId": "923ef919-52c7-4b11-a177-1fabf6604794",
+  "type": "facebook-api-client-sync",
+  "title": "Синхронізація API-клієнта N5_ADS",
+  "status": "failed",
+  "createdAt": "2026-09-02T14:36:35.855Z",
+  "startedAt": "2026-09-02T14:36:35.625Z",
+  "finishedAt": "2026-09-02T14:36:35.853Z",
+  "durationMs": 228,
+  "inputSummary": {
+    "accountKey": "N5_ADS",
+    "adsPowerProfileNo": "758"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Не вдалося отримати профіль 758: Профіль із номером 758 не знайдений",
+      "code": null,
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "N5_ADS",
+    "uniqueKey": "facebook-api-client-sync:N5_ADS"
+  }
+}

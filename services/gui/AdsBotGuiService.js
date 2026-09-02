@@ -1,7 +1,4 @@
 import AdsPower from "../../classes/AdsPower.js";
-import puppeteer from "puppeteer-core";
-import configureFacebookAutomationWindow
-    from "../../facebook/browser/configureFacebookAutomationWindow.js";
 import isProfileOpen from "../profile/isProfileOpen.js";
 import FacebookBackendService
     from "../../facebook/services/FacebookBackendService.js";
@@ -258,22 +255,10 @@ export default class AdsBotGuiService {
 
 
     async openAdsPowerProfile(profileNo) {
-        const browserData = await this.adsPower.openProfile(profileNo, {
+        await this.adsPower.openProfile(profileNo, {
             browserMode: "visible",
+            restoreLastOpenedTabs: true,
         });
-        let browser;
-        try {
-            browser = await puppeteer.connect({
-                browserWSEndpoint: browserData.ws.puppeteer,
-                defaultViewport: null,
-            });
-            const page = (await browser.pages())[0] ?? await browser.newPage();
-            await configureFacebookAutomationWindow(page, {
-                browserMode: "visible",
-            });
-        } finally {
-            await browser?.disconnect().catch(() => {});
-        }
         return { isOpen: true };
     }
 

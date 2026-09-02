@@ -254,9 +254,9 @@ describe("GUI helpers", () => {
             .toBeInTheDocument();
     });
 
-    it("створює та архівує Facebook API-клієнт через sidebar", async () => {
+    it("створює та видаляє Facebook API-клієнт через sidebar", async () => {
         const onCreate = vi.fn().mockResolvedValue(undefined);
-        const onSetArchived = vi.fn().mockResolvedValue(undefined);
+        const onDelete = vi.fn().mockResolvedValue(undefined);
         vi.spyOn(window, "confirm").mockReturnValue(true);
         render(
             <Sidebar
@@ -273,7 +273,7 @@ describe("GUI helpers", () => {
                 onRefresh={vi.fn()}
                 onCreate={onCreate}
                 onUpdate={vi.fn()}
-                onSetArchived={onSetArchived}
+                onDelete={onDelete}
                 onError={vi.fn()}
             />
         );
@@ -294,14 +294,15 @@ describe("GUI helpers", () => {
         fireEvent.click(screen.getByText("Створити"));
         await waitFor(() => expect(onCreate).toHaveBeenCalledWith({
             accountKey: "client_2",
+            adsPowerProfileNo: "",
             userAgent: "Mozilla/5.0 Test",
             accessToken: "token",
             cookie: "c_user=1; xs=2",
         }));
 
-        fireEvent.click(screen.getByTitle("В архів"));
-        await waitFor(() => expect(onSetArchived)
-            .toHaveBeenCalledWith("fp_hub", true));
+        fireEvent.click(screen.getByTitle("Видалити API-клієнта"));
+        await waitFor(() => expect(onDelete)
+            .toHaveBeenCalledWith("fp_hub"));
     });
 
     it("у standalone показує нижню кнопку додавання API-клієнта", () => {
@@ -315,7 +316,7 @@ describe("GUI helpers", () => {
                 onRefresh={vi.fn()}
                 onCreate={vi.fn()}
                 onUpdate={vi.fn()}
-                onSetArchived={vi.fn()}
+                onDelete={vi.fn()}
                 onError={vi.fn()}
             />
         );
@@ -520,7 +521,7 @@ describe("GUI helpers", () => {
                 onRefreshAccounts={vi.fn()}
                 onCreateAccount={vi.fn()}
                 onUpdateAccount={vi.fn()}
-                onSetArchived={vi.fn()}
+                onDeleteAccount={vi.fn()}
                 proxies={[]}
                 proxiesLoading={false}
                 onCreateProxy={vi.fn()}

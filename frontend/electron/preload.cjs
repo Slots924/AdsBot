@@ -26,6 +26,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("accounts:adspower-close", { accountKey }),
     setAccountArchived: (accountKey, archived) =>
         ipcRenderer.invoke("accounts:archive-set", { accountKey, archived }),
+    deleteAccount: (accountKey) =>
+        ipcRenderer.invoke("accounts:delete", { accountKey }),
     getProxies: () => ipcRenderer.invoke("proxies:list"),
     getProxy: (proxyId) => ipcRenderer.invoke("proxies:get", { proxyId }),
     createProxy: (proxy) => ipcRenderer.invoke("proxies:create", proxy),

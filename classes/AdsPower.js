@@ -112,7 +112,7 @@ class AdsPower {
 
         const data = {
             profile_no: String(profileNo),
-            last_opened_tabs: "0",
+            last_opened_tabs: options?.restoreLastOpenedTabs === true ? "1" : "0",
             proxy_detection: "0",
         };
 

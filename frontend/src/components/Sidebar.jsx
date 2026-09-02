@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-    ArchiveRestore,
     Bot,
     LoaderCircle,
     Pencil,
@@ -95,7 +94,7 @@ export default function Sidebar({
     onRefresh,
     onCreate,
     onUpdate,
-    onSetArchived,
+    onDelete,
     onSync = async () => {},
     onOpenProfile = async () => {},
     onCloseProfile = async () => {},
@@ -109,20 +108,18 @@ export default function Sidebar({
         ? onCreate(draft)
         : onUpdate(editor.accountKey, draft);
 
-    const toggleArchive = async (event, account) => {
+    const removeAccount = async (event, account) => {
         event.stopPropagation();
-        if (!account.archived && !window.confirm(
-            `Перемістити акаунт «${account.accountKey}» в архів?`
+        if (!window.confirm(
+            `Видалити API-клієнта «${account.accountKey}» назавжди?`
         )) return;
         setBusyKey(account.accountKey);
         try {
-            await onSetArchived(account.accountKey, !account.archived);
+            await onDelete(account.accountKey);
         } catch (error) {
             onError({
                 ...errorDetails(error),
-                title: account.archived
-                    ? "Не вдалося відновити акаунт"
-                    : "Не вдалося архівувати акаунт",
+                title: "Не вдалося видалити API-клієнта",
             });
         } finally {
             setBusyKey(null);
@@ -173,6 +170,11 @@ export default function Sidebar({
                                     <span>{account.archived ? "В архіві" : account.name || "Без імені"}</span>
                                     <small>{account.facebookUserId || "ID не вказано"}</small>
                                     {account.adsPowerProfileNo && <small>AdsPower № {account.adsPowerProfileNo}</small>}
+                                    <small>
+                                        Дані: UA {account.hasUserAgent ? "є" : "—"}
+                                        {" · "}token {account.hasAccessToken ? "є" : "—"}
+                                        {" · "}cookie {account.hasCookie ? "є" : "—"}
+                                    </small>
                                     {account.error?.message && <em>{account.error.message}</em>}
                                 </span>
                             </button>
@@ -183,8 +185,8 @@ export default function Sidebar({
                                     return <button type="button" className="icon-button" title={unavailable ? "Додайте номер профілю AdsPower" : "Синхронізувати з AdsPower"} disabled={busyKey === account.accountKey || syncing || account.archived || unavailable} onClick={(event) => sync(event, account)}>{busyKey === account.accountKey || syncing ? <LoaderCircle className="spin" size={13} /> : <RefreshCw size={13} />}</button>;
                                 })()}
                                 {account.adsPowerProfileNo && (account.adsPowerOpen ? <button type="button" className="icon-button danger" title="Профіль відкритий — закрити" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onCloseProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Power size={13} />}</button> : <button type="button" className="icon-button" title="Відкрити AdsPower-профіль" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onOpenProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Play size={13} />}</button>)}
-                                <button type="button" className="icon-button" title="Редагувати" onClick={(event) => { event.stopPropagation(); setEditor({ mode: "edit", accountKey: account.accountKey }); }}><Pencil size={13} /></button>
-                                <button type="button" className={`icon-button ${account.archived ? "" : "danger"}`} title={account.archived ? "Відновити" : "В архів"} disabled={busyKey === account.accountKey} onClick={(event) => toggleArchive(event, account)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : account.archived ? <ArchiveRestore size={13} /> : <X size={13} />}</button>
+                                <button type="button" className="icon-button" title="Редагувати" onClick={(event) => { event.stopPropagation(); setEditor({ mode: "edit", ...account }); }}><Pencil size={13} /></button>
+                                <button type="button" className="icon-button danger" title="Видалити API-клієнта" disabled={busyKey === account.accountKey} onClick={(event) => removeAccount(event, account)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <X size={13} />}</button>
                             </span>
                         </motion.div>
                     ))}
@@ -205,7 +207,6 @@ export default function Sidebar({
                     <span><i className="status-dot active" /> Активний</span>
                     <span><i className="status-dot inactive" /> Неактивний</span>
                     <span><i className="status-dot error" /> Помилка перевірки</span>
-                    <span><i className="status-dot archived" /> В архіві</span>
                 </div>
             )}
             {editor && <AccountEditor editor={editor} onClose={() => setEditor(null)} onSave={saveAccount} onError={onError} />}

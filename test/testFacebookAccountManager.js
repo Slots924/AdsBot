@@ -53,6 +53,11 @@ try {
     });
     assert.equal(updatedWithoutCredentials.adsPowerProfileNo, "1792");
 
+    const updatedProfileNo = await manager.update("client_2", {
+        adsPowerProfileNo: "1758",
+    });
+    assert.equal(updatedProfileNo.adsPowerProfileNo, "1758");
+
     await assert.rejects(manager.create({
         accountKey: "CLIENT_1",
         userAgent: "agent",
@@ -79,6 +84,20 @@ try {
         JSON.parse(await readFile(accountsFile, "utf8")).accounts[0].archived,
         true
     );
+
+    const removedArchived = await manager.deleteArchived();
+    assert.deepEqual(
+        removedArchived.map((account) => account.accountKey),
+        ["client_1"]
+    );
+    assert.deepEqual(
+        (await manager.list()).map((account) => account.accountKey),
+        ["client_2"]
+    );
+
+    const removed = await manager.delete("client_2");
+    assert.equal(removed.accountKey, "client_2");
+    assert.deepEqual(await manager.list(), []);
 
     console.log("Перевірка менеджера Facebook-акаунтів пройшла успішно");
 } finally {

@@ -287,6 +287,43 @@ export default class FacebookAccountManager {
     }
 
 
+    async delete(accountKey) {
+        return this.#enqueue(async () => {
+            const store = await this.#read();
+            const normalizedKey = normalizeAccountKey(accountKey);
+            const index = store.accounts.findIndex((item) => (
+                String(item.accountKey).toLowerCase()
+                === normalizedKey.toLowerCase()
+            ));
+            if (index === -1) {
+                throw createAccountError(
+                    `Facebook-акаунт "${normalizedKey}" не знайдено`,
+                    "FACEBOOK_ACCOUNT_NOT_FOUND"
+                );
+            }
+            const [deleted] = store.accounts.splice(index, 1);
+            await this.#write(store);
+            return safeAccount(deleted);
+        });
+    }
+
+
+    async deleteArchived() {
+        return this.#enqueue(async () => {
+            const store = await this.#read();
+            const deleted = store.accounts.filter((account) => (
+                account.archived === true
+            ));
+            if (!deleted.length) return [];
+            store.accounts = store.accounts.filter((account) => (
+                account.archived !== true
+            ));
+            await this.#write(store);
+            return deleted.map(safeAccount);
+        });
+    }
+
+
     #enqueue(operation) {
         const result = this.#operation.then(operation, operation);
         this.#operation = result.catch(() => {});

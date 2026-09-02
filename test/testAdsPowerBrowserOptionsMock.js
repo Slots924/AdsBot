@@ -55,6 +55,20 @@ for (const testCase of cases) {
     });
 }
 
+const restoreTabsAdsPower = new AdsPower({
+    apiUrl: "http://127.0.0.1:50325",
+});
+let restoreTabsPayload = null;
+restoreTabsAdsPower.request = async (_method, _url, data) => {
+    restoreTabsPayload = data;
+    return { data: { code: 0, data: {} } };
+};
+await restoreTabsAdsPower.openProfile("42", {
+    browserMode: "visible",
+    restoreLastOpenedTabs: true,
+});
+assert.equal(restoreTabsPayload.last_opened_tabs, "1");
+
 const legacyAdsPower = new AdsPower({ apiUrl: "http://127.0.0.1:50325" });
 let legacyPayload = null;
 legacyAdsPower.request = async (_method, _url, data) => {

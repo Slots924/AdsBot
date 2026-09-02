@@ -10,7 +10,7 @@ export default function AccountsTab({
     onRefreshAccounts,
     onCreateAccount,
     onUpdateAccount,
-    onSetArchived,
+    onDeleteAccount,
     onSyncAccount,
     onOpenAccountProfile,
     onCloseAccountProfile,
@@ -39,7 +39,7 @@ export default function AccountsTab({
                     onRefresh={onRefreshAccounts}
                     onCreate={onCreateAccount}
                     onUpdate={onUpdateAccount}
-                    onSetArchived={onSetArchived}
+                    onDelete={onDeleteAccount}
                     onSync={onSyncAccount}
                     onOpenProfile={onOpenAccountProfile}
                     onCloseProfile={onCloseAccountProfile}
