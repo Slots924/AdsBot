@@ -775,7 +775,7 @@ export default function CampaignCreationWizard({
                         <div className="campaign-summary">
                             <div><span>Ad sets / ads</span><strong>{form.adSetCount || 0} / {form.adSetCount || 0}</strong></div>
                             <div><span>Денний бюджет</span><strong>{Number.isFinite(totalBudget) ? totalBudget : 0} {adAccount.currency}</strong></div>
-                            <div><span>Campaign / ad sets / ads</span><strong>{createPaused ? "PAUSED / ACTIVE / ACTIVE" : "ACTIVE / ACTIVE / ACTIVE"}</strong></div>
+                            <div><span>Campaign / ad sets / ads</span><strong>{`${createPaused ? "PAUSED" : "ACTIVE"} / ${createAdSetsPaused ? "PAUSED" : "ACTIVE"} / ${createAdsPaused ? "PAUSED" : "ACTIVE"}`}</strong></div>
                             <div><span>Аудиторія</span><strong>{selectedTemplate?.countryCodes?.join(", ") || "—"}</strong></div>
                         </div>
 
