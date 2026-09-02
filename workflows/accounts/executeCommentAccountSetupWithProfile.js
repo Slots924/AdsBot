@@ -2,6 +2,8 @@ import path from "node:path";
 
 import puppeteer from "puppeteer-core";
 
+import configureFacebookAutomationWindow
+    from "../../facebook/browser/configureFacebookAutomationWindow.js";
 import changeFacebookCoverPhoto, {
     facebookCoverPhotoChangeStatuses,
 } from "../../facebook/actions/changeFacebookCoverPhoto.js";
@@ -225,6 +227,8 @@ export default async function executeCommentAccountSetupWithProfile({
     const ensureActive = actions.ensureActive ?? ensureFacebookAccountActive;
     const ensureReady = actions.ensureAdsPowerReady
         ?? ensureAdsPowerProfileReady;
+    const configureBrowserWindow = actions.configureBrowserWindow
+        ?? configureFacebookAutomationWindow;
     const connectBrowser = actions.connectBrowser
         ?? ((browserData) => puppeteer.connect({
             browserWSEndpoint: browserData.ws.puppeteer,
@@ -340,6 +344,12 @@ export default async function executeCommentAccountSetupWithProfile({
         browser = await connectBrowser(browserData);
         const pages = await browser.pages();
         page = pages[0] ?? await browser.newPage();
+
+        assertNotAborted();
+        result.stage = "CONFIGURE_BROWSER_WINDOW";
+        result.browserWindow = await configureBrowserWindow(page, {
+            browserMode,
+        });
 
         assertNotAborted();
         result.stage = "OPEN_FACEBOOK";

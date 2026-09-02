@@ -1,5 +1,7 @@
 import puppeteer from "puppeteer-core";
 
+import configureFacebookAutomationWindow
+    from "../../facebook/browser/configureFacebookAutomationWindow.js";
 import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
 import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
 import scrollToPostLikeButton from "../../facebook/actions/scrollToPostLikeButton.js";
@@ -180,6 +182,12 @@ export default async function executeCommentWithProfile({
 
         const pages = await browser.pages();
         const page = pages[0] ?? await browser.newPage();
+
+        assertNotAborted();
+        result.stage = "CONFIGURE_BROWSER_WINDOW";
+        result.browserWindow = await configureFacebookAutomationWindow(page, {
+            browserMode,
+        });
 
         assertNotAborted();
         result.stage = "OPEN_FACEBOOK";
