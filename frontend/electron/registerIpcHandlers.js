@@ -247,6 +247,17 @@ export default function registerIpcHandlers({
     };
     const mergeAccountStates = async (graphAccounts) => {
         const storedAccounts = await facebookAccountManager.list();
+        const adsPowerOpenByKey = new Map(await Promise.all(
+            storedAccounts.map(async (account) => {
+                if (!account.adsPowerProfileNo) return [account.accountKey, null];
+                try {
+                    return [account.accountKey, await guiService
+                        .getAdsPowerProfileOpenState(account.adsPowerProfileNo)];
+                } catch {
+                    return [account.accountKey, null];
+                }
+            })
+        ));
         const graphByKey = new Map(graphAccounts.map((account) => [
             account.accountKey,
             account,
@@ -261,6 +272,7 @@ export default function registerIpcHandlers({
             }
             return {
                 ...stored,
+                adsPowerOpen: adsPowerOpenByKey.get(stored.accountKey) ?? null,
                 ...(graphByKey.get(stored.accountKey) ?? {
                     status: "error",
                     error: { message: "Акаунт не завантажено" },
@@ -710,6 +722,28 @@ export default function registerIpcHandlers({
                 },
             });
             return { taskId: task.id, task };
+        })
+    );
+    ipcMain.handle(
+        "accounts:adspower-open",
+        safeHandler(async ({ accountKey }) => {
+            const account = (await facebookAccountManager.list()).find((item) => (
+                item.accountKey === String(accountKey ?? "").trim()
+            ));
+            if (!account?.adsPowerProfileNo) throw Object.assign(new Error("Додайте номер профілю AdsPower"), { code: "ADSPOWER_PROFILE_NO_REQUIRED" });
+            await guiService.openAdsPowerProfile(account.adsPowerProfileNo);
+            return refreshManagedAccounts();
+        })
+    );
+    ipcMain.handle(
+        "accounts:adspower-close",
+        safeHandler(async ({ accountKey }) => {
+            const account = (await facebookAccountManager.list()).find((item) => (
+                item.accountKey === String(accountKey ?? "").trim()
+            ));
+            if (!account?.adsPowerProfileNo) throw Object.assign(new Error("Додайте номер профілю AdsPower"), { code: "ADSPOWER_PROFILE_NO_REQUIRED" });
+            await guiService.closeAdsPowerProfile(account.adsPowerProfileNo);
+            return refreshManagedAccounts();
         })
     );
     ipcMain.handle(

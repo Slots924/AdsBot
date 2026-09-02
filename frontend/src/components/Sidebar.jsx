@@ -5,7 +5,9 @@ import {
     Bot,
     LoaderCircle,
     Pencil,
+    Play,
     Plus,
+    Power,
     RefreshCw,
     X,
 } from "lucide-react";
@@ -95,6 +97,8 @@ export default function Sidebar({
     onUpdate,
     onSetArchived,
     onSync = async () => {},
+    onOpenProfile = async () => {},
+    onCloseProfile = async () => {},
     syncingAccountKeys = [],
     onError,
     standalone = false,
@@ -135,6 +139,17 @@ export default function Sidebar({
             setBusyKey(null);
         }
     };
+    const changeProfileState = async (event, account, action) => {
+        event.stopPropagation();
+        setBusyKey(account.accountKey);
+        try {
+            await action(account.accountKey);
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося змінити стан AdsPower-профілю" });
+        } finally {
+            setBusyKey(null);
+        }
+    };
 
     return (
         <aside className={`sidebar ${standalone ? "accounts-tab-sidebar resource-strip" : ""}`}>
@@ -162,10 +177,12 @@ export default function Sidebar({
                                 </span>
                             </button>
                             <span className="account-card-tools">
-                                {account.adsPowerProfileNo && (() => {
+                                {(() => {
                                     const syncing = syncingAccountKeys.includes(account.accountKey);
-                                    return <button type="button" className="icon-button" title="Синхронізувати з AdsPower" disabled={busyKey === account.accountKey || syncing || account.archived} onClick={(event) => sync(event, account)}>{busyKey === account.accountKey || syncing ? <LoaderCircle className="spin" size={13} /> : <RefreshCw size={13} />}</button>;
+                                    const unavailable = !account.adsPowerProfileNo;
+                                    return <button type="button" className="icon-button" title={unavailable ? "Додайте номер профілю AdsPower" : "Синхронізувати з AdsPower"} disabled={busyKey === account.accountKey || syncing || account.archived || unavailable} onClick={(event) => sync(event, account)}>{busyKey === account.accountKey || syncing ? <LoaderCircle className="spin" size={13} /> : <RefreshCw size={13} />}</button>;
                                 })()}
+                                {account.adsPowerProfileNo && (account.adsPowerOpen ? <button type="button" className="icon-button danger" title="Профіль відкритий — закрити" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onCloseProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Power size={13} />}</button> : <button type="button" className="icon-button" title="Відкрити AdsPower-профіль" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onOpenProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Play size={13} />}</button>)}
                                 <button type="button" className="icon-button" title="Редагувати" onClick={(event) => { event.stopPropagation(); setEditor({ mode: "edit", accountKey: account.accountKey }); }}><Pencil size={13} /></button>
                                 <button type="button" className={`icon-button ${account.archived ? "" : "danger"}`} title={account.archived ? "Відновити" : "В архів"} disabled={busyKey === account.accountKey} onClick={(event) => toggleArchive(event, account)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : account.archived ? <ArchiveRestore size={13} /> : <X size={13} />}</button>
                             </span>

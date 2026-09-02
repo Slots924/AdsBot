@@ -118,7 +118,7 @@ button:focus-visible, input:focus-visible {
 .accounts-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; height: 100%; max-width: 1360px; margin: 0 auto; }
 .accounts-tab-sidebar { width: 100%; height: 100%; margin: 0; border: 1px solid var(--stroke); border-radius: 17px; }
 .accounts-tab-sidebar .account-list { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-.accounts-tab-sidebar .account-card { min-height: 68px; padding: 12px; }
+.accounts-tab-sidebar .account-card { min-height: 164px; padding: 14px 48px 14px 14px; }
 .resource-strip { background: linear-gradient(160deg, rgba(19, 22, 34, .94), rgba(11, 14, 23, .88)); box-shadow: var(--shadow); }
 .strip-count { min-width: 21px; padding: 3px 6px; text-align: center; border-radius: 7px; color: #b9afff; background: rgba(132, 114, 255, .12); font-size: var(--font-caption); }
 .strip-add-button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; margin-top: 4px; padding: 0 12px; border: 1px dashed rgba(132, 114, 255, .35); border-radius: 12px; color: #c5bfff; background: rgba(132, 114, 255, .06); cursor: pointer; }
@@ -204,9 +204,9 @@ button:focus-visible, input:focus-visible {
 .account-card-shell { position: relative; }
 .account-card-shell.archived { opacity: .5; filter: saturate(.15); }
 .account-card-shell.archived:hover { opacity: .72; }
-.account-card-shell .account-card { padding-right: 41px; }
-.account-card-tools { position: absolute; top: 9px; right: 8px; display: flex; flex-direction: column; gap: 5px; }
-.account-card-tools .icon-button { width: 25px; height: 25px; }
+.account-card-shell .account-card { padding-right: 48px; }
+.account-card-tools { position: absolute; top: 9px; right: 8px; display: flex; flex-direction: column; gap: 6px; }
+.account-card-tools .icon-button { width: 28px; height: 28px; }
 .account-editor { width: min(610px, calc(100vw - 40px)); }
 .account-card:hover { background: rgba(255,255,255,.045); }
 .account-card.selected { border-color: rgba(132, 114, 255, .62); background: linear-gradient(135deg, rgba(132,114,255,.15), rgba(79,140,255,.07)); box-shadow: inset 0 0 24px rgba(132,114,255,.07), 0 10px 28px rgba(0,0,0,.17); }

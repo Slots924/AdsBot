@@ -223,6 +223,14 @@ export default function App() {
     const createAccount = async (input) => { applyAccounts(await unwrap(window.adsBot.createAccount(input))); showToast("API-клієнта створено", "success"); };
     const updateAccount = async (key, patch) => { applyAccounts(await unwrap(window.adsBot.updateAccount(key, patch))); setWorkspaceCache((current) => { const next = { ...current }; delete next[key]; return next; }); showToast("API-клієнта оновлено", "success"); };
     const archiveAccount = async (key, archived) => applyAccounts(await unwrap(window.adsBot.setAccountArchived(key, archived)));
+    const openAccountProfile = async (key) => {
+        applyAccounts(await unwrap(window.adsBot.openAccountAdsPowerProfile(key)));
+        showToast("AdsPower-профіль відкрито", "success");
+    };
+    const closeAccountProfile = async (key) => {
+        applyAccounts(await unwrap(window.adsBot.closeAccountAdsPowerProfile(key)));
+        showToast("AdsPower-профіль закрито", "success");
+    };
     const syncAccount = async (key) => {
         const result = await unwrap(window.adsBot.syncAccountFromAdsPower(key, {
             browserMode: apiClientsBrowserMode,
@@ -265,7 +273,7 @@ export default function App() {
                 <button className="icon-button settings-trigger" onClick={() => setSettingsOpen(true)}><Settings size={17}/></button>
             </nav>
             <div className="content-scroll"><AnimatePresence mode="wait">
-                {activeTab === "accounts" && <motion.section key="accounts" className="accounts-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><AccountsTab accounts={accounts} selectedAccountKey={selectedAccountKey} accountsLoading={accountsLoading} onSelectAccount={selectAccount} onRefreshAccounts={() => loadAccounts(true)} onCreateAccount={createAccount} onUpdateAccount={updateAccount} onSetArchived={archiveAccount} onSyncAccount={syncAccount} syncingAccountKeys={syncingApiClientKeys} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onReorderProxies={reorderProxies} onError={setModal}/></motion.section>}
+                {activeTab === "accounts" && <motion.section key="accounts" className="accounts-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><AccountsTab accounts={accounts} selectedAccountKey={selectedAccountKey} accountsLoading={accountsLoading} onSelectAccount={selectAccount} onRefreshAccounts={() => loadAccounts(true)} onCreateAccount={createAccount} onUpdateAccount={updateAccount} onSetArchived={archiveAccount} onSyncAccount={syncAccount} onOpenAccountProfile={openAccountProfile} onCloseAccountProfile={closeAccountProfile} syncingAccountKeys={syncingApiClientKeys} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onReorderProxies={reorderProxies} onError={setModal}/></motion.section>}
                 {activeTab === "ads" && <AdsWorkspaceTab key="ads" adsSubtab={adsSubtab} onSubtabChange={setAdsSubtab} selectedAccount={selectedAccount} workspaceAccounts={workspace.adAccounts} onWorkspaceAccountsChange={updateWorkspaceAccounts} onError={setModal} showToast={showToast} addLog={addLog} selectedId={selectedAdAccountId} setSelectedId={setSelectedAdAccountId} createCampaignsPaused={createCampaignsPaused} createAdSetsPaused={createAdSetsPaused} createAdsPaused={createAdsPaused} defaultPixelId={defaultPixelId} defaultUtm={defaultUtm}/>}
                 {activeTab === "pages" && (
                     <PagesTab

@@ -12,6 +12,8 @@ export default function AccountsTab({
     onUpdateAccount,
     onSetArchived,
     onSyncAccount,
+    onOpenAccountProfile,
+    onCloseAccountProfile,
     syncingAccountKeys = [],
     proxies,
     proxiesLoading,
@@ -39,6 +41,8 @@ export default function AccountsTab({
                     onUpdate={onUpdateAccount}
                     onSetArchived={onSetArchived}
                     onSync={onSyncAccount}
+                    onOpenProfile={onOpenAccountProfile}
+                    onCloseProfile={onCloseAccountProfile}
                     syncingAccountKeys={syncingAccountKeys}
                     onError={onError}
                 />
