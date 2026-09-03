@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "54b3bce5-6f40-455d-a103-d1f86c539dd2",
+  "taskId": "a9d58d65-14e9-4812-8724-bca4216ae486",
+  "type": "campaign",
+  "title": "DE | Creo_4 | 30+",
+  "status": "failed",
+  "createdAt": "2026-09-03T07:03:52.574Z",
+  "startedAt": "2026-09-03T07:03:51.306Z",
+  "finishedAt": "2026-09-03T07:03:52.573Z",
+  "durationMs": 1267,
+  "inputSummary": {
+    "campaignJobId": "99e54196-885d-450f-8c2d-e6c3d0eeac29",
+    "accountKey": "N5_ADS",
+    "adAccountId": "act_10038439312934487",
+    "campaignName": "DE | Creo_4 | 30+",
+    "templateId": 4,
+    "pageId": "122094974030009906",
+    "postId": "122094974030009906_122357942288001824",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-09-03T07:03:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": null,
+      "creativeId": null,
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Рекламний акаунт неактивний (status 2)",
+      "code": "CAMPAIGN_AD_ACCOUNT_INACTIVE",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "preflight",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "99e54196-885d-450f-8c2d-e6c3d0eeac29",
+    "accountKey": "N5_ADS",
+    "adAccountId": "act_10038439312934487",
+    "uniqueKey": "campaign-job:99e54196-885d-450f-8c2d-e6c3d0eeac29"
+  }
+}

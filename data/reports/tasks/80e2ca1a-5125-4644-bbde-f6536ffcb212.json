@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "id": "80e2ca1a-5125-4644-bbde-f6536ffcb212",
+  "taskId": "e12f990e-5901-4bd8-9e93-3e9e3afdd286",
+  "type": "campaign",
+  "title": "DE | Creo_138 | 30+",
+  "status": "failed",
+  "createdAt": "2026-09-03T07:03:51.304Z",
+  "startedAt": "2026-09-03T07:03:09.220Z",
+  "finishedAt": "2026-09-03T07:03:51.303Z",
+  "durationMs": 42083,
+  "inputSummary": {
+    "campaignJobId": "71e522b4-a96e-4d03-95eb-ec881c99c01e",
+    "accountKey": "N5_ADS",
+    "adAccountId": "act_10038439312934487",
+    "campaignName": "DE | Creo_138 | 30+",
+    "templateId": 4,
+    "pageId": "122101103780003702",
+    "postId": "122101103780003702_122337275324007887",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-09-03T07:02:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120253894285600722",
+      "creativeId": "2102928377250113",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120253894288530722",
+          "name": "DE | Creo_138 | 30+ | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120253894293220722",
+          "name": "DE | Creo_138 | 30+ | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120253894296860722",
+          "name": "DE | Creo_138 | 30+ | AS 03"
+        },
+        {
+          "index": 3,
+          "id": "120253894300130722",
+          "name": "DE | Creo_138 | 30+ | AS 04"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120253894291380722",
+          "name": "DE | Creo_138 | 30+ | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "120253894295140722",
+          "name": "DE | Creo_138 | 30+ | AD 02"
+        },
+        {
+          "index": 2,
+          "id": "120253894298840722",
+          "name": "DE | Creo_138 | 30+ | AD 03"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "You can't perform the requested action because your account is disabled.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 200,
+      "graphSubcode": 1359005,
+      "graphUserTitle": "Your account is disabled",
+      "graphUserMessage": "You can't perform the requested action because your account is disabled.",
+      "stage": "ad",
+      "itemIndex": 3,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "71e522b4-a96e-4d03-95eb-ec881c99c01e",
+    "accountKey": "N5_ADS",
+    "adAccountId": "act_10038439312934487",
+    "uniqueKey": "campaign-job:71e522b4-a96e-4d03-95eb-ec881c99c01e"
+  }
+}
