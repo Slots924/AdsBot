@@ -100,7 +100,7 @@ const facebookAccountManager = {
     async list() {
         return [{
             accountKey: "fp_hub",
-            name: "",
+            name: "Моя назва API-клієнта",
             facebookUserId: "",
             archived: false,
             hasUserAgent: true,
@@ -206,7 +206,11 @@ const ipcMain = {
 };
 const guiService = {
     async getAccounts() {
-        return [{ accountKey: "fp_hub", status: "active" }];
+        return [{
+            accountKey: "fp_hub",
+            name: "Ім’я з Facebook",
+            status: "active",
+        }];
     },
     async refreshAccounts() {
         return [];
@@ -396,12 +400,13 @@ assert.deepEqual(
         ok: true,
         data: [{
             accountKey: "fp_hub",
-            name: "",
+            name: "Моя назва API-клієнта",
             facebookUserId: "",
             archived: false,
             hasUserAgent: true,
             hasAccessToken: true,
             hasCookie: true,
+            adsPowerOpen: null,
             status: "active",
         }],
     }

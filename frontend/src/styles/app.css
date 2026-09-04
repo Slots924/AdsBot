@@ -989,6 +989,7 @@ button:focus-visible, input:focus-visible {
 .stream-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 20px 22px 15px; border-bottom: 1px solid #414141; }
 .stream-detail-head h2 { margin: 0 0 5px; font-size: 20px; }
 .stream-detail-head p { max-width: 700px; margin: 0; color: #929292; line-height: 1.45; }
+.stream-detail-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .stream-detail-body { display: grid; gap: 26px; padding: 22px; }
 .stream-main-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .stream-editor-overlay {
@@ -1297,6 +1298,41 @@ button:focus-visible, input:focus-visible {
 .keitaro-campaign-editor .primary-button:disabled { border-color: #393939; color: #777; background: #292929; }
 @media (max-width: 900px) { .keitaro-campaign-editor { width: calc(100vw - 16px); } .keitaro-campaign-layout { grid-template-columns: 1fr; } .campaign-main-column { border-right: 0; border-bottom: 1px solid #414141; } }
 .keitaro-meta .primary-button { margin-left: auto; }
+.spend-page { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 1500px; min-height: 100%; margin: 0 auto; padding: 22px; }
+.spend-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }
+.spend-heading h1 { margin: 4px 0; font-size: 29px; letter-spacing: -.04em; }
+.spend-heading p { margin: 0; color: var(--muted); }
+.spend-actions { display: flex; gap: 9px; }
+.spend-actions button { display: inline-flex; align-items: center; gap: 7px; }
+.spend-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.spend-summary article { display: grid; gap: 5px; min-height: 104px; padding: 15px; border: 1px solid var(--stroke); border-radius: 12px; background: rgba(255,255,255,.025); }
+.spend-summary small, .spend-summary span { color: var(--muted); font-size: var(--font-meta); }
+.spend-summary strong { overflow: hidden; color: #f4f5fb; font-size: 23px; text-overflow: ellipsis; }
+.spend-summary .spend-date-value { font-size: 15px; }
+.spend-toolbar { display: flex; align-items: center; gap: 12px; }
+.spend-toolbar > label { display: flex; align-items: center; gap: 8px; flex: 1; height: 39px; padding: 0 11px; border: 1px solid var(--stroke); border-radius: 9px; color: var(--muted); background: rgba(255,255,255,.025); }
+.spend-toolbar input { flex: 1; min-width: 0; border: 0; outline: 0; color: var(--text); background: transparent; }
+.spend-toolbar > span { color: var(--muted); font-size: var(--font-meta); }
+.spend-table { min-height: 0; overflow: hidden; border: 1px solid var(--stroke); border-radius: 12px; background: rgba(255,255,255,.02); }
+.spend-table-body { max-height: calc(100vh - 405px); overflow: auto; }
+.spend-row { display: grid; grid-template-columns: minmax(250px, 1.5fr) 150px 120px 120px 110px 160px 155px; align-items: center; gap: 10px; min-width: 1120px; min-height: 54px; padding: 8px 14px; border-bottom: 1px solid var(--stroke); color: #d9dce6; font-size: 13px; }
+.spend-row:last-child { border-bottom: 0; }
+.spend-row > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.spend-row strong, .spend-row small { display: block; overflow: hidden; text-overflow: ellipsis; }
+.spend-row small { margin-top: 3px; color: var(--muted); font-size: 11px; }
+.spend-head { min-height: 38px; color: var(--muted); background: rgba(255,255,255,.035); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.spend-row .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+.spend-row .positive { color: #72d99b; }
+.spend-row .negative { color: #ff899a; }
+.spend-status { display: inline-flex; padding: 4px 7px; border-radius: 999px; color: #c5cad8; background: rgba(255,255,255,.07); font-style: normal; font-size: 11px; }
+.spend-status.synced { color: #79dda0; background: rgba(58,180,105,.13); }
+.spend-status.pending { color: #ffd17a; background: rgba(218,160,47,.14); }
+.spend-status.mapping-missing, .spend-status.mapping-ambiguous { color: #ff9aaa; background: rgba(218,70,91,.14); }
+.spend-settings-grid { display: grid; gap: 14px; }
+.spend-group-list { margin-top: 10px; }
+.spin { animation: spend-spin .9s linear infinite; }
+@keyframes spend-spin { to { transform: rotate(360deg); } }
+@media (max-width: 1050px) { .spend-heading { align-items: stretch; flex-direction: column; } .spend-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .spend-toolbar { align-items: stretch; flex-wrap: wrap; } }
 .stream-editor-head input {
     display: block;
     width: min(420px, 100%);

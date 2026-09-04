@@ -119,7 +119,7 @@
     {
       "id": 3,
       "createdAt": "2026-08-29T08:59:00.199Z",
-      "updatedAt": "2026-08-29T08:59:00.199Z",
+      "updatedAt": "2026-09-04T15:06:33.836Z",
       "name": "DE OFFERS",
       "sourceStreamId": null,
       "stream": {
@@ -140,7 +140,7 @@
             "landing_id": 142,
             "name": "DE Modal",
             "groupId": "167",
-            "state": "active",
+            "state": "disabled",
             "share": 100
           }
         ],
@@ -149,40 +149,47 @@
             "offer_id": 1408,
             "name": "DE | [DirektFlirten] | Landing110Human | 6.4€ | 50 (best sales)",
             "groupId": "76",
-            "state": "active",
+            "state": "disabled",
             "share": 100
           },
           {
             "offer_id": 1305,
             "name": "DE | [VerborgeneFlirts] | Landing64Link | 4.80€ | 50",
             "groupId": "76",
-            "state": "active",
+            "state": "disabled",
             "share": 100
           },
           {
             "offer_id": 1302,
             "name": "DE | [VerborgeneFlirts] | Landing110MatureHuman2 | 4.80€ | 50 (best)",
             "groupId": "76",
-            "state": "active",
+            "state": "disabled",
             "share": 100
           },
           {
             "offer_id": 1110,
             "name": "DE | [Nachbarsmatch] | Landing110MatureHuman2 | 5.2 EUR | 100",
             "groupId": "76",
-            "state": "active",
+            "state": "disabled",
             "share": 100
           },
           {
             "offer_id": 716,
             "name": "DE [DirektFlirten] | Landing2milf | 7.36 € | 350(best)",
             "groupId": "76",
-            "state": "active",
+            "state": "disabled",
             "share": 100
           },
           {
             "offer_id": 406,
             "name": "💩SHAVE DE [110] ♦DeutscherCupid DOI / DE 100 cap 6 $",
+            "groupId": "76",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1106,
+            "name": "DE | [Nachbarsmatch] | Landing64Default | 5.2 EUR | 100 (best)",
             "groupId": "76",
             "state": "active",
             "share": 100
@@ -247,7 +254,7 @@
     {
       "id": 5,
       "createdAt": "2026-08-29T09:07:58.257Z",
-      "updatedAt": "2026-09-03T03:12:49.317Z",
+      "updatedAt": "2026-09-04T13:12:47.212Z",
       "name": "HU OFFERS",
       "sourceStreamId": null,
       "stream": {
@@ -263,13 +270,28 @@
         "action_type": "http",
         "action_payload": "",
         "filters": [],
-        "landings": [],
+        "landings": [
+          {
+            "landing_id": 165,
+            "name": "HU Modal",
+            "groupId": "167",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "landing_id": 161,
+            "name": "HU Redirect",
+            "groupId": "167",
+            "state": "active",
+            "share": 100
+          }
+        ],
         "offers": [
           {
             "offer_id": 1907,
             "name": "HU | [FlortVaros] | Landing2milf | 2.72€ | 50",
             "groupId": "70",
-            "state": "disabled",
+            "state": "active",
             "share": 100
           },
           {
@@ -290,14 +312,14 @@
             "offer_id": 557,
             "name": "HU [Titkosromanc] 110MatureHuman 2.8€ | 50 (chapa)",
             "groupId": "70",
-            "state": "disabled",
+            "state": "active",
             "share": 100
           },
           {
             "offer_id": 555,
             "name": "HU [Titkosromanc] 63Link 2.8€ | 50 (chapa) (best)",
             "groupId": "70",
-            "state": "disabled",
+            "state": "active",
             "share": 100
           },
           {
@@ -395,7 +417,7 @@
     {
       "id": 7,
       "createdAt": "2026-08-29T09:15:42.756Z",
-      "updatedAt": "2026-09-02T15:27:37.569Z",
+      "updatedAt": "2026-09-03T15:16:24.784Z",
       "name": "CZ OFFERS",
       "sourceStreamId": null,
       "stream": {
@@ -417,7 +439,7 @@
             "offer_id": 1914,
             "name": "CZ | [VasnivyFlirt] | LP407 | 3.44$ | 20",
             "groupId": "68",
-            "state": "active",
+            "state": "disabled",
             "share": 100
           },
           {
@@ -438,21 +460,21 @@
             "offer_id": 1824,
             "name": "CZ | ⛓ [CasualDatingNEW] ONE | Medium | 3.5 | 60",
             "groupId": "68",
-            "state": "disabled",
+            "state": "active",
             "share": 100
           },
           {
             "offer_id": 1520,
             "name": "CZ | [HolkyOdVedle] | Landing2Milf | 2.8€ | 100",
             "groupId": "68",
-            "state": "active",
+            "state": "disabled",
             "share": 100
           },
           {
             "offer_id": 772,
             "name": "💩SHAVE CZ [HolkyOdVedle ] 63Mature | 2.8€ | 100",
             "groupId": "68",
-            "state": "active",
+            "state": "disabled",
             "share": 100
           }
         ],
@@ -462,7 +484,7 @@
     {
       "id": 8,
       "createdAt": "2026-08-29T10:21:57.581Z",
-      "updatedAt": "2026-08-29T10:21:57.581Z",
+      "updatedAt": "2026-09-03T15:39:47.452Z",
       "name": "US OFFERS",
       "sourceStreamId": null,
       "stream": {
@@ -481,15 +503,15 @@
         "landings": [],
         "offers": [
           {
-            "offer_id": 1490,
-            "name": "US CA AU 45+ | [Secretspotdating] | Default | 7.80 USD | 20",
+            "offer_id": 1488,
+            "name": "US CA AU 45+ | [Flirtfordate] | LP208 | 9.4 USD | 20 (best)",
             "groupId": "115",
             "state": "active",
             "share": 100
           },
           {
-            "offer_id": 1488,
-            "name": "US CA AU 45+ | [Flirtfordate] | LP208 | 9.4 USD | 20 (best)",
+            "offer_id": 1486,
+            "name": "US CA AU 45+ | [Flirtfordate] | Default | 9.4 USD | 20 (best)",
             "groupId": "115",
             "state": "active",
             "share": 100

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "e847632d-6bf8-486d-baae-4c874b6d6e44",
+  "taskId": "91c0263c-a4c0-42b0-8e15-df222ae64820",
+  "type": "facebook-api-client-sync",
+  "title": "Синхронізація API-клієнта account-006",
+  "status": "failed",
+  "createdAt": "2026-09-03T12:55:49.817Z",
+  "startedAt": "2026-09-03T12:55:29.486Z",
+  "finishedAt": "2026-09-03T12:55:49.816Z",
+  "durationMs": 20330,
+  "inputSummary": {
+    "accountKey": "account-006",
+    "adsPowerProfileNo": "627"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Не вдалося підтвердити вхід у Facebook",
+      "code": null,
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-006",
+    "uniqueKey": "facebook-api-client-sync:account-006"
+  }
+}

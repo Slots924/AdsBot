@@ -708,6 +708,39 @@ export default class FacebookGraphApi {
 
 
     /**
+     * Повертає денний спенд усіх кампаній рекламного акаунта за точний період.
+     * Поточний день у відповіді містить накопичені дані на момент запиту.
+     * @param {string} adAccountId Graph ID у форматі act_123.
+     * @param {{since: string, until: string}} range Дати YYYY-MM-DD включно.
+     * @returns {Promise<object[]>}
+     */
+    async getAdCampaignSpend(adAccountId, { since, until } = {}) {
+        const id = normalizeAdAccountId(adAccountId);
+        const from = String(since ?? "").trim();
+        const to = String(until ?? "").trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) {
+            const error = new Error("Для спенду потрібні дати since та until у форматі YYYY-MM-DD");
+            error.code = "FACEBOOK_INSIGHTS_DATE_RANGE_INVALID";
+            throw error;
+        }
+        const insights = await this.#getAll(`/${id}/insights`, {
+            fields: "campaign_id,campaign_name,spend,date_start,date_stop",
+            level: "campaign",
+            time_range: JSON.stringify({ since: from, until: to }),
+            time_increment: 1,
+            limit: 500,
+        });
+        return insights.map((insight) => ({
+            campaignId: String(insight.campaign_id ?? ""),
+            campaignName: insight.campaign_name ?? null,
+            spend: insight.spend ?? "0",
+            dateStart: insight.date_start ?? from,
+            dateStop: insight.date_stop ?? insight.date_start ?? to,
+        })).filter((insight) => insight.campaignId);
+    }
+
+
+    /**
      * Повертає всі доступні fan pages разом із Page access tokens.
      * @returns {Promise<object[]>}
      * @throws {Error} FACEBOOK_API_ERROR або PROXY_POOL_EXHAUSTED.

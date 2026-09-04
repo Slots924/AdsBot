@@ -126,6 +126,9 @@ export default function registerIpcHandlers({
         keitaroGuiService,
         keitaroStreamTemplateManager,
         keitaroCampaignSettingsManager,
+        spendService,
+        spendTaskCoordinator,
+        spendScheduler,
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
@@ -270,13 +273,15 @@ export default function registerIpcHandlers({
                     error: null,
                 };
             }
+            const graphAccount = graphByKey.get(stored.accountKey) ?? {
+                status: "error",
+                error: { message: "Акаунт не завантажено" },
+            };
             return {
                 ...stored,
                 adsPowerOpen: adsPowerOpenByKey.get(stored.accountKey) ?? null,
-                ...(graphByKey.get(stored.accountKey) ?? {
-                    status: "error",
-                    error: { message: "Акаунт не завантажено" },
-                }),
+                ...graphAccount,
+                name: stored.name ?? "",
                 archived: false,
             };
         });
@@ -1430,7 +1435,8 @@ export default function registerIpcHandlers({
                             postUrl: post.permalinkUrl,
                             browserMode: input.commentBrowserMode,
                             disableImages: input.commentDisableImages,
-                            commentTarget: "ad",
+                            // Для опублікованого поста зберігаємо вкладеність реплаїв.
+                            commentTarget: "post",
                             concurrency: input.commentWorkerConcurrency,
                             workerProxies,
                             onProxyUnavailable: createProxyUnavailableHandler({
@@ -1914,6 +1920,46 @@ export default function registerIpcHandlers({
                 streamTemplate,
             });
         })
+    );
+    ipcMain.handle(
+        "keitaro-stream-templates:apply-to-matching-streams",
+        safeHandler(async ({ templateId }) => {
+            const template = await keitaroStreamTemplateManager.get(templateId);
+            return keitaroGuiService.applyStreamTemplateToMatchingStreams({
+                stream: template.stream,
+                streamName: template.name,
+            });
+        })
+    );
+    ipcMain.handle(
+        "spend:overview",
+        safeHandler(() => {
+            if (!spendService) throw Object.assign(
+                new Error("Сервіс спенду не підключено"),
+                { code: "SPEND_UNAVAILABLE" }
+            );
+            return spendService.getOverview();
+        })
+    );
+    ipcMain.handle(
+        "spend:settings-get",
+        safeHandler(() => spendService.getSettings())
+    );
+    ipcMain.handle(
+        "spend:settings-save",
+        safeHandler(async (payload) => {
+            const settings = spendService.saveSettings(payload);
+            await spendScheduler?.checkNow();
+            return settings;
+        })
+    );
+    ipcMain.handle(
+        "spend:collect-start",
+        safeHandler(() => spendTaskCoordinator.enqueueCollection())
+    );
+    ipcMain.handle(
+        "spend:export-start",
+        safeHandler(() => spendTaskCoordinator.enqueueExport())
     );
     ipcMain.handle(
         "state:load",

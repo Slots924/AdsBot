@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BadgeDollarSign, BarChart3, Bot, BookOpen, MessageSquare, PanelsTopLeft, Settings } from "lucide-react";
+import { BadgeDollarSign, BarChart3, Bot, BookOpen, CircleDollarSign, MessageSquare, PanelsTopLeft, Settings } from "lucide-react";
 import BackgroundTaskPanel from "./components/BackgroundTaskPanel.jsx";
 import LogPanel from "./components/LogPanel.jsx";
 import { Modal, Toast } from "./components/Overlay.jsx";
@@ -11,6 +11,7 @@ import JournalTab from "./tabs/JournalTab.jsx";
 import PagesTab from "./tabs/PagesTab.jsx";
 import CommentAccountsTab from "./tabs/CommentAccountsTab.jsx";
 import KeitaroWorkspaceTab from "./tabs/KeitaroWorkspaceTab.jsx";
+import SpendTab from "./tabs/SpendTab.jsx";
 import { errorDetails, unwrap } from "./lib/api.js";
 
 const tabs = [
@@ -19,6 +20,7 @@ const tabs = [
     { id: "pages", label: "Фанпейджі", icon: PanelsTopLeft },
     { id: "comment-accounts", label: "Акаунти під коментарі", icon: MessageSquare },
     { id: "keitaro", label: "Keitaro", icon: BarChart3 },
+    { id: "spend", label: "Спенд", icon: CircleDollarSign },
     { id: "journal", label: "Журнал", icon: BookOpen },
 ];
 
@@ -357,7 +359,17 @@ export default function App() {
                         showToast={showToast}
                     />
                 )}
-                {activeTab === "journal" && <JournalTab key="journal" onError={setModal} showToast={showToast} onOpenTask={(id) => { setTaskPanelCollapsed(false); setTaskToOpen(id); }}/>}
+                {activeTab === "spend" && (
+                    <SpendTab
+                        key="spend"
+                        tasks={tasks}
+                        onError={setModal}
+                        showToast={showToast}
+                    />
+                )}
+                {activeTab === "journal" && (
+                    <JournalTab key="journal" onError={setModal} showToast={showToast} onOpenTask={(id) => { setTaskPanelCollapsed(false); setTaskToOpen(id); }}/>
+                )}
             </AnimatePresence></div>
             <LogPanel logs={logs} onClear={() => setLogs([])}/>
         </main>

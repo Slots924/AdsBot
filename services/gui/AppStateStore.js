@@ -154,6 +154,7 @@ function normalizeState(state = {}) {
         "pages",
         "comment-accounts",
         "keitaro",
+        "spend",
         "journal",
     ]);
     const allowedCommentBrowserModes = new Set(["visible", "headless"]);

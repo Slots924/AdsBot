@@ -20,6 +20,7 @@ const facebookCookieNames = new Set([
     "i_user",
     "m_page_voice",
 ]);
+const internalAccountKeyPattern = /^account-(\d{3,})$/i;
 
 
 function createAccountError(message, code) {
@@ -38,6 +39,32 @@ function normalizeAccountKey(value) {
         );
     }
     return accountKey;
+}
+
+
+function normalizeAccountName(value) {
+    return String(value ?? "").trim();
+}
+
+
+function isInternalAccountKey(value) {
+    return internalAccountKeyPattern.test(String(value ?? "").trim());
+}
+
+
+function nextInternalAccountKey(store) {
+    const maximum = store.accounts.reduce((currentMaximum, account) => {
+        const match = String(account?.accountKey ?? "").trim().match(
+            internalAccountKeyPattern
+        );
+        return match ? Math.max(currentMaximum, Number(match[1])) : currentMaximum;
+    }, 0);
+    const nextNumber = Math.max(
+        Number(store.nextAccountNumber) || 1,
+        maximum + 1
+    );
+    store.nextAccountNumber = nextNumber + 1;
+    return `account-${String(nextNumber).padStart(3, "0")}`;
 }
 
 
@@ -170,14 +197,17 @@ export default class FacebookAccountManager {
     async list() {
         return this.#enqueue(async () => {
             const store = await this.#read();
-            let migrated = false;
-            store.accounts.forEach((account) => {
-                if (typeof account.archived !== "boolean") {
-                    account.archived = false;
-                    migrated = true;
-                }
-            });
-            if (migrated) await this.#write(store);
+            if (this.#migrateAccounts(store)) await this.#write(store);
+            return store.accounts.map(safeAccount);
+        });
+    }
+
+
+    async migrateLegacyAccountKeys() {
+        return this.#enqueue(async () => {
+            const store = await this.#read();
+            if (!this.#migrateAccounts(store)) return [];
+            await this.#write(store);
             return store.accounts.map(safeAccount);
         });
     }
@@ -186,14 +216,13 @@ export default class FacebookAccountManager {
     async create(input = {}) {
         return this.#enqueue(async () => {
             const store = await this.#read();
-            const accountKey = normalizeAccountKey(input.accountKey);
-            if (store.accounts.some((account) => (
-                String(account.accountKey).toLowerCase()
-                === accountKey.toLowerCase()
-            ))) {
+            this.#migrateAccounts(store);
+            const accountKey = nextInternalAccountKey(store);
+            const name = normalizeAccountName(input.name);
+            if (!name) {
                 throw createAccountError(
-                    `Facebook-акаунт "${accountKey}" уже існує`,
-                    "FACEBOOK_ACCOUNT_KEY_DUPLICATE"
+                    "Вкажіть назву API-клієнта",
+                    "FACEBOOK_ACCOUNT_NAME_REQUIRED"
                 );
             }
             const userAgent = String(input.userAgent ?? "").trim();
@@ -215,7 +244,7 @@ export default class FacebookAccountManager {
             }
             const account = {
                 accountKey,
-                name: "",
+                name,
                 facebookUserId: "",
                 userAgent,
                 accessToken,
@@ -234,6 +263,7 @@ export default class FacebookAccountManager {
     async update(accountKey, input = {}) {
         return this.#enqueue(async () => {
             const store = await this.#read();
+            this.#migrateAccounts(store);
             const normalizedKey = normalizeAccountKey(accountKey);
             const account = store.accounts.find((item) => (
                 String(item.accountKey).toLowerCase()
@@ -250,6 +280,16 @@ export default class FacebookAccountManager {
             const cookie = typeof input.cookie === "string"
                 ? input.cookie.trim()
                 : input.cookie;
+            if (Object.hasOwn(input, "name")) {
+                const name = normalizeAccountName(input.name);
+                if (!name) {
+                    throw createAccountError(
+                        "Вкажіть назву API-клієнта",
+                        "FACEBOOK_ACCOUNT_NAME_REQUIRED"
+                    );
+                }
+                account.name = name;
+            }
             if (userAgent) account.userAgent = userAgent;
             if (accessToken) account.accessToken = accessToken;
             if (cookie && (typeof cookie !== "string" || cookie.length)) {
@@ -344,6 +384,59 @@ export default class FacebookAccountManager {
             if (error.code === "ENOENT") return { accounts: [] };
             throw error;
         }
+    }
+
+
+    #migrateAccounts(store) {
+        let changed = false;
+        const usedKeys = new Set();
+        let nextNumber = 1;
+
+        const nextKey = () => {
+            while (usedKeys.has(`account-${String(nextNumber).padStart(3, "0")}`)) {
+                nextNumber += 1;
+            }
+            const key = `account-${String(nextNumber).padStart(3, "0")}`;
+            usedKeys.add(key);
+            nextNumber += 1;
+            return key;
+        };
+
+        store.accounts.forEach((account) => {
+            const currentKey = String(account?.accountKey ?? "").trim();
+            const normalizedKey = currentKey.toLowerCase();
+            if (isInternalAccountKey(currentKey) && !usedKeys.has(normalizedKey)) {
+                account.accountKey = normalizedKey;
+                usedKeys.add(normalizedKey);
+                const number = Number(normalizedKey.match(internalAccountKeyPattern)[1]);
+                nextNumber = Math.max(nextNumber, number + 1);
+                if (currentKey !== normalizedKey) changed = true;
+                return;
+            }
+
+            account.accountKey = nextKey();
+            account.name = currentKey || "Без назви";
+            changed = true;
+        });
+
+        store.accounts.forEach((account) => {
+            if (typeof account.archived !== "boolean") {
+                account.archived = false;
+                changed = true;
+            }
+        });
+        const maximum = store.accounts.reduce((currentMaximum, account) => {
+            const match = String(account.accountKey ?? "").match(
+                internalAccountKeyPattern
+            );
+            return match ? Math.max(currentMaximum, Number(match[1])) : currentMaximum;
+        }, 0);
+        const nextAccountNumber = Number(store.nextAccountNumber);
+        if (!Number.isInteger(nextAccountNumber) || nextAccountNumber <= maximum) {
+            store.nextAccountNumber = maximum + 1;
+            changed = true;
+        }
+        return changed;
     }
 
 

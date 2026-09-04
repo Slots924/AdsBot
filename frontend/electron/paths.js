@@ -31,6 +31,7 @@ export const appPaths = {
         "data/campaign-creation-jobs.json"
     ),
     backgroundTasks: path.join(projectRoot, "data/background-tasks.json"),
+    spendDatabase: path.join(projectRoot, "data/spend/spend.sqlite"),
     appState: path.join(projectRoot, "data/app-state.json"),
     adAccountPreferences: path.join(
         projectRoot,

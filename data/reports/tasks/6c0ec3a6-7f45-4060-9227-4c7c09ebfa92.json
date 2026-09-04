@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "id": "6c0ec3a6-7f45-4060-9227-4c7c09ebfa92",
+  "taskId": "97c7c929-aafe-4a2b-8e95-c0c6d1a4fc73",
+  "type": "spend-collect",
+  "title": "Оновлення спенду з Meta",
+  "status": "completed",
+  "createdAt": "2026-09-04T12:50:55.761Z",
+  "startedAt": "2026-09-04T12:50:13.173Z",
+  "finishedAt": "2026-09-04T12:50:55.760Z",
+  "durationMs": 42587,
+  "inputSummary": {
+    "operation": "spend-collect"
+  },
+  "resultSummary": {
+    "status": "success",
+    "apiClients": 5,
+    "uniqueAdAccounts": 24,
+    "collectedAccounts": 24,
+    "campaignRows": 32,
+    "warnings": []
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "spendOperation": "spend-collect",
+    "uniqueKey": "spend-collect"
+  }
+}

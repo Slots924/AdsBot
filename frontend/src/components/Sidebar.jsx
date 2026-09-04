@@ -15,14 +15,14 @@ import { errorDetails } from "../lib/api.js";
 
 
 function emptyAccountDraft() {
-    return { accountKey: "", adsPowerProfileNo: "", userAgent: "", accessToken: "", cookie: "" };
+    return { name: "", adsPowerProfileNo: "", userAgent: "", accessToken: "", cookie: "" };
 }
 
 
 function AccountEditor({ editor, onClose, onSave, onError }) {
     const [draft, setDraft] = useState(() => ({
         ...emptyAccountDraft(),
-        accountKey: editor.accountKey ?? "",
+        name: editor.name ?? "",
         adsPowerProfileNo: editor.adsPowerProfileNo ?? "",
     }));
     const [saving, setSaving] = useState(false);
@@ -32,11 +32,10 @@ function AccountEditor({ editor, onClose, onSave, onError }) {
     }));
     const creating = editor.mode === "create";
     const canSave = creating
-        ? draft.accountKey.trim() && (draft.adsPowerProfileNo.trim() || (
+        ? draft.name.trim() && (draft.adsPowerProfileNo.trim() || (
             draft.userAgent.trim() && draft.accessToken.trim() && draft.cookie.trim()
         ))
-        : draft.adsPowerProfileNo.trim() || draft.userAgent.trim()
-            || draft.accessToken.trim() || draft.cookie.trim();
+        : draft.name.trim();
 
     const submit = async (event) => {
         event.preventDefault();
@@ -63,10 +62,10 @@ function AccountEditor({ editor, onClose, onSave, onError }) {
                 <button className="modal-close" type="button" disabled={saving} onClick={onClose}><X size={17} /></button>
                 <div className="modal-icon"><Bot /></div>
                 <span className="eyebrow">Facebook API client</span>
-                <h2>{creating ? "Новий акаунт" : `Редагувати ${editor.accountKey}`}</h2>
+                <h2>{creating ? "Новий API-клієнт" : "Редагувати API-клієнта"}</h2>
                 {!creating && <p>Порожні поля залишаться без змін. Поточні секрети з міркувань безпеки не показуються.</p>}
                 <div className="template-editor-fields">
-                    <label className="field"><span>accountKey</span><input autoFocus={creating} readOnly={!creating} value={draft.accountKey} onChange={update("accountKey")} placeholder="fp_hub_2" /></label>
+                    <label className="field"><span>Назва API-клієнта</span><input autoFocus value={draft.name} onChange={update("name")} placeholder="Наприклад, Польща 1" /></label>
                     <label className="field"><span>AdsPower № (необов'язково)</span><input inputMode="numeric" value={draft.adsPowerProfileNo} onChange={update("adsPowerProfileNo")} placeholder="1791" /><small className="field-hint">З номером AdsPower можна створити клієнт без token, cookie і userAgent — їх додасть синхронізація.</small></label>
                     <label className="field"><span>userAgent</span><textarea rows="3" value={draft.userAgent} onChange={update("userAgent")} placeholder={creating ? "Mozilla/5.0…" : "Залишити без змін"} /></label>
                     <label className="field"><span>accessToken</span><textarea rows="3" value={draft.accessToken} onChange={update("accessToken")} placeholder={creating ? "Access token" : "Залишити без змін"} /></label>
@@ -111,7 +110,7 @@ export default function Sidebar({
     const removeAccount = async (event, account) => {
         event.stopPropagation();
         if (!window.confirm(
-            `Видалити API-клієнта «${account.accountKey}» назавжди?`
+            `Видалити API-клієнта «${account.name || "Без назви"}» назавжди?`
         )) return;
         setBusyKey(account.accountKey);
         try {
@@ -166,8 +165,8 @@ export default function Sidebar({
                             <button type="button" className={`account-card ${account.accountKey === selectedAccountKey ? "selected" : ""}`} onClick={() => !account.archived && onSelect(account.accountKey)} disabled={account.archived}>
                                 <span className={`status-dot ${account.status}`} />
                                 <span className="account-copy">
-                                    <strong>{account.accountKey}</strong>
-                                    <span>{account.archived ? "В архіві" : account.name || "Без імені"}</span>
+                                    <strong>{account.name || "Без назви"}</strong>
+                                    <span>{account.archived ? "В архіві" : "API-клієнт"}</span>
                                     <small>{account.facebookUserId || "ID не вказано"}</small>
                                     {account.adsPowerProfileNo && <small>AdsPower № {account.adsPowerProfileNo}</small>}
                                     <small>

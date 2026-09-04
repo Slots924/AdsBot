@@ -241,6 +241,12 @@ export default class FacebookBackendService {
     }
 
 
+    async getAdCampaignSpend(accountKey, adAccountId, range) {
+        return this.#getFacebookApiClient(accountKey)
+            .getAdCampaignSpend(adAccountId, range);
+    }
+
+
     async getAdPixels(accountKey, adAccountId) {
         return this.#getFacebookApiClient(accountKey).getAdPixels(adAccountId);
     }

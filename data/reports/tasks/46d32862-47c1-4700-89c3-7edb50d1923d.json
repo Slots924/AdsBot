@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "46d32862-47c1-4700-89c3-7edb50d1923d",
+  "taskId": "4e3bb0b4-4022-4374-8a50-cbc70d34f69b",
+  "type": "spend-collect",
+  "title": "Оновлення спенду з Meta",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-04T14:14:50.727Z",
+  "startedAt": "2026-09-04T14:14:20.960Z",
+  "finishedAt": "2026-09-04T14:14:50.726Z",
+  "durationMs": 29766,
+  "inputSummary": {
+    "operation": "spend-collect"
+  },
+  "resultSummary": {
+    "status": "success_with_warnings",
+    "apiClients": 5,
+    "uniqueAdAccounts": 23,
+    "collectedAccounts": 23,
+    "campaignRows": 30,
+    "warnings": [
+      {
+        "accountKey": "account-007",
+        "error": "Facebook-акаунт неактивний або його статус не перевірено"
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "spendOperation": "spend-collect",
+    "uniqueKey": "spend-collect"
+  }
+}

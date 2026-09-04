@@ -11,6 +11,7 @@ import {
     RotateCcw,
     Settings,
     SlidersHorizontal,
+    WalletCards,
     X,
     ZoomIn,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import { errorDetails, unwrap } from "../lib/api.js";
 
 import WorkerProxyPicker from "./WorkerProxyPicker.jsx";
 import KeitaroCampaignSettings from "./KeitaroCampaignSettings.jsx";
+import SpendSettings from "./SpendSettings.jsx";
 
 
 const minimumScale = 80;
@@ -193,6 +195,13 @@ export default function SettingsModal({
                             onClick={() => setTab("api-clients")}
                         >
                             <Bot size={15} /> API-клієнти
+                        </button>
+                        <button
+                            type="button"
+                            className={tab === "spend" ? "active" : ""}
+                            onClick={() => setTab("spend")}
+                        >
+                            <WalletCards size={15} /> Спенд
                         </button>
                     </nav>
                     <div className="settings-body" ref={settingsBodyRef}>
@@ -581,6 +590,10 @@ export default function SettingsModal({
                                     </label>
                                 </section>
                             </>
+                        )}
+
+                        {tab === "spend" && (
+                            <SpendSettings onError={onError} showToast={showToast} />
                         )}
 
                         <div className="form-actions settings-actions">

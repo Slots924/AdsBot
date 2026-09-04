@@ -24,6 +24,7 @@ export default function KeitaroStreamTemplatesTab({ onError, showToast }) {
     const [draft, setDraft] = useState(null);
     const [savedDraft, setSavedDraft] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [applyingToAll, setApplyingToAll] = useState(false);
 
     const load = async (preferredId) => {
         setLoading(true);
@@ -90,6 +91,24 @@ export default function KeitaroStreamTemplatesTab({ onError, showToast }) {
         } finally { setBusyId(null); }
     };
 
+    const applyToAll = async () => {
+        if (!draft?.id) return;
+        setApplyingToAll(true);
+        try {
+            const result = await unwrap(
+                window.adsBot.applyKeitaroStreamTemplateToMatchingStreams(draft.id)
+            );
+            const message = result.failed
+                ? `Оновлено потоків: ${result.updated}/${result.matched}. Помилок: ${result.failed}`
+                : `Оновлено потоків: ${result.updated}`;
+            showToast?.(message, result.failed ? "warning" : "success");
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося застосувати шаблон до потоків" });
+        } finally {
+            setApplyingToAll(false);
+        }
+    };
+
     return <motion.section className="keitaro-tab keitaro-streams-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <div className="keitaro-heading"><div><span className="eyebrow">Keitaro streams</span><h1>Шаблони потоків</h1><p>Оберіть шаблон ліворуч, щоб налаштувати його праворуч.</p></div><button type="button" className="primary-button" onClick={create}><Plus size={16} /> Новий шаблон</button></div>
         <div className="stream-templates-workspace">
@@ -107,12 +126,12 @@ export default function KeitaroStreamTemplatesTab({ onError, showToast }) {
                     </div>)}
                 </div>
             </aside>
-            <main className="stream-template-detail">{draft ? <TemplateDetails draft={draft} setDraft={setDraft} saving={saving} onSave={save} /> : <div className="stream-template-placeholder">Оберіть шаблон або створіть новий.</div>}</main>
+            <main className="stream-template-detail">{draft ? <TemplateDetails draft={draft} setDraft={setDraft} saving={saving} applyingToAll={applyingToAll} onSave={save} onApplyToAll={applyToAll} /> : <div className="stream-template-placeholder">Оберіть шаблон або створіть новий.</div>}</main>
         </div>
     </motion.section>;
 }
 
-function TemplateDetails({ draft, savedDraft = activeSavedDraft, setDraft, saving: savingProp, onSave }) {
+function TemplateDetails({ draft, savedDraft = activeSavedDraft, setDraft, saving: savingProp, applyingToAll, onSave, onApplyToAll }) {
     const [pickerKind, setPickerKind] = useState("");
     const stream = draft.stream;
     const hasChanges = JSON.stringify(draft) !== JSON.stringify(savedDraft);
@@ -124,7 +143,7 @@ function TemplateDetails({ draft, savedDraft = activeSavedDraft, setDraft, savin
         const exists = stream[kind].some((item) => String(item[idKey]) === String(source.id));
         patchStream({ [kind]: exists ? stream[kind].filter((item) => String(item[idKey]) !== String(source.id)) : [...stream[kind], { [idKey]: Number(source.id), name: source.name, groupId: source.groupId || "", state: "active", share: 100 }] });
     };
-    return <><header className="stream-detail-head"><div><h2>{draft.id ? "Налаштування шаблону" : "Новий шаблон"}</h2><p>Тип «звичайний», рахування кліків, увімкнений стан, схема «лендінги та офери», вибір оферу перед кліком і відсутність фільтрів задаються автоматично.</p></div><button type="button" className="primary-button" disabled={saving || !hasChanges || !(draft.name || stream.name).trim()} onClick={onSave}>{savingProp && <LoaderCircle className="spin" size={16} />} Зберегти</button></header><div className="stream-detail-body"><section className="stream-panel stream-main-fields"><label className="stream-field"><span>Назва шаблону</span><input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Наприклад, White JP" /></label><label className="stream-field"><span>Назва потоку</span><input value={stream.name} onChange={(event) => patchStream({ name: event.target.value })} placeholder="Назва, яка з'явиться у Keitaro" /></label></section><AssetSection title="Лендінги" kind="landings" assets={stream.landings} idKey="landing_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ landings: stream.landings.filter((_, current) => current !== index) })} /><AssetSection title="Офери" kind="offers" assets={stream.offers} idKey="offer_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ offers: stream.offers.filter((_, current) => current !== index) })} /></div>{pickerKind && <AssetPickerModal kind={pickerKind} templateId={draft.id ?? "new"} selectedAssets={stream[pickerKind]} onClose={() => setPickerKind("")} onToggle={(asset) => toggleAsset(pickerKind, asset)} />}</>;
+    return <><header className="stream-detail-head"><div><h2>{draft.id ? "Налаштування шаблону" : "Новий шаблон"}</h2><p>Тип «звичайний», рахування кліків, увімкнений стан, схема «лендінги та офери», вибір оферу перед кліком і відсутність фільтрів задаються автоматично.</p></div><div className="stream-detail-actions"><button type="button" className="secondary-button" disabled={!draft.id || hasChanges || applyingToAll || savingProp} onClick={onApplyToAll}>{applyingToAll && <LoaderCircle className="spin" size={16} />} {applyingToAll ? "Застосовуємо…" : "Застосувати до всіх потоків"}</button><button type="button" className="primary-button" disabled={saving || !hasChanges || !(draft.name || stream.name).trim()} onClick={onSave}>{savingProp && <LoaderCircle className="spin" size={16} />} Зберегти</button></div></header><div className="stream-detail-body"><section className="stream-panel stream-main-fields"><label className="stream-field"><span>Назва шаблону</span><input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Наприклад, White JP" /></label><label className="stream-field"><span>Назва потоку</span><input value={stream.name} onChange={(event) => patchStream({ name: event.target.value })} placeholder="Назва, яка з'явиться у Keitaro" /></label></section><AssetSection title="Лендінги" kind="landings" assets={stream.landings} idKey="landing_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ landings: stream.landings.filter((_, current) => current !== index) })} /><AssetSection title="Офери" kind="offers" assets={stream.offers} idKey="offer_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ offers: stream.offers.filter((_, current) => current !== index) })} /></div>{pickerKind && <AssetPickerModal kind={pickerKind} templateId={draft.id ?? "new"} selectedAssets={stream[pickerKind]} onClose={() => setPickerKind("")} onToggle={(asset) => toggleAsset(pickerKind, asset)} />}</>;
 }
 
 function AssetSection({ title, kind, assets, idKey, onOpenPicker, onPatch, onRemove }) {

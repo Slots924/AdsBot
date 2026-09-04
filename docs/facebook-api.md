@@ -227,6 +227,7 @@ if (!selectedFacebookApiClient) {
 | `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти, включно з UTC offset і DSA defaults. Денний spend та `adtrust_dsl` тут навмисно не запитуються. |
 | `getAdCampaigns(adAccountId)` | `Array` | Повертає ACTIVE і PAUSED кампанії РК. |
 | `getAdCampaignInsights(adAccountId, datePreset)` | `Array` | Повертає campaign-level spend та actions за Meta date preset. |
+| `getAdCampaignSpend(adAccountId, { since, until })` | `Array` | Повертає денний campaign-level spend за точний діапазон дат для локальної бази спенду. |
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
 | `getAvailablePages()` | `Array<{id, name, pictureUrl}>` | Перевіряє доступність, publish tasks і статус фанпейджів та повертає список з avatar URL, але без токенів. |
 | `getPageList({force})` | `Array<{id, name, pictureUrl}>` | Легко оновлює список через `id,name,tasks,access_token` без перевірки деталей кожної Page та без завантаження avatar. Токени назовні не повертає. |

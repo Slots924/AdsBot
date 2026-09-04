@@ -190,10 +190,18 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("keitaro-stream-templates:delete", { id }),
     applyKeitaroStreamTemplate: (payload) =>
         ipcRenderer.invoke("keitaro-stream-templates:apply", payload),
+    applyKeitaroStreamTemplateToMatchingStreams: (templateId) =>
+        ipcRenderer.invoke("keitaro-stream-templates:apply-to-matching-streams", { templateId }),
     getKeitaroCampaignSettings: () =>
         ipcRenderer.invoke("keitaro-campaign-settings:get"),
     saveKeitaroCampaignSettings: (payload) =>
         ipcRenderer.invoke("keitaro-campaign-settings:save", payload),
+    getSpendOverview: () => ipcRenderer.invoke("spend:overview"),
+    getSpendSettings: () => ipcRenderer.invoke("spend:settings-get"),
+    saveSpendSettings: (payload) =>
+        ipcRenderer.invoke("spend:settings-save", payload),
+    startSpendCollection: () => ipcRenderer.invoke("spend:collect-start"),
+    startSpendExport: () => ipcRenderer.invoke("spend:export-start"),
     loadAppState: () => ipcRenderer.invoke("state:load"),
     saveAppState: (state) => ipcRenderer.invoke("state:save", state),
     setUiScale: (scale) => ipcRenderer.invoke("app:set-zoom", { scale }),

@@ -247,7 +247,7 @@ describe("GUI helpers", () => {
             />
         );
 
-        expect(screen.getByText("fp_hub")).toBeInTheDocument();
+        expect(screen.queryByText("fp_hub")).not.toBeInTheDocument();
         expect(screen.getByText("Zinaida")).toBeInTheDocument();
         expect(screen.getByText("Proxy unavailable")).toBeInTheDocument();
         expect(document.querySelector(".account-card.selected .status-dot.active"))
@@ -279,8 +279,8 @@ describe("GUI helpers", () => {
         );
 
         fireEvent.click(screen.getByTitle("Додати акаунт"));
-        fireEvent.change(screen.getByLabelText("accountKey"), {
-            target: { value: "client_2" },
+        fireEvent.change(screen.getByLabelText("Назва API-клієнта"), {
+            target: { value: "Client 2" },
         });
         fireEvent.change(screen.getByLabelText("userAgent"), {
             target: { value: "Mozilla/5.0 Test" },
@@ -293,7 +293,7 @@ describe("GUI helpers", () => {
         });
         fireEvent.click(screen.getByText("Створити"));
         await waitFor(() => expect(onCreate).toHaveBeenCalledWith({
-            accountKey: "client_2",
+            name: "Client 2",
             adsPowerProfileNo: "",
             userAgent: "Mozilla/5.0 Test",
             accessToken: "token",

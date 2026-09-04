@@ -88,6 +88,11 @@ const report = await keitaro.buildReport({
 | `disableCampaign(id)` | `PUT /campaigns/{id}` зі `state: "disabled"` |
 | `moveCampaignsToGroup(campaignIds, groupId)` | Масово оновлює `group_id` вибраних кампаній |
 
+Підсистема спенду використовує `updateCampaignCosts()` тільки через клас
+`Keitaro`. Відповідність із Meta визначається звітом із вимірами `campaign_id`
+та `sub_id_2`. Детальний формат зберігання й повторів описаний у
+[`docs/spend.md`](spend.md).
+
 ### Групи кампаній
 
 У цьому Admin API окремого `/campaign_groups` немає. Групи кампаній читаються
@@ -100,9 +105,12 @@ const report = await keitaro.buildReport({
 
 CRUD: `list/get/create/update/delete` для `Offer`, `Landing`, `Stream`.
 Для масового перенесення оферів між групами є `moveOffersToGroup(offerIds, groupId)`.
-Для повного списку є `listAllOffers`, `listAllLandings`, `listAllStreams`.
+Для повного списку є `listAllOffers` і `listAllLandings`.
 У цьому Keitaro офери й лендінги повертаються одним повним списком, тому їхні
 методи не запускають offset-пагінацію та не дублюють один і той самий запит.
+У поточному Keitaro загальний маршрут `GET /streams` недоступний. Для пошуку
+потоків використовується `searchStreams({ query })` (`GET /streams/search`), де
+`query` є обов'язковим параметром.
 Доступність country-фільтра редактор перевіряє через офіційний метод
 `listStreamFilters()` (`GET /stream_filters`). Після цього показує локальний
 ISO-довідник назв країн; у payload потоку передаються дволітерні коди, які
@@ -159,8 +167,9 @@ GUI також будує звіт оферів із виміром `offer_id`. 
 звичайний увімкнений потік із рахуванням кліків, схемою `landings`, вибором оферу
 `before_click` та без фільтрів. Користувач задає лише назви, лендінги й офери;
 невідомі поля потоку не зберігаються. Поля `id`, `campaign_id` і `position`
-вилучаються, бо для кожної цільової кампанії вони свої. Застосування виконується паралельно через клас `Keitaro`, а
-ліміт одночасних HTTP-запитів і далі контролює його внутрішній `request()`.
+вилучаються, бо для кожної цільової кампанії вони свої. Масове застосування
+шукає потоки через `GET /streams/search` за назвою шаблону, залишає лише точні
+збіги назви та оновлює знайдені потоки послідовно через клас `Keitaro`.
 
 ## Помилки
 

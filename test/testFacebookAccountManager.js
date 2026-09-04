@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -29,75 +29,99 @@ try {
         "c_user=100; xs=session=value"
     );
 
+    await writeFile(accountsFile, JSON.stringify({
+        accounts: [{
+            accountKey: "legacy_client",
+            name: "Old display name",
+            userAgent: "legacy-agent",
+            accessToken: "legacy-token",
+            cookie: "c_user=1; xs=2",
+        }],
+    }));
+    const migrated = await manager.migrateLegacyAccountKeys();
+    assert.equal(migrated[0].accountKey, "account-001");
+    assert.equal(migrated[0].name, "legacy_client");
+
     const created = await manager.create({
-        accountKey: "client_1",
+        name: "Client 1",
         userAgent: "Mozilla/5.0 Test",
         accessToken: "secret-token",
         cookie: adsPowerCookies,
     });
-    assert.equal(created.accountKey, "client_1");
+    assert.equal(created.accountKey, "account-002");
+    assert.equal(created.name, "Client 1");
     assert.equal(created.archived, false);
     assert.equal(created.hasAccessToken, true);
     assert(!("accessToken" in created));
     assert(!("cookie" in created));
 
     const adspowerOnly = await manager.create({
-        accountKey: "client_2",
+        name: "Client 2",
         adsPowerProfileNo: "1791",
     });
+    assert.equal(adspowerOnly.accountKey, "account-003");
     assert.equal(adspowerOnly.adsPowerProfileNo, "1791");
     assert.equal(adspowerOnly.hasAccessToken, false);
 
-    const updatedWithoutCredentials = await manager.update("client_2", {
+    const updatedWithoutCredentials = await manager.update("account-003", {
+        name: "Client 2 updated",
         adsPowerProfileNo: "1792",
     });
+    assert.equal(updatedWithoutCredentials.name, "Client 2 updated");
     assert.equal(updatedWithoutCredentials.adsPowerProfileNo, "1792");
 
-    const updatedProfileNo = await manager.update("client_2", {
+    const updatedProfileNo = await manager.update("account-003", {
         adsPowerProfileNo: "1758",
     });
     assert.equal(updatedProfileNo.adsPowerProfileNo, "1758");
 
     await assert.rejects(manager.create({
-        accountKey: "CLIENT_1",
-        userAgent: "agent",
-        accessToken: "token",
-        cookie: "c_user=1",
-    }), { code: "FACEBOOK_ACCOUNT_KEY_DUPLICATE" });
+        name: "",
+        adsPowerProfileNo: "1793",
+    }), { code: "FACEBOOK_ACCOUNT_NAME_REQUIRED" });
 
-    await manager.update("client_1", {
+    await manager.update("account-002", {
+        name: "Client 1",
         userAgent: "",
         accessToken: "new-token",
         cookie: "",
     });
     const persistedAfterUpdate = JSON.parse(
         await readFile(accountsFile, "utf8")
-    ).accounts[0];
+    ).accounts[1];
     assert.equal(persistedAfterUpdate.userAgent, "Mozilla/5.0 Test");
     assert.equal(persistedAfterUpdate.accessToken, "new-token");
     assert.equal(persistedAfterUpdate.cookie, "c_user=100; xs=session=value");
 
-    const archived = await manager.setArchived("client_1", true);
+    const archived = await manager.setArchived("account-002", true);
     assert.equal(archived.archived, true);
-    assert.equal((await manager.list())[0].archived, true);
+    assert.equal((await manager.list())[1].archived, true);
     assert.equal(
-        JSON.parse(await readFile(accountsFile, "utf8")).accounts[0].archived,
+        JSON.parse(await readFile(accountsFile, "utf8")).accounts[1].archived,
         true
     );
 
     const removedArchived = await manager.deleteArchived();
     assert.deepEqual(
         removedArchived.map((account) => account.accountKey),
-        ["client_1"]
+        ["account-002"]
     );
     assert.deepEqual(
         (await manager.list()).map((account) => account.accountKey),
-        ["client_2"]
+        ["account-001", "account-003"]
     );
 
-    const removed = await manager.delete("client_2");
-    assert.equal(removed.accountKey, "client_2");
-    assert.deepEqual(await manager.list(), []);
+    const removed = await manager.delete("account-003");
+    assert.equal(removed.accountKey, "account-003");
+    const createdAfterDeletion = await manager.create({
+        name: "Client 3",
+        adsPowerProfileNo: "1793",
+    });
+    assert.equal(createdAfterDeletion.accountKey, "account-004");
+    assert.deepEqual(
+        (await manager.list()).map((account) => account.accountKey),
+        ["account-001", "account-004"]
+    );
 
     console.log("Перевірка менеджера Facebook-акаунтів пройшла успішно");
 } finally {

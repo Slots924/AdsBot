@@ -24,7 +24,14 @@ const httpClient = {
         }
         if (config.method === "GET" && /\/campaigns\/\d+\/streams$/.test(String(config.url))) {
             const campaignId = Number(String(config.url).match(/campaigns\/(\d+)/)?.[1]);
-            return { status: 200, data: [{ id: campaignId * 100, position: 1 }] };
+            return { status: 200, data: [{ id: campaignId * 100, position: 1, name: "AT OFFERS" }] };
+        }
+        if (config.method === "GET" && String(config.url).endsWith("/streams/search")) {
+            assert.equal(config.params.query, "AT OFFERS");
+            return { status: 200, data: [
+                { id: 100, name: "AT OFFERS" },
+                { id: 101, name: "AT OFFERS backup" },
+            ] };
         }
         if (config.method === "GET" && String(config.url).endsWith("/stream_filters")) {
             return { status: 200, data: [{ value: "country" }] };
@@ -102,6 +109,17 @@ const replacedStreams = await keitaro.applyStreamTemplateToCampaigns({
 assert.equal(replacedStreams.every((item) => item.ok), true);
 const updateRequests = captured.filter((item) => item.method === "PUT" && /\/streams\/\d+$/.test(item.url));
 assert.deepEqual(updateRequests.slice(-2).map((item) => item.url.split("/").at(-1)), ["1100", "1200"]);
+const appliedToMatching = await keitaro.applyStreamTemplateToMatchingStreams({
+    streamName: "AT OFFERS",
+    stream: { name: "AT OFFERS", landings: [], offers: [] },
+});
+assert.equal(appliedToMatching.matched, 1);
+assert.equal(appliedToMatching.updated, 1);
+assert.equal(appliedToMatching.failed, 0);
+const matchingUpdates = captured.filter((item) => item.method === "PUT" && /\/streams\/100$/.test(item.url));
+assert.deepEqual(matchingUpdates.map((item) => item.data.name), ["AT OFFERS"]);
+assert.equal("campaign_id" in matchingUpdates[0].data, false);
+assert.equal("position" in matchingUpdates[0].data, false);
 assert.deepEqual(await keitaro.listStreamFilters(), [{ value: "country" }]);
 await keitaro.cloneCampaign(12, { name: "Copy" });
 assert.equal(

@@ -68,6 +68,10 @@ const graphApi = new FacebookGraphApi({
 const graphCampaigns = await graphApi.getAdCampaigns("act_1");
 const graphInsights = await graphApi.getAdCampaignInsights("act_1", "last_7d");
 const graphAccounts = await graphApi.getAdAccounts();
+const graphSpend = await graphApi.getAdCampaignSpend("act_1", {
+    since: "2026-09-01",
+    until: "2026-09-03",
+});
 assert.equal(graphCampaigns.length, 2);
 assert.equal(graphInsights[0].spend, "12.50");
 assert.equal(requests[1].params.after, "page-2");
@@ -78,6 +82,12 @@ assert.match(requests[3].params.fields, /timezone_offset_hours_utc/);
 assert.doesNotMatch(requests[3].params.fields, /adtrust_dsl/);
 assert.doesNotMatch(requests[3].params.fields, /insights\.date_preset\(today\)/);
 assert.equal(graphAccounts[0].timezoneOffsetHoursUtc, 3);
+assert.equal(graphSpend[0].campaignId, "c1");
+assert.deepEqual(JSON.parse(requests[4].params.time_range), {
+    since: "2026-09-01",
+    until: "2026-09-03",
+});
+assert.equal(requests[4].params.time_increment, 1);
 await assert.rejects(
     graphApi.getAdCampaignInsights("act_1", "invalid"),
     { code: "FACEBOOK_INSIGHTS_DATE_PRESET_INVALID" }
@@ -111,6 +121,12 @@ const facebookBackend = {
             ],
         };
     },
+    async getAdCampaignSpend(accountKey, adAccountId, range) {
+        assert.equal(accountKey, "active");
+        assert.equal(adAccountId, "act_1");
+        assert.equal(range.since, "2026-09-01");
+        return [{ campaignId: "1", spend: "5.25", dateStart: "2026-09-01" }];
+    },
 };
 const guiService = new AdsBotGuiService({
     facebookBackend,
@@ -131,5 +147,9 @@ assert.equal(normalized.campaigns[2].leads, 2);
 assert.equal(normalized.campaigns[2].spend, 10);
 assert.equal(normalized.campaigns[2].costPerLead, 5);
 assert.equal(normalized.campaigns[1].costPerLead, null);
+assert.equal((await guiService.getAdCampaignSpend("active", "act_1", {
+    since: "2026-09-01",
+    until: "2026-09-03",
+}))[0].spend, "5.25");
 
 console.log("Mock-перевірка кампаній Facebook пройшла успішно");

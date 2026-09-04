@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "ebc1bf5a-4b22-4ce9-abdd-dfb69208e5d5",
+  "taskId": "6a7a7750-1be4-49f9-95f4-410d32194041",
+  "type": "campaign",
+  "title": "ES | Creo_1 | 25+",
+  "status": "failed",
+  "createdAt": "2026-09-04T14:18:09.001Z",
+  "startedAt": "2026-09-04T14:17:57.774Z",
+  "finishedAt": "2026-09-04T14:18:09.000Z",
+  "durationMs": 11226,
+  "inputSummary": {
+    "campaignJobId": "96c05eca-0d7a-4623-89ac-6ff879168df8",
+    "accountKey": "account-002",
+    "adAccountId": "act_1895059148078145",
+    "campaignName": "ES | Creo_1 | 25+",
+    "templateId": 16,
+    "pageId": "123064370885569",
+    "postId": "123064370885569_122328098150027427",
+    "adSetCount": 5,
+    "dailyBudget": 40,
+    "startTime": "2026-09-04T14:16:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120250946808390444",
+      "creativeId": "2030715357483086",
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "This business account didn't comply with our Advertising Policies or other standards.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 10,
+      "graphSubcode": 2446325,
+      "graphUserTitle": "Business Account Not Allowed to Advertise",
+      "graphUserMessage": "This business account didn't comply with our Advertising Policies or other standards.",
+      "stage": "adset",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "96c05eca-0d7a-4623-89ac-6ff879168df8",
+    "accountKey": "account-002",
+    "adAccountId": "act_1895059148078145",
+    "uniqueKey": "campaign-job:96c05eca-0d7a-4623-89ac-6ff879168df8"
+  }
+}

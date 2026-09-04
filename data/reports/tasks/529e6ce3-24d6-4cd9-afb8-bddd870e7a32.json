@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "id": "529e6ce3-24d6-4cd9-afb8-bddd870e7a32",
+  "taskId": "10a6bbf8-4404-4218-97a1-ca85ab3a66b7",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 771065799419769",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-03T09:02:36.201Z",
+  "startedAt": "2026-09-03T09:01:44.054Z",
+  "finishedAt": "2026-09-03T09:02:36.200Z",
+  "durationMs": 52146,
+  "inputSummary": {
+    "accountKey": "account-006",
+    "pageId": "771065799419769"
+  },
+  "resultSummary": {
+    "pageId": "771065799419769",
+    "avatar": {
+      "file": "1.jpg",
+      "photoId": "122169812204987623"
+    },
+    "cover": {
+      "file": "2.jpg",
+      "photoId": "122169812282987623"
+    },
+    "cleanup": {
+      "deletedPostIds": [
+        "771065799419769_122143139642987623"
+      ],
+      "deletedPhotoIds": [],
+      "hiddenPostIds": []
+    },
+    "publications": [
+      {
+        "file": "32584089_10212035606980617_6103840425372549120_n.jpg",
+        "photoId": "122169812372987623",
+        "postId": "771065799419769_122169812408987623",
+        "backdatedTime": null
+      },
+      {
+        "file": "512674657_10228370287937432_8821734959324725462_n.jpg",
+        "photoId": "122169812474987623",
+        "postId": "771065799419769_122169812516987623",
+        "backdatedTime": null
+      },
+      {
+        "file": "711709689_10232473791042445_7647180994514352980_n.jpg",
+        "photoId": "122169812594987623",
+        "postId": "771065799419769_122169812636987623",
+        "backdatedTime": null
+      }
+    ],
+    "warnings": [
+      {
+        "stage": "delete-photo",
+        "objectId": "122143139582987623",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      },
+      {
+        "stage": "delete-photo",
+        "objectId": "122143139432987623",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      },
+      {
+        "stage": "delete-photo",
+        "objectId": "122143138988987623",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      }
+    ],
+    "resumed": false
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-006",
+    "pageId": "771065799419769",
+    "uniqueKey": "page-rebuild:account-006:771065799419769"
+  }
+}

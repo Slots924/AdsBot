@@ -354,6 +354,16 @@ export default class AdsBotGuiService {
     }
 
 
+    async getAdCampaignSpend(accountKey, adAccountId, range) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getAdCampaignSpend(
+            accountKey,
+            adAccountId,
+            range
+        );
+    }
+
+
     async getPagePosts({ accountKey, pageId, limit = 10 } = {}) {
         await this.#assertActiveAccount(accountKey);
         this.logger.info(`Завантажуємо нові пости фанпейджі ${pageId}…`);

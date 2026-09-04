@@ -331,6 +331,11 @@ export default class KeitaroGuiService {
     }
 
 
+    applyStreamTemplateToMatchingStreams(options) {
+        return this.keitaro.applyStreamTemplateToMatchingStreams(options);
+    }
+
+
     async listCampaignGroups({ forceRefresh = false } = {}) {
         if (forceRefresh) this.campaignGroupsCache = null;
         if (this.campaignGroupsCache) return this.campaignGroupsCache;
@@ -514,6 +519,42 @@ export default class KeitaroGuiService {
                 cpc: numberOrZero(row.cpc),
             };
         }).filter(Boolean);
+    }
+
+
+    async getSpendMappings({ from, to, groupIds = [] } = {}) {
+        const selectedGroupIds = [...new Set(
+            (Array.isArray(groupIds) ? groupIds : [])
+                .map((id) => Number(id))
+                .filter((id) => Number.isInteger(id) && id > 0)
+        )];
+        const filters = selectedGroupIds.length === 0 ? [] : [{
+            name: "campaign_group_id",
+            operator: selectedGroupIds.length === 1 ? "EQUALS" : "IN_LIST",
+            expression: selectedGroupIds.length === 1
+                ? selectedGroupIds[0]
+                : selectedGroupIds,
+        }];
+        const report = await this.keitaro.buildReport({
+            range: reportRange("custom", { from, to }),
+            dimensions: ["campaign_id", "sub_id_2"],
+            metrics: ["clicks"],
+            ...(filters.length ? { filters } : {}),
+        });
+        return normalizeList(report).map((row) => ({
+            keitaroCampaignId: String(
+                row?.campaign_id ?? row?.campaignId ?? ""
+            ).trim(),
+            metaCampaignId: String(
+                row?.sub_id_2 ?? row?.subId2 ?? ""
+            ).trim(),
+            clicks: numberOrZero(row?.clicks),
+        })).filter((row) => row.keitaroCampaignId && row.metaCampaignId);
+    }
+
+
+    updateSpendCosts(keitaroCampaignId, payload) {
+        return this.keitaro.updateCampaignCosts(keitaroCampaignId, payload);
     }
 
 

@@ -26,6 +26,10 @@ import BackgroundTaskManager
     from "../../services/tasks/BackgroundTaskManager.js";
 import AppLogger from "../../services/logging/AppLogger.js";
 import TaskReportManager from "../../services/reports/TaskReportManager.js";
+import SpendStore from "../../services/spend/SpendStore.js";
+import SpendService from "../../services/spend/SpendService.js";
+import SpendTaskCoordinator from "../../services/spend/SpendTaskCoordinator.js";
+import SpendScheduler from "../../services/spend/SpendScheduler.js";
 import { configureRuntimeLogger } from "../../services/logging/runtimeLogger.js";
 import FacebookAccountManager
     from "../../facebook/accounts/FacebookAccountManager.js";
@@ -65,6 +69,8 @@ let facebookAccountManager = null;
 let backgroundTaskManager = null;
 let appLogger = null;
 let taskReportManager = null;
+let spendStore = null;
+let spendScheduler = null;
 let closeApproved = false;
 let closePromptOpen = false;
 let cacheProtocolReady = false;
@@ -154,6 +160,7 @@ async function createWindow() {
     facebookAccountManager = new FacebookAccountManager({
         accountsFile: appPaths.accounts,
     });
+    await facebookAccountManager.migrateLegacyAccountKeys();
     const proxyManager = new ProxyManager({
         proxiesFile: appPaths.proxies,
     });
@@ -215,6 +222,25 @@ async function createWindow() {
     });
     await keitaroStreamTemplateManager.list();
     await keitaroCampaignSettingsManager.get();
+    spendStore = await new SpendStore({
+        databaseFile: appPaths.spendDatabase,
+    }).initialize();
+    const spendService = new SpendService({
+        store: spendStore,
+        guiService,
+        facebookAccountManager,
+        keitaroGuiService,
+        logger: appLogger.child("spend"),
+    });
+    const spendTaskCoordinator = new SpendTaskCoordinator({
+        spendService,
+        backgroundTaskManager,
+    });
+    spendScheduler = new SpendScheduler({
+        store: spendStore,
+        coordinator: spendTaskCoordinator,
+        logger: appLogger.child("spend-scheduler"),
+    });
 
     registerIpcHandlers({
         ipcMain,
@@ -224,6 +250,9 @@ async function createWindow() {
         keitaroGuiService,
         keitaroStreamTemplateManager,
         keitaroCampaignSettingsManager,
+        spendService,
+        spendTaskCoordinator,
+        spendScheduler,
         templateManager,
         appStateStore,
         adAccountPreferencesStore,
@@ -248,6 +277,8 @@ async function createWindow() {
         closePromptOpen = true;
         if (!await backgroundTaskManager.hasUnfinished()) {
             closePromptOpen = false;
+            spendScheduler?.stop();
+            spendStore?.close();
             await appLogger.flush();
             closeApproved = true;
             mainWindow.close();
@@ -272,6 +303,8 @@ async function createWindow() {
             message: "Безпечно зупиняємо активні задачі…",
         });
         await backgroundTaskManager.shutdown();
+        spendScheduler?.stop();
+        spendStore?.close();
         await appLogger.flush();
         closeApproved = true;
         mainWindow.close();
@@ -282,6 +315,7 @@ async function createWindow() {
     } else {
         await mainWindow.loadFile(appPaths.renderer);
     }
+    spendScheduler.start();
 }
 
 

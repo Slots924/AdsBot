@@ -26,6 +26,9 @@ const keitaro = {
     async buildReport(payload) {
         assert.ok(["campaign_id", "offer_id"].includes(payload.dimensions[0]));
         assert.ok(payload.metrics.includes("clicks"));
+        if (payload.dimensions.includes("sub_id_2")) {
+            return { rows: [{ campaign_id: 1, sub_id_2: "meta-55", clicks: "8" }] };
+        }
         if (payload.dimensions[0] === "offer_id") {
             return { rows: [{ offer_id: 71, clicks: "20", sales: "3", revenue: "12" }] };
         }
@@ -152,6 +155,29 @@ assert.equal(offerReport.offers[0].clicks, 20);
 assert.equal(offerReport.offers[1].clicks, 0);
 assert.equal((await service.moveCampaignsToGroup({ campaignIds: [1], groupId: 20 }))[0].ok, true);
 assert.equal((await service.moveOffersToGroup({ offerIds: [71], groupId: 36 }))[0].ok, true);
+assert.deepEqual(await service.getSpendMappings({
+    from: "2026-09-01",
+    to: "2026-09-03",
+    groupIds: [10],
+}), [{ keitaroCampaignId: "1", metaCampaignId: "meta-55", clicks: 8 }]);
+let spendUpdate = null;
+keitaro.updateCampaignCosts = async (id, payload) => {
+    spendUpdate = { id, payload };
+    return { success: true };
+};
+await service.updateSpendCosts("1", { cost: "12.5" });
+assert.deepEqual(spendUpdate, { id: "1", payload: { cost: "12.5" } });
+
+let matchingPayload = null;
+keitaro.applyStreamTemplateToMatchingStreams = async (payload) => {
+    matchingPayload = payload;
+    return { matched: 1, updated: 1, failed: 0 };
+};
+await service.applyStreamTemplateToMatchingStreams({
+    stream: { name: "AT OFFERS", landings: [], offers: [] },
+    streamName: "AT OFFERS",
+});
+assert.equal(matchingPayload.streamName, "AT OFFERS");
 
 let campaignPayload = null;
 const createdStreams = [];

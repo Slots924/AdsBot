@@ -500,6 +500,55 @@ class Keitaro {
         }));
     }
 
+
+    async applyStreamTemplateToMatchingStreams({ stream, streamName } = {}) {
+        if (!stream || typeof stream !== "object") {
+            throw createKeitaroError(
+                "Шаблон потоку порожній",
+                "KEITARO_VALIDATION_ERROR"
+            );
+        }
+        const targetName = String(streamName ?? stream.name ?? "").trim();
+        if (!targetName) {
+            throw createKeitaroError(
+                "Не вказано назву потоку для пошуку",
+                "KEITARO_VALIDATION_ERROR"
+            );
+        }
+
+        const payload = streamPayloadFromTemplate(stream);
+        const streams = normalizeList(await this.searchStreams({ query: targetName }))
+            .filter((item) => String(item?.name ?? "").trim() === targetName)
+            .filter((item) => String(item?.id ?? "").trim());
+        const results = [];
+
+        // Оновлюємо послідовно, щоб не створювати зайве навантаження на Keitaro.
+        for (const target of streams) {
+            const streamId = String(target?.id ?? "").trim();
+            try {
+                await this.updateStream(streamId, payload);
+                results.push({
+                    streamId,
+                    ok: true,
+                });
+            } catch (error) {
+                results.push({
+                    streamId,
+                    ok: false,
+                    error: extractErrorMessage(error),
+                });
+            }
+        }
+
+        return {
+            streamName: targetName,
+            matched: streams.length,
+            updated: results.filter((item) => item.ok).length,
+            failed: results.filter((item) => !item.ok).length,
+            results,
+        };
+    }
+
     updateCampaignCosts(id, data) {
         return this.request(
             "POST",
@@ -692,12 +741,8 @@ class Keitaro {
 
 
     // Streams
-    listStreams(params = {}) {
-        return this.request("GET", "/streams", null, params);
-    }
-
-    listAllStreams(params = {}) {
-        return this.listAll("streams", params);
+    searchStreams(params = {}) {
+        return this.request("GET", "/streams/search", null, params);
     }
 
     getStream(id) {
