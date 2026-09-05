@@ -174,6 +174,9 @@ assert.deepEqual(pixelChange, [{ campaignId: "1", ok: true }]);
 assert.equal(keitaro.changedCampaign.payload.name, "HU [004_W] Pixel_123456789🎮SLOT🎮");
 assert.equal(keitaro.changedCampaign.payload.parameters.sub_id_6.placeholder, "123456789");
 assert.equal(keitaro.changedCampaign.payload.parameters.sub_id_12.placeholder, "new-token");
+const domainChange = await service.changeCampaignDomains({ campaignIds: [1], domainId: "321" });
+assert.deepEqual(domainChange, [{ campaignId: "1", ok: true }]);
+assert.deepEqual(keitaro.changedCampaign, { id: "1", payload: { domain_id: 321 } });
 assert.deepEqual(await service.getSpendMappings({
     from: "2026-09-01",
     to: "2026-09-03",

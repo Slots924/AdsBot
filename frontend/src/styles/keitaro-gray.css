@@ -154,6 +154,7 @@
     background: var(--kg-control);
     box-shadow: var(--kg-shadow-menu);
 }
+.kg-select-menu.portal { z-index: 320; }
 .kg-select-option {
     display: block;
     width: 100%;
@@ -169,6 +170,25 @@
 .kg-select-option:hover,
 .kg-select-option.selected { background: #303030; }
 .kg-select-empty { padding: 10px; color: var(--kg-text-muted); font-size: 14px; }
+.kg-domain-change { display: grid; gap: 14px; }
+.kg-domain-choice-list { display: grid; gap: 7px; max-height: min(360px, 52vh); overflow-y: auto; }
+.kg-domain-choice {
+    display: grid;
+    width: 100%;
+    padding: 10px 11px;
+    border: 1px solid var(--kg-border);
+    border-radius: var(--kg-radius-card);
+    color: var(--kg-text);
+    background: var(--kg-surface-raised);
+    text-align: left;
+    cursor: pointer;
+}
+.kg-domain-choice:hover, .kg-domain-choice.selected { border-color: var(--kg-focus); background: var(--kg-control-hover); }
+.kg-domain-choice > span { display: grid; gap: 5px; min-width: 0; }
+.kg-domain-choice-heading { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.kg-domain-choice strong { color: var(--kg-text-strong); font-size: 14px; }
+.kg-domain-choice small { display: inline-flex; align-items: center; gap: 5px; color: var(--kg-text-muted); font-size: 12px; }
+.kg-domain-choice em { overflow: hidden; color: var(--kg-text-muted); font-size: 12px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
 
 .kg-card {
     border: 1px solid var(--kg-border);

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { LoaderCircle, Plus, Search, X } from "lucide-react";
+import { Copy, LoaderCircle, Plus, Search, X } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
 import KeitaroCampaignCreateModal from "./KeitaroCampaignCreateModal.jsx";
@@ -58,6 +58,15 @@ export default function KeitaroCampaignPickerModal({
     }, [campaigns, search]);
     const selected = campaigns.find((campaign) => String(campaign.id) === selectedId);
 
+    const copyCampaignUrl = async (event, url) => {
+        event.stopPropagation();
+        try {
+            await navigator.clipboard.writeText(baseUrl(url));
+        } catch {
+            // Відсутність доступу до буфера не повинна заважати вибору кампанії.
+        }
+    };
+
     return (
         <>
             <div className="overlay" onMouseDown={onClose}>
@@ -75,11 +84,22 @@ export default function KeitaroCampaignPickerModal({
                     {loading && <div className="campaign-loading"><LoaderCircle className="spin" size={18} /> Завантажуємо кампанії…</div>}
                     {!loading && visible.length === 0 && <div className="ad-list-empty">Кампаній не знайдено.</div>}
                     {visible.map((campaign) => (
-                        <button type="button" key={campaign.id} className={`keitaro-picker-row ${selectedId === String(campaign.id) ? "selected" : ""}`} onClick={() => setSelectedId(String(campaign.id))}>
-                            <strong>{campaign.name}</strong>
-                            <span>{campaign.id} · {campaign.groupName || "Без групи"}</span>
-                            <small>{baseUrl(campaign.url)}</small>
-                        </button>
+                        <div key={campaign.id} className={`keitaro-picker-row ${selectedId === String(campaign.id) ? "selected" : ""}`}>
+                            <button type="button" className="keitaro-picker-select" onClick={() => setSelectedId(String(campaign.id))}>
+                                <strong title={campaign.name}>{campaign.name}</strong>
+                                <span title={`${campaign.id} · ${campaign.groupName || "Без групи"}`}>{campaign.id} · {campaign.groupName || "Без групи"}</span>
+                                <small title={baseUrl(campaign.url)}>{baseUrl(campaign.url)}</small>
+                            </button>
+                            <button
+                                type="button"
+                                className="keitaro-picker-copy"
+                                title="Копіювати посилання"
+                                aria-label={`Копіювати посилання кампанії ${campaign.name}`}
+                                onClick={(event) => copyCampaignUrl(event, campaign.url)}
+                            >
+                                <Copy size={15} />
+                            </button>
+                        </div>
                     ))}
                 </div>
                 <div className="form-actions">

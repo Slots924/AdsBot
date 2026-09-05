@@ -171,6 +171,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("keitaro:campaigns-move", payload),
     changeKeitaroCampaignPixels: (payload) =>
         ipcRenderer.invoke("keitaro:campaigns-pixel-change", payload),
+    changeKeitaroCampaignDomains: (payload) =>
+        ipcRenderer.invoke("keitaro:campaigns-domain-change", payload),
     getKeitaroLandingPages: (options) => ipcRenderer.invoke("keitaro:landing-pages-list", options),
     getKeitaroOffers: (options) => ipcRenderer.invoke("keitaro:offers-list", options),
     getKeitaroOffersReport: (options) => ipcRenderer.invoke("keitaro:offers-report", options),

@@ -1,4 +1,5 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, Search, Trash2, X } from "lucide-react";
 import "../../styles/keitaro-gray.css";
 
@@ -32,12 +33,15 @@ export function GraySelect({
     ariaLabel,
     defaultOpen = false,
     disabled = false,
+    portal = false,
 }) {
     const root = useRef(null);
+    const menu = useRef(null);
     const input = useRef(null);
     const listboxId = useId();
     const [open, setOpen] = useState(defaultOpen);
     const [query, setQuery] = useState("");
+    const [menuStyle, setMenuStyle] = useState({});
     const selected = items.find((item) => String(item.id) === String(value));
     const visible = useMemo(() => {
         const needle = query.trim().toLocaleLowerCase();
@@ -46,7 +50,7 @@ export function GraySelect({
 
     useEffect(() => {
         const close = (event) => {
-            if (!root.current?.contains(event.target)) {
+            if (!root.current?.contains(event.target) && !menu.current?.contains(event.target)) {
                 setOpen(false);
                 setQuery("");
             }
@@ -54,6 +58,32 @@ export function GraySelect({
         document.addEventListener("mousedown", close);
         return () => document.removeEventListener("mousedown", close);
     }, []);
+
+    useLayoutEffect(() => {
+        if (!open || !portal) return undefined;
+        const updatePosition = () => {
+            const rect = root.current?.getBoundingClientRect();
+            if (!rect) return;
+            setMenuStyle({
+                position: "fixed",
+                top: `${rect.bottom + 6}px`,
+                left: `${rect.left}px`,
+                width: `${rect.width}px`,
+            });
+        };
+        updatePosition();
+        window.addEventListener("resize", updatePosition);
+        window.addEventListener("scroll", updatePosition, true);
+        return () => {
+            window.removeEventListener("resize", updatePosition);
+            window.removeEventListener("scroll", updatePosition, true);
+        };
+    }, [open, portal]);
+
+    const options = open && !disabled && <div ref={menu} id={listboxId} className={`kg-select-menu ${portal ? "portal" : ""}`} style={portal ? menuStyle : undefined} role="listbox">
+        {visible.length === 0 && <div className="kg-select-empty">{emptyText}</div>}
+        {visible.map((item) => <button type="button" role="option" aria-selected={String(item.id) === String(value)} key={item.id} className={`kg-select-option ${String(item.id) === String(value) ? "selected" : ""}`} onClick={() => { onChange(item.id); setQuery(""); setOpen(false); }}>{item.name}</button>)}
+    </div>;
 
     return <div ref={root} className={`kg-select ${open ? "open" : ""}`}>
         <div className={`kg-select-trigger ${disabled ? "disabled" : ""}`}>
@@ -109,10 +139,7 @@ export function GraySelect({
                 }}
             ><ChevronDown size={16} /></button>
         </div>
-        {open && !disabled && <div id={listboxId} className="kg-select-menu" role="listbox">
-            {visible.length === 0 && <div className="kg-select-empty">{emptyText}</div>}
-            {visible.map((item) => <button type="button" role="option" aria-selected={String(item.id) === String(value)} key={item.id} className={`kg-select-option ${String(item.id) === String(value) ? "selected" : ""}`} onClick={() => { onChange(item.id); setQuery(""); setOpen(false); }}>{item.name}</button>)}
-        </div>}
+        {portal ? options && createPortal(options, document.body) : options}
     </div>;
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle, Clipboard, GripVertical, LoaderCircle, MoveRight, Plus, RefreshCw, Replace, Settings2 } from "lucide-react";
+import { AlertCircle, Clipboard, Globe2, GripVertical, LoaderCircle, MoveRight, Plus, RefreshCw, Replace, Settings2 } from "lucide-react";
 
 import KeitaroCampaignCreateModal from "../components/KeitaroCampaignCreateModal.jsx";
 import KeitaroDateRangePicker from "../components/KeitaroDateRangePicker.jsx";
@@ -58,6 +58,7 @@ export default function KeitaroTab({
     const [templateModalOpen, setTemplateModalOpen] = useState(false);
     const [moveModalOpen, setMoveModalOpen] = useState(false);
     const [pixelModalOpen, setPixelModalOpen] = useState(false);
+    const [domainModalOpen, setDomainModalOpen] = useState(false);
     const [campaignCreateOpen, setCampaignCreateOpen] = useState(false);
     const [dateRange, setDateRange] = useState(null);
     const requestSequence = useRef(0);
@@ -172,7 +173,7 @@ export default function KeitaroTab({
             <GrayButton disabled={loading || statsLoading || availableGroupIds.length === 0} onClick={() => loadCampaigns(true)}><RefreshCw className={loading || statsLoading ? "spin" : ""} size={16} /> Оновити</GrayButton>
             <div className="kg-columns-menu" ref={columnsRef}><GrayButton iconOnly aria-label="Колонки таблиці" onClick={() => setColumnsOpen((current) => !current)}><Settings2 size={17} /></GrayButton>{columnsOpen && <div className="kg-columns-popover"><strong>Параметри звіту</strong>{keitaroColumns.map((column) => <label key={column.id}><input type="checkbox" checked={visibleColumns.includes(column.id)} onChange={() => toggleColumn(column.id)} />{column.label}</label>)}</div>}</div>
         </div>
-        <div className="kg-bulk-bar"><span>{`Вибрано: ${selectedIds.length}`}</span><GrayButton disabled={selectedIds.length === 0} onClick={() => setMoveModalOpen(true)}><MoveRight size={15} /> Перенести</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setTemplateModalOpen(true)}><Plus size={15} /> Застосувати шаблон</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setPixelModalOpen(true)}><Replace size={15} /> Змінити піксель</GrayButton><small className={statsError ? "error" : ""}>{statsLoading ? "Статистика оновлюється…" : statsError}</small></div>
+        <div className="kg-bulk-bar"><span>{`Вибрано: ${selectedIds.length}`}</span><GrayButton disabled={selectedIds.length === 0} onClick={() => setMoveModalOpen(true)}><MoveRight size={15} /> Перенести</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setTemplateModalOpen(true)}><Plus size={15} /> Застосувати шаблон</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setPixelModalOpen(true)}><Replace size={15} /> Змінити піксель</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setDomainModalOpen(true)}><Globe2 size={15} /> Змінити домен</GrayButton><small className={statsError ? "error" : ""}>{statsLoading ? "Статистика оновлюється…" : statsError}</small></div>
         {availableGroupIds.length === 0 && <div className="kg-report-notice">У налаштуваннях оберіть групи кампаній, з якими можна працювати.</div>}
         <div className="kg-report-table">
             <div className="kg-report-grid kg-report-head" style={{ gridTemplateColumns: gridTemplate }}><label><input type="checkbox" aria-label="Вибрати всі кампанії" checked={allVisibleSelected} disabled={paged.length === 0} onChange={toggleAll} /></label>{columns.map((column) => <div key={column.id} className="kg-report-column" draggable onDragStart={() => { dragColumn.current = column.id; }} onDragOver={(event) => event.preventDefault()} onDrop={() => moveColumn(dragColumn.current, column.id)}><GripVertical className="kg-drag-dots" size={15} aria-hidden="true" /><button type="button" onClick={() => toggleSort(column.id)}>{column.label}{sort.column === column.id ? (sort.direction === "asc" ? " ▲" : " ▼") : ""}</button><span className="kg-column-resizer" onPointerDown={(event) => { event.preventDefault(); resizeState.current = { columnId: column.id, startX: event.clientX, startWidth: columnWidths[column.id] || column.width }; }} /></div>)}</div>
@@ -188,8 +189,62 @@ export default function KeitaroTab({
         {moveModalOpen && <KeitaroMoveDialog title="Перенести кампанії" count={selectedIds.length} groups={groups} onClose={() => setMoveModalOpen(false)} onMove={moveCampaigns} />}
         {templateModalOpen && <ApplyStreamTemplateModal campaignIds={selectedIds} onClose={() => setTemplateModalOpen(false)} onError={onError} showToast={showToast} />}
         {pixelModalOpen && <ChangeCampaignPixelModal campaignIds={selectedIds} onClose={() => setPixelModalOpen(false)} onError={onError} showToast={showToast} onChanged={() => loadCampaigns(true)} />}
+        {domainModalOpen && <ChangeCampaignDomainModal campaignIds={selectedIds} onClose={() => setDomainModalOpen(false)} onError={onError} showToast={showToast} onChanged={() => loadCampaigns(true)} />}
         {campaignCreateOpen && <KeitaroCampaignCreateModal onClose={() => setCampaignCreateOpen(false)} onError={onError} showToast={showToast} onCreated={() => loadCampaigns(true)} />}
     </motion.section>;
+}
+
+
+function ChangeCampaignDomainModal({ campaignIds, onClose, onError, showToast, onChanged }) {
+    const [mappings, setMappings] = useState([]);
+    const [selectedId, setSelectedId] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [applying, setApplying] = useState(false);
+
+    useEffect(() => {
+        Promise.all([
+            unwrap(window.adsBot.getKeitaroCampaignSettings()),
+            unwrap(window.adsBot.getKeitaroDomains()),
+        ]).then(([settings, domains]) => {
+            const domainById = new Map((domains ?? []).map((domain) => [String(domain.id), domain]));
+            setMappings([...(settings?.domainMappings ?? [])].map((mapping) => ({
+                ...mapping,
+                domain: domainById.get(String(mapping.domainId))?.name ?? `ID ${mapping.domainId}`,
+            })).sort((left, right) => `${left.name || left.geo} ${left.geo}`.localeCompare(`${right.name || right.geo} ${right.geo}`, "uk-UA", { numeric: true, sensitivity: "base" })));
+        }).catch((error) => onError({ ...errorDetails(error), title: "Не вдалося завантажити домени Keitaro" })).finally(() => setLoading(false));
+    }, []);
+
+    const apply = async () => {
+        setApplying(true);
+        try {
+            const results = await unwrap(window.adsBot.changeKeitaroCampaignDomains({ campaignIds, domainMappingId: selectedId }));
+            const failed = results.filter((item) => !item.ok);
+            if (failed.length) {
+                onError({ title: "Домен змінено не у всіх кампаніях", message: `Успішно: ${results.length - failed.length}. З помилкою: ${failed.length}.`, details: failed.map((item) => `Кампанія ${item.campaignId}: ${item.error}`).join("\n") });
+            } else {
+                showToast(`Домен змінено у ${results.length} кампаніях`, "success");
+                onClose();
+            }
+            await onChanged?.();
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося змінити домен кампаній" });
+        } finally {
+            setApplying(false);
+        }
+    };
+
+    return <GrayModal title="Змінити домен" description={`Вибрано кампаній: ${campaignIds.length}`} onClose={onClose}>
+        <div className="kg-domain-change">
+            <div className="kg-domain-choice-list">
+                {loading && <div className="kg-select-empty">Завантажуємо домени…</div>}
+                {!loading && mappings.length === 0 && <div className="kg-select-empty">У налаштуваннях ще немає доменів.</div>}
+                {mappings.map((mapping) => <button type="button" key={mapping.id} className={`kg-domain-choice ${selectedId === String(mapping.id) ? "selected" : ""}`} onClick={() => setSelectedId(String(mapping.id))}>
+                    <span><span className="kg-domain-choice-heading"><strong>{mapping.name || "Без імені"}</strong><small><Globe2 size={13} /> {mapping.geo}</small></span><em>{mapping.domain}</em></span>
+                </button>)}
+            </div>
+            <div className="kg-modal-actions"><GrayButton onClick={onClose}>Скасувати</GrayButton><GrayButton variant="primary" disabled={loading || applying || !selectedId} onClick={apply}>{applying && <LoaderCircle className="spin" size={16} />} Змінити</GrayButton></div>
+        </div>
+    </GrayModal>;
 }
 
 

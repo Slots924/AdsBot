@@ -657,6 +657,28 @@ export default class KeitaroGuiService {
     }
 
 
+    async changeCampaignDomains({ campaignIds = [], domainId } = {}) {
+        const ids = [...new Set(campaignIds.map((id) => String(id).trim()).filter(Boolean))];
+        const normalizedDomainId = Number(domainId);
+        if (!ids.length) return [];
+        if (!Number.isInteger(normalizedDomainId) || normalizedDomainId < 1) {
+            throw new Error("Для зміни домену потрібен коректний ID домену");
+        }
+
+        const results = [];
+        for (const campaignId of ids) {
+            try {
+                await this.keitaro.updateCampaign(campaignId, { domain_id: normalizedDomainId });
+                results.push({ campaignId, ok: true });
+            } catch (error) {
+                results.push({ campaignId, ok: false, error: error.message });
+            }
+        }
+        this.campaignsCache = null;
+        return results;
+    }
+
+
     async moveOffersToGroup({ offerIds = [], groupId } = {}) {
         const results = await this.keitaro.moveOffersToGroup(offerIds, groupId);
         this.offersCache = null;

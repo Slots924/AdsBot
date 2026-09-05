@@ -19,23 +19,46 @@ function normalizePixel(value = {}) {
 }
 
 
+function normalizeDomainMapping(value = {}) {
+    const id = String(value.id ?? crypto.randomUUID()).trim();
+    const name = String(value.name ?? "").trim();
+    const geo = String(value.geo ?? "").trim().toUpperCase();
+    const domainId = String(value.domainId ?? value.domain_id ?? "").trim();
+    if (!/^[A-Z]{2}$/.test(geo) || !domainId) {
+        throw new Error("Для GEO-домену потрібні дволітерний GEO і домен");
+    }
+    return { id, name, geo, domainId };
+}
+
+
+function legacyDomainMappings(domainsByGeo = {}) {
+    return Object.entries(domainsByGeo).map(([geo, domainIds]) => {
+        const domainId = Array.isArray(domainIds) ? domainIds[0] : domainIds;
+        return { id: `legacy:${geo}:${domainId}`, geo, domainId };
+    });
+}
+
+
 function normalizeStore(value = {}) {
     const pixels = Array.isArray(value.pixels)
         ? value.pixels.map(normalizePixel)
         : [];
     const ids = new Set(pixels.map((pixel) => pixel.id));
-    const domainsByGeo = Object.fromEntries(Object.entries(value.domainsByGeo ?? {})
-        .map(([geo, domainIds]) => [
-            String(geo).trim().toUpperCase(),
-            [...new Set((Array.isArray(domainIds) ? domainIds : [])
-                .map((id) => String(id).trim()).filter(Boolean))].slice(0, 1),
-        ])
-        .filter(([geo, domainIds]) => geo && domainIds.length));
+    const sourceMappings = Array.isArray(value.domainMappings)
+        ? value.domainMappings
+        : legacyDomainMappings(value.domainsByGeo);
+    const domainMappings = sourceMappings.map(normalizeDomainMapping)
+        .filter((mapping, index, list) => list.findIndex((item) => item.geo === mapping.geo) === index);
+    const domainsByGeo = Object.fromEntries(domainMappings.map((mapping) => [
+        mapping.geo,
+        [mapping.domainId],
+    ]));
     return {
         pixels,
         defaultPixelId: ids.has(String(value.defaultPixelId ?? ""))
             ? String(value.defaultPixelId)
             : (pixels[0]?.id ?? ""),
+        domainMappings,
         domainsByGeo,
     };
 }

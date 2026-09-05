@@ -1837,6 +1837,15 @@ export default function registerIpcHandlers({
         })
     );
     ipcMain.handle(
+        "keitaro:campaigns-domain-change",
+        safeHandler(async ({ campaignIds = [], domainMappingId } = {}) => {
+            const settings = await keitaroCampaignSettingsManager.get();
+            const mapping = settings.domainMappings.find((item) => String(item.id) === String(domainMappingId));
+            if (!mapping) throw new Error("Домен не знайдено в налаштуваннях Keitaro");
+            return keitaroGuiService.changeCampaignDomains({ campaignIds, domainId: mapping.domainId });
+        })
+    );
+    ipcMain.handle(
         "keitaro:landing-pages-list",
         safeHandler((options) => {
             if (!keitaroGuiService) {
