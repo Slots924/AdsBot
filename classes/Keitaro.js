@@ -471,11 +471,11 @@ class Keitaro {
                 const target = streams.find((item) => Number(item?.position) === position)
                     ?? streams[position - 1];
                 if (!target?.id) {
-                    return Promise.reject(createKeitaroError(
-                        `У кампанії ${campaignId} немає потоку №${position}`,
-                        "KEITARO_STREAM_NOT_FOUND",
-                        { campaignId, replacePosition: position }
-                    ));
+                    // Якщо потоку з таким номером немає, додаємо шаблон як новий потік.
+                    return this.createStream({
+                        ...payload,
+                        campaign_id: campaignId,
+                    });
                 }
                 return this.updateStream(target.id, {
                     ...payload,

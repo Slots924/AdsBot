@@ -109,6 +109,15 @@ const replacedStreams = await keitaro.applyStreamTemplateToCampaigns({
 assert.equal(replacedStreams.every((item) => item.ok), true);
 const updateRequests = captured.filter((item) => item.method === "PUT" && /\/streams\/\d+$/.test(item.url));
 assert.deepEqual(updateRequests.slice(-2).map((item) => item.url.split("/").at(-1)), ["1100", "1200"]);
+const replacedWithNewStreams = await keitaro.applyStreamTemplateToCampaigns({
+    campaignIds: [13, 14],
+    stream: { name: "Green", landings: [], offers: [] },
+    mode: "replace",
+    replacePosition: 2,
+});
+assert.equal(replacedWithNewStreams.every((item) => item.ok), true);
+const fallbackCreateRequests = captured.filter((item) => item.method === "POST" && item.url.endsWith("/streams"));
+assert.deepEqual(fallbackCreateRequests.slice(-2).map((item) => item.data.campaign_id), [13, 14]);
 const appliedToMatching = await keitaro.applyStreamTemplateToMatchingStreams({
     streamName: "AT OFFERS",
     stream: { name: "AT OFFERS", landings: [], offers: [] },

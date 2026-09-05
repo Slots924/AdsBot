@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "nextId": 9,
+  "nextId": 10,
   "templates": [
     {
       "id": 1,
@@ -519,6 +519,80 @@
         ],
         "triggers": []
       }
+    },
+    {
+      "id": 9,
+      "name": "ES OFFERS",
+      "sourceStreamId": null,
+      "stream": {
+        "type": "regular",
+        "name": "ES OFFERS",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": true,
+        "filter_or": false,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [],
+        "landings": [],
+        "offers": [
+          {
+            "offer_id": 2116,
+            "name": "ES | [Intensecrush] | LP1 | 2.3$ | 50",
+            "groupId": "61",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1683,
+            "name": "ES | [chicasdetuzona.com] | landing510milf | 2.4€ | 20",
+            "groupId": "61",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1682,
+            "name": "ES | [chicasdetuzona.com] | landing15milf | 2.4€ | 20",
+            "groupId": "61",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1681,
+            "name": "ES | [chicasdetuzona.com] | landing515mature | 2.4€ | 20",
+            "groupId": "61",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1680,
+            "name": "ES | [conexionescercanas.com] | landingpoolmilf | 2.4€ | 20",
+            "groupId": "61",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1679,
+            "name": "ES | [conexionescercanas.com] | landing63student | 2.4€ | 20",
+            "groupId": "61",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1678,
+            "name": "ES | [conexionescercanas.com] | landing40student | 2.4€ | 20",
+            "groupId": "61",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "triggers": []
+      },
+      "createdAt": "2026-09-05T11:41:11.673Z",
+      "updatedAt": "2026-09-05T11:41:11.673Z"
     }
   ]
 }
