@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "id": "a21fb74c-c011-4d04-95e8-f4247e4ea253",
+  "taskId": "e86680ee-03d7-49a6-9550-e54cdf4e37f5",
+  "type": "spend-export-keitaro",
+  "title": "Передача спенду в Keitaro",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-04T19:26:00.726Z",
+  "startedAt": "2026-09-04T19:25:58.131Z",
+  "finishedAt": "2026-09-04T19:26:00.725Z",
+  "durationMs": 2594,
+  "inputSummary": {
+    "operation": "spend-export-keitaro"
+  },
+  "resultSummary": {
+    "status": "success_with_warnings",
+    "mappings": 80,
+    "pending": 10,
+    "sent": 10,
+    "warnings": [
+      {
+        "metaCampaignId": "120254081100080288",
+        "error": "Meta ID не знайдено в sub_id_2 Keitaro"
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "spendOperation": "spend-export-keitaro",
+    "uniqueKey": "spend-export-keitaro"
+  }
+}

@@ -2,6 +2,11 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 
+export function buildPixelUtm(pixelId, token) {
+    return `utm_campaign={{campaign.name}}&utm_source={{site_source_name}}&utm_placement={{placement}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}&adset_name={{adset.name}}&pixel=${String(pixelId).trim()}&ad_name={{ad.name}}&token=${String(token).trim()}`;
+}
+
+
 function normalizePixel(value = {}) {
     const id = String(value.id ?? crypto.randomUUID()).trim();
     const name = String(value.name ?? "").trim();
@@ -10,7 +15,7 @@ function normalizePixel(value = {}) {
     if (!name || !pixelId || !token) {
         throw new Error("Для пікселя потрібні назва, ID і токен");
     }
-    return { id, name, pixelId, token };
+    return { id, name, pixelId, token, utm: buildPixelUtm(pixelId, token) };
 }
 
 

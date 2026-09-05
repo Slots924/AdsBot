@@ -7,6 +7,20 @@ const keitaro = {
     landingCalls: 0,
     campaignGroupCalls: 0,
     campaignCalls: 0,
+    async getCampaign(id) {
+        return {
+            id,
+            name: "HU [004_W] Pixel_935472558918197🎮SLOT🎮",
+            parameters: {
+                sub_id_6: { name: "sub_id_6", placeholder: "old-pixel", alias: "Pixel ID" },
+                sub_id_12: { name: "sub_id_12", placeholder: "old-token", alias: "CAPI token" },
+            },
+        };
+    },
+    async updateCampaign(id, payload) {
+        this.changedCampaign = { id, payload };
+        return { id };
+    },
     async listAllCampaignGroups() {
         this.campaignGroupCalls += 1;
         return [
@@ -155,6 +169,11 @@ assert.equal(offerReport.offers[0].clicks, 20);
 assert.equal(offerReport.offers[1].clicks, 0);
 assert.equal((await service.moveCampaignsToGroup({ campaignIds: [1], groupId: 20 }))[0].ok, true);
 assert.equal((await service.moveOffersToGroup({ offerIds: [71], groupId: 36 }))[0].ok, true);
+const pixelChange = await service.changeCampaignPixels({ campaignIds: [1], pixelId: "123456789", pixelToken: "new-token" });
+assert.deepEqual(pixelChange, [{ campaignId: "1", ok: true }]);
+assert.equal(keitaro.changedCampaign.payload.name, "HU [004_W] Pixel_123456789🎮SLOT🎮");
+assert.equal(keitaro.changedCampaign.payload.parameters.sub_id_6.placeholder, "123456789");
+assert.equal(keitaro.changedCampaign.payload.parameters.sub_id_12.placeholder, "new-token");
 assert.deepEqual(await service.getSpendMappings({
     from: "2026-09-01",
     to: "2026-09-03",

@@ -125,6 +125,7 @@ export default function CampaignCreationWizard({
     const [overrideTracking, setOverrideTracking] = useState(false);
     const [pixels, setPixels] = useState([]);
     const [pixelsLoading, setPixelsLoading] = useState(false);
+    const [savedKeitaroPixels, setSavedKeitaroPixels] = useState([]);
     const [form, setForm] = useState({
         campaignName: "",
         templateId: "",
@@ -324,6 +325,18 @@ export default function CampaignCreationWizard({
         if (sourcePage && overrideTracking) loadPixels();
     }, [sourcePage, overrideTracking, adAccount.id]);
 
+    useEffect(() => {
+        let active = true;
+        unwrap(window.adsBot.getKeitaroCampaignSettings()).then((settings) => {
+            if (!active) return;
+            const nextPixels = settings?.pixels ?? [];
+            setSavedKeitaroPixels(nextPixels);
+            const saved = nextPixels.find((pixel) => String(pixel.pixelId) === String(defaultPixelId));
+            if (saved) setForm((current) => current.utm === defaultUtm ? { ...current, utm: saved.utm } : current);
+        }).catch(() => {});
+        return () => { active = false; };
+    }, [defaultPixelId, defaultUtm]);
+
     const payload = () => ({
         accountKey,
         adAccountId: adAccount.id,
@@ -342,7 +355,11 @@ export default function CampaignCreationWizard({
     });
 
     const change = (field, value) => {
-        setForm((current) => ({ ...current, [field]: value }));
+        setForm((current) => {
+            if (field !== "pixelId") return { ...current, [field]: value };
+            const saved = savedKeitaroPixels.find((pixel) => String(pixel.pixelId) === String(value).trim());
+            return { ...current, pixelId: value, ...(saved ? { utm: saved.utm } : {}) };
+        });
         setVerified(null);
         setFailure(null);
     };

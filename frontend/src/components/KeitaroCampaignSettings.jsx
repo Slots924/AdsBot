@@ -110,7 +110,7 @@ export default function KeitaroCampaignSettings({ onError = () => {}, showToast 
                     const isDefault = settings.defaultPixelId === pixel.id;
                     return <article className={`keitaro-resource-card ${isDefault ? "selected" : ""}`} key={pixel.id}>
                         <span className="keitaro-resource-icon"><Radio size={17} /></span>
-                        <span className="keitaro-resource-copy"><strong>{pixel.name}</strong><small>Pixel ID · {pixel.pixelId}</small>{isDefault && <em><Check size={12} /> За замовчуванням</em>}</span>
+                        <span className="keitaro-resource-copy"><strong>{pixel.name}</strong><small>Pixel ID · {pixel.pixelId}</small><small>UTM · {pixel.utm}</small>{isDefault && <em><Check size={12} /> За замовчуванням</em>}</span>
                         <span className="keitaro-resource-actions">
                             {!isDefault && <button type="button" className="icon-button" title="Зробити типовим" onClick={() => save({ ...settings, defaultPixelId: pixel.id }, "Типовий піксель змінено")}><Check size={14} /></button>}
                             <button type="button" className="icon-button" title="Редагувати" onClick={() => setPixelEditor({ ...pixel })}><Pencil size={14} /></button>
@@ -124,7 +124,8 @@ export default function KeitaroCampaignSettings({ onError = () => {}, showToast 
                 <div className="keitaro-inline-grid">
                     <label className="stream-field"><span>Назва</span><input value={pixelEditor.name} onChange={(event) => setPixelEditor({ ...pixelEditor, name: event.target.value })} placeholder="Наприклад, Main AT" /></label>
                     <label className="stream-field"><span>Pixel ID</span><input value={pixelEditor.pixelId} onChange={(event) => setPixelEditor({ ...pixelEditor, pixelId: event.target.value })} /></label>
-                    <label className="stream-field wide"><span>Токен</span><input value={pixelEditor.token} onChange={(event) => setPixelEditor({ ...pixelEditor, token: event.target.value })} /></label>
+                    <label className="stream-field"><span>Токен</span><input value={pixelEditor.token} onChange={(event) => setPixelEditor({ ...pixelEditor, token: event.target.value })} /></label>
+                    <label className="stream-field wide"><span>UTM-мітки · формуються автоматично</span><textarea rows="3" readOnly value={pixelEditor.pixelId.trim() && pixelEditor.token.trim() ? `utm_campaign={{campaign.name}}&utm_source={{site_source_name}}&utm_placement={{placement}}&campaign_id={{campaign.id}}&adset_id={{ad.id}}&adset_name={{adset.name}}&pixel=${pixelEditor.pixelId.trim()}&ad_name={{ad.name}}&token=${pixelEditor.token.trim()}` : ""} /></label>
                 </div>
                 <div className="keitaro-inline-actions"><button type="button" className="secondary-button" onClick={() => setPixelEditor(null)}>Скасувати</button><button type="button" className="primary-button" disabled={saving || !pixelEditor.name.trim() || !pixelEditor.pixelId.trim() || !pixelEditor.token.trim()} onClick={savePixel}>{saving && <LoaderCircle className="spin" size={15} />} Зберегти</button></div>
             </div>}

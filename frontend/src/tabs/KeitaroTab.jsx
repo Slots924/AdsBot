@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle, Clipboard, GripVertical, LoaderCircle, MoveRight, Plus, RefreshCw, Settings2 } from "lucide-react";
+import { AlertCircle, Clipboard, GripVertical, LoaderCircle, MoveRight, Plus, RefreshCw, Replace, Settings2 } from "lucide-react";
 
 import KeitaroCampaignCreateModal from "../components/KeitaroCampaignCreateModal.jsx";
 import KeitaroDateRangePicker from "../components/KeitaroDateRangePicker.jsx";
@@ -57,6 +57,7 @@ export default function KeitaroTab({
     const [columnsOpen, setColumnsOpen] = useState(false);
     const [templateModalOpen, setTemplateModalOpen] = useState(false);
     const [moveModalOpen, setMoveModalOpen] = useState(false);
+    const [pixelModalOpen, setPixelModalOpen] = useState(false);
     const [campaignCreateOpen, setCampaignCreateOpen] = useState(false);
     const [dateRange, setDateRange] = useState(null);
     const requestSequence = useRef(0);
@@ -171,7 +172,7 @@ export default function KeitaroTab({
             <GrayButton disabled={loading || statsLoading || availableGroupIds.length === 0} onClick={() => loadCampaigns(true)}><RefreshCw className={loading || statsLoading ? "spin" : ""} size={16} /> Оновити</GrayButton>
             <div className="kg-columns-menu" ref={columnsRef}><GrayButton iconOnly aria-label="Колонки таблиці" onClick={() => setColumnsOpen((current) => !current)}><Settings2 size={17} /></GrayButton>{columnsOpen && <div className="kg-columns-popover"><strong>Параметри звіту</strong>{keitaroColumns.map((column) => <label key={column.id}><input type="checkbox" checked={visibleColumns.includes(column.id)} onChange={() => toggleColumn(column.id)} />{column.label}</label>)}</div>}</div>
         </div>
-        <div className="kg-bulk-bar"><span>{`Вибрано: ${selectedIds.length}`}</span><GrayButton disabled={selectedIds.length === 0} onClick={() => setMoveModalOpen(true)}><MoveRight size={15} /> Перенести</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setTemplateModalOpen(true)}><Plus size={15} /> Застосувати шаблон</GrayButton><small className={statsError ? "error" : ""}>{statsLoading ? "Статистика оновлюється…" : statsError}</small></div>
+        <div className="kg-bulk-bar"><span>{`Вибрано: ${selectedIds.length}`}</span><GrayButton disabled={selectedIds.length === 0} onClick={() => setMoveModalOpen(true)}><MoveRight size={15} /> Перенести</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setTemplateModalOpen(true)}><Plus size={15} /> Застосувати шаблон</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setPixelModalOpen(true)}><Replace size={15} /> Змінити піксель</GrayButton><small className={statsError ? "error" : ""}>{statsLoading ? "Статистика оновлюється…" : statsError}</small></div>
         {availableGroupIds.length === 0 && <div className="kg-report-notice">У налаштуваннях оберіть групи кампаній, з якими можна працювати.</div>}
         <div className="kg-report-table">
             <div className="kg-report-grid kg-report-head" style={{ gridTemplateColumns: gridTemplate }}><label><input type="checkbox" aria-label="Вибрати всі кампанії" checked={allVisibleSelected} disabled={paged.length === 0} onChange={toggleAll} /></label>{columns.map((column) => <div key={column.id} className="kg-report-column" draggable onDragStart={() => { dragColumn.current = column.id; }} onDragOver={(event) => event.preventDefault()} onDrop={() => moveColumn(dragColumn.current, column.id)}><GripVertical className="kg-drag-dots" size={15} aria-hidden="true" /><button type="button" onClick={() => toggleSort(column.id)}>{column.label}{sort.column === column.id ? (sort.direction === "asc" ? " ▲" : " ▼") : ""}</button><span className="kg-column-resizer" onPointerDown={(event) => { event.preventDefault(); resizeState.current = { columnId: column.id, startX: event.clientX, startWidth: columnWidths[column.id] || column.width }; }} /></div>)}</div>
@@ -186,8 +187,49 @@ export default function KeitaroTab({
         </div>
         {moveModalOpen && <KeitaroMoveDialog title="Перенести кампанії" count={selectedIds.length} groups={groups} onClose={() => setMoveModalOpen(false)} onMove={moveCampaigns} />}
         {templateModalOpen && <ApplyStreamTemplateModal campaignIds={selectedIds} onClose={() => setTemplateModalOpen(false)} onError={onError} showToast={showToast} />}
+        {pixelModalOpen && <ChangeCampaignPixelModal campaignIds={selectedIds} onClose={() => setPixelModalOpen(false)} onError={onError} showToast={showToast} onChanged={() => loadCampaigns(true)} />}
         {campaignCreateOpen && <KeitaroCampaignCreateModal onClose={() => setCampaignCreateOpen(false)} onError={onError} showToast={showToast} onCreated={() => loadCampaigns(true)} />}
     </motion.section>;
+}
+
+
+function ChangeCampaignPixelModal({ campaignIds, onClose, onError, showToast, onChanged }) {
+    const [pixels, setPixels] = useState([]);
+    const [pixelId, setPixelId] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [applying, setApplying] = useState(false);
+
+    useEffect(() => {
+        unwrap(window.adsBot.getKeitaroCampaignSettings()).then((settings) => {
+            setPixels([...(settings?.pixels ?? [])].sort((left, right) => String(left.name ?? "").localeCompare(String(right.name ?? ""), "uk-UA", { numeric: true, sensitivity: "base" })));
+        }).catch((error) => onError({ ...errorDetails(error), title: "Не вдалося завантажити пікселі Keitaro" })).finally(() => setLoading(false));
+    }, []);
+
+    const apply = async () => {
+        setApplying(true);
+        try {
+            const results = await unwrap(window.adsBot.changeKeitaroCampaignPixels({ campaignIds, pixelId }));
+            const failed = results.filter((item) => !item.ok);
+            if (failed.length) {
+                onError({ title: "Піксель змінено не у всіх кампаніях", message: `Успішно: ${results.length - failed.length}. З помилкою: ${failed.length}.`, details: failed.map((item) => `Кампанія ${item.campaignId}: ${item.error}`).join("\n") });
+            } else {
+                showToast(`Піксель змінено у ${results.length} кампаніях`, "success");
+                onClose();
+            }
+            await onChanged?.();
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося змінити піксель кампаній" });
+        } finally {
+            setApplying(false);
+        }
+    };
+
+    return <GrayModal title="Змінити піксель" description={`Вибрано кампаній: ${campaignIds.length}`} onClose={onClose}>
+        <div className="kg-apply-template">
+            <label><span>Новий піксель</span><GraySelect items={pixels.map((pixel) => ({ id: pixel.id, name: `${pixel.name} · ID ${pixel.pixelId}` }))} value={pixelId} onChange={(value) => setPixelId(String(value))} placeholder="Оберіть піксель" searchPlaceholder="Пошук за назвою або ID…" emptyText="Пікселів не знайдено" ariaLabel="Новий піксель" disabled={loading} /></label>
+            <div className="kg-modal-actions"><GrayButton onClick={onClose}>Скасувати</GrayButton><GrayButton variant="primary" disabled={applying || loading || !pixelId} onClick={apply}>{applying && <LoaderCircle className="spin" size={16} />} Змінити</GrayButton></div>
+        </div>
+    </GrayModal>;
 }
 
 

@@ -1824,6 +1824,19 @@ export default function registerIpcHandlers({
         safeHandler((payload) => keitaroGuiService.moveCampaignsToGroup(payload))
     );
     ipcMain.handle(
+        "keitaro:campaigns-pixel-change",
+        safeHandler(async ({ campaignIds = [], pixelId } = {}) => {
+            const settings = await keitaroCampaignSettingsManager.get();
+            const pixel = settings.pixels.find((item) => String(item.id) === String(pixelId));
+            if (!pixel) throw new Error("Піксель не знайдено в налаштуваннях Keitaro");
+            return keitaroGuiService.changeCampaignPixels({
+                campaignIds,
+                pixelId: pixel.pixelId,
+                pixelToken: pixel.token,
+            });
+        })
+    );
+    ipcMain.handle(
         "keitaro:landing-pages-list",
         safeHandler((options) => {
             if (!keitaroGuiService) {

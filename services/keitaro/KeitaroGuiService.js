@@ -157,6 +157,15 @@ function withCapiPixelParameters(source, pixelId, token) {
 }
 
 
+function replacePixelInCampaignName(name, pixelId) {
+    const value = String(name ?? "");
+    const marker = `Pixel_${String(pixelId).trim()}`;
+    return /Pixel_[A-Za-z0-9_-]+/i.test(value)
+        ? value.replace(/Pixel_[A-Za-z0-9_-]+/i, marker)
+        : value;
+}
+
+
 function campaignAlias(identifier) {
     const value = String(identifier ?? "")
         .replace(/[^a-zA-Z0-9_-]+/g, "-")
@@ -617,6 +626,32 @@ export default class KeitaroGuiService {
 
     async moveCampaignsToGroup({ campaignIds = [], groupId } = {}) {
         const results = await this.keitaro.moveCampaignsToGroup(campaignIds, groupId);
+        this.campaignsCache = null;
+        return results;
+    }
+
+
+    async changeCampaignPixels({ campaignIds = [], pixelId, pixelToken } = {}) {
+        const ids = [...new Set(campaignIds.map((id) => String(id).trim()).filter(Boolean))];
+        if (!ids.length) return [];
+        if (!String(pixelId ?? "").trim() || !String(pixelToken ?? "").trim()) {
+            throw new Error("Для зміни пікселя потрібні ID і токен");
+        }
+
+        const results = [];
+        for (const campaignId of ids) {
+            try {
+                const campaign = await this.keitaro.getCampaign(campaignId);
+                const parameters = withCapiPixelParameters(campaign?.parameters, pixelId, pixelToken);
+                await this.keitaro.updateCampaign(campaignId, {
+                    name: replacePixelInCampaignName(campaign?.name, pixelId),
+                    parameters,
+                });
+                results.push({ campaignId, ok: true });
+            } catch (error) {
+                results.push({ campaignId, ok: false, error: error.message });
+            }
+        }
         this.campaignsCache = null;
         return results;
     }

@@ -143,6 +143,8 @@ GUI також будує звіт оферів із виміром `offer_id`. 
 
 ## GUI
 
+Для масової зміни Meta CAPI-пікселя GUI передає ID збереженого пікселя через IPC. Сервіс `KeitaroGuiService.changeCampaignPixels()` для кожної кампанії читає її параметри через `GET /campaigns/{id}`, оновлює `sub_id_6` (Pixel ID), `sub_id_12` (токен) і маркер `Pixel_<id>` у назві, а потім зберігає зміни через `PUT /campaigns/{id}`.
+
 `KeitaroGuiService` збирає групи кампаній і звіт для вкладки Keitaro. Renderer
 не отримує API-ключ. Доступні групи зберігаються в `data/app-state.json` як
 `keitaroAvailableGroupIds`.
