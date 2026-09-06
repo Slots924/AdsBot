@@ -303,9 +303,8 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
 
     const campaigns = entry.data.campaigns;
     const activeCampaigns = campaigns.filter((campaign) => !isUnavailableCampaign(campaign));
-    const deletedCampaigns = campaigns.filter(isDeletedCampaign);
-    const permanentlyDeletedCampaigns = campaigns.filter(isPermanentlyDeletedCampaign);
-    const visibleCount = activeCampaigns.length + (showDeleted ? deletedCampaigns.length + permanentlyDeletedCampaigns.length : 0);
+    const deletedCampaigns = campaigns.filter(isUnavailableCampaign);
+    const visibleCount = activeCampaigns.length + (showDeleted ? deletedCampaigns.length : 0);
     return (
         <div className="campaign-table-card">
             <div className="campaign-table-head campaign-grid">
@@ -327,8 +326,6 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
                 {activeCampaigns.map((campaign, index) => <SortableCampaignRow key={campaign.id} campaign={campaign} index={index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} />)}
                 {showDeleted && deletedCampaigns.length > 0 && <div className="campaign-deleted-divider">Видалені кампанії</div>}
                 {showDeleted && deletedCampaigns.map((campaign, index) => <CampaignRow key={campaign.id} campaign={campaign} index={activeCampaigns.length + index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} />)}
-                {showDeleted && permanentlyDeletedCampaigns.length > 0 && <div className="campaign-deleted-divider">Остаточно видалені кампанії</div>}
-                {showDeleted && permanentlyDeletedCampaigns.map((campaign, index) => <CampaignRow key={campaign.id} campaign={campaign} index={activeCampaigns.length + deletedCampaigns.length + index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} />)}
             </Reorder.Group>
         </div>
     );
