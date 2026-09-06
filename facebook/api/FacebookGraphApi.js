@@ -650,7 +650,7 @@ export default class FacebookGraphApi {
 
 
     /**
-     * Повертає активні, призупинені й видалені кампанії рекламного акаунта.
+     * Повертає активні, призупинені, видалені та остаточно видалені кампанії рекламного акаунта.
      * @param {string} adAccountId Graph ID у форматі act_123.
      * @returns {Promise<object[]>}
      */
@@ -661,7 +661,7 @@ export default class FacebookGraphApi {
             filtering: JSON.stringify([{
                 field: "effective_status",
                 operator: "IN",
-                value: ["ACTIVE", "PAUSED", "DELETED"],
+                value: ["ACTIVE", "PAUSED", "DELETED", "ARCHIVED"],
             }]),
             limit: 100,
         });
@@ -707,7 +707,7 @@ export default class FacebookGraphApi {
     }
 
 
-    /** Змінює стан кампанії на ACTIVE або PAUSED. */
+    /** Змінює стан кампанії на ACTIVE, PAUSED або DELETED. */
     async setAdCampaignStatus(campaignId, status) {
         const id = normalizeObjectId(
             campaignId,
@@ -715,9 +715,9 @@ export default class FacebookGraphApi {
             "ID кампанії"
         );
         const normalizedStatus = String(status ?? "").trim().toUpperCase();
-        if (!new Set(["ACTIVE", "PAUSED"]).has(normalizedStatus)) {
+        if (!new Set(["ACTIVE", "PAUSED", "DELETED"]).has(normalizedStatus)) {
             throw createValidationError(
-                "Статус кампанії має бути ACTIVE або PAUSED",
+                "Статус кампанії має бути ACTIVE, PAUSED або DELETED",
                 "CAMPAIGN_STATUS_INVALID"
             );
         }
@@ -726,20 +726,15 @@ export default class FacebookGraphApi {
     }
 
 
-    /** Видаляє кампанію через Meta Graph API. */
+    /** Позначає кампанію як видалену без незворотного HTTP DELETE. */
     async deleteAdCampaign(campaignId) {
         const id = normalizeObjectId(
             campaignId,
             "CAMPAIGN_ID_INVALID",
             "ID кампанії"
         );
-        await this.#request(`/${id}`, {}, {
-            method: "delete",
-            retryOnConnectionError: false,
-            outcomeUnknownCode: "FACEBOOK_CAMPAIGN_DELETE_OUTCOME_UNKNOWN",
-            outcomeUnknownMessage: "Не вдалося визначити, чи Meta видалила кампанію. Перевірте Ads Manager перед повторною спробою.",
-        });
-        return { id, effectiveStatus: "DELETED" };
+        await this.setAdCampaignStatus(id, "DELETED");
+        return { id, status: "DELETED", effectiveStatus: "DELETED" };
     }
 
 

@@ -79,6 +79,7 @@ assert.equal(requests[2].params.date_preset, "last_7d");
 assert.equal(requests[2].params.level, "campaign");
 assert.match(requests[0].params.filtering, /ACTIVE/);
 assert.match(requests[0].params.filtering, /DELETED/);
+assert.match(requests[0].params.filtering, /ARCHIVED/);
 assert.match(requests[3].params.fields, /timezone_offset_hours_utc/);
 assert.doesNotMatch(requests[3].params.fields, /adtrust_dsl/);
 assert.doesNotMatch(requests[3].params.fields, /insights\.date_preset\(today\)/);
@@ -93,7 +94,8 @@ await graphApi.setAdCampaignStatus("1001", "PAUSED");
 assert.equal(requests[5].method, "post");
 assert.equal(requests[5].data.get("status"), "PAUSED");
 await graphApi.deleteAdCampaign("1001");
-assert.equal(requests[6].method, "delete");
+assert.equal(requests[6].method, "post");
+assert.equal(requests[6].data.get("status"), "DELETED");
 await assert.rejects(
     graphApi.getAdCampaignInsights("act_1", "invalid"),
     { code: "FACEBOOK_INSIGHTS_DATE_PRESET_INVALID" }
@@ -158,6 +160,7 @@ assert.deepEqual(normalized.campaigns.map((campaign) => campaign.id), [
     "2",
     "1",
     "5",
+    "4",
 ]);
 assert.equal(normalized.campaigns[2].leads, 2);
 assert.equal(normalized.campaigns[2].spend, 10);

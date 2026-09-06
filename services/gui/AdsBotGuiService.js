@@ -109,7 +109,7 @@ function formatCampaigns({ campaigns = [], insights = [] }) {
     );
 
     return campaigns
-        .filter((campaign) => ["ACTIVE", "PAUSED", "DELETED"].includes(
+        .filter((campaign) => ["ACTIVE", "PAUSED", "DELETED", "ARCHIVED"].includes(
             String(campaign.effectiveStatus ?? "").toUpperCase()
         ))
         .map((campaign) => {
@@ -131,8 +131,9 @@ function formatCampaigns({ campaigns = [], insights = [] }) {
             };
         })
         .sort((left, right) => {
-            const deletedDifference = Number(left.effectiveStatus === "DELETED")
-                - Number(right.effectiveStatus === "DELETED");
+            const statusOrder = { ACTIVE: 0, PAUSED: 1, DELETED: 2, ARCHIVED: 3 };
+            const deletedDifference = (statusOrder[left.effectiveStatus] ?? 4)
+                - (statusOrder[right.effectiveStatus] ?? 4);
             const activeDifference = Number(right.effectiveStatus === "ACTIVE")
                 - Number(left.effectiveStatus === "ACTIVE");
             return deletedDifference || activeDifference || left.name.localeCompare(

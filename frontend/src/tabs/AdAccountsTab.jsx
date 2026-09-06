@@ -200,9 +200,18 @@ function isDeletedCampaign(campaign) {
         .toUpperCase() === "DELETED";
 }
 
+function isPermanentlyDeletedCampaign(campaign) {
+    return String(campaign?.effectiveStatus ?? campaign?.status ?? "")
+        .toUpperCase() === "ARCHIVED";
+}
+
+function isUnavailableCampaign(campaign) {
+    return isDeletedCampaign(campaign) || isPermanentlyDeletedCampaign(campaign);
+}
+
 
 function CampaignStateToggle({ campaign, pending, onToggle }) {
-    const deleted = isDeletedCampaign(campaign);
+    const deleted = isUnavailableCampaign(campaign);
     const active = campaign.effectiveStatus === "ACTIVE";
     return (
         <button
@@ -223,6 +232,8 @@ function CampaignStateToggle({ campaign, pending, onToggle }) {
 
 function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, dragControls, reorderable = false }) {
     const deleted = isDeletedCampaign(campaign);
+    const permanentlyDeleted = isPermanentlyDeletedCampaign(campaign);
+    const unavailable = deleted || permanentlyDeleted;
     const row = (
         <>
             <button
@@ -241,17 +252,17 @@ function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, d
                 </span>
                 <small>{campaign.id}</small>
             </span>
-            <span><i className={`campaign-status ${campaign.effectiveStatus === "ACTIVE" ? "active" : deleted ? "deleted" : "paused"}`}>{campaign.effectiveStatus === "ACTIVE" ? "Увімкнено" : deleted ? "Видалено" : "Пауза"}</i></span>
+            <span><i className={`campaign-status ${campaign.effectiveStatus === "ACTIVE" ? "active" : unavailable ? "deleted" : "paused"}`}>{campaign.effectiveStatus === "ACTIVE" ? "Увімкнено" : permanentlyDeleted ? "Остаточно видалено" : deleted ? "Видалено" : "Пауза"}</i></span>
             <strong>{campaign.leads}</strong>
             <strong>{formatMoney(campaign.spend, currency)}</strong>
             <strong>{formatMoney(campaign.costPerLead, currency)}</strong>
             <span className="campaign-actions">
-                {!deleted && <button type="button" className="campaign-delete-button" aria-label={`Видалити кампанію ${campaign.name}`} title="Видалити кампанію" disabled={pending} onClick={() => onDelete(campaign)}>{pending ? <LoaderCircle className="spin" size={15} /> : <Trash2 size={15} />}</button>}
+                {!unavailable && <button type="button" className="campaign-delete-button" aria-label={`Видалити кампанію ${campaign.name}`} title="Видалити кампанію" disabled={pending} onClick={() => onDelete(campaign)}>{pending ? <LoaderCircle className="spin" size={15} /> : <Trash2 size={15} />}</button>}
             </span>
         </>
     );
 
-    if (!reorderable) return <div className={`campaign-row campaign-grid ${pending ? "pending" : ""} ${deleted ? "deleted" : ""}`}>{row}</div>;
+    if (!reorderable) return <div className={`campaign-row campaign-grid ${pending ? "pending" : ""} ${unavailable ? "deleted" : ""}`}>{row}</div>;
     return <Reorder.Item as="div" value={String(campaign.id)} dragListener={false} dragControls={dragControls} className={`campaign-row campaign-grid ${pending ? "pending" : ""}`}>{row}</Reorder.Item>;
 }
 
@@ -291,9 +302,10 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
     }
 
     const campaigns = entry.data.campaigns;
-    const activeCampaigns = campaigns.filter((campaign) => !isDeletedCampaign(campaign));
+    const activeCampaigns = campaigns.filter((campaign) => !isUnavailableCampaign(campaign));
     const deletedCampaigns = campaigns.filter(isDeletedCampaign);
-    const visibleCount = activeCampaigns.length + (showDeleted ? deletedCampaigns.length : 0);
+    const permanentlyDeletedCampaigns = campaigns.filter(isPermanentlyDeletedCampaign);
+    const visibleCount = activeCampaigns.length + (showDeleted ? deletedCampaigns.length + permanentlyDeletedCampaigns.length : 0);
     return (
         <div className="campaign-table-card">
             <div className="campaign-table-head campaign-grid">
@@ -315,6 +327,8 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
                 {activeCampaigns.map((campaign, index) => <SortableCampaignRow key={campaign.id} campaign={campaign} index={index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} />)}
                 {showDeleted && deletedCampaigns.length > 0 && <div className="campaign-deleted-divider">Видалені кампанії</div>}
                 {showDeleted && deletedCampaigns.map((campaign, index) => <CampaignRow key={campaign.id} campaign={campaign} index={activeCampaigns.length + index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} />)}
+                {showDeleted && permanentlyDeletedCampaigns.length > 0 && <div className="campaign-deleted-divider">Остаточно видалені кампанії</div>}
+                {showDeleted && permanentlyDeletedCampaigns.map((campaign, index) => <CampaignRow key={campaign.id} campaign={campaign} index={activeCampaigns.length + deletedCampaigns.length + index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} />)}
             </Reorder.Group>
         </div>
     );
