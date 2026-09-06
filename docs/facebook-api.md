@@ -225,7 +225,9 @@ if (!selectedFacebookApiClient) {
 | `getMe()` | `{ id, name }` | Повертає користувача, якому належить token. |
 | `getPermissions()` | `{ granted, declined, expired, other }` | Групує permissions за статусом. |
 | `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти, включно з UTC offset і DSA defaults. Денний spend та `adtrust_dsl` тут навмисно не запитуються. |
-| `getAdCampaigns(adAccountId)` | `Array` | Повертає ACTIVE і PAUSED кампанії РК. |
+| `getAdCampaigns(adAccountId)` | `Array` | Повертає ACTIVE, PAUSED і DELETED кампанії РК. |
+| `setAdCampaignStatus(campaignId, status)` | `{ id, status }` | Змінює стан кампанії на `ACTIVE` або `PAUSED`. |
+| `deleteAdCampaign(campaignId)` | `{ id, effectiveStatus: "DELETED" }` | Видаляє кампанію через Meta Graph API. |
 | `getAdCampaignInsights(adAccountId, datePreset)` | `Array` | Повертає campaign-level spend та actions за Meta date preset. |
 | `getAdCampaignSpend(adAccountId, { since, until })` | `Array` | Повертає денний campaign-level spend за точний діапазон дат для локальної бази спенду. |
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
@@ -290,6 +292,8 @@ attachments не враховуються.
 через cursor `after`. Insights запитуються з `level=campaign`; GUI використовує
 лише агрегований action type `lead`, не сумуючи його з Pixel або form-підтипами.
 Підтримувані періоди: `today`, `yesterday`, `last_7d`, `last_30d`, `maximum`.
+Список кампаній завжди містить також `DELETED`: GUI може показати їх окремо від
+робочих кампаній без додаткового Graph-запиту.
 
 ## Створення website lead-кампаній
 

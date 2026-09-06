@@ -94,6 +94,21 @@ contextBridge.exposeInMainWorld("adsBot", {
             datePreset,
             force,
         }),
+    reorderAdCampaigns: (adAccountId, orderedIds) =>
+        ipcRenderer.invoke("campaigns:reorder", { adAccountId, orderedIds }),
+    setAdCampaignStatus: (accountKey, adAccountId, campaignId, status) =>
+        ipcRenderer.invoke("campaigns:status-set", {
+            accountKey,
+            adAccountId,
+            campaignId,
+            status,
+        }),
+    deleteAdCampaign: (accountKey, adAccountId, campaignId) =>
+        ipcRenderer.invoke("campaigns:delete", {
+            accountKey,
+            adAccountId,
+            campaignId,
+        }),
     getCampaignPagePosts: (accountKey, pageId, limit = 10, force = false) =>
         ipcRenderer.invoke("campaigns:posts-list", {
             accountKey,

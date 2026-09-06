@@ -13,6 +13,7 @@ import {
     Pencil,
     RefreshCw,
     ShieldAlert,
+    Trash2,
     X,
 } from "lucide-react";
 
@@ -194,7 +195,74 @@ function FavoriteAccountItem(props) {
 }
 
 
-function CampaignTable({ entry, currency, onRetry }) {
+function isDeletedCampaign(campaign) {
+    return String(campaign?.effectiveStatus ?? campaign?.status ?? "")
+        .toUpperCase() === "DELETED";
+}
+
+
+function CampaignStateToggle({ campaign, pending, onToggle }) {
+    const deleted = isDeletedCampaign(campaign);
+    const active = campaign.effectiveStatus === "ACTIVE";
+    return (
+        <button
+            type="button"
+            className={`campaign-state-toggle ${active ? "active" : ""} ${pending ? "pending" : ""}`}
+            role="switch"
+            aria-checked={active}
+            aria-label={`${active ? "Вимкнути" : "Увімкнути"} кампанію ${campaign.name}`}
+            title={deleted ? "Видалену кампанію неможливо увімкнути" : active ? "Вимкнути кампанію" : "Увімкнути кампанію"}
+            disabled={deleted || pending}
+            onClick={() => onToggle(campaign)}
+        >
+            {pending ? <LoaderCircle className="spin" size={13} /> : <i />}
+        </button>
+    );
+}
+
+
+function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, dragControls, reorderable = false }) {
+    const deleted = isDeletedCampaign(campaign);
+    const row = (
+        <>
+            <button
+                type="button"
+                className="campaign-drag-handle"
+                aria-label={`Змінити позицію кампанії ${campaign.name}`}
+                title="Перемістити кампанію"
+                disabled={!reorderable || pending}
+                onPointerDown={(event) => dragControls?.start(event)}
+            ><GripVertical size={16} /></button>
+            <span className="campaign-number">{index + 1}</span>
+            <span className="campaign-name">
+                <span className="campaign-name-main">
+                    <CampaignStateToggle campaign={campaign} pending={pending} onToggle={onToggle} />
+                    <strong>{campaign.name}</strong>
+                </span>
+                <small>{campaign.id}</small>
+            </span>
+            <span><i className={`campaign-status ${campaign.effectiveStatus === "ACTIVE" ? "active" : deleted ? "deleted" : "paused"}`}>{campaign.effectiveStatus === "ACTIVE" ? "Увімкнено" : deleted ? "Видалено" : "Пауза"}</i></span>
+            <strong>{campaign.leads}</strong>
+            <strong>{formatMoney(campaign.spend, currency)}</strong>
+            <strong>{formatMoney(campaign.costPerLead, currency)}</strong>
+            <span className="campaign-actions">
+                {!deleted && <button type="button" className="campaign-delete-button" aria-label={`Видалити кампанію ${campaign.name}`} title="Видалити кампанію" disabled={pending} onClick={() => onDelete(campaign)}>{pending ? <LoaderCircle className="spin" size={15} /> : <Trash2 size={15} />}</button>}
+            </span>
+        </>
+    );
+
+    if (!reorderable) return <div className={`campaign-row campaign-grid ${pending ? "pending" : ""} ${deleted ? "deleted" : ""}`}>{row}</div>;
+    return <Reorder.Item as="div" value={String(campaign.id)} dragListener={false} dragControls={dragControls} className={`campaign-row campaign-grid ${pending ? "pending" : ""}`}>{row}</Reorder.Item>;
+}
+
+
+function SortableCampaignRow(props) {
+    const dragControls = useDragControls();
+    return <CampaignRow {...props} dragControls={dragControls} reorderable />;
+}
+
+
+function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignIds, onToggle, onDelete, onReorder }) {
     if (!entry || entry.status === "loading") {
         return (
             <div className="campaign-table-card">
@@ -223,38 +291,31 @@ function CampaignTable({ entry, currency, onRetry }) {
     }
 
     const campaigns = entry.data.campaigns;
+    const activeCampaigns = campaigns.filter((campaign) => !isDeletedCampaign(campaign));
+    const deletedCampaigns = campaigns.filter(isDeletedCampaign);
+    const visibleCount = activeCampaigns.length + (showDeleted ? deletedCampaigns.length : 0);
     return (
         <div className="campaign-table-card">
             <div className="campaign-table-head campaign-grid">
+                <span />
                 <span>№</span>
                 <span>Назва кампанії</span>
                 <span>Статус</span>
                 <span>Ліди</span>
                 <span>Spend</span>
                 <span>Ціна за лід</span>
+                <span />
             </div>
-            {campaigns.length === 0 && (
+            {visibleCount === 0 && (
                 <div className="campaign-empty">
                     За цей період активних або призупинених кампаній немає.
                 </div>
             )}
-            {campaigns.map((campaign, index) => (
-                <div className="campaign-row campaign-grid" key={campaign.id}>
-                    <span className="campaign-number">{index + 1}</span>
-                    <span className="campaign-name">
-                        <strong>{campaign.name}</strong>
-                        <small>{campaign.id}</small>
-                    </span>
-                    <span>
-                        <i className={`campaign-status ${campaign.effectiveStatus === "ACTIVE" ? "active" : "paused"}`}>
-                            {campaign.effectiveStatus === "ACTIVE" ? "Увімкнено" : "Пауза"}
-                        </i>
-                    </span>
-                    <strong>{campaign.leads}</strong>
-                    <strong>{formatMoney(campaign.spend, currency)}</strong>
-                    <strong>{formatMoney(campaign.costPerLead, currency)}</strong>
-                </div>
-            ))}
+            <Reorder.Group as="div" axis="y" className="campaign-list" values={activeCampaigns.map((campaign) => String(campaign.id))} onReorder={onReorder}>
+                {activeCampaigns.map((campaign, index) => <SortableCampaignRow key={campaign.id} campaign={campaign} index={index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} />)}
+                {showDeleted && deletedCampaigns.length > 0 && <div className="campaign-deleted-divider">Видалені кампанії</div>}
+                {showDeleted && deletedCampaigns.map((campaign, index) => <CampaignRow key={campaign.id} campaign={campaign} index={activeCampaigns.length + index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} />)}
+            </Reorder.Group>
         </div>
     );
 }
@@ -288,6 +349,8 @@ export default function AdAccountsTab({
     const [renaming, setRenaming] = useState(false);
     const [campaignWizardOpen, setCampaignWizardOpen] = useState(false);
     const [imageAdModalOpen, setImageAdModalOpen] = useState(false);
+    const [showDeletedCampaigns, setShowDeletedCampaigns] = useState(false);
+    const [pendingCampaignIds, setPendingCampaignIds] = useState(() => new Set());
     const requestSequence = useRef(0);
     const campaignCacheRef = useRef({});
     const campaignRequestIds = useRef({});
@@ -319,6 +382,34 @@ export default function AdAccountsTab({
             : updater;
         campaignCacheRef.current = next;
         setCampaignCache(next);
+    };
+
+    const setCampaignPending = (campaignId, pending) => {
+        const id = String(campaignId);
+        setPendingCampaignIds((current) => {
+            const next = new Set(current);
+            if (pending) next.add(id);
+            else next.delete(id);
+            return next;
+        });
+    };
+
+    const patchCampaignInCache = (adAccountId, campaignId, patch) => {
+        const id = String(campaignId);
+        updateCampaignCache((cache) => Object.fromEntries(Object.entries(cache).map(([key, entry]) => {
+            if (!key.startsWith(`${accountKey}::${adAccountId}::`) || !entry?.data?.campaigns) {
+                return [key, entry];
+            }
+            return [key, {
+                ...entry,
+                data: {
+                    ...entry.data,
+                    campaigns: entry.data.campaigns.map((campaign) => (
+                        String(campaign.id) === id ? { ...campaign, ...patch } : campaign
+                    )),
+                },
+            }];
+        })));
     };
 
     const campaignKey = (adAccountId, preset = datePreset) => (
@@ -549,6 +640,70 @@ export default function AdAccountsTab({
         }
     };
 
+    const reorderCampaigns = async (orderedIds) => {
+        if (!selected) return;
+        const positions = new Map(orderedIds.map((id, index) => [String(id), index]));
+        updateCampaignCache((cache) => Object.fromEntries(Object.entries(cache).map(([key, entry]) => {
+            if (!key.startsWith(`${accountKey}::${selected.id}::`) || !entry?.data?.campaigns) {
+                return [key, entry];
+            }
+            const campaigns = [...entry.data.campaigns].sort((left, right) => {
+                const leftDeleted = isDeletedCampaign(left);
+                const rightDeleted = isDeletedCampaign(right);
+                if (leftDeleted !== rightDeleted) return Number(leftDeleted) - Number(rightDeleted);
+                return (positions.get(String(left.id)) ?? Number.MAX_SAFE_INTEGER)
+                    - (positions.get(String(right.id)) ?? Number.MAX_SAFE_INTEGER);
+            });
+            return [key, { ...entry, data: { ...entry.data, campaigns } }];
+        })));
+        try {
+            await unwrap(window.adsBot.reorderAdCampaigns(selected.id, orderedIds));
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося зберегти порядок кампаній" });
+            loadCampaigns(selected.id, datePreset, { force: true });
+        }
+    };
+
+    const toggleCampaign = async (campaign) => {
+        if (!selected) return;
+        const nextStatus = campaign.effectiveStatus === "ACTIVE" ? "PAUSED" : "ACTIVE";
+        setCampaignPending(campaign.id, true);
+        try {
+            await unwrap(window.adsBot.setAdCampaignStatus(
+                accountKey,
+                selected.id,
+                campaign.id,
+                nextStatus
+            ));
+            patchCampaignInCache(selected.id, campaign.id, {
+                status: nextStatus,
+                effectiveStatus: nextStatus,
+            });
+            showToast(nextStatus === "ACTIVE" ? "Кампанію увімкнено" : "Кампанію призупинено", "success");
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося змінити статус кампанії" });
+        } finally {
+            setCampaignPending(campaign.id, false);
+        }
+    };
+
+    const deleteCampaign = async (campaign) => {
+        if (!selected || !window.confirm(`Видалити кампанію «${campaign.name}»? Цю дію не можна скасувати.`)) return;
+        setCampaignPending(campaign.id, true);
+        try {
+            await unwrap(window.adsBot.deleteAdCampaign(accountKey, selected.id, campaign.id));
+            patchCampaignInCache(selected.id, campaign.id, {
+                status: "DELETED",
+                effectiveStatus: "DELETED",
+            });
+            showToast("Кампанію видалено", "success");
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося видалити кампанію" });
+        } finally {
+            setCampaignPending(campaign.id, false);
+        }
+    };
+
     const currentCampaignEntry = selected
         ? campaignCache[campaignKey(selected.id)]
         : null;
@@ -699,6 +854,10 @@ export default function AdAccountsTab({
                                     <h2>Кампанії</h2>
                                 </div>
                                 <div className="campaign-periods">
+                                    <label className="campaign-show-deleted">
+                                        <input type="checkbox" checked={showDeletedCampaigns} onChange={(event) => setShowDeletedCampaigns(event.target.checked)} />
+                                        <span /> Показувати видалені
+                                    </label>
                                     {datePresets.map((preset) => (
                                         <button
                                             key={preset.id}
@@ -714,6 +873,11 @@ export default function AdAccountsTab({
                             <CampaignTable
                                 entry={currentCampaignEntry}
                                 currency={selected.currency}
+                                showDeleted={showDeletedCampaigns}
+                                pendingCampaignIds={pendingCampaignIds}
+                                onToggle={toggleCampaign}
+                                onDelete={deleteCampaign}
+                                onReorder={reorderCampaigns}
                                 onRetry={() => loadCampaigns(
                                     selected.id,
                                     datePreset,

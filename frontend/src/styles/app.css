@@ -448,23 +448,46 @@ button:focus-visible, input:focus-visible {
 .detail-grid.compact .account-spend-today strong { color: #dffbef; font-size: 16px; }
 .campaign-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 20px 0 10px; }
 .campaign-heading h2 { margin: 3px 0 0; font-size: 20px; }
-.campaign-periods { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
+.campaign-periods { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 5px; }
 .campaign-periods button { min-height: 29px; padding: 0 9px; border: 1px solid var(--stroke); border-radius: 8px; color: #747c90; background: rgba(255,255,255,.025); cursor: pointer; font-size: var(--font-caption); }
 .campaign-periods button:hover, .campaign-periods button.active { color: #e9e8ff; border-color: rgba(132,114,255,.38); background: rgba(132,114,255,.12); }
+.campaign-show-deleted { display: inline-flex; align-items: center; gap: 7px; min-height: 29px; color: #838ba0; font-size: var(--font-caption); cursor: pointer; user-select: none; }
+.campaign-show-deleted input { position: absolute; opacity: 0; pointer-events: none; }
+.campaign-show-deleted span { position: relative; width: 29px; height: 16px; border-radius: 12px; background: #404657; transition: background .16s ease; }
+.campaign-show-deleted span::after { position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #b8bfce; content: ""; transition: transform .16s ease, background .16s ease; }
+.campaign-show-deleted input:checked + span { background: #6054b8; }
+.campaign-show-deleted input:checked + span::after { transform: translateX(13px); background: #f2f1ff; }
 .campaign-table-card { overflow: hidden; border: 1px solid var(--stroke); border-radius: 15px; background: rgba(15,18,29,.84); box-shadow: 0 18px 45px rgba(0,0,0,.2); }
-.campaign-grid { display: grid; grid-template-columns: 42px minmax(180px,1.7fr) 92px 65px 105px 115px; align-items: center; gap: 10px; }
+.campaign-grid { display: grid; grid-template-columns: 28px 32px minmax(180px,1.7fr) 92px 65px 105px 115px 34px; align-items: center; gap: 10px; }
 .campaign-table-head { min-height: 38px; padding: 0 13px; border-bottom: 1px solid var(--stroke); color: #686f82; background: rgba(255,255,255,.025); font-size: var(--font-caption); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .campaign-row { min-height: 52px; padding: 7px 13px; border-bottom: 1px solid rgba(255,255,255,.055); color: #aeb4c1; font-size: var(--font-meta); }
-.campaign-row:last-child { border-bottom: 0; }
+.campaign-list > .campaign-row:last-child { border-bottom: 0; }
 .campaign-row:hover { background: rgba(132,114,255,.045); }
+.campaign-row.pending { opacity: .48; pointer-events: none; }
+.campaign-row.deleted { color: #666d7d; background: rgba(255,255,255,.015); }
+.campaign-row.deleted .campaign-name strong, .campaign-row.deleted strong { color: #777f90; }
 .campaign-number { color: #5e6679; }
 .campaign-name { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.campaign-name-main { display: flex; align-items: center; min-width: 0; gap: 8px; }
 .campaign-name strong, .campaign-name small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.campaign-name strong { color: #edf0f8; font-size: var(--font-body); }
+.campaign-name strong { color: #edf0f8; font-size: calc(var(--font-body) * 1.15); font-weight: 525; }
 .campaign-name small { color: #555d70; font-size: var(--font-caption); }
 .campaign-status { display: inline-flex; padding: 4px 6px; border-radius: 6px; font-size: var(--font-caption); font-style: normal; font-weight: 800; text-transform: uppercase; }
 .campaign-status.active { color: var(--green); background: rgba(69,223,161,.09); }
 .campaign-status.paused { color: var(--yellow); background: rgba(246,189,88,.09); }
+.campaign-status.deleted { color: #737b8b; background: rgba(130,137,152,.1); }
+.campaign-state-toggle { display: grid; flex: 0 0 30px; width: 30px; height: 17px; padding: 0; place-items: center; border: 0; border-radius: 12px; background: #515869; cursor: pointer; }
+.campaign-state-toggle i { width: 13px; height: 13px; margin-left: -11px; border-radius: 50%; background: #d3d7df; transition: margin .16s ease, background .16s ease; }
+.campaign-state-toggle.active { background: #4ba87a; }
+.campaign-state-toggle.active i { margin-left: 11px; background: #f4fffa; }
+.campaign-state-toggle.pending { color: #aeb6c6; background: #5c6371; cursor: wait; }
+.campaign-drag-handle, .campaign-delete-button { display: grid; width: 28px; height: 28px; padding: 0; place-items: center; border: 1px solid transparent; border-radius: 7px; color: #727b90; background: transparent; cursor: grab; }
+.campaign-drag-handle:hover:not(:disabled) { border-color: var(--stroke); color: #cdd3e2; background: rgba(255,255,255,.05); }
+.campaign-drag-handle:disabled { cursor: default; opacity: .3; }
+.campaign-actions { display: flex; justify-content: flex-end; }
+.campaign-delete-button { cursor: pointer; }
+.campaign-delete-button:hover:not(:disabled) { border-color: rgba(239,96,108,.35); color: #ff8d98; background: rgba(239,96,108,.08); }
+.campaign-deleted-divider { margin: 8px 13px 0; padding: 10px 0 7px; border-top: 1px solid rgba(255,255,255,.12); color: #6f7788; font-size: var(--font-caption); font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
 .campaign-loading, .campaign-empty, .campaign-error { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 86px; color: #6c7487; font-size: var(--font-meta); }
 .campaign-skeleton { height: 45px; margin: 8px 12px; border-radius: 9px; }
 .campaign-error { min-height: 180px; flex-direction: column; text-align: center; }
@@ -896,7 +919,7 @@ button:focus-visible, input:focus-visible {
     .templates-grid { grid-template-columns: 55px minmax(125px,1.2fr) minmax(105px,1fr) minmax(130px,1fr) 100px 75px; gap: 8px; }
     .ad-accounts-tab { padding: 20px 18px; }
     .ad-accounts-workspace { grid-template-columns: 292px minmax(0,1fr); gap: 13px; }
-    .campaign-grid { grid-template-columns: 26px minmax(100px,1.5fr) 68px 38px 70px 77px; gap: 5px; }
+    .campaign-grid { grid-template-columns: 22px 22px minmax(100px,1.5fr) 68px 38px 70px 77px 26px; gap: 5px; }
     .campaign-table-head, .campaign-row { padding-left: 10px; padding-right: 10px; }
     .page-workspace .ad-layout { grid-template-columns: 620px minmax(0,1fr); }
 }

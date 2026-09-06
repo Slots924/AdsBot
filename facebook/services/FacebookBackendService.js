@@ -241,6 +241,18 @@ export default class FacebookBackendService {
     }
 
 
+    async setAdCampaignStatus(accountKey, campaignId, status) {
+        return this.#getFacebookApiClient(accountKey)
+            .setAdCampaignStatus(campaignId, status);
+    }
+
+
+    async deleteAdCampaign(accountKey, campaignId) {
+        return this.#getFacebookApiClient(accountKey)
+            .deleteAdCampaign(campaignId);
+    }
+
+
     async getAdCampaignSpend(accountKey, adAccountId, range) {
         return this.#getFacebookApiClient(accountKey)
             .getAdCampaignSpend(adAccountId, range);

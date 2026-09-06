@@ -68,6 +68,12 @@ const adAccountPreferencesStore = {
     async reorderFavorites(_accountKey, orderedIds) {
         return orderedIds;
     },
+    async enrichCampaigns(_adAccountId, campaigns) {
+        return campaigns;
+    },
+    async reorderCampaigns(_adAccountId, orderedIds) {
+        return orderedIds;
+    },
 };
 const pagePreferencesStore = {
     async enrich(pages) { return pages; },
@@ -256,6 +262,12 @@ const guiService = {
     },
     async getAdCampaigns(accountKey, adAccountId, datePreset) {
         return { accountKey, adAccountId, datePreset, campaigns: [] };
+    },
+    async setAdCampaignStatus(_accountKey, campaignId, status) {
+        return { id: campaignId, status };
+    },
+    async deleteAdCampaign(_accountKey, campaignId) {
+        return { id: campaignId, effectiveStatus: "DELETED" };
     },
     async getPagePosts({ accountKey, pageId, limit }) {
         assert.equal(accountKey, "fp_hub");
@@ -560,6 +572,30 @@ assert.deepEqual(
             campaigns: [],
         },
     }
+);
+assert.deepEqual(
+    await handlers.get("campaigns:reorder")({}, {
+        adAccountId: "act_1",
+        orderedIds: ["campaign-2", "campaign-1"],
+    }),
+    { ok: true, data: ["campaign-2", "campaign-1"] }
+);
+assert.deepEqual(
+    await handlers.get("campaigns:status-set")({}, {
+        accountKey: "fp_hub",
+        adAccountId: "act_1",
+        campaignId: "123",
+        status: "PAUSED",
+    }),
+    { ok: true, data: { id: "123", status: "PAUSED" } }
+);
+assert.deepEqual(
+    await handlers.get("campaigns:delete")({}, {
+        accountKey: "fp_hub",
+        adAccountId: "act_1",
+        campaignId: "123",
+    }),
+    { ok: true, data: { id: "123", effectiveStatus: "DELETED" } }
 );
 const listedPosts = await handlers.get("campaigns:posts-list")({}, {
     accountKey: "fp_hub",

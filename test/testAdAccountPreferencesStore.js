@@ -56,6 +56,26 @@ try {
     assert.equal(restoredSecond[0].localName, "Головний РК");
     assert.equal(restoredSecond[0].favoritePosition, 0);
 
+    const firstCampaignOrder = await restarted.enrichCampaigns("act_1", [
+        { id: "campaign-2", name: "Second" },
+        { id: "campaign-1", name: "First" },
+    ]);
+    assert.deepEqual(firstCampaignOrder.map((campaign) => campaign.id), [
+        "campaign-2",
+        "campaign-1",
+    ]);
+    await restarted.reorderCampaigns("act_1", ["campaign-1", "campaign-2"]);
+    const sharedCampaignOrder = await restarted.enrichCampaigns("act_1", [
+        { id: "campaign-2", name: "Second" },
+        { id: "campaign-3", name: "New" },
+        { id: "campaign-1", name: "First" },
+    ]);
+    assert.deepEqual(sharedCampaignOrder.map((campaign) => campaign.id), [
+        "campaign-3",
+        "campaign-1",
+        "campaign-2",
+    ]);
+
     await assert.rejects(
         restarted.rename("act_2", "  "),
         { code: "AD_ACCOUNT_NAME_REQUIRED" }

@@ -650,7 +650,7 @@ export default class FacebookGraphApi {
 
 
     /**
-     * Повертає активні та призупинені кампанії рекламного акаунта.
+     * Повертає активні, призупинені й видалені кампанії рекламного акаунта.
      * @param {string} adAccountId Graph ID у форматі act_123.
      * @returns {Promise<object[]>}
      */
@@ -661,7 +661,7 @@ export default class FacebookGraphApi {
             filtering: JSON.stringify([{
                 field: "effective_status",
                 operator: "IN",
-                value: ["ACTIVE", "PAUSED"],
+                value: ["ACTIVE", "PAUSED", "DELETED"],
             }]),
             limit: 100,
         });
@@ -704,6 +704,42 @@ export default class FacebookGraphApi {
             spend: insight.spend ?? "0",
             actions: Array.isArray(insight.actions) ? insight.actions : [],
         }));
+    }
+
+
+    /** Змінює стан кампанії на ACTIVE або PAUSED. */
+    async setAdCampaignStatus(campaignId, status) {
+        const id = normalizeObjectId(
+            campaignId,
+            "CAMPAIGN_ID_INVALID",
+            "ID кампанії"
+        );
+        const normalizedStatus = String(status ?? "").trim().toUpperCase();
+        if (!new Set(["ACTIVE", "PAUSED"]).has(normalizedStatus)) {
+            throw createValidationError(
+                "Статус кампанії має бути ACTIVE або PAUSED",
+                "CAMPAIGN_STATUS_INVALID"
+            );
+        }
+        await this.#writeObject(`/${id}`, { status: normalizedStatus });
+        return { id, status: normalizedStatus };
+    }
+
+
+    /** Видаляє кампанію через Meta Graph API. */
+    async deleteAdCampaign(campaignId) {
+        const id = normalizeObjectId(
+            campaignId,
+            "CAMPAIGN_ID_INVALID",
+            "ID кампанії"
+        );
+        await this.#request(`/${id}`, {}, {
+            method: "delete",
+            retryOnConnectionError: false,
+            outcomeUnknownCode: "FACEBOOK_CAMPAIGN_DELETE_OUTCOME_UNKNOWN",
+            outcomeUnknownMessage: "Не вдалося визначити, чи Meta видалила кампанію. Перевірте Ads Manager перед повторною спробою.",
+        });
+        return { id, effectiveStatus: "DELETED" };
     }
 
 

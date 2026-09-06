@@ -212,13 +212,20 @@ export default function registerIpcHandlers({
             adAccountId,
             datePreset
         );
+        const enriched = {
+            ...data,
+            campaigns: await adAccountPreferencesStore.enrichCampaigns(
+                adAccountId,
+                data.campaigns
+            ),
+        };
         await remoteDataCacheStore.setCampaigns(
             accountKey,
             adAccountId,
             datePreset,
-            data
+            enriched
         );
-        return data;
+        return enriched;
     };
 
     const refreshCampaignsOnce = (payload) => {
@@ -1153,7 +1160,39 @@ export default function registerIpcHandlers({
             );
             if (!cached) return loadRemoteCampaigns(payload);
             refreshCampaignsOnce(payload);
-            return cached.value;
+            return {
+                ...cached.value,
+                campaigns: await adAccountPreferencesStore.enrichCampaigns(
+                    adAccountId,
+                    cached.value.campaigns
+                ),
+            };
+        })
+    );
+    ipcMain.handle(
+        "campaigns:reorder",
+        safeHandler(({ adAccountId, orderedIds }) => (
+            adAccountPreferencesStore.reorderCampaigns(adAccountId, orderedIds)
+        ))
+    );
+    ipcMain.handle(
+        "campaigns:status-set",
+        safeHandler(async ({ accountKey, adAccountId, campaignId, status }) => {
+            const result = await guiService.setAdCampaignStatus(
+                accountKey,
+                campaignId,
+                status
+            );
+            await remoteDataCacheStore.invalidateCampaigns(accountKey, adAccountId);
+            return result;
+        })
+    );
+    ipcMain.handle(
+        "campaigns:delete",
+        safeHandler(async ({ accountKey, adAccountId, campaignId }) => {
+            const result = await guiService.deleteAdCampaign(accountKey, campaignId);
+            await remoteDataCacheStore.invalidateCampaigns(accountKey, adAccountId);
+            return result;
         })
     );
     ipcMain.handle(

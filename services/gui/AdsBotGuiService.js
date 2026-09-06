@@ -109,7 +109,7 @@ function formatCampaigns({ campaigns = [], insights = [] }) {
     );
 
     return campaigns
-        .filter((campaign) => ["ACTIVE", "PAUSED"].includes(
+        .filter((campaign) => ["ACTIVE", "PAUSED", "DELETED"].includes(
             String(campaign.effectiveStatus ?? "").toUpperCase()
         ))
         .map((campaign) => {
@@ -131,10 +131,11 @@ function formatCampaigns({ campaigns = [], insights = [] }) {
             };
         })
         .sort((left, right) => {
-            const activeDifference = Number(
-                right.effectiveStatus === "ACTIVE"
-            ) - Number(left.effectiveStatus === "ACTIVE");
-            return activeDifference || left.name.localeCompare(
+            const deletedDifference = Number(left.effectiveStatus === "DELETED")
+                - Number(right.effectiveStatus === "DELETED");
+            const activeDifference = Number(right.effectiveStatus === "ACTIVE")
+                - Number(left.effectiveStatus === "ACTIVE");
+            return deletedDifference || activeDifference || left.name.localeCompare(
                 right.name,
                 "uk-UA",
                 { numeric: true, sensitivity: "base" }
@@ -351,6 +352,22 @@ export default class AdsBotGuiService {
             datePreset,
             campaigns,
         };
+    }
+
+
+    async setAdCampaignStatus(accountKey, campaignId, status) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.setAdCampaignStatus(
+            accountKey,
+            campaignId,
+            status
+        );
+    }
+
+
+    async deleteAdCampaign(accountKey, campaignId) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.deleteAdCampaign(accountKey, campaignId);
     }
 
 

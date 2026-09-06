@@ -27,6 +27,7 @@ function emptyStore() {
         nextDefaultNameNumber: 1,
         aliases: {},
         clients: {},
+        campaignOrders: {},
     };
 }
 
@@ -157,6 +158,74 @@ export default class AdAccountPreferencesStore {
     }
 
 
+    async enrichCampaigns(adAccountId, campaigns = []) {
+        return this.#enqueue(async () => {
+            const id = normalizeId(adAccountId);
+            if (!Array.isArray(campaigns)) {
+                throw createPreferencesError(
+                    "Список кампаній має бути масивом",
+                    "CAMPAIGN_LIST_INVALID"
+                );
+            }
+
+            const store = await this.#readStore();
+            const campaignIds = [...new Set(campaigns.map((campaign) => (
+                normalizeId(campaign?.id, "ID кампанії")
+            )))];
+            const campaignIdSet = new Set(campaignIds);
+            const savedOrder = store.campaignOrders[id] ?? [];
+            const knownIds = savedOrder.filter((campaignId) => (
+                campaignIdSet.has(campaignId)
+            ));
+            const knownIdSet = new Set(knownIds);
+            const newIds = campaignIds.filter((campaignId) => !knownIdSet.has(campaignId));
+            const nextOrder = [...newIds, ...knownIds];
+
+            if (JSON.stringify(savedOrder) !== JSON.stringify(nextOrder)) {
+                store.campaignOrders[id] = nextOrder;
+                await this.#writeStore(store);
+            }
+
+            const positions = new Map(nextOrder.map((campaignId, index) => [
+                campaignId,
+                index,
+            ]));
+            return [...campaigns]
+                .map((campaign) => ({
+                    ...campaign,
+                    position: positions.get(String(campaign.id)) ?? Number.MAX_SAFE_INTEGER,
+                }))
+                .sort((left, right) => left.position - right.position);
+        });
+    }
+
+
+    async reorderCampaigns(adAccountId, orderedIds = []) {
+        return this.#enqueue(async () => {
+            const id = normalizeId(adAccountId);
+            if (!Array.isArray(orderedIds)) {
+                throw createPreferencesError(
+                    "Порядок кампаній має бути масивом",
+                    "CAMPAIGN_ORDER_INVALID"
+                );
+            }
+
+            const requested = [...new Set(orderedIds.map((campaignId) => (
+                normalizeId(campaignId, "ID кампанії")
+            )))];
+            const store = await this.#readStore();
+            const current = store.campaignOrders[id] ?? [];
+            const requestedSet = new Set(requested);
+            store.campaignOrders[id] = [
+                ...requested,
+                ...current.filter((campaignId) => !requestedSet.has(campaignId)),
+            ];
+            await this.#writeStore(store);
+            return [...store.campaignOrders[id]];
+        });
+    }
+
+
     #enqueue(operation) {
         const result = this.#operation.then(operation, operation);
         this.#operation = result.catch(() => {});
@@ -175,6 +244,7 @@ export default class AdAccountPreferencesStore {
                 ))
                 : {};
             const clients = {};
+            const campaignOrders = {};
 
             if (parsed?.clients && typeof parsed.clients === "object") {
                 for (const [accountKey, client] of Object.entries(parsed.clients)) {
@@ -186,6 +256,14 @@ export default class AdAccountPreferencesStore {
                 }
             }
 
+            if (parsed?.campaignOrders && typeof parsed.campaignOrders === "object") {
+                for (const [adAccountId, campaignIds] of Object.entries(parsed.campaignOrders)) {
+                    campaignOrders[String(adAccountId)] = Array.isArray(campaignIds)
+                        ? [...new Set(campaignIds.map(String).filter(Boolean))]
+                        : [];
+                }
+            }
+
             return {
                 version: 1,
                 nextDefaultNameNumber: Math.max(
@@ -194,6 +272,7 @@ export default class AdAccountPreferencesStore {
                 ),
                 aliases,
                 clients,
+                campaignOrders,
             };
         } catch (error) {
             if (error.code === "ENOENT") {
