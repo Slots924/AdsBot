@@ -705,6 +705,79 @@ describe("GUI helpers", () => {
         });
     });
 
+    it("шукає і сортує шаблони кампаній", async () => {
+        window.adsBot.getTemplates = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [
+                {
+                    id: 3,
+                    name: "Zulu",
+                    countryCodes: ["US"],
+                    locales: [1],
+                    ageMin: 18,
+                    ageMax: 65,
+                    updatedAt: "2026-08-19T09:00:00.000Z",
+                },
+                {
+                    id: 1,
+                    name: "Alpha",
+                    countryCodes: ["AT"],
+                    locales: [],
+                    ageMin: 18,
+                    ageMax: 45,
+                    updatedAt: "2026-08-19T07:00:00.000Z",
+                },
+                {
+                    id: 2,
+                    name: "Beta",
+                    countryCodes: ["HU"],
+                    locales: [1, 2],
+                    ageMin: 21,
+                    ageMax: 55,
+                    updatedAt: "2026-08-19T08:00:00.000Z",
+                },
+            ],
+        });
+        window.adsBot.getLanguages = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [],
+        });
+
+        const { container } = render(
+            <TemplatesTab onError={vi.fn()} showToast={vi.fn()} />
+        );
+
+        expect(await screen.findByLabelText("Пошук шаблонів")).toBeInTheDocument();
+        expect([...container.querySelectorAll(".template-row strong")].map((node) => node.textContent)).toEqual([
+            "Alpha",
+            "Beta",
+            "Zulu",
+        ]);
+
+        fireEvent.click(screen.getByRole("button", { name: /Назва/ }));
+        expect([...container.querySelectorAll(".template-row strong")].map((node) => node.textContent)).toEqual([
+            "Zulu",
+            "Beta",
+            "Alpha",
+        ]);
+
+        fireEvent.click(screen.getByRole("button", { name: /^ID/ }));
+        expect([...container.querySelectorAll(".template-row strong")].map((node) => node.textContent)).toEqual([
+            "Alpha",
+            "Beta",
+            "Zulu",
+        ]);
+
+        fireEvent.change(screen.getByLabelText("Пошук шаблонів"), {
+            target: { value: "hu" },
+        });
+        expect([...container.querySelectorAll(".template-row strong")].map((node) => node.textContent)).toEqual([
+            "Beta",
+        ]);
+        expect(screen.getByText("1 з 3")).toBeInTheDocument();
+        expect(screen.queryByText("Alpha")).not.toBeInTheDocument();
+    });
+
     it("показує обрані та інші РК і завантажує кампанії по кліку", async () => {
         window.adsBot.getAdAccounts = vi.fn().mockResolvedValue({
             ok: true,

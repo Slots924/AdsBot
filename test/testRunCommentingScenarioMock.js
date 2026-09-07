@@ -50,6 +50,8 @@ try {
     assert.equal(report.creativeName, "138");
     assert.equal(report.browserMode, "headless");
     assert.equal(report.disableImages, true);
+    assert.ok(report.reportPath);
+    assert.equal(report.interrupted, false);
     assert.equal(report.skipped.length, 1);
     assert.equal(report.skipped[0].commentId, "1");
     assert.equal(report.skipped[0].reason, "should_write=false");

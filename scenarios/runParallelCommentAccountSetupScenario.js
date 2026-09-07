@@ -224,6 +224,9 @@ export default async function runParallelCommentAccountSetupScenario({
         renamedPhotoFolder: result.renamedPhotoFolder ?? null,
         steps: result.steps ?? extra.steps ?? null,
         workerId: extra.workerId ?? null,
+        startedAt: extra.startedAt ?? null,
+        finishedAt: extra.finishedAt ?? null,
+        durationMs: extra.durationMs ?? null,
     });
 
     try {
@@ -246,6 +249,19 @@ export default async function runParallelCommentAccountSetupScenario({
         const processProfile = async (profileNo, workerId) => {
             assertNotAborted();
             return profileMutex.run(profileNo, async () => {
+                const startedAt = new Date().toISOString();
+                const addReportItem = (result, extra = {}) => {
+                    const finishedAt = new Date().toISOString();
+                    report.profiles.push(toReportItem(result, {
+                        ...extra,
+                        startedAt,
+                        finishedAt,
+                        durationMs: Math.max(
+                            0,
+                            new Date(finishedAt) - new Date(startedAt)
+                        ),
+                    }));
+                };
                 activeAttempts += 1;
                 await progress({
                     stage: "profile",
@@ -261,7 +277,7 @@ export default async function runParallelCommentAccountSetupScenario({
                     try {
                         profile = await adsPower.getProfileByNo(profileNo);
                     } catch (error) {
-                        report.profiles.push(toReportItem({
+                        addReportItem({
                             profileNo,
                             outcome: "failed",
                             error: error.message,
@@ -269,7 +285,7 @@ export default async function runParallelCommentAccountSetupScenario({
                             persona: null,
                             adsPowerName: null,
                             steps: null,
-                        }, { workerId }));
+                        }, { workerId });
                         return;
                     }
 
@@ -285,7 +301,7 @@ export default async function runParallelCommentAccountSetupScenario({
                             && ignoredSkipReasons.has(skipReason)
                         )
                     ) {
-                        report.profiles.push(toReportItem({
+                        addReportItem({
                             profileNo,
                             outcome: "skipped",
                             skipReason: describeCommentAccountSetupSkipReason(
@@ -295,7 +311,7 @@ export default async function runParallelCommentAccountSetupScenario({
                             persona: null,
                             adsPowerName: null,
                             steps: null,
-                        }, { workerId }));
+                        }, { workerId });
                         return;
                     }
 
@@ -320,7 +336,7 @@ export default async function runParallelCommentAccountSetupScenario({
                     persona = assigned.persona;
                     photoSet = assigned.photoSet;
                     if (!persona) {
-                        report.profiles.push(toReportItem({
+                        addReportItem({
                             profileNo,
                             outcome: "skipped",
                             skipReason: "Немає вільних персонажів у JSON",
@@ -328,7 +344,7 @@ export default async function runParallelCommentAccountSetupScenario({
                             persona: null,
                             adsPowerName: null,
                             steps: null,
-                        }, { workerId }));
+                        }, { workerId });
                         return;
                     }
 
@@ -373,20 +389,20 @@ export default async function runParallelCommentAccountSetupScenario({
                         await assignMutex.run("next", async () => {
                             if (persona) personaQueue.unshift(persona);
                         });
-                        report.profiles.push(toReportItem({
+                        addReportItem({
                             ...result,
                             outcome: "skipped",
                             skipReason: result.error,
                             persona: null,
-                        }, { workerId, persona: null }));
+                        }, { workerId, persona: null });
                         return;
                     }
 
-                    report.profiles.push(toReportItem(result, {
+                    addReportItem(result, {
                         workerId,
                         persona,
                         photoFolder: photoSet?.path ?? null,
-                    }));
+                    });
                 } finally {
                     activeAttempts -= 1;
                     await progress({

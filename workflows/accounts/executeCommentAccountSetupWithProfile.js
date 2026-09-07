@@ -120,6 +120,7 @@ async function tryProfilePhoto({
 
     let lastResult = null;
     const skippedUnsuitable = [];
+    let uploadAttempts = 0;
     for (const imagePath of pathsToTry) {
         const rejectReason = await getProfilePhotoRejectReason(
             imagePath,
@@ -132,6 +133,7 @@ async function tryProfilePhoto({
             continue;
         }
 
+        uploadAttempts += 1;
         const result = await changeFn(page, { imagePath, logger });
         lastResult = result;
         if (result?.success) {
@@ -141,6 +143,7 @@ async function tryProfilePhoto({
                     ok: true,
                     path: imagePath,
                     status: result.status,
+                    attempts: uploadAttempts,
                     detail: fileLabel(imagePath)
                         + (imagePath !== candidate ? " (запасне фото)" : ""),
                 }),
@@ -157,6 +160,7 @@ async function tryProfilePhoto({
                     error: result?.error?.message || result?.status
                         || "Не вдалося оновити фото",
                     path: imagePath,
+                    attempts: uploadAttempts,
                 }),
                 unusedCandidate: candidate ?? null,
             };
@@ -180,6 +184,7 @@ async function tryProfilePhoto({
             error: lastResult?.error?.message || lastResult?.status
                 || "Фото не підійшло",
             path: candidate ?? null,
+            attempts: uploadAttempts,
             detail: skippedUnsuitable.length > 0
                 ? `пропущено: ${skippedUnsuitable.join(", ")}`
                 : null,
@@ -660,13 +665,14 @@ export default async function executeCommentAccountSetupWithProfile({
         } else {
         const deleteResult = await deletePosts(page, { logger });
         if (acceptedDeleteStatuses.has(deleteResult?.status)) {
+            const deletedCount = Number(deleteResult?.deletedCount) || 0;
             result.steps.deletePosts = createStep({
                 ok: true,
                 status: deleteResult.status,
                 detail: deleteResult.status
                     === facebookPersonalProfilePostDeletionStatuses.NO_POSTS
                     ? "постів не було"
-                    : "старі пости видалено",
+                    : `видалено: ${deletedCount}`,
             });
         } else {
             result.steps.deletePosts = createStep({

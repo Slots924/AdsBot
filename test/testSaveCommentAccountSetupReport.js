@@ -92,7 +92,7 @@ assert.match(markdown, /Не вдалося \| 1/);
 assert.match(markdown, /Пропущено \| 1/);
 assert.match(markdown, /Профіль 10 — успішно/);
 assert.match(markdown, /Профіль 11 — завершено з помилкою/);
-assert.match(markdown, /Аватар: не вдалося — INVALID_IMAGE/);
+assert.match(markdown, /Аватарка \| Не вдалося — INVALID_IMAGE/);
 assert.match(markdown, /Профіль має тег Change Name Error/);
 
 const directory = await mkdtemp(path.join(os.tmpdir(), "adsbot-account-report-"));

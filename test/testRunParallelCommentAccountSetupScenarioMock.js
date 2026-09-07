@@ -106,6 +106,7 @@ try {
     assert.equal(outcomes["14"], "skipped");
     assert.equal(usedPersonas.length, 2);
     assert.ok(result.report.reportPath);
+    assert.ok(result.report.profiles.every((item) => Number.isFinite(item.durationMs)));
     assert.equal(result.report.geo, "DE");
 
     await assert.rejects(

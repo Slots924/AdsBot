@@ -11,7 +11,7 @@ try {
     const preferencesFile = path.join(directory, "preferences.json");
     const store = new PagePreferencesStore({ preferencesFile });
     await store.setFavorite("100", true);
-    await store.updateMetadata("100", { geo: "hu", creativeName: "Creo_138V2" });
+    await store.updateMetadata("100", { geo: "hu", language: "es", creativeName: "Creo_138V2" });
 
     const acrossAnotherClient = await store.enrich([
         { id: "100", name: "Page through another API client" },
@@ -21,6 +21,7 @@ try {
         id: "100",
         name: "Page through another API client",
         geo: "HU",
+        language: "ES",
         creativeName: "138V2",
         isFavorite: true,
     });
@@ -32,8 +33,10 @@ try {
     const afterRemoval = (await restored.enrich([{ id: "100" }]))[0];
     assert.equal(afterRemoval.isFavorite, false);
     assert.equal(afterRemoval.geo, "HU");
+    assert.equal(afterRemoval.language, "ES");
     assert.equal(afterRemoval.creativeName, "138V2");
     await assert.rejects(restored.updateMetadata("100", { geo: "HUN" }), { code: "PAGE_GEO_INVALID" });
+    await assert.rejects(restored.updateMetadata("100", { language: "SPA" }), { code: "PAGE_LANGUAGE_INVALID" });
 
     console.log("Mock-перевірка глобальних уподобань фанпейдж пройшла успішно");
 } finally {

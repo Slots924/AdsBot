@@ -17,6 +17,10 @@ export default function CreateCommentAccountsModal({
     const [countries, setCountries] = useState([]);
     const [draft, setDraft] = useState({
         geo: "",
+        namesGeo: "",
+        companiesGeo: "",
+        universitiesGeo: "",
+        professionsGeo: "",
         maleCount: String(profiles.length),
         femaleCount: "0",
         photosDirectory: "",
@@ -62,6 +66,10 @@ export default function CreateCommentAccountsModal({
             onQueued(await unwrap(window.adsBot.runCommentAccountSetup({
                 profileNos: profiles.map((item) => item.profileNo),
                 geo,
+                namesGeo: draft.namesGeo || geo,
+                companiesGeo: draft.companiesGeo || geo,
+                universitiesGeo: draft.universitiesGeo || geo,
+                professionsGeo: draft.professionsGeo || geo,
                 maleCount,
                 femaleCount,
                 photosDirectory: draft.photosDirectory,
@@ -134,6 +142,28 @@ export default function CreateCommentAccountsModal({
                         />
                     </label>
                 </div>
+                <details className="account-setup-advanced">
+                    <summary>Розширено: джерела даних профілю</summary>
+                    <p className="settings-hint">Якщо поле не вибране, використовується цільова країна.</p>
+                    <div className="form-grid">
+                        <label className="field">
+                            <span>Імена</span>
+                            <GeoSelect layout="list" countries={countries} value={draft.namesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для імен" onChange={(value) => setDraft((current) => ({ ...current, namesGeo: value }))} />
+                        </label>
+                        <label className="field">
+                            <span>Компанії</span>
+                            <GeoSelect layout="list" countries={countries} value={draft.companiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для компаній" onChange={(value) => setDraft((current) => ({ ...current, companiesGeo: value }))} />
+                        </label>
+                        <label className="field">
+                            <span>Професії</span>
+                            <GeoSelect layout="list" countries={countries} value={draft.professionsGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для професій" onChange={(value) => setDraft((current) => ({ ...current, professionsGeo: value }))} />
+                        </label>
+                        <label className="field">
+                            <span>Навчання</span>
+                            <GeoSelect layout="list" countries={countries} value={draft.universitiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для навчання" onChange={(value) => setDraft((current) => ({ ...current, universitiesGeo: value }))} />
+                        </label>
+                    </div>
+                </details>
                 <label className="field">
                     <span>Папка з фото</span>
                     <div className="inline-field">

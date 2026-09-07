@@ -21,6 +21,8 @@ function cleanInput(input = {}) {
         createAdsPaused: input.createAdsPaused !== false,
         creativeMode: input.creativeMode === "image" ? "image" : "post",
         geo: String(input.geo ?? ""),
+        language: String(input.language ?? ""),
+        creativeGeo: String(input.creativeGeo ?? input.language ?? input.geo ?? ""),
         creativeName: String(input.creativeName ?? ""),
         siteUrl: String(input.siteUrl ?? ""),
         imagePath: String(input.imagePath ?? ""),

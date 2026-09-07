@@ -32,6 +32,7 @@ export default function CreativeLaunchModal({
     const [keitaroPickerOpen, setKeitaroPickerOpen] = useState(false);
     const [draft, setDraft] = useState({
         geo: page.geo || "",
+        language: page.language || "",
         creativeName: page.creativeName || "",
         siteUrl: "",
         imagePath: "",
@@ -231,6 +232,18 @@ export default function CreativeLaunchModal({
                                     countries={countries}
                                     value={draft.geo}
                                     onChange={(value) => update("geo", value)}
+                                    layout="list"
+                                />
+                            </label>
+                            <label className="field geo-field">
+                                <span>Мова</span>
+                                <GeoSelect
+                                    countries={countries}
+                                    value={draft.language}
+                                    onChange={(value) => update("language", value)}
+                                    layout="list"
+                                    placeholder="Мова"
+                                    ariaLabel="Мова креативу"
                                 />
                             </label>
                             <label className="field">
@@ -415,7 +428,7 @@ export default function CreativeLaunchModal({
                     </button>
                 </div>
             </form>
-            {keitaroPickerOpen && <KeitaroCampaignPickerModal geo={draft.geo} creativeName={draft.creativeName} availableGroupIds={settings.keitaroAvailableGroupIds ?? []} onClose={() => setKeitaroPickerOpen(false)} onError={onError} onSelect={(url) => { update("siteUrl", url); setKeitaroPickerOpen(false); }} />}
+            {keitaroPickerOpen && <KeitaroCampaignPickerModal geo={draft.language || draft.geo} creativeName={draft.creativeName} availableGroupIds={settings.keitaroAvailableGroupIds ?? []} onClose={() => setKeitaroPickerOpen(false)} onError={onError} onSelect={(url) => { update("siteUrl", url); setKeitaroPickerOpen(false); }} />}
         </div>
     );
 }

@@ -55,6 +55,47 @@ function formatUpdatedAt(value) {
 }
 
 
+function audienceText(template) {
+    if (!template.countryCodes?.length) return "Потрібно доповнити";
+    return `${template.countryCodes.join(", ")} · ${template.locales?.length ? `${template.locales.length} мов` : "мова не вибрана"} · ${template.ageMin}–${template.ageMax === 65 ? "65+" : template.ageMax}`;
+}
+
+
+function templateSearchText(template) {
+    return [
+        template.id,
+        template.name,
+        ...(template.countryCodes ?? []),
+        audienceText(template),
+    ].join(" ").toLocaleLowerCase();
+}
+
+
+function compareTemplates(left, right, column, direction) {
+    const sign = direction === "desc" ? -1 : 1;
+    if (column === "id") {
+        return sign * (Number(left.id) - Number(right.id));
+    }
+    if (column === "updatedAt") {
+        return sign * ((Date.parse(left.updatedAt) || 0) - (Date.parse(right.updatedAt) || 0));
+    }
+    if (column === "countries") {
+        return sign * String(left.countryCodes?.join(", ") ?? "").localeCompare(
+            String(right.countryCodes?.join(", ") ?? ""),
+            "uk",
+            { sensitivity: "base" }
+        );
+    }
+    if (column === "audience") {
+        return sign * audienceText(left).localeCompare(audienceText(right), "uk", { sensitivity: "base" });
+    }
+    return sign * String(left.name ?? "").localeCompare(String(right.name ?? ""), "uk", {
+        numeric: true,
+        sensitivity: "base",
+    });
+}
+
+
 function cloneTemplate(template) {
     return {
         ...emptyDraft(),
@@ -81,6 +122,9 @@ export default function TemplatesTab({ onError, showToast }) {
     const [draft, setDraft] = useState(emptyDraft);
     const [countrySearch, setCountrySearch] = useState("");
     const [saving, setSaving] = useState(false);
+    const [search, setSearch] = useState("");
+    const [sortColumn, setSortColumn] = useState("name");
+    const [sortDirection, setSortDirection] = useState("asc");
 
     const load = async () => {
         setLoading(true);
@@ -108,6 +152,29 @@ export default function TemplatesTab({ onError, showToast }) {
     useEffect(() => {
         load();
     }, []);
+
+    const visibleTemplates = useMemo(() => {
+        const needle = search.trim().toLocaleLowerCase();
+        const filtered = needle
+            ? templates.filter((template) => templateSearchText(template).includes(needle))
+            : templates;
+        return [...filtered].sort((left, right) => (
+            compareTemplates(left, right, sortColumn, sortDirection)
+        ));
+    }, [templates, search, sortColumn, sortDirection]);
+
+    const toggleSort = (column) => {
+        if (sortColumn === column) {
+            setSortDirection((current) => current === "asc" ? "desc" : "asc");
+            return;
+        }
+        setSortColumn(column);
+        setSortDirection(column === "updatedAt" ? "desc" : "asc");
+    };
+
+    const sortMark = (column) => (
+        sortColumn === column ? (sortDirection === "asc" ? " ▲" : " ▼") : ""
+    );
 
     const filteredCountries = useMemo(() => {
         const query = countrySearch.trim().toLowerCase();
@@ -252,10 +319,29 @@ export default function TemplatesTab({ onError, showToast }) {
                 </button>
             </div>
 
+            <div className="templates-toolbar">
+                <label>
+                    <Search size={15} />
+                    <input
+                        aria-label="Пошук шаблонів"
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        placeholder="Назва, ID, країна…"
+                    />
+                </label>
+                {!loading && templates.length > 0 && (
+                    <span>{visibleTemplates.length} з {templates.length}</span>
+                )}
+            </div>
+
             <div className="templates-table-card">
                 <div className="templates-table-head templates-grid">
-                    <span>ID</span><span>Назва</span><span>Країни</span>
-                    <span>Аудиторія</span><span>Оновлено</span><span>Дії</span>
+                    <button type="button" className="comment-sort" onClick={() => toggleSort("id")}>ID{sortMark("id")}</button>
+                    <button type="button" className="comment-sort" onClick={() => toggleSort("name")}>Назва{sortMark("name")}</button>
+                    <button type="button" className="comment-sort" onClick={() => toggleSort("countries")}>Країни{sortMark("countries")}</button>
+                    <button type="button" className="comment-sort" onClick={() => toggleSort("audience")}>Аудиторія{sortMark("audience")}</button>
+                    <button type="button" className="comment-sort" onClick={() => toggleSort("updatedAt")}>Оновлено{sortMark("updatedAt")}</button>
+                    <span>Дії</span>
                 </div>
                 {loading && <div className="templates-empty"><LoaderCircle className="spin" size={23} /> Завантажуємо шаблони…</div>}
                 {!loading && templates.length === 0 && (
@@ -265,7 +351,14 @@ export default function TemplatesTab({ onError, showToast }) {
                         <span>Створіть перший шаблон рекламної кампанії.</span>
                     </div>
                 )}
-                {!loading && templates.map((template) => (
+                {!loading && templates.length > 0 && visibleTemplates.length === 0 && (
+                    <div className="templates-empty">
+                        <Search size={31} />
+                        <strong>Нічого не знайдено</strong>
+                        <span>Спробуйте інший запит пошуку.</span>
+                    </div>
+                )}
+                {!loading && visibleTemplates.map((template) => (
                     <div key={template.id} className="template-row templates-grid" role="button" tabIndex={0} onClick={() => openEdit(template)} onKeyDown={(event) => {
                         if (event.key === "Enter" || event.key === " ") openEdit(template);
                     }}>
@@ -273,9 +366,7 @@ export default function TemplatesTab({ onError, showToast }) {
                         <strong>{template.name}</strong>
                         <span>{template.countryCodes?.join(", ") || "Країни не вибрані"}</span>
                         <span className={template.countryCodes?.length ? "" : "muted-value"}>
-                            {template.countryCodes?.length
-                                ? `${template.countryCodes.join(", ")} · ${template.locales?.length ? `${template.locales.length} мов` : "мова не вибрана"} · ${template.ageMin}–${template.ageMax === 65 ? "65+" : template.ageMax}`
-                                : "Потрібно доповнити"}
+                            {audienceText(template)}
                         </span>
                         <time>{formatUpdatedAt(template.updatedAt)}</time>
                         <span className="template-actions">

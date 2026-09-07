@@ -1,4 +1,4 @@
-import { stat } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
 import { appPaths } from "./paths.js";
@@ -28,6 +28,32 @@ function serializeError(error) {
         createdObjects: error?.createdObjects ?? null,
         jobId: error?.jobId ?? null,
     };
+}
+
+
+const markdownReportPattern = /^(commenting-report|comment-account-setup-report)_.+\.md$/i;
+
+
+function markdownReportType(fileName) {
+    return fileName.startsWith("commenting-report_") ? "comments" : "account-setup";
+}
+
+
+function markdownReportTitle(type) {
+    return type === "comments"
+        ? "Коментарі"
+        : "Оформлення акаунтів";
+}
+
+
+function markdownReportFileName(value) {
+    const fileName = path.basename(String(value ?? ""));
+    if (!markdownReportPattern.test(fileName)) {
+        const error = new Error("Некоректний файл звіту");
+        error.code = "MARKDOWN_REPORT_INVALID";
+        throw error;
+    }
+    return fileName;
 }
 
 
@@ -501,6 +527,7 @@ export default function registerIpcHandlers({
             runner: async ({ signal, progress, waitForAction }) => {
                 let job = await creativeLaunchJournal.update(launchJob.id, { status: "running", errors: [] });
                 const draft = job.draft;
+                const creativeGeo = draft.language || draft.geo;
                 const setSubtask = async (id, patch) => {
                     job = await creativeLaunchJournal.updateSubtask(job.id, id, patch);
                     const subtasks = job.subtasks;
@@ -523,7 +550,7 @@ export default function registerIpcHandlers({
                         guiService.getFanPages(draft.accountKey),
                         guiService.getAdAccounts(draft.accountKey),
                         guiService.getAdsPowerGroups(),
-                        guiService.prepareCreative({ geo: draft.geo, creativeName: draft.creativeName, siteUrl: draft.siteUrl }),
+                        guiService.prepareCreative({ geo: creativeGeo, creativeName: draft.creativeName, siteUrl: draft.siteUrl }),
                     ]);
                     if (!pages.some((page) => String(page.id) === draft.pageId)) throw Object.assign(new Error("Фанпейджа недоступна API-клієнту"), { code: "CREATIVE_LAUNCH_PAGE_UNAVAILABLE" });
                     const adAccount = accounts.find((account) => String(account.id) === draft.adAccountId);
@@ -585,7 +612,11 @@ export default function registerIpcHandlers({
                             },
                         },
                     });
-                    await pagePreferencesStore.updateMetadata(draft.pageId, { geo: draft.geo, creativeName: draft.creativeName });
+                    await pagePreferencesStore.updateMetadata(draft.pageId, {
+                        geo: draft.geo,
+                        language: draft.language,
+                        creativeName: draft.creativeName,
+                    });
                     job = await creativeLaunchJournal.update(job.id, { post, cleanup });
                     await setSubtask("publication", {
                         status: cleanup.failed.length ? "completed_with_warnings" : "completed",
@@ -620,7 +651,7 @@ export default function registerIpcHandlers({
                             );
                             const response = await guiService.runParallelComments({
                                 groupIds: draft.groupIds, comments: prepared.comments,
-                                geo: draft.geo, creativeName: draft.creativeName,
+                                geo: creativeGeo, creativeName: draft.creativeName,
                                 postUrl: post.permalinkUrl, browserMode: draft.browserMode,
                                 disableImages: draft.disableImages, concurrency: draft.commentWorkerConcurrency,
                                 workerProxies,
@@ -1368,6 +1399,8 @@ export default function registerIpcHandlers({
                 accountKey: String(payload.accountKey ?? ""),
                 pageId: String(payload.pageId ?? ""),
                 geo: String(payload.geo ?? "").trim().toUpperCase(),
+                language: String(payload.language ?? "").trim().toUpperCase(),
+                creativeGeo: String(payload.creativeGeo ?? payload.language ?? payload.geo ?? "").trim().toUpperCase(),
                 creativeName: String(payload.creativeName ?? "").trim(),
                 siteUrl: String(payload.siteUrl ?? "").trim(),
                 imagePath: String(payload.imagePath ?? ""),
@@ -1412,6 +1445,7 @@ export default function registerIpcHandlers({
                     accountKey: input.accountKey,
                     pageId: input.pageId,
                     geo: input.geo,
+                    language: input.language,
                     creativeName: input.creativeName,
                     commentsEnabled: !input.disableComments,
                 },
@@ -1454,6 +1488,7 @@ export default function registerIpcHandlers({
                     );
                     await pagePreferencesStore.updateMetadata(input.pageId, {
                         geo: input.geo,
+                        language: input.language,
                         creativeName: input.creativeName,
                     });
                     let commentSummary = null;
@@ -1469,6 +1504,7 @@ export default function registerIpcHandlers({
                         commentSummary = await guiService.runParallelCommentingCampaign({
                             groupIds: input.commentGroupIds,
                             geo: input.geo,
+                            creativeGeo: input.creativeGeo,
                             creativeName: input.creativeName,
                             siteUrl: input.siteUrl,
                             postUrl: post.permalinkUrl,
@@ -1495,6 +1531,7 @@ export default function registerIpcHandlers({
                         accountKey: input.accountKey,
                         pageId: input.pageId,
                         geo: input.geo,
+                        language: input.language,
                         creativeName: input.creativeName,
                         siteUrl: input.siteUrl,
                         postId: post.postId,
@@ -1567,6 +1604,8 @@ export default function registerIpcHandlers({
                 input: {
                     groupIds,
                     geo: payload.geo,
+                    creativeGeo: payload.creativeGeo || payload.language || payload.geo,
+                    language: payload.language || "",
                     creativeName: payload.creativeName,
                     siteUrl: payload.siteUrl,
                     postUrl: payload.postUrl,
@@ -1578,6 +1617,7 @@ export default function registerIpcHandlers({
                 metadata: {
                     groupIds,
                     geo: payload.geo,
+                    language: payload.language || "",
                     browserMode,
                     disableImages,
                 },
@@ -1642,6 +1682,12 @@ export default function registerIpcHandlers({
                 );
             }
             const geo = String(payload.geo ?? "").replace(/\s+/g, " ").trim();
+            const profileDataSources = {
+                namesGeo: String(payload.namesGeo ?? "").trim().toUpperCase() || geo,
+                companiesGeo: String(payload.companiesGeo ?? "").trim().toUpperCase() || geo,
+                universitiesGeo: String(payload.universitiesGeo ?? "").trim().toUpperCase() || geo,
+                professionsGeo: String(payload.professionsGeo ?? "").trim().toUpperCase() || geo,
+            };
             const photosDirectory = String(payload.photosDirectory ?? "").trim();
             const task = await backgroundTaskManager.enqueue({
                 type: "account-setup",
@@ -1655,6 +1701,7 @@ export default function registerIpcHandlers({
                     geo,
                     maleCount: payload.maleCount,
                     femaleCount: payload.femaleCount,
+                    ...profileDataSources,
                     photosDirectory,
                     browserMode,
                     commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
@@ -1674,6 +1721,7 @@ export default function registerIpcHandlers({
                         geo,
                         maleCount: payload.maleCount,
                         femaleCount: payload.femaleCount,
+                        ...profileDataSources,
                         photosDirectory,
                         browserMode,
                         concurrency: payload.commentWorkerConcurrency,
@@ -1784,6 +1832,66 @@ export default function registerIpcHandlers({
             if (result.canceled || !result.filePath) return null;
             await reportManager.exportMarkdown(reportId, result.filePath);
             return true;
+        })
+    );
+    ipcMain.handle(
+        "reports:markdown-list",
+        safeHandler(async ({ query = "", type, dateFrom, dateTo } = {}) => {
+            const needle = String(query).trim().toLocaleLowerCase();
+            const from = dateFrom ? new Date(dateFrom) : null;
+            const to = dateTo ? new Date(dateTo) : null;
+            const entries = await readdir(appPaths.reports, { withFileTypes: true }).catch((error) => {
+                if (error.code === "ENOENT") return [];
+                throw error;
+            });
+            const reports = await Promise.all(entries
+                .filter((entry) => entry.isFile() && markdownReportPattern.test(entry.name))
+                .map(async (entry) => {
+                    const filePath = path.join(appPaths.reports, entry.name);
+                    const info = await stat(filePath);
+                    const reportType = markdownReportType(entry.name);
+                    const content = needle ? await readFile(filePath, "utf8") : "";
+                    return {
+                        id: entry.name,
+                        type: reportType,
+                        title: markdownReportTitle(reportType),
+                        createdAt: info.mtime.toISOString(),
+                        matches: !needle || `${entry.name} ${content}`.toLocaleLowerCase().includes(needle),
+                    };
+                }));
+            return reports.filter((report) => (
+                (!type || report.type === type)
+                && (!from || new Date(report.createdAt) >= from)
+                && (!to || new Date(report.createdAt) <= to)
+                && report.matches
+            )).sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+                .map(({ matches, ...report }) => report);
+        })
+    );
+    ipcMain.handle(
+        "reports:markdown-get",
+        safeHandler(async ({ reportId }) => {
+            const fileName = markdownReportFileName(reportId);
+            const filePath = path.join(appPaths.reports, fileName);
+            let content;
+            try {
+                content = await readFile(filePath, "utf8");
+            } catch (error) {
+                if (error.code === "ENOENT") {
+                    throw Object.assign(new Error("Звіт не знайдено"), { code: "REPORT_NOT_FOUND" });
+                }
+                throw error;
+            }
+            const info = await stat(filePath);
+            const type = markdownReportType(fileName);
+            return {
+                id: fileName,
+                type,
+                title: markdownReportTitle(type),
+                createdAt: info.mtime.toISOString(),
+                content,
+                filePath,
+            };
         })
     );
     ipcMain.handle(

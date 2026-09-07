@@ -1,4 +1,5 @@
 import getProfileGender from "../services/profile/getProfileGender.js";
+import saveCommentingReport from "../services/reports/saveCommentingReport.js";
 import executeCommentWithProfile from "../workflows/comments/executeCommentWithProfile.js";
 
 
@@ -52,7 +53,9 @@ function createReport({
         postUrl,
         browserMode: browserMode === "headless" ? "headless" : "visible",
         disableImages: disableImages === true,
+        interrupted: false,
         fatalError: null,
+        reportPath: null,
         published: [],
         skipped: [],
         failedComments: [],
@@ -60,6 +63,7 @@ function createReport({
         excludedProfiles: [],
         cleanupWarnings: [],
         profileKeyMap: {},
+        profileDurations: [],
     };
 }
 
@@ -168,6 +172,7 @@ export default async function runCommentingScenario({
     const brokenProfileKeys = new Set();
     const attemptedProfileNos = new Set();
     const publishedCommentIds = new Set();
+    const profileDurationMap = new Map();
     const progress = async (payload) => {
         if (typeof onProgress === "function") await onProgress({
             published: report.published.length,
@@ -321,30 +326,52 @@ export default async function runCommentingScenario({
                 message: `Коментар ${comment.id} · профіль ${profileNo}`,
             });
 
-            const result = await executeCommentWithProfile({
-                adsPower,
-                profile,
-                postUrl,
-                comment,
-                parentComment,
-                browserMode: report.browserMode,
-                disableImages: report.disableImages,
-                logger: campaignLogger,
-                signal,
-            });
-
-            saveCleanupWarnings(result);
-
-            if (!result.success) {
-                report.failedProfiles.push({
-                    profileNo,
-                    commentId: comment.id,
-                    stage: result.stage,
-                    error: result.error,
+            const startedAt = new Date().toISOString();
+            let result = null;
+            try {
+                result = await executeCommentWithProfile({
+                    adsPower,
+                    profile,
+                    postUrl,
+                    comment,
+                    parentComment,
+                    browserMode: report.browserMode,
+                    disableImages: report.disableImages,
+                    logger: campaignLogger,
+                    signal,
                 });
-            }
 
-            return result;
+                saveCleanupWarnings(result);
+
+                if (!result.success) {
+                    report.failedProfiles.push({
+                        profileNo,
+                        commentId: comment.id,
+                        stage: result.stage,
+                        error: result.error,
+                    });
+                }
+
+                return result;
+            } finally {
+                const finishedAt = new Date().toISOString();
+                const duration = Math.max(0, new Date(finishedAt) - new Date(startedAt));
+                const current = profileDurationMap.get(profileNo) ?? {
+                    profileNo,
+                    startedAt,
+                    finishedAt,
+                    durationMs: 0,
+                    commentIds: [],
+                    successfulAttempts: 0,
+                    failedAttempts: 0,
+                };
+                current.finishedAt = finishedAt;
+                current.durationMs += duration;
+                current.commentIds.push(comment.id);
+                if (result?.success) current.successfulAttempts += 1;
+                else current.failedAttempts += 1;
+                profileDurationMap.set(profileNo, current);
+            }
         };
 
         const savePublishedComment = (
@@ -598,12 +625,24 @@ export default async function runCommentingScenario({
         }
     } catch (error) {
         report.fatalError = error.message;
+        report.interrupted = signal?.aborted || error?.name === "AbortError";
         campaignLogger.error(
             `Критична помилка сценарію: ${error.message}`
         );
     } finally {
         report.finishedAt = new Date().toISOString();
         report.profileKeyMap = Object.fromEntries(profileKeyMap);
+        report.profileDurations = [...profileDurationMap.values()];
+        try {
+            report.reportPath = await saveCommentingReport(report, reportsDirectory);
+        } catch (error) {
+            report.cleanupWarnings.push({
+                profileNo: "—",
+                commentId: "—",
+                error: `Звіт: ${error.message}`,
+            });
+            campaignLogger.error(`Не вдалося зберегти звіт: ${error.message}`);
+        }
         await progress({ stage: "report", message: "Формуємо структурований звіт" });
     }
 

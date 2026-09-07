@@ -541,6 +541,10 @@ export default class AdsBotGuiService {
         geo,
         maleCount,
         femaleCount,
+        namesGeo,
+        companiesGeo,
+        universitiesGeo,
+        professionsGeo,
         photosDirectory,
         concurrency = 5,
         workerProxies = null,
@@ -570,6 +574,10 @@ export default class AdsBotGuiService {
             geo,
             maleCount,
             femaleCount,
+            namesGeo,
+            companiesGeo,
+            universitiesGeo,
+            professionsGeo,
         });
         const personas = generated.profiles.map((profile) => ({
             gender: profile.gender,
@@ -614,6 +622,7 @@ export default class AdsBotGuiService {
         accountKey,
         pageId,
         geo,
+        creativeGeo = geo,
         creativeName,
         siteUrl,
         imagePath = "",
@@ -626,10 +635,10 @@ export default class AdsBotGuiService {
         const total = imagePath ? 4 : 3;
         await progress({ stage: "creative", completed: 0, total, message: "Готуємо креатив" });
         this.logger.info(
-            `Отримуємо або генеруємо креатив ${geo} ${creativeName}; це може тривати декілька хвилин…`
+            `Отримуємо або генеруємо креатив ${creativeGeo} ${creativeName}; це може тривати декілька хвилин…`
         );
         const preparedCreative = await this.#facebookBackend.prepareCreative({
-            geo,
+            geo: creativeGeo,
             creativeName,
             siteUrl,
         });
@@ -676,15 +685,17 @@ export default class AdsBotGuiService {
 
     async runParallelCommentingCampaign(options = {}) {
         if (!this.#creativeManager) this.#creativeManager = this.#creativeManagerFactory();
-        const creative = await this.#creativeManager.getCreative(options.geo, options.creativeName);
+        const creativeGeo = options.creativeGeo || options.geo;
+        const creative = await this.#creativeManager.getCreative(creativeGeo, options.creativeName);
         const comments = prepareCommentsForCampaign({
             creative,
             siteUrl: options.siteUrl ?? "",
             flattenReplies: options.commentTarget === "ad",
         });
-        const response = await this.runParallelComments({ ...options, comments });
+        const response = await this.runParallelComments({ ...options, geo: creativeGeo, comments });
         const report = response.report;
         return {
+            reportPath: report.reportPath,
             published: report.published.length,
             skipped: report.skipped.length,
             failedComments: report.failedComments.length,
@@ -697,6 +708,7 @@ export default class AdsBotGuiService {
                 resultSummary: { published: report.published, skipped: report.skipped, failedComments: report.failedComments, failedProfiles: report.failedProfiles, uncertain: report.interrupted ? report.failedComments : [] },
                 counters: { published: report.published.length, skipped: report.skipped.length, failedComments: report.failedComments.length, failedProfiles: report.failedProfiles.length },
                 warnings: report.cleanupWarnings,
+                artifacts: report.reportPath ? [{ path: report.reportPath, kind: "markdown" }] : [],
             },
         };
     }
@@ -762,6 +774,7 @@ export default class AdsBotGuiService {
         });
 
         const summary = {
+            reportPath: result.report.reportPath,
             published: result.report.published.length,
             skipped: result.report.skipped.length,
             failedComments: result.report.failedComments.length,
@@ -795,6 +808,7 @@ export default class AdsBotGuiService {
                 },
                 warnings: result.report.cleanupWarnings,
                 errors: result.report.fatalError ? [{ message: result.report.fatalError }] : [],
+                artifacts: result.report.reportPath ? [{ path: result.report.reportPath, kind: "markdown" }] : [],
             },
         };
         this.logger.info(

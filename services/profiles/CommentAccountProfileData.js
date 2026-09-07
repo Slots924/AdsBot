@@ -153,8 +153,20 @@ export default class CommentAccountProfileData {
 
 
     // Основний публічний метод: повертає дані для коментарних акаунтів
-    async getCommentAccountProfiles({ geo, maleCount = 0, femaleCount = 0 } = {}) {
+    async getCommentAccountProfiles({
+        geo,
+        maleCount = 0,
+        femaleCount = 0,
+        namesGeo = geo,
+        companiesGeo = geo,
+        universitiesGeo = geo,
+        professionsGeo = geo,
+    } = {}) {
         const geoCode = normalizeGeoCode(geo);
+        const namesGeoCode = normalizeGeoCode(namesGeo);
+        const companiesGeoCode = normalizeGeoCode(companiesGeo);
+        const universitiesGeoCode = normalizeGeoCode(universitiesGeo);
+        const professionsGeoCode = normalizeGeoCode(professionsGeo);
         const mCount = normalizeCount(maleCount, "Кількість чоловічих профілів");
         const fCount = normalizeCount(femaleCount, "Кількість жіночих профілів");
         const total = mCount + fCount;
@@ -169,11 +181,11 @@ export default class CommentAccountProfileData {
         console.log(`[CommentAccountProfileData] Підготовка профілів для ${geoCode} (чоловіків: ${mCount}, жінок: ${fCount})...`);
 
         // Забезпечуємо наявність даних тільки для тих, кого запитуємо (щоб не генерувати жіночі імена коли просять 0)
-        const maleNames = mCount > 0 ? await this.#ensureNames(geoCode, "male") : [];
-        const femaleNames = fCount > 0 ? await this.#ensureNames(geoCode, "female") : [];
-        const companies = await this.#ensureCompanies(geoCode);
-        const universities = await this.#ensureUniversities(geoCode);
-        const professions = await this.#ensureProfessions(geoCode);
+        const maleNames = mCount > 0 ? await this.#ensureNames(namesGeoCode, "male") : [];
+        const femaleNames = fCount > 0 ? await this.#ensureNames(namesGeoCode, "female") : [];
+        const companies = await this.#ensureCompanies(companiesGeoCode);
+        const universities = await this.#ensureUniversities(universitiesGeoCode);
+        const professions = await this.#ensureProfessions(professionsGeoCode);
 
         // Беремо перші N елементів (з циклічним взяттям якщо мало)
         const maleTake = this.#takeItems(maleNames, mCount);
@@ -183,11 +195,11 @@ export default class CommentAccountProfileData {
         const profTake = this.#takeItems(professions, total);
 
         // Зберігаємо ротацію тільки для тих, кого використовували
-        if (mCount > 0) await this.#saveNames(geoCode, "male", maleTake.remaining);
-        if (fCount > 0) await this.#saveNames(geoCode, "female", femaleTake.remaining);
-        await this.#saveCompanies(geoCode, compTake.remaining);
-        await this.#saveUniversities(geoCode, uniTake.remaining);
-        await this.#saveProfessions(geoCode, profTake.remaining);
+        if (mCount > 0) await this.#saveNames(namesGeoCode, "male", maleTake.remaining);
+        if (fCount > 0) await this.#saveNames(namesGeoCode, "female", femaleTake.remaining);
+        await this.#saveCompanies(companiesGeoCode, compTake.remaining);
+        await this.#saveUniversities(universitiesGeoCode, uniTake.remaining);
+        await this.#saveProfessions(professionsGeoCode, profTake.remaining);
 
         // Формуємо профілі
         const profiles = [];
@@ -220,6 +232,12 @@ export default class CommentAccountProfileData {
 
         return {
             geo: geoCode,
+            sources: {
+                namesGeo: namesGeoCode,
+                companiesGeo: companiesGeoCode,
+                universitiesGeo: universitiesGeoCode,
+                professionsGeo: professionsGeoCode,
+            },
             profiles,
         };
     }

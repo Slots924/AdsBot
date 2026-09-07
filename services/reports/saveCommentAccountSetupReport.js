@@ -81,17 +81,73 @@ function genderLabel(gender) {
 }
 
 
-function stepLine(title, step) {
-    if (!step) return `- ${title}: не виконували`;
-    if (step.skipped) {
-        return `- ${title}: пропущено${step.reason ? ` — ${step.reason}` : ""}`;
+function formatDuration(durationMs) {
+    const milliseconds = Number(durationMs);
+    if (!Number.isFinite(milliseconds)) return "—";
+    const totalSeconds = Math.max(0, Math.round(milliseconds / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (hours) return `${hours} год ${minutes} хв ${seconds} с`;
+    if (minutes) return `${minutes} хв ${seconds} с`;
+    return `${seconds} с`;
+}
+
+
+function stepProblem(step) {
+    if (!step || step.ok || step.skipped) return null;
+    return step.error || step.status || "невідома причина";
+}
+
+
+function profileProblem(item) {
+    if (item.error) return item.error;
+    if (item.skipReason) return item.skipReason;
+    for (const step of Object.values(item.steps ?? {})) {
+        const problem = stepProblem(step);
+        if (problem) return problem;
     }
+    return null;
+}
+
+
+function photoValue(step) {
+    if (!step) return "Не виконували";
+    if (step.skipped) return `Пропущено${step.reason ? ` — ${step.reason}` : ""}`;
     if (step.ok) {
-        const detail = step.detail ? ` — ${step.detail}` : "";
-        return `- ${title}: ок${detail}`;
+        return step.attempts > 1
+            ? `Успішно з ${step.attempts}-ї спроби`
+            : "Успішно";
     }
-    const reason = step.error || step.status || "невідома причина";
-    return `- ${title}: не вдалося — ${reason}`;
+    return `Не вдалося — ${stepProblem(step)}`;
+}
+
+
+function ordinaryStepValue(step) {
+    if (!step) return "Не виконували";
+    if (step.skipped) return `Пропущено${step.reason ? ` — ${step.reason}` : ""}`;
+    if (step.ok) return step.detail || "Успішно";
+    return `Не вдалося — ${stepProblem(step)}`;
+}
+
+
+function facebookNameValue(item, fullName) {
+    const step = item.steps?.name;
+    if (item.outcome === "skipped") {
+        return `Не виконували${item.skipReason ? ` — ${item.skipReason}` : ""}`;
+    }
+    if (step?.ok && fullName) return `${fullName} · ${genderLabel(item.persona?.gender)}`;
+    if (step?.skipped) return `Пропущено${step.reason ? ` — ${step.reason}` : ""}`;
+    return `Не вдалося змінити — ${stepProblem(step) || item.error || "невідома причина"}`;
+}
+
+function postsValue(step) {
+    if (!step) return "Не виконували";
+    if (step.skipped) return `Пропущено${step.reason ? ` — ${step.reason}` : ""}`;
+    const published = String(step.detail ?? "").match(/(?:^|\s)(\d+)\s+фото/u);
+    if (step.ok) return published ? `Опубліковано: ${published[1]}` : "Успішно";
+    const partial = step.detail ? `; ${step.detail}` : "";
+    return `Не вдалося — ${stepProblem(step)}${partial}`;
 }
 
 
@@ -106,31 +162,19 @@ function buildProfileSection(item) {
         "",
     ];
 
-    if (item.skipReason) {
-        lines.push(`- Причина: ${escapeText(item.skipReason)}`);
-    }
+    lines.push(createTable(["Дані", "Результат"], [
+        ["Час виконання", formatDuration(item.durationMs)],
+        ["Ім’я Facebook", facebookNameValue(item, fullName)],
+        ["Назва AdsPower", item.adsPowerName ? `\`${item.adsPowerName}\`` : ordinaryStepValue(steps.adsPowerRename)],
+        ["Аватарка", photoValue(steps.avatar)],
+        ["Обкладинка", photoValue(steps.cover)],
+        ["Видалення постів", ordinaryStepValue(steps.deletePosts)],
+        ["Нові пости", postsValue(steps.posts)],
+        ["Дані про себе", ordinaryStepValue(steps.about)],
+    ]));
 
-    if (fullName) {
-        lines.push(`- Персонаж: **${escapeText(fullName)}** (${genderLabel(persona.gender)})`);
-    }
-
-    if (item.adsPowerName) {
-        lines.push(`- Назва в AdsPower: \`${escapeText(item.adsPowerName)}\``);
-    }
-
-    lines.push(stepLine("Ім’я Facebook", steps.name));
-    lines.push(stepLine("Аватар", steps.avatar));
-    lines.push(stepLine("Обкладинка", steps.cover));
-    lines.push(stepLine("Видалення старих постів", steps.deletePosts));
-    lines.push(stepLine("Нові пости", steps.posts));
-    lines.push(stepLine("About", steps.about));
-    lines.push(stepLine("Тег статі", steps.genderTag));
-    lines.push(stepLine("Перейменування AdsPower", steps.adsPowerRename));
-    lines.push(stepLine("Папка фото", steps.photoFolderRename));
-
-    if (item.error && item.outcome !== "skipped") {
-        lines.push(`- Загальна помилка: ${escapeText(item.error)}`);
-    }
+    const problem = profileProblem(item);
+    if (problem) lines.push("", `> Причина: ${escapeText(problem)}`);
 
     return lines.join("\n");
 }
@@ -150,20 +194,26 @@ export function buildCommentAccountSetupMarkdown(report) {
         ["Не вдалося", failed.length],
         ["Пропущено", skipped.length],
     ];
-    const profileRows = profiles.map((item) => [
+    const outcomeOrder = { failed: 0, completed_with_error: 1, skipped: 2, success: 3 };
+    const orderedProfiles = [...profiles].sort((left, right) => (
+        (outcomeOrder[left.outcome] ?? 4) - (outcomeOrder[right.outcome] ?? 4)
+        || String(left.profileNo).localeCompare(String(right.profileNo), "uk-UA", { numeric: true })
+    ));
+    const profileRows = orderedProfiles.map((item) => [
         item.profileNo,
         outcomeLabel(item.outcome),
         genderLabel(item.persona?.gender),
         [item.persona?.firstName, item.persona?.lastName]
             .filter(Boolean)
             .join(" "),
-        item.error || item.skipReason,
+        profileProblem(item),
     ]);
     const sections = [
         "# Звіт оформлення акаунтів під коментарі",
         "",
         `- Початок: ${formatDateTime(report.startedAt)}`,
         `- Завершення: ${formatDateTime(report.finishedAt)}`,
+        `- Загальний час: ${formatDuration(new Date(report.finishedAt) - new Date(report.startedAt))}`,
         `- Гео: ${escapeCell(report.geo)}`,
         `- Профілів у списку: ${escapeCell(report.profileNos?.length)}`,
         `- Персонажів у JSON: ${escapeCell(report.personaCount)}`,
@@ -171,6 +221,7 @@ export function buildCommentAccountSetupMarkdown(report) {
         `- Воркерів: ${escapeCell(report.concurrency)}`,
         `- Режим браузера: ${report.browserMode === "headless" ? "Headless" : "Звичайний"}`,
         `- Критична помилка: ${escapeCell(report.fatalError)}`,
+        `- Стан: ${report.interrupted ? "Перервано користувачем" : "Завершено"}`,
         "",
         "## Підсумок",
         "",
@@ -187,12 +238,23 @@ export function buildCommentAccountSetupMarkdown(report) {
         "",
     ];
 
-    if (profiles.length === 0) {
+    if (orderedProfiles.length === 0) {
         sections.push("Немає профілів для звіту.", "");
     } else {
-        profiles.forEach((item, index) => {
-            if (index > 0) sections.push("");
-            sections.push(buildProfileSection(item));
+        const groups = [
+            ["Не вдалося", "failed"],
+            ["Завершено з помилкою", "completed_with_error"],
+            ["Пропущено", "skipped"],
+            ["Успішно", "success"],
+        ];
+        groups.forEach(([title, outcome]) => {
+            const items = orderedProfiles.filter((item) => item.outcome === outcome);
+            if (!items.length) return;
+            sections.push(`## ${title}`, "");
+            items.forEach((item, index) => {
+                if (index > 0) sections.push("");
+                sections.push(buildProfileSection(item), "");
+            });
         });
         sections.push("");
     }

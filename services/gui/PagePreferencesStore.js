@@ -28,6 +28,7 @@ export default class PagePreferencesStore {
             return pages.map((page) => ({
                 ...page,
                 geo: store.pages[String(page.id)]?.geo ?? "",
+                language: store.pages[String(page.id)]?.language ?? "",
                 creativeName: store.pages[String(page.id)]?.creativeName ?? "",
                 isFavorite: favorites.has(String(page.id)),
             }));
@@ -50,17 +51,23 @@ export default class PagePreferencesStore {
         return this.#enqueue(async () => {
             const id = normalizeId(pageId);
             const store = await this.#read();
-            const current = store.pages[id] ?? { geo: "", creativeName: "" };
+            const current = store.pages[id] ?? { geo: "", language: "", creativeName: "" };
             store.pages[id] = {
                 geo: patch.geo === undefined
                     ? current.geo
                     : String(patch.geo ?? "").trim().toUpperCase(),
+                language: patch.language === undefined
+                    ? current.language
+                    : String(patch.language ?? "").trim().toUpperCase(),
                 creativeName: patch.creativeName === undefined
                     ? current.creativeName
                     : String(patch.creativeName ?? "").trim().replace(/^Creo_/i, ""),
             };
             if (store.pages[id].geo && !/^[A-Z]{2}$/.test(store.pages[id].geo)) {
                 throw Object.assign(new Error("GEO має бути ISO-кодом із двох літер"), { code: "PAGE_GEO_INVALID" });
+            }
+            if (store.pages[id].language && !/^[A-Z]{2}$/.test(store.pages[id].language)) {
+                throw Object.assign(new Error("Мова має бути ISO-кодом із двох літер"), { code: "PAGE_LANGUAGE_INVALID" });
             }
             await this.#write(store);
             return { pageId: id, ...store.pages[id] };
@@ -80,6 +87,7 @@ export default class PagePreferencesStore {
             for (const [id, value] of Object.entries(parsed?.pages ?? {})) {
                 pages[String(id)] = {
                     geo: String(value?.geo ?? "").trim().toUpperCase(),
+                    language: String(value?.language ?? "").trim().toUpperCase(),
                     creativeName: String(value?.creativeName ?? "").trim().replace(/^Creo_/i, ""),
                 };
             }

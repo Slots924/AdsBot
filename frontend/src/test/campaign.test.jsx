@@ -16,6 +16,10 @@ describe("Створення рекламної кампанії", () => {
         window.adsBot = {
             getFanPages: vi.fn(),
             getCountries: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+            getKeitaroCampaignSettings: vi.fn().mockResolvedValue({
+                ok: true,
+                data: { pixels: [] },
+            }),
         };
     });
 

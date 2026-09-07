@@ -498,7 +498,12 @@ button:focus-visible, input:focus-visible {
 
 .templates-content { width: min(1180px, calc(100% - 48px)); }
 .templates-create { min-height: 44px; }
+.templates-toolbar { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; }
+.templates-toolbar > label { display: flex; align-items: center; gap: 8px; flex: 1; height: 39px; padding: 0 11px; border: 1px solid var(--stroke); border-radius: 9px; color: var(--muted); background: rgba(255,255,255,.025); }
+.templates-toolbar input { flex: 1; min-width: 0; border: 0; outline: 0; color: var(--text); background: transparent; }
+.templates-toolbar > span { color: var(--muted); font-size: var(--font-meta); white-space: nowrap; }
 .templates-table-card { overflow: hidden; border: 1px solid var(--stroke); border-radius: 17px; background: rgba(17,20,32,.8); box-shadow: var(--shadow); }
+.templates-table-head .comment-sort { color: inherit; font-size: inherit; font-weight: inherit; letter-spacing: inherit; white-space: nowrap; }
 .templates-grid { display: grid; grid-template-columns: 70px minmax(160px, 1.4fr) minmax(130px, 1fr) minmax(170px, 1.2fr) 125px 90px; align-items: center; gap: 12px; }
 .templates-table-head { min-height: 42px; padding: 0 18px; color: #777f93; border-bottom: 1px solid var(--stroke); background: rgba(255,255,255,.03); font-size: var(--font-meta); font-weight: 800; text-transform: uppercase; letter-spacing: .09em; }
 .template-row { min-height: 57px; padding: 0 18px; color: #b8bdca; border-bottom: 1px solid rgba(255,255,255,.065); cursor: pointer; transition: background .18s, box-shadow .18s; }
@@ -746,6 +751,15 @@ button:focus-visible, input:focus-visible {
 .journal-more { align-self: center; margin: 12px; }
 .journal-detail-modal { width: min(820px,90vw); }
 .journal-detail-modal pre { max-height: 55vh; overflow: auto; padding: 13px; border: 1px solid var(--stroke); border-radius: 11px; background: #080a10; color: #abb4c7; font: var(--font-meta)/1.55 "Cascadia Code",Consolas,monospace; white-space: pre-wrap; word-break: break-word; }
+.markdown-preview { max-height: 55vh; overflow: auto; padding: 18px; border: 1px solid var(--stroke); border-radius: 11px; color: #c8cedb; background: #080a10; line-height: 1.55; }
+.markdown-preview h1, .markdown-preview h2, .markdown-preview h3 { margin: 18px 0 9px; color: #f2f4fa; }
+.markdown-preview h1:first-child { margin-top: 0; font-size: 21px; }
+.markdown-preview h2 { font-size: 17px; }
+.markdown-preview h3 { font-size: 15px; }
+.markdown-preview p, .markdown-preview ul { margin: 7px 0; }
+.markdown-preview table { width: 100%; margin: 11px 0; border-collapse: collapse; font-size: var(--font-caption); }
+.markdown-preview th, .markdown-preview td { padding: 7px 8px; border: 1px solid var(--stroke); text-align: left; vertical-align: top; }
+.markdown-preview th { color: #e7eaf2; background: rgba(255,255,255,.05); }
 .settings-hint { display: block; margin-top: 10px; color: #687084; font-size: var(--font-caption); line-height: 1.45; }
 
 /* Єдина система щільних контролів у стилі трекера */
@@ -867,6 +881,9 @@ button:focus-visible, input:focus-visible {
     font-size: var(--font-caption);
 }
 .account-setup-hint { display: block; margin-top: 12px; line-height: 1.5; }
+.account-setup-advanced { margin-top: 15px; padding: 11px 12px; border: 1px solid #414141; border-radius: 7px; background: #242424; }
+.account-setup-advanced > summary { color: #e4e4e4; cursor: pointer; font-weight: 600; }
+.account-setup-advanced > .settings-hint { display: block; margin: 8px 0 12px; }
 .action-modal > .field, .action-modal > .creative-fields-row { margin-top: 15px; }
 .comment-ad-hint { margin-top: 15px; }
 .publication-comments-toggle { display: flex; align-items: flex-start; gap: 9px; margin-top: 16px; padding: 11px 12px; border: 1px solid #414141; border-radius: 7px; color: #e4e4e4; background: #242424; cursor: pointer; }

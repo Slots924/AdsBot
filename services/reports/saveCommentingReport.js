@@ -54,6 +54,18 @@ function createTimestamp(value) {
         ].join("-");
 }
 
+function formatDuration(durationMs) {
+    const milliseconds = Number(durationMs);
+    if (!Number.isFinite(milliseconds)) return "—";
+    const totalSeconds = Math.max(0, Math.round(milliseconds / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (hours) return `${hours} год ${minutes} хв ${seconds} с`;
+    if (minutes) return `${minutes} хв ${seconds} с`;
+    return `${seconds} с`;
+}
+
 
 function buildMarkdown(report) {
     const summaryRows = [
@@ -101,17 +113,26 @@ function buildMarkdown(report) {
         item.commentId,
         item.error,
     ]);
+    const profileDurationRows = (report.profileDurations ?? []).map((item) => [
+        item.profileNo,
+        item.commentIds?.join(", "),
+        formatDuration(item.durationMs),
+        item.successfulAttempts,
+        item.failedAttempts,
+    ]);
     const sections = [
         "# Звіт кампанії коментування",
         "",
         `- Початок: ${formatDateTime(report.startedAt)}`,
         `- Завершення: ${formatDateTime(report.finishedAt)}`,
+        `- Загальний час: ${formatDuration(new Date(report.finishedAt) - new Date(report.startedAt))}`,
         `- ID груп AdsPower: ${escapeCell(report.groupIds?.join(", "))}`,
         `- Facebook-пост: ${escapeCell(report.postUrl)}`,
         `- Креатив: ${escapeCell(`${report.geo} ${report.creativeName}`)}`,
         `- Режим браузера: ${report.browserMode === "headless" ? "Headless" : "Звичайний"}`,
         `- Зображення: ${report.disableImages ? "вимкнені" : "завантажуються"}`,
         `- Критична помилка: ${escapeCell(report.fatalError)}`,
+        `- Стан: ${report.interrupted ? "Перервано користувачем" : "Завершено"}`,
         "",
         "## Підсумок",
         "",
@@ -120,6 +141,13 @@ function buildMarkdown(report) {
         "## Прив’язки profile_key",
         "",
         createTable(["Ключ", "Профіль"], profileKeyRows),
+        "",
+        "## Час роботи профілів",
+        "",
+        createTable(
+            ["Профіль", "Коментарі", "Час", "Успішних спроб", "Невдалих спроб"],
+            profileDurationRows
+        ),
         "",
         "## Успішні коментарі",
         "",

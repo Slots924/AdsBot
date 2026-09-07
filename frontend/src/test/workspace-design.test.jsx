@@ -88,6 +88,10 @@ describe("Дизайн workspace фанпейджів", () => {
                 data: [{ id: "10_20", message: "Post" }],
             }),
             getAdPixels: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+            getKeitaroCampaignSettings: vi.fn().mockResolvedValue({
+                ok: true,
+                data: { pixels: [] },
+            }),
             onCampaignCreationProgress: vi.fn(() => () => {}),
             preflightCampaignCreation: vi.fn().mockResolvedValue({
                 ok: true,
@@ -228,9 +232,11 @@ describe("Дизайн workspace фанпейджів", () => {
                 commentWorkerConcurrency: 5,
                 commentWorkerProxyIds: { 1: "proxy-1" },
                 creativeName: "1",
+                creativeGeo: "HU",
                 disableImages: false,
                 geo: "HU",
                 groupIds: ["hu-group"],
+                language: "",
                 postUrl: "https://www.facebook.com/ads/example",
                 siteUrl: "",
             }));
@@ -406,7 +412,8 @@ describe("Дизайн workspace фанпейджів", () => {
         const accountSelect = screen.getByRole("button", { name: "Рекламний акаунт" });
         await waitFor(() => expect(accountSelect).not.toBeDisabled());
         fireEvent.click(accountSelect);
-        fireEvent.click(await screen.findByText("act_1"));
+        fireEvent.click((await screen.findAllByRole("button"))
+            .find((button) => button.textContent.includes("act_1")));
         fireEvent.click(screen.getByRole("button", { name: "Продовжити" }));
 
         expect(await screen.findByRole("heading", {

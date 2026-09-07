@@ -164,6 +164,9 @@ contextBridge.exposeInMainWorld("adsBot", {
     deleteReport: (reportId) => ipcRenderer.invoke("reports:delete", { reportId }),
     exportReportMarkdown: (reportId) =>
         ipcRenderer.invoke("reports:export-markdown", { reportId }),
+    getMarkdownReports: (filters) => ipcRenderer.invoke("reports:markdown-list", filters),
+    getMarkdownReport: (reportId) =>
+        ipcRenderer.invoke("reports:markdown-get", { reportId }),
     getTemplates: () => ipcRenderer.invoke("templates:list"),
     getCountries: () => ipcRenderer.invoke("countries:list"),
     getLanguages: () => ipcRenderer.invoke("languages:list"),

@@ -317,8 +317,14 @@ export default class BackgroundTaskManager {
             });
         } catch (error) {
             const interrupted = runtime.controller.signal.aborted || error?.name === "AbortError";
+            const partialResult = error?.result ?? (error?.report ? {
+                reportPath: error.report.reportPath ?? null,
+                fatalError: error.report.fatalError ?? error.message,
+                interrupted: Boolean(error.report.interrupted),
+            } : null);
             current = await this.journal.update(task.id, {
                 status: interrupted ? "interrupted" : "failed",
+                result: partialResult,
                 error: safeError(error),
                 finishedAt: new Date().toISOString(),
                 progress: { ...current.progress, stage: interrupted ? "interrupted" : "failed", message: interrupted ? "Задачу перервано" : safeError(error).message },

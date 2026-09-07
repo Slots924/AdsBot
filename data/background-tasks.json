@@ -2,234 +2,40 @@
   "version": 1,
   "tasks": [
     {
-      "id": "698fe7eb-e538-4b86-9b58-fc2fbc40b0b6",
-      "type": "facebook-api-client-sync",
-      "name": "Синхронізація API-клієнта account-002",
+      "id": "9ed44809-15fd-4408-ac09-eac7c11de842",
+      "type": "page-cleanup",
+      "name": "Видалення URL-постів · 123064370885569",
       "status": "completed",
-      "resources": [
-        {
-          "key": "adspower-profile:1702",
-          "label": "AdsPower №1702"
-        }
-      ],
+      "resources": [],
       "input": {
         "accountKey": "account-002",
-        "adsPowerProfileNo": "1702"
+        "pageId": "123064370885569"
       },
       "metadata": {
         "accountKey": "account-002",
-        "uniqueKey": "facebook-api-client-sync:account-002",
-        "reportId": "0fbb7e10-ead8-4154-bed5-88578536468f"
+        "pageId": "123064370885569",
+        "reportId": "a5504b58-3d90-4716-b97f-76845c7dfa97"
       },
       "progress": {
-        "completed": 0,
-        "total": 0,
+        "completed": 2,
+        "total": 2,
         "stage": "completed",
         "message": "Задачу завершено"
       },
       "result": {
-        "accountKey": "account-002",
-        "adsPowerProfileNo": "1702",
-        "userAgentUpdated": true,
-        "accessTokenUpdated": true,
-        "cookieUpdated": true
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-09-07T09:18:00.987Z",
-      "startedAt": "2026-09-07T09:29:21.580Z",
-      "finishedAt": "2026-09-07T09:29:53.676Z",
-      "updatedAt": "2026-09-07T09:29:53.677Z"
-    },
-    {
-      "id": "44cc6862-61db-48b3-a96c-072bc367714e",
-      "type": "campaign",
-      "name": "AU | Creo_138 | 35+",
-      "status": "completed_with_warnings",
-      "resources": [
-        {
-          "key": "facebook-campaign-write",
-          "label": "черга створення рекламних кампаній"
-        }
-      ],
-      "input": {
-        "campaignJobId": "781254e4-a7dc-4096-bd4b-30178e7ace14"
-      },
-      "metadata": {
-        "campaignJobId": "781254e4-a7dc-4096-bd4b-30178e7ace14",
-        "accountKey": "account-009",
-        "adAccountId": "act_769313602156601",
-        "uniqueKey": "campaign-job:781254e4-a7dc-4096-bd4b-30178e7ace14",
-        "reportId": "3865d390-d167-455f-a527-7e003b2ef30d"
-      },
-      "progress": {
-        "completed": 13,
-        "total": 13,
-        "stage": "completed_with_warnings",
-        "message": "Задачу завершено",
-        "objects": {
-          "campaignId": "120251036668700033",
-          "creativeId": "1049650954720282",
-          "adSets": [
-            {
-              "index": 0,
-              "id": "120251036669450033",
-              "name": "AU | Creo_138 | 35+ | AS 01"
-            },
-            {
-              "index": 1,
-              "id": "120251036671160033",
-              "name": "AU | Creo_138 | 35+ | AS 02"
-            },
-            {
-              "index": 2,
-              "id": "120251036673350033",
-              "name": "AU | Creo_138 | 35+ | AS 03"
-            },
-            {
-              "index": 3,
-              "id": "120251036675750033",
-              "name": "AU | Creo_138 | 35+ | AS 04"
-            },
-            {
-              "index": 4,
-              "id": "120251036677500033",
-              "name": "AU | Creo_138 | 35+ | AS 05"
-            }
-          ],
-          "ads": [
-            {
-              "index": 0,
-              "id": "120251036670160033",
-              "name": "AU | Creo_138 | 35+ | AD 01"
-            },
-            {
-              "index": 1,
-              "id": "120251036672160033",
-              "name": "AU | Creo_138 | 35+ | AD 02"
-            },
-            {
-              "index": 2,
-              "id": "120251036674230033",
-              "name": "AU | Creo_138 | 35+ | AD 03"
-            },
-            {
-              "index": 3,
-              "id": "120251036676630033",
-              "name": "AU | Creo_138 | 35+ | AD 04"
-            },
-            {
-              "index": 4,
-              "id": "120251036679960033",
-              "name": "AU | Creo_138 | 35+ | AD 05"
-            }
-          ]
-        }
-      },
-      "result": {
-        "campaignJobId": "781254e4-a7dc-4096-bd4b-30178e7ace14",
-        "campaignId": "120251036668700033",
-        "warnings": [
-          "Ad set 1: Meta не підтвердила очікувані DSA beneficiary/payor",
-          "Ad set 2: Meta не підтвердила очікувані DSA beneficiary/payor",
-          "Ad set 3: Meta не підтвердила очікувані DSA beneficiary/payor",
-          "Ad set 4: Meta не підтвердила очікувані DSA beneficiary/payor",
-          "Ad set 5: Meta не підтвердила очікувані DSA beneficiary/payor"
-        ]
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-09-07T09:17:08.689Z",
-      "startedAt": "2026-09-07T09:28:04.956Z",
-      "finishedAt": "2026-09-07T09:29:21.578Z",
-      "updatedAt": "2026-09-07T09:29:21.579Z"
-    },
-    {
-      "id": "885b7bf8-a4be-4aca-b3bc-238f9e660e06",
-      "type": "publication",
-      "name": "Публікація · ES · 1",
-      "status": "completed_with_warnings",
-      "resources": [
-        {
-          "key": "facebook-page-publish",
-          "label": "черга публікації Facebook-постів"
-        },
-        {
-          "key": "adspower-group:8083415",
-          "label": "[ES] Spanish"
-        }
-      ],
-      "input": {
-        "accountKey": "account-004",
-        "pageId": "886440057876450",
-        "geo": "ES",
-        "creativeName": "1",
-        "siteUrl": "https://this-night.cyou/UJ1ES",
-        "imagePath": "",
-        "imagePaths": [
-          "C:\\Users\\Darkness\\Downloads\\1_ES.png",
-          "C:\\Users\\Darkness\\Downloads\\photo_2026-03-30_00-02-20_19d59c867d4_19d94b382f9_19e06231bea.jpg"
+        "deleted": [
+          {
+            "id": "123064370885569_122328098150027427"
+          }
         ],
-        "disableComments": false,
-        "commentGroupIds": [
-          "8083415"
-        ],
-        "commentBrowserMode": "headless",
-        "commentDisableImages": true,
-        "commentWorkerConcurrency": 1,
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "accountKey": "account-004",
-        "pageId": "886440057876450",
-        "geo": "ES",
-        "creativeName": "1",
-        "commentsEnabled": true,
-        "reportId": "fc124d18-7b98-40d6-962f-3b9ad76cb479"
-      },
-      "progress": {
-        "completed": 16,
-        "total": 16,
-        "stage": "completed_with_warnings",
-        "message": "Задачу завершено",
-        "published": 4,
-        "skipped": 3,
-        "failedComments": 9,
-        "failedProfiles": 7,
-        "activeWorkers": 0,
-        "concurrency": 1,
-        "currentCommentId": "6",
-        "currentProfileNo": "256",
-        "workerId": 1
-      },
-      "result": {
-        "accountKey": "account-004",
-        "pageId": "886440057876450",
-        "geo": "ES",
-        "creativeName": "1",
-        "siteUrl": "https://this-night.cyou/UJ1ES",
-        "postId": "886440057876450_122147933337057777",
-        "permalinkUrl": "https://www.facebook.com/61581733337385/posts/pfbid0nQtU18PZj3itiPsT5hxFjKGtgiyXQNF9NSYVoLoiEg5KeeCceDefJW8pjkN8WPv4l",
-        "type": "photo",
-        "verified": true,
-        "comments": {
-          "published": 4,
-          "skipped": 3,
-          "failedComments": 9,
-          "failedProfiles": 7,
-          "fatalError": null,
-          "browserMode": "headless",
-          "disableImages": true
-        }
+        "failed": []
       },
       "error": null,
       "waitingReason": null,
-      "createdAt": "2026-09-07T09:14:17.327Z",
-      "startedAt": "2026-09-07T09:14:17.328Z",
-      "finishedAt": "2026-09-07T09:28:04.952Z",
-      "updatedAt": "2026-09-07T09:28:04.954Z"
+      "createdAt": "2026-09-07T17:20:19.353Z",
+      "startedAt": "2026-09-07T17:20:19.355Z",
+      "finishedAt": "2026-09-07T17:20:28.422Z",
+      "updatedAt": "2026-09-07T17:20:28.424Z"
     }
   ]
 }

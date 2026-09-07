@@ -139,7 +139,7 @@ export default function App() {
                     setWorkspaceCache((current) => {
                         const cached = current[result.accountKey];
                         if (!cached) return current;
-                        return { ...current, [result.accountKey]: { ...cached, pages: cached.pages.map((page) => String(page.id) === String(result.pageId) ? { ...page, geo: result.geo, creativeName: result.creativeName } : page) } };
+                        return { ...current, [result.accountKey]: { ...cached, pages: cached.pages.map((page) => String(page.id) === String(result.pageId) ? { ...page, geo: result.geo, language: result.language || "", creativeName: result.creativeName } : page) } };
                     });
                 }
                 if (event.task.type === "creative-launch" && event.task.metadata?.accountKey) {

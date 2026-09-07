@@ -32,6 +32,7 @@ export default function ImageAdCreationModal({
     const [keitaroPickerOpen, setKeitaroPickerOpen] = useState(false);
     const [form, setForm] = useState({
         geo: "",
+        language: "",
         creativeName: "",
         siteUrl: "",
         imagePath: "",
@@ -125,6 +126,8 @@ export default function ImageAdCreationModal({
                 createAdsPaused: settings.createAdsPaused,
                 creativeMode: "image",
                 geo: form.geo,
+                language: form.language,
+                creativeGeo: form.language || form.geo,
                 creativeName: form.creativeName.trim(),
                 siteUrl: form.siteUrl.trim(),
                 imagePath: form.imagePath,
@@ -168,6 +171,10 @@ export default function ImageAdCreationModal({
                             <label className="field">
                                 <span>GEO креативу</span>
                                 <GeoSelect countries={countries} value={form.geo} onChange={(value) => change("geo", value)} layout="list" />
+                            </label>
+                            <label className="field">
+                                <span>Мова креативу</span>
+                                <GeoSelect countries={countries} value={form.language} onChange={(value) => change("language", value)} placeholder="Не вибрано" layout="list" />
                             </label>
                             <label className="field">
                                 <span>Назва креативу</span>

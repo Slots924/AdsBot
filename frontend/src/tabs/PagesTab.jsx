@@ -101,7 +101,7 @@ function PageCard({ page, selected, onSelect, onFavorite }) {
                     fallback={String(page.name || "P").slice(0, 1).toUpperCase()}
                 />
             </span>
-            <strong className="page-card-geo">{page.geo || "—"}</strong>
+            <strong className="page-card-geo">{page.geo || "—"}{page.language ? ` (${String(page.language).toLowerCase()})` : ""}</strong>
             <span className="page-card-value page-card-name">
                 <strong>{page.name}</strong>
                 <CopyButton value={page.name} label="назву фанпейджі" />
@@ -316,6 +316,7 @@ function PublicationModal({
     const defaultGroup = findGroupForGeo(groups, page.geo);
     const [draft, setDraft] = useState({
         geo: page.geo || "",
+        language: page.language || "",
         creativeName: page.creativeName || "",
         siteUrl: "",
         imagePath: "",
@@ -331,6 +332,7 @@ function PublicationModal({
         try {
             onQueued(await unwrap(window.adsBot.publishCreativePost({
                 ...draft,
+                creativeGeo: draft.language || draft.geo,
                 accountKey,
                 pageId: page.id,
                 commentGroupIds: draft.disableComments ? [] : draft.groupIds,
@@ -360,7 +362,12 @@ function PublicationModal({
                             countries={countries}
                             value={draft.geo}
                             onChange={(geo) => setDraft((current) => ({ ...current, geo }))}
+                            layout="list"
                         />
+                    </label>
+                    <label className="field geo-field">
+                        <span>Мова</span>
+                        <GeoSelect countries={countries} value={draft.language} onChange={(language) => setDraft((current) => ({ ...current, language }))} layout="list" placeholder="Мова" ariaLabel="Мова креативу" />
                     </label>
                     <label className="field">
                         <span>Креатив</span>
@@ -469,6 +476,7 @@ function CommentModal({
     const defaultGroup = findGroupForGeo(groups, page.geo);
     const [draft, setDraft] = useState({
         geo: page.geo || "",
+        language: page.language || "",
         creativeName: page.creativeName || "",
         siteUrl: "",
         postUrl: post?.permalinkUrl || "",
@@ -479,6 +487,8 @@ function CommentModal({
         try {
             onQueued(await unwrap(window.adsBot.runCommentingCampaign({
                 ...draft,
+                geo: draft.geo,
+                creativeGeo: draft.language || draft.geo,
                 accountKey,
                 commentTarget,
                 browserMode: settings.commentBrowserMode,
@@ -521,6 +531,13 @@ function CommentModal({
                             onChange={(geo) => setDraft((current) => ({ ...current, geo }))}
                             layout="list"
                         />
+                    </label>
+                    <label className="field geo-field">
+                        <span>Мова</span>
+                        <div className="inline-field">
+                            <GeoSelect countries={countries} value={draft.language} onChange={(language) => setDraft((current) => ({ ...current, language }))} layout="list" placeholder="Мова" ariaLabel="Мова коментарів" />
+                            {draft.language && <button type="button" className="icon-button" title="Очистити мову" onClick={() => setDraft((current) => ({ ...current, language: "" }))}><X size={15} /></button>}
+                        </div>
                     </label>
                     <label className="field">
                         <span>Креатив</span>
@@ -941,11 +958,19 @@ export default function PagesTab({
                                         <GeoSelect
                                             countries={countries}
                                             value={selected.geo || ""}
+                                            layout="list"
                                             onChange={(geo) => {
                                                 updateSelectedLocally({ geo });
                                                 metadata({ geo }).catch((error) => onError(errorDetails(error)));
                                             }}
                                         />
+                                    </label>
+                                    <label className="field">
+                                        <span>Мова</span>
+                                        <div className="inline-field">
+                                            <GeoSelect countries={countries} value={selected.language || ""} onChange={(language) => { updateSelectedLocally({ language }); metadata({ language }).catch((error) => onError(errorDetails(error))); }} layout="list" placeholder="Не вибрано" ariaLabel="Мова фанпейджі" />
+                                            {selected.language && <button type="button" className="icon-button" title="Очистити мову" onClick={() => { updateSelectedLocally({ language: "" }); metadata({ language: "" }).catch((error) => onError(errorDetails(error))); }}><X size={15} /></button>}
+                                        </div>
                                     </label>
                                     <label className="field">
                                         <span>Запущений креатив</span>

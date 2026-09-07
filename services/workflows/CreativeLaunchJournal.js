@@ -6,7 +6,9 @@ import path from "node:path";
 function cleanDraft(input = {}) {
     return {
         accountKey: String(input.accountKey ?? ""), pageId: String(input.pageId ?? ""),
-        geo: String(input.geo ?? "").trim().toUpperCase(), creativeName: String(input.creativeName ?? "").trim().replace(/^Creo_/i, ""),
+        geo: String(input.geo ?? "").trim().toUpperCase(),
+        language: String(input.language ?? "").trim().toUpperCase(),
+        creativeName: String(input.creativeName ?? "").trim().replace(/^Creo_/i, ""),
         siteUrl: String(input.siteUrl ?? "").trim(), imagePath: String(input.imagePath ?? ""),
         imagePaths: [...new Set((input.imagePaths ?? []).map((item) => String(item ?? "").trim()).filter(Boolean))],
         deleteOldPosts: input.deleteOldPosts !== false, groupIds: [...new Set((input.groupIds ?? []).map(String))],
