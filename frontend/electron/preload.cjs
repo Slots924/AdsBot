@@ -87,6 +87,8 @@ contextBridge.exposeInMainWorld("adsBot", {
             accountKey,
             orderedIds,
         }),
+    setKeitaroLeadSync: (adAccountId, enabled) =>
+        ipcRenderer.invoke("ads:keitaro-lead-sync-set", { adAccountId, enabled }),
     getAdCampaigns: (accountKey, adAccountId, datePreset, force = false) =>
         ipcRenderer.invoke("campaigns:list", {
             accountKey,
@@ -108,6 +110,13 @@ contextBridge.exposeInMainWorld("adsBot", {
             accountKey,
             adAccountId,
             campaignId,
+        }),
+    renameAdCampaign: (accountKey, adAccountId, campaignId, name) =>
+        ipcRenderer.invoke("campaigns:rename", {
+            accountKey,
+            adAccountId,
+            campaignId,
+            name,
         }),
     getCampaignPagePosts: (accountKey, pageId, limit = 10, force = false) =>
         ipcRenderer.invoke("campaigns:posts-list", {
@@ -248,6 +257,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         subscribe("workspace:refreshed", callback),
     onCampaignsRefreshed: (callback) =>
         subscribe("campaigns:refreshed", callback),
+    onKeitaroCampaignLeadsRefreshed: (callback) =>
+        subscribe("campaigns:keitaro-leads-refreshed", callback),
     onCampaignsInvalidated: (callback) =>
         subscribe("campaigns:invalidated", callback),
     onPagePostsCacheUpdated: (callback) =>

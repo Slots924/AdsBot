@@ -58,6 +58,9 @@ const graphApi = new FacebookGraphApi({
                     campaign_id: "c1",
                     campaign_name: "Campaign 1",
                     spend: "12.50",
+                    impressions: "1000",
+                    clicks: "25",
+                    ctr: "2.5",
                     actions: [{ action_type: "lead", value: "5" }],
                 }],
             } };
@@ -74,6 +77,8 @@ const graphSpend = await graphApi.getAdCampaignSpend("act_1", {
 });
 assert.equal(graphCampaigns.length, 2);
 assert.equal(graphInsights[0].spend, "12.50");
+assert.equal(graphInsights[0].impressions, "1000");
+assert.equal(graphInsights[0].clicks, "25");
 assert.equal(requests[1].params.after, "page-2");
 assert.equal(requests[2].params.date_preset, "last_7d");
 assert.equal(requests[2].params.level, "campaign");
@@ -96,6 +101,9 @@ assert.equal(requests[5].data.get("status"), "PAUSED");
 await graphApi.deleteAdCampaign("1001");
 assert.equal(requests[6].method, "post");
 assert.equal(requests[6].data.get("status"), "DELETED");
+await graphApi.renameAdCampaign("1001", "Updated campaign");
+assert.equal(requests[7].method, "post");
+assert.equal(requests[7].data.get("name"), "Updated campaign");
 await assert.rejects(
     graphApi.getAdCampaignInsights("act_1", "invalid"),
     { code: "FACEBOOK_INSIGHTS_DATE_PRESET_INVALID" }
@@ -121,6 +129,8 @@ const facebookBackend = {
                 {
                     campaignId: "1",
                     spend: "10",
+                    impressions: "1000",
+                    clicks: "40",
                     actions: [
                         { action_type: "lead", value: "2" },
                         { action_type: "offsite_conversion.fb_pixel_lead", value: "20" },
@@ -144,6 +154,10 @@ const facebookBackend = {
         assert.equal(accountKey, "active");
         return { id: campaignId, effectiveStatus: "DELETED" };
     },
+    async renameAdCampaign(accountKey, campaignId, name) {
+        assert.equal(accountKey, "active");
+        return { id: campaignId, name };
+    },
 };
 const guiService = new AdsBotGuiService({
     facebookBackend,
@@ -165,6 +179,8 @@ assert.deepEqual(normalized.campaigns.map((campaign) => campaign.id), [
 assert.equal(normalized.campaigns[2].leads, 2);
 assert.equal(normalized.campaigns[2].spend, 10);
 assert.equal(normalized.campaigns[2].costPerLead, 5);
+assert.equal(normalized.campaigns[2].cpm, 10);
+assert.equal(normalized.campaigns[2].ctr, 4);
 assert.equal(normalized.campaigns[1].costPerLead, null);
 assert.deepEqual(
     await guiService.setAdCampaignStatus("active", "5", "PAUSED"),
@@ -173,6 +189,10 @@ assert.deepEqual(
 assert.deepEqual(
     await guiService.deleteAdCampaign("active", "5"),
     { id: "5", effectiveStatus: "DELETED" }
+);
+assert.deepEqual(
+    await guiService.renameAdCampaign("active", "5", "New name"),
+    { id: "5", name: "New name" }
 );
 assert.equal((await guiService.getAdCampaignSpend("active", "act_1", {
     since: "2026-09-01",

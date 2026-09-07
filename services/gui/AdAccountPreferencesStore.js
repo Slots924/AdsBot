@@ -28,6 +28,7 @@ function emptyStore() {
         aliases: {},
         clients: {},
         campaignOrders: {},
+        keitaroLeadSyncByAdAccount: {},
     };
 }
 
@@ -75,6 +76,9 @@ export default class AdAccountPreferencesStore {
                 localName: store.aliases[String(account.id)],
                 isFavorite: positions.has(String(account.id)),
                 favoritePosition: positions.get(String(account.id)) ?? null,
+                keitaroLeadSyncEnabled: store.keitaroLeadSyncByAdAccount[
+                    String(account.id)
+                ] === true,
             }));
         });
     }
@@ -226,6 +230,29 @@ export default class AdAccountPreferencesStore {
     }
 
 
+    async setKeitaroLeadSync(adAccountId, enabled) {
+        return this.#enqueue(async () => {
+            const id = normalizeId(adAccountId);
+            const store = await this.#readStore();
+            store.keitaroLeadSyncByAdAccount[id] = enabled === true;
+            await this.#writeStore(store);
+            return {
+                adAccountId: id,
+                keitaroLeadSyncEnabled: store.keitaroLeadSyncByAdAccount[id],
+            };
+        });
+    }
+
+
+    async isKeitaroLeadSyncEnabled(adAccountId) {
+        return this.#enqueue(async () => {
+            const id = normalizeId(adAccountId);
+            const store = await this.#readStore();
+            return store.keitaroLeadSyncByAdAccount[id] === true;
+        });
+    }
+
+
     #enqueue(operation) {
         const result = this.#operation.then(operation, operation);
         this.#operation = result.catch(() => {});
@@ -245,6 +272,7 @@ export default class AdAccountPreferencesStore {
                 : {};
             const clients = {};
             const campaignOrders = {};
+            const keitaroLeadSyncByAdAccount = {};
 
             if (parsed?.clients && typeof parsed.clients === "object") {
                 for (const [accountKey, client] of Object.entries(parsed.clients)) {
@@ -264,6 +292,15 @@ export default class AdAccountPreferencesStore {
                 }
             }
 
+            if (parsed?.keitaroLeadSyncByAdAccount
+                && typeof parsed.keitaroLeadSyncByAdAccount === "object") {
+                for (const [adAccountId, enabled] of Object.entries(
+                    parsed.keitaroLeadSyncByAdAccount
+                )) {
+                    keitaroLeadSyncByAdAccount[String(adAccountId)] = enabled === true;
+                }
+            }
+
             return {
                 version: 1,
                 nextDefaultNameNumber: Math.max(
@@ -273,6 +310,7 @@ export default class AdAccountPreferencesStore {
                 aliases,
                 clients,
                 campaignOrders,
+                keitaroLeadSyncByAdAccount,
             };
         } catch (error) {
             if (error.code === "ENOENT") {

@@ -74,6 +74,12 @@ const adAccountPreferencesStore = {
     async reorderCampaigns(_adAccountId, orderedIds) {
         return orderedIds;
     },
+    async isKeitaroLeadSyncEnabled() {
+        return false;
+    },
+    async setKeitaroLeadSync(adAccountId, enabled) {
+        return { adAccountId, keitaroLeadSyncEnabled: enabled };
+    },
 };
 const pagePreferencesStore = {
     async enrich(pages) { return pages; },

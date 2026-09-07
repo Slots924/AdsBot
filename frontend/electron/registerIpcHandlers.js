@@ -238,6 +238,8 @@ export default function registerIpcHandlers({
             adAccountId,
             datePreset
         );
+        const keitaroLeadSyncEnabled = await adAccountPreferencesStore
+            .isKeitaroLeadSyncEnabled(adAccountId);
         const enriched = {
             ...data,
             campaigns: await adAccountPreferencesStore.enrichCampaigns(
@@ -245,13 +247,95 @@ export default function registerIpcHandlers({
                 data.campaigns
             ),
         };
+        if (keitaroLeadSyncEnabled && datePreset === "today") {
+            enriched.campaigns = enriched.campaigns.map((campaign) => ({
+                ...campaign,
+                metaLeads: campaign.leads,
+                leads: null,
+                costPerLead: null,
+                leadSource: "keitaro",
+                leadSyncStatus: "loading",
+            }));
+        }
         await remoteDataCacheStore.setCampaigns(
             accountKey,
             adAccountId,
             datePreset,
             enriched
         );
+        if (keitaroLeadSyncEnabled && datePreset === "today") {
+            refreshKeitaroCampaignLeadsOnce({
+                accountKey,
+                adAccountId,
+                datePreset,
+                data: enriched,
+            });
+        }
         return enriched;
+    };
+
+    const keitaroLeadRefreshes = new Map();
+    const refreshKeitaroCampaignLeadsOnce = ({
+        accountKey,
+        adAccountId,
+        datePreset,
+        data,
+    }) => {
+        const key = [accountKey, adAccountId, datePreset].join("::");
+        if (keitaroLeadRefreshes.has(key)) return keitaroLeadRefreshes.get(key);
+        const refresh = (async () => {
+            try {
+                if (!keitaroGuiService) throw Object.assign(
+                    new Error("Сервіс Keitaro не підключено"),
+                    { code: "KEITARO_UNAVAILABLE" }
+                );
+                const rows = await keitaroGuiService.getTodayLeadsByMetaCampaignId();
+                const leadsByMetaCampaignId = new Map(rows.map((row) => [
+                    String(row.metaCampaignId),
+                    Number(row.leads) || 0,
+                ]));
+                const updated = {
+                    ...data,
+                    campaigns: data.campaigns.map((campaign) => {
+                        const leads = leadsByMetaCampaignId.get(String(campaign.id)) ?? 0;
+                        return {
+                            ...campaign,
+                            leads,
+                            costPerLead: leads > 0
+                                ? Number(campaign.spend) / leads
+                                : null,
+                            leadSource: "keitaro",
+                            leadSyncStatus: "ready",
+                        };
+                    }),
+                };
+                await remoteDataCacheStore.setCampaigns(
+                    accountKey,
+                    adAccountId,
+                    datePreset,
+                    updated
+                );
+                sendRendererEvent("campaigns:keitaro-leads-refreshed", {
+                    accountKey,
+                    adAccountId,
+                    datePreset,
+                    data: updated,
+                });
+                return updated;
+            } catch (error) {
+                sendRendererEvent("campaigns:keitaro-leads-refreshed", {
+                    accountKey,
+                    adAccountId,
+                    datePreset,
+                    error: serializeError(error),
+                });
+                return null;
+            } finally {
+                keitaroLeadRefreshes.delete(key);
+            }
+        })();
+        keitaroLeadRefreshes.set(key, refresh);
+        return refresh;
     };
 
     const refreshCampaignsOnce = (payload) => {
@@ -1201,6 +1285,12 @@ export default function registerIpcHandlers({
         })
     );
     ipcMain.handle(
+        "ads:keitaro-lead-sync-set",
+        safeHandler(({ adAccountId, enabled }) => (
+            adAccountPreferencesStore.setKeitaroLeadSync(adAccountId, enabled)
+        ))
+    );
+    ipcMain.handle(
         "campaigns:reorder",
         safeHandler(({ adAccountId, orderedIds }) => (
             adAccountPreferencesStore.reorderCampaigns(adAccountId, orderedIds)
@@ -1213,6 +1303,18 @@ export default function registerIpcHandlers({
                 accountKey,
                 campaignId,
                 status
+            );
+            await remoteDataCacheStore.invalidateCampaigns(accountKey, adAccountId);
+            return result;
+        })
+    );
+    ipcMain.handle(
+        "campaigns:rename",
+        safeHandler(async ({ accountKey, adAccountId, campaignId, name }) => {
+            const result = await guiService.renameAdCampaign(
+                accountKey,
+                campaignId,
+                name
             );
             await remoteDataCacheStore.invalidateCampaigns(accountKey, adAccountId);
             return result;

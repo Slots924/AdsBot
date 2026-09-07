@@ -119,6 +119,8 @@ function formatCampaigns({ campaigns = [], insights = [] }) {
             );
             const leads = numberOrZero(leadAction?.value);
             const spend = numberOrZero(insight?.spend);
+            const impressions = numberOrZero(insight?.impressions);
+            const clicks = numberOrZero(insight?.clicks);
 
             return {
                 id: campaign.id,
@@ -128,6 +130,10 @@ function formatCampaigns({ campaigns = [], insights = [] }) {
                 leads,
                 spend,
                 costPerLead: leads > 0 ? spend / leads : null,
+                impressions,
+                clicks,
+                cpm: impressions > 0 ? spend / impressions * 1000 : null,
+                ctr: impressions > 0 ? clicks / impressions * 100 : null,
             };
         })
         .sort((left, right) => {
@@ -363,6 +369,12 @@ export default class AdsBotGuiService {
             campaignId,
             status
         );
+    }
+
+
+    async renameAdCampaign(accountKey, campaignId, name) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.renameAdCampaign(accountKey, campaignId, name);
     }
 
 

@@ -63,6 +63,14 @@ function formatMoney(amount, currency) {
 }
 
 
+function formatPercent(amount) {
+    if (amount === null || amount === undefined || !Number.isFinite(Number(amount))) {
+        return "—";
+    }
+    return `${Number(amount).toFixed(2)}%`;
+}
+
+
 function timezoneLabel(account) {
     const offset = Number(account.timezoneOffsetHoursUtc);
     const suffix = Number.isFinite(offset)
@@ -230,7 +238,7 @@ function CampaignStateToggle({ campaign, pending, onToggle }) {
 }
 
 
-function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, dragControls, reorderable = false }) {
+function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, onRename, dragControls, reorderable = false }) {
     const deleted = isDeletedCampaign(campaign);
     const permanentlyDeleted = isPermanentlyDeletedCampaign(campaign);
     const unavailable = deleted || permanentlyDeleted;
@@ -249,13 +257,16 @@ function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, d
                 <span className="campaign-name-main">
                     <CampaignStateToggle campaign={campaign} pending={pending} onToggle={onToggle} />
                     <strong>{campaign.name}</strong>
+                    {!unavailable && <button type="button" className="campaign-rename-button" aria-label={`Перейменувати кампанію ${campaign.name}`} title="Перейменувати кампанію" disabled={pending} onClick={() => onRename(campaign)}><Pencil size={14} /></button>}
                 </span>
                 <small>{campaign.id}</small>
             </span>
             <span><i className={`campaign-status ${campaign.effectiveStatus === "ACTIVE" ? "active" : unavailable ? "deleted" : "paused"}`}>{campaign.effectiveStatus === "ACTIVE" ? "Увімкнено" : permanentlyDeleted ? "Остаточно видалено" : deleted ? "Видалено" : "Пауза"}</i></span>
-            <strong>{campaign.leads}</strong>
+            <strong>{value(campaign.leads)}</strong>
             <strong>{formatMoney(campaign.spend, currency)}</strong>
             <strong>{formatMoney(campaign.costPerLead, currency)}</strong>
+            <strong>{formatMoney(campaign.cpm, currency)}</strong>
+            <strong>{formatPercent(campaign.ctr)}</strong>
             <span className="campaign-actions">
                 {!unavailable && <button type="button" className="campaign-delete-button" aria-label={`Видалити кампанію ${campaign.name}`} title="Видалити кампанію" disabled={pending} onClick={() => onDelete(campaign)}>{pending ? <LoaderCircle className="spin" size={15} /> : <Trash2 size={15} />}</button>}
             </span>
@@ -273,7 +284,7 @@ function SortableCampaignRow(props) {
 }
 
 
-function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignIds, onToggle, onDelete, onReorder }) {
+function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignIds, onToggle, onDelete, onRename, onReorder }) {
     if (!entry || entry.status === "loading") {
         return (
             <div className="campaign-table-card">
@@ -315,6 +326,8 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
                 <span>Ліди</span>
                 <span>Spend</span>
                 <span>Ціна за лід</span>
+                <span>CPM</span>
+                <span>CTR</span>
                 <span />
             </div>
             {visibleCount === 0 && (
@@ -323,9 +336,9 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
                 </div>
             )}
             <Reorder.Group as="div" axis="y" className="campaign-list" values={activeCampaigns.map((campaign) => String(campaign.id))} onReorder={onReorder}>
-                {activeCampaigns.map((campaign, index) => <SortableCampaignRow key={campaign.id} campaign={campaign} index={index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} />)}
+                {activeCampaigns.map((campaign, index) => <SortableCampaignRow key={campaign.id} campaign={campaign} index={index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} onRename={onRename} />)}
                 {showDeleted && deletedCampaigns.length > 0 && <div className="campaign-deleted-divider">Видалені кампанії</div>}
-                {showDeleted && deletedCampaigns.map((campaign, index) => <CampaignRow key={campaign.id} campaign={campaign} index={activeCampaigns.length + index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} />)}
+                {showDeleted && deletedCampaigns.map((campaign, index) => <CampaignRow key={campaign.id} campaign={campaign} index={activeCampaigns.length + index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} onRename={onRename} />)}
             </Reorder.Group>
         </div>
     );
@@ -358,6 +371,8 @@ export default function AdAccountsTab({
     const [campaignCache, setCampaignCache] = useState({});
     const [renameEditor, setRenameEditor] = useState(null);
     const [renaming, setRenaming] = useState(false);
+    const [campaignRenameEditor, setCampaignRenameEditor] = useState(null);
+    const [renamingCampaign, setRenamingCampaign] = useState(false);
     const [campaignWizardOpen, setCampaignWizardOpen] = useState(false);
     const [imageAdModalOpen, setImageAdModalOpen] = useState(false);
     const [showDeletedCampaigns, setShowDeletedCampaigns] = useState(false);
@@ -565,9 +580,38 @@ export default function AdAccountsTab({
                 loadCampaigns(event.adAccountId, datePreset, { force: true });
             }
         }) ?? (() => {});
+        const offKeitaroLeads = window.adsBot.onKeitaroCampaignLeadsRefreshed?.((event) => {
+            if (event?.accountKey !== accountKey) return;
+            const key = campaignKey(event.adAccountId, event.datePreset);
+            if (event.data) {
+                updateCampaignCache((cache) => ({
+                    ...cache,
+                    [key]: { status: "ready", data: event.data, error: null },
+                }));
+                return;
+            }
+            updateCampaignCache((cache) => {
+                const entry = cache[key];
+                if (!entry?.data?.campaigns) return cache;
+                return {
+                    ...cache,
+                    [key]: {
+                        ...entry,
+                        data: {
+                            ...entry.data,
+                            campaigns: entry.data.campaigns.map((campaign) => ({
+                                ...campaign,
+                                leadSyncStatus: "error",
+                            })),
+                        },
+                    },
+                };
+            });
+        }) ?? (() => {});
         return () => {
             offRefreshed();
             offInvalidated();
+            offKeitaroLeads();
         };
     }, [accountKey, selected?.id, datePreset]);
 
@@ -712,6 +756,47 @@ export default function AdAccountsTab({
             onError({ ...errorDetails(error), title: "Не вдалося видалити кампанію" });
         } finally {
             setCampaignPending(campaign.id, false);
+        }
+    };
+
+    const setKeitaroLeadSync = async (enabled) => {
+        if (!selected) return;
+        try {
+            const result = await unwrap(window.adsBot.setKeitaroLeadSync(selected.id, enabled));
+            setAccounts((current) => {
+                const next = current.map((account) => (
+                    String(account.id) === String(result.adAccountId)
+                        ? { ...account, keitaroLeadSyncEnabled: result.keitaroLeadSyncEnabled }
+                        : account
+                ));
+                onWorkspaceAccountsChange?.(next);
+                return next;
+            });
+            await loadCampaigns(selected.id, datePreset, { force: true });
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося змінити синхронізацію Keitaro" });
+        }
+    };
+
+    const saveCampaignRename = async (event) => {
+        event.preventDefault();
+        const name = campaignRenameEditor?.name.trim();
+        if (!selected || !name || renamingCampaign) return;
+        setRenamingCampaign(true);
+        try {
+            const result = await unwrap(window.adsBot.renameAdCampaign(
+                accountKey,
+                selected.id,
+                campaignRenameEditor.id,
+                name
+            ));
+            patchCampaignInCache(selected.id, result.id, { name: result.name });
+            setCampaignRenameEditor(null);
+            showToast("Назву кампанії змінено", "success");
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося перейменувати кампанію" });
+        } finally {
+            setRenamingCampaign(false);
         }
     };
 
@@ -865,6 +950,10 @@ export default function AdAccountsTab({
                                     <h2>Кампанії</h2>
                                 </div>
                                 <div className="campaign-periods">
+                                    <label className="campaign-show-deleted" title="Ліди беруться з Keitaro за sub_id_2; кеш оновлюється раз на хвилину.">
+                                        <input type="checkbox" checked={selected.keitaroLeadSyncEnabled === true} onChange={(event) => setKeitaroLeadSync(event.target.checked)} />
+                                        <span /> Keitaro ліди
+                                    </label>
                                     <label className="campaign-show-deleted">
                                         <input type="checkbox" checked={showDeletedCampaigns} onChange={(event) => setShowDeletedCampaigns(event.target.checked)} />
                                         <span /> Показувати видалені
@@ -888,6 +977,7 @@ export default function AdAccountsTab({
                                 pendingCampaignIds={pendingCampaignIds}
                                 onToggle={toggleCampaign}
                                 onDelete={deleteCampaign}
+                                onRename={(campaign) => setCampaignRenameEditor({ id: campaign.id, name: campaign.name })}
                                 onReorder={reorderCampaigns}
                                 onRetry={() => loadCampaigns(
                                     selected.id,
@@ -935,6 +1025,21 @@ export default function AdAccountsTab({
                                 {renaming ? <LoaderCircle className="spin" size={16} /> : <Check size={16} />}
                                 Зберегти
                             </button>
+                        </div>
+                    </motion.form>
+                </div>
+            )}
+            {campaignRenameEditor && (
+                <div className="overlay" onMouseDown={() => !renamingCampaign && setCampaignRenameEditor(null)}>
+                    <motion.form className="modal ad-rename-modal" initial={{ opacity: 0, y: 20, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} onMouseDown={(event) => event.stopPropagation()} onSubmit={saveCampaignRename}>
+                        <button className="modal-close" type="button" disabled={renamingCampaign} onClick={() => setCampaignRenameEditor(null)}><X size={17} /></button>
+                        <div className="modal-icon template-icon"><Pencil /></div>
+                        <span className="eyebrow">Meta campaign</span>
+                        <h2>Перейменувати кампанію</h2>
+                        <label className="field"><span>Назва</span><input autoFocus value={campaignRenameEditor.name} onChange={(event) => setCampaignRenameEditor((current) => ({ ...current, name: event.target.value }))} /></label>
+                        <div className="form-actions">
+                            <button className="secondary-button" type="button" onClick={() => setCampaignRenameEditor(null)}>Скасувати</button>
+                            <button className="primary-button" type="submit" disabled={!campaignRenameEditor.name.trim() || renamingCampaign}>{renamingCampaign ? <LoaderCircle className="spin" size={16} /> : <Check size={16} />}Зберегти</button>
                         </div>
                     </motion.form>
                 </div>

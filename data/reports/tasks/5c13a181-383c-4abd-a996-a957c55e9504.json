@@ -1,0 +1,481 @@
+{
+  "version": 1,
+  "id": "5c13a181-383c-4abd-a996-a957c55e9504",
+  "taskId": "4c636d41-a444-4d73-8eab-3d61d3201ab8",
+  "type": "campaign",
+  "title": "2 lite",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-07T18:32:50.457Z",
+  "startedAt": "2026-09-07T18:31:36.542Z",
+  "finishedAt": "2026-09-07T18:32:50.457Z",
+  "durationMs": 73915,
+  "inputSummary": {
+    "campaignJobId": "a37a5bd8-bd11-495d-87c6-f298b418a521",
+    "accountKey": "account-002",
+    "adAccountId": "act_2220731151778076",
+    "campaignName": "2 lite",
+    "templateId": 15,
+    "pageId": "123064370885569",
+    "postId": "123064370885569_122330112254027427",
+    "adSetCount": 5,
+    "dailyBudget": 5,
+    "startTime": "2026-09-07T18:30:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "campaignJobId": "a37a5bd8-bd11-495d-87c6-f298b418a521",
+    "objects": {
+      "campaignId": "120250072628290610",
+      "creativeId": "1776895386869742",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120250072628820610",
+          "name": "2 lite | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120250072630510610",
+          "name": "2 lite | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120250072631720610",
+          "name": "2 lite | AS 03"
+        },
+        {
+          "index": 3,
+          "id": "120250072633310610",
+          "name": "2 lite | AS 04"
+        },
+        {
+          "index": 4,
+          "id": "120250072635040610",
+          "name": "2 lite | AS 05"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120250072629660610",
+          "name": "2 lite | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "120250072631250610",
+          "name": "2 lite | AD 02"
+        },
+        {
+          "index": 2,
+          "id": "120250072632490610",
+          "name": "2 lite | AD 03"
+        },
+        {
+          "index": 3,
+          "id": "120250072634590610",
+          "name": "2 lite | AD 04"
+        },
+        {
+          "index": 4,
+          "id": "120250072635990610",
+          "name": "2 lite | AD 05"
+        }
+      ]
+    },
+    "readback": {
+      "campaign": {
+        "id": "120250072628290610",
+        "name": "2 lite",
+        "status": "PAUSED",
+        "effective_status": "PAUSED"
+      },
+      "creative": {
+        "id": "1776895386869742",
+        "name": "2 lite | Creative 2026-09-07-c7b0bea0bffe7ba9c6d5dbd5737a4b8b",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "advantage_plus_creative": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "audio": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_animation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_auto_crop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_background_gen": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_enhancement": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_text_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_touchups": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_uncrop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "music_generation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "standard_enhancements": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_generation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_optimizations": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_auto_crop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_filtering": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_highlights": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_uncrop": {
+              "enroll_status": "[MAX_DEPTH]"
+            }
+          }
+        },
+        "effective_object_story_id": "123064370885569_122330112254027427",
+        "__fb_trace_id__": "DermYkyhzGB",
+        "__www_request_id__": "AtI0Aq5H22bxnrzYO1uos7R"
+      },
+      "adSets": [
+        {
+          "id": "120250072628820610",
+          "name": "2 lite | AS 01",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-09-07T18:31:48+0000",
+          "daily_budget": "500",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 25,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "locales": [
+              "[MAX_DEPTH]"
+            ],
+            "user_os": [
+              "[MAX_DEPTH]"
+            ],
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ],
+            "device_platforms": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "935472558918197",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "__fb_trace_id__": "Czf7ZH82izG",
+          "__www_request_id__": "AOcTtqZJsQMaoCOsWZu_2Fu"
+        },
+        {
+          "id": "120250072630510610",
+          "name": "2 lite | AS 02",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-09-07T18:31:56+0000",
+          "daily_budget": "500",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 25,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "locales": [
+              "[MAX_DEPTH]"
+            ],
+            "user_os": [
+              "[MAX_DEPTH]"
+            ],
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ],
+            "device_platforms": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "935472558918197",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "__fb_trace_id__": "CKwf/TemGBL",
+          "__www_request_id__": "Ae0q6kkwnhrhF9zrzM7FUdj"
+        },
+        {
+          "id": "120250072631720610",
+          "name": "2 lite | AS 03",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-09-07T18:32:04+0000",
+          "daily_budget": "500",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 25,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "locales": [
+              "[MAX_DEPTH]"
+            ],
+            "user_os": [
+              "[MAX_DEPTH]"
+            ],
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ],
+            "device_platforms": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "935472558918197",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "__fb_trace_id__": "A03QPMATBU+",
+          "__www_request_id__": "APpqPvFxoJ7pKMtnrG9IDWq"
+        },
+        {
+          "id": "120250072633310610",
+          "name": "2 lite | AS 04",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-09-07T18:32:14+0000",
+          "daily_budget": "500",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 25,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "locales": [
+              "[MAX_DEPTH]"
+            ],
+            "user_os": [
+              "[MAX_DEPTH]"
+            ],
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ],
+            "device_platforms": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "935472558918197",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "__fb_trace_id__": "Hma8oDaZWZ1",
+          "__www_request_id__": "AMF0eYus_hMk2o5vyZCM5s-"
+        },
+        {
+          "id": "120250072635040610",
+          "name": "2 lite | AS 05",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-09-07T18:32:23+0000",
+          "daily_budget": "500",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 25,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "locales": [
+              "[MAX_DEPTH]"
+            ],
+            "user_os": [
+              "[MAX_DEPTH]"
+            ],
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ],
+            "device_platforms": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "935472558918197",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "__fb_trace_id__": "H57/vNhpEqi",
+          "__www_request_id__": "AAj3o5rRiVcGhnOwemgWVtI"
+        }
+      ],
+      "ads": [
+        {
+          "id": "120250072629660610",
+          "name": "2 lite | AD 01",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "1776895386869742"
+          },
+          "__fb_trace_id__": "C8/quZ/gzoV",
+          "__www_request_id__": "AEsaxo11-wSFCsWTvzqBPFw"
+        },
+        {
+          "id": "120250072631250610",
+          "name": "2 lite | AD 02",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "1776895386869742"
+          },
+          "__fb_trace_id__": "CWwKNzWOOfP",
+          "__www_request_id__": "ALAPP63xyUq03qat6N-SQDN"
+        },
+        {
+          "id": "120250072632490610",
+          "name": "2 lite | AD 03",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "1776895386869742"
+          },
+          "__fb_trace_id__": "AYXDOO/eKLr",
+          "__www_request_id__": "A1ZIes_x6vse_tC-S9NyGaR"
+        },
+        {
+          "id": "120250072634590610",
+          "name": "2 lite | AD 04",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "1776895386869742"
+          },
+          "__fb_trace_id__": "C4Wst81qBP3",
+          "__www_request_id__": "AbYoRskTId-_Q-D9zNfO2BM"
+        },
+        {
+          "id": "120250072635990610",
+          "name": "2 lite | AD 05",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "1776895386869742"
+          },
+          "__fb_trace_id__": "CdYwuAYo2o2",
+          "__www_request_id__": "AdM8iB9DbfwfoYNpbGhDKcI"
+        }
+      ],
+      "warnings": [
+        "Ad set 1: Meta не підтвердила очікувані DSA beneficiary/payor",
+        "Ad set 2: Meta не підтвердила очікувані DSA beneficiary/payor",
+        "Ad set 3: Meta не підтвердила очікувані DSA beneficiary/payor",
+        "Ad set 4: Meta не підтвердила очікувані DSA beneficiary/payor",
+        "Ad set 5: Meta не підтвердила очікувані DSA beneficiary/payor"
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "a37a5bd8-bd11-495d-87c6-f298b418a521",
+    "accountKey": "account-002",
+    "adAccountId": "act_2220731151778076",
+    "uniqueKey": "campaign-job:a37a5bd8-bd11-495d-87c6-f298b418a521"
+  }
+}

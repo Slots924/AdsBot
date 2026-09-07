@@ -247,6 +247,12 @@ export default class FacebookBackendService {
     }
 
 
+    async renameAdCampaign(accountKey, campaignId, name) {
+        return this.#getFacebookApiClient(accountKey)
+            .renameAdCampaign(campaignId, name);
+    }
+
+
     async deleteAdCampaign(accountKey, campaignId) {
         return this.#getFacebookApiClient(accountKey)
             .deleteAdCampaign(campaignId);

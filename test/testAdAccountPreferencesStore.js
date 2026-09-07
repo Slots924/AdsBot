@@ -55,6 +55,10 @@ try {
     assert.equal(restoredFirst[0].favoritePosition, 1);
     assert.equal(restoredSecond[0].localName, "Головний РК");
     assert.equal(restoredSecond[0].favoritePosition, 0);
+    assert.equal(await restarted.isKeitaroLeadSyncEnabled("act_1"), false);
+    await restarted.setKeitaroLeadSync("act_1", true);
+    assert.equal(await restarted.isKeitaroLeadSyncEnabled("act_1"), true);
+    assert.equal((await restarted.enrichAccounts("fp_hub", [{ id: "act_1" }]))[0].keitaroLeadSyncEnabled, true);
 
     const firstCampaignOrder = await restarted.enrichCampaigns("act_1", [
         { id: "campaign-2", name: "Second" },

@@ -692,7 +692,7 @@ export default class FacebookGraphApi {
         }
 
         const insights = await this.#getAll(`/${id}/insights`, {
-            fields: "campaign_id,campaign_name,spend,actions",
+            fields: "campaign_id,campaign_name,spend,impressions,clicks,ctr,actions",
             level: "campaign",
             date_preset: normalizedPreset,
             limit: 100,
@@ -702,6 +702,9 @@ export default class FacebookGraphApi {
             campaignId: insight.campaign_id,
             campaignName: insight.campaign_name ?? null,
             spend: insight.spend ?? "0",
+            impressions: insight.impressions ?? "0",
+            clicks: insight.clicks ?? "0",
+            ctr: insight.ctr ?? "0",
             actions: Array.isArray(insight.actions) ? insight.actions : [],
         }));
     }
@@ -723,6 +726,25 @@ export default class FacebookGraphApi {
         }
         await this.#writeObject(`/${id}`, { status: normalizedStatus });
         return { id, status: normalizedStatus };
+    }
+
+
+    /** Змінює назву рекламної кампанії Meta. */
+    async renameAdCampaign(campaignId, name) {
+        const id = normalizeObjectId(
+            campaignId,
+            "CAMPAIGN_ID_INVALID",
+            "ID кампанії"
+        );
+        const normalizedName = String(name ?? "").trim();
+        if (!normalizedName) {
+            throw createValidationError(
+                "Вкажіть назву кампанії",
+                "CAMPAIGN_NAME_REQUIRED"
+            );
+        }
+        await this.#writeObject(`/${id}`, { name: normalizedName });
+        return { id, name: normalizedName };
     }
 
 

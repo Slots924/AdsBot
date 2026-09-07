@@ -38,8 +38,11 @@ const keitaro = {
         ];
     },
     async buildReport(payload) {
-        assert.ok(["campaign_id", "offer_id"].includes(payload.dimensions[0]));
-        assert.ok(payload.metrics.includes("clicks"));
+        assert.ok(["campaign_id", "offer_id", "sub_id_2"].includes(payload.dimensions[0]));
+        assert.ok(payload.metrics.includes("clicks") || payload.metrics.includes("leads"));
+        if (payload.dimensions[0] === "sub_id_2" && payload.metrics.includes("leads")) {
+            return { rows: [{ sub_id_2: "meta-55", leads: "3" }] };
+        }
         if (payload.dimensions.includes("sub_id_2")) {
             return { rows: [{ campaign_id: 1, sub_id_2: "meta-55", clicks: "8" }] };
         }
@@ -174,6 +177,7 @@ assert.deepEqual(pixelChange, [{ campaignId: "1", ok: true }]);
 assert.equal(keitaro.changedCampaign.payload.name, "HU [004_W] Pixel_123456789🎮SLOT🎮");
 assert.equal(keitaro.changedCampaign.payload.parameters.sub_id_6.placeholder, "123456789");
 assert.equal(keitaro.changedCampaign.payload.parameters.sub_id_12.placeholder, "new-token");
+assert.deepEqual(await service.getTodayLeadsByMetaCampaignId(), [{ metaCampaignId: "meta-55", leads: 3 }]);
 const domainChange = await service.changeCampaignDomains({ campaignIds: [1], domainId: "321" });
 assert.deepEqual(domainChange, [{ campaignId: "1", ok: true }]);
 assert.deepEqual(keitaro.changedCampaign, { id: "1", payload: { domain_id: 321 } });

@@ -93,6 +93,10 @@ const report = await keitaro.buildReport({
 та `sub_id_2`. Детальний формат зберігання й повторів описаний у
 [`docs/spend.md`](spend.md).
 
+Для вкладки рекламних кабінетів `KeitaroGuiService.getTodayLeadsByMetaCampaignId()`
+будує звіт за сьогодні з виміром `sub_id_2` і метрикою `leads`. Результат
+кешується в пам’яті 60 секунд і повертає кількість лідів за Meta campaign ID.
+
 ### Групи кампаній
 
 У цьому Admin API окремого `/campaign_groups` немає. Групи кампаній читаються

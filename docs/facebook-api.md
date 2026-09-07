@@ -227,8 +227,9 @@ if (!selectedFacebookApiClient) {
 | `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти, включно з UTC offset і DSA defaults. Денний spend та `adtrust_dsl` тут навмисно не запитуються. |
 | `getAdCampaigns(adAccountId)` | `Array` | Повертає ACTIVE, PAUSED, DELETED та ARCHIVED кампанії РК. |
 | `setAdCampaignStatus(campaignId, status)` | `{ id, status }` | Змінює стан кампанії на `ACTIVE`, `PAUSED` або `DELETED`. |
+| `renameAdCampaign(campaignId, name)` | `{ id, name }` | Змінює назву кампанії через Graph API. |
 | `deleteAdCampaign(campaignId)` | `{ id, status: "DELETED", effectiveStatus: "DELETED" }` | Встановлює кампанії статус `DELETED` без незворотного HTTP DELETE. |
-| `getAdCampaignInsights(adAccountId, datePreset)` | `Array` | Повертає campaign-level spend та actions за Meta date preset. |
+| `getAdCampaignInsights(adAccountId, datePreset)` | `Array` | Повертає campaign-level spend, покази, кліки, CTR та actions за Meta date preset. |
 | `getAdCampaignSpend(adAccountId, { since, until })` | `Array` | Повертає денний campaign-level spend за точний діапазон дат для локальної бази спенду. |
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
 | `getAvailablePages()` | `Array<{id, name, pictureUrl}>` | Перевіряє доступність, publish tasks і статус фанпейджів та повертає список з avatar URL, але без токенів. |

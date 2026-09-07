@@ -182,6 +182,8 @@ export default class KeitaroGuiService {
         this.landingPagesCache = null;
         this.offersCache = null;
         this.campaignGroupsCache = null;
+        this.metaCampaignLeadsCache = null;
+        this.metaCampaignLeadsRequest = null;
         this.campaignsCache = null;
         this.campaignGroupsRequest = null;
         this.campaignsRequest = null;
@@ -559,6 +561,36 @@ export default class KeitaroGuiService {
             ).trim(),
             clicks: numberOrZero(row?.clicks),
         })).filter((row) => row.keitaroCampaignId && row.metaCampaignId);
+    }
+
+
+    async getTodayLeadsByMetaCampaignId() {
+        const now = Date.now();
+        if (this.metaCampaignLeadsCache?.expiresAt > now) {
+            return this.metaCampaignLeadsCache.rows;
+        }
+        if (this.metaCampaignLeadsRequest) return this.metaCampaignLeadsRequest;
+
+        this.metaCampaignLeadsRequest = this.keitaro.buildReport({
+            range: reportRange("today"),
+            dimensions: ["sub_id_2"],
+            metrics: ["leads"],
+        }).then((report) => {
+            const rows = normalizeList(report).map((row) => ({
+                metaCampaignId: String(
+                    row?.sub_id_2 ?? row?.subId2 ?? ""
+                ).trim(),
+                leads: numberOrZero(row?.leads),
+            })).filter((row) => row.metaCampaignId);
+            this.metaCampaignLeadsCache = {
+                rows,
+                expiresAt: Date.now() + 60_000,
+            };
+            return rows;
+        }).finally(() => {
+            this.metaCampaignLeadsRequest = null;
+        });
+        return this.metaCampaignLeadsRequest;
     }
 
 
