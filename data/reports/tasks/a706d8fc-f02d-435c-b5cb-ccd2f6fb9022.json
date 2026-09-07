@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "id": "a706d8fc-f02d-435c-b5cb-ccd2f6fb9022",
+  "taskId": "9057081c-e46f-48ce-aefe-32fe8626c4c9",
+  "type": "campaign",
+  "title": "HU | Creo_1 | 30+",
+  "status": "failed",
+  "createdAt": "2026-09-06T12:35:00.522Z",
+  "startedAt": "2026-09-06T12:34:44.731Z",
+  "finishedAt": "2026-09-06T12:35:00.521Z",
+  "durationMs": 15790,
+  "inputSummary": {
+    "campaignJobId": "724eab7d-849b-4f8f-af92-4cdcfa9067ff",
+    "accountKey": "account-002",
+    "adAccountId": "act_1026032733596452",
+    "campaignName": "HU | Creo_1 | 30+",
+    "templateId": 13,
+    "pageId": "122094945110008107",
+    "postId": "122094945110008107_122327186534007831",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-09-06T12:33:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120259853232020456",
+      "creativeId": "4566134243711572",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120259853232540456",
+          "name": "HU | Creo_1 | 30+ | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Cannot create ad because the media in the post has been edited. Please edit the ad or use a new post.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 2632,
+      "graphSubcode": 2446102,
+      "graphUserTitle": "Ad Creative is Incompatible with the Post",
+      "graphUserMessage": "Cannot create ad because the media in the post has been edited. Please edit the ad or use a new post.",
+      "stage": "ad",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "724eab7d-849b-4f8f-af92-4cdcfa9067ff",
+    "accountKey": "account-002",
+    "adAccountId": "act_1026032733596452",
+    "uniqueKey": "campaign-job:724eab7d-849b-4f8f-af92-4cdcfa9067ff"
+  }
+}

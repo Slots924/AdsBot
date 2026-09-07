@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "nextId": 10,
+  "nextId": 11,
   "templates": [
     {
       "id": 1,
@@ -119,7 +119,7 @@
     {
       "id": 3,
       "createdAt": "2026-08-29T08:59:00.199Z",
-      "updatedAt": "2026-09-04T15:06:33.836Z",
+      "updatedAt": "2026-09-07T05:42:23.375Z",
       "name": "DE OFFERS",
       "sourceStreamId": null,
       "stream": {
@@ -191,7 +191,7 @@
             "offer_id": 1106,
             "name": "DE | [Nachbarsmatch] | Landing64Default | 5.2 EUR | 100 (best)",
             "groupId": "76",
-            "state": "active",
+            "state": "disabled",
             "share": 100
           }
         ],
@@ -321,7 +321,7 @@
     {
       "id": 6,
       "createdAt": "2026-08-29T09:11:50.738Z",
-      "updatedAt": "2026-08-29T09:11:50.738Z",
+      "updatedAt": "2026-09-07T05:55:04.777Z",
       "name": "AU OFFERS",
       "sourceStreamId": null,
       "stream": {
@@ -356,34 +356,6 @@
           {
             "offer_id": 1426,
             "name": "AU | [MatchLocalOzzies] | LP277Link | 6.00€ | 70",
-            "groupId": "73",
-            "state": "active",
-            "share": 100
-          },
-          {
-            "offer_id": 1259,
-            "name": "AU | [FlirtingChatbox] | Landing110maturehuman2 | 5.20€ | 50",
-            "groupId": "73",
-            "state": "active",
-            "share": 100
-          },
-          {
-            "offer_id": 1258,
-            "name": "AU | [FlirtingChatbox] | Landing97mature | 5.20€ | 50",
-            "groupId": "73",
-            "state": "active",
-            "share": 100
-          },
-          {
-            "offer_id": 1257,
-            "name": "AU | [FlirtingChatbox] | Landing64default | 5.20€ | 50",
-            "groupId": "73",
-            "state": "active",
-            "share": 100
-          },
-          {
-            "offer_id": 1256,
-            "name": "AU | [FlirtingChatbox] | Landing110maturesexy | 5.20€ | 50",
             "groupId": "73",
             "state": "active",
             "share": 100
@@ -740,6 +712,80 @@
             "offer_id": 600,
             "name": "ES Global [Smart-Link] TT",
             "groupId": "61",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "triggers": []
+      }
+    },
+    {
+      "id": 10,
+      "createdAt": "2026-09-06T11:54:01.570Z",
+      "updatedAt": "2026-09-06T11:56:10.886Z",
+      "name": "CA OFFERS",
+      "sourceStreamId": null,
+      "stream": {
+        "type": "regular",
+        "name": "CA OFFERS",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": true,
+        "filter_or": false,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [],
+        "landings": [],
+        "offers": [
+          {
+            "offer_id": 1821,
+            "name": "CA | [CourtisonsNous] | Landing110 - mature - sexy | 4€ | 30",
+            "groupId": "79",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1725,
+            "name": "CA | [Hookup69] | LP 18006 land 35 Direct contact | 3.5$ | 50",
+            "groupId": "79",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1724,
+            "name": "CA | [Hookup69] | LP 18008 land 30 Find your matches | 3.5$ | 50",
+            "groupId": "79",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1723,
+            "name": "CA | [Hookup69] | LP 18007 land 26 Meet Horny & Like-minded People | 3.5$ | 50",
+            "groupId": "79",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1722,
+            "name": "CA | [Hookup69] | LP 0 Default | 3.5$ | 50",
+            "groupId": "79",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 1173,
+            "name": "CA | [FlirtingMatch] | Default | Mobile 3.12 EUR | Desktop 3.90 EUR | 25",
+            "groupId": "79",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 641,
+            "name": "CA Global [Smart-Link] TT",
+            "groupId": "79",
             "state": "active",
             "share": 100
           }
