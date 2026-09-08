@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "id": "8a79b55d-3208-40b1-8854-5421e97c353c",
+  "taskId": "59906aaf-3b9b-494c-a032-83c84ce6b16e",
+  "type": "campaign",
+  "title": "HU | Creo_138 | 30+",
+  "status": "interrupted",
+  "createdAt": "2026-09-08T04:13:46.769Z",
+  "startedAt": "2026-09-08T04:13:17.849Z",
+  "finishedAt": "2026-09-08T04:13:46.768Z",
+  "durationMs": 28919,
+  "inputSummary": {
+    "campaignJobId": "248b1154-0dde-4a5e-ab5e-868b8c238cb0",
+    "accountKey": "account-001",
+    "adAccountId": "act_1110629964547339",
+    "campaignName": "HU | Creo_138 | 30+",
+    "templateId": 13,
+    "pageId": "110294058835644",
+    "postId": "110294058835644_122331925910007562",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-09-08T04:13:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120249003104860576",
+      "creativeId": "2150162238896734",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120249003105980576",
+          "name": "HU | Creo_138 | 30+ | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120249003107290576",
+          "name": "HU | Creo_138 | 30+ | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120249003106800576",
+          "name": "HU | Creo_138 | 30+ | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "120249003108000576",
+          "name": "HU | Creo_138 | 30+ | AD 02"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Створення кампанії перервано",
+      "code": "CAMPAIGN_CREATION_INTERRUPTED",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "ad",
+      "itemIndex": 1,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "248b1154-0dde-4a5e-ab5e-868b8c238cb0",
+    "accountKey": "account-001",
+    "adAccountId": "act_1110629964547339",
+    "uniqueKey": "campaign-job:248b1154-0dde-4a5e-ab5e-868b8c238cb0"
+  }
+}

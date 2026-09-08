@@ -17,6 +17,7 @@ import AdsPowerGroupService
 import CreativeManager from "../creatives/CreativeManager.js";
 import { prepareCommentsForCampaign }
     from "../creatives/prepareCreativeForCampaign.js";
+import applyCreativeFont from "../creatives/applyCreativeFont.js";
 
 
 const disableReasons = new Map([
@@ -637,6 +638,9 @@ export default class AdsBotGuiService {
         creativeGeo = geo,
         creativeName,
         siteUrl,
+        manualCreativeText = "",
+        useCreativeFont = false,
+        creativeFont = "blurry",
         imagePath = "",
         imagePaths = [],
     } = {}, onProgress) {
@@ -646,20 +650,29 @@ export default class AdsBotGuiService {
         await this.#assertActiveAccount(accountKey);
         const total = imagePath ? 4 : 3;
         await progress({ stage: "creative", completed: 0, total, message: "Готуємо креатив" });
-        this.logger.info(
-            `Отримуємо або генеруємо креатив ${creativeGeo} ${creativeName}; це може тривати декілька хвилин…`
-        );
-        const preparedCreative = await this.#facebookBackend.prepareCreative({
-            geo: creativeGeo,
-            creativeName,
-            siteUrl,
-        });
+        const customText = String(manualCreativeText ?? "").trim();
+        let message;
+        if (customText) {
+            this.logger.info("Готуємо текст креативу, введений вручну…");
+            message = customText;
+        } else {
+            this.logger.info(
+                `Отримуємо або генеруємо креатив ${creativeGeo} ${creativeName}; це може тривати декілька хвилин…`
+            );
+            const preparedCreative = await this.#facebookBackend.prepareCreative({
+                geo: creativeGeo,
+                creativeName,
+                siteUrl,
+            });
+            message = preparedCreative.creative;
+        }
+        if (useCreativeFont) message = applyCreativeFont(message, creativeFont);
 
         this.logger.info("Надсилаємо пост у Facebook…");
         const post = await this.#facebookBackend.publishPost({
             accountKey,
             pageId,
-            message: preparedCreative.creative,
+            message,
             imagePath,
             imagePaths,
         }, progress);

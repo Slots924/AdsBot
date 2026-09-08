@@ -78,6 +78,8 @@ try {
     );
     assert.equal(creative.comments[1].parent_id, "1");
 
+    let preparedCreativeCalls = 0;
+    const publishedMessages = [];
     const facebookBackend = {
         async getAccounts() {
             return [{
@@ -128,10 +130,11 @@ try {
             return [{ id: `${options.pageId}_post` }];
         },
         async prepareCreative() {
+            preparedCreativeCalls += 1;
             return { creative: "Prepared", comments: [] };
         },
         async publishPost(options) {
-            assert.equal(options.message, "Prepared");
+            publishedMessages.push(options.message);
             return {
                 postId: "page_post",
                 permalinkUrl: "https://www.facebook.com/post",
@@ -216,6 +219,18 @@ try {
         siteUrl: "https://example.com",
     });
     assert.equal(post.postId, "page_post");
+    assert.equal(publishedMessages[0], "Prepared");
+
+    await guiService.publishCreativePost({
+        accountKey: "active",
+        pageId: "page",
+        geo: "HU",
+        manualCreativeText: "Manual https://one.example/a і https://two.example/b",
+        useCreativeFont: true,
+    });
+    assert.equal(preparedCreativeCalls, 1);
+    assert.match(publishedMessages[1], /^M\u034Fa\u034Fn\u034Fu\u034Fa\u034Fl\u034F https:\/\/one\.example\/a/);
+    assert(publishedMessages[1].includes("https://two.example/b"));
 
     const commenting = guiService.runCommentingCampaign({
         groupIds: ["2"],

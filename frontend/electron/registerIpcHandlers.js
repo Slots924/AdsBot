@@ -1505,6 +1505,9 @@ export default function registerIpcHandlers({
                 creativeGeo: String(payload.creativeGeo ?? payload.language ?? payload.geo ?? "").trim().toUpperCase(),
                 creativeName: String(payload.creativeName ?? "").trim(),
                 siteUrl: String(payload.siteUrl ?? "").trim(),
+                manualCreativeText: String(payload.manualCreativeText ?? "").trim(),
+                useCreativeFont: payload.useCreativeFont === true,
+                creativeFont: "blurry",
                 imagePath: String(payload.imagePath ?? ""),
                 imagePaths: [...new Set((payload.imagePaths ?? [])
                     .map((item) => String(item ?? "").trim())
@@ -1520,6 +1523,14 @@ export default function registerIpcHandlers({
                 commentWorkerConcurrency: Math.min(5, Math.max(1, Number(payload.commentWorkerConcurrency) || 5)),
                 commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
             };
+            if (!input.manualCreativeText && (!input.creativeName || !input.siteUrl)) throw Object.assign(
+                new Error("Оберіть креатив і Offer URL або введіть текст креативу вручну"),
+                { code: "PUBLICATION_CREATIVE_REQUIRED" }
+            );
+            if (!input.disableComments && !input.creativeName) throw Object.assign(
+                new Error("Для коментарів оберіть креатив, з якого брати коментарі"),
+                { code: "PUBLICATION_COMMENT_CREATIVE_REQUIRED" }
+            );
             if (!input.disableComments && !input.commentGroupIds.length) throw Object.assign(
                 new Error("Оберіть хоча б одну AdsPower-групу або вимкніть коментування"),
                 { code: "PUBLICATION_COMMENTING_GROUP_REQUIRED" }
@@ -1549,6 +1560,8 @@ export default function registerIpcHandlers({
                     geo: input.geo,
                     language: input.language,
                     creativeName: input.creativeName,
+                    manualCreativeText: Boolean(input.manualCreativeText),
+                    useCreativeFont: input.useCreativeFont,
                     commentsEnabled: !input.disableComments,
                 },
                 runner: async ({ signal, progress, waitForAction }) => {
@@ -1663,6 +1676,8 @@ export default function registerIpcHandlers({
                                 geo: input.geo,
                                 creativeName: input.creativeName,
                                 siteUrl: input.siteUrl,
+                                manualCreativeText: Boolean(input.manualCreativeText),
+                                useCreativeFont: input.useCreativeFont,
                                 hasImage: Boolean(input.imagePath),
                                 disableComments: input.disableComments,
                                 commentGroupIds: input.commentGroupIds,

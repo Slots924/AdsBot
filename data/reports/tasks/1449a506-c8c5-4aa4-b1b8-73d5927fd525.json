@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "1449a506-c8c5-4aa4-b1b8-73d5927fd525",
+  "taskId": "ca4e23f5-60ab-4820-8e3b-f5c578fbb3e7",
+  "type": "campaign",
+  "title": "HU | Creo_1 | 30+",
+  "status": "interrupted",
+  "createdAt": "2026-09-08T04:13:51.167Z",
+  "startedAt": "2026-09-08T04:13:46.771Z",
+  "finishedAt": "2026-09-08T04:13:51.166Z",
+  "durationMs": 4395,
+  "inputSummary": {
+    "campaignJobId": "ca481af3-104b-4bf3-8ccb-178cde5105be",
+    "accountKey": "account-001",
+    "adAccountId": "act_1110629964547339",
+    "campaignName": "HU | Creo_1 | 30+",
+    "templateId": 7,
+    "pageId": "122094945110008107",
+    "postId": "122094945110008107_122327222132007831",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-09-08T04:13:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": null,
+      "creativeId": null,
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Створення кампанії перервано",
+      "code": "CAMPAIGN_CREATION_INTERRUPTED",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "preflight",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "ca481af3-104b-4bf3-8ccb-178cde5105be",
+    "accountKey": "account-001",
+    "adAccountId": "act_1110629964547339",
+    "uniqueKey": "campaign-job:ca481af3-104b-4bf3-8ccb-178cde5105be"
+  }
+}

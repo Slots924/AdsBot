@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "0b3100d3-6718-4409-b410-8b384ec58ae6",
+  "taskId": "ecf77e81-1c13-4df1-915b-77d49ca82126",
+  "type": "publication",
+  "title": "Публікація · ES · 1",
+  "status": "interrupted",
+  "createdAt": "2026-09-08T05:17:03.780Z",
+  "startedAt": "2026-09-08T05:09:40.140Z",
+  "finishedAt": "2026-09-08T05:17:03.779Z",
+  "durationMs": 443639,
+  "inputSummary": {
+    "accountKey": "account-004",
+    "pageId": "886440057876450",
+    "geo": "ES",
+    "language": "ES",
+    "creativeGeo": "ES",
+    "creativeName": "1",
+    "siteUrl": "https://this-night.cyou/UJ1ES",
+    "imagePaths": [
+      "C:\\Users\\Darkness\\Downloads\\73636378_003_bf44.jpg"
+    ],
+    "disableComments": false,
+    "commentGroupIds": [
+      "8083415",
+      "8792700",
+      "7705877"
+    ],
+    "commentBrowserMode": "headless",
+    "commentDisableImages": true,
+    "commentWorkerConcurrency": 1,
+    "commentWorkerProxyIds": "[REDACTED]",
+    "hasImage": false
+  },
+  "resultSummary": {
+    "reportPath": null,
+    "fatalError": "Паралельне коментування перервано",
+    "interrupted": true
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Паралельне коментування перервано",
+      "code": "COMMENTING_ABORTED",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-004",
+    "pageId": "886440057876450",
+    "geo": "ES",
+    "language": "ES",
+    "creativeName": "1",
+    "commentsEnabled": true
+  }
+}

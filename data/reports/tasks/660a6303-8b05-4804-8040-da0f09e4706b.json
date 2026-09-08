@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "id": "660a6303-8b05-4804-8040-da0f09e4706b",
+  "taskId": "e0d49b3f-f8ed-4423-b7f1-42c4d2222337",
+  "type": "campaign-cleanup",
+  "title": "HU | Creo_138 | 30+ · очищення",
+  "status": "completed",
+  "createdAt": "2026-09-08T04:14:02.868Z",
+  "startedAt": "2026-09-08T04:13:55.147Z",
+  "finishedAt": "2026-09-08T04:14:02.867Z",
+  "durationMs": 7720,
+  "inputSummary": {
+    "campaignJobId": "248b1154-0dde-4a5e-ab5e-868b8c238cb0",
+    "accountKey": "account-001",
+    "knownObjects": {
+      "campaignId": "120249003104860576",
+      "creativeId": "2150162238896734",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120249003105980576",
+          "name": "HU | Creo_138 | 30+ | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120249003107290576",
+          "name": "HU | Creo_138 | 30+ | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120249003106800576",
+          "name": "HU | Creo_138 | 30+ | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "120249003108000576",
+          "name": "HU | Creo_138 | 30+ | AD 02"
+        }
+      ]
+    }
+  },
+  "resultSummary": {
+    "deleted": [
+      {
+        "type": "ad",
+        "id": "120249003108000576"
+      },
+      {
+        "type": "ad",
+        "id": "120249003106800576"
+      },
+      {
+        "type": "adset",
+        "id": "120249003107290576"
+      },
+      {
+        "type": "adset",
+        "id": "120249003105980576"
+      },
+      {
+        "type": "creative",
+        "id": "2150162238896734"
+      },
+      {
+        "type": "campaign",
+        "id": "120249003104860576"
+      }
+    ],
+    "failed": []
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "248b1154-0dde-4a5e-ab5e-868b8c238cb0",
+    "uniqueKey": "campaign-job:248b1154-0dde-4a5e-ab5e-868b8c238cb0"
+  }
+}

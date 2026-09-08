@@ -4,6 +4,7 @@ import {
     CirclePlus,
     Copy,
     ExternalLink,
+    FilePenLine,
     FolderOpen,
     LoaderCircle,
     Megaphone,
@@ -319,6 +320,9 @@ function PublicationModal({
         language: page.language || "",
         creativeName: page.creativeName || "",
         siteUrl: "",
+        manualCreativeText: "",
+        useCreativeFont: false,
+        creativeFont: "blurry",
         imagePath: "",
         imagePaths: [],
         disableComments: false,
@@ -326,6 +330,17 @@ function PublicationModal({
     });
     const [saving, setSaving] = useState(false);
     const [keitaroPickerOpen, setKeitaroPickerOpen] = useState(false);
+    const [manualEditorOpen, setManualEditorOpen] = useState(false);
+    const [manualEditorValue, setManualEditorValue] = useState("");
+    const hasManualCreative = Boolean(draft.manualCreativeText.trim());
+    const openManualEditor = () => {
+        setManualEditorValue(draft.manualCreativeText);
+        setManualEditorOpen(true);
+    };
+    const saveManualCreative = () => {
+        setDraft((current) => ({ ...current, manualCreativeText: manualEditorValue }));
+        setManualEditorOpen(false);
+    };
     const submit = async (event) => {
         event.preventDefault();
         setSaving(true);
@@ -371,17 +386,34 @@ function PublicationModal({
                     </label>
                     <label className="field">
                         <span>Креатив</span>
-                        <input
-                            value={draft.creativeName}
-                            onChange={(event) => setDraft((current) => ({
-                                ...current,
-                                creativeName: event.target.value.replace(/^Creo_/i, ""),
-                            }))}
-                        />
+                        <div className="creative-name-row">
+                            <input
+                                value={draft.creativeName}
+                                onChange={(event) => setDraft((current) => ({
+                                    ...current,
+                                    creativeName: event.target.value.replace(/^Creo_/i, ""),
+                                }))}
+                            />
+                            <button type="button" className="secondary-button icon-button" title="Написати креатив вручну" onClick={openManualEditor} disabled={saving}>
+                                <FilePenLine size={17} />
+                            </button>
+                        </div>
                     </label>
                 </div>
+                {hasManualCreative && (
+                    <section className="manual-creative-preview">
+                        <header>
+                            <strong>Власний текст креативу</strong>
+                            <span>
+                                <button type="button" className="link-button" onClick={openManualEditor} disabled={saving}>Редагувати</button>
+                                <button type="button" className="icon-button subtle-icon-button" title="Вимкнути власний текст" onClick={() => setDraft((current) => ({ ...current, manualCreativeText: "" }))} disabled={saving}><X size={15} /></button>
+                            </span>
+                        </header>
+                        <p>{draft.manualCreativeText}</p>
+                    </section>
+                )}
                 <label className="field">
-                    <span>Offer URL</span>
+                    <span>{hasManualCreative ? "Offer URL (лише для коментарів)" : "Offer URL"}</span>
                     <div className="resource-select-row">
                         <input
                             type="url"
@@ -400,6 +432,18 @@ function PublicationModal({
                             Вибрати кампанію
                         </button>
                     </div>
+                </label>
+                <label className="creative-font-toggle">
+                    <input
+                        type="checkbox"
+                        checked={draft.useCreativeFont}
+                        onChange={(event) => setDraft((current) => ({ ...current, useCreativeFont: event.target.checked }))}
+                        disabled={saving}
+                    />
+                    <span>Використовувати шрифт</span>
+                    <select value={draft.creativeFont} onChange={(event) => setDraft((current) => ({ ...current, creativeFont: event.target.value }))} disabled={saving || !draft.useCreativeFont}>
+                        <option value="blurry">Blurry Font</option>
+                    </select>
                 </label>
                 <label className="field">
                     <span>Зображення</span>
@@ -444,7 +488,7 @@ function PublicationModal({
                     </button>
                     <button
                         className="primary-button"
-                        disabled={saving || !draft.geo || !draft.creativeName || !draft.siteUrl || (!draft.disableComments && !draft.groupIds.length)}
+                        disabled={saving || !draft.geo || (!hasManualCreative && (!draft.creativeName || !draft.siteUrl)) || (!draft.disableComments && (!draft.creativeName || !draft.groupIds.length))}
                     >
                         {draft.disableComments ? "Опублікувати" : "Опублікувати та прокоментувати"}
                     </button>
@@ -462,6 +506,19 @@ function PublicationModal({
                         setKeitaroPickerOpen(false);
                     }}
                 />
+            )}
+            {manualEditorOpen && (
+                <div className="modal manual-creative-editor" role="dialog" aria-modal="true" aria-label="Власний текст креативу">
+                    <button type="button" className="modal-close" onClick={() => setManualEditorOpen(false)}><X size={17} /></button>
+                    <span className="eyebrow">Власний креатив</span>
+                    <h2>Написати текст вручну</h2>
+                    <p>Цей текст буде опубліковано замість тексту вибраного креативу. Посилання в ньому не підставляються.</p>
+                    <textarea value={manualEditorValue} onChange={(event) => setManualEditorValue(event.target.value)} placeholder="Вставте або напишіть текст креативу…" rows={13} autoFocus />
+                    <div className="form-actions">
+                        <button type="button" className="secondary-button" onClick={() => setManualEditorOpen(false)}>Скасувати</button>
+                        <button type="button" className="primary-button" onClick={saveManualCreative} disabled={!manualEditorValue.trim()}>Зберегти текст</button>
+                    </div>
+                </div>
             )}
         </div>
     );
