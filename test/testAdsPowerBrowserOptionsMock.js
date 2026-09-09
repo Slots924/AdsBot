@@ -50,7 +50,7 @@ for (const testCase of cases) {
     assert.deepEqual(request.data, {
         profile_no: "42",
         last_opened_tabs: "0",
-        proxy_detection: "0",
+        proxy_detection: "1",
         ...testCase.expected,
     });
 }

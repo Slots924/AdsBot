@@ -239,7 +239,7 @@ export default function App() {
         const checked = await unwrap(window.adsBot.checkAccount(key));
         setAccounts((current) => current.map((account) => (
             account.accountKey === key
-                ? { ...account, ...checked, adsPowerOpen: account.adsPowerOpen }
+                ? { ...account, ...checked }
                 : account
         )));
         showToast("API-клієнт перевірено", "success");
@@ -254,11 +254,21 @@ export default function App() {
         showToast("API-клієнта видалено", "success");
     };
     const openAccountProfile = async (key) => {
-        applyAccounts(await unwrap(window.adsBot.openAccountAdsPowerProfile(key)));
+        const result = await unwrap(window.adsBot.openAccountAdsPowerProfile(key));
+        setAccounts((current) => current.map((account) => (
+            account.accountKey === result.accountKey
+                ? { ...account, adsPowerOpen: result.adsPowerOpen }
+                : account
+        )));
         showToast("AdsPower-профіль відкрито", "success");
     };
     const closeAccountProfile = async (key) => {
-        applyAccounts(await unwrap(window.adsBot.closeAccountAdsPowerProfile(key)));
+        const result = await unwrap(window.adsBot.closeAccountAdsPowerProfile(key));
+        setAccounts((current) => current.map((account) => (
+            account.accountKey === result.accountKey
+                ? { ...account, adsPowerOpen: result.adsPowerOpen }
+                : account
+        )));
         showToast("AdsPower-профіль закрито", "success");
     };
     const syncAccount = async (key) => {

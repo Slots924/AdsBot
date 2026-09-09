@@ -817,12 +817,19 @@ export default function registerIpcHandlers({
         "accounts:check",
         safeHandler(async ({ accountKey }) => {
             const account = await facebookAccountManager.get(accountKey);
-            const status = await guiService.checkAccount(accountKey);
+            const [status, adsPowerOpen] = await Promise.all([
+                guiService.checkAccount(accountKey),
+                account.adsPowerProfileNo
+                    ? guiService.getAdsPowerProfileOpenState(
+                        account.adsPowerProfileNo
+                    )
+                    : Promise.resolve(null),
+            ]);
             return {
                 ...account,
                 ...status,
                 name: account.name,
-                adsPowerOpen: null,
+                adsPowerOpen,
             };
         })
     );
@@ -872,8 +879,13 @@ export default function registerIpcHandlers({
                 item.accountKey === String(accountKey ?? "").trim()
             ));
             if (!account?.adsPowerProfileNo) throw Object.assign(new Error("Додайте номер профілю AdsPower"), { code: "ADSPOWER_PROFILE_NO_REQUIRED" });
-            await guiService.openAdsPowerProfile(account.adsPowerProfileNo);
-            return refreshManagedAccounts();
+            const adsPowerOpen = await guiService.getAdsPowerProfileOpenState(
+                account.adsPowerProfileNo
+            );
+            if (!adsPowerOpen) {
+                await guiService.openAdsPowerProfile(account.adsPowerProfileNo);
+            }
+            return { accountKey: account.accountKey, adsPowerOpen: true };
         })
     );
     ipcMain.handle(
@@ -883,8 +895,13 @@ export default function registerIpcHandlers({
                 item.accountKey === String(accountKey ?? "").trim()
             ));
             if (!account?.adsPowerProfileNo) throw Object.assign(new Error("Додайте номер профілю AdsPower"), { code: "ADSPOWER_PROFILE_NO_REQUIRED" });
-            await guiService.closeAdsPowerProfile(account.adsPowerProfileNo);
-            return refreshManagedAccounts();
+            const adsPowerOpen = await guiService.getAdsPowerProfileOpenState(
+                account.adsPowerProfileNo
+            );
+            if (adsPowerOpen) {
+                await guiService.closeAdsPowerProfile(account.adsPowerProfileNo);
+            }
+            return { accountKey: account.accountKey, adsPowerOpen: false };
         })
     );
     ipcMain.handle(

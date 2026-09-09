@@ -279,7 +279,7 @@ export default class AdsBotGuiService {
     async openAdsPowerProfile(profileNo) {
         await this.adsPower.openProfile(profileNo, {
             browserMode: "visible",
-            restoreLastOpenedTabs: false,
+            restoreLastOpenedTabs: true,
         });
         return { isOpen: true };
     }
