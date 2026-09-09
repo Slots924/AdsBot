@@ -232,13 +232,24 @@ export default class FacebookBackendService {
      * @returns {Promise<{campaigns: object[], insights: object[]}>}
      */
     async getAdCampaigns(accountKey, adAccountId, datePreset = "today") {
-        const facebookApiClient = this.#getFacebookApiClient(accountKey);
         const [campaigns, insights] = await Promise.all([
-            facebookApiClient.getAdCampaigns(adAccountId),
-            facebookApiClient.getAdCampaignInsights(adAccountId, datePreset),
+            this.getAdCampaignList(accountKey, adAccountId),
+            this.getAdCampaignInsights(accountKey, adAccountId, datePreset),
         ]);
 
         return { campaigns, insights };
+    }
+
+
+    async getAdCampaignList(accountKey, adAccountId) {
+        return this.#getFacebookApiClient(accountKey)
+            .getAdCampaigns(adAccountId);
+    }
+
+
+    async getAdCampaignInsights(accountKey, adAccountId, datePreset = "today") {
+        return this.#getFacebookApiClient(accountKey)
+            .getAdCampaignInsights(adAccountId, datePreset);
     }
 
 

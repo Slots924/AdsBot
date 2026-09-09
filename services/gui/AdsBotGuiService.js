@@ -405,6 +405,38 @@ export default class AdsBotGuiService {
     }
 
 
+    async getAdCampaignList(accountKey, adAccountId) {
+        await this.#assertActiveAccount(accountKey);
+        const sourceCampaigns = await this.#facebookBackend.getAdCampaignList(
+            accountKey,
+            adAccountId
+        );
+        const campaigns = formatCampaigns({ campaigns: sourceCampaigns });
+        this.logger.info(`Знайдено кампаній: ${campaigns.length}`);
+        return campaigns;
+    }
+
+
+    async getAdCampaignStatistics(
+        accountKey,
+        adAccountId,
+        datePreset = "today",
+        campaigns = []
+    ) {
+        await this.#assertActiveAccount(accountKey);
+        const insights = await this.#facebookBackend.getAdCampaignInsights(
+            accountKey,
+            adAccountId,
+            datePreset
+        );
+        return {
+            adAccountId,
+            datePreset,
+            campaigns: formatCampaigns({ campaigns, insights }),
+        };
+    }
+
+
     async setAdCampaignStatus(accountKey, campaignId, status) {
         await this.#assertActiveAccount(accountKey);
         return this.#facebookBackend.setAdCampaignStatus(

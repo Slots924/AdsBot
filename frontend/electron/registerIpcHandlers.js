@@ -159,7 +159,7 @@ export default function registerIpcHandlers({
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
     const workspaceRefreshes = new Map();
-    const campaignRefreshes = new Map();
+    const campaignStatisticsRefreshIntervalMs = 60_000;
     let adsPowerStateRefresh = null;
     const sendRendererEvent = (channel, payload) => {
         const window = getWindow();
@@ -229,16 +229,72 @@ export default function registerIpcHandlers({
         return refresh;
     };
 
+    const mergeCampaignStatistics = (campaigns, cachedCampaigns = []) => {
+        const cachedById = new Map(cachedCampaigns.map((campaign) => [
+            String(campaign.id),
+            campaign,
+        ]));
+        return campaigns.map((campaign) => {
+            const cached = cachedById.get(String(campaign.id));
+            if (!cached) return campaign;
+            const {
+                leads,
+                spend,
+                costPerLead,
+                impressions,
+                clicks,
+                cpm,
+                ctr,
+                metaLeads,
+                leadSource,
+                leadSyncStatus,
+            } = cached;
+            return {
+                ...campaign,
+                leads,
+                spend,
+                costPerLead,
+                impressions,
+                clicks,
+                cpm,
+                ctr,
+                metaLeads,
+                leadSource,
+                leadSyncStatus,
+            };
+        });
+    };
+
+    const shouldRefreshCampaignStatistics = (updatedAt) => {
+        const timestamp = Date.parse(updatedAt ?? "");
+        return !Number.isFinite(timestamp)
+            || Date.now() - timestamp >= campaignStatisticsRefreshIntervalMs;
+    };
+
     const loadRemoteCampaigns = async ({
         accountKey,
         adAccountId,
         datePreset,
     }) => {
-        const data = await guiService.getAdCampaigns(
+        const cached = await remoteDataCacheStore.getCampaigns(
             accountKey,
             adAccountId,
             datePreset
         );
+        const campaignList = await guiService.getAdCampaignList(
+            accountKey,
+            adAccountId
+        );
+        const previous = cached?.value;
+        const data = {
+            adAccountId,
+            datePreset,
+            campaigns: mergeCampaignStatistics(
+                campaignList,
+                previous?.campaigns
+            ),
+            statisticsUpdatedAt: previous?.statisticsUpdatedAt ?? null,
+        };
         const keitaroLeadSyncEnabled = await adAccountPreferencesStore
             .isKeitaroLeadSyncEnabled(adAccountId);
         const enriched = {
@@ -247,6 +303,7 @@ export default function registerIpcHandlers({
                 adAccountId,
                 data.campaigns
             ),
+            cacheHit: true,
         };
         if (keitaroLeadSyncEnabled && datePreset === "today") {
             enriched.campaigns = enriched.campaigns.map((campaign) => ({
@@ -339,32 +396,124 @@ export default function registerIpcHandlers({
         return refresh;
     };
 
-    const refreshCampaignsOnce = (payload) => {
-        const key = [
-            payload.accountKey,
-            payload.adAccountId,
-            payload.datePreset || "today",
-        ].join("::");
-        if (campaignRefreshes.has(key)) return campaignRefreshes.get(key);
-        const refresh = loadRemoteCampaigns(payload)
-            .then((data) => {
-                sendRendererEvent("campaigns:refreshed", {
-                    ...payload,
-                    datePreset: payload.datePreset || "today",
-                    data,
-                });
-                return data;
-            })
-            .catch((error) => {
-                logger?.warn(
-                    "cache.campaigns.refresh-failed",
-                    `Не вдалося фоново оновити кампанії ${payload.adAccountId}`,
-                    { error }
-                );
-                return null;
-            });
-        campaignRefreshes.set(key, refresh);
-        return refresh;
+    const applyInsightMetrics = (campaigns, statisticsCampaigns) => {
+        const statsById = new Map(statisticsCampaigns.map((campaign) => [
+            String(campaign.id),
+            campaign,
+        ]));
+        return campaigns.map((campaign) => {
+            const stats = statsById.get(String(campaign.id));
+            if (!stats) return campaign;
+            const keepKeitaro = campaign.leadSource === "keitaro";
+            return {
+                ...campaign,
+                spend: stats.spend,
+                impressions: stats.impressions,
+                clicks: stats.clicks,
+                cpm: stats.cpm,
+                ctr: stats.ctr,
+                metaLeads: stats.leads,
+                ...(keepKeitaro
+                    ? {
+                        costPerLead: Number(campaign.leads) > 0
+                            ? Number(stats.spend) / Number(campaign.leads)
+                            : null,
+                    }
+                    : {
+                        leads: stats.leads,
+                        costPerLead: stats.costPerLead,
+                        leadSource: "meta",
+                        leadSyncStatus: "ready",
+                    }),
+            };
+        });
+    };
+
+    const readCachedCampaigns = async ({
+        accountKey,
+        adAccountId,
+        datePreset,
+    }) => {
+        const cached = await remoteDataCacheStore.getCampaigns(
+            accountKey,
+            adAccountId,
+            datePreset
+        );
+        if (!cached) {
+            return {
+                adAccountId,
+                datePreset,
+                campaigns: [],
+                statisticsUpdatedAt: null,
+                cacheHit: false,
+            };
+        }
+        return {
+            ...cached.value,
+            campaigns: await adAccountPreferencesStore.enrichCampaigns(
+                adAccountId,
+                cached.value.campaigns ?? []
+            ),
+            cacheHit: true,
+        };
+    };
+
+    const loadRemoteCampaignStatistics = async ({
+        accountKey,
+        adAccountId,
+        datePreset,
+    }) => {
+        const cached = await remoteDataCacheStore.getCampaigns(
+            accountKey,
+            adAccountId,
+            datePreset
+        );
+        if (!cached?.value?.campaigns?.length) {
+            throw Object.assign(
+                new Error("Спочатку оновіть список кампаній"),
+                { code: "CAMPAIGN_LIST_REQUIRED" }
+            );
+        }
+        if (!shouldRefreshCampaignStatistics(cached.value.statisticsUpdatedAt)) {
+            return {
+                ...cached.value,
+                campaigns: await adAccountPreferencesStore.enrichCampaigns(
+                    adAccountId,
+                    cached.value.campaigns
+                ),
+                cacheHit: true,
+                statisticsSkipped: true,
+            };
+        }
+        const statistics = await guiService.getAdCampaignStatistics(
+            accountKey,
+            adAccountId,
+            datePreset,
+            cached.value.campaigns
+        );
+        const updated = {
+            ...cached.value,
+            campaigns: await adAccountPreferencesStore.enrichCampaigns(
+                adAccountId,
+                applyInsightMetrics(cached.value.campaigns, statistics.campaigns)
+            ),
+            statisticsUpdatedAt: new Date().toISOString(),
+            cacheHit: true,
+            statisticsSkipped: false,
+        };
+        await remoteDataCacheStore.setCampaigns(
+            accountKey,
+            adAccountId,
+            datePreset,
+            updated
+        );
+        sendRendererEvent("campaigns:refreshed", {
+            accountKey,
+            adAccountId,
+            datePreset,
+            data: updated,
+        });
+        return updated;
     };
     const mergeAccountStates = async (graphAccounts) => {
         const storedAccounts = await facebookAccountManager.list();
@@ -1093,7 +1242,6 @@ export default function registerIpcHandlers({
             if (force) return loadRemoteWorkspace(accountKey);
             const cached = await remoteDataCacheStore.getWorkspace(accountKey);
             if (!cached) return loadRemoteWorkspace(accountKey);
-            refreshWorkspaceOnce(accountKey);
             return enrichCachedWorkspace(accountKey, cached.value);
         })
     );
@@ -1337,21 +1485,20 @@ export default function registerIpcHandlers({
         }) => {
             const payload = { accountKey, adAccountId, datePreset };
             if (force) return loadRemoteCampaigns(payload);
-            const cached = await remoteDataCacheStore.getCampaigns(
-                accountKey,
-                adAccountId,
-                datePreset
-            );
-            if (!cached) return loadRemoteCampaigns(payload);
-            refreshCampaignsOnce(payload);
-            return {
-                ...cached.value,
-                campaigns: await adAccountPreferencesStore.enrichCampaigns(
-                    adAccountId,
-                    cached.value.campaigns
-                ),
-            };
+            return readCachedCampaigns(payload);
         })
+    );
+    ipcMain.handle(
+        "campaigns:statistics-refresh",
+        safeHandler(async ({
+            accountKey,
+            adAccountId,
+            datePreset = "today",
+        }) => loadRemoteCampaignStatistics({
+            accountKey,
+            adAccountId,
+            datePreset,
+        }))
     );
     ipcMain.handle(
         "ads:keitaro-lead-sync-set",

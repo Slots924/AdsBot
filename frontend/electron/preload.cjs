@@ -98,6 +98,12 @@ contextBridge.exposeInMainWorld("adsBot", {
             datePreset,
             force,
         }),
+    refreshAdCampaignStatistics: (accountKey, adAccountId, datePreset) =>
+        ipcRenderer.invoke("campaigns:statistics-refresh", {
+            accountKey,
+            adAccountId,
+            datePreset,
+        }),
     reorderAdCampaigns: (adAccountId, orderedIds) =>
         ipcRenderer.invoke("campaigns:reorder", { adAccountId, orderedIds }),
     setAdCampaignStatus: (accountKey, adAccountId, campaignId, status) =>

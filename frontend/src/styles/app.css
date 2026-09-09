@@ -452,6 +452,11 @@ button:focus-visible, input:focus-visible {
 .detail-grid.compact .account-spend-today strong { color: #dffbef; font-size: 16px; }
 .campaign-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 20px 0 10px; }
 .campaign-heading h2 { margin: 3px 0 0; font-size: 20px; }
+.campaign-updated-at { display: block; margin-top: 4px; color: #838ba0; font-size: var(--font-caption); }
+.campaign-heading-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+.campaign-heading-actions { display: flex; align-items: center; gap: 6px; }
+.campaign-heading-actions .icon-button { width: 29px; min-width: 29px; height: 29px; padding: 0; border-radius: 8px; }
+.campaign-heading-actions .secondary-button { min-height: 29px; padding: 0 10px; font-size: var(--font-caption); }
 .campaign-periods { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 5px; }
 .campaign-periods button { min-height: 29px; padding: 0 9px; border: 1px solid var(--stroke); border-radius: 8px; color: #747c90; background: rgba(255,255,255,.025); cursor: pointer; font-size: var(--font-caption); }
 .campaign-periods button:hover, .campaign-periods button.active { color: #e9e8ff; border-color: rgba(132,114,255,.38); background: rgba(132,114,255,.12); }

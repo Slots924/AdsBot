@@ -86,6 +86,7 @@ const pagePreferencesStore = {
     async setFavorite(pageId, isFavorite) { return { pageId, isFavorite }; },
     async updateMetadata(pageId, patch) { return { pageId, ...patch }; },
 };
+const campaignCache = new Map();
 const remoteDataCacheStore = {
     async getWorkspace() { return null; },
     async setWorkspace() {},
@@ -95,8 +96,18 @@ const remoteDataCacheStore = {
     async clearPosts() {},
     async removePosts() {},
     async prependPost() {},
-    async getCampaigns() { return null; },
-    async setCampaigns() {},
+    async getCampaigns(accountKey, adAccountId, datePreset) {
+        const value = campaignCache.get(
+            `${accountKey}::${adAccountId}::${datePreset}`
+        );
+        return value ? { value } : null;
+    },
+    async setCampaigns(accountKey, adAccountId, datePreset, value) {
+        campaignCache.set(
+            `${accountKey}::${adAccountId}::${datePreset}`,
+            value
+        );
+    },
     async invalidateCampaigns() {},
 };
 const creativeLaunchJournal = {
@@ -155,6 +166,8 @@ const proxyManager = {
     },
 };
 let storedJob = null;
+let adCampaignListCalls = 0;
+let adCampaignStatisticsCalls = 0;
 const backgroundTasks = [];
 const enqueuedOptions = [];
 let rebuildOptions = null;
@@ -268,6 +281,35 @@ const guiService = {
     },
     async getAdCampaigns(accountKey, adAccountId, datePreset) {
         return { accountKey, adAccountId, datePreset, campaigns: [] };
+    },
+    async getAdCampaignList() {
+        adCampaignListCalls += 1;
+        return [{
+            id: "campaign-1",
+            name: "A Campaign",
+            status: "ACTIVE",
+            effectiveStatus: "ACTIVE",
+        }];
+    },
+    async getAdCampaignStatistics(_accountKey, adAccountId, datePreset) {
+        adCampaignStatisticsCalls += 1;
+        return {
+            adAccountId,
+            datePreset,
+            campaigns: [{
+                id: "campaign-1",
+                name: "A Campaign",
+                status: "ACTIVE",
+                effectiveStatus: "ACTIVE",
+                spend: 10,
+                leads: 2,
+                costPerLead: 5,
+                impressions: 1000,
+                clicks: 20,
+                cpm: 10,
+                ctr: 2,
+            }],
+        };
     },
     async setAdCampaignStatus(_accountKey, campaignId, status) {
         return { id: campaignId, status };
@@ -572,13 +614,35 @@ assert.deepEqual(
     {
         ok: true,
         data: {
-            accountKey: "fp_hub",
             adAccountId: "act_1",
             datePreset: "today",
             campaigns: [],
+            statisticsUpdatedAt: null,
+            cacheHit: false,
         },
     }
 );
+assert.equal(adCampaignListCalls, 0);
+assert.equal(adCampaignStatisticsCalls, 0);
+const forcedCampaigns = await handlers.get("campaigns:list")({}, {
+    accountKey: "fp_hub",
+    adAccountId: "act_1",
+    datePreset: "today",
+    force: true,
+});
+assert.equal(forcedCampaigns.ok, true);
+assert.equal(forcedCampaigns.data.campaigns[0].id, "campaign-1");
+assert.equal(adCampaignListCalls, 1);
+assert.equal(adCampaignStatisticsCalls, 0);
+const campaignStatistics = await handlers.get("campaigns:statistics-refresh")({}, {
+    accountKey: "fp_hub",
+    adAccountId: "act_1",
+    datePreset: "today",
+});
+assert.equal(campaignStatistics.ok, true);
+assert.equal(campaignStatistics.data.campaigns[0].spend, 10);
+assert.equal(campaignStatistics.data.campaigns[0].ctr, 2);
+assert.equal(adCampaignStatisticsCalls, 1);
 assert.deepEqual(
     await handlers.get("campaigns:reorder")({}, {
         adAccountId: "act_1",

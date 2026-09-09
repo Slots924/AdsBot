@@ -95,7 +95,7 @@ const result = await fillFacebookPersonalProfileAbout(page, {
 
 `preflightLeadCampaign()` і `createLeadCampaign()` приймають `pixelId` та `utm` як runtime-параметри. Для оголошення із зображенням `creativeMode=image` backend підставляє `<LINK>`, бере перший непорожній рядок у headline, решту — в primary text, завантажує файл через `/{act_id}/adimages` і створює `object_story_spec.link_data`.
 
-GUI-контракти: `workspace:client-load`, `pages:posts-with-links`, `pages:posts-delete`, `pages:post-delete`, `ads:pixels-list` та `creative-launch:start/get/retry`. Creative launch не викликає campaign/comments як вкладені background tasks: обидві гілки запускаються безпосередньо всередині parent runner і тому не створюють deadlock глобальної черги.
+GUI-контракти: `workspace:client-load`, `pages:posts-with-links`, `pages:posts-delete`, `pages:post-delete`, `ads:pixels-list`, `campaigns:list`, `campaigns:statistics-refresh` та `creative-launch:start/get/retry`. Creative launch не викликає campaign/comments як вкладені background tasks: обидві гілки запускаються безпосередньо всередині parent runner і тому не створюють deadlock глобальної черги.
 
 ## Backend facade для GUI
 

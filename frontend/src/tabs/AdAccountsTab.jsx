@@ -3,6 +3,7 @@ import { motion, Reorder, useDragControls } from "framer-motion";
 import {
     AlertCircle,
     BadgeDollarSign,
+    BarChart3,
     Check,
     CircleMinus,
     CirclePlus,
@@ -60,6 +61,16 @@ function formatMoney(amount, currency) {
     } catch {
         return `${Number(amount).toFixed(2)} ${currency || ""}`.trim();
     }
+}
+
+
+function formatUpdatedAt(iso) {
+    const date = new Date(iso ?? "");
+    if (!Number.isFinite(date.getTime())) return null;
+    return date.toLocaleTimeString("uk-UA", {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
 }
 
 
@@ -285,12 +296,12 @@ function SortableCampaignRow(props) {
 
 
 function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignIds, onToggle, onDelete, onRename, onReorder }) {
-    if (!entry || entry.status === "loading") {
+    if (!entry || (entry.status === "loading" && !entry.data)) {
         return (
             <div className="campaign-table-card">
                 <div className="campaign-loading">
                     <LoaderCircle className="spin" size={21} />
-                    Завантажуємо кампанії та статистику…
+                    Завантажуємо кампанії…
                 </div>
                 {[1, 2, 3].map((row) => (
                     <div key={row} className="campaign-skeleton skeleton" />
@@ -332,7 +343,9 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
             </div>
             {visibleCount === 0 && (
                 <div className="campaign-empty">
-                    За цей період активних або призупинених кампаній немає.
+                    {entry.data?.cacheHit === false
+                        ? "Немає збережених кампаній. Натисніть Оновити."
+                        : "За цей період активних або призупинених кампаній немає."}
                 </div>
             )}
             <Reorder.Group as="div" axis="y" className="campaign-list" values={activeCampaigns.map((campaign) => String(campaign.id))} onReorder={onReorder}>
@@ -367,8 +380,9 @@ export default function AdAccountsTab({
     const [localSelectedId, setLocalSelectedId] = useState("");
     const [loading, setLoading] = useState(false);
     const [datePreset, setDatePreset] = useState("today");
-    const [campaignRefreshVersion, setCampaignRefreshVersion] = useState(0);
     const [campaignCache, setCampaignCache] = useState({});
+    const [campaignsRefreshing, setCampaignsRefreshing] = useState(false);
+    const [statisticsRefreshing, setStatisticsRefreshing] = useState(false);
     const [renameEditor, setRenameEditor] = useState(null);
     const [renaming, setRenaming] = useState(false);
     const [campaignRenameEditor, setCampaignRenameEditor] = useState(null);
@@ -381,7 +395,6 @@ export default function AdAccountsTab({
     const campaignCacheRef = useRef({});
     const campaignRequestIds = useRef({});
     const campaignClientVersions = useRef({});
-    const forceNextCampaignLoad = useRef(false);
     const favoriteOrderRef = useRef([]);
     const accountActive = selectedAccount?.status === "active";
     const selectedId = controlledSelectedId ?? localSelectedId;
@@ -456,7 +469,7 @@ export default function AdAccountsTab({
 
         updateCampaignCache((cache) => ({
             ...cache,
-            [key]: { status: "loading", data: null, error: null },
+            [key]: { status: "loading", data: current?.data ?? null, error: null },
         }));
         const requestId = (campaignRequestIds.current[key] ?? 0) + 1;
         campaignRequestIds.current[key] = requestId;
@@ -502,23 +515,10 @@ export default function AdAccountsTab({
         }
     };
 
-    const loadAccounts = async ({ refreshCampaigns = false } = {}) => {
+    const loadAccounts = async () => {
         if (!accountActive) return;
         const sequence = ++requestSequence.current;
         setLoading(true);
-
-        if (refreshCampaigns) {
-            forceNextCampaignLoad.current = true;
-            campaignClientVersions.current[accountKey] = (
-                campaignClientVersions.current[accountKey] ?? 0
-            ) + 1;
-            updateCampaignCache((cache) => Object.fromEntries(
-                Object.entries(cache).filter(
-                    ([key]) => !key.startsWith(`${accountKey}::`)
-                )
-            ));
-            setCampaignRefreshVersion((current) => current + 1);
-        }
 
         try {
             const nextAccounts = await unwrap(
@@ -554,11 +554,9 @@ export default function AdAccountsTab({
 
     useEffect(() => {
         if (selected) {
-            const force = forceNextCampaignLoad.current;
-            forceNextCampaignLoad.current = false;
-            loadCampaigns(selected.id, datePreset, { force });
+            loadCampaigns(selected.id, datePreset, { force: false });
         }
-    }, [selected?.id, datePreset, accountKey, campaignRefreshVersion]);
+    }, [selected?.id, datePreset, accountKey]);
 
     useEffect(() => {
         const offRefreshed = window.adsBot.onCampaignsRefreshed?.((event) => {
@@ -772,9 +770,45 @@ export default function AdAccountsTab({
                 onWorkspaceAccountsChange?.(next);
                 return next;
             });
-            await loadCampaigns(selected.id, datePreset, { force: true });
         } catch (error) {
             onError({ ...errorDetails(error), title: "Не вдалося змінити синхронізацію Keitaro" });
+        }
+    };
+
+    const refreshSelectedCampaigns = async () => {
+        if (!selected) return;
+        setCampaignsRefreshing(true);
+        try {
+            await loadCampaigns(selected.id, datePreset, { force: true });
+        } finally {
+            setCampaignsRefreshing(false);
+        }
+    };
+
+    const refreshSelectedStatistics = async () => {
+        if (!accountKey || !selected) return;
+        setStatisticsRefreshing(true);
+        try {
+            const data = await unwrap(window.adsBot.refreshAdCampaignStatistics(
+                accountKey,
+                selected.id,
+                datePreset
+            ));
+            const key = campaignKey(selected.id, datePreset);
+            updateCampaignCache((cache) => ({
+                ...cache,
+                [key]: { status: "ready", data, error: null },
+            }));
+            if (data?.statisticsSkipped) {
+                showToast("Статистику можна оновити раз на 60 с", "info");
+            }
+        } catch (error) {
+            onError({
+                ...errorDetails(error),
+                title: "Не вдалося оновити статистику",
+            });
+        } finally {
+            setStatisticsRefreshing(false);
         }
     };
 
@@ -815,7 +849,7 @@ export default function AdAccountsTab({
                 <button
                     className="secondary-button"
                     disabled={!accountActive || loading}
-                    onClick={() => loadAccounts({ refreshCampaigns: true })}
+                    onClick={() => loadAccounts()}
                 >
                     <RefreshCw className={loading ? "spin" : ""} size={16} />
                     Оновити РК
@@ -948,25 +982,55 @@ export default function AdAccountsTab({
                                 <div>
                                     <span className="eyebrow">Campaign performance</span>
                                     <h2>Кампанії</h2>
+                                    {formatUpdatedAt(currentCampaignEntry?.data?.statisticsUpdatedAt) && (
+                                        <small className="campaign-updated-at">
+                                            Статистика: {formatUpdatedAt(currentCampaignEntry.data.statisticsUpdatedAt)}
+                                        </small>
+                                    )}
                                 </div>
-                                <div className="campaign-periods">
-                                    <label className="campaign-show-deleted" title="Ліди беруться з Keitaro за sub_id_2; кеш оновлюється раз на хвилину.">
-                                        <input type="checkbox" checked={selected.keitaroLeadSyncEnabled === true} onChange={(event) => setKeitaroLeadSync(event.target.checked)} />
-                                        <span /> Keitaro ліди
-                                    </label>
-                                    <label className="campaign-show-deleted">
-                                        <input type="checkbox" checked={showDeletedCampaigns} onChange={(event) => setShowDeletedCampaigns(event.target.checked)} />
-                                        <span /> Показувати видалені
-                                    </label>
-                                    {datePresets.map((preset) => (
+                                <div className="campaign-heading-tools">
+                                    <div className="campaign-periods">
+                                        <label className="campaign-show-deleted" title="Ліди беруться з Keitaro за sub_id_2 під час оновлення кампаній.">
+                                            <input type="checkbox" checked={selected.keitaroLeadSyncEnabled === true} onChange={(event) => setKeitaroLeadSync(event.target.checked)} />
+                                            <span /> Keitaro ліди
+                                        </label>
+                                        <label className="campaign-show-deleted">
+                                            <input type="checkbox" checked={showDeletedCampaigns} onChange={(event) => setShowDeletedCampaigns(event.target.checked)} />
+                                            <span /> Показувати видалені
+                                        </label>
+                                        {datePresets.map((preset) => (
+                                            <button
+                                                key={preset.id}
+                                                className={datePreset === preset.id ? "active" : ""}
+                                                onClick={() => setDatePreset(preset.id)}
+                                            >
+                                                {preset.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <div className="campaign-heading-actions">
                                         <button
-                                            key={preset.id}
-                                            className={datePreset === preset.id ? "active" : ""}
-                                            onClick={() => setDatePreset(preset.id)}
+                                            type="button"
+                                            className="icon-button"
+                                            title="Оновити статистику"
+                                            disabled={
+                                                !currentCampaignEntry?.data?.campaigns?.length
+                                                || statisticsRefreshing
+                                            }
+                                            onClick={refreshSelectedStatistics}
                                         >
-                                            {preset.label}
+                                            <BarChart3 className={statisticsRefreshing ? "spin" : ""} size={16} />
                                         </button>
-                                    ))}
+                                        <button
+                                            type="button"
+                                            className="secondary-button"
+                                            disabled={campaignsRefreshing}
+                                            onClick={refreshSelectedCampaigns}
+                                        >
+                                            <RefreshCw className={campaignsRefreshing ? "spin" : ""} size={16} />
+                                            Оновити
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 

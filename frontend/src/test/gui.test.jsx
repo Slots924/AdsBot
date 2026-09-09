@@ -817,6 +817,7 @@ describe("GUI helpers", () => {
             data: {
                 adAccountId: "act_1",
                 datePreset: "today",
+                cacheHit: true,
                 campaigns: [{
                     id: "campaign-1",
                     name: "A Campaign",
@@ -824,6 +825,24 @@ describe("GUI helpers", () => {
                     leads: 2,
                     spend: 10,
                     costPerLead: 5,
+                }],
+            },
+        });
+        window.adsBot.refreshAdCampaignStatistics = vi.fn().mockResolvedValue({
+            ok: true,
+            data: {
+                adAccountId: "act_1",
+                datePreset: "today",
+                cacheHit: true,
+                campaigns: [{
+                    id: "campaign-1",
+                    name: "A Campaign",
+                    effectiveStatus: "ACTIVE",
+                    leads: 2,
+                    spend: 10,
+                    costPerLead: 5,
+                    ctr: 2,
+                    cpm: 10,
                 }],
             },
         });
@@ -861,6 +880,22 @@ describe("GUI helpers", () => {
         fireEvent.click(screen.getByText("7 днів"));
         await waitFor(() => expect(window.adsBot.getAdCampaigns)
             .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d", false));
+
+        fireEvent.click(screen.getByRole("button", { name: "Оновити" }));
+        await waitFor(() => expect(window.adsBot.getAdCampaigns)
+            .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d", true));
+
+        fireEvent.click(screen.getByTitle("Оновити статистику"));
+        await waitFor(() => expect(window.adsBot.refreshAdCampaignStatistics)
+            .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d"));
+
+        const accountCallsBeforeRkRefresh = window.adsBot.getAdAccounts.mock.calls.length;
+        const campaignCallsBeforeRkRefresh = window.adsBot.getAdCampaigns.mock.calls.length;
+        fireEvent.click(screen.getByRole("button", { name: "Оновити РК" }));
+        await waitFor(() => expect(window.adsBot.getAdAccounts.mock.calls.length)
+            .toBe(accountCallsBeforeRkRefresh + 1));
+        expect(window.adsBot.getAdCampaigns.mock.calls.length)
+            .toBe(campaignCallsBeforeRkRefresh);
 
         fireEvent.click(screen.getByTitle("Додати до обраних"));
         expect(window.adsBot.setAdAccountFavorite).toHaveBeenCalledWith(

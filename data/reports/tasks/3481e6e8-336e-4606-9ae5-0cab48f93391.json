@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "id": "3481e6e8-336e-4606-9ae5-0cab48f93391",
+  "taskId": "fc810b06-871a-4055-8208-e7adf98f122e",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 1341978308991636",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-09T13:47:25.443Z",
+  "startedAt": "2026-09-09T13:46:44.652Z",
+  "finishedAt": "2026-09-09T13:47:25.442Z",
+  "durationMs": 40790,
+  "inputSummary": {
+    "accountKey": "account-012",
+    "pageId": "1341978308991636"
+  },
+  "resultSummary": {
+    "pageId": "1341978308991636",
+    "avatar": {
+      "file": "1.jpg",
+      "photoId": "122096118339477223"
+    },
+    "cover": {
+      "file": "732846247_1506062494590660_4360950569409536536_n.jpg",
+      "photoId": "122096118435477223"
+    },
+    "cleanup": {
+      "deletedPostIds": [],
+      "deletedPhotoIds": [],
+      "hiddenPostIds": []
+    },
+    "publications": [
+      {
+        "file": "369462209_794334272430156_8335400770648757532_n.jpg",
+        "photoId": "122096118555477223",
+        "postId": "1341978308991636_122096118603477223",
+        "backdatedTime": null
+      },
+      {
+        "file": "565697826_1302288854968026_7458978968553627414_n.jpg",
+        "photoId": "122096118735477223",
+        "postId": "1341978308991636_122096118783477223",
+        "backdatedTime": null
+      },
+      {
+        "file": "dfg.jpg",
+        "photoId": "122096118861477223",
+        "postId": "1341978308991636_122096118903477223",
+        "backdatedTime": null
+      }
+    ],
+    "warnings": [
+      {
+        "stage": "delete-photo",
+        "objectId": "122096116305477223",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      }
+    ],
+    "resumed": false
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-012",
+    "pageId": "1341978308991636",
+    "uniqueKey": "page-rebuild:account-012:1341978308991636"
+  }
+}
