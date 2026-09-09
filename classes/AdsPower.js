@@ -155,16 +155,17 @@ class AdsPower {
 
 
     // Отримує інформацію про відкриття профілю на всіх пристроях
-    async getCloudProfileStatus(profileId) {
+    async getCloudProfileStatus(profileIds) {
         const url =
             `${this.apiUrl}/api/v1/browser/cloud-active`;
 
         try {
-            if (
-                profileId === undefined
-                || profileId === null
-                || String(profileId).trim() === ""
-            ) {
+            const normalizedProfileIds = (Array.isArray(profileIds)
+                ? profileIds
+                : [profileIds]
+            ).map((profileId) => String(profileId ?? "").trim())
+                .filter(Boolean);
+            if (normalizedProfileIds.length === 0) {
                 throw new Error(
                     "Не вказано profile_id"
                 );
@@ -174,7 +175,7 @@ class AdsPower {
                 "post",
                 url,
                 {
-                    user_ids: String(profileId),
+                    user_ids: normalizedProfileIds.join(","),
                 }
             );
 
@@ -199,7 +200,7 @@ class AdsPower {
                 || "Невідома помилка";
 
             throw new Error(
-                `Не вдалося перевірити хмарний статус профілю ${profileId}: ${message}`
+                `Не вдалося перевірити хмарний статус AdsPower-профілів: ${message}`
             );
         }
     }
@@ -290,6 +291,31 @@ class AdsPower {
 
 
     // Отримує список груп AdsPower
+    // Отримує профілі за їхніми номерами одним запитом Profile API V2
+    async getProfilesByNo(profileNos) {
+        const normalizedProfileNos = [...new Set((Array.isArray(profileNos)
+            ? profileNos
+            : [profileNos]
+        ).map((profileNo) => String(profileNo ?? "").trim()).filter(Boolean))];
+        if (normalizedProfileNos.length === 0) return [];
+
+        const response = await this.request(
+            "post",
+            `${this.apiUrl}/api/v2/browser-profile/list`,
+            {
+                profile_no: normalizedProfileNos,
+                page: "1",
+                limit: String(normalizedProfileNos.length),
+            }
+        );
+        const result = response.data;
+        if (result.code !== 0) {
+            throw new Error(result.msg || "Не вдалося отримати профілі AdsPower");
+        }
+        return Array.isArray(result.data?.list) ? result.data.list : [];
+    }
+
+
     async getGroups() {
         const limit = 100;
         const groups = [];

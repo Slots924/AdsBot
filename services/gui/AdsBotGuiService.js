@@ -1,5 +1,4 @@
 import AdsPower from "../../classes/AdsPower.js";
-import isProfileOpen from "../profile/isProfileOpen.js";
 import FacebookBackendService
     from "../../facebook/services/FacebookBackendService.js";
 import runCommentingScenario
@@ -271,8 +270,38 @@ export default class AdsBotGuiService {
 
 
     async getAdsPowerProfileOpenState(profileNo) {
-        const profile = await this.adsPower.getProfileByNo(profileNo);
-        return isProfileOpen(this.adsPower, profile);
+        const states = await this.getAdsPowerProfileOpenStates([profileNo]);
+        return states.get(String(profileNo ?? "").trim()) ?? null;
+    }
+
+
+    async getAdsPowerProfileOpenStates(profileNos) {
+        const normalizedProfileNos = [...new Set((profileNos ?? [])
+            .map((profileNo) => String(profileNo ?? "").trim())
+            .filter(Boolean))];
+        const states = new Map(normalizedProfileNos.map((profileNo) => [
+            profileNo,
+            null,
+        ]));
+        if (normalizedProfileNos.length === 0) return states;
+
+        const profiles = await this.adsPower.getProfilesByNo(normalizedProfileNos);
+        const profileNoById = new Map(profiles.map((profile) => [
+            String(profile.profile_id ?? "").trim(),
+            String(profile.profile_no ?? "").trim(),
+        ]).filter(([profileId, profileNo]) => profileId && profileNo));
+        if (profileNoById.size === 0) return states;
+
+        const activeProfiles = await this.adsPower.getCloudProfileStatus(
+            [...profileNoById.keys()]
+        );
+        const activeIds = new Set(activeProfiles.map((profile) => (
+            String(profile.user_id ?? "").trim()
+        )));
+        for (const [profileId, profileNo] of profileNoById) {
+            states.set(profileNo, activeIds.has(profileId));
+        }
+        return states;
     }
 
 

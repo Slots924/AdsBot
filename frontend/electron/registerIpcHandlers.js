@@ -160,6 +160,7 @@ export default function registerIpcHandlers({
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
     const workspaceRefreshes = new Map();
     const campaignRefreshes = new Map();
+    let adsPowerStateRefresh = null;
     const sendRendererEvent = (channel, payload) => {
         const window = getWindow();
         if (window && !window.isDestroyed?.()) {
@@ -367,17 +368,6 @@ export default function registerIpcHandlers({
     };
     const mergeAccountStates = async (graphAccounts) => {
         const storedAccounts = await facebookAccountManager.list();
-        const adsPowerOpenByKey = new Map(await Promise.all(
-            storedAccounts.map(async (account) => {
-                if (!account.adsPowerProfileNo) return [account.accountKey, null];
-                try {
-                    return [account.accountKey, await guiService
-                        .getAdsPowerProfileOpenState(account.adsPowerProfileNo)];
-                } catch {
-                    return [account.accountKey, null];
-                }
-            })
-        ));
         const graphByKey = new Map(graphAccounts.map((account) => [
             account.accountKey,
             account,
@@ -396,7 +386,7 @@ export default function registerIpcHandlers({
             };
             return {
                 ...stored,
-                adsPowerOpen: adsPowerOpenByKey.get(stored.accountKey) ?? null,
+                adsPowerOpen: null,
                 ...graphAccount,
                 name: stored.name ?? "",
                 archived: false,
@@ -404,7 +394,46 @@ export default function registerIpcHandlers({
         });
     };
 
-    const refreshManagedAccounts = async () => mergeAccountStates(
+    const refreshAdsPowerStates = (accounts) => {
+        if (adsPowerStateRefresh) return adsPowerStateRefresh;
+        sendRendererEvent("accounts:adspower-states", { type: "started" });
+        adsPowerStateRefresh = (async () => {
+            const accountsWithAdsPower = accounts.filter((account) => (
+                account.adsPowerProfileNo && !account.archived
+            ));
+            let states = new Map();
+            try {
+                states = await guiService.getAdsPowerProfileOpenStates(
+                    accountsWithAdsPower.map((account) => account.adsPowerProfileNo)
+                );
+            } catch (error) {
+                if (typeof logger?.warn === "function") {
+                    logger.warn(
+                        "accounts.adspower-state-failed",
+                        "Не вдалося пакетно перевірити AdsPower-профілі",
+                        { error }
+                    );
+                }
+            }
+            for (const account of accountsWithAdsPower) {
+                sendRendererEvent("accounts:adspower-states", {
+                    type: "updated",
+                    accountKey: account.accountKey,
+                    adsPowerOpen: states.get(account.adsPowerProfileNo) ?? null,
+                });
+            }
+        })().finally(() => {
+            adsPowerStateRefresh = null;
+            sendRendererEvent("accounts:adspower-states", { type: "completed" });
+        });
+        return adsPowerStateRefresh;
+    };
+    const prepareManagedAccounts = async (graphAccounts) => {
+        const accounts = await mergeAccountStates(graphAccounts);
+        refreshAdsPowerStates(accounts);
+        return accounts;
+    };
+    const refreshManagedAccounts = async () => prepareManagedAccounts(
         await guiService.refreshAccounts()
     );
     const refreshClientsAfterProxyChange = async () => {
@@ -790,7 +819,7 @@ export default function registerIpcHandlers({
 
     ipcMain.handle(
         "accounts:list",
-        safeHandler(async () => mergeAccountStates(
+        safeHandler(async () => prepareManagedAccounts(
             await guiService.getAccounts()
         ))
     );
@@ -879,12 +908,7 @@ export default function registerIpcHandlers({
                 item.accountKey === String(accountKey ?? "").trim()
             ));
             if (!account?.adsPowerProfileNo) throw Object.assign(new Error("Додайте номер профілю AdsPower"), { code: "ADSPOWER_PROFILE_NO_REQUIRED" });
-            const adsPowerOpen = await guiService.getAdsPowerProfileOpenState(
-                account.adsPowerProfileNo
-            );
-            if (!adsPowerOpen) {
-                await guiService.openAdsPowerProfile(account.adsPowerProfileNo);
-            }
+            await guiService.openAdsPowerProfile(account.adsPowerProfileNo);
             return { accountKey: account.accountKey, adsPowerOpen: true };
         })
     );

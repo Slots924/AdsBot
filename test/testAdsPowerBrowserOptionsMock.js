@@ -69,6 +69,31 @@ await restoreTabsAdsPower.openProfile("42", {
 });
 assert.equal(restoreTabsPayload.last_opened_tabs, "1");
 
+const batchAdsPower = new AdsPower();
+batchAdsPower.apiUrl = "http://127.0.0.1:50325";
+const batchRequests = [];
+batchAdsPower.request = async (method, url, data) => {
+    batchRequests.push({ method, url, data });
+    return { data: { code: 0, data: { list: [] } } };
+};
+assert.deepEqual(await batchAdsPower.getProfilesByNo(["42", "43", "42"]), []);
+assert.deepEqual(batchRequests[0], {
+    method: "post",
+    url: "http://127.0.0.1:50325/api/v2/browser-profile/list",
+    data: { profile_no: ["42", "43"], page: "1", limit: "2" },
+});
+
+batchAdsPower.request = async (method, url, data) => {
+    batchRequests.push({ method, url, data });
+    return { data: { code: 0, data: [] } };
+};
+assert.deepEqual(await batchAdsPower.getCloudProfileStatus(["id-1", "id-2"]), []);
+assert.deepEqual(batchRequests[1], {
+    method: "post",
+    url: "http://127.0.0.1:50325/api/v1/browser/cloud-active",
+    data: { user_ids: "id-1,id-2" },
+});
+
 const legacyAdsPower = new AdsPower({ apiUrl: "http://127.0.0.1:50325" });
 let legacyPayload = null;
 legacyAdsPower.request = async (_method, _url, data) => {

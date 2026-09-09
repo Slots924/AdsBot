@@ -257,6 +257,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         subscribe("tasks:updated", callback),
     onWorkspaceRefreshed: (callback) =>
         subscribe("workspace:refreshed", callback),
+    onAdsPowerStatesUpdated: (callback) =>
+        subscribe("accounts:adspower-states", callback),
     onCampaignsRefreshed: (callback) =>
         subscribe("campaigns:refreshed", callback),
     onKeitaroCampaignLeadsRefreshed: (callback) =>
