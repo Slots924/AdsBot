@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "id": "440720c5-e616-455b-abff-40a0ffa0b36f",
+  "taskId": "ba155373-c838-40cd-b8a6-670ac9999bae",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 734023826464284",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-09T08:41:23.274Z",
+  "startedAt": "2026-09-09T08:40:16.813Z",
+  "finishedAt": "2026-09-09T08:41:23.273Z",
+  "durationMs": 66460,
+  "inputSummary": {
+    "accountKey": "account-011",
+    "pageId": "734023826464284"
+  },
+  "resultSummary": {
+    "pageId": "734023826464284",
+    "avatar": {
+      "file": "1.jpg",
+      "photoId": "122183493836978547"
+    },
+    "cover": {
+      "file": "2.jpg",
+      "photoId": "122183493914978547"
+    },
+    "cleanup": {
+      "deletedPostIds": [
+        "734023826464284_122151601580978547"
+      ],
+      "deletedPhotoIds": [],
+      "hiddenPostIds": []
+    },
+    "publications": [
+      {
+        "file": "161268627_492501462158554_8862366840328734379_n.jpg",
+        "photoId": "122183494028978547",
+        "postId": "734023826464284_122183494064978547",
+        "backdatedTime": "2025-11-30T00:00:00.000Z"
+      },
+      {
+        "file": "174561177_512385103503523_7667436635429284847_n.jpg",
+        "photoId": "122183494130978547",
+        "postId": "734023826464284_122183494184978547",
+        "backdatedTime": "2026-03-18T00:00:00.000Z"
+      },
+      {
+        "file": "481255259_1425683182173706_5594615148802163234_n.jpg",
+        "photoId": "122183494244978547",
+        "postId": "734023826464284_122183494292978547",
+        "backdatedTime": "2026-06-02T00:00:00.000Z"
+      },
+      {
+        "file": "481322213_1426468638761827_5000161356000720036_n.jpg",
+        "photoId": "122183494370978547",
+        "postId": "734023826464284_122183494418978547",
+        "backdatedTime": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "file": "482976807_1436084501133574_1953636998226207752_n.jpg",
+        "photoId": "122183494472978547",
+        "postId": "734023826464284_122183494526978547",
+        "backdatedTime": "2026-07-04T00:00:00.000Z"
+      }
+    ],
+    "warnings": [
+      {
+        "stage": "delete-photo",
+        "objectId": "122151601526978547",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      },
+      {
+        "stage": "delete-photo",
+        "objectId": "122151601028978547",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      },
+      {
+        "stage": "delete-photo",
+        "objectId": "122151600890978547",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      }
+    ],
+    "resumed": false
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-011",
+    "pageId": "734023826464284",
+    "uniqueKey": "page-rebuild:account-011:734023826464284"
+  }
+}

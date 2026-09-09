@@ -892,6 +892,20 @@ export default function registerIpcHandlers({
                         cookie: credentials.cookies,
                     });
                     await guiService.reloadFacebookBackend();
+                    void guiService.checkAccount(account.accountKey)
+                        .then((accountStatus) => {
+                            sendRendererEvent("accounts:facebook-status", {
+                                accountKey: account.accountKey,
+                                accountStatus,
+                            });
+                        })
+                        .catch((error) => {
+                            logger?.warn?.(
+                                "accounts.facebook-status-failed",
+                                `Не вдалося перевірити Facebook API-клієнт ${account.accountKey}`,
+                                { error }
+                            );
+                        });
                     return {
                         result: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo, userAgentUpdated: true, accessTokenUpdated: true, cookieUpdated: true },
                         reportDetails: { inputSummary: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo }, resultSummary: { credentialsUpdated: true } },

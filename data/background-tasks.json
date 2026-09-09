@@ -2,6 +2,453 @@
   "version": 1,
   "tasks": [
     {
+      "id": "e665c11d-2a7d-4a96-84ff-e95a8989132a",
+      "type": "comments",
+      "name": "Коментарі поста · AU · 138",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-group:7617732",
+          "label": "[AU] Australia"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7617732"
+        ],
+        "geo": "AU",
+        "creativeGeo": "AU",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61579356425616/posts/pfbid02uix8Ga3ag5rYqd7Yn3KyQwqC2Y5iuxPTKgEXwmAQrQHrmjj59MYfN2DtmBdwnr3zl",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7617732"
+        ],
+        "geo": "AU",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "e1660095-2532-480b-ae9c-c73c3de54871"
+      },
+      "progress": {
+        "completed": 10,
+        "total": 10,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 8,
+        "skipped": 0,
+        "failedComments": 2,
+        "failedProfiles": 3,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "2.2",
+        "currentProfileNo": "114",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": null,
+        "published": 8,
+        "skipped": 0,
+        "failedComments": 2,
+        "failedProfiles": 3,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-09T08:49:40.982Z",
+      "startedAt": "2026-09-09T08:49:40.984Z",
+      "finishedAt": "2026-09-09T09:06:37.803Z",
+      "updatedAt": "2026-09-09T09:06:37.805Z"
+    },
+    {
+      "id": "fa231e5e-d78c-4146-ad20-9fe983a08d39",
+      "type": "campaign",
+      "name": "AU | Creo_138 | 35+",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "f286298f-ce9f-4b5c-b7e6-ec3b45b3684c"
+      },
+      "metadata": {
+        "campaignJobId": "f286298f-ce9f-4b5c-b7e6-ec3b45b3684c",
+        "accountKey": "account-011",
+        "adAccountId": "act_746698974638401",
+        "uniqueKey": "campaign-job:f286298f-ce9f-4b5c-b7e6-ec3b45b3684c",
+        "reportId": "00cce35f-a68d-4b81-8a12-2339073a4f8c"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120252946365860522",
+          "creativeId": "1208770348136653",
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120252946367200522",
+              "name": "AU | Creo_138 | 35+ | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120252946370820522",
+              "name": "AU | Creo_138 | 35+ | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120252946374510522",
+              "name": "AU | Creo_138 | 35+ | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120252946377680522",
+              "name": "AU | Creo_138 | 35+ | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120252946381000522",
+              "name": "AU | Creo_138 | 35+ | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "id": "120252946369000522",
+              "name": "AU | Creo_138 | 35+ | AD 01"
+            },
+            {
+              "index": 1,
+              "id": "120252946372480522",
+              "name": "AU | Creo_138 | 35+ | AD 02"
+            },
+            {
+              "index": 2,
+              "id": "120252946376880522",
+              "name": "AU | Creo_138 | 35+ | AD 03"
+            },
+            {
+              "index": 3,
+              "id": "120252946379080522",
+              "name": "AU | Creo_138 | 35+ | AD 04"
+            },
+            {
+              "index": 4,
+              "id": "120252946382450522",
+              "name": "AU | Creo_138 | 35+ | AD 05"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "f286298f-ce9f-4b5c-b7e6-ec3b45b3684c",
+        "campaignId": "120252946365860522",
+        "warnings": [
+          "Ad set 1: Meta не підтвердила очікувані DSA beneficiary/payor",
+          "Ad set 2: Meta не підтвердила очікувані DSA beneficiary/payor",
+          "Ad set 3: Meta не підтвердила очікувані DSA beneficiary/payor",
+          "Ad set 4: Meta не підтвердила очікувані DSA beneficiary/payor",
+          "Ad set 5: Meta не підтвердила очікувані DSA beneficiary/payor"
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-09T08:47:41.992Z",
+      "startedAt": "2026-09-09T08:47:41.993Z",
+      "finishedAt": "2026-09-09T08:48:47.404Z",
+      "updatedAt": "2026-09-09T08:48:47.406Z"
+    },
+    {
+      "id": "b132d42a-465b-4e93-b485-0128255f0efb",
+      "type": "publication",
+      "name": "Публікація · AU · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-011",
+        "pageId": "734023826464284",
+        "geo": "AU",
+        "language": "",
+        "creativeGeo": "AU",
+        "creativeName": "138",
+        "siteUrl": "https://this-night.cyou/AJ138U",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Downloads\\Go to summer outfit & destination☀️✨......#dancer #model #athlete #teenmodel #teendancer #dancer (1).jpg",
+          "C:\\Users\\Darkness\\Downloads\\Go to summer outfit & destination☀️✨......#dancer #model #athlete #teenmodel #teendancer #dancer.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-011",
+        "pageId": "734023826464284",
+        "geo": "AU",
+        "language": "",
+        "creativeName": "138",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "b235f368-5f82-4fe0-b27f-c9ca37c38b94"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-011",
+        "pageId": "734023826464284",
+        "geo": "AU",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "https://this-night.cyou/AJ138U",
+        "postId": "734023826464284_122183495126978547",
+        "permalinkUrl": "https://www.facebook.com/61579356425616/posts/pfbid02uix8Ga3ag5rYqd7Yn3KyQwqC2Y5iuxPTKgEXwmAQrQHrmjj59MYfN2DtmBdwnr3zl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-09T08:46:19.877Z",
+      "startedAt": "2026-09-09T08:46:19.879Z",
+      "finishedAt": "2026-09-09T08:46:28.591Z",
+      "updatedAt": "2026-09-09T08:46:28.593Z"
+    },
+    {
+      "id": "ba155373-c838-40cd-b8a6-670ac9999bae",
+      "type": "page-rebuild",
+      "name": "Пересетаплення фанпейджа · 734023826464284",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-page:account-011:734023826464284",
+          "label": "фанпейджа 734023826464284"
+        }
+      ],
+      "input": {
+        "accountKey": "account-011",
+        "pageId": "734023826464284",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\AU\\Skyf\\5\\1.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\AU\\Skyf\\5\\2.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\AU\\Skyf\\5\\161268627_492501462158554_8862366840328734379_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\AU\\Skyf\\5\\174561177_512385103503523_7667436635429284847_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\AU\\Skyf\\5\\481255259_1425683182173706_5594615148802163234_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\AU\\Skyf\\5\\481322213_1426468638761827_5000161356000720036_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\AU\\Skyf\\5\\482976807_1436084501133574_1953636998226207752_n.jpg"
+        ],
+        "pageCreatedAt": "2025-09-17",
+        "preserveDates": false
+      },
+      "metadata": {
+        "accountKey": "account-011",
+        "pageId": "734023826464284",
+        "uniqueKey": "page-rebuild:account-011:734023826464284",
+        "reportId": "440720c5-e616-455b-abff-40a0ffa0b36f"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "current": 5,
+        "count": 5
+      },
+      "result": {
+        "pageId": "734023826464284",
+        "avatar": {
+          "file": "1.jpg",
+          "photoId": "122183493836978547"
+        },
+        "cover": {
+          "file": "2.jpg",
+          "photoId": "122183493914978547"
+        },
+        "cleanup": {
+          "deletedPostIds": [
+            "734023826464284_122151601580978547"
+          ],
+          "deletedPhotoIds": [],
+          "hiddenPostIds": []
+        },
+        "publications": [
+          {
+            "file": "161268627_492501462158554_8862366840328734379_n.jpg",
+            "photoId": "122183494028978547",
+            "postId": "734023826464284_122183494064978547",
+            "backdatedTime": "2025-11-30T00:00:00.000Z"
+          },
+          {
+            "file": "174561177_512385103503523_7667436635429284847_n.jpg",
+            "photoId": "122183494130978547",
+            "postId": "734023826464284_122183494184978547",
+            "backdatedTime": "2026-03-18T00:00:00.000Z"
+          },
+          {
+            "file": "481255259_1425683182173706_5594615148802163234_n.jpg",
+            "photoId": "122183494244978547",
+            "postId": "734023826464284_122183494292978547",
+            "backdatedTime": "2026-06-02T00:00:00.000Z"
+          },
+          {
+            "file": "481322213_1426468638761827_5000161356000720036_n.jpg",
+            "photoId": "122183494370978547",
+            "postId": "734023826464284_122183494418978547",
+            "backdatedTime": "2026-07-01T00:00:00.000Z"
+          },
+          {
+            "file": "482976807_1436084501133574_1953636998226207752_n.jpg",
+            "photoId": "122183494472978547",
+            "postId": "734023826464284_122183494526978547",
+            "backdatedTime": "2026-07-04T00:00:00.000Z"
+          }
+        ],
+        "warnings": [
+          {
+            "stage": "delete-photo",
+            "objectId": "122151601526978547",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122151601028978547",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122151600890978547",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          }
+        ],
+        "resumed": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-09T08:40:16.812Z",
+      "startedAt": "2026-09-09T08:40:16.813Z",
+      "finishedAt": "2026-09-09T08:41:23.273Z",
+      "updatedAt": "2026-09-09T08:41:23.275Z"
+    },
+    {
+      "id": "85cc0c26-c6b4-40cb-917f-4a8065829633",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-011",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:623",
+          "label": "AdsPower №623"
+        }
+      ],
+      "input": {
+        "accountKey": "account-011",
+        "adsPowerProfileNo": "623"
+      },
+      "metadata": {
+        "accountKey": "account-011",
+        "uniqueKey": "facebook-api-client-sync:account-011",
+        "reportId": "a2c8ef34-fedf-4715-9777-c03fc09b7400"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-011",
+        "adsPowerProfileNo": "623",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-09T08:37:43.731Z",
+      "startedAt": "2026-09-09T08:37:43.732Z",
+      "finishedAt": "2026-09-09T08:38:00.912Z",
+      "updatedAt": "2026-09-09T08:38:00.913Z"
+    },
+    {
+      "id": "437ed114-2e04-44cb-ad83-11de30712a30",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-011",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:624",
+          "label": "AdsPower №624"
+        }
+      ],
+      "input": {
+        "accountKey": "account-011",
+        "adsPowerProfileNo": "624"
+      },
+      "metadata": {
+        "accountKey": "account-011",
+        "uniqueKey": "facebook-api-client-sync:account-011",
+        "reportId": "e1060fbf-b603-41be-a56a-ba834d8d474d"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-011",
+        "adsPowerProfileNo": "624",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-09T08:31:40.770Z",
+      "startedAt": "2026-09-09T08:31:40.771Z",
+      "finishedAt": "2026-09-09T08:31:59.055Z",
+      "updatedAt": "2026-09-09T08:31:59.057Z"
+    },
+    {
       "id": "50bf8f30-22d3-4c4b-8763-c01c465c2b12",
       "type": "facebook-api-client-sync",
       "name": "Синхронізація API-клієнта account-010",

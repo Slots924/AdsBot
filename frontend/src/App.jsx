@@ -170,6 +170,19 @@ export default function App() {
             }
             if (event?.type === "completed") setAdsPowerStatesLoading(false);
         }) ?? (() => {});
+        const offFacebookAccountStatus = window.adsBot
+            .onFacebookAccountStatusUpdated?.((event) => {
+                if (!event?.accountKey || !event.accountStatus) return;
+                setAccounts((current) => current.map((account) => (
+                    account.accountKey === event.accountKey
+                        ? {
+                            ...account,
+                            ...event.accountStatus,
+                            name: account.name,
+                        }
+                        : account
+                )));
+            }) ?? (() => {});
         const initialize = async () => {
             try {
                 const state = await unwrap(window.adsBot.loadAppState());
@@ -211,7 +224,7 @@ export default function App() {
             setHydrated(true);
         };
         initialize();
-        return () => { offLog(); offTasks(); offWorkspace(); offAdsPowerStates(); };
+        return () => { offLog(); offTasks(); offWorkspace(); offAdsPowerStates(); offFacebookAccountStatus(); };
     }, []);
 
     useEffect(() => { if (selectedAccount?.status === "active") loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status]);
