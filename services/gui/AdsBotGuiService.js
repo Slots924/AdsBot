@@ -249,6 +249,19 @@ export default class AdsBotGuiService {
     }
 
 
+    async reloadFacebookBackend() {
+        this.#facebookBackend = await this.#facebookBackendFactory(
+            this.#facebookBackendOptions
+        );
+    }
+
+
+    async checkAccount(accountKey) {
+        await this.reloadFacebookBackend();
+        return this.#facebookBackend.getAccountStatus(accountKey);
+    }
+
+
     async syncFacebookApiClientFromAdsPowerProfile(options = {}) {
         return syncFacebookApiClientFromAdsPowerProfile({
             adsPower: this.adsPower,
@@ -266,7 +279,7 @@ export default class AdsBotGuiService {
     async openAdsPowerProfile(profileNo) {
         await this.adsPower.openProfile(profileNo, {
             browserMode: "visible",
-            restoreLastOpenedTabs: true,
+            restoreLastOpenedTabs: false,
         });
         return { isOpen: true };
     }

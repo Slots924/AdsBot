@@ -2,7 +2,6 @@ import puppeteer from "puppeteer-core";
 
 import configureFacebookAutomationWindow
     from "../browser/configureFacebookAutomationWindow.js";
-import ensureEnglish from "../actions/ensureEnglish.js";
 import openPageWithoutPopups from "../actions/openPageWithoutPopups.js";
 import ensureAdsPowerProfileReady
     from "../../workflows/profile/ensureAdsPowerProfileReady.js";
@@ -79,10 +78,6 @@ export default async function syncFacebookApiClientFromAdsPowerProfile({
         if (!await ensureFacebookAccountActive(adsPower, profile, page)) {
             throw new Error("Facebook-акаунт не активний");
         }
-        assertNotAborted();
-
-        await onProgress({ stage: "language", message: "Встановлюємо англійську мову Facebook" });
-        await ensureEnglish(page);
         assertNotAborted();
 
         await onProgress({ stage: "credentials", message: "Оновлюємо дані API-клієнта" });

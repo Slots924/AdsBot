@@ -116,48 +116,49 @@ export default class FacebookBackendService {
     async getAccounts() {
         return Promise.all(
             [...this.#facebookApiClients.entries()].map(
-                async ([accountKey, facebookApiClient]) => {
-                    const fallbackName = facebookApiClient.accountName
-                        || accountKey;
-                    const fallbackId = facebookApiClient.facebookUserId
-                        || null;
-
-                    try {
-                        const tokenStatus = await facebookApiClient
-                            .checkAccessToken();
-
-                        if (!tokenStatus.working) {
-                            return {
-                                accountKey,
-                                facebookUserId: fallbackId,
-                                name: fallbackName,
-                                status: "inactive",
-                                error: tokenStatus.error
-                                    ? safeAccountError(tokenStatus.error)
-                                    : null,
-                            };
-                        }
-
-                        return {
-                            accountKey,
-                            facebookUserId: tokenStatus.user?.id
-                                || fallbackId,
-                            name: tokenStatus.user?.name || fallbackName,
-                            status: "active",
-                            error: null,
-                        };
-                    } catch (error) {
-                        return {
-                            accountKey,
-                            facebookUserId: fallbackId,
-                            name: fallbackName,
-                            status: "error",
-                            error: safeAccountError(error),
-                        };
-                    }
-                }
+                ([accountKey]) => this.getAccountStatus(accountKey)
             )
         );
+    }
+
+
+    /**
+     * Перевіряє access token одного API-клієнта без запитів до решти клієнтів.
+     * @param {string} accountKey Внутрішній ключ API-клієнта.
+     * @returns {Promise<object>} Безпечний стан API-клієнта для GUI.
+     */
+    async getAccountStatus(accountKey) {
+        const facebookApiClient = this.#getFacebookApiClient(accountKey);
+        const fallbackName = facebookApiClient.accountName || accountKey;
+        const fallbackId = facebookApiClient.facebookUserId || null;
+
+        try {
+            const tokenStatus = await facebookApiClient.checkAccessToken();
+            if (!tokenStatus.working) {
+                return {
+                    accountKey,
+                    facebookUserId: fallbackId,
+                    name: fallbackName,
+                    status: "inactive",
+                    error: tokenStatus.error ? safeAccountError(tokenStatus.error) : null,
+                };
+            }
+            return {
+                accountKey,
+                facebookUserId: tokenStatus.user?.id || fallbackId,
+                name: tokenStatus.user?.name || fallbackName,
+                status: "active",
+                error: null,
+            };
+        } catch (error) {
+            return {
+                accountKey,
+                facebookUserId: fallbackId,
+                name: fallbackName,
+                status: "error",
+                error: safeAccountError(error),
+            };
+        }
     }
 
 

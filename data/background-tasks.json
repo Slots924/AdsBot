@@ -1,4 +1,144 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "50bf8f30-22d3-4c4b-8763-c01c465c2b12",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-010",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "adspower-profile:624",
+          "label": "AdsPower №624"
+        }
+      ],
+      "input": {
+        "accountKey": "account-010",
+        "adsPowerProfileNo": "624"
+      },
+      "metadata": {
+        "accountKey": "account-010",
+        "uniqueKey": "facebook-api-client-sync:account-010",
+        "reportId": "3085b692-9c75-49da-be66-9126f864a436"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "failed",
+        "message": "Navigating frame was detached"
+      },
+      "result": null,
+      "error": {
+        "message": "Navigating frame was detached",
+        "code": null,
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-09-09T07:05:32.278Z",
+      "startedAt": "2026-09-09T07:05:32.280Z",
+      "finishedAt": "2026-09-09T07:05:39.947Z",
+      "updatedAt": "2026-09-09T07:05:39.949Z"
+    },
+    {
+      "id": "62163483-f616-46ee-bad6-90385afa142e",
+      "type": "campaign",
+      "name": "DE | Creo_1 | 30+",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "4a291cd8-a437-4e13-9c14-cbc8ae4f0945"
+      },
+      "metadata": {
+        "campaignJobId": "4a291cd8-a437-4e13-9c14-cbc8ae4f0945",
+        "accountKey": "account-002",
+        "adAccountId": "act_2220731151778076",
+        "uniqueKey": "campaign-job:4a291cd8-a437-4e13-9c14-cbc8ae4f0945",
+        "reportId": "12613bb7-16bb-42de-9197-20cc6ba03a7e"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "failed",
+        "message": "An unexpected error has occurred. Please retry your request later.",
+        "objects": {
+          "campaignId": "120250095947150610",
+          "creativeId": "2314099432699307",
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120250095953180610",
+              "name": "DE | Creo_1 | 30+ | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120250095958810610",
+              "name": "DE | Creo_1 | 30+ | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120250095964950610",
+              "name": "DE | Creo_1 | 30+ | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120250095968160610",
+              "name": "DE | Creo_1 | 30+ | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120250095973110610",
+              "name": "DE | Creo_1 | 30+ | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "id": "120250095956300610",
+              "name": "DE | Creo_1 | 30+ | AD 01"
+            },
+            {
+              "index": 1,
+              "id": "120250095963750610",
+              "name": "DE | Creo_1 | 30+ | AD 02"
+            },
+            {
+              "index": 2,
+              "id": "120250095966620610",
+              "name": "DE | Creo_1 | 30+ | AD 03"
+            },
+            {
+              "index": 3,
+              "id": "120250095970460610",
+              "name": "DE | Creo_1 | 30+ | AD 04"
+            },
+            {
+              "index": 4,
+              "id": "120250095975750610",
+              "name": "DE | Creo_1 | 30+ | AD 05"
+            }
+          ]
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "An unexpected error has occurred. Please retry your request later.",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": "activation",
+        "graphCode": 2,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-09-09T00:42:45.458Z",
+      "startedAt": "2026-09-09T00:42:45.460Z",
+      "finishedAt": "2026-09-09T00:43:57.571Z",
+      "updatedAt": "2026-09-09T00:43:57.573Z"
+    }
+  ]
 }

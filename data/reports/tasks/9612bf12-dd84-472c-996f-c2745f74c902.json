@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "id": "9612bf12-dd84-472c-996f-c2745f74c902",
+  "taskId": "9805722a-a428-406a-98f4-1eac8c4ad25c",
+  "type": "campaign",
+  "title": "DE | Creo_1 | 30+",
+  "status": "failed",
+  "createdAt": "2026-09-08T19:32:06.986Z",
+  "startedAt": "2026-09-08T19:30:49.267Z",
+  "finishedAt": "2026-09-08T19:32:06.985Z",
+  "durationMs": 77718,
+  "inputSummary": {
+    "campaignJobId": "a12c3414-3d02-4b09-9377-a9212e9e9ec8",
+    "accountKey": "account-010",
+    "adAccountId": "act_775319124983301",
+    "campaignName": "DE | Creo_1 | 30+",
+    "templateId": 4,
+    "pageId": "747569765106849",
+    "postId": "747569765106849_122154953132993567",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-09-08T19:30:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120254725570550161",
+      "creativeId": "2114175859538025",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120254725570870161",
+          "name": "DE | Creo_1 | 30+ | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120254725571750161",
+          "name": "DE | Creo_1 | 30+ | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120254725572360161",
+          "name": "DE | Creo_1 | 30+ | AS 03"
+        },
+        {
+          "index": 3,
+          "id": "120254725572880161",
+          "name": "DE | Creo_1 | 30+ | AS 04"
+        },
+        {
+          "index": 4,
+          "id": "120254725573540161",
+          "name": "DE | Creo_1 | 30+ | AS 05"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120254725571410161",
+          "name": "DE | Creo_1 | 30+ | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "120254725572200161",
+          "name": "DE | Creo_1 | 30+ | AD 02"
+        },
+        {
+          "index": 2,
+          "id": "120254725572650161",
+          "name": "DE | Creo_1 | 30+ | AD 03"
+        },
+        {
+          "index": 3,
+          "id": "120254725573350161",
+          "name": "DE | Creo_1 | 30+ | AD 04"
+        },
+        {
+          "index": 4,
+          "id": "120254725574320161",
+          "name": "DE | Creo_1 | 30+ | AD 05"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "An unexpected error has occurred. Please retry your request later.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 2,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "activation",
+      "itemIndex": 4,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "a12c3414-3d02-4b09-9377-a9212e9e9ec8",
+    "accountKey": "account-010",
+    "adAccountId": "act_775319124983301",
+    "uniqueKey": "campaign-job:a12c3414-3d02-4b09-9377-a9212e9e9ec8"
+  }
+}

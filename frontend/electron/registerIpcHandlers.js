@@ -808,8 +808,22 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "accounts:update",
         safeHandler(async ({ accountKey, ...patch }) => {
-            await facebookAccountManager.update(accountKey, patch);
-            return refreshManagedAccounts();
+            const account = await facebookAccountManager.update(accountKey, patch);
+            await guiService.reloadFacebookBackend();
+            return account;
+        })
+    );
+    ipcMain.handle(
+        "accounts:check",
+        safeHandler(async ({ accountKey }) => {
+            const account = await facebookAccountManager.get(accountKey);
+            const status = await guiService.checkAccount(accountKey);
+            return {
+                ...account,
+                ...status,
+                name: account.name,
+                adsPowerOpen: null,
+            };
         })
     );
     ipcMain.handle(
@@ -841,7 +855,7 @@ export default function registerIpcHandlers({
                         accessToken: credentials.accessToken,
                         cookie: credentials.cookies,
                     });
-                    await refreshManagedAccounts();
+                    await guiService.reloadFacebookBackend();
                     return {
                         result: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo, userAgentUpdated: true, accessTokenUpdated: true, cookieUpdated: true },
                         reportDetails: { inputSummary: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo }, resultSummary: { credentialsUpdated: true } },

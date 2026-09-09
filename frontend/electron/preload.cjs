@@ -18,6 +18,8 @@ contextBridge.exposeInMainWorld("adsBot", {
     createAccount: (account) => ipcRenderer.invoke("accounts:create", account),
     updateAccount: (accountKey, patch) =>
         ipcRenderer.invoke("accounts:update", { accountKey, ...patch }),
+    checkAccount: (accountKey) =>
+        ipcRenderer.invoke("accounts:check", { accountKey }),
     syncAccountFromAdsPower: (accountKey, options = {}) =>
         ipcRenderer.invoke("accounts:sync-from-adspower", { accountKey, ...options }),
     openAccountAdsPowerProfile: (accountKey) =>

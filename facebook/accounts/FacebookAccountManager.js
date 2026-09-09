@@ -306,6 +306,26 @@ export default class FacebookAccountManager {
     }
 
 
+    async get(accountKey) {
+        return this.#enqueue(async () => {
+            const store = await this.#read();
+            this.#migrateAccounts(store);
+            const normalizedKey = normalizeAccountKey(accountKey);
+            const account = store.accounts.find((item) => (
+                String(item.accountKey).toLowerCase()
+                === normalizedKey.toLowerCase()
+            ));
+            if (!account) {
+                throw createAccountError(
+                    `Facebook-акаунт "${normalizedKey}" не знайдено`,
+                    "FACEBOOK_ACCOUNT_NOT_FOUND"
+                );
+            }
+            return safeAccount(account);
+        });
+    }
+
+
     async setArchived(accountKey, archived) {
         return this.#enqueue(async () => {
             const store = await this.#read();

@@ -2,12 +2,14 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
     Bot,
+    CloudDownload,
     LoaderCircle,
     Pencil,
     Play,
     Plus,
     Power,
     RefreshCw,
+    RotateCw,
     X,
 } from "lucide-react";
 
@@ -94,6 +96,7 @@ export default function Sidebar({
     onCreate,
     onUpdate,
     onDelete,
+    onCheck = async () => {},
     onSync = async () => {},
     onOpenProfile = async () => {},
     onCloseProfile = async () => {},
@@ -131,6 +134,17 @@ export default function Sidebar({
             await onSync(account.accountKey);
         } catch (error) {
             onError({ ...errorDetails(error), title: "Не вдалося додати синхронізацію в чергу" });
+        } finally {
+            setBusyKey(null);
+        }
+    };
+    const check = async (event, account) => {
+        event.stopPropagation();
+        setBusyKey(account.accountKey);
+        try {
+            await onCheck(account.accountKey);
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося перевірити API-клієнт" });
         } finally {
             setBusyKey(null);
         }
@@ -177,11 +191,20 @@ export default function Sidebar({
                                     {account.error?.message && <em>{account.error.message}</em>}
                                 </span>
                             </button>
+                            <button
+                                type="button"
+                                className="icon-button account-card-check"
+                                title="Перевірити, чи працює API-клієнт"
+                                disabled={busyKey === account.accountKey || account.archived}
+                                onClick={(event) => check(event, account)}
+                            >
+                                {busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <RotateCw size={13} />}
+                            </button>
                             <span className="account-card-tools">
                                 {(() => {
                                     const syncing = syncingAccountKeys.includes(account.accountKey);
                                     const unavailable = !account.adsPowerProfileNo;
-                                    return <button type="button" className="icon-button" title={unavailable ? "Додайте номер профілю AdsPower" : "Синхронізувати з AdsPower"} disabled={busyKey === account.accountKey || syncing || account.archived || unavailable} onClick={(event) => sync(event, account)}>{busyKey === account.accountKey || syncing ? <LoaderCircle className="spin" size={13} /> : <RefreshCw size={13} />}</button>;
+                                    return <button type="button" className="icon-button" title={unavailable ? "Додайте номер профілю AdsPower" : "Синхронізувати з AdsPower"} disabled={busyKey === account.accountKey || syncing || account.archived || unavailable} onClick={(event) => sync(event, account)}>{busyKey === account.accountKey || syncing ? <LoaderCircle className="spin" size={13} /> : <CloudDownload size={13} />}</button>;
                                 })()}
                                 {account.adsPowerProfileNo && (account.adsPowerOpen ? <button type="button" className="icon-button danger" title="Профіль відкритий — закрити" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onCloseProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Power size={13} />}</button> : <button type="button" className="icon-button" title="Відкрити AdsPower-профіль" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onOpenProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Play size={13} />}</button>)}
                                 <button type="button" className="icon-button" title="Редагувати" onClick={(event) => { event.stopPropagation(); setEditor({ mode: "edit", ...account }); }}><Pencil size={13} /></button>
