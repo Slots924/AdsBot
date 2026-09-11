@@ -33,10 +33,10 @@ const defaultCampaignGroup = (groups) =>
   "";
 
 const streamTemplateDisplayName = (template) => {
-  const icon = template.operatingSystem === "android"
-    ? " 🤖"
-    : template.operatingSystem === "ios" ? " " : "";
-  return `${template.name}${icon}`;
+  const label = template.operatingSystem === "android"
+    ? "Android"
+    : template.operatingSystem === "ios" ? "iOS" : "";
+  return `${template.name}${label ? ` · ${label}` : ""}`;
 };
 
 function Field({ label, children, className = "" }) {

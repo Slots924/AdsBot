@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
+import TemplatesTab from "../tabs/TemplatesTab.jsx";
 import SearchSelect from "./SearchSelect.jsx";
 
 
@@ -128,6 +129,9 @@ export default function CampaignCreationWizard({
     const [templates, setTemplates] = useState([]);
     const [languages, setLanguages] = useState([]);
     const [templateQuery, setTemplateQuery] = useState("");
+    const [templateMenuOpen, setTemplateMenuOpen] = useState(false);
+    const [templateEditorVisible, setTemplateEditorVisible] = useState(false);
+    const [templateEditorRequest, setTemplateEditorRequest] = useState(0);
     const [pages, setPages] = useState([]);
     const [templatesLoading, setTemplatesLoading] = useState(true);
     const [pagesLoading, setPagesLoading] = useState(true);
@@ -168,6 +172,7 @@ export default function CampaignCreationWizard({
     const pagesRequest = useRef(0);
     const postsRequest = useRef(0);
     const openedAt = useRef(new Date());
+    const templatePickerRef = useRef(null);
 
     useEffect(() => {
         let active = true;
@@ -312,6 +317,14 @@ export default function CampaignCreationWizard({
     const selectedTemplate = templates.find(
         (template) => String(template.id) === form.templateId
     );
+    const filteredTemplates = useMemo(() => {
+        const query = templateQuery.trim().toLocaleLowerCase();
+        if (!query || query === selectedTemplate?.name?.toLocaleLowerCase()) {
+            return templates;
+        }
+        return templates.filter((template) => String(template.name)
+            .toLocaleLowerCase().includes(query));
+    }, [selectedTemplate?.name, templateQuery, templates]);
     const totalBudget = useMemo(
         () => Number(form.adSetCount || 0) * Number(form.dailyBudget || 0),
         [form.adSetCount, form.dailyBudget]
@@ -405,26 +418,38 @@ export default function CampaignCreationWizard({
         setTemplateQuery(selectedTemplate ? selectedTemplate.name : "");
     }, [selectedTemplate?.id]);
 
-    const selectTemplateByQuery = (value) => {
+    useEffect(() => {
+        const close = (event) => {
+            if (!templatePickerRef.current?.contains(event.target)) {
+                setTemplateMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", close);
+        return () => document.removeEventListener("mousedown", close);
+    }, []);
+
+    const editTemplateQuery = (value) => {
         setTemplateQuery(value);
-        const selected = templates.find((template) => (
-            `${template.name} — ID ${template.id}` === value || template.name === value
-        ));
-        change("templateId", selected ? String(selected.id) : "");
+        setTemplateMenuOpen(true);
+        if (value !== selectedTemplate?.name) change("templateId", "");
     };
 
-    const createTemplate = async () => {
-        const name = window.prompt("Назва нового шаблону кампанії");
-        if (!name?.trim()) return;
-        try {
-            const template = await unwrap(window.adsBot.createTemplate({ name }));
-            setTemplates((current) => [...current, template].sort((left, right) => (
-                String(left.name).localeCompare(String(right.name), "uk-UA", { numeric: true, sensitivity: "base" })
-            )));
-            change("templateId", String(template.id));
-        } catch (error) {
-            setFailure(errorDetails(error));
-        }
+    const selectTemplate = (template) => {
+        setTemplateQuery(template.name);
+        setTemplateMenuOpen(false);
+        change("templateId", String(template.id));
+    };
+
+    const openTemplateEditor = () => {
+        setTemplateEditorVisible(true);
+        setTemplateEditorRequest((current) => current + 1);
+    };
+
+    const templateCreated = (template) => {
+        setTemplates((current) => [...current, template].sort((left, right) => (
+            String(left.name).localeCompare(String(right.name), "uk-UA", { numeric: true, sensitivity: "base" })
+        )));
+        setTemplateEditorVisible(false);
     };
 
     const selectPage = (page) => {
@@ -594,9 +619,8 @@ export default function CampaignCreationWizard({
     if (sourcePage && sourcePost) {
         return (
             <div className="overlay creative-launch-overlay" onMouseDown={() => !creating && onClose()}>
-                <form
+                <div
                     className="modal creative-launch-modal post-campaign-launch-modal"
-                    onSubmit={checkAndCreate}
                     onMouseDown={(event) => event.stopPropagation()}
                 >
                     <button type="button" className="modal-close" disabled={creating} onClick={onClose}>
@@ -651,21 +675,27 @@ export default function CampaignCreationWizard({
                             </div>
                             <label className="field">
                                 <span>Шаблон</span>
-                                <div className="template-picker-row">
-                                    <input
-                                        list="campaign-template-options"
-                                        aria-label="Шаблон"
-                                        value={templateQuery}
-                                        disabled={templatesLoading}
-                                        onChange={(event) => selectTemplateByQuery(event.target.value)}
-                                        placeholder={templatesLoading ? "Оновлюємо шаблони…" : "Оберіть шаблон"}
-                                    />
-                                    <button type="button" className="icon-button" title="Створити шаблон" aria-label="Створити шаблон" onClick={createTemplate}>
+                                <div ref={templatePickerRef} className="template-picker-row">
+                                    <div className="template-combobox">
+                                        <Search size={15} />
+                                        <input
+                                            aria-label="Шаблон"
+                                            role="combobox"
+                                            aria-expanded={templateMenuOpen}
+                                            value={templateQuery}
+                                            disabled={templatesLoading}
+                                            onFocus={(event) => { event.target.select(); setTemplateMenuOpen(true); }}
+                                            onChange={(event) => editTemplateQuery(event.target.value)}
+                                            placeholder={templatesLoading ? "Оновлюємо шаблони…" : "Оберіть шаблон"}
+                                        />
+                                        {templateMenuOpen && <div className="template-combobox-menu">
+                                            {filteredTemplates.map((template) => <button type="button" key={template.id} className={String(template.id) === form.templateId ? "selected" : ""} onClick={() => selectTemplate(template)}>{template.name}</button>)}
+                                            {!filteredTemplates.length && <div>Шаблон не знайдено</div>}
+                                        </div>}
+                                    </div>
+                                    <button type="button" className="icon-button" title="Створити шаблон" aria-label="Створити шаблон" onClick={openTemplateEditor}>
                                         <Plus size={17} />
                                     </button>
-                                    <datalist id="campaign-template-options">
-                                        {templates.map((template) => <option key={template.id} value={`${template.name} — ID ${template.id}`} />)}
-                                    </datalist>
                                 </div>
                             </label>
 
@@ -726,12 +756,20 @@ export default function CampaignCreationWizard({
                     </div>
                     <div className="form-actions creative-launch-actions">
                         <button type="button" className="secondary-button" disabled={creating} onClick={onClose}>Скасувати</button>
-                        <button className="primary-button" disabled={!canCheck || checking || creating}>
+                        <button type="button" className="primary-button" disabled={!canCheck || checking || creating} onClick={checkAndCreate}>
                             {(checking || creating) && <LoaderCircle className="spin" size={16} />}
                             Поставити в чергу
                         </button>
                     </div>
-                </form>
+                    {templateEditorVisible && <TemplatesTab
+                        embedded
+                        createRequest={templateEditorRequest}
+                        onCreated={templateCreated}
+                        onClose={() => setTemplateEditorVisible(false)}
+                        onError={(error) => setFailure(error)}
+                        showToast={() => {}}
+                    />}
+                </div>
             </div>
         );
     }

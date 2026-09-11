@@ -36,10 +36,10 @@ function summaryValue(column, summary, count) {
 }
 
 function streamTemplateDisplayName(template) {
-    const icon = template.operatingSystem === "android"
-        ? " 🤖"
-        : template.operatingSystem === "ios" ? " " : "";
-    return `${template.name}${icon}`;
+    const label = template.operatingSystem === "android"
+        ? "Android"
+        : template.operatingSystem === "ios" ? "iOS" : "";
+    return `${template.name}${label ? ` · ${label}` : ""}`;
 }
 
 

@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
+    Bot,
     Copy,
     FilePenLine,
     LayoutTemplate,
     LoaderCircle,
     Plus,
     Search,
+    Smartphone,
     Trash2,
     X,
 } from "lucide-react";
@@ -150,8 +152,25 @@ function AgePicker({ value, options, onChange, ariaLabel }) {
     </div>;
 }
 
+function OperatingSystemIcon({ operatingSystems = [] }) {
+    if (operatingSystems.includes("Android")) {
+        return <span className="template-os-icon android" title="Android" aria-label="Android"><Bot size={17} /></span>;
+    }
+    if (operatingSystems.includes("iOS")) {
+        return <span className="template-os-icon ios" title="iOS" aria-label="iOS"><Smartphone size={17} /></span>;
+    }
+    return <span className="muted-value">—</span>;
+}
 
-export default function TemplatesTab({ onError, showToast }) {
+
+export default function TemplatesTab({
+    onError,
+    showToast,
+    embedded = false,
+    createRequest = 0,
+    onCreated,
+    onClose,
+}) {
     const [templates, setTemplates] = useState([]);
     const [countries, setCountries] = useState([]);
     const [languages, setLanguages] = useState([]);
@@ -229,6 +248,15 @@ export default function TemplatesTab({ onError, showToast }) {
         setLanguageToAdd("");
         setEditor({ mode: "edit", id: template.id });
     };
+
+    const closeEditor = () => {
+        setEditor(null);
+        if (embedded) onClose?.();
+    };
+
+    useEffect(() => {
+        if (embedded && createRequest > 0) openCreate();
+    }, [createRequest, embedded]);
 
     const toggleCountry = (code) => {
         setDraft((current) => ({
@@ -314,6 +342,7 @@ export default function TemplatesTab({ onError, showToast }) {
                 ? current.map((item) => item.id === saved.id ? saved : item)
                 : [...current, saved]);
             setEditor(null);
+            if (editor.mode === "create") onCreated?.(saved);
             showToast(
                 editor.mode === "edit"
                     ? `Шаблон ID ${saved.id} оновлено`
@@ -360,7 +389,7 @@ export default function TemplatesTab({ onError, showToast }) {
     };
 
     return (
-        <motion.section className="tab-content templates-content" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.section className={`tab-content templates-content ${embedded ? "template-editor-embedded" : ""}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <div className="page-heading split">
                 <div>
                     <span className="eyebrow">Campaign presets</span>
@@ -392,7 +421,9 @@ export default function TemplatesTab({ onError, showToast }) {
                     <button type="button" className="comment-sort" onClick={() => toggleSort("id")}>ID{sortMark("id")}</button>
                     <button type="button" className="comment-sort" onClick={() => toggleSort("name")}>Назва{sortMark("name")}</button>
                     <button type="button" className="comment-sort" onClick={() => toggleSort("countries")}>Країни{sortMark("countries")}</button>
+                    <span>Мови</span>
                     <button type="button" className="comment-sort" onClick={() => toggleSort("audience")}>Аудиторія{sortMark("audience")}</button>
+                    <span>ОС</span>
                     <button type="button" className="comment-sort" onClick={() => toggleSort("updatedAt")}>Оновлено{sortMark("updatedAt")}</button>
                     <span>Дії</span>
                 </div>
@@ -418,9 +449,11 @@ export default function TemplatesTab({ onError, showToast }) {
                         <span className="template-id"><i className="status-dot active" />{template.id}</span>
                         <strong>{template.name}</strong>
                         <span>{template.countryCodes?.join(", ") || "Країни не вибрані"}</span>
+                        <span className={template.locales?.length ? "template-language-codes" : "muted-value"}>{template.locales?.map((id) => languages.find((language) => Number(language.id) === Number(id))?.code || id).join(", ") || "—"}</span>
                         <span className={template.countryCodes?.length ? "" : "muted-value"}>
                             {audienceText(template)}
                         </span>
+                        <OperatingSystemIcon operatingSystems={template.operatingSystems} />
                         <time>{formatUpdatedAt(template.updatedAt)}</time>
                         <span className="template-actions">
                             <button className="icon-button" title="Дублювати" disabled={busyId === template.id} onClick={(event) => duplicate(event, template)}>
@@ -433,9 +466,9 @@ export default function TemplatesTab({ onError, showToast }) {
             </div>
 
             {editor && (
-                <div className="overlay template-editor-overlay" onMouseDown={() => !saving && setEditor(null)}>
+                <div className="overlay template-editor-overlay" onMouseDown={() => !saving && closeEditor()}>
                     <motion.form className="modal template-editor expanded" initial={{ opacity: 0, y: 20, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} onMouseDown={(event) => event.stopPropagation()} onSubmit={save}>
-                        <button className="modal-close" type="button" disabled={saving} onClick={() => setEditor(null)}><X size={17} /></button>
+                        <button className="modal-close" type="button" disabled={saving} onClick={closeEditor}><X size={17} /></button>
                         <div className="modal-icon template-icon"><FilePenLine /></div>
                         <span className="eyebrow">{editor.mode === "edit" ? `Template ID ${editor.id}` : "New template"}</span>
                         <h2>{editor.mode === "edit" ? "Редагувати шаблон" : "Новий шаблон"}</h2>
@@ -534,7 +567,7 @@ export default function TemplatesTab({ onError, showToast }) {
                         </div>
 
                         <div className="form-actions">
-                            <button className="secondary-button" type="button" disabled={saving} onClick={() => setEditor(null)}>Скасувати</button>
+                            <button className="secondary-button" type="button" disabled={saving} onClick={closeEditor}>Скасувати</button>
                             <button className="primary-button" type="submit" disabled={!draft.name.trim() || saving}>{saving && <LoaderCircle className="spin" size={16} />}{editor.mode === "edit" ? "Зберегти зміни" : "Створити шаблон"}</button>
                         </div>
                     </motion.form>

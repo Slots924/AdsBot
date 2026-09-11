@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "nextId": 12,
+  "nextId": 13,
   "templates": [
     {
       "id": 1,
@@ -878,6 +878,75 @@
           {
             "offer_id": 2195,
             "name": "US | [Chillidate] | Default40+ | 9$(IOS) | 20",
+            "groupId": "115",
+            "state": "active",
+            "share": 100
+          }
+        ],
+        "triggers": []
+      }
+    },
+    {
+      "id": 12,
+      "createdAt": "2026-09-11T14:24:11.197Z",
+      "updatedAt": "2026-09-11T14:25:10.832Z",
+      "name": "US OFFERS ANDROID",
+      "sourceStreamId": null,
+      "operatingSystem": "android",
+      "stream": {
+        "type": "regular",
+        "name": "US OFFERS ANDROID",
+        "comments": "",
+        "state": "active",
+        "schema": "landings",
+        "collect_clicks": true,
+        "filter_or": false,
+        "weight": 100,
+        "offer_selection": "before_click",
+        "action_type": "http",
+        "action_payload": "",
+        "filters": [
+          {
+            "name": "os",
+            "mode": "accept",
+            "payload": [
+              "Android"
+            ]
+          }
+        ],
+        "landings": [],
+        "offers": [
+          {
+            "offer_id": 2194,
+            "name": "US | [Chillidate] | Adults only. 40+ | 5$(Android) | 20",
+            "groupId": "115",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 2193,
+            "name": "US | [Chillidate] | [3] Find Your Match - 2 step 40+ | 5$(Android) | 20",
+            "groupId": "115",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 2192,
+            "name": "US | [Chillidate] | [2] Nudity 50% 40+ | 5$(Android) | 20",
+            "groupId": "115",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 2191,
+            "name": "US | [Chillidate] | [1] Nudity 100% 40+ | 5$(Android) | 20",
+            "groupId": "115",
+            "state": "active",
+            "share": 100
+          },
+          {
+            "offer_id": 2190,
+            "name": "US | [Chillidate] | Default 40+ | 5$(Android) | 20",
             "groupId": "115",
             "state": "active",
             "share": 100

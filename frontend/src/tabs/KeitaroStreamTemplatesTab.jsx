@@ -14,10 +14,13 @@ function cloneDraft(template) {
 }
 
 function streamTemplateDisplayName(template) {
-    const icon = template.operatingSystem === "android"
-        ? " 🤖"
-        : template.operatingSystem === "ios" ? " " : "";
-    return `${template.name}${icon}`;
+    return template.name;
+}
+
+function operatingSystemLabel(template) {
+    return template.operatingSystem === "android"
+        ? "Android"
+        : template.operatingSystem === "ios" ? "iOS" : "";
 }
 
 let activeSavedDraft = null;
@@ -37,7 +40,12 @@ export default function KeitaroStreamTemplatesTab({ onError, showToast }) {
     const load = async (preferredId) => {
         setLoading(true);
         try {
-            const items = await unwrap(window.adsBot.getKeitaroStreamTemplates()) ?? [];
+            const items = (await unwrap(window.adsBot.getKeitaroStreamTemplates()) ?? [])
+                .sort((left, right) => String(left.name ?? "").localeCompare(
+                    String(right.name ?? ""),
+                    "uk-UA",
+                    { numeric: true, sensitivity: "base" }
+                ));
             setTemplates(items);
             const targetId = preferredId ?? selectedId;
             const selected = items.find((item) => item.id === targetId) ?? items[0] ?? null;
@@ -121,8 +129,13 @@ export default function KeitaroStreamTemplatesTab({ onError, showToast }) {
         setRefreshingOffers(true);
         try {
             const result = await unwrap(window.adsBot.refreshKeitaroStreamTemplateOffers());
-            setTemplates(result.templates ?? []);
-            const selected = (result.templates ?? []).find((item) => item.id === selectedId);
+            const refreshedTemplates = [...(result.templates ?? [])].sort((left, right) => String(left.name ?? "").localeCompare(
+                String(right.name ?? ""),
+                "uk-UA",
+                { numeric: true, sensitivity: "base" }
+            ));
+            setTemplates(refreshedTemplates);
+            const selected = refreshedTemplates.find((item) => item.id === selectedId);
             if (selected) selectTemplate(selected);
             showToast?.(result.updated
                 ? `Оновлено назви оферів у шаблонах: ${result.updated}`
@@ -143,7 +156,7 @@ export default function KeitaroStreamTemplatesTab({ onError, showToast }) {
                     {loading && <div className="campaign-loading"><LoaderCircle className="spin" size={21} /> Завантажуємо шаблони…</div>}
                     {!loading && filtered.length === 0 && <div className="campaign-empty">Шаблонів потоків немає.</div>}
                     {!loading && filtered.map((template) => <div key={template.id} className={`stream-template-row ${selectedId === template.id ? "selected" : ""}`}>
-                        <button type="button" className="stream-template-select" onClick={() => selectTemplate(template)}><span className="stream-template-icon">S</span><strong>{streamTemplateDisplayName(template)}</strong></button>
+                        <button type="button" className="stream-template-select" onClick={() => selectTemplate(template)}><span className="stream-template-icon">S</span><strong>{streamTemplateDisplayName(template)}</strong>{operatingSystemLabel(template) && <span className={`stream-os-badge ${template.operatingSystem}`}>{operatingSystemLabel(template)}</span>}</button>
                         <span className="stream-template-actions">
                             <button type="button" className="icon-button" title="Створити копію" aria-label={`Створити копію ${template.name}`} disabled={busyId === template.id} onClick={() => run(template.id, () => window.adsBot.duplicateKeitaroStreamTemplate(template.id), "Шаблон скопійовано")}><Copy size={16} /></button>
                             <button type="button" className="icon-button danger" title="Видалити" aria-label={`Видалити ${template.name}`} disabled={busyId === template.id} onClick={() => window.confirm(`Видалити шаблон «${template.name}»?`) && run(template.id, () => window.adsBot.deleteKeitaroStreamTemplate(template.id), "Шаблон видалено", selectedId === template.id ? null : selectedId)}><Trash2 size={16} /></button>
