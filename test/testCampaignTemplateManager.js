@@ -57,7 +57,7 @@ try {
     const saved = JSON.parse(await readFile(templatesFile, "utf8"));
     assert.equal(saved.nextId, 4);
     assert.equal(saved.templates.length, 2);
-    assert.equal(saved.version, 6);
+    assert.equal(saved.version, 7);
     assert(!("pixel" in saved.templates[0]));
     assert(!("utm" in saved.templates[0]));
 
@@ -71,7 +71,7 @@ try {
         templatesFile: legacyFile,
     });
     const [legacy] = await legacyManager.list();
-    assert.equal(legacy.schemaVersion, 6);
+    assert.equal(legacy.schemaVersion, 7);
     assert.deepEqual(legacy.locales, []);
     assert.deepEqual(legacy.placements.facebook, ["feed"]);
     assert.deepEqual(legacy.devicePlatforms, []);
@@ -79,7 +79,9 @@ try {
     assert.equal(legacy.dsaBeneficiary, "");
     assert.equal(legacy.dsaPayorSameAsBeneficiary, true);
     assert.equal(legacy.dsaPayor, "");
-    assert.equal(JSON.parse(await readFile(legacyFile, "utf8")).version, 6);
+    assert.equal(legacy.disableCreativeEnhancements, true);
+    assert.equal(legacy.disableMultiAdvertiserAds, true);
+    assert.equal(JSON.parse(await readFile(legacyFile, "utf8")).version, 7);
     assert.equal(legacy.pixel, undefined);
 
     const mobileTemplate = await manager.create({

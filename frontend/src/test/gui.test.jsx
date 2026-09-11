@@ -699,6 +699,7 @@ describe("GUI helpers", () => {
             },
             shareAdSetBudget: false,
             disableCreativeEnhancements: true,
+            disableMultiAdvertiserAds: true,
             dsaBeneficiary: "Example Beneficiary LLC",
             dsaPayorSameAsBeneficiary: false,
             dsaPayor: "Example Payor LLC",

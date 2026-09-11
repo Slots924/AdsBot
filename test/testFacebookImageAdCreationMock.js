@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 
 import FacebookGraphApi from "../facebook/api/FacebookGraphApi.js";
+import { CREATIVE_ENHANCEMENT_CATALOG } from "../facebook/api/CreativeEnhancements.js";
 import FacebookBackendService
     from "../facebook/services/FacebookBackendService.js";
 
@@ -110,12 +111,13 @@ const api = new FacebookGraphApi({
                 return { data: {
                     id: "creative-image",
                     degrees_of_freedom_spec: {
-                        creative_features_spec: {
-                            standard_enhancements: {
-                                enroll_status: "OPT_OUT",
-                            },
-                        },
+                        creative_features_spec: Object.fromEntries(
+                            CREATIVE_ENHANCEMENT_CATALOG.map((key) => [
+                                key, { enroll_status: "OPT_OUT" },
+                            ])
+                        ),
                     },
+                    contextual_multi_ads: false,
                 } };
             }
             if (pathname === "/adset-image") {

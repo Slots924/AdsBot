@@ -41,6 +41,7 @@ function emptyDraft() {
         placements: { facebook: ["feed"], instagram: [] },
         shareAdSetBudget: false,
         disableCreativeEnhancements: true,
+        disableMultiAdvertiserAds: true,
         dsaBeneficiary: "",
         dsaPayorSameAsBeneficiary: true,
         dsaPayor: "",
@@ -562,7 +563,8 @@ export default function TemplatesTab({
 
                             <section className="template-form-section">
                                 <label className="checkbox-line"><input type="checkbox" checked={draft.shareAdSetBudget} onChange={(event) => setDraft((current) => ({ ...current, shareAdSetBudget: event.target.checked }))} /><span><strong>Дозволити Meta розподіляти бюджет між ad sets</strong><small>Бюджети все одно задаються на рівні ad set.</small></span></label>
-                                <div className="notice info">Музика, Standard Enhancements, Advantage+ Creative, автоматичний текст та image/video-покращення примусово вимкнені.</div>
+                                <label className="checkbox-line"><input type="checkbox" checked={draft.disableMultiAdvertiserAds !== false} onChange={(event) => setDraft((current) => ({ ...current, disableMultiAdvertiserAds: event.target.checked }))} /><span><strong>Вимкнути Multi-advertiser ads</strong><small>Увімкнено за замовчуванням для нових і наявних шаблонів.</small></span></label>
+                                <label className="checkbox-line"><input type="checkbox" checked={draft.disableCreativeEnhancements !== false} onChange={(event) => setDraft((current) => ({ ...current, disableCreativeEnhancements: event.target.checked }))} /><span><strong>Вимкнути Advantage+ creative enhancements</strong><small>Вимикає відомі API-покращення медіа, тексту, CTA та товарних елементів.</small></span></label>
                             </section>
                         </div>
 

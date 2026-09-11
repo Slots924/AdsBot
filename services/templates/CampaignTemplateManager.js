@@ -4,7 +4,7 @@ import path from "node:path";
 import { SUPPORTED_TEMPLATE_LANGUAGE_IDS } from "./LanguageCatalog.js";
 
 
-export const TEMPLATE_SCHEMA_VERSION = 6;
+export const TEMPLATE_SCHEMA_VERSION = 7;
 export const TEMPLATE_GENDERS = new Set(["any", "male", "female"]);
 export const TEMPLATE_DEVICE_PLATFORMS = new Set(["mobile", "desktop"]);
 export const TEMPLATE_OPERATING_SYSTEMS = new Set(["Android", "iOS"]);
@@ -122,7 +122,9 @@ export function normalizeTemplateInput(input = {}) {
         ),
         placements: normalizePlacements(input.placements),
         shareAdSetBudget: Boolean(input.shareAdSetBudget),
-        disableCreativeEnhancements: true,
+        // Старі шаблони теж мігрують до безпечного вимкненого стану.
+        disableCreativeEnhancements: input.disableCreativeEnhancements !== false,
+        disableMultiAdvertiserAds: input.disableMultiAdvertiserAds !== false,
         dsaBeneficiary: String(input.dsaBeneficiary ?? "").trim(),
         dsaPayorSameAsBeneficiary:
             input.dsaPayorSameAsBeneficiary !== false,

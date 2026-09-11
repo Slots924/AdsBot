@@ -248,6 +248,21 @@ if (!selectedFacebookApiClient) {
 | `getPagePost(options)` | `object` | Отримує пост за ID для підтвердження публікації. |
 | `preflightLeadCampaign(options)` | `object` | Перевіряє `ads_management`, РК, сторінку, пост, Pixel, targeting і campaign payload через `validate_only`. |
 | `createLeadCampaign(options, onProgress)` | `object` | Поетапно створює website lead campaign, creative, ad sets та ads із готового поста або локального зображення. Статуси campaign, Ad Set та ad задаються незалежно. |
+
+### Покращення креативу
+
+Для шаблону кампанії доступні `disableCreativeEnhancements` та
+`disableMultiAdvertiserAds`; обидва мають значення `true` за замовчуванням.
+Під час міграції старих шаблонів ці значення також встановлюються в `true`.
+
+Перелік Advantage+ creative enhancements зберігається централізовано у
+`facebook/api/CreativeEnhancements.js`. Кожен ключ із каталогу передається до
+`degrees_of_freedom_spec.creative_features_spec` зі статусом `OPT_OUT` і
+перевіряється після створення creative. Щоб підтримати нове покращення Meta,
+його потрібно додати лише до `CREATIVE_ENHANCEMENT_CATALOG`.
+
+Multi-advertiser ads не входить до цього каталогу: він окремо вимикається на
+creative через `contextual_multi_ads: false`.
 | `deleteCampaignDraft(objects, onProgress)` | `{ deleted, failed }` | Видаляє тільки Graph ID із журналу конкретної спроби. |
 
 Приклад:

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 
 import FacebookGraphApi from "../facebook/api/FacebookGraphApi.js";
+import { CREATIVE_ENHANCEMENT_CATALOG } from "../facebook/api/CreativeEnhancements.js";
 
 
 const requests = [];
@@ -86,10 +87,13 @@ const api = new FacebookGraphApi({
                     id: "creative-1",
                     name: "Creative",
                     degrees_of_freedom_spec: {
-                        creative_features_spec: {
-                            standard_enhancements: { enroll_status: "OPT_OUT" },
-                        },
+                        creative_features_spec: Object.fromEntries(
+                            CREATIVE_ENHANCEMENT_CATALOG.map((key) => [
+                                key, { enroll_status: "OPT_OUT" },
+                            ])
+                        ),
                     },
+                    contextual_multi_ads: false,
                 } };
             }
             if (path.startsWith("/adset-")) {
@@ -213,6 +217,10 @@ assert.equal(
     degrees.creative_features_spec.standard_enhancements.enroll_status,
     "OPT_OUT"
 );
+assert.equal(degrees.creative_features_spec.enhance_cta.enroll_status, "OPT_OUT");
+assert.equal(degrees.creative_features_spec.product_browsing.enroll_status, "OPT_OUT");
+assert.equal(degrees.creative_features_spec.multi_photo_to_video.enroll_status, "OPT_OUT");
+assert.equal(creative.data.get("contextual_multi_ads"), "false");
 assert.equal(creative.data.get("url_tags"), template.utm);
 
 const actualAd = requests.find((request) => (

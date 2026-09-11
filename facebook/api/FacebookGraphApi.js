@@ -1,4 +1,8 @@
 import { getLogger } from "../../services/logging/runtimeLogger.js";
+import {
+    buildCreativeEnhancementsOptOut,
+    verifyCreativeEnhancementsOptOut,
+} from "./CreativeEnhancements.js";
 import collectLatestPagePostsWithLinks
     from "../workflows/collectLatestPagePostsWithLinks.js";
 import deletePagePostsWorkflow
@@ -92,27 +96,6 @@ const zeroDecimalCurrencies = new Set([
     "PYG", "RWF", "UGX", "VND", "VUV", "XAF", "XOF", "XPF",
 ]);
 
-const disabledCreativeFeatures = [
-    "standard_enhancements",
-    "advantage_plus_creative",
-    "audio",
-    "music_generation",
-    "image_animation",
-    "image_auto_crop",
-    "image_background_gen",
-    "image_brightness_and_contrast",
-    "image_enhancement",
-    "image_text_translation",
-    "image_touchups",
-    "image_uncrop",
-    "text_generation",
-    "text_optimizations",
-    "text_translation",
-    "video_auto_crop",
-    "video_filtering",
-    "video_highlights",
-    "video_uncrop",
-];
 const campaignPostFields = [
     "id",
     "message",
@@ -321,18 +304,6 @@ function buildTargeting(template) {
             ? { user_os: template.operatingSystems }
             : {}),
         targeting_automation: { advantage_audience: 0 },
-    };
-}
-
-
-function buildEnhancementsOptOut() {
-    return {
-        creative_features_spec: Object.fromEntries(
-            disabledCreativeFeatures.map((feature) => [
-                feature,
-                { enroll_status: "OPT_OUT" },
-            ])
-        ),
     };
 }
 
@@ -2077,6 +2048,11 @@ export default class FacebookGraphApi {
                 "CAMPAIGN_NAME_REQUIRED"
             );
         }
+        const creativeEnhancements = buildCreativeEnhancementsOptOut(
+            template.disableCreativeEnhancements
+        );
+        const disableMultiAdvertiserAds = template.disableMultiAdvertiserAds
+            !== false;
         const objects = {
             campaignId: resume.campaignId ?? null,
             creativeId: resume.creativeId ?? null,
@@ -2162,7 +2138,12 @@ export default class FacebookGraphApi {
                             },
                         },
                         url_tags: String(utm ?? "").trim(),
-                        degrees_of_freedom_spec: buildEnhancementsOptOut(),
+                        ...(creativeEnhancements ? {
+                            degrees_of_freedom_spec: creativeEnhancements,
+                        } : {}),
+                        ...(disableMultiAdvertiserAds ? {
+                            contextual_multi_ads: false,
+                        } : {}),
                         ...(preflight.instagramActorId
                             ? { instagram_actor_id: preflight.instagramActorId }
                             : {}),
@@ -2172,7 +2153,12 @@ export default class FacebookGraphApi {
                         name: `${name} | Creative`,
                         object_story_id: preflight.postId,
                         url_tags: String(utm ?? "").trim(),
-                        degrees_of_freedom_spec: buildEnhancementsOptOut(),
+                        ...(creativeEnhancements ? {
+                            degrees_of_freedom_spec: creativeEnhancements,
+                        } : {}),
+                        ...(disableMultiAdvertiserAds ? {
+                            contextual_multi_ads: false,
+                        } : {}),
                         ...(preflight.instagramActorId
                             ? { instagram_actor_id: preflight.instagramActorId }
                             : {}),
@@ -2288,6 +2274,7 @@ export default class FacebookGraphApi {
                     objects.creativeId,
                     [
                         "id", "name", "degrees_of_freedom_spec",
+                        "contextual_multi_ads",
                         "effective_object_story_id", "object_story_spec",
                     ]
                 ),
@@ -2308,20 +2295,32 @@ export default class FacebookGraphApi {
                 ?.degrees_of_freedom_spec
                 ?.creative_features_spec;
             const warnings = [];
-            if (!returnedFeatures) {
+            if (creativeEnhancements && !returnedFeatures) {
                 warnings.push(
                     "Meta не повернула creative_features_spec для контрольної перевірки"
                 );
-            } else {
-                const mismatched = disabledCreativeFeatures.filter((feature) => (
-                    returnedFeatures[feature]
-                    && returnedFeatures[feature].enroll_status !== "OPT_OUT"
-                ));
-                if (mismatched.length) {
+            } else if (creativeEnhancements) {
+                const verification = verifyCreativeEnhancementsOptOut(
+                    returnedFeatures
+                );
+                if (verification.enabled.length) {
                     warnings.push(
-                        `Meta не підтвердила OPT_OUT: ${mismatched.join(", ")}`
+                        `Meta не підтвердила OPT_OUT: ${verification.enabled.join(", ")}`
                     );
                 }
+                if (verification.missing.length) {
+                    warnings.push(
+                        `Meta не підтвердила стан покращень: ${verification.missing.join(", ")}`
+                    );
+                }
+            }
+            if (
+                disableMultiAdvertiserAds
+                && creativeReadback?.contextual_multi_ads !== false
+            ) {
+                warnings.push(
+                    "Meta не підтвердила вимкнення Multi-advertiser ads"
+                );
             }
             if (preflight.dsa) {
                 adSetsReadback.forEach((adSet, index) => {
