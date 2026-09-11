@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "id": "9acbe5c0-7ce5-4101-a6d9-72aadfb5c499",
+  "taskId": "a68b58a3-0138-456d-8757-acb57c6cf8f6",
+  "type": "campaign-cleanup",
+  "title": "test · очищення",
+  "status": "completed",
+  "createdAt": "2026-09-11T15:29:06.186Z",
+  "startedAt": "2026-09-11T15:29:05.101Z",
+  "finishedAt": "2026-09-11T15:29:06.186Z",
+  "durationMs": 1085,
+  "inputSummary": {
+    "campaignJobId": "26735b14-de1a-4d68-b6f1-80ff95aa7c5d",
+    "accountKey": "account-002",
+    "knownObjects": {
+      "campaignId": "120249452007230760",
+      "creativeId": null,
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "resultSummary": {
+    "deleted": [
+      {
+        "type": "campaign",
+        "id": "120249452007230760"
+      }
+    ],
+    "failed": []
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "26735b14-de1a-4d68-b6f1-80ff95aa7c5d",
+    "uniqueKey": "campaign-job:26735b14-de1a-4d68-b6f1-80ff95aa7c5d"
+  }
+}

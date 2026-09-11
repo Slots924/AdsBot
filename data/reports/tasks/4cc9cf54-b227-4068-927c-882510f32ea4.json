@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "4cc9cf54-b227-4068-927c-882510f32ea4",
+  "taskId": "448a2e58-8941-490a-b2e7-5e8c619e8d70",
+  "type": "campaign",
+  "title": "US | Creo_1 | 45+ IOS 11/09 18:29",
+  "status": "failed",
+  "createdAt": "2026-09-11T15:29:46.599Z",
+  "startedAt": "2026-09-11T15:29:39.674Z",
+  "finishedAt": "2026-09-11T15:29:46.598Z",
+  "durationMs": 6924,
+  "inputSummary": {
+    "campaignJobId": "e0ad73a7-f615-4d33-a67f-e2a76b0355a3",
+    "accountKey": "account-002",
+    "adAccountId": "act_3149298911896453",
+    "campaignName": "US | Creo_1 | 45+ IOS 11/09 18:29",
+    "templateId": 21,
+    "pageId": "122094610022008363",
+    "postId": "122094610022008363_122371584086003679",
+    "adSetCount": 1,
+    "dailyBudget": 5,
+    "startTime": "2026-09-11T15:29:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120249452035460760",
+      "creativeId": null,
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "(#100) Param contextual_multi_ads must be a JSON object.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 100,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "creative",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "e0ad73a7-f615-4d33-a67f-e2a76b0355a3",
+    "accountKey": "account-002",
+    "adAccountId": "act_3149298911896453",
+    "uniqueKey": "campaign-job:e0ad73a7-f615-4d33-a67f-e2a76b0355a3"
+  }
+}

@@ -2142,7 +2142,7 @@ export default class FacebookGraphApi {
                             degrees_of_freedom_spec: creativeEnhancements,
                         } : {}),
                         ...(disableMultiAdvertiserAds ? {
-                            contextual_multi_ads: false,
+                            contextual_multi_ads: { enroll_status: "OPT_OUT" },
                         } : {}),
                         ...(preflight.instagramActorId
                             ? { instagram_actor_id: preflight.instagramActorId }
@@ -2157,7 +2157,7 @@ export default class FacebookGraphApi {
                             degrees_of_freedom_spec: creativeEnhancements,
                         } : {}),
                         ...(disableMultiAdvertiserAds ? {
-                            contextual_multi_ads: false,
+                            contextual_multi_ads: { enroll_status: "OPT_OUT" },
                         } : {}),
                         ...(preflight.instagramActorId
                             ? { instagram_actor_id: preflight.instagramActorId }
@@ -2316,7 +2316,7 @@ export default class FacebookGraphApi {
             }
             if (
                 disableMultiAdvertiserAds
-                && creativeReadback?.contextual_multi_ads !== false
+                && creativeReadback?.contextual_multi_ads?.enroll_status !== "OPT_OUT"
             ) {
                 warnings.push(
                     "Meta не підтвердила вимкнення Multi-advertiser ads"

@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "c0fc9dea-7e25-414b-bf03-e4083e71d4df",
+  "taskId": "2f02ebab-82d4-4046-8e71-20314903f9fd",
+  "type": "campaign",
+  "title": "test",
+  "status": "failed",
+  "createdAt": "2026-09-11T15:26:48.214Z",
+  "startedAt": "2026-09-11T15:26:40.667Z",
+  "finishedAt": "2026-09-11T15:26:48.213Z",
+  "durationMs": 7546,
+  "inputSummary": {
+    "campaignJobId": "26735b14-de1a-4d68-b6f1-80ff95aa7c5d",
+    "accountKey": "account-002",
+    "adAccountId": "act_3149298911896453",
+    "campaignName": "test",
+    "templateId": 22,
+    "pageId": "122094610022008363",
+    "postId": "122094610022008363_122371584086003679",
+    "adSetCount": 1,
+    "dailyBudget": 5,
+    "startTime": "2026-09-11T15:26:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120249452007230760",
+      "creativeId": null,
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "(#100) Param contextual_multi_ads must be a JSON object.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 100,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "creative",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "26735b14-de1a-4d68-b6f1-80ff95aa7c5d",
+    "accountKey": "account-002",
+    "adAccountId": "act_3149298911896453",
+    "uniqueKey": "campaign-job:26735b14-de1a-4d68-b6f1-80ff95aa7c5d"
+  }
+}

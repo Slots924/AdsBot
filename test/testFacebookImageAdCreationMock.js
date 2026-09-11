@@ -117,7 +117,7 @@ const api = new FacebookGraphApi({
                             ])
                         ),
                     },
-                    contextual_multi_ads: false,
+                    contextual_multi_ads: { enroll_status: "OPT_OUT" },
                 } };
             }
             if (pathname === "/adset-image") {

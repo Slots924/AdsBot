@@ -262,7 +262,7 @@ if (!selectedFacebookApiClient) {
 його потрібно додати лише до `CREATIVE_ENHANCEMENT_CATALOG`.
 
 Multi-advertiser ads не входить до цього каталогу: він окремо вимикається на
-creative через `contextual_multi_ads: false`.
+creative через `contextual_multi_ads: { enroll_status: "OPT_OUT" }`.
 | `deleteCampaignDraft(objects, onProgress)` | `{ deleted, failed }` | Видаляє тільки Graph ID із журналу конкретної спроби. |
 
 Приклад:
