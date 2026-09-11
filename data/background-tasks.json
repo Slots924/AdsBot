@@ -1,4 +1,278 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "1577d5a8-993b-4b42-ac1b-fa03698a8c77",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · ES · 3",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "adspower-profile:1874",
+          "label": "AdsPower 1874"
+        },
+        {
+          "key": "adspower-profile:1875",
+          "label": "AdsPower 1875"
+        },
+        {
+          "key": "adspower-profile:1876",
+          "label": "AdsPower 1876"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1874",
+          "1875",
+          "1876"
+        ],
+        "geo": "ES",
+        "maleCount": 3,
+        "femaleCount": 0,
+        "namesGeo": "ES",
+        "companiesGeo": "ES",
+        "universitiesGeo": "ES",
+        "professionsGeo": "ES",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\ES",
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1874",
+          "1875",
+          "1876"
+        ],
+        "geo": "ES",
+        "browserMode": "visible",
+        "reportId": "82913f9c-3db5-4fba-8927-9085bef18d65"
+      },
+      "progress": {
+        "completed": 2,
+        "total": 3,
+        "stage": "interrupted",
+        "message": "Задачу перервано",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 2,
+        "skipped": 0,
+        "currentProfileNo": "1875",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-09-11_23-16-40-850.md",
+        "fatalError": "Оформлення акаунтів перервано",
+        "interrupted": true
+      },
+      "error": {
+        "message": "Оформлення акаунтів перервано",
+        "code": "ACCOUNT_SETUP_ABORTED",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-09-11T20:16:04.289Z",
+      "startedAt": "2026-09-11T20:16:04.290Z",
+      "finishedAt": "2026-09-11T20:16:40.851Z",
+      "updatedAt": "2026-09-11T20:16:40.853Z"
+    },
+    {
+      "id": "ffeec737-d2b3-49ca-bab5-4dea5cc75c1f",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · ES · 5",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1870",
+          "label": "AdsPower 1870"
+        },
+        {
+          "key": "adspower-profile:1871",
+          "label": "AdsPower 1871"
+        },
+        {
+          "key": "adspower-profile:1873",
+          "label": "AdsPower 1873"
+        },
+        {
+          "key": "adspower-profile:1874",
+          "label": "AdsPower 1874"
+        },
+        {
+          "key": "adspower-profile:1875",
+          "label": "AdsPower 1875"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1870",
+          "1871",
+          "1873",
+          "1874",
+          "1875"
+        ],
+        "geo": "ES",
+        "maleCount": 5,
+        "femaleCount": 0,
+        "namesGeo": "ES",
+        "companiesGeo": "ES",
+        "universitiesGeo": "ES",
+        "professionsGeo": "ES",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\ES",
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1870",
+          "1871",
+          "1873",
+          "1874",
+          "1875"
+        ],
+        "geo": "ES",
+        "browserMode": "visible",
+        "reportId": "008ad666-b250-4adc-af32-16ee1bec328b"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 3,
+        "completedWithError": 0,
+        "failed": 2,
+        "skipped": 0,
+        "currentProfileNo": "1875",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-09-11_23-08-24-086.md",
+        "fatalError": null,
+        "success": 3,
+        "completedWithError": 0,
+        "failed": 2,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-11T19:38:43.315Z",
+      "startedAt": "2026-09-11T19:38:43.316Z",
+      "finishedAt": "2026-09-11T20:08:24.090Z",
+      "updatedAt": "2026-09-11T20:08:24.092Z"
+    },
+    {
+      "id": "28cc636e-423f-478a-9ff6-919909f494bb",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · ES · 5",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "adspower-profile:1870",
+          "label": "AdsPower 1870"
+        },
+        {
+          "key": "adspower-profile:1871",
+          "label": "AdsPower 1871"
+        },
+        {
+          "key": "adspower-profile:1873",
+          "label": "AdsPower 1873"
+        },
+        {
+          "key": "adspower-profile:1874",
+          "label": "AdsPower 1874"
+        },
+        {
+          "key": "adspower-profile:1875",
+          "label": "AdsPower 1875"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1870",
+          "1871",
+          "1873",
+          "1874",
+          "1875"
+        ],
+        "geo": "ES",
+        "maleCount": 5,
+        "femaleCount": 0,
+        "namesGeo": "ES",
+        "companiesGeo": "ES",
+        "universitiesGeo": "ES",
+        "professionsGeo": "ES",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\ES",
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1870",
+          "1871",
+          "1873",
+          "1874",
+          "1875"
+        ],
+        "geo": "ES",
+        "browserMode": "visible",
+        "reportId": "bf487723-3853-4c19-81b9-28a71e7cd49a"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "failed",
+        "message": "Grok API повернув невалідний JSON"
+      },
+      "result": null,
+      "error": {
+        "message": "Grok API повернув невалідний JSON",
+        "code": "GROK_INVALID_JSON_RESPONSE",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-09-11T19:12:25.488Z",
+      "startedAt": "2026-09-11T19:12:25.489Z",
+      "finishedAt": "2026-09-11T19:15:49.464Z",
+      "updatedAt": "2026-09-11T19:15:49.466Z"
+    }
+  ]
 }

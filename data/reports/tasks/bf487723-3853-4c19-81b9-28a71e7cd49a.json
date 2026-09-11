@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "id": "bf487723-3853-4c19-81b9-28a71e7cd49a",
+  "taskId": "28cc636e-423f-478a-9ff6-919909f494bb",
+  "type": "account-setup",
+  "title": "Акаунти під коментарі · ES · 5",
+  "status": "failed",
+  "createdAt": "2026-09-11T19:15:49.465Z",
+  "startedAt": "2026-09-11T19:12:25.489Z",
+  "finishedAt": "2026-09-11T19:15:49.464Z",
+  "durationMs": 203975,
+  "inputSummary": {
+    "profileNos": [
+      "1870",
+      "1871",
+      "1873",
+      "1874",
+      "1875"
+    ],
+    "geo": "ES",
+    "maleCount": 5,
+    "femaleCount": 0,
+    "namesGeo": "ES",
+    "companiesGeo": "ES",
+    "universitiesGeo": "ES",
+    "professionsGeo": "ES",
+    "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\ES",
+    "operations": {
+      "changeName": true,
+      "changeAvatar": true,
+      "changeCover": true,
+      "deletePosts": true,
+      "publishPosts": true,
+      "fillAbout": true
+    },
+    "browserMode": "visible",
+    "commentWorkerProxyIds": "[REDACTED]"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Grok API повернув невалідний JSON",
+      "code": "GROK_INVALID_JSON_RESPONSE",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "1870",
+      "1871",
+      "1873",
+      "1874",
+      "1875"
+    ],
+    "geo": "ES",
+    "browserMode": "visible"
+  }
+}

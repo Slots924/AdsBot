@@ -1,5 +1,6 @@
 export const automatedBehaviorTexts = [
     "We suspect automated behavior on your account",
+    "Kami mencurigai perilaku otomatis di akun Anda",
     "Wir vermuten automatisiertes Verhalten auf Ihrem Konto",
     "Wir vermuten automatisiertes Verhalten auf deinem Konto",
     "Nous suspectons un comportement automatisé sur votre compte",

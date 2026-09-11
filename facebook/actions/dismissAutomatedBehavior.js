@@ -22,6 +22,7 @@ export const dismissButtonLabels = [
     "बंद करें",
     "खारिज करें",
     "Kapat",
+    "Tutup",
     "Reddet",
 ];
 
