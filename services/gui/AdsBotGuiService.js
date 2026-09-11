@@ -257,7 +257,11 @@ export default class AdsBotGuiService {
 
     async checkAccount(accountKey) {
         await this.reloadFacebookBackend();
-        return this.#facebookBackend.getAccountStatus(accountKey);
+        const accountStatus = await this.#facebookBackend.getAccountStatus(
+            accountKey
+        );
+        this.#accountStatuses.set(accountStatus.accountKey, accountStatus.status);
+        return accountStatus;
     }
 
 

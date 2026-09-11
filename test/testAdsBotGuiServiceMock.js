@@ -82,16 +82,35 @@ try {
     const publishedMessages = [];
     const facebookBackend = {
         async getAccounts() {
-            return [{
-                accountKey: "active",
-                facebookUserId: "1",
-                name: "Active",
+            return [
+                {
+                    accountKey: "active",
+                    facebookUserId: "1",
+                    name: "Active",
+                    status: "active",
+                    error: null,
+                },
+                {
+                    accountKey: "recovering",
+                    facebookUserId: "2",
+                    name: "Recovering",
+                    status: "error",
+                    error: { code: "FACEBOOK_API_ERROR" },
+                },
+            ];
+        },
+        async getAccountStatus(accountKey) {
+            assert.equal(accountKey, "recovering");
+            return {
+                accountKey,
+                facebookUserId: "2",
+                name: "Recovering",
                 status: "active",
                 error: null,
-            }];
+            };
         },
         async getFanPages(accountKey) {
-            assert.equal(accountKey, "active");
+            assert(["active", "recovering"].includes(accountKey));
             return [{ id: "page", name: "Page" }];
         },
         async getAdAccounts(accountKey) {
@@ -192,6 +211,10 @@ try {
 
     await guiService.getAccounts();
     assert.deepEqual(await guiService.getFanPages("active"), [
+        { id: "page", name: "Page" },
+    ]);
+    assert.equal((await guiService.checkAccount("recovering")).status, "active");
+    assert.deepEqual(await guiService.getFanPages("recovering"), [
         { id: "page", name: "Page" },
     ]);
     assert(logs.includes("Знайдено доступних фанпейджів: 1"));
