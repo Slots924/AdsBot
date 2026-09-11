@@ -223,6 +223,57 @@ assert.equal(nameChangeCount, 2);
 assert.equal(profileOpenCount, 2);
 assert.equal(profileCloseCount, 2);
 
+const openedPages = [];
+let aboutOpenedOnProfile = false;
+const disabledPhotoStepsSetup = await executeCommentAccountSetupWithProfile({
+    adsPower: {
+        async openProfile() {
+            return { ws: { puppeteer: "ws://test" } };
+        },
+        async closeProfile() {},
+    },
+    profile: {
+        profile_no: "78",
+        profile_id: "id-78",
+        profile_tags: [],
+    },
+    persona: createPersonaForSkip(),
+    skipNameChange: true,
+    skipAvatarChange: true,
+    skipCoverChange: true,
+    skipDeletePosts: true,
+    skipPublishPosts: true,
+    actions: {
+        ensureAdsPowerReady: async () => true,
+        connectBrowser: async () => ({
+            async pages() {
+                return [{}];
+            },
+            disconnect() {},
+        }),
+        configureBrowserWindow: async () => ({}),
+        openPage: async (_page, url) => {
+            openedPages.push(url);
+        },
+        ensureLoggedIn: async () => true,
+        ensureActive: async () => true,
+        ensureEnglish: async () => {},
+        fillAbout: async () => {
+            aboutOpenedOnProfile = openedPages.at(-1) === "https://www.facebook.com/me";
+            return { success: true, status: "UPDATED" };
+        },
+        updateProfileName: async () => {},
+        markGender: async () => {},
+    },
+});
+assert.equal(disabledPhotoStepsSetup.success, true);
+assert.equal(disabledPhotoStepsSetup.steps.about.ok, true);
+assert.equal(aboutOpenedOnProfile, true);
+assert.deepEqual(openedPages, [
+    "https://www.facebook.com/",
+    "https://www.facebook.com/me",
+]);
+
 console.log("Перевірка хелперів оформлення акаунтів пройшла успішно");
 
 

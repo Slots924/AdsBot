@@ -2108,6 +2108,14 @@ export default function registerIpcHandlers({
                 professionsGeo: String(payload.professionsGeo ?? "").trim().toUpperCase() || geo,
             };
             const photosDirectory = String(payload.photosDirectory ?? "").trim();
+            const operations = {
+                changeName: payload.operations?.changeName !== false,
+                changeAvatar: payload.operations?.changeAvatar !== false,
+                changeCover: payload.operations?.changeCover !== false,
+                deletePosts: payload.operations?.deletePosts !== false,
+                publishPosts: payload.operations?.publishPosts !== false,
+                fillAbout: payload.operations?.fillAbout !== false,
+            };
             const task = await backgroundTaskManager.enqueue({
                 type: "account-setup",
                 name: `Акаунти під коментарі · ${geo} · ${profileNos.length}`,
@@ -2122,6 +2130,7 @@ export default function registerIpcHandlers({
                     femaleCount: payload.femaleCount,
                     ...profileDataSources,
                     photosDirectory,
+                    operations,
                     browserMode,
                     commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
                 },
@@ -2142,6 +2151,7 @@ export default function registerIpcHandlers({
                         femaleCount: payload.femaleCount,
                         ...profileDataSources,
                         photosDirectory,
+                        operations,
                         browserMode,
                         concurrency: payload.commentWorkerConcurrency,
                         workerProxies,

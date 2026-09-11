@@ -24,18 +24,39 @@ export default function CreateCommentAccountsModal({
         maleCount: String(profiles.length),
         femaleCount: "0",
         photosDirectory: "",
+        operations: {
+            changeName: true,
+            changeAvatar: true,
+            changeCover: true,
+            deletePosts: true,
+            publishPosts: true,
+            fillAbout: true,
+        },
     });
     const [saving, setSaving] = useState(false);
     const geo = String(draft.geo ?? "").trim().toUpperCase();
     const maleCount = Number(draft.maleCount);
     const femaleCount = Number(draft.femaleCount);
+    const needsPhotos = draft.operations.changeAvatar
+        || draft.operations.changeCover
+        || draft.operations.publishPosts;
     const canSubmit = /^[A-Z]{2}$/.test(geo)
         && Number.isInteger(maleCount)
         && Number.isInteger(femaleCount)
         && maleCount >= 0
         && femaleCount >= 0
         && maleCount + femaleCount > 0
-        && draft.photosDirectory;
+        && (!needsPhotos || draft.photosDirectory);
+
+    const setOperation = (operation, enabled) => {
+        setDraft((current) => ({
+            ...current,
+            operations: {
+                ...current.operations,
+                [operation]: enabled,
+            },
+        }));
+    };
 
     useEffect(() => {
         unwrap(window.adsBot.getCountries()).then(setCountries).catch(() => {});
@@ -73,6 +94,7 @@ export default function CreateCommentAccountsModal({
                 maleCount,
                 femaleCount,
                 photosDirectory: draft.photosDirectory,
+                operations: draft.operations,
                 browserMode: settings.accountSetupBrowserMode,
                 commentWorkerConcurrency: settings.accountSetupWorkerConcurrency,
                 commentWorkerProxyIds: settings.accountSetupWorkerProxyIds,
@@ -143,38 +165,48 @@ export default function CreateCommentAccountsModal({
                     </label>
                 </div>
                 <details className="account-setup-advanced">
-                    <summary>Розширено: джерела даних профілю</summary>
-                    <p className="settings-hint">Якщо поле не вибране, використовується цільова країна.</p>
+                    <summary>Розширені налаштування</summary>
+                    <section className="account-setup-operations">
+                        <strong>Дії над Facebook-профілем</strong>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.changeName} onChange={(event) => setOperation("changeName", event.target.checked)} /><span>Змінити ім’я Facebook</span></label>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.changeAvatar} onChange={(event) => setOperation("changeAvatar", event.target.checked)} /><span>Змінити аватарку</span></label>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.changeCover} onChange={(event) => setOperation("changeCover", event.target.checked)} /><span>Змінити обкладинку</span></label>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.deletePosts} onChange={(event) => setOperation("deletePosts", event.target.checked)} /><span>Видалити старі пости</span></label>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.publishPosts} onChange={(event) => setOperation("publishPosts", event.target.checked)} /><span>Опублікувати фото-пости</span></label>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.fillAbout} onChange={(event) => setOperation("fillAbout", event.target.checked)} /><span>Заповнити інформацію About</span></label>
+                    </section>
+                    <p className="settings-hint">Якщо поле країни не вибране, використовується цільова країна.</p>
                     <div className="form-grid">
                         <label className="field">
                             <span>Імена</span>
-                            <GeoSelect layout="list" countries={countries} value={draft.namesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для імен" onChange={(value) => setDraft((current) => ({ ...current, namesGeo: value }))} />
+                            <GeoSelect disabled={!draft.operations.changeName} layout="list" countries={countries} value={draft.namesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для імен" onChange={(value) => setDraft((current) => ({ ...current, namesGeo: value }))} />
                         </label>
                         <label className="field">
                             <span>Компанії</span>
-                            <GeoSelect layout="list" countries={countries} value={draft.companiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для компаній" onChange={(value) => setDraft((current) => ({ ...current, companiesGeo: value }))} />
+                            <GeoSelect disabled={!draft.operations.fillAbout} layout="list" countries={countries} value={draft.companiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для компаній" onChange={(value) => setDraft((current) => ({ ...current, companiesGeo: value }))} />
                         </label>
                         <label className="field">
                             <span>Професії</span>
-                            <GeoSelect layout="list" countries={countries} value={draft.professionsGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для професій" onChange={(value) => setDraft((current) => ({ ...current, professionsGeo: value }))} />
+                            <GeoSelect disabled={!draft.operations.fillAbout} layout="list" countries={countries} value={draft.professionsGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для професій" onChange={(value) => setDraft((current) => ({ ...current, professionsGeo: value }))} />
                         </label>
                         <label className="field">
                             <span>Навчання</span>
-                            <GeoSelect layout="list" countries={countries} value={draft.universitiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для навчання" onChange={(value) => setDraft((current) => ({ ...current, universitiesGeo: value }))} />
+                            <GeoSelect disabled={!draft.operations.fillAbout} layout="list" countries={countries} value={draft.universitiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для навчання" onChange={(value) => setDraft((current) => ({ ...current, universitiesGeo: value }))} />
                         </label>
                     </div>
                 </details>
                 <label className="field">
-                    <span>Папка з фото</span>
+                    <span>Папка з фото{needsPhotos ? "" : " (не потрібна)"}</span>
                     <div className="inline-field">
                         <input
                             readOnly
                             value={draft.photosDirectory}
-                            placeholder="Оберіть папку…"
+                            placeholder={needsPhotos ? "Оберіть папку…" : "Фото-дії вимкнені"}
                         />
                         <button
                             type="button"
                             className="secondary-button"
+                            disabled={!needsPhotos}
                             onClick={chooseFolder}
                         >
                             <FolderOpen size={15} /> Вибрати папку

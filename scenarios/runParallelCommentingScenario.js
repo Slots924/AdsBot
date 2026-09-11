@@ -1,4 +1,5 @@
 import getProfileGender from "../services/profile/getProfileGender.js";
+import saveCommentingReport from "../services/reports/saveCommentingReport.js";
 import executeCommentWithProfile from "../workflows/comments/executeCommentWithProfile.js";
 import {
     createReport,
@@ -87,6 +88,7 @@ export default async function runParallelCommentingScenario({
     logger,
     signal,
     onProgress,
+    reportsDirectory = "./data/reports",
     executeComment = executeCommentWithProfile,
     getGender = getProfileGender,
 } = {}) {
@@ -163,6 +165,7 @@ export default async function runParallelCommentingScenario({
             });
         });
     };
+    const profileDurationMap = new Map();
 
     try {
         assertNotAborted();
@@ -318,6 +321,8 @@ export default async function runParallelCommentingScenario({
             const profileNo = String(profile.profile_no);
             return profileMutex.run(profileNo, async () => {
                 assertNotAborted();
+                const startedAt = new Date().toISOString();
+                let result = null;
                 activeAttempts += 1;
                 report.maximumParallelism = Math.max(report.maximumParallelism, activeAttempts);
                 scenarioLogger.info("comment.started", "Worker почав коментар", {
@@ -334,7 +339,7 @@ export default async function runParallelCommentingScenario({
                     message: `Worker ${workerId} · коментар ${comment.id}`,
                 });
                 try {
-                    const result = await executeComment({
+                    result = await executeComment({
                         adsPower,
                         profile,
                         postUrl,
@@ -374,6 +379,32 @@ export default async function runParallelCommentingScenario({
                     }
                     return result;
                 } finally {
+                    const finishedAt = new Date().toISOString();
+                    const durationMs = Math.max(
+                        0,
+                        new Date(finishedAt) - new Date(startedAt)
+                    );
+                    const current = profileDurationMap.get(profileNo) ?? {
+                        profileNo,
+                        startedAt,
+                        finishedAt,
+                        durationMs: 0,
+                        commentIds: [],
+                        successfulAttempts: 0,
+                        failedAttempts: 0,
+                    };
+                    current.finishedAt = finishedAt;
+                    current.durationMs += durationMs;
+                    current.commentIds.push(comment.id);
+                    if (result?.success) current.successfulAttempts += 1;
+                    else current.failedAttempts += 1;
+                    profileDurationMap.set(profileNo, current);
+                    report.commentDurations.push({
+                        commentId: comment.id,
+                        profileNo,
+                        durationMs,
+                        success: result?.success === true,
+                    });
                     activeAttempts -= 1;
                 }
             });
@@ -596,6 +627,17 @@ export default async function runParallelCommentingScenario({
         await Promise.allSettled(runningOperations);
         report.finishedAt = new Date().toISOString();
         report.profileKeyMap = Object.fromEntries(profileKeyMap);
+        report.profileDurations = [...profileDurationMap.values()];
+        try {
+            report.reportPath = await saveCommentingReport(report, reportsDirectory);
+        } catch (error) {
+            report.cleanupWarnings.push({
+                profileNo: "—",
+                commentId: "—",
+                error: `Звіт: ${error.message}`,
+            });
+            scenarioLogger.error("report.failed", "Не вдалося зберегти Markdown-звіт", { error });
+        }
         await progress({ stage: "report", message: "Формуємо структурований звіт" });
         await progressQueue;
     }

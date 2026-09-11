@@ -567,13 +567,15 @@ export default async function executeCommentAccountSetupWithProfile({
         }
         }
 
-        assertNotAborted();
-        result.stage = "OPEN_PROFILE_PAGE";
-        await openPage(page, FACEBOOK_ME_URL);
-
         const classified = classifyPhotoFiles(photoSet?.files ?? []);
         const usedPaths = new Set();
         const fallbackPool = [...classified.rest];
+
+        if (!skipAvatarChange || !skipCoverChange || !skipDeletePosts || !skipPublishPosts) {
+            assertNotAborted();
+            result.stage = "OPEN_PROFILE_PAGE";
+            await openPage(page, FACEBOOK_ME_URL);
+        }
 
         if (classified.all.length === 0) {
             result.steps.avatar = createStep({

@@ -145,6 +145,9 @@ export default async function runParallelCommentAccountSetupScenario({
     ignoreSkipReasons = false,
 } = {}) {
     const workerLimit = normalizeConcurrency(concurrency);
+    const requiresPhotoSet = !skipAvatarChange
+        || !skipCoverChange
+        || !skipPublishPosts;
     const workerProxyMap = workerProxies && typeof workerProxies === "object"
         ? new Map(Object.entries(workerProxies)
             .map(([workerId, proxy]) => [Number(workerId), proxy])
@@ -321,7 +324,7 @@ export default async function runParallelCommentAccountSetupScenario({
                             return { persona: null, photoSet: null };
                         }
 
-                        const nextPhotoSet = photosDirectory
+                        const nextPhotoSet = photosDirectory && requiresPhotoSet
                             ? await takePhotoSet(
                                 photosDirectory,
                                 nextPersona.gender,

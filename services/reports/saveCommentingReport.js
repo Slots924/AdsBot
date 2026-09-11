@@ -68,7 +68,20 @@ function formatDuration(durationMs) {
 
 
 function buildMarkdown(report) {
+    const commentDurations = Array.isArray(report.commentDurations)
+        ? report.commentDurations
+        : [];
+    const successfulCommentDurations = commentDurations.filter((item) => (
+        item.success === true && Number.isFinite(Number(item.durationMs))
+    ));
+    const averageCommentDuration = successfulCommentDurations.length
+        ? successfulCommentDurations.reduce(
+            (total, item) => total + Number(item.durationMs),
+            0
+        ) / successfulCommentDurations.length
+        : null;
     const summaryRows = [
+        ["Середній час успішного коментаря", formatDuration(averageCommentDuration)],
         ["Успішно опубліковано", report.published.length],
         ["Пропущено", report.skipped.length],
         ["Не вдалося опублікувати", report.failedComments.length],
@@ -120,6 +133,12 @@ function buildMarkdown(report) {
         item.successfulAttempts,
         item.failedAttempts,
     ]);
+    const commentDurationRows = commentDurations.map((item) => [
+        item.commentId,
+        item.profileNo,
+        item.success ? "Успішно" : "Неуспішно",
+        formatDuration(item.durationMs),
+    ]);
     const sections = [
         "# Звіт кампанії коментування",
         "",
@@ -147,6 +166,13 @@ function buildMarkdown(report) {
         createTable(
             ["Профіль", "Коментарі", "Час", "Успішних спроб", "Невдалих спроб"],
             profileDurationRows
+        ),
+        "",
+        "## Час по коментарях",
+        "",
+        createTable(
+            ["ID", "Профіль", "Результат", "Час"],
+            commentDurationRows
         ),
         "",
         "## Успішні коментарі",

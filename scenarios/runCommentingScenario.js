@@ -64,6 +64,7 @@ function createReport({
         cleanupWarnings: [],
         profileKeyMap: {},
         profileDurations: [],
+        commentDurations: [],
     };
 }
 
@@ -371,6 +372,12 @@ export default async function runCommentingScenario({
                 if (result?.success) current.successfulAttempts += 1;
                 else current.failedAttempts += 1;
                 profileDurationMap.set(profileNo, current);
+                report.commentDurations.push({
+                    commentId: comment.id,
+                    profileNo,
+                    durationMs: duration,
+                    success: result?.success === true,
+                });
             }
         };
 

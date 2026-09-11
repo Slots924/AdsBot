@@ -637,6 +637,7 @@ export default class AdsBotGuiService {
         universitiesGeo,
         professionsGeo,
         photosDirectory,
+        operations = {},
         concurrency = 5,
         workerProxies = null,
         onProxyUnavailable = null,
@@ -681,6 +682,14 @@ export default class AdsBotGuiService {
                 position: profile.profession,
             },
         }));
+        const normalizedOperations = {
+            changeName: operations.changeName !== false,
+            changeAvatar: operations.changeAvatar !== false,
+            changeCover: operations.changeCover !== false,
+            deletePosts: operations.deletePosts !== false,
+            publishPosts: operations.publishPosts !== false,
+            fillAbout: operations.fillAbout !== false,
+        };
         const { report } = await runParallelCommentAccountSetupScenario({
             adsPower: this.adsPower,
             profileNos: numbers,
@@ -695,6 +704,12 @@ export default class AdsBotGuiService {
             signal,
             onProgress,
             reportsDirectory: this.reportsDirectory,
+            skipNameChange: !normalizedOperations.changeName,
+            skipAvatarChange: !normalizedOperations.changeAvatar,
+            skipCoverChange: !normalizedOperations.changeCover,
+            skipDeletePosts: !normalizedOperations.deletePosts,
+            skipPublishPosts: !normalizedOperations.publishPosts,
+            skipFillAbout: !normalizedOperations.fillAbout,
         });
         return {
             reportPath: report.reportPath,
@@ -782,6 +797,7 @@ export default class AdsBotGuiService {
             browserMode, disableImages, concurrency, workerProxies, onProxyUnavailable,
             signal, onProgress,
             logger: this.logger,
+            reportsDirectory: this.reportsDirectory,
         });
     }
 
