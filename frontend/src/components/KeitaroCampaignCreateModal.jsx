@@ -32,6 +32,13 @@ const defaultCampaignGroup = (groups) =>
   )?.id ??
   "";
 
+const streamTemplateDisplayName = (template) => {
+  const icon = template.operatingSystem === "android"
+    ? " 🤖"
+    : template.operatingSystem === "ios" ? " " : "";
+  return `${template.name}${icon}`;
+};
+
 function Field({ label, children, className = "" }) {
   return (
     <label className={`campaign-field ${className}`.trim()}>
@@ -250,7 +257,10 @@ export default function KeitaroCampaignCreateModal({
           setGroups(nextGroups ?? []);
           setSources(nextSources ?? []);
           setTemplates(
-            [...(nextTemplates ?? [])].sort((left, right) =>
+            [...(nextTemplates ?? [])].map((template) => ({
+              ...template,
+              name: streamTemplateDisplayName(template),
+            })).sort((left, right) =>
               left.name.localeCompare(right.name, "uk-UA", {
                 numeric: true,
                 sensitivity: "base",

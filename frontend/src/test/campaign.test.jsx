@@ -105,6 +105,9 @@ describe("Створення рекламної кампанії", () => {
 
         expect(screen.getByPlaceholderText("HU Leads 20.08")).toBeInTheDocument();
         await screen.findByText("HU Leads");
+        fireEvent.change(screen.getByLabelText("Шаблон"), {
+            target: { value: "1" },
+        });
         await waitFor(() => expect(window.adsBot.getCampaignPagePosts)
             .toHaveBeenCalledWith("client", "10", 10, false));
         const usePublishedButtons = screen.getAllByRole("button", {

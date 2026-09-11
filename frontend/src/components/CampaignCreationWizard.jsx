@@ -7,6 +7,7 @@ import {
     LoaderCircle,
     Pencil,
     Play,
+    Plus,
     RefreshCw,
     RotateCcw,
     Search,
@@ -34,6 +35,23 @@ function localValueInZone(date, timeZone) {
         return `${value.year}-${value.month}-${value.day}T${value.hour}:${value.minute}`;
     } catch {
         return date.toISOString().slice(0, 16);
+    }
+}
+
+function campaignNameTimestamp(date, timeZone) {
+    try {
+        const parts = new Intl.DateTimeFormat("en-GB", {
+            timeZone,
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hourCycle: "h23",
+        }).formatToParts(date);
+        const value = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+        return `${value.day}/${value.month} ${value.hour}:${value.minute}`;
+    } catch {
+        return date.toISOString().slice(5, 16).replace("-", "/").replace("T", " ");
     }
 }
 
@@ -108,6 +126,8 @@ export default function CampaignCreationWizard({
 }) {
     const timezone = adAccount.timezoneName || Intl.DateTimeFormat().resolvedOptions().timeZone;
     const [templates, setTemplates] = useState([]);
+    const [languages, setLanguages] = useState([]);
+    const [templateQuery, setTemplateQuery] = useState("");
     const [pages, setPages] = useState([]);
     const [templatesLoading, setTemplatesLoading] = useState(true);
     const [pagesLoading, setPagesLoading] = useState(true);
@@ -147,10 +167,14 @@ export default function CampaignCreationWizard({
     const jobIdRef = useRef(null);
     const pagesRequest = useRef(0);
     const postsRequest = useRef(0);
+    const openedAt = useRef(new Date());
 
     useEffect(() => {
         let active = true;
-        unwrap(window.adsBot.getTemplates()).then((nextTemplates) => {
+        Promise.all([
+            unwrap(window.adsBot.getTemplates()),
+            unwrap(window.adsBot.getLanguages?.() ?? { ok: true, data: [] }),
+        ]).then(([nextTemplates, nextLanguages]) => {
             if (!active) return;
             const sortedTemplates = nextTemplates.slice().sort((left, right) => (
                 String(left.name).localeCompare(String(right.name), "uk-UA", {
@@ -159,10 +183,7 @@ export default function CampaignCreationWizard({
                 })
             ));
             setTemplates(sortedTemplates);
-            setForm((current) => ({
-                ...current,
-                templateId: String(sortedTemplates[0]?.id ?? ""),
-            }));
+            setLanguages(nextLanguages ?? []);
         }).catch((error) => {
             if (active) setFailure(errorDetails(error));
         }).finally(() => {
@@ -295,9 +316,19 @@ export default function CampaignCreationWizard({
         () => Number(form.adSetCount || 0) * Number(form.dailyBudget || 0),
         [form.adSetCount, form.dailyBudget]
     );
-    const automaticName = sourcePage
-        ? `${sourcePage.geo || "GEO"} | Creo_${sourcePage.creativeName || "?"} | ${selectedTemplate?.ageMin ?? 18}+`
-        : "";
+    const buildAutomaticName = useCallback((date) => {
+        if (!sourcePage) return "";
+        const localeCodes = (selectedTemplate?.locales ?? [])
+            .map((id) => languages.find((language) => Number(language.id) === Number(id))?.code)
+            .filter(Boolean)
+            .map((code) => String(code).toLowerCase());
+        const geo = `${sourcePage.geo || "GEO"}${localeCodes.length ? `(${localeCodes.join(",")})` : ""}`;
+        const operatingSystem = selectedTemplate?.operatingSystems?.length
+            ? ` ${selectedTemplate.operatingSystems.map((value) => value === "iOS" ? "IOS" : value).join("/")}`
+            : "";
+        return `${geo} | Creo_${sourcePage.creativeName || "?"} | ${selectedTemplate?.ageMin ?? 18}+${operatingSystem} ${campaignNameTimestamp(date, timezone)}`;
+    }, [languages, selectedTemplate, sourcePage, timezone]);
+    const automaticName = buildAutomaticName(openedAt.current);
 
     useEffect(() => {
         if (!sourcePage || manualName) return;
@@ -369,6 +400,32 @@ export default function CampaignCreationWizard({
             setPageQuery(`${selectedPage.name} · ${selectedPage.id}`);
         }
     }, [selectedPage?.id]);
+
+    useEffect(() => {
+        setTemplateQuery(selectedTemplate ? selectedTemplate.name : "");
+    }, [selectedTemplate?.id]);
+
+    const selectTemplateByQuery = (value) => {
+        setTemplateQuery(value);
+        const selected = templates.find((template) => (
+            `${template.name} — ID ${template.id}` === value || template.name === value
+        ));
+        change("templateId", selected ? String(selected.id) : "");
+    };
+
+    const createTemplate = async () => {
+        const name = window.prompt("Назва нового шаблону кампанії");
+        if (!name?.trim()) return;
+        try {
+            const template = await unwrap(window.adsBot.createTemplate({ name }));
+            setTemplates((current) => [...current, template].sort((left, right) => (
+                String(left.name).localeCompare(String(right.name), "uk-UA", { numeric: true, sensitivity: "base" })
+            )));
+            change("templateId", String(template.id));
+        } catch (error) {
+            setFailure(errorDetails(error));
+        }
+    };
 
     const selectPage = (page) => {
         setPageQuery(`${page.name} · ${page.id}`);
@@ -594,18 +651,22 @@ export default function CampaignCreationWizard({
                             </div>
                             <label className="field">
                                 <span>Шаблон</span>
-                                <SearchSelect
-                                    items={templates}
-                                    value={form.templateId}
-                                    onChange={(value) => change("templateId", String(value))}
-                                    getId={(template) => String(template.id)}
-                                    getTitle={(template) => template.name}
-                                    getSubtitle={(template) => `ID ${template.id}`}
-                                    placeholder={templatesLoading ? "Оновлюємо шаблони…" : "Оберіть шаблон"}
-                                    searchPlaceholder="Пошук шаблону за назвою…"
-                                    disabled={templatesLoading}
-                                    ariaLabel="Шаблон"
-                                />
+                                <div className="template-picker-row">
+                                    <input
+                                        list="campaign-template-options"
+                                        aria-label="Шаблон"
+                                        value={templateQuery}
+                                        disabled={templatesLoading}
+                                        onChange={(event) => selectTemplateByQuery(event.target.value)}
+                                        placeholder={templatesLoading ? "Оновлюємо шаблони…" : "Оберіть шаблон"}
+                                    />
+                                    <button type="button" className="icon-button" title="Створити шаблон" aria-label="Створити шаблон" onClick={createTemplate}>
+                                        <Plus size={17} />
+                                    </button>
+                                    <datalist id="campaign-template-options">
+                                        {templates.map((template) => <option key={template.id} value={`${template.name} — ID ${template.id}`} />)}
+                                    </datalist>
+                                </div>
                             </label>
 
                             <label className="checkbox-line tracking-toggle">
@@ -687,7 +748,7 @@ export default function CampaignCreationWizard({
                     <form onSubmit={check} className="campaign-wizard-form">
                         <div className="template-editor-fields two-columns">
                             <label className="field"><span>Назва кампанії</span><input autoFocus value={form.campaignName} onChange={(event) => change("campaignName", event.target.value)} placeholder="HU Leads 20.08" /></label>
-                            <label className="field"><span>Шаблон</span><select value={form.templateId} disabled={templatesLoading} onChange={(event) => change("templateId", event.target.value)}><option value="">{templatesLoading ? "Оновлюємо шаблони…" : "Оберіть шаблон"}</option>{templates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}</select></label>
+                            <label className="field"><span>Шаблон</span><select aria-label="Шаблон" value={form.templateId} disabled={templatesLoading} onChange={(event) => change("templateId", event.target.value)}><option value="">{templatesLoading ? "Оновлюємо шаблони…" : "Оберіть шаблон"}</option>{templates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}</select></label>
                             <label className="field"><span>Pixel ID</span><input value={form.pixelId} onChange={(event) => change("pixelId", event.target.value)} placeholder="Pixel ID" /></label>
                             <label className="field"><span>UTM / URL tags</span><textarea rows="3" value={form.utm} onChange={(event) => change("utm", event.target.value)} /></label>
 

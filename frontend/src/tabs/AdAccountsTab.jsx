@@ -3,7 +3,6 @@ import { motion, Reorder, useDragControls } from "framer-motion";
 import {
     AlertCircle,
     BadgeDollarSign,
-    BarChart3,
     Check,
     CircleMinus,
     CirclePlus,
@@ -64,13 +63,10 @@ function formatMoney(amount, currency) {
 }
 
 
-function formatUpdatedAt(iso) {
+function formatDate(iso) {
     const date = new Date(iso ?? "");
-    if (!Number.isFinite(date.getTime())) return null;
-    return date.toLocaleTimeString("uk-UA", {
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+    if (!Number.isFinite(date.getTime())) return "—";
+    return date.toLocaleDateString("uk-UA");
 }
 
 
@@ -382,7 +378,6 @@ export default function AdAccountsTab({
     const [datePreset, setDatePreset] = useState("today");
     const [campaignCache, setCampaignCache] = useState({});
     const [campaignsRefreshing, setCampaignsRefreshing] = useState(false);
-    const [statisticsRefreshing, setStatisticsRefreshing] = useState(false);
     const [renameEditor, setRenameEditor] = useState(null);
     const [renaming, setRenaming] = useState(false);
     const [campaignRenameEditor, setCampaignRenameEditor] = useState(null);
@@ -396,6 +391,8 @@ export default function AdAccountsTab({
     const campaignRequestIds = useRef({});
     const campaignClientVersions = useRef({});
     const favoriteOrderRef = useRef([]);
+    const lastAccountsRefreshAt = useRef(0);
+    const lastCampaignRefreshAt = useRef({});
     const accountActive = selectedAccount?.status === "active";
     const selectedId = controlledSelectedId ?? localSelectedId;
     const setSelectedId = setControlledSelectedId ?? setLocalSelectedId;
@@ -517,6 +514,9 @@ export default function AdAccountsTab({
 
     const loadAccounts = async () => {
         if (!accountActive) return;
+        const now = Date.now();
+        if (now - lastAccountsRefreshAt.current < 5_000) return;
+        lastAccountsRefreshAt.current = now;
         const sequence = ++requestSequence.current;
         setLoading(true);
 
@@ -760,7 +760,11 @@ export default function AdAccountsTab({
     const setKeitaroLeadSync = async (enabled) => {
         if (!selected) return;
         try {
-            const result = await unwrap(window.adsBot.setKeitaroLeadSync(selected.id, enabled));
+            const result = await unwrap(window.adsBot.setKeitaroLeadSync(
+                accountKey,
+                selected.id,
+                enabled
+            ));
             setAccounts((current) => {
                 const next = current.map((account) => (
                     String(account.id) === String(result.adAccountId)
@@ -775,40 +779,30 @@ export default function AdAccountsTab({
         }
     };
 
-    const refreshSelectedCampaigns = async () => {
-        if (!selected) return;
+    const refreshSelectedCampaignData = async () => {
+        if (!accountKey || !selected) return;
+        const key = campaignKey(selected.id, datePreset);
+        const now = Date.now();
+        if (now - (lastCampaignRefreshAt.current[key] ?? 0) < 5_000) return;
+        lastCampaignRefreshAt.current[key] = now;
         setCampaignsRefreshing(true);
         try {
-            await loadCampaigns(selected.id, datePreset, { force: true });
-        } finally {
-            setCampaignsRefreshing(false);
-        }
-    };
-
-    const refreshSelectedStatistics = async () => {
-        if (!accountKey || !selected) return;
-        setStatisticsRefreshing(true);
-        try {
-            const data = await unwrap(window.adsBot.refreshAdCampaignStatistics(
+            const data = await unwrap(window.adsBot.refreshAdCampaignData(
                 accountKey,
                 selected.id,
                 datePreset
             ));
-            const key = campaignKey(selected.id, datePreset);
             updateCampaignCache((cache) => ({
                 ...cache,
                 [key]: { status: "ready", data, error: null },
             }));
-            if (data?.statisticsSkipped) {
-                showToast("Статистику можна оновити раз на 60 с", "info");
-            }
         } catch (error) {
             onError({
                 ...errorDetails(error),
-                title: "Не вдалося оновити статистику",
+                title: "Не вдалося оновити кампанії",
             });
         } finally {
-            setStatisticsRefreshing(false);
+            setCampaignsRefreshing(false);
         }
     };
 
@@ -846,14 +840,6 @@ export default function AdAccountsTab({
                     <h1>Рекламні кабінети</h1>
                     <p>Обрані кабінети, статуси та статистика кампаній.</p>
                 </div>
-                <button
-                    className="secondary-button"
-                    disabled={!accountActive || loading}
-                    onClick={() => loadAccounts()}
-                >
-                    <RefreshCw className={loading ? "spin" : ""} size={16} />
-                    Оновити РК
-                </button>
             </div>
 
             {!accountActive && (
@@ -868,6 +854,16 @@ export default function AdAccountsTab({
                         <header>
                             <span>Обрані РК</span>
                             <b>{favorites.length}</b>
+                            <button
+                                type="button"
+                                className="icon-button"
+                                title="Оновити рекламні кабінети"
+                                aria-label="Оновити рекламні кабінети"
+                                disabled={!accountActive || loading}
+                                onClick={loadAccounts}
+                            >
+                                <RefreshCw className={loading ? "spin" : ""} size={15} />
+                            </button>
                         </header>
                         {loading && accounts.length === 0 && (
                             <div className="ad-list-loading"><LoaderCircle className="spin" size={20} /> Завантажуємо РК…</div>
@@ -946,6 +942,15 @@ export default function AdAccountsTab({
                                         <p>{selected.name}</p>
                                     </div>
                                     <div className="ad-detail-actions">
+                                        <button
+                                            type="button"
+                                            className="secondary-button"
+                                            disabled={loading}
+                                            onClick={loadAccounts}
+                                        >
+                                            <RefreshCw className={loading ? "spin" : ""} size={16} />
+                                            Оновити дані
+                                        </button>
                                         {selected.status === "active" && (
                                             <>
                                                 <button className="primary-button" onClick={() => setCampaignWizardOpen(true)}>
@@ -965,16 +970,10 @@ export default function AdAccountsTab({
                                     </div>
                                 </header>
                                 <div className="detail-grid compact">
-                                    <div><span>Business</span><strong>{value(selected.business?.name)}</strong><small>{value(selected.business?.id)}</small></div>
-                                    <div><span>Owner</span><strong>{value(selected.owner)}</strong></div>
                                     <div><span>Валюта</span><strong>{value(selected.currency)}</strong></div>
                                     <div><span>Часовий пояс</span><strong>{timezoneLabel(selected)}</strong></div>
-                                    <div><span>Витрачено</span><strong>{value(selected.amountSpent)}</strong></div>
-                                    <div><span>Баланс</span><strong>{value(selected.balance)}</strong></div>
-                                    <div><span>Spend cap</span><strong>{value(selected.spendCap)}</strong></div>
-                                    <div><span>Створено</span><strong>{value(selected.createdTime)}</strong></div>
-                                    <div><span>DSA beneficiary</span><strong>{value(selected.defaultDsaBeneficiary)}</strong></div>
-                                    <div><span>DSA payor</span><strong>{value(selected.defaultDsaPayor)}</strong></div>
+                                    <div><span>Витрачено за весь час</span><strong>{formatMoney(selected.amountSpent, selected.currency)}</strong></div>
+                                    <div><span>Створено</span><strong>{formatDate(selected.createdTime)}</strong></div>
                                 </div>
                             </motion.div>
 
@@ -982,11 +981,6 @@ export default function AdAccountsTab({
                                 <div>
                                     <span className="eyebrow">Campaign performance</span>
                                     <h2>Кампанії</h2>
-                                    {formatUpdatedAt(currentCampaignEntry?.data?.statisticsUpdatedAt) && (
-                                        <small className="campaign-updated-at">
-                                            Статистика: {formatUpdatedAt(currentCampaignEntry.data.statisticsUpdatedAt)}
-                                        </small>
-                                    )}
                                 </div>
                                 <div className="campaign-heading-tools">
                                     <div className="campaign-periods">
@@ -1011,21 +1005,9 @@ export default function AdAccountsTab({
                                     <div className="campaign-heading-actions">
                                         <button
                                             type="button"
-                                            className="icon-button"
-                                            title="Оновити статистику"
-                                            disabled={
-                                                !currentCampaignEntry?.data?.campaigns?.length
-                                                || statisticsRefreshing
-                                            }
-                                            onClick={refreshSelectedStatistics}
-                                        >
-                                            <BarChart3 className={statisticsRefreshing ? "spin" : ""} size={16} />
-                                        </button>
-                                        <button
-                                            type="button"
                                             className="secondary-button"
                                             disabled={campaignsRefreshing}
-                                            onClick={refreshSelectedCampaigns}
+                                            onClick={refreshSelectedCampaignData}
                                         >
                                             <RefreshCw className={campaignsRefreshing ? "spin" : ""} size={16} />
                                             Оновити

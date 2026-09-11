@@ -89,8 +89,12 @@ contextBridge.exposeInMainWorld("adsBot", {
             accountKey,
             orderedIds,
         }),
-    setKeitaroLeadSync: (adAccountId, enabled) =>
-        ipcRenderer.invoke("ads:keitaro-lead-sync-set", { adAccountId, enabled }),
+    setKeitaroLeadSync: (accountKey, adAccountId, enabled) =>
+        ipcRenderer.invoke("ads:keitaro-lead-sync-set", {
+            accountKey,
+            adAccountId,
+            enabled,
+        }),
     getAdCampaigns: (accountKey, adAccountId, datePreset, force = false) =>
         ipcRenderer.invoke("campaigns:list", {
             accountKey,
@@ -100,6 +104,12 @@ contextBridge.exposeInMainWorld("adsBot", {
         }),
     refreshAdCampaignStatistics: (accountKey, adAccountId, datePreset) =>
         ipcRenderer.invoke("campaigns:statistics-refresh", {
+            accountKey,
+            adAccountId,
+            datePreset,
+        }),
+    refreshAdCampaignData: (accountKey, adAccountId, datePreset) =>
+        ipcRenderer.invoke("campaigns:refresh", {
             accountKey,
             adAccountId,
             datePreset,
@@ -227,6 +237,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("keitaro-stream-templates:duplicate", { id }),
     deleteKeitaroStreamTemplate: (id) =>
         ipcRenderer.invoke("keitaro-stream-templates:delete", { id }),
+    refreshKeitaroStreamTemplateOffers: () =>
+        ipcRenderer.invoke("keitaro-stream-templates:offers-refresh"),
     applyKeitaroStreamTemplate: (payload) =>
         ipcRenderer.invoke("keitaro-stream-templates:apply", payload),
     applyKeitaroStreamTemplateToMatchingStreams: (templateId) =>

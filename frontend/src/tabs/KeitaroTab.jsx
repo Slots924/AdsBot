@@ -35,6 +35,13 @@ function summaryValue(column, summary, count) {
     return formatKeitaroValue(column, summary[column.id] ?? 0);
 }
 
+function streamTemplateDisplayName(template) {
+    const icon = template.operatingSystem === "android"
+        ? " 🤖"
+        : template.operatingSystem === "ios" ? " " : "";
+    return `${template.name}${icon}`;
+}
+
 
 export default function KeitaroTab({
     availableGroupIds = [], search = "", onSearchChange = () => {},
@@ -303,6 +310,6 @@ function ApplyStreamTemplateModal({ campaignIds, onClose, onError, showToast }) 
         } catch (error) { onError({ ...errorDetails(error), title: "Не вдалося застосувати шаблон потоку" }); }
         finally { setApplying(false); }
     };
-    const templateOptions = templates.map((item) => ({ id: item.id, name: `${item.name} · ID ${item.id}` }));
+    const templateOptions = templates.map((item) => ({ id: item.id, name: `${streamTemplateDisplayName(item)} · ID ${item.id}` }));
     return <GrayModal title="Застосувати шаблон до кампаній" description={`Вибрано кампаній: ${campaignIds.length}`} onClose={onClose}><div className="kg-apply-template"><label><span>Шаблон потоку</span><GraySelect items={templateOptions} value={templateId} onChange={(value) => setTemplateId(String(value))} placeholder="Оберіть шаблон" searchPlaceholder="Пошук шаблону…" emptyText="Шаблонів не знайдено" ariaLabel="Шаблон потоку" disabled={loading} /></label><label><span>Що зробити</span><select value={mode} onChange={(event) => setMode(event.target.value)}><option value="add">Додати потік</option><option value="replace">Замінити потік у вибраних кампаніях</option></select></label>{mode === "replace" && <label><span>Номер потоку в кампанії</span><input type="number" min="1" value={replacePosition} onChange={(event) => setReplacePosition(event.target.value)} /></label>}<div className="kg-modal-actions"><GrayButton onClick={onClose}>Скасувати</GrayButton><GrayButton variant="primary" disabled={applying || loading || !templateId || (mode === "replace" && Number(replacePosition) < 1)} onClick={apply}>{applying && <LoaderCircle className="spin" size={16} />} Застосувати</GrayButton></div></div></GrayModal>;
 }

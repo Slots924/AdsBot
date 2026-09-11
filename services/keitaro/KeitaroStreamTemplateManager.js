@@ -1,7 +1,11 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
+const OPERATING_SYSTEM_FILTERS = Object.freeze({
+    android: ["Android"],
+    ios: ["iOS"],
+});
 
 function createError(message, code) {
     const error = new Error(message);
@@ -69,8 +73,18 @@ function normalizeAsset(item = {}, idKey) {
     };
 }
 
+function normalizeOperatingSystem(value) {
+    return Object.hasOwn(OPERATING_SYSTEM_FILTERS, value) ? value : "any";
+}
+
+function streamFiltersForOperatingSystem(operatingSystem) {
+    const payload = OPERATING_SYSTEM_FILTERS[operatingSystem];
+    return payload ? [{ name: "os", mode: "accept", payload }] : [];
+}
+
 export function normalizeStreamDraft(input = {}) {
     const source = input.stream ?? input;
+    const operatingSystem = normalizeOperatingSystem(input.operatingSystem);
     const stream = {
         ...emptyStreamDraft(),
         name: String(source.name ?? input.name ?? "").trim(),
@@ -84,7 +98,7 @@ export function normalizeStreamDraft(input = {}) {
         offer_selection: "before_click",
         action_type: String(source.action_type ?? "http"),
         action_payload: String(source.action_payload ?? ""),
-        filters: [],
+        filters: streamFiltersForOperatingSystem(operatingSystem),
         landings: Array.isArray(source.landings)
             ? source.landings.map((item) => normalizeAsset(item, "landing_id"))
             : [],
@@ -100,6 +114,7 @@ export function normalizeStreamDraft(input = {}) {
     return {
         name,
         sourceStreamId: Number(input.sourceStreamId) || null,
+        operatingSystem,
         stream,
     };
 }
@@ -195,6 +210,34 @@ export default class KeitaroStreamTemplateManager {
             const [deleted] = store.templates.splice(index, 1);
             await this.#writeStore(store);
             return clone(deleted);
+        });
+    }
+
+    refreshOfferNames(offers = []) {
+        return this.#enqueue(async () => {
+            const namesById = new Map((Array.isArray(offers) ? offers : [])
+                .map((offer) => [Number(offer?.id), String(offer?.name ?? "").trim()])
+                .filter(([id, name]) => Number.isInteger(id) && id > 0 && name));
+            const store = await this.#readStore();
+            let updated = 0;
+            store.templates = store.templates.map((template) => {
+                let changed = false;
+                const offersWithFreshNames = template.stream.offers.map((offer) => {
+                    const name = namesById.get(Number(offer.offer_id));
+                    if (!name || name === offer.name) return offer;
+                    changed = true;
+                    return { ...offer, name };
+                });
+                if (!changed) return template;
+                updated += 1;
+                return {
+                    ...template,
+                    stream: { ...template.stream, offers: offersWithFreshNames },
+                    updatedAt: new Date().toISOString(),
+                };
+            });
+            if (updated) await this.#writeStore(store);
+            return { templates: clone(store.templates), updated };
         });
     }
 

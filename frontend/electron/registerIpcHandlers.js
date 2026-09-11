@@ -159,7 +159,11 @@ export default function registerIpcHandlers({
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
     const workspaceRefreshes = new Map();
-    const campaignStatisticsRefreshIntervalMs = 60_000;
+    const campaignStatisticsRefreshIntervalMs = 10 * 60_000;
+    const manualRefreshIntervalMs = 5_000;
+    const adAccountRefreshTimes = new Map();
+    const adAccountRefreshResults = new Map();
+    const campaignRefreshTimes = new Map();
     let adsPowerStateRefresh = null;
     const sendRendererEvent = (channel, payload) => {
         const window = getWindow();
@@ -275,6 +279,7 @@ export default function registerIpcHandlers({
         accountKey,
         adAccountId,
         datePreset,
+        refreshKeitaro = true,
     }) => {
         const cached = await remoteDataCacheStore.getCampaigns(
             accountKey,
@@ -321,7 +326,7 @@ export default function registerIpcHandlers({
             datePreset,
             enriched
         );
-        if (keitaroLeadSyncEnabled && datePreset === "today") {
+        if (refreshKeitaro && keitaroLeadSyncEnabled && datePreset === "today") {
             refreshKeitaroCampaignLeadsOnce({
                 accountKey,
                 adAccountId,
@@ -514,6 +519,37 @@ export default function registerIpcHandlers({
             data: updated,
         });
         return updated;
+    };
+
+    const refreshCampaignData = async ({
+        accountKey,
+        adAccountId,
+        datePreset,
+    }) => {
+        const data = await loadRemoteCampaigns({
+            accountKey,
+            adAccountId,
+            datePreset,
+            refreshKeitaro: false,
+        });
+        const statistics = data.campaigns.length > 0
+            ? await loadRemoteCampaignStatistics({
+                accountKey,
+                adAccountId,
+                datePreset,
+            })
+            : data;
+        const keitaroLeadSyncEnabled = await adAccountPreferencesStore
+            .isKeitaroLeadSyncEnabled(adAccountId);
+        if (keitaroLeadSyncEnabled && datePreset === "today") {
+            refreshKeitaroCampaignLeadsOnce({
+                accountKey,
+                adAccountId,
+                datePreset,
+                data: statistics ?? data,
+            });
+        }
+        return statistics ?? data;
     };
     const mergeAccountStates = async (graphAccounts) => {
         const storedAccounts = await facebookAccountManager.list();
@@ -1439,6 +1475,20 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "ads:list",
         safeHandler(async ({ accountKey }) => {
+            const now = Date.now();
+            const lastRefresh = adAccountRefreshTimes.get(accountKey) ?? 0;
+            if (now - lastRefresh < manualRefreshIntervalMs) {
+                if (adAccountRefreshResults.has(accountKey)) {
+                    return adAccountRefreshResults.get(accountKey);
+                }
+                const cached = await remoteDataCacheStore.getWorkspace(accountKey);
+                if (cached?.value?.adAccounts) {
+                    return adAccountPreferencesStore.enrichAccounts(
+                        accountKey,
+                        cached.value.adAccounts
+                    );
+                }
+            }
             const accounts = await guiService.getAdAccounts(accountKey);
             const enriched = await adAccountPreferencesStore.enrichAccounts(
                 accountKey,
@@ -1447,6 +1497,8 @@ export default function registerIpcHandlers({
             await remoteDataCacheStore.setWorkspacePart(accountKey, {
                 adAccounts: enriched,
             });
+            adAccountRefreshTimes.set(accountKey, now);
+            adAccountRefreshResults.set(accountKey, enriched);
             return enriched;
         })
     );
@@ -1501,10 +1553,44 @@ export default function registerIpcHandlers({
         }))
     );
     ipcMain.handle(
+        "campaigns:refresh",
+        safeHandler(async ({
+            accountKey,
+            adAccountId,
+            datePreset = "today",
+        }) => {
+            const payload = { accountKey, adAccountId, datePreset };
+            const key = [accountKey, adAccountId, datePreset].join("::");
+            const now = Date.now();
+            const lastRefresh = campaignRefreshTimes.get(key) ?? 0;
+            if (now - lastRefresh < manualRefreshIntervalMs) {
+                return readCachedCampaigns(payload);
+            }
+            campaignRefreshTimes.set(key, now);
+            return refreshCampaignData(payload);
+        })
+    );
+    ipcMain.handle(
         "ads:keitaro-lead-sync-set",
-        safeHandler(({ adAccountId, enabled }) => (
-            adAccountPreferencesStore.setKeitaroLeadSync(adAccountId, enabled)
-        ))
+        safeHandler(async ({ accountKey, adAccountId, enabled }) => {
+            const result = await adAccountPreferencesStore.setKeitaroLeadSync(
+                adAccountId,
+                enabled
+            );
+            if (!result.keitaroLeadSyncEnabled || !accountKey) return result;
+            const data = await readCachedCampaigns({
+                accountKey,
+                adAccountId,
+                datePreset: "today",
+            });
+            refreshKeitaroCampaignLeadsOnce({
+                accountKey,
+                adAccountId,
+                datePreset: "today",
+                data,
+            });
+            return result;
+        })
     );
     ipcMain.handle(
         "campaigns:reorder",
@@ -2390,6 +2476,12 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "keitaro-stream-templates:delete",
         safeHandler(({ id }) => keitaroStreamTemplateManager.delete(id))
+    );
+    ipcMain.handle(
+        "keitaro-stream-templates:offers-refresh",
+        safeHandler(async () => keitaroStreamTemplateManager.refreshOfferNames(
+            await keitaroGuiService.listOffers({ forceRefresh: true })
+        ))
     );
     ipcMain.handle(
         "keitaro-stream-templates:apply",

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
     Copy,
@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
-import SearchSelect from "../components/SearchSelect.jsx";
+import GeoSelect from "../components/GeoSelect.jsx";
 
 
 const placementOptions = [
@@ -111,6 +111,45 @@ function cloneTemplate(template) {
     };
 }
 
+function AgePicker({ value, options, onChange, ariaLabel }) {
+    const root = useRef(null);
+    const [query, setQuery] = useState(String(value));
+    const [open, setOpen] = useState(false);
+    const visible = options.filter((age) => String(age).includes(query.trim()));
+
+    useEffect(() => {
+        setQuery(String(value));
+    }, [value]);
+    useEffect(() => {
+        const close = (event) => {
+            if (!root.current?.contains(event.target)) setOpen(false);
+        };
+        document.addEventListener("mousedown", close);
+        return () => document.removeEventListener("mousedown", close);
+    }, []);
+
+    return <div ref={root} className="template-age-picker">
+        <input
+            aria-label={ariaLabel}
+            inputMode="numeric"
+            value={query}
+            onFocus={() => setOpen(true)}
+            onChange={(event) => {
+                setQuery(event.target.value.replace(/\D/g, ""));
+                setOpen(true);
+            }}
+        />
+        {open && <div className="template-age-options">
+            {visible.length === 0 && <span>Немає такого віку</span>}
+            {visible.map((age) => <button type="button" key={age} className={age === value ? "selected" : ""} onClick={() => {
+                onChange(age);
+                setQuery(String(age));
+                setOpen(false);
+            }}>{age === 65 ? "65+" : age}</button>)}
+        </div>}
+    </div>;
+}
+
 
 export default function TemplatesTab({ onError, showToast }) {
     const [templates, setTemplates] = useState([]);
@@ -120,7 +159,8 @@ export default function TemplatesTab({ onError, showToast }) {
     const [busyId, setBusyId] = useState(null);
     const [editor, setEditor] = useState(null);
     const [draft, setDraft] = useState(emptyDraft);
-    const [countrySearch, setCountrySearch] = useState("");
+    const [countryToAdd, setCountryToAdd] = useState("");
+    const [languageToAdd, setLanguageToAdd] = useState("");
     const [saving, setSaving] = useState(false);
     const [search, setSearch] = useState("");
     const [sortColumn, setSortColumn] = useState("name");
@@ -176,27 +216,17 @@ export default function TemplatesTab({ onError, showToast }) {
         sortColumn === column ? (sortDirection === "asc" ? " ▲" : " ▼") : ""
     );
 
-    const filteredCountries = useMemo(() => {
-        const query = countrySearch.trim().toLowerCase();
-        return countries.filter((country) => (
-            !query
-            || country.code.toLowerCase().includes(query)
-            || country.name.toLowerCase().includes(query)
-            || country.aliases?.some((alias) => (
-                alias.toLowerCase().includes(query)
-            ))
-        )).slice(0, 80);
-    }, [countries, countrySearch]);
-
     const openCreate = () => {
         setDraft(emptyDraft());
-        setCountrySearch("");
+        setCountryToAdd("");
+        setLanguageToAdd("");
         setEditor({ mode: "create" });
     };
 
     const openEdit = (template) => {
         setDraft(cloneTemplate(template));
-        setCountrySearch("");
+        setCountryToAdd("");
+        setLanguageToAdd("");
         setEditor({ mode: "edit", id: template.id });
     };
 
@@ -207,6 +237,29 @@ export default function TemplatesTab({ onError, showToast }) {
                 ? current.countryCodes.filter((item) => item !== code)
                 : [...current.countryCodes, code],
         }));
+    };
+
+    const toggleLanguage = (id) => {
+        const languageId = Number(id);
+        setDraft((current) => ({
+            ...current,
+            locales: current.locales.includes(languageId)
+                ? current.locales.filter((item) => item !== languageId)
+                : [...current.locales, languageId],
+        }));
+    };
+
+    const addCountry = (code) => {
+        if (!draft.countryCodes.includes(code)) toggleCountry(code);
+        setCountryToAdd("");
+    };
+
+    const addLanguage = (code) => {
+        const language = languages.find((item) => item.code === code);
+        if (language && !draft.locales.includes(Number(language.id))) {
+            toggleLanguage(language.id);
+        }
+        setLanguageToAdd("");
     };
 
     const togglePlacement = (platform, placement) => {
@@ -394,38 +447,24 @@ export default function TemplatesTab({ onError, showToast }) {
 
                             <section className="template-form-section">
                                 <header><strong>Аудиторія</strong><small>Advantage audience вимкнено</small></header>
-                                <label className="field country-picker"><span>Країни</span><div className="search-input"><Search size={15} /><input value={countrySearch} onChange={(event) => setCountrySearch(event.target.value)} placeholder="Hungary, HU, United States…" /></div></label>
-                                <div className="country-options">
-                                    {filteredCountries.map((country) => (
-                                        <label key={country.code} className={draft.countryCodes.includes(country.code) ? "selected" : ""}>
-                                            <input type="checkbox" checked={draft.countryCodes.includes(country.code)} onChange={() => toggleCountry(country.code)} />
-                                            <b>{country.code}</b><span>{country.name}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                                <div className="selected-countries">
+                                <label className="field country-picker"><span>Додати країну</span><GeoSelect countries={countries} value={countryToAdd} onChange={addCountry} layout="list" placeholder="Оберіть країну" ariaLabel="Додати країну" /></label>
+                                <div className="selected-template-codes">
+                                    <strong>Вибрані країни</strong>
                                     {draft.countryCodes.map((code) => <button type="button" key={code} onClick={() => toggleCountry(code)}>{code} <X size={11} /></button>)}
                                 </div>
-                                <label className="field"><span>Мови реклами</span><SearchSelect
-                                    items={languages}
-                                    value={draft.locales}
-                                    multiple
-                                    onChange={(value) => setDraft((current) => ({ ...current, locales: value }))}
-                                    getId={(language) => language.id}
-                                    getTitle={(language) => language.name}
-                                    getSubtitle={(language) => language.code}
-                                    getSearchText={(language) => `${language.name} ${language.code} ${(language.aliases ?? []).join(" ")}`}
-                                    placeholder="Оберіть одну або кілька мов"
-                                    searchPlaceholder="Пошук мови…"
-                                    emptyText="Мову не знайдено"
-                                    ariaLabel="Мови реклами"
-                                    className="language-select"
-                                /></label>
+                                <label className="field country-picker"><span>Додати мову</span><GeoSelect countries={languages} value={languageToAdd} onChange={addLanguage} layout="list" placeholder="Оберіть мову" ariaLabel="Додати мову" /></label>
+                                <div className="selected-template-codes">
+                                    <strong>Вибрані мови</strong>
+                                    {draft.locales.map((id) => {
+                                        const language = languages.find((item) => Number(item.id) === Number(id));
+                                        return <button type="button" key={id} onClick={() => toggleLanguage(id)}>{language?.code || id} <X size={11} /></button>;
+                                    })}
+                                </div>
                                 <small className="field-hint">Можна вибрати одну або кілька мов. Порожній список означає, що фільтр мов не застосовується.</small>
                                 <div className="template-editor-fields three-columns">
                                     <label className="field"><span>Стать</span><select value={draft.gender} onChange={(event) => setDraft((current) => ({ ...current, gender: event.target.value }))}><option value="any">Будь-яка</option><option value="male">Чоловіча</option><option value="female">Жіноча</option></select></label>
-                                    <label className="field"><span>Вік від</span><select value={draft.ageMin} onChange={(event) => setDraft((current) => { const ageMin = Number(event.target.value); return { ...current, ageMin, ageMax: Math.max(ageMin, current.ageMax) }; })}>{ageOptions.map((age) => <option key={age} value={age}>{age}</option>)}</select></label>
-                                    <label className="field"><span>Вік до</span><select value={draft.ageMax} onChange={(event) => setDraft((current) => ({ ...current, ageMax: Number(event.target.value) }))}>{ageOptions.filter((age) => age >= draft.ageMin).map((age) => <option key={age} value={age}>{age === 65 ? "65+" : age}</option>)}</select></label>
+                                    <label className="field"><span>Вік від</span><AgePicker value={draft.ageMin} options={ageOptions} ariaLabel="Вік від" onChange={(ageMin) => setDraft((current) => ({ ...current, ageMin, ageMax: Math.max(ageMin, current.ageMax) }))} /></label>
+                                    <label className="field"><span>Вік до</span><AgePicker value={draft.ageMax} options={ageOptions.filter((age) => age >= draft.ageMin)} ariaLabel="Вік до" onChange={(ageMax) => setDraft((current) => ({ ...current, ageMax }))} /></label>
                                 </div>
                                 <small className="field-hint">65+ означає, що люди старше 65 років не відсікаються.</small>
                             </section>

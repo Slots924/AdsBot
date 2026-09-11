@@ -1,16 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, Copy, LoaderCircle, Minus, Plus, Search, Trash2, X } from "lucide-react";
+import { ChevronDown, Copy, LoaderCircle, Minus, Plus, RefreshCw, Search, Trash2, X } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
 
 function emptyDraft() {
-    return { name: "", sourceStreamId: null, stream: { type: "regular", name: "", comments: "", state: "active", schema: "landings", collect_clicks: true, filter_or: false, weight: 100, offer_selection: "before_click", action_type: "http", action_payload: "", filters: [], landings: [], offers: [], triggers: [] } };
+    return { name: "", sourceStreamId: null, operatingSystem: "any", stream: { type: "regular", name: "", comments: "", state: "active", schema: "landings", collect_clicks: true, filter_or: false, weight: 100, offer_selection: "before_click", action_type: "http", action_payload: "", filters: [], landings: [], offers: [], triggers: [] } };
 }
 
 function cloneDraft(template) {
     const blank = emptyDraft();
     return structuredClone({ ...blank, ...template, stream: { ...blank.stream, ...(template.stream ?? {}) } });
+}
+
+function streamTemplateDisplayName(template) {
+    const icon = template.operatingSystem === "android"
+        ? " 🤖"
+        : template.operatingSystem === "ios" ? " " : "";
+    return `${template.name}${icon}`;
 }
 
 let activeSavedDraft = null;
@@ -25,6 +32,7 @@ export default function KeitaroStreamTemplatesTab({ onError, showToast }) {
     const [savedDraft, setSavedDraft] = useState(null);
     const [saving, setSaving] = useState(false);
     const [applyingToAll, setApplyingToAll] = useState(false);
+    const [refreshingOffers, setRefreshingOffers] = useState(false);
 
     const load = async (preferredId) => {
         setLoading(true);
@@ -109,8 +117,25 @@ export default function KeitaroStreamTemplatesTab({ onError, showToast }) {
         }
     };
 
+    const refreshOfferNames = async () => {
+        setRefreshingOffers(true);
+        try {
+            const result = await unwrap(window.adsBot.refreshKeitaroStreamTemplateOffers());
+            setTemplates(result.templates ?? []);
+            const selected = (result.templates ?? []).find((item) => item.id === selectedId);
+            if (selected) selectTemplate(selected);
+            showToast?.(result.updated
+                ? `Оновлено назви оферів у шаблонах: ${result.updated}`
+                : "Назви оферів уже актуальні", "success");
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося оновити назви оферів" });
+        } finally {
+            setRefreshingOffers(false);
+        }
+    };
+
     return <motion.section className="keitaro-tab keitaro-streams-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <div className="keitaro-heading"><div><span className="eyebrow">Keitaro streams</span><h1>Шаблони потоків</h1><p>Оберіть шаблон ліворуч, щоб налаштувати його праворуч.</p></div><button type="button" className="primary-button" onClick={create}><Plus size={16} /> Новий шаблон</button></div>
+        <div className="keitaro-heading"><div><span className="eyebrow">Keitaro streams</span><h1>Шаблони потоків</h1><p>Оберіть шаблон ліворуч, щоб налаштувати його праворуч.</p></div><div className="keitaro-heading-actions"><button type="button" className="icon-button" title="Оновити назви оферів із Keitaro" aria-label="Оновити назви оферів" disabled={refreshingOffers} onClick={refreshOfferNames}><RefreshCw className={refreshingOffers ? "spin" : ""} size={17} /></button><button type="button" className="primary-button" onClick={create}><Plus size={16} /> Новий шаблон</button></div></div>
         <div className="stream-templates-workspace">
             <aside className="stream-template-sidebar" aria-label="Список шаблонів потоків">
                 <label className="keitaro-search stream-template-search"><Search size={16} /><input aria-label="Пошук шаблонів потоків" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Пошук шаблону…" /></label>
@@ -118,7 +143,7 @@ export default function KeitaroStreamTemplatesTab({ onError, showToast }) {
                     {loading && <div className="campaign-loading"><LoaderCircle className="spin" size={21} /> Завантажуємо шаблони…</div>}
                     {!loading && filtered.length === 0 && <div className="campaign-empty">Шаблонів потоків немає.</div>}
                     {!loading && filtered.map((template) => <div key={template.id} className={`stream-template-row ${selectedId === template.id ? "selected" : ""}`}>
-                        <button type="button" className="stream-template-select" onClick={() => selectTemplate(template)}><span className="stream-template-icon">S</span><strong>{template.name}</strong></button>
+                        <button type="button" className="stream-template-select" onClick={() => selectTemplate(template)}><span className="stream-template-icon">S</span><strong>{streamTemplateDisplayName(template)}</strong></button>
                         <span className="stream-template-actions">
                             <button type="button" className="icon-button" title="Створити копію" aria-label={`Створити копію ${template.name}`} disabled={busyId === template.id} onClick={() => run(template.id, () => window.adsBot.duplicateKeitaroStreamTemplate(template.id), "Шаблон скопійовано")}><Copy size={16} /></button>
                             <button type="button" className="icon-button danger" title="Видалити" aria-label={`Видалити ${template.name}`} disabled={busyId === template.id} onClick={() => window.confirm(`Видалити шаблон «${template.name}»?`) && run(template.id, () => window.adsBot.deleteKeitaroStreamTemplate(template.id), "Шаблон видалено", selectedId === template.id ? null : selectedId)}><Trash2 size={16} /></button>
@@ -143,7 +168,7 @@ function TemplateDetails({ draft, savedDraft = activeSavedDraft, setDraft, savin
         const exists = stream[kind].some((item) => String(item[idKey]) === String(source.id));
         patchStream({ [kind]: exists ? stream[kind].filter((item) => String(item[idKey]) !== String(source.id)) : [...stream[kind], { [idKey]: Number(source.id), name: source.name, groupId: source.groupId || "", state: "active", share: 100 }] });
     };
-    return <><header className="stream-detail-head"><div><h2>{draft.id ? "Налаштування шаблону" : "Новий шаблон"}</h2><p>Тип «звичайний», рахування кліків, увімкнений стан, схема «лендінги та офери», вибір оферу перед кліком і відсутність фільтрів задаються автоматично.</p></div><div className="stream-detail-actions"><button type="button" className="secondary-button" disabled={!draft.id || hasChanges || applyingToAll || savingProp} onClick={onApplyToAll}>{applyingToAll && <LoaderCircle className="spin" size={16} />} {applyingToAll ? "Застосовуємо…" : "Застосувати до всіх потоків"}</button><button type="button" className="primary-button" disabled={saving || !hasChanges || !(draft.name || stream.name).trim()} onClick={onSave}>{savingProp && <LoaderCircle className="spin" size={16} />} Зберегти</button></div></header><div className="stream-detail-body"><section className="stream-panel stream-main-fields"><label className="stream-field"><span>Назва шаблону</span><input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Наприклад, White JP" /></label><label className="stream-field"><span>Назва потоку</span><input value={stream.name} onChange={(event) => patchStream({ name: event.target.value })} placeholder="Назва, яка з'явиться у Keitaro" /></label></section><AssetSection title="Лендінги" kind="landings" assets={stream.landings} idKey="landing_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ landings: stream.landings.filter((_, current) => current !== index) })} /><AssetSection title="Офери" kind="offers" assets={stream.offers} idKey="offer_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ offers: stream.offers.filter((_, current) => current !== index) })} /></div>{pickerKind && <AssetPickerModal kind={pickerKind} templateId={draft.id ?? "new"} selectedAssets={stream[pickerKind]} onClose={() => setPickerKind("")} onToggle={(asset) => toggleAsset(pickerKind, asset)} />}</>;
+    return <><header className="stream-detail-head"><div><h2>{draft.id ? "Налаштування шаблону" : "Новий шаблон"}</h2><p>Тип «звичайний», рахування кліків, увімкнений стан, схема «лендінги та офери», вибір оферу перед кліком і відсутність фільтрів задаються автоматично.</p></div><div className="stream-detail-actions"><button type="button" className="secondary-button" disabled={!draft.id || hasChanges || applyingToAll || savingProp} onClick={onApplyToAll}>{applyingToAll && <LoaderCircle className="spin" size={16} />} {applyingToAll ? "Застосовуємо…" : "Застосувати до всіх потоків"}</button><button type="button" className="primary-button" disabled={saving || !hasChanges || !(draft.name || stream.name).trim()} onClick={onSave}>{savingProp && <LoaderCircle className="spin" size={16} />} Зберегти</button></div></header><div className="stream-detail-body"><section className="stream-panel stream-main-fields"><label className="stream-field"><span>Назва шаблону</span><input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Наприклад, White JP" /></label><label className="stream-field"><span>Назва потоку</span><input value={stream.name} onChange={(event) => patchStream({ name: event.target.value })} placeholder="Назва, яка з'явиться у Keitaro" /></label><label className="stream-field"><span>Операційна система</span><select value={draft.operatingSystem ?? "any"} onChange={(event) => setDraft((current) => ({ ...current, operatingSystem: event.target.value }))}><option value="any">Будь-яка</option><option value="android">Android</option><option value="ios">iOS</option></select></label></section><AssetSection title="Лендінги" kind="landings" assets={stream.landings} idKey="landing_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ landings: stream.landings.filter((_, current) => current !== index) })} /><AssetSection title="Офери" kind="offers" assets={stream.offers} idKey="offer_id" onOpenPicker={setPickerKind} onPatch={patchAsset} onRemove={(index) => patchStream({ offers: stream.offers.filter((_, current) => current !== index) })} /></div>{pickerKind && <AssetPickerModal kind={pickerKind} templateId={draft.id ?? "new"} selectedAssets={stream[pickerKind]} onClose={() => setPickerKind("")} onToggle={(asset) => toggleAsset(pickerKind, asset)} />}</>;
 }
 
 function AssetSection({ title, kind, assets, idKey, onOpenPicker, onPatch, onRemove }) {

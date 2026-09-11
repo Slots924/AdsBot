@@ -634,6 +634,23 @@ assert.equal(forcedCampaigns.ok, true);
 assert.equal(forcedCampaigns.data.campaigns[0].id, "campaign-1");
 assert.equal(adCampaignListCalls, 1);
 assert.equal(adCampaignStatisticsCalls, 0);
+const refreshedCampaigns = await handlers.get("campaigns:refresh")({}, {
+    accountKey: "fp_hub",
+    adAccountId: "act_1",
+    datePreset: "today",
+});
+assert.equal(refreshedCampaigns.ok, true);
+assert.equal(refreshedCampaigns.data.campaigns[0].spend, 10);
+assert.equal(adCampaignListCalls, 2);
+assert.equal(adCampaignStatisticsCalls, 1);
+const throttledCampaignRefresh = await handlers.get("campaigns:refresh")({}, {
+    accountKey: "fp_hub",
+    adAccountId: "act_1",
+    datePreset: "today",
+});
+assert.equal(throttledCampaignRefresh.ok, true);
+assert.equal(adCampaignListCalls, 2);
+assert.equal(adCampaignStatisticsCalls, 1);
 const campaignStatistics = await handlers.get("campaigns:statistics-refresh")({}, {
     accountKey: "fp_hub",
     adAccountId: "act_1",
