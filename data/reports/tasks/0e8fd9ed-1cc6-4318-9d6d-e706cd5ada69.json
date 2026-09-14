@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "id": "0e8fd9ed-1cc6-4318-9d6d-e706cd5ada69",
+  "taskId": "8cc0f733-b329-49da-8b38-995c24488481",
+  "type": "campaign",
+  "title": "HU | Creo_1 | 30+ 14/09 11:27",
+  "status": "failed",
+  "createdAt": "2026-09-14T08:28:25.041Z",
+  "startedAt": "2026-09-14T08:28:11.790Z",
+  "finishedAt": "2026-09-14T08:28:25.040Z",
+  "durationMs": 13250,
+  "inputSummary": {
+    "campaignJobId": "4c40f184-27d4-440d-a731-ebb8675f6d1c",
+    "accountKey": "account-018",
+    "adAccountId": "act_1759324075218646",
+    "campaignName": "HU | Creo_1 | 30+ 14/09 11:27",
+    "templateId": 13,
+    "pageId": "842986062231301",
+    "postId": "842986062231301_122162485755069632",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-09-14T08:27:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120249252482150003",
+      "creativeId": "2545384755981567",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120249252484890003",
+          "name": "HU | Creo_1 | 30+ 14/09 11:27 | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Cannot create ad because the media in the post has been edited. Please edit the ad or use a new post.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 2632,
+      "graphSubcode": 2446102,
+      "graphUserTitle": "Ad Creative is Incompatible with the Post",
+      "graphUserMessage": "Cannot create ad because the media in the post has been edited. Please edit the ad or use a new post.",
+      "stage": "ad",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "4c40f184-27d4-440d-a731-ebb8675f6d1c",
+    "accountKey": "account-018",
+    "adAccountId": "act_1759324075218646",
+    "uniqueKey": "campaign-job:4c40f184-27d4-440d-a731-ebb8675f6d1c"
+  }
+}
