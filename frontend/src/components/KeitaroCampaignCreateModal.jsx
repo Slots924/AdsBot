@@ -48,7 +48,7 @@ function Field({ label, children, className = "" }) {
   );
 }
 
-function InlineSearchSelect({ items, value, onChange, getId = (item) => item.id, getTitle = (item) => item.name, getSearchText, placeholder, ariaLabel }) {
+function InlineSearchSelect({ items, value, onChange, getId = (item) => item.id, getTitle = (item) => item.name, getMeta, getSearchText, placeholder, ariaLabel, footerAction, footerActionLabel }) {
   const root = useRef(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -62,7 +62,7 @@ function InlineSearchSelect({ items, value, onChange, getId = (item) => item.id,
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, []);
-  return <div ref={root} className="campaign-inline-select"><input value={open ? query : (selected ? getTitle(selected) : "")} placeholder={placeholder} aria-label={ariaLabel} onFocus={() => { setQuery(""); setOpen(true); }} onChange={(event) => { setQuery(event.target.value); setOpen(true); }} /><button type="button" className="campaign-inline-toggle" aria-label={open ? "Згорнути список" : "Розгорнути список"} onClick={() => { setQuery(""); setOpen((current) => !current); }}>{open ? <ChevronUp size={17} /> : <ChevronDown size={17} />}</button>{open && <div className="campaign-inline-options">{visible.length === 0 && <div>Нічого не знайдено.</div>}{visible.map((item) => <button type="button" key={getId(item)} onClick={() => { onChange(getId(item)); setOpen(false); setQuery(""); }}>{getTitle(item)}</button>)}</div>}</div>;
+  return <div ref={root} className="campaign-inline-select"><input value={open ? query : (selected ? getTitle(selected) : "")} placeholder={placeholder} aria-label={ariaLabel} onFocus={() => { setQuery(""); setOpen(true); }} onChange={(event) => { setQuery(event.target.value); setOpen(true); }} /><button type="button" className="campaign-inline-toggle" aria-label={open ? "Згорнути список" : "Розгорнути список"} onClick={() => { setQuery(""); setOpen((current) => !current); }}>{open ? <ChevronUp size={17} /> : <ChevronDown size={17} />}</button>{open && <div className="campaign-inline-options">{visible.length === 0 && <div>Нічого не знайдено.</div>}{visible.map((item) => <button type="button" key={getId(item)} onClick={() => { onChange(getId(item)); setOpen(false); setQuery(""); }}><strong>{getTitle(item)}</strong>{getMeta?.(item) && <small>{getMeta(item)}</small>}</button>)}{footerAction && <button type="button" className="campaign-inline-footer-action" onClick={() => { footerAction(); setOpen(false); setQuery(""); }}>{footerActionLabel}</button>}</div>}</div>;
 }
 
 function ResourcePicker({
@@ -221,6 +221,7 @@ export default function KeitaroCampaignCreateModal({
   const [templateId, setTemplateId] = useState("");
   const [groupId, setGroupId] = useState("");
   const [domainId, setDomainId] = useState("");
+  const [showAllDomains, setShowAllDomains] = useState(false);
   const [whiteLandings, setWhiteLandings] = useState([{ landing_id: "123", share: 100, state: "active" }]);
   const [excludedCountries, setExcludedCountries] = useState([]);
   const [sourceId, setSourceId] = useState("");
@@ -300,9 +301,26 @@ export default function KeitaroCampaignCreateModal({
       : "";
   const mappedDomainIds = settings.domainsByGeo?.[geo] ?? [];
   const mappedSet = new Set(mappedDomainIds.map(String));
-  const domainOptions = mappedSet.size
-    ? domains.filter((item) => mappedSet.has(String(item.id)))
-    : domains;
+  const configuredDomainOptions = domains
+    .filter((item) => mappedSet.has(String(item.id)))
+    .map((domain) => {
+      const mapping = (settings.domainMappings ?? []).find(
+        (item) => item.geo === geo && String(item.domainId) === String(domain.id),
+      );
+      return {
+        ...domain,
+        displayName: mapping?.name?.trim() || domain.name,
+        displayUrl: domain.name,
+      };
+    });
+  const domainOptions = showAllDomains ? domains : configuredDomainOptions;
+  const toggleDomainScope = () => {
+    const nextShowAll = !showAllDomains;
+    setShowAllDomains(nextShowAll);
+    if (!nextShowAll && domainId && !configuredDomainOptions.some((item) => String(item.id) === String(domainId))) {
+      setDomainId("");
+    }
+  };
   const selectedDomain = domains.find(
     (item) => String(item.id) === String(domainId),
   );
@@ -321,8 +339,10 @@ export default function KeitaroCampaignCreateModal({
   useEffect(() => {
     if (!geo) {
       setDomainId("");
+      setShowAllDomains(false);
       return;
     }
+    setShowAllDomains(false);
     setDomainId(mappedDomainIds.length === 1 ? String(mappedDomainIds[0]) : "");
     setExcludedCountries((current) =>
       current.includes(geo) ? current : [geo, ...current],
@@ -472,12 +492,19 @@ export default function KeitaroCampaignCreateModal({
                       items={domainOptions}
                       value={domainId}
                       onChange={setDomainId}
+                      getTitle={(item) => item.displayName ?? item.name}
+                      getMeta={(item) => showAllDomains ? undefined : item.displayUrl}
+                      getSearchText={(item) => showAllDomains ? item.name : (item.displayName ?? item.name)}
                       placeholder={
-                        mappedSet.size
-                          ? "Домен цього GEO"
-                          : "Оберіть домен вручну"
+                        showAllDomains
+                          ? "Оберіть домен з усіх доступних"
+                          : mappedSet.size
+                            ? "Домен цього GEO"
+                            : "Оберіть налаштований домен"
                       }
                       ariaLabel="Домен"
+                      footerAction={toggleDomainScope}
+                      footerActionLabel={showAllDomains ? "Показати налаштовані домени…" : "Показати всі домени…"}
                     />
                   </Field>
                   <Field label="Ідентифікатор">
