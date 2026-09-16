@@ -160,6 +160,7 @@ export default class AdsBotGuiService {
     #runCommentingScenario;
     #runParallelCommentingScenario;
     #accountStatuses = new Map();
+    #activeAccountCheck = null;
 
 
     constructor({
@@ -256,12 +257,28 @@ export default class AdsBotGuiService {
 
 
     async checkAccount(accountKey) {
-        await this.reloadFacebookBackend();
         const accountStatus = await this.#facebookBackend.getAccountStatus(
             accountKey
         );
         this.#accountStatuses.set(accountStatus.accountKey, accountStatus.status);
         return accountStatus;
+    }
+
+
+    async checkActiveAccounts() {
+        if (this.#activeAccountCheck) return this.#activeAccountCheck;
+
+        const activeAccountKeys = [...this.#accountStatuses.entries()]
+            .filter(([, status]) => status === "active")
+            .map(([accountKey]) => accountKey);
+
+        this.#activeAccountCheck = Promise.all(
+            activeAccountKeys.map((accountKey) => this.checkAccount(accountKey))
+        ).finally(() => {
+            this.#activeAccountCheck = null;
+        });
+
+        return this.#activeAccountCheck;
     }
 
 

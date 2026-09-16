@@ -160,6 +160,7 @@ export default function registerIpcHandlers({
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
     const workspaceRefreshes = new Map();
     const campaignStatisticsRefreshIntervalMs = 10 * 60_000;
+    const activeAccountStatusRefreshIntervalMs = 5 * 60_000;
     const manualRefreshIntervalMs = 5_000;
     const adAccountRefreshTimes = new Map();
     const adAccountRefreshResults = new Map();
@@ -171,6 +172,28 @@ export default function registerIpcHandlers({
             window.webContents.send(channel, payload);
         }
     };
+    const refreshActiveAccountStatuses = async () => {
+        try {
+            const accountStatuses = await guiService.checkActiveAccounts();
+            accountStatuses.forEach((accountStatus) => {
+                sendRendererEvent("accounts:facebook-status", {
+                    accountKey: accountStatus.accountKey,
+                    accountStatus,
+                });
+            });
+        } catch (error) {
+            logger?.warn(
+                "accounts.active-status-refresh-failed",
+                "Не вдалося автоматично перевірити активні Facebook API-клієнти",
+                { error }
+            );
+        }
+    };
+    const activeAccountStatusRefreshTimer = setInterval(
+        () => void refreshActiveAccountStatuses(),
+        activeAccountStatusRefreshIntervalMs
+    );
+    activeAccountStatusRefreshTimer.unref?.();
     const updateCacheSafely = async (operation, event = null) => {
         try {
             await operation();
