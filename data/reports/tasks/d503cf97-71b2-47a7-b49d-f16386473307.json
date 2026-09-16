@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "id": "d503cf97-71b2-47a7-b49d-f16386473307",
+  "taskId": "ea4e500f-d7ca-49a0-96de-931735a51048",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 837142986147508",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-14T16:40:09.913Z",
+  "startedAt": "2026-09-14T16:39:15.307Z",
+  "finishedAt": "2026-09-14T16:40:09.912Z",
+  "durationMs": 54605,
+  "inputSummary": {
+    "accountKey": "account-019",
+    "pageId": "837142986147508"
+  },
+  "resultSummary": {
+    "pageId": "837142986147508",
+    "avatar": {
+      "file": "1.jpg",
+      "photoId": "122145997461081663"
+    },
+    "cover": {
+      "file": "2.jpg",
+      "photoId": "122145997581081663"
+    },
+    "cleanup": {
+      "deletedPostIds": [],
+      "deletedPhotoIds": [],
+      "hiddenPostIds": []
+    },
+    "publications": [
+      {
+        "file": "648398807_886216170915422_5641755401225205243_n.jpg",
+        "photoId": "122145997689081663",
+        "postId": "837142986147508_122145997737081663",
+        "backdatedTime": "2025-12-22T00:00:00.000Z"
+      },
+      {
+        "file": "650107706_886216630915376_7443180351361173369_n.jpg",
+        "photoId": "122145997755081663",
+        "postId": "837142986147508_122145997797081663",
+        "backdatedTime": "2026-01-09T00:00:00.000Z"
+      },
+      {
+        "file": "650271962_886211647582541_3279806929108678034_n.jpg",
+        "photoId": "122145997881081663",
+        "postId": "837142986147508_122145997929081663",
+        "backdatedTime": "2026-07-03T00:00:00.000Z"
+      },
+      {
+        "file": "650379515_886217157581990_4815033701500619141_n.jpg",
+        "photoId": "122145997983081663",
+        "postId": "837142986147508_122145998043081663",
+        "backdatedTime": "2026-07-18T00:00:00.000Z"
+      }
+    ],
+    "warnings": [
+      {
+        "stage": "delete-photo",
+        "objectId": "122096106531081663",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      }
+    ],
+    "resumed": false
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-019",
+    "pageId": "837142986147508",
+    "uniqueKey": "page-rebuild:account-019:837142986147508"
+  }
+}

@@ -1,4 +1,102 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "5b2e33d7-a5e6-4dca-b5ab-6fba3f8b51d0",
+      "type": "campaign",
+      "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "eae541a5-a42c-47c5-84bd-e9a8d3740eb1"
+      },
+      "metadata": {
+        "campaignJobId": "eae541a5-a42c-47c5-84bd-e9a8d3740eb1",
+        "accountKey": "account-015",
+        "adAccountId": "act_1314603060639892",
+        "uniqueKey": "campaign-job:eae541a5-a42c-47c5-84bd-e9a8d3740eb1",
+        "reportId": "2f3d2787-8d32-403f-b736-c04e7cfa9651"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120251097056740737",
+          "creativeId": "2008338336521700",
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120251097057450737",
+              "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120251097059030737",
+              "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120251097060230737",
+              "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120251097061930737",
+              "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120251097063710737",
+              "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "id": "120251097058430737",
+              "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06 | AD 01"
+            },
+            {
+              "index": 1,
+              "id": "120251097060060737",
+              "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06 | AD 02"
+            },
+            {
+              "index": 2,
+              "id": "120251097060820737",
+              "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06 | AD 03"
+            },
+            {
+              "index": 3,
+              "id": "120251097062910737",
+              "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06 | AD 04"
+            },
+            {
+              "index": 4,
+              "id": "120251097064560737",
+              "name": "Pixel 10/2 DE | Creo_4 | 30+ 16/09 14:06 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "eae541a5-a42c-47c5-84bd-e9a8d3740eb1",
+        "campaignId": "120251097056740737",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-16T11:07:14.471Z",
+      "startedAt": "2026-09-16T11:07:14.471Z",
+      "finishedAt": "2026-09-16T11:08:20.536Z",
+      "updatedAt": "2026-09-16T11:08:20.538Z"
+    }
+  ]
 }
