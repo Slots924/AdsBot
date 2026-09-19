@@ -202,6 +202,46 @@ export async function moveMouseToElement(
 }
 
 
+export async function moveMouseToSafeScrollArea(
+    page,
+    element,
+    {
+        steps = [5, 10],
+        random = Math.random,
+    } = {}
+) {
+    validateRange(steps, "steps");
+
+    const point = await element.evaluate((container) => {
+        const rectangle = container.getBoundingClientRect();
+        const candidates = [
+            [0.88, 0.5],
+            [0.78, 0.35],
+            [0.78, 0.65],
+        ];
+        const isSafe = (target) => !target?.closest(
+            "a, [role=link], button, [role=button], input, textarea, [contenteditable=true]"
+        );
+
+        for (const [xRatio, yRatio] of candidates) {
+            const x = Math.round(rectangle.left + rectangle.width * xRatio);
+            const y = Math.round(rectangle.top + rectangle.height * yRatio);
+
+            if (isSafe(document.elementFromPoint(x, y))) return { x, y };
+        }
+
+        return {
+            x: Math.round(rectangle.left + rectangle.width * 0.82),
+            y: Math.round(rectangle.top + rectangle.height * 0.5),
+        };
+    });
+    const stepCount = randomInteger(steps[0], steps[1], { random });
+
+    await page.mouse.move(point.x, point.y, { steps: stepCount });
+    return { ...point, steps: stepCount };
+}
+
+
 export async function clickLeftMouse(
     page,
     {

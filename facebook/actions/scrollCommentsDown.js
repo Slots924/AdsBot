@@ -3,7 +3,7 @@ import {
     postDialogSelector,
     topLevelCommentSelector,
 } from "../selectors/post.js";
-import { moveMouseToElement } from "../browser/pointer.js";
+import { moveMouseToSafeScrollArea } from "../browser/pointer.js";
 import {
     randomInteger,
     waitHuman,
@@ -77,11 +77,7 @@ export default async function scrollCommentsDown(page) {
         }
 
         console.log("Наводимо курсор на область коментарів...");
-        await moveMouseToElement(page, scrollContainer, {
-            scrollIntoView: false,
-            inset: [0.3, 0.7],
-            steps: [8, 18],
-        });
+        await moveMouseToSafeScrollArea(page, scrollContainer);
         await waitRandom(80, 180);
 
         const distanceFactor = randomInteger(65, 85) / 100;

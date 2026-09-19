@@ -2,10 +2,11 @@ import { waitForDomQuiet } from "../browser/confirmedClick.js";
 import {
     clickLeftMouse,
     moveMouseToElement,
+    moveMouseToSafeScrollArea,
 } from "../browser/pointer.js";
 import { waitForVisibleElement } from "../browser/elements.js";
 import { humanScrollToElement } from "../browser/scroll.js";
-import { waitHuman, waitRandom } from "../browser/timing.js";
+import { waitRandom } from "../browser/timing.js";
 import {
     getReactionOptionSelector,
     reactionsToolbarSelector,
@@ -39,6 +40,7 @@ export const commentReactionFailureReasons = Object.freeze({
     REACTION_BUTTON_NOT_FOUND: "REACTION_BUTTON_NOT_FOUND",
     REACTION_OPTION_NOT_FOUND: "REACTION_OPTION_NOT_FOUND",
     VERIFICATION_FAILED: "VERIFICATION_FAILED",
+    POPUP_OBSTRUCTING_REACTION_BUTTON: "POPUP_OBSTRUCTING_REACTION_BUTTON",
     INVALID_REACTION: "INVALID_REACTION",
     ERROR: "ERROR",
 });
@@ -222,17 +224,132 @@ async function getCurrentReaction(button) {
 
 
 async function hoverElement(page, element) {
-    await moveMouseToElement(page, element, {
+    const point = await moveMouseToElement(page, element, {
         scrollIntoView: false,
         steps: [14, 28],
     });
     await waitRandom(60, 180);
+    return point;
+}
+
+
+async function isElementAtPoint(element, point) {
+    return element.evaluate((target, coordinates) => {
+        const hit = document.elementFromPoint(coordinates.x, coordinates.y);
+
+        return Boolean(hit && (hit === target || target.contains(hit)));
+    }, point).catch(() => false);
 }
 
 
 async function clickElement(page, element) {
-    await hoverElement(page, element);
+    const point = await hoverElement(page, element);
+    if (!await isElementAtPoint(element, point)) return false;
     await clickLeftMouse(page, { holdDelay: [70, 170] });
+    return true;
+}
+
+
+async function moveMouseToCommentSafeArea(page, comment) {
+    const handle = await comment.evaluateHandle((article) => {
+        let container = article.parentElement;
+
+        while (container && container !== document.body) {
+            const styles = window.getComputedStyle(container);
+            const canScroll = styles.overflowY === "auto"
+                || styles.overflowY === "scroll";
+
+            if (canScroll && container.scrollHeight > container.clientHeight) {
+                return container;
+            }
+
+            container = container.parentElement;
+        }
+
+        return article;
+    });
+    const scrollContainer = handle.asElement();
+
+    if (!scrollContainer) {
+        await handle.dispose();
+        return;
+    }
+
+    try {
+        await moveMouseToSafeScrollArea(page, scrollContainer);
+        await waitRandom(100, 220);
+    } finally {
+        await scrollContainer.dispose().catch(() => {});
+    }
+}
+
+
+async function clickElementWithPopupRecovery(page, element, comment) {
+    if (await clickElement(page, element)) return true;
+    await moveMouseToCommentSafeArea(page, comment);
+    return clickElement(page, element);
+}
+
+
+async function waitForReactionToolbarOrObstruction(page, button, point) {
+    let stateHandle;
+
+    try {
+        stateHandle = await page.waitForFunction(
+            (target, coordinates, toolbarSelector) => {
+                const isVisible = (element) => {
+                    const rectangle = element.getBoundingClientRect();
+                    const styles = window.getComputedStyle(element);
+
+                    return rectangle.width > 0
+                        && rectangle.height > 0
+                        && styles.display !== "none"
+                        && styles.visibility !== "hidden"
+                        && styles.opacity !== "0";
+                };
+                const toolbar = Array.from(
+                    document.querySelectorAll(toolbarSelector)
+                ).find(isVisible);
+                const hit = document.elementFromPoint(
+                    coordinates.x,
+                    coordinates.y
+                );
+
+                if (!hit || (
+                    hit !== target
+                    && !target.contains(hit)
+                    && !toolbar?.contains(hit)
+                )) {
+                    return "OBSTRUCTED";
+                }
+
+                return toolbar ? "TOOLBAR_READY" : false;
+            },
+            { timeout: reactionToolbarTimeout },
+            button,
+            point,
+            reactionsToolbarSelector
+        );
+        return await stateHandle.jsonValue();
+    } catch {
+        return "TIMEOUT";
+    } finally {
+        await stateHandle?.dispose().catch(() => {});
+    }
+}
+
+
+async function openReactionToolbar(page, button, comment) {
+    let point = await hoverElement(page, button);
+    let state = await waitForReactionToolbarOrObstruction(page, button, point);
+
+    if (state === "OBSTRUCTED") {
+        await moveMouseToCommentSafeArea(page, comment);
+        point = await hoverElement(page, button);
+        state = await waitForReactionToolbarOrObstruction(page, button, point);
+    }
+
+    return state;
 }
 
 
@@ -403,12 +520,32 @@ export default async function setCommentReaction(
         }
 
         if (selectedReaction === "like") {
-            await clickElement(page, reactionButton);
+            if (!await clickElementWithPopupRecovery(page, reactionButton, comment)) {
+                return failed(
+                    commentReactionFailureReasons.POPUP_OBSTRUCTING_REACTION_BUTTON,
+                    { commentId: resolvedCommentId ?? commentId, reaction: reactionName }
+                );
+            }
         } else {
-            await hoverElement(page, reactionButton);
+            const toolbarState = await openReactionToolbar(
+                page,
+                reactionButton,
+                comment
+            );
+            if (toolbarState === "OBSTRUCTED") {
+                return failed(
+                    commentReactionFailureReasons.POPUP_OBSTRUCTING_REACTION_BUTTON,
+                    { commentId: resolvedCommentId ?? commentId, reaction: reactionName }
+                );
+            }
             await reactionButton.dispose();
             reactionButton = null;
-            await waitHuman("medium");
+            if (toolbarState !== "TOOLBAR_READY") {
+                return failed(commentReactionFailureReasons.REACTION_OPTION_NOT_FOUND, {
+                    commentId: resolvedCommentId ?? commentId,
+                    reaction: reactionName,
+                });
+            }
 
             const toolbar = await waitForVisibleElement(
                 page,
@@ -456,7 +593,16 @@ export default async function setCommentReaction(
             }
 
             try {
-                await clickElement(page, reactionOption);
+                if (!await clickElementWithPopupRecovery(
+                    page,
+                    reactionOption,
+                    comment
+                )) {
+                    return failed(
+                        commentReactionFailureReasons.POPUP_OBSTRUCTING_REACTION_BUTTON,
+                        { commentId: resolvedCommentId ?? commentId, reaction: reactionName }
+                    );
+                }
             } finally {
                 await reactionOption.dispose().catch(() => {});
             }
@@ -473,6 +619,8 @@ export default async function setCommentReaction(
                 reaction: reactionName,
             });
         }
+
+        await moveMouseToCommentSafeArea(page, comment);
 
         return {
             status: commentReactionStatuses.APPLIED,

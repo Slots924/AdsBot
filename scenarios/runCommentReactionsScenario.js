@@ -1,9 +1,9 @@
-import { normalizeConcurrency } from "./runParallelCommentingScenario.js";
 import saveCommentReactionReport from "../services/reports/saveCommentReactionReport.js";
 import reactToPostCommentsWithProfile from "../workflows/comments/reactToPostCommentsWithProfile.js";
 
 
 const validReactions = new Set(["like", "love", "care"]);
+const reactionOrder = ["like", "love", "care"];
 
 
 function normalizeReactions(reactions) {
@@ -14,27 +14,11 @@ function normalizeReactions(reactions) {
 }
 
 
-function createAssignments(profileNos, reactions) {
-    const planned = [];
-    for (const reaction of ["like", "love", "care"]) {
-        planned.push(...Array.from(
-            { length: reactions[reaction] },
-            () => reaction
-        ));
-    }
-    return {
-        assignments: planned.slice(0, profileNos.length).map((reaction, index) => ({
-            profileNo: profileNos[index],
-            reaction,
-        })),
-        backupProfiles: profileNos.slice(planned.length),
-        missing: Object.fromEntries(["like", "love", "care"].map((reaction) => [
-            reaction,
-            Math.max(0, reactions[reaction] - profileNos.filter((_, index) => (
-                planned[index] === reaction
-            )).length),
-        ])),
-    };
+export function createReactionQueue(reactions) {
+    return reactionOrder.flatMap((reaction) => Array.from(
+        { length: reactions[reaction] },
+        () => reaction
+    ));
 }
 
 
@@ -46,12 +30,12 @@ export default async function runCommentReactionsScenario({
     includeReplies = false,
     browserMode = "visible",
     disableImages = false,
-    concurrency = 5,
     workerProxies = {},
     onProxyUnavailable = null,
     signal,
     onProgress,
     reportsDirectory = "./data/reports",
+    reactWithProfile = reactToPostCommentsWithProfile,
 } = {}) {
     const profiles = [...new Set(profileNos.map((value) => String(value).trim()).filter(Boolean))];
     if (!profiles.length) throw new Error("Оберіть хоча б один профіль AdsPower");
@@ -60,31 +44,31 @@ export default async function runCommentReactionsScenario({
     if (!Object.values(normalizedReactions).some(Boolean)) {
         throw new Error("Вкажіть хоча б одну реакцію");
     }
-    const workerLimit = normalizeConcurrency(concurrency);
     const report = {
         startedAt: new Date().toISOString(),
         finishedAt: null,
         postUrl: String(postUrl).trim(),
         reactions: normalizedReactions,
         includeReplies: includeReplies === true,
-        concurrency: workerLimit,
+        concurrency: 1,
         profiles: [],
         unusedProfiles: [],
     };
-    const plan = createAssignments(profiles, normalizedReactions);
-    const pendingAssignments = [...plan.assignments];
-    const backupProfiles = [...plan.backupProfiles];
-    const fulfilled = { like: 0, love: 0, care: 0 };
-    const workers = Array.from({ length: Math.min(workerLimit, plan.assignments.length) }, (_, index) => index + 1);
+    const pendingReactions = createReactionQueue(normalizedReactions);
+    let profileIndex = 0;
+    const workers = [1];
     const runWorker = async (workerId) => {
-        while (!signal?.aborted) {
-            const assignment = pendingAssignments.shift();
-            if (!assignment) return;
+        while (!signal?.aborted && pendingReactions.length > 0 && profileIndex < profiles.length) {
+            const assignment = {
+                profileNo: profiles[profileIndex],
+                reaction: pendingReactions[0],
+            };
+            profileIndex += 1;
             const startedAt = new Date().toISOString();
             let result;
             try {
                 const profile = await adsPower.getProfileByNo(assignment.profileNo);
-                result = await reactToPostCommentsWithProfile({
+                result = await reactWithProfile({
                     adsPower,
                     profile,
                     postUrl: report.postUrl,
@@ -101,14 +85,7 @@ export default async function runCommentReactionsScenario({
                 result = { profileNo: assignment.profileNo, reaction: assignment.reaction, outcome: "failed", applied: 0, failed: 0, alreadyReacted: 0, error: error.message };
             }
             report.profiles.push({ ...result, startedAt, finishedAt: new Date().toISOString(), workerId });
-            if (result.applied > 0) {
-                fulfilled[assignment.reaction] += 1;
-            } else if (backupProfiles.length > 0) {
-                pendingAssignments.push({
-                    profileNo: backupProfiles.shift(),
-                    reaction: assignment.reaction,
-                });
-            }
+            if (result.applied > 0) pendingReactions.shift();
             await onProgress?.({
                 completed: report.profiles.length,
                 total: profiles.length,
@@ -120,11 +97,11 @@ export default async function runCommentReactionsScenario({
     };
     await Promise.all(workers.map(runWorker));
     report.finishedAt = new Date().toISOString();
-    report.unusedProfiles = backupProfiles;
+    report.unusedProfiles = profiles.slice(profileIndex);
     report.unfulfilledReactions = Object.fromEntries(
-        ["like", "love", "care"].map((reaction) => [
+        reactionOrder.map((reaction) => [
             reaction,
-            Math.max(0, normalizedReactions[reaction] - fulfilled[reaction]),
+            pendingReactions.filter((item) => item === reaction).length,
         ])
     );
     report.reportPath = await saveCommentReactionReport(report, reportsDirectory);
