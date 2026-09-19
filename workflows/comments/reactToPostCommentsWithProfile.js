@@ -5,6 +5,8 @@ import configureFacebookAutomationWindow
 import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
 import inspectPostComments from "../../facebook/actions/inspectPostComments.js";
 import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
+import isPostAvailable from "../../facebook/post/checks/isPostAvailable.js";
+import scrollToPostLikeButton from "../../facebook/actions/scrollToPostLikeButton.js";
 import setCommentReaction, {
     commentReactionStatuses,
 } from "../../facebook/actions/setCommentReaction.js";
@@ -124,15 +126,28 @@ export default async function reactToPostCommentsWithProfile({
         const page = (await browser.pages())[0] ?? await browser.newPage();
         await configureFacebookAutomationWindow(page, { browserMode });
 
-        result.stage = "OPEN_POST";
-        await openPageWithoutPopups(page, postUrl);
+        result.stage = "OPEN_FACEBOOK";
+        await openPageWithoutPopups(page, "https://www.facebook.com/");
         if (!await ensureFacebookAccountLoggedIn(adsPower, activeProfile, page)) {
             throw new Error("Не вдалося підтвердити вхід у Facebook");
         }
         if (!await ensureFacebookAccountActive(adsPower, activeProfile, page)) {
             throw new Error("Facebook-акаунт неактивний");
         }
-        await ensureEnglish(page);
+        result.stage = "ENSURE_ENGLISH";
+        if (!await ensureEnglish(page)) {
+            throw new Error("Не вдалося завершити ensureEnglish");
+        }
+
+        result.stage = "OPEN_POST";
+        await openPageWithoutPopups(page, postUrl);
+        result.stage = "CHECK_POST";
+        if (!await isPostAvailable(page)) {
+            throw new Error("Facebook-пост недоступний або не відкрився");
+        }
+
+        result.stage = "SCROLL_TO_POST_LIKE";
+        await scrollToPostLikeButton(page);
 
         result.stage = "LOAD_COMMENTS";
         if (!await loadAllPostComments(page, { expandReplies: includeReplies })) {

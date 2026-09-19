@@ -4,6 +4,7 @@ import sortCommentsByNewest from "../actions/sortCommentsByNewest.js";
 import {
     allEmbeddedPostCommentSelector,
     postDialogSelector,
+    storyMessageSelector,
     topLevelCommentSelector,
 } from "../selectors/post.js";
 
@@ -47,12 +48,14 @@ export default async function loadAllPostComments(
         }
 
         await page.waitForFunction(
-            (dialogSelector, embeddedSelector) => (
+            (dialogSelector, storySelector, embeddedSelector) => (
                 document.querySelector(dialogSelector)
+                || document.querySelector(storySelector)
                 || document.querySelector(embeddedSelector)
             ),
             { timeout: 15000 },
             postDialogSelector,
+            storyMessageSelector,
             allEmbeddedPostCommentSelector
         );
 

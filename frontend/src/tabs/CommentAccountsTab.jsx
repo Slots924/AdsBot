@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
     ArrowLeft,
     ArrowRight,
+    CircleCheck,
     Heart,
     RefreshCw,
     Star,
@@ -192,6 +193,7 @@ export default function CommentAccountsTab({
     const [moving, setMoving] = useState(false);
     const [createOpen, setCreateOpen] = useState(false);
     const [reactionsOpen, setReactionsOpen] = useState(false);
+    const [checkingAccounts, setCheckingAccounts] = useState(false);
     const leftSelected = useMemo(
         () => new Set(leftSelectedIds),
         [leftSelectedIds]
@@ -322,6 +324,21 @@ export default function CommentAccountsTab({
         showToast?.("Профілі оновлено", "success");
     };
 
+    const checkAccounts = async () => {
+        if (!selectedProfiles.length || checkingAccounts) return;
+        setCheckingAccounts(true);
+        try {
+            await unwrap(window.adsBot.checkCommentAccounts({
+                profileNos: selectedProfiles.map((profile) => profile.profileNo),
+            }));
+            showToast?.("Перевірку акаунтів поставлено в чергу", "success");
+        } catch (error) {
+            onError?.({ ...errorDetails(error), title: "Не вдалося поставити перевірку в чергу" });
+        } finally {
+            setCheckingAccounts(false);
+        }
+    };
+
     const moveSelected = async (from) => {
         const sourceIds = from === "left" ? leftSelected : rightSelected;
         const targetGroupId = from === "left" ? rightGroupId : leftGroupId;
@@ -356,6 +373,14 @@ export default function CommentAccountsTab({
                     <h2>Акаунти під коментарі</h2>
                 </div>
                 <div className="inline-actions">
+                    <button
+                        type="button"
+                        className="secondary-button"
+                        disabled={selectedProfiles.length === 0 || checkingAccounts}
+                        onClick={checkAccounts}
+                    >
+                        <CircleCheck size={16} /> Перевірити акаунти
+                    </button>
                     <button
                         type="button"
                         className="secondary-button"

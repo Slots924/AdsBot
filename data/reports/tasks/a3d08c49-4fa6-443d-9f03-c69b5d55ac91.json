@@ -1,0 +1,273 @@
+{
+  "version": 1,
+  "id": "a3d08c49-4fa6-443d-9f03-c69b5d55ac91",
+  "taskId": "7f4a2891-b7a5-485e-aacc-fb4bc59de839",
+  "type": "comment-account-health",
+  "title": "Перевірка акаунтів під коментарі · 20",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-19T08:50:00.449Z",
+  "startedAt": "2026-09-19T08:42:13.913Z",
+  "finishedAt": "2026-09-19T08:50:00.448Z",
+  "durationMs": 466535,
+  "inputSummary": {
+    "profileNos": [
+      "204",
+      "1092",
+      "1093",
+      "1107",
+      "1118",
+      "1119",
+      "1216",
+      "1218",
+      "1276",
+      "1378",
+      "1385",
+      "1418",
+      "1466",
+      "1468",
+      "1561",
+      "1579",
+      "1585",
+      "1798",
+      "1880",
+      "1882"
+    ]
+  },
+  "resultSummary": {
+    "startedAt": "2026-09-19T08:42:13.914Z",
+    "finishedAt": "2026-09-19T08:50:00.448Z",
+    "profileNos": [
+      "204",
+      "1092",
+      "1093",
+      "1107",
+      "1118",
+      "1119",
+      "1216",
+      "1218",
+      "1276",
+      "1378",
+      "1385",
+      "1418",
+      "1466",
+      "1468",
+      "1561",
+      "1579",
+      "1585",
+      "1798",
+      "1880",
+      "1882"
+    ],
+    "profiles": [
+      {
+        "profileNo": "204",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "20 с"
+      },
+      {
+        "profileNo": "1092",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "duration": "16 с"
+      },
+      {
+        "profileNo": "1093",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "duration": "17 с"
+      },
+      {
+        "profileNo": "1107",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "1118",
+        "outcome": "not_logged_in",
+        "login": "FAIL",
+        "active": "—",
+        "english": "—",
+        "error": "Facebook-вхід не підтверджено",
+        "duration": "37 с"
+      },
+      {
+        "profileNo": "1119",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "80 с"
+      },
+      {
+        "profileNo": "1216",
+        "outcome": "not_logged_in",
+        "login": "FAIL",
+        "active": "—",
+        "english": "—",
+        "error": "Facebook-вхід не підтверджено",
+        "duration": "33 с"
+      },
+      {
+        "profileNo": "1218",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "44 с"
+      },
+      {
+        "profileNo": "1276",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "duration": "37 с"
+      },
+      {
+        "profileNo": "1378",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "33 с"
+      },
+      {
+        "profileNo": "1385",
+        "outcome": "error",
+        "login": "—",
+        "active": "—",
+        "english": "—",
+        "error": "Protocol error (Browser.getWindowForTarget): Browser window not found",
+        "duration": "5 с"
+      },
+      {
+        "profileNo": "1418",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "17 с"
+      },
+      {
+        "profileNo": "1466",
+        "outcome": "error",
+        "login": "—",
+        "active": "—",
+        "english": "—",
+        "error": "AdsPower-профіль не готовий до відкриття",
+        "duration": "5 с"
+      },
+      {
+        "profileNo": "1468",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "duration": "17 с"
+      },
+      {
+        "profileNo": "1561",
+        "outcome": "error",
+        "login": "—",
+        "active": "—",
+        "english": "—",
+        "error": "AdsPower-профіль не готовий до відкриття",
+        "duration": "5 с"
+      },
+      {
+        "profileNo": "1579",
+        "outcome": "not_logged_in",
+        "login": "FAIL",
+        "active": "—",
+        "english": "—",
+        "error": "Facebook-вхід не підтверджено",
+        "duration": "38 с"
+      },
+      {
+        "profileNo": "1585",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "19 с"
+      },
+      {
+        "profileNo": "1798",
+        "outcome": "error",
+        "login": "—",
+        "active": "—",
+        "english": "—",
+        "error": "net::ERR_TUNNEL_CONNECTION_FAILED at https://www.facebook.com/",
+        "duration": "11 с"
+      },
+      {
+        "profileNo": "1880",
+        "outcome": "error",
+        "login": "—",
+        "active": "—",
+        "english": "—",
+        "error": "AdsPower-профіль не готовий до відкриття",
+        "duration": "5 с"
+      },
+      {
+        "profileNo": "1882",
+        "outcome": "error",
+        "login": "—",
+        "active": "—",
+        "english": "—",
+        "error": "AdsPower-профіль не готовий до відкриття",
+        "duration": "5 с"
+      }
+    ],
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-health-report_2026-09-19T08-50-00-448Z.md"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "204",
+      "1092",
+      "1093",
+      "1107",
+      "1118",
+      "1119",
+      "1216",
+      "1218",
+      "1276",
+      "1378",
+      "1385",
+      "1418",
+      "1466",
+      "1468",
+      "1561",
+      "1579",
+      "1585",
+      "1798",
+      "1880",
+      "1882"
+    ]
+  }
+}

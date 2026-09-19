@@ -9,6 +9,8 @@ import runParallelCommentAccountSetupScenario
     from "../../scenarios/runParallelCommentAccountSetupScenario.js";
 import runCommentReactionsScenario
     from "../../scenarios/runCommentReactionsScenario.js";
+import runCommentAccountHealthScenario
+    from "../../scenarios/runCommentAccountHealthScenario.js";
 import syncFacebookApiClientFromAdsPowerProfile
     from "../../facebook/workflows/syncFacebookApiClientFromAdsPowerProfile.js";
 import CommentAccountProfileData
@@ -747,6 +749,15 @@ export default class AdsBotGuiService {
         return runCommentReactionsScenario({
             adsPower: this.adsPower,
             logger: this.logger,
+            reportsDirectory: this.reportsDirectory,
+            ...options,
+        });
+    }
+
+
+    async checkCommentAccounts(options = {}) {
+        return runCommentAccountHealthScenario({
+            adsPower: this.adsPower,
             reportsDirectory: this.reportsDirectory,
             ...options,
         });

@@ -14,6 +14,30 @@ function normalizeReactions(reactions) {
 }
 
 
+function createAssignments(profileNos, reactions) {
+    const planned = [];
+    for (const reaction of ["like", "love", "care"]) {
+        planned.push(...Array.from(
+            { length: reactions[reaction] },
+            () => reaction
+        ));
+    }
+    return {
+        assignments: planned.slice(0, profileNos.length).map((reaction, index) => ({
+            profileNo: profileNos[index],
+            reaction,
+        })),
+        backupProfiles: profileNos.slice(planned.length),
+        missing: Object.fromEntries(["like", "love", "care"].map((reaction) => [
+            reaction,
+            Math.max(0, reactions[reaction] - profileNos.filter((_, index) => (
+                planned[index] === reaction
+            )).length),
+        ])),
+    };
+}
+
+
 export default async function runCommentReactionsScenario({
     adsPower,
     profileNos = [],
@@ -47,22 +71,14 @@ export default async function runCommentReactionsScenario({
         profiles: [],
         unusedProfiles: [],
     };
-    const availableProfiles = [...profiles];
-    const remaining = { ...normalizedReactions };
-    const inFlight = { like: 0, love: 0, care: 0 };
-    const takeAssignment = () => {
-        const reaction = [...validReactions].find((name) => (
-            remaining[name] > inFlight[name]
-        ));
-        const profileNo = availableProfiles.shift();
-        if (!reaction || !profileNo) return null;
-        inFlight[reaction] += 1;
-        return { profileNo, reaction };
-    };
-    const workers = Array.from({ length: Math.min(workerLimit, profiles.length) }, (_, index) => index + 1);
+    const plan = createAssignments(profiles, normalizedReactions);
+    const pendingAssignments = [...plan.assignments];
+    const backupProfiles = [...plan.backupProfiles];
+    const fulfilled = { like: 0, love: 0, care: 0 };
+    const workers = Array.from({ length: Math.min(workerLimit, plan.assignments.length) }, (_, index) => index + 1);
     const runWorker = async (workerId) => {
         while (!signal?.aborted) {
-            const assignment = takeAssignment();
+            const assignment = pendingAssignments.shift();
             if (!assignment) return;
             const startedAt = new Date().toISOString();
             let result;
@@ -85,8 +101,14 @@ export default async function runCommentReactionsScenario({
                 result = { profileNo: assignment.profileNo, reaction: assignment.reaction, outcome: "failed", applied: 0, failed: 0, alreadyReacted: 0, error: error.message };
             }
             report.profiles.push({ ...result, startedAt, finishedAt: new Date().toISOString(), workerId });
-            inFlight[assignment.reaction] -= 1;
-            if (result.applied > 0) remaining[assignment.reaction] -= 1;
+            if (result.applied > 0) {
+                fulfilled[assignment.reaction] += 1;
+            } else if (backupProfiles.length > 0) {
+                pendingAssignments.push({
+                    profileNo: backupProfiles.shift(),
+                    reaction: assignment.reaction,
+                });
+            }
             await onProgress?.({
                 completed: report.profiles.length,
                 total: profiles.length,
@@ -98,8 +120,13 @@ export default async function runCommentReactionsScenario({
     };
     await Promise.all(workers.map(runWorker));
     report.finishedAt = new Date().toISOString();
-    report.unusedProfiles = availableProfiles;
-    report.unfulfilledReactions = remaining;
+    report.unusedProfiles = backupProfiles;
+    report.unfulfilledReactions = Object.fromEntries(
+        ["like", "love", "care"].map((reaction) => [
+            reaction,
+            Math.max(0, normalizedReactions[reaction] - fulfilled[reaction]),
+        ])
+    );
     report.reportPath = await saveCommentReactionReport(report, reportsDirectory);
     return report;
 }

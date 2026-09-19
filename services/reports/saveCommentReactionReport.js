@@ -58,7 +58,9 @@ export function buildCommentReactionMarkdown(report) {
             item.failed,
             item.alreadyReacted,
             duration(item.startedAt, item.finishedAt),
-            item.error || (item.errors?.[0] ? item.errors[0].reason : "—"),
+            item.errors?.[0]
+                ? `${item.errors[0].reason}${item.errors[0].commentId ? ` · ${item.errors[0].commentId}` : ""}`
+                : item.error || "—",
         ])),
         "",
     ].join("\n");

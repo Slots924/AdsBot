@@ -1,0 +1,251 @@
+{
+  "version": 1,
+  "id": "cf20fb16-4a52-402d-ac30-7945a3256037",
+  "taskId": "e8dcacbc-b287-4990-9428-b97df2f51fb4",
+  "type": "comment-reactions",
+  "title": "Реакції під коментарями · 5",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-19T09:31:01.961Z",
+  "startedAt": "2026-09-19T09:22:56.603Z",
+  "finishedAt": "2026-09-19T09:31:01.960Z",
+  "durationMs": 485357,
+  "inputSummary": {
+    "profileNos": [
+      "1118",
+      "1119",
+      "1218",
+      "1378",
+      "1385"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/1FR4JuJXNF/",
+    "reactions": {
+      "like": 0,
+      "love": 1,
+      "care": 2
+    },
+    "includeReplies": false,
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "startedAt": "2026-09-19T09:22:56.604Z",
+    "finishedAt": "2026-09-19T09:31:01.959Z",
+    "postUrl": "https://www.facebook.com/share/p/1FR4JuJXNF/",
+    "reactions": {
+      "like": 0,
+      "love": 1,
+      "care": 2
+    },
+    "includeReplies": false,
+    "concurrency": 1,
+    "profiles": [
+      {
+        "profileNo": "1118",
+        "reaction": "love",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-09-19T09:22:56.605Z",
+        "finishedAt": "2026-09-19T09:23:19.259Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1119",
+        "reaction": "care",
+        "outcome": "failed",
+        "stage": "SET_REACTION",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 8,
+        "commentsFound": 8,
+        "errors": [
+          {
+            "commentId": "1773026844015687",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1112184961330833",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "2438726273317975",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1028829250191433",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "4516821841980354",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1514719697127548",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1797950501475966",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "2894246254294703",
+            "reason": "VERIFICATION_FAILED"
+          }
+        ],
+        "error": "Жодної реакції не поставлено",
+        "cleanupErrors": [],
+        "startedAt": "2026-09-19T09:23:19.260Z",
+        "finishedAt": "2026-09-19T09:25:32.310Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1218",
+        "reaction": "care",
+        "outcome": "failed",
+        "stage": "ADSPOWER_READY",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "AdsPower-профіль не готовий до роботи",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-09-19T09:25:32.312Z",
+        "finishedAt": "2026-09-19T09:25:57.990Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1378",
+        "reaction": "love",
+        "outcome": "failed",
+        "stage": "SET_REACTION",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 8,
+        "commentsFound": 8,
+        "errors": [
+          {
+            "commentId": "1773026844015687",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1112184961330833",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "2438726273317975",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1028829250191433",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "4516821841980354",
+            "reason": "REACTION_OPTION_NOT_FOUND"
+          },
+          {
+            "commentId": "1514719697127548",
+            "reason": "REACTION_OPTION_NOT_FOUND"
+          },
+          {
+            "commentId": "1797950501475966",
+            "reason": "REACTION_OPTION_NOT_FOUND"
+          },
+          {
+            "commentId": "2894246254294703",
+            "reason": "VERIFICATION_FAILED"
+          }
+        ],
+        "error": "Жодної реакції не поставлено",
+        "cleanupErrors": [],
+        "startedAt": "2026-09-19T09:25:57.991Z",
+        "finishedAt": "2026-09-19T09:28:40.791Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1385",
+        "reaction": "care",
+        "outcome": "failed",
+        "stage": "SET_REACTION",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 8,
+        "commentsFound": 8,
+        "errors": [
+          {
+            "commentId": "1773026844015687",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1112184961330833",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "2438726273317975",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1028829250191433",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "4516821841980354",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1514719697127548",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1797950501475966",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "2894246254294703",
+            "reason": "VERIFICATION_FAILED"
+          }
+        ],
+        "error": "Жодної реакції не поставлено",
+        "cleanupErrors": [],
+        "startedAt": "2026-09-19T09:28:40.793Z",
+        "finishedAt": "2026-09-19T09:31:01.958Z",
+        "workerId": 1
+      }
+    ],
+    "unusedProfiles": [],
+    "unfulfilledReactions": {
+      "like": 0,
+      "love": 1,
+      "care": 2
+    },
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-reaction-report_2026-09-19T09-31-01-959Z.md"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "1118",
+      "1119",
+      "1218",
+      "1378",
+      "1385"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/1FR4JuJXNF/",
+    "reactions": {
+      "like": 0,
+      "love": 1,
+      "care": 2
+    }
+  }
+}

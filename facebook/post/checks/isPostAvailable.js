@@ -1,4 +1,7 @@
-import { availablePostSelector } from "../../selectors/post.js";
+import {
+    availablePostSelector,
+    storyMessageSelector,
+} from "../../selectors/post.js";
 
 
 export { availablePostSelector };
@@ -16,7 +19,7 @@ function emitLog(logger, level, message, fields = {}) {
 }
 
 
-async function waitForPostDialog(page, selector, logger) {
+async function waitForPostContent(page, selector, storySelector, logger) {
     if (typeof page.waitForFunction !== "function") return;
 
     emitLog(logger, "info", "Очікуємо до 5 секунд появу модального вікна поста", {
@@ -25,7 +28,7 @@ async function waitForPostDialog(page, selector, logger) {
     });
 
     try {
-        await page.waitForFunction((postSelector) => {
+        await page.waitForFunction((postSelector, postStorySelector) => {
             const visible = (node) => {
                 const rectangle = node.getBoundingClientRect();
                 const style = getComputedStyle(node);
@@ -47,10 +50,14 @@ async function waitForPostDialog(page, selector, logger) {
                     .join(" ")
             );
 
-            return Array.from(document.querySelectorAll(postSelector))
+            const dialogFound = Array.from(document.querySelectorAll(postSelector))
                 .some((dialog) => visible(dialog)
                     && /['\u2019](?:s\s+)?post$/i.test(accessibleName(dialog)));
-        }, { timeout: 5_000 }, selector);
+            const storyFound = Array.from(
+                document.querySelectorAll(postStorySelector)
+            ).some(visible);
+            return dialogFound || storyFound;
+        }, { timeout: 5_000 }, selector, storySelector);
     } catch (error) {
         if (error?.name !== "TimeoutError") throw error;
 
@@ -69,8 +76,13 @@ export default async function isPostAvailable(
         emitLog(logger, "info", "Шукаємо видиме модальне вікно поста", {
             selector: availablePostSelector,
         });
-        await waitForPostDialog(page, availablePostSelector, logger);
-        const result = await page.evaluate((selector) => {
+        await waitForPostContent(
+            page,
+            availablePostSelector,
+            storyMessageSelector,
+            logger
+        );
+        const result = await page.evaluate((selector, storySelector) => {
             const normalize = (value) => String(value ?? "")
                 .replace(/\s+/g, " ")
                 .trim();
@@ -105,14 +117,18 @@ export default async function isPostAvailable(
                 .find((candidate) => /['\u2019](?:s\s+)?post$/i.test(
                     accessibleName(candidate)
                 ));
+            const storyMessage = Array.from(
+                document.querySelectorAll(storySelector)
+            ).find(visible);
 
             return {
-                available: Boolean(dialog) && !unavailableText,
+                available: Boolean(dialog || storyMessage) && !unavailableText,
                 dialogFound: Boolean(dialog),
+                storyFound: Boolean(storyMessage),
                 dialogName: dialog ? accessibleName(dialog) : null,
                 unavailableText,
             };
-        }, availablePostSelector);
+        }, availablePostSelector, storyMessageSelector);
 
         if (result.available) {
             emitLog(logger, "info", "Модальне вікно доступного поста знайдено", {
@@ -125,6 +141,7 @@ export default async function isPostAvailable(
         emitLog(logger, "error", "Facebook-пост недоступний", {
             selector: availablePostSelector,
             dialogFound: result.dialogFound,
+            storyFound: result.storyFound,
             unavailableText: result.unavailableText,
         });
         return false;

@@ -40,7 +40,7 @@ async function ensureEnglish(page) {
         );
 
         if (language === "en") {
-            return;
+            return true;
         }
 
         await page.goto(
@@ -85,8 +85,10 @@ async function ensureEnglish(page) {
         );
 
         await waitHuman("extraLong");
+        return true;
     } catch {
         // Зміна мови не повинна зупиняти подальшу роботу програми
+        return false;
     }
 }
 

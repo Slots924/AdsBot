@@ -31,12 +31,13 @@ function serializeError(error) {
 }
 
 
-const markdownReportPattern = /^(commenting-report|comment-account-setup-report|comment-reaction-report)_.+\.md$/i;
+const markdownReportPattern = /^(commenting-report|comment-account-setup-report|comment-reaction-report|comment-account-health-report)_.+\.md$/i;
 
 
 function markdownReportType(fileName) {
     if (fileName.startsWith("commenting-report_")) return "comments";
     if (fileName.startsWith("comment-reaction-report_")) return "comment-reactions";
+    if (fileName.startsWith("comment-account-health-report_")) return "comment-account-health";
     return "account-setup";
 }
 
@@ -46,6 +47,8 @@ function markdownReportTitle(type) {
         ? "Коментарі"
         : type === "comment-reactions"
             ? "Реакції під коментарями"
+            : type === "comment-account-health"
+                ? "Перевірка акаунтів"
             : "Оформлення акаунтів";
 }
 
@@ -1121,6 +1124,44 @@ export default function registerIpcHandlers({
                     return {
                         result: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo, userAgentUpdated: true, accessTokenUpdated: true, cookieUpdated: true },
                         reportDetails: { inputSummary: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo }, resultSummary: { credentialsUpdated: true } },
+                    };
+                },
+            });
+            return { taskId: task.id, task };
+        })
+    );
+    ipcMain.handle(
+        "comment-account-health:run",
+        safeHandler(async (payload) => {
+            const profileNos = [...new Set((payload.profileNos ?? [])
+                .map((value) => String(value ?? "").trim())
+                .filter(Boolean))];
+            if (!profileNos.length) throw Object.assign(
+                new Error("Оберіть хоча б один профіль AdsPower"),
+                { code: "COMMENT_ACCOUNT_HEALTH_PROFILES_REQUIRED" }
+            );
+            const task = await backgroundTaskManager.enqueue({
+                type: "comment-account-health",
+                name: `Перевірка акаунтів під коментарі · ${profileNos.length}`,
+                resources: profileNos.map((profileNo) => ({
+                    key: `adspower-profile:${profileNo}`,
+                    label: `AdsPower ${profileNo}`,
+                })),
+                input: { profileNos },
+                metadata: { profileNos },
+                runner: async ({ signal, progress }) => {
+                    const report = await guiService.checkCommentAccounts({
+                        profileNos,
+                        browserMode: "visible",
+                        disableImages: false,
+                        signal,
+                        onProgress: progress,
+                    });
+                    const hasProblems = report.profiles.some((item) => item.outcome !== "working");
+                    return {
+                        result: report,
+                        taskStatus: hasProblems ? "completed_with_warnings" : "completed",
+                        reportDetails: { resultSummary: report },
                     };
                 },
             });

@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "id": "5fdb5638-cb26-4a96-96c5-5175786a2f85",
+  "taskId": "19d29e47-09f2-41f7-b81f-00007477cd28",
+  "type": "comment-reactions",
+  "title": "Реакції під коментарями · 5",
+  "status": "interrupted",
+  "createdAt": "2026-09-19T08:57:52.584Z",
+  "startedAt": "2026-09-19T08:57:27.301Z",
+  "finishedAt": "2026-09-19T08:57:52.583Z",
+  "durationMs": 25282,
+  "inputSummary": {
+    "profileNos": [
+      "1118",
+      "1119",
+      "1218",
+      "1378",
+      "1385"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/19GsFqw8V1/",
+    "reactions": {
+      "like": 1,
+      "love": 2,
+      "care": 2
+    },
+    "includeReplies": false,
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "startedAt": "2026-09-19T08:57:27.303Z",
+    "finishedAt": "2026-09-19T08:57:52.582Z",
+    "postUrl": "https://www.facebook.com/share/p/19GsFqw8V1/",
+    "reactions": {
+      "like": 1,
+      "love": 2,
+      "care": 2
+    },
+    "includeReplies": false,
+    "concurrency": 1,
+    "profiles": [
+      {
+        "profileNo": "1118",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "LOAD_COMMENTS",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Не вдалося завантажити коментарі поста",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-09-19T08:57:27.303Z",
+        "finishedAt": "2026-09-19T08:57:48.193Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1119",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "CHECK_PROXY",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Задачу реакцій перервано",
+        "cleanupErrors": [],
+        "aborted": true,
+        "startedAt": "2026-09-19T08:57:48.194Z",
+        "finishedAt": "2026-09-19T08:57:52.581Z",
+        "workerId": 1
+      }
+    ],
+    "unusedProfiles": [
+      "1218",
+      "1378",
+      "1385"
+    ],
+    "unfulfilledReactions": {
+      "like": 1,
+      "love": 2,
+      "care": 2
+    },
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-reaction-report_2026-09-19T08-57-52-582Z.md"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "1118",
+      "1119",
+      "1218",
+      "1378",
+      "1385"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/19GsFqw8V1/",
+    "reactions": {
+      "like": 1,
+      "love": 2,
+      "care": 2
+    }
+  }
+}

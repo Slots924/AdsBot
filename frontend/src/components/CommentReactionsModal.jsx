@@ -5,9 +5,9 @@ import { unwrap } from "../lib/api.js";
 
 
 const reactionFields = [
-    { id: "like", label: "Like", icon: ThumbsUp, emoji: "👍" },
-    { id: "love", label: "Love", icon: Heart, emoji: "❤️" },
-    { id: "care", label: "Care", icon: UsersRound, emoji: "🤗" },
+    { id: "like", label: "Like", icon: ThumbsUp },
+    { id: "love", label: "Love", icon: Heart },
+    { id: "care", label: "Care", icon: UsersRound },
 ];
 
 
@@ -63,9 +63,9 @@ export default function CommentReactionsModal({
                     <input value={postUrl} onChange={(event) => setPostUrl(event.target.value)} placeholder="https://www.facebook.com/..." autoFocus />
                 </label>
                 <div className="form-grid">
-                    {reactionFields.map(({ id, label, icon: Icon, emoji }) => (
+                    {reactionFields.map(({ id, label, icon: Icon }) => (
                         <label className="field" key={id}>
-                            <span><Icon size={15} /> {emoji} {label}</span>
+                            <span><Icon size={15} /> {label}</span>
                             <input type="number" min="0" step="1" value={reactions[id]} onChange={(event) => setReaction(id, event.target.value)} />
                         </label>
                     ))}
