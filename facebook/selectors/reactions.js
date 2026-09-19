@@ -6,9 +6,9 @@ export const reactionButtonSelector =
 /** Панель із доступними реакціями Facebook. */
 export const reactionsToolbarSelector =
     'div[data-visualcompletion="ignore-dynamic"]'
-    + '[aria-label="Reactions"][role="dialog"] [role="toolbar"]';
+    + '[aria-label="Reactions" i][role="dialog"] [role="toolbar"]';
 
 /** Створює селектор конкретної реакції всередині панелі реакцій. */
 export function getReactionOptionSelector(reactionName) {
-    return `${reactionsToolbarSelector} [aria-label="${reactionName}"]`;
+    return `${reactionsToolbarSelector} [aria-label="${reactionName}" i]`;
 }

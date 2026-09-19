@@ -13,16 +13,25 @@ export const postLikeAreaSelector =
 /** Коментарі верхнього рівня у відкритому Facebook-пості. */
 export const topLevelCommentSelector =
     `${postDialogSelector} `
-    + '[role="article"][aria-label^="Comment by "]';
+    + '[role="article"][aria-label^="Comment by " i]';
 
 /** Відповіді на коментарі у відкритому Facebook-пості. */
 export const replyCommentSelector =
     `${postDialogSelector} `
-    + '[role="article"][aria-label^="Reply by "]';
+    + '[role="article"][aria-label^="Reply by " i]';
 
 /** Усі коментарі та відповіді у відкритому Facebook-пості. */
 export const allPostCommentSelector =
     `${topLevelCommentSelector}, ${replyCommentSelector}`;
+
+/** Коментарі та відповіді у звичайному вбудованому пості Facebook. */
+export const allEmbeddedPostCommentSelector =
+    '[role="article"][aria-label^="Comment by " i], '
+    + '[role="article"][aria-label^="Reply by " i]';
+
+/** Елемент із текстом поста, від якого можна знайти корінь вбудованого поста. */
+export const storyMessageSelector =
+    '[data-ad-rendering-role="story_message"]';
 
 /** Кнопки, доступні всередині модального вікна поста. */
 export const commentButtonSelector =
@@ -31,7 +40,7 @@ export const commentButtonSelector =
 /** Поле введення відповіді на конкретний коментар. */
 export const replyInputSelector =
     '[contenteditable="true"][role="textbox"]'
-    + '[aria-label^="Reply to "]';
+    + '[aria-label^="Reply to " i]';
 
 /** Поле введення нового коментаря під постом. */
 export const commentInputSelector =
@@ -46,7 +55,7 @@ export const commentOrderingButtonSelector =
 
 /** Меню вибору порядку сортування коментарів. */
 export const commentOrderingMenuSelector =
-    '[aria-label="Comment Ordering"][role="menu"]';
+    '[aria-label="Comment Ordering" i][role="menu"]';
 
 /** Окремий пункт меню сортування коментарів. */
 export const commentOrderingMenuItemSelector =

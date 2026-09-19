@@ -32,6 +32,7 @@ import {
 } from "../facebook/selectors/personalProfilePostDate.js";
 import {
     allPostCommentSelector,
+    allEmbeddedPostCommentSelector,
     availablePostSelector,
     commentButtonSelector,
     commentInputSelector,
@@ -109,16 +110,21 @@ assert.equal(
 assert.equal(
     topLevelCommentSelector,
     `${postDialogSelector} `
-    + '[role="article"][aria-label^="Comment by "]'
+    + '[role="article"][aria-label^="Comment by " i]'
 );
 assert.equal(
     replyCommentSelector,
     `${postDialogSelector} `
-    + '[role="article"][aria-label^="Reply by "]'
+    + '[role="article"][aria-label^="Reply by " i]'
 );
 assert.equal(
     allPostCommentSelector,
     `${topLevelCommentSelector}, ${replyCommentSelector}`
+);
+assert.equal(
+    allEmbeddedPostCommentSelector,
+    '[role="article"][aria-label^="Comment by " i], '
+    + '[role="article"][aria-label^="Reply by " i]'
 );
 assert.equal(
     commentButtonSelector,
@@ -127,7 +133,7 @@ assert.equal(
 assert.equal(
     replyInputSelector,
     '[contenteditable="true"][role="textbox"]'
-    + '[aria-label^="Reply to "]'
+    + '[aria-label^="Reply to " i]'
 );
 assert.equal(
     commentInputSelector,
@@ -142,7 +148,7 @@ assert.equal(
 );
 assert.equal(
     commentOrderingMenuSelector,
-    '[aria-label="Comment Ordering"][role="menu"]'
+    '[aria-label="Comment Ordering" i][role="menu"]'
 );
 assert.equal(commentOrderingMenuItemSelector, '[role="menuitem"]');
 
@@ -154,11 +160,11 @@ assert.equal(
 assert.equal(
     reactionsToolbarSelector,
     'div[data-visualcompletion="ignore-dynamic"]'
-    + '[aria-label="Reactions"][role="dialog"] [role="toolbar"]'
+    + '[aria-label="Reactions" i][role="dialog"] [role="toolbar"]'
 );
 assert.equal(
     getReactionOptionSelector("Love"),
-    `${reactionsToolbarSelector} [aria-label="Love"]`
+    `${reactionsToolbarSelector} [aria-label="Love" i]`
 );
 
 assert.deepEqual(facebookNameChangeSelectors, {
