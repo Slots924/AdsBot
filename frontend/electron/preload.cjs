@@ -165,6 +165,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("comments:run", options),
     runCommentAccountSetup: (options) =>
         ipcRenderer.invoke("account-setup:run", options),
+    runCommentReactions: (options) =>
+        ipcRenderer.invoke("comment-reactions:run", options),
     startCreativeLaunch: (options) =>
         ipcRenderer.invoke("creative-launch:start", options),
     getCreativeLaunch: (workflowJobId) =>

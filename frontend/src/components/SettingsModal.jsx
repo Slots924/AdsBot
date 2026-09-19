@@ -55,6 +55,14 @@ export default function SettingsModal({
     onAccountSetupWorkerProxyIdsChange = () => {},
     accountSetupBrowserMode = "visible",
     onAccountSetupBrowserModeChange = () => {},
+    reactionWorkerConcurrency = 5,
+    onReactionWorkerConcurrencyChange = () => {},
+    reactionWorkerProxyIds = {},
+    onReactionWorkerProxyIdsChange = () => {},
+    reactionBrowserMode = "visible",
+    onReactionBrowserModeChange = () => {},
+    reactionDisableImages = false,
+    onReactionDisableImagesChange = () => {},
     apiClientsBrowserMode = "visible",
     onApiClientsBrowserModeChange = () => {},
     apiClientsDisableImages = false,
@@ -124,9 +132,10 @@ export default function SettingsModal({
     }, [tab]);
 
     const setupPicker = tab === "account-setup";
+    const reactionPicker = tab === "reactions";
     const activeProxyIds = setupPicker
         ? accountSetupWorkerProxyIds
-        : commentWorkerProxyIds;
+        : reactionPicker ? reactionWorkerProxyIds : commentWorkerProxyIds;
     const assignedIds = Object.entries(activeProxyIds)
         .filter(([workerId]) => Number(workerId) !== pickerWorkerId)
         .map(([, proxyId]) => proxyId);
@@ -136,12 +145,14 @@ export default function SettingsModal({
             [String(workerId)]: proxyId,
         };
         if (setupPicker) onAccountSetupWorkerProxyIdsChange(next);
+        else if (reactionPicker) onReactionWorkerProxyIdsChange(next);
         else onCommentWorkerProxyIdsChange(next);
     };
     const clearProxy = (workerId) => {
         const next = { ...activeProxyIds };
         delete next[String(workerId)];
         if (setupPicker) onAccountSetupWorkerProxyIdsChange(next);
+        else if (reactionPicker) onReactionWorkerProxyIdsChange(next);
         else onCommentWorkerProxyIdsChange(next);
     };
 
@@ -181,6 +192,13 @@ export default function SettingsModal({
                             onClick={() => setTab("account-setup")}
                         >
                             <MessageSquare size={15} /> Акаунти
+                        </button>
+                        <button
+                            type="button"
+                            className={tab === "reactions" ? "active" : ""}
+                            onClick={() => setTab("reactions")}
+                        >
+                            <MessageSquareText size={15} /> Реакції
                         </button>
                         <button
                             type="button"
@@ -303,6 +321,32 @@ export default function SettingsModal({
                                         </select>
                                     </label>
                                     <small className="settings-hint">Debug створює більше технічних подій, але секрети однаково приховуються.</small>
+                                </section>
+                            </>
+                        )}
+
+                        {tab === "reactions" && (
+                            <>
+                                <p>Налаштування використовуються лише для задач реакцій під коментарями.</p>
+                                <section className="scale-setting">
+                                    <div className="scale-setting-heading"><span><ListChecks size={15} /> Паралельні браузери</span><strong>{reactionWorkerConcurrency}</strong></div>
+                                    <div className="scale-controls task-concurrency-controls">
+                                        <button className="icon-button" disabled={reactionWorkerConcurrency <= 1} onClick={() => onReactionWorkerConcurrencyChange(reactionWorkerConcurrency - 1)}><Minus size={15} /></button>
+                                        <input aria-label="Паралельні браузери реакцій" type="range" min="1" max="5" step="1" value={reactionWorkerConcurrency} onChange={(event) => onReactionWorkerConcurrencyChange(Number(event.target.value))} />
+                                        <button className="icon-button" disabled={reactionWorkerConcurrency >= 5} onClick={() => onReactionWorkerConcurrencyChange(reactionWorkerConcurrency + 1)}><Plus size={15} /></button>
+                                    </div>
+                                    <div className="scale-labels"><span>1</span><span>5</span></div>
+                                    <div className="comment-worker-grid">
+                                        {Array.from({ length: reactionWorkerConcurrency }, (_, index) => {
+                                            const workerId = index + 1;
+                                            const proxy = proxies.find((item) => item.id === reactionWorkerProxyIds[String(workerId)]);
+                                            return <div className="comment-worker" key={workerId}><div className="comment-worker-id">{workerId}</div>{proxy ? <div className="comment-worker-proxy assigned"><button type="button" onClick={() => setPickerWorkerId(workerId)}>{proxy.name || proxy.id}</button><button type="button" className="icon-button" onClick={() => clearProxy(workerId)}><X size={13} /></button></div> : <button type="button" className="comment-worker-proxy dashed" onClick={() => setPickerWorkerId(workerId)}><Plus size={18} /></button>}</div>;
+                                        })}
+                                    </div>
+                                </section>
+                                <section className="scale-setting comment-browser-setting">
+                                    <label className="checkbox-line"><input type="checkbox" checked={reactionBrowserMode === "headless"} onChange={(event) => onReactionBrowserModeChange(event.target.checked ? "headless" : "visible")} /><span><strong>Запускати без вікна</strong><small>За замовчуванням вимкнено.</small></span></label>
+                                    <label className="checkbox-line"><input type="checkbox" checked={reactionDisableImages} onChange={(event) => onReactionDisableImagesChange(event.target.checked)} /><span><strong>Не завантажувати зображення</strong><small>Економить трафік під час задачі.</small></span></label>
                                 </section>
                             </>
                         )}

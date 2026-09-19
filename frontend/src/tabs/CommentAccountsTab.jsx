@@ -2,12 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import {
     ArrowLeft,
     ArrowRight,
+    Heart,
     RefreshCw,
     Star,
     UserPlus,
 } from "lucide-react";
 
 import CreateCommentAccountsModal from "../components/CreateCommentAccountsModal.jsx";
+import CommentReactionsModal from "../components/CommentReactionsModal.jsx";
 import SearchSelect from "../components/SearchSelect.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import {
@@ -189,6 +191,7 @@ export default function CommentAccountsTab({
     const [groupsLoading, setGroupsLoading] = useState(false);
     const [moving, setMoving] = useState(false);
     const [createOpen, setCreateOpen] = useState(false);
+    const [reactionsOpen, setReactionsOpen] = useState(false);
     const leftSelected = useMemo(
         () => new Set(leftSelectedIds),
         [leftSelectedIds]
@@ -352,14 +355,24 @@ export default function CommentAccountsTab({
                     <p className="eyebrow">AdsPower · Total Commander</p>
                     <h2>Акаунти під коментарі</h2>
                 </div>
-                <button
-                    type="button"
-                    className="primary-button"
-                    disabled={selectedProfiles.length === 0}
-                    onClick={() => setCreateOpen(true)}
-                >
-                    <UserPlus size={16} /> Створити акаунти під коментарі
-                </button>
+                <div className="inline-actions">
+                    <button
+                        type="button"
+                        className="secondary-button"
+                        disabled={selectedProfiles.length === 0}
+                        onClick={() => setReactionsOpen(true)}
+                    >
+                        <Heart size={16} /> Реакції під коментарями
+                    </button>
+                    <button
+                        type="button"
+                        className="primary-button"
+                        disabled={selectedProfiles.length === 0}
+                        onClick={() => setCreateOpen(true)}
+                    >
+                        <UserPlus size={16} /> Створити акаунти під коментарі
+                    </button>
+                </div>
             </div>
             <div className="comment-accounts-workspace">
                 <GroupPane
@@ -438,6 +451,18 @@ export default function CommentAccountsTab({
                     onQueued={() => {
                         setCreateOpen(false);
                         showToast?.("Оформлення акаунтів поставлено в чергу", "success");
+                    }}
+                    onError={onError}
+                />
+            )}
+            {reactionsOpen && (
+                <CommentReactionsModal
+                    profiles={selectedProfiles}
+                    settings={settings}
+                    onClose={() => setReactionsOpen(false)}
+                    onQueued={() => {
+                        setReactionsOpen(false);
+                        showToast?.("Задачу реакцій поставлено в чергу", "success");
                     }}
                     onError={onError}
                 />

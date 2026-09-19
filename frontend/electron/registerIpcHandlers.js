@@ -31,18 +31,22 @@ function serializeError(error) {
 }
 
 
-const markdownReportPattern = /^(commenting-report|comment-account-setup-report)_.+\.md$/i;
+const markdownReportPattern = /^(commenting-report|comment-account-setup-report|comment-reaction-report)_.+\.md$/i;
 
 
 function markdownReportType(fileName) {
-    return fileName.startsWith("commenting-report_") ? "comments" : "account-setup";
+    if (fileName.startsWith("commenting-report_")) return "comments";
+    if (fileName.startsWith("comment-reaction-report_")) return "comment-reactions";
+    return "account-setup";
 }
 
 
 function markdownReportTitle(type) {
     return type === "comments"
         ? "Коментарі"
-        : "Оформлення акаунтів";
+        : type === "comment-reactions"
+            ? "Реакції під коментарями"
+            : "Оформлення акаунтів";
 }
 
 
@@ -2284,6 +2288,65 @@ export default function registerIpcHandlers({
             if (result.canceled || !result.filePath) return null;
             await reportManager.exportMarkdown(reportId, result.filePath);
             return true;
+        })
+    );
+    ipcMain.handle(
+        "comment-reactions:run",
+        safeHandler(async (payload) => {
+            const profileNos = [...new Set((payload.profileNos ?? [])
+                .map((value) => String(value ?? "").trim())
+                .filter(Boolean))];
+            const postUrl = String(payload.postUrl ?? "").trim();
+            const reactions = ["like", "love", "care"].reduce((result, name) => ({
+                ...result,
+                [name]: Math.max(0, Math.floor(Number(payload.reactions?.[name]) || 0)),
+            }), {});
+            if (!profileNos.length) throw Object.assign(
+                new Error("Оберіть хоча б один профіль AdsPower"),
+                { code: "COMMENT_REACTIONS_PROFILES_REQUIRED" }
+            );
+            try { new URL(postUrl); } catch {
+                throw Object.assign(new Error("Вкажіть коректний URL поста"), { code: "COMMENT_REACTIONS_URL_INVALID" });
+            }
+            if (!Object.values(reactions).some(Boolean)) throw Object.assign(
+                new Error("Вкажіть кількість хоча б однієї реакції"),
+                { code: "COMMENT_REACTIONS_REQUIRED" }
+            );
+            const browserMode = payload.browserMode === "headless" ? "headless" : "visible";
+            const task = await backgroundTaskManager.enqueue({
+                type: "comment-reactions",
+                name: `Реакції під коментарями · ${profileNos.length}`,
+                resources: profileNos.map((profileNo) => ({
+                    key: `adspower-profile:${profileNo}`,
+                    label: `AdsPower ${profileNo}`,
+                })),
+                input: { profileNos, postUrl, reactions, includeReplies: payload.includeReplies === true, browserMode, disableImages: payload.disableImages === true },
+                metadata: { profileNos, postUrl, reactions },
+                runner: async ({ signal, progress, waitForAction }) => {
+                    const workerProxies = await resolveWorkerProxies(proxyManager, payload.workerProxyIds);
+                    const report = await guiService.runCommentReactions({
+                        profileNos,
+                        postUrl,
+                        reactions,
+                        includeReplies: payload.includeReplies === true,
+                        browserMode,
+                        disableImages: payload.disableImages === true,
+                        concurrency: payload.workerConcurrency,
+                        workerProxies,
+                        onProxyUnavailable: createProxyUnavailableHandler({ proxyManager, progress, waitForAction }),
+                        signal,
+                        onProgress: progress,
+                    });
+                    const hasProblems = report.profiles.some((item) => item.outcome !== "success")
+                        || Object.values(report.unfulfilledReactions).some(Boolean);
+                    return {
+                        result: report,
+                        taskStatus: hasProblems ? "completed_with_warnings" : "completed",
+                        reportDetails: { resultSummary: report },
+                    };
+                },
+            });
+            return { taskId: task.id, task };
         })
     );
     ipcMain.handle(

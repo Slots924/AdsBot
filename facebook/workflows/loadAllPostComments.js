@@ -2,6 +2,7 @@ import expandCommentReplies from "../actions/expandCommentReplies.js";
 import scrollCommentsDown from "../actions/scrollCommentsDown.js";
 import sortCommentsByNewest from "../actions/sortCommentsByNewest.js";
 import {
+    allEmbeddedPostCommentSelector,
     postDialogSelector,
     topLevelCommentSelector,
 } from "../selectors/post.js";
@@ -13,14 +14,19 @@ const stableScrollLimit = 3;
 
 async function getTopLevelCommentCount(page) {
     return page.evaluate(
-        (selector) =>
-            document.querySelectorAll(selector).length,
-        topLevelCommentSelector
+        (modalSelector, embeddedSelector) => Array.from(
+            document.querySelectorAll(`${modalSelector}, ${embeddedSelector}`)
+        ).filter((element) => element.matches('[aria-label^="Comment by " i]')).length,
+        topLevelCommentSelector,
+        allEmbeddedPostCommentSelector
     );
 }
 
 
-export default async function loadAllPostComments(page) {
+export default async function loadAllPostComments(
+    page,
+    { expandReplies = true } = {}
+) {
     let stableScrolls = 0;
 
     try {
@@ -40,10 +46,15 @@ export default async function loadAllPostComments(page) {
             );
         }
 
-        await page.waitForSelector(postDialogSelector, {
-            visible: true,
-            timeout: 15000,
-        });
+        await page.waitForFunction(
+            (dialogSelector, embeddedSelector) => (
+                document.querySelector(dialogSelector)
+                || document.querySelector(embeddedSelector)
+            ),
+            { timeout: 15000 },
+            postDialogSelector,
+            allEmbeddedPostCommentSelector
+        );
 
         let commentCount = await getTopLevelCommentCount(page);
         console.log(
@@ -59,7 +70,7 @@ export default async function loadAllPostComments(page) {
             commentCount < maxTopLevelComments
             && stableScrolls < stableScrollLimit
         ) {
-            if (!await expandCommentReplies(page)) {
+            if (expandReplies && !await expandCommentReplies(page)) {
                 return false;
             }
 
@@ -90,7 +101,7 @@ export default async function loadAllPostComments(page) {
             }
         }
 
-        if (!await expandCommentReplies(page)) {
+        if (expandReplies && !await expandCommentReplies(page)) {
             return false;
         }
 

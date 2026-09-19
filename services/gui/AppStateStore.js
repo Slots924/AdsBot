@@ -28,6 +28,10 @@ const defaultState = {
     accountSetupWorkerConcurrency: 5,
     accountSetupWorkerProxyIds: {},
     accountSetupBrowserMode: "visible",
+    reactionWorkerConcurrency: 5,
+    reactionWorkerProxyIds: {},
+    reactionBrowserMode: "visible",
+    reactionDisableImages: false,
     apiClientsBrowserMode: "visible",
     apiClientsDisableImages: false,
     accountSetupPhotosDirectory: "",
@@ -189,6 +193,16 @@ function normalizeState(state = {}) {
         )
             ? state.accountSetupBrowserMode
             : defaultState.accountSetupBrowserMode,
+        reactionWorkerConcurrency: Number.isFinite(Number(state.reactionWorkerConcurrency))
+            ? Math.min(5, Math.max(1, Math.round(Number(state.reactionWorkerConcurrency))))
+            : defaultState.reactionWorkerConcurrency,
+        reactionWorkerProxyIds: normalizeCommentWorkerProxyIds(
+            state.reactionWorkerProxyIds
+        ),
+        reactionBrowserMode: allowedCommentBrowserModes.has(state.reactionBrowserMode)
+            ? state.reactionBrowserMode
+            : defaultState.reactionBrowserMode,
+        reactionDisableImages: state.reactionDisableImages === true,
         apiClientsBrowserMode: allowedCommentBrowserModes.has(
             state.apiClientsBrowserMode
         ) ? state.apiClientsBrowserMode : defaultState.apiClientsBrowserMode,

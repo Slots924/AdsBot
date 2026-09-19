@@ -51,6 +51,8 @@ export const commentInputSelector =
 export const commentOrderingButtonSelector =
     `${postDialogSelector} `
     + '[aria-expanded="false"][aria-haspopup="menu"]'
+    + '[role="button"]:has(span), '
+    + '[aria-expanded="false"][aria-haspopup="menu"]'
     + '[role="button"]:has(span)';
 
 /** Меню вибору порядку сортування коментарів. */

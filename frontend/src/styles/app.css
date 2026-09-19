@@ -190,6 +190,8 @@ button:focus-visible, input:focus-visible {
 .sidebar-title-row, .page-heading.split, .form-actions, .log-panel header, .ad-detail header {
     display: flex; align-items: center; justify-content: space-between; gap: 20px;
 }
+
+.inline-actions { display: flex; align-items: center; gap: 10px; }
 .sidebar-title-row { padding: 0 5px 13px; }
 .sidebar-title-row h2 { margin: 3px 0 0; font-size: 15px; }
 .sidebar-account-tools { display: flex; gap: 6px; }

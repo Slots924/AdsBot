@@ -8,7 +8,6 @@ import {
     commentOrderingButtonSelector,
     commentOrderingMenuItemSelector,
     commentOrderingMenuSelector,
-    postDialogSelector,
 } from "../selectors/post.js";
 
 
@@ -82,13 +81,6 @@ export default async function sortCommentsByNewest(page) {
         console.log("Шукаємо кнопку сортування коментарів...");
 
         try {
-            const postDialog = await waitForVisibleElement(
-                page,
-                postDialogSelector,
-                { timeout: 15000 }
-            );
-            await postDialog.dispose();
-
             await page.waitForFunction(
                 (selector, expectedText) => {
                     const normalizeText = (text) => String(text ?? "")

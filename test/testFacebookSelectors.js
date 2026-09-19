@@ -144,6 +144,8 @@ assert.equal(
     commentOrderingButtonSelector,
     `${postDialogSelector} `
     + '[aria-expanded="false"][aria-haspopup="menu"]'
+    + '[role="button"]:has(span), '
+    + '[aria-expanded="false"][aria-haspopup="menu"]'
     + '[role="button"]:has(span)'
 );
 assert.equal(

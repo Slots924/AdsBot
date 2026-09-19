@@ -1,4 +1,5 @@
 import {
+    allEmbeddedPostCommentSelector,
     postDialogSelector,
     topLevelCommentSelector,
 } from "../selectors/post.js";
@@ -15,14 +16,16 @@ export default async function scrollCommentsDown(page) {
 
     try {
         const handle = await page.evaluateHandle(
-            (dialogSelector, commentSelector) => {
+            (dialogSelector, modalCommentSelector, embeddedCommentSelector) => {
                 const dialog = document.querySelector(dialogSelector);
                 const comments = Array.from(
-                    document.querySelectorAll(commentSelector)
+                    document.querySelectorAll(
+                        `${modalCommentSelector}, ${embeddedCommentSelector}`
+                    )
                 );
                 const lastComment = comments.at(-1);
 
-                if (!dialog || !lastComment) {
+                if (!lastComment) {
                     return null;
                 }
 
@@ -47,10 +50,11 @@ export default async function scrollCommentsDown(page) {
                     container = container.parentElement;
                 }
 
-                return dialog;
+                return dialog ?? lastComment.parentElement;
             },
             postDialogSelector,
-            topLevelCommentSelector
+            topLevelCommentSelector,
+            allEmbeddedPostCommentSelector
         );
 
         scrollContainer = handle.asElement();
