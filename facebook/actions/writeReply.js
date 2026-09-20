@@ -1,11 +1,9 @@
-import {
-    allPostCommentSelector,
-    replyInputSelector,
-} from "../selectors/post.js";
+import { replyInputSelector } from "../selectors/post.js";
 import {
     clickLeftMouse,
     moveMouseToElement,
 } from "../browser/pointer.js";
+import { waitForVisibleElement } from "../browser/elements.js";
 import { waitHuman, waitRandom } from "../browser/timing.js";
 
 
@@ -40,7 +38,7 @@ async function getMatchingComment(page, searchText) {
                 normalizeText(article.innerText).includes(expectedText)
             ) ?? null;
         },
-        allPostCommentSelector,
+        '[role="article"]',
         searchText
     );
 
@@ -92,8 +90,10 @@ async function getReplyButton(comment) {
 }
 
 
-async function clickReplyButton(page, comment) {
+async function clickReplyButton(page, comment, searchText) {
     const replyButton = await getReplyButton(comment);
+    let refreshedComment;
+    let refreshedReplyButton;
 
     if (!replyButton) {
         console.error(
@@ -107,52 +107,68 @@ async function clickReplyButton(page, comment) {
             "Переміщуємо кнопку Reply до центру екрана та наводимо мишу..."
         );
 
-        if (!await moveMouseToElement(page, replyButton)) {
+        if (!await moveMouseToElement(page, replyButton, {
+            scrollDelay: "short",
+        })) {
             console.error(
                 "Не вдалося визначити розташування кнопки Reply"
             );
             return false;
         }
 
+        console.log("Стабілізуємо DOM перед повторним пошуком Reply...");
+        await waitHuman("short");
+
+        refreshedComment = await getMatchingComment(page, searchText);
+        refreshedReplyButton = refreshedComment
+            ? await getReplyButton(refreshedComment)
+            : null;
+
+        if (!refreshedReplyButton) {
+            console.error("Не вдалося повторно знайти кнопку Reply");
+            return false;
+        }
+
+        const movement = await moveMouseToElement(page, refreshedReplyButton, {
+            scrollIntoView: false,
+            inset: [0.5, 0.5],
+        });
+        const clickTargetMatches = await refreshedReplyButton.evaluate(
+            (button, point) => {
+                const target = document.elementFromPoint(point.x, point.y);
+                return target === button || button.contains(target);
+            },
+            { x: movement.x, y: movement.y }
+        );
+
+        if (!clickTargetMatches) {
+            console.error("Координата миші не потрапляє в кнопку Reply");
+            return false;
+        }
+
         console.log("Натискаємо на елемент Reply лівою кнопкою миші...");
         await clickLeftMouse(page, {
+            beforeDelay: "short",
             holdDelay: [70, 160],
         });
 
         return true;
     } finally {
+        await refreshedReplyButton?.dispose().catch(() => {});
+        await refreshedComment?.dispose().catch(() => {});
         await replyButton.dispose().catch(() => {});
     }
 }
 
 
-async function getActiveReplyInput(page) {
-    const readyHandle = await page.waitForFunction(
-        (selector) =>
-            document.activeElement?.matches(selector) === true,
-        {
-            timeout: 15000,
-        },
-        replyInputSelector
+async function getReplyInput(page) {
+    const input = await waitForVisibleElement(
+        page,
+        replyInputSelector,
+        { timeout: 15000 }
     );
 
-    await readyHandle.dispose();
-
-    const handle = await page.evaluateHandle((selector) => {
-        const activeElement = document.activeElement;
-
-        return activeElement?.matches(selector)
-            ? activeElement
-            : null;
-    }, replyInputSelector);
-
-    const input = handle.asElement();
-
-    if (!input) {
-        await handle.dispose();
-        return null;
-    }
-
+    await input.focus();
     return input;
 }
 
@@ -232,14 +248,12 @@ export default async function writeReply(
 
         console.log("Коментар знайдено, натискаємо кнопку Reply...");
 
-        if (!await clickReplyButton(page, matchingComment)) {
+        if (!await clickReplyButton(page, matchingComment, searchText)) {
             return false;
         }
 
-        console.log("Очікуємо 1,5–3 секунди на появу поля reply...");
-        await waitHuman("medium");
-
-        replyInput = await getActiveReplyInput(page);
+        console.log("Очікуємо видиме поле reply...");
+        replyInput = await getReplyInput(page);
 
         if (!replyInput) {
             console.error("Не вдалося знайти активне поле reply");
