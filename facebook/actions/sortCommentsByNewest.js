@@ -106,7 +106,7 @@ export default async function sortCommentsByNewest(page) {
                     });
                 },
                 {
-                    timeout: 15000,
+                    timeout: 5000,
                 },
                 commentOrderingButtonSelector,
                 currentOrderingText
@@ -203,9 +203,6 @@ export default async function sortCommentsByNewest(page) {
         await clickLeftMouse(page, {
             holdDelay: [70, 160],
         });
-
-        console.log("Очікуємо 7–10 секунд, поки коментарі завантажаться...");
-        await waitHuman("extraLong");
 
         console.log("Коментарі успішно відсортовано за найновішими");
         return true;
