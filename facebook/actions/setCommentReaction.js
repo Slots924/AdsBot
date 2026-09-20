@@ -426,19 +426,21 @@ async function waitForAppliedReaction(page, targetCommentId, reactionName) {
 
                 if (!comment) return false;
 
+                const expectedLabel = `Remove ${expectedReaction}`;
                 const button = Array.from(
-                    comment.querySelectorAll('[role="button"][aria-label]')
+                    comment.querySelectorAll(
+                        `[role="button"][aria-label="${expectedLabel}" i]`
+                    )
                 ).find((candidate) => {
                     const owner = candidate.closest(
                         '[role="article"][aria-label^="Comment by " i], '
                         + '[role="article"][aria-label^="Reply by " i]'
                     );
 
-                    return owner === comment;
+                    return owner === comment && isVisible(candidate);
                 });
 
-                return button?.getAttribute("aria-label")
-                    === `Remove ${expectedReaction}`;
+                return Boolean(button);
             },
             { timeout: verificationTimeout },
             postDialogSelector,

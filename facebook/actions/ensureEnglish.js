@@ -1,5 +1,5 @@
 import { waitForVisibleElement } from "../browser/elements.js";
-import { humanClickElement } from "../browser/pointer.js";
+import { clickModalSelector } from "../modals/clickModalControl.js";
 import { waitHuman } from "../browser/timing.js";
 import {
     facebookLanguageSelector,
@@ -8,32 +8,8 @@ import {
     languageSearchInputSelector,
     languageSettingsButtonSelector,
 } from "../selectors/language.js";
-
-
-async function humanClick(page, selector) {
-    const element = await waitForVisibleElement(page, selector, {
-        timeout: 30000,
-    });
-
-    try {
-        await humanClickElement(page, element, {
-            beforeDelay: [60, 140],
-            holdDelay: [70, 160],
-        });
-    } finally {
-        await element.dispose();
-    }
-}
-
-
 async function ensureEnglish(page) {
     try {
-        await page.goto("https://www.facebook.com/", {
-            waitUntil: "domcontentloaded",
-        });
-
-        await waitHuman("short");
-
         const language = await page.$eval(
             facebookLanguageSelector,
             (element) => element.getAttribute("lang")
@@ -50,14 +26,15 @@ async function ensureEnglish(page) {
             }
         );
 
-        await waitHuman("extraLong");
-
-        await humanClick(
+        await clickModalSelector(
             page,
-            languageSettingsButtonSelector
+            languageSettingsButtonSelector,
+            30000,
+            undefined,
+            "medium"
         );
 
-        await waitHuman("extraLong");
+        await waitHuman("short");
 
         const dialog = await waitForVisibleElement(
             page,
@@ -77,14 +54,15 @@ async function ensureEnglish(page) {
             delay: 300,
         });
 
-        await waitHuman("medium");
-
-        await humanClick(
+        await clickModalSelector(
             page,
-            firstLanguageResultSelector
+            firstLanguageResultSelector,
+            30000,
+            undefined,
+            "medium"
         );
 
-        await waitHuman("extraLong");
+        await waitHuman("short");
         return true;
     } catch {
         // Зміна мови не повинна зупиняти подальшу роботу програми
