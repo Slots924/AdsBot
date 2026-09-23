@@ -2,6 +2,162 @@
   "version": 1,
   "tasks": [
     {
+      "id": "0abcd807-c835-4e9f-977a-157458ce0974",
+      "type": "comment-reactions",
+      "name": "Реакції під коментарями · 4",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1119",
+          "label": "AdsPower 1119"
+        },
+        {
+          "key": "adspower-profile:1218",
+          "label": "AdsPower 1218"
+        },
+        {
+          "key": "adspower-profile:1378",
+          "label": "AdsPower 1378"
+        },
+        {
+          "key": "adspower-profile:1385",
+          "label": "AdsPower 1385"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1119",
+          "1218",
+          "1378",
+          "1385"
+        ],
+        "postUrl": "https://www.facebook.com/share/p/1GR1taZpdJ/",
+        "reactions": {
+          "like": 2,
+          "love": 1,
+          "care": 1
+        },
+        "includeReplies": true,
+        "browserMode": "visible",
+        "disableImages": false
+      },
+      "metadata": {
+        "profileNos": [
+          "1119",
+          "1218",
+          "1378",
+          "1385"
+        ],
+        "postUrl": "https://www.facebook.com/share/p/1GR1taZpdJ/",
+        "reactions": {
+          "like": 2,
+          "love": 1,
+          "care": 1
+        },
+        "reportId": "1e80cc4f-8a42-47b4-9587-ed765df7332e"
+      },
+      "progress": {
+        "completed": 4,
+        "total": 4,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "currentProfileNo": "1385",
+        "workerId": 1
+      },
+      "result": {
+        "startedAt": "2026-09-20T12:26:13.752Z",
+        "finishedAt": "2026-09-20T12:30:12.157Z",
+        "postUrl": "https://www.facebook.com/share/p/1GR1taZpdJ/",
+        "reactions": {
+          "like": 2,
+          "love": 1,
+          "care": 1
+        },
+        "includeReplies": true,
+        "concurrency": 1,
+        "profiles": [
+          {
+            "profileNo": "1119",
+            "reaction": "like",
+            "outcome": "success",
+            "stage": "SET_REACTION",
+            "applied": 4,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 4,
+            "errors": [],
+            "error": null,
+            "cleanupErrors": [],
+            "startedAt": "2026-09-20T12:26:13.752Z",
+            "finishedAt": "2026-09-20T12:27:28.463Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1218",
+            "reaction": "like",
+            "outcome": "success",
+            "stage": "SET_REACTION",
+            "applied": 4,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 4,
+            "errors": [],
+            "error": null,
+            "cleanupErrors": [],
+            "startedAt": "2026-09-20T12:27:28.464Z",
+            "finishedAt": "2026-09-20T12:28:38.706Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1378",
+            "reaction": "love",
+            "outcome": "success",
+            "stage": "SET_REACTION",
+            "applied": 4,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 4,
+            "errors": [],
+            "error": null,
+            "cleanupErrors": [],
+            "startedAt": "2026-09-20T12:28:38.708Z",
+            "finishedAt": "2026-09-20T12:29:56.115Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1385",
+            "reaction": "care",
+            "outcome": "failed",
+            "stage": "OPEN_PROFILE",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Protocol error (Browser.getWindowForTarget): Browser window not found",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-09-20T12:29:56.116Z",
+            "finishedAt": "2026-09-20T12:30:12.156Z",
+            "workerId": 1
+          }
+        ],
+        "unusedProfiles": [],
+        "unfulfilledReactions": {
+          "like": 0,
+          "love": 0,
+          "care": 1
+        },
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-reaction-report_2026-09-20T12-30-12-157Z.md"
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-20T12:26:13.748Z",
+      "startedAt": "2026-09-20T12:26:13.750Z",
+      "finishedAt": "2026-09-20T12:30:12.158Z",
+      "updatedAt": "2026-09-20T12:30:12.160Z"
+    },
+    {
       "id": "0c7b6267-c2aa-4a7e-9a8e-4bb5aa3ed522",
       "type": "comment-reactions",
       "name": "Реакції під коментарями · 4",
