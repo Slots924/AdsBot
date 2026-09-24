@@ -1,7 +1,9 @@
 /** Поточна кнопка реакції під відкритим Facebook-постом. */
 export const reactionButtonSelector =
     'div[role="dialog"][aria-modal="true"][aria-labelledby] '
-    + 'div[data-visualcompletion="ignore-dynamic"] [aria-label]';
+    + '[role="button"][aria-label="Like" i], '
+    + 'div[role="dialog"][aria-modal="true"][aria-labelledby] '
+    + '[role="button"][aria-label^="Remove " i]';
 
 /** Панель із доступними реакціями Facebook. */
 export const reactionsToolbarSelector =

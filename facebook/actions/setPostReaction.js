@@ -7,7 +7,9 @@ import {
     waitForVisibleElement,
 } from "../browser/elements.js";
 import { waitForDomQuiet } from "../browser/confirmedClick.js";
+import { humanScrollToElement } from "../browser/scroll.js";
 import { wait, waitHuman, waitRandom } from "../browser/timing.js";
+import scrollToPostLikeButton from "./scrollToPostLikeButton.js";
 import {
     getReactionOptionSelector,
     reactionButtonSelector,
@@ -85,7 +87,8 @@ async function setPostReaction(page, reaction = "like") {
             return false;
         }
 
-        await wait(2000);
+        await scrollToPostLikeButton(page);
+        await wait(500);
 
         const initialReactionButton = await waitForVisibleElement(
             page,
@@ -102,13 +105,30 @@ async function setPostReaction(page, reaction = "like") {
                 timeout: reactionDomQuietTimeout,
             }
         );
-        const reactionButton = await getFirstVisibleElement(
+        let reactionButton = await getFirstVisibleElement(
             page,
             reactionButtonSelector
         );
 
         if (!reactionButton) {
             console.log("Не знайдено кнопку Like");
+            return false;
+        }
+
+        await humanScrollToElement(page, reactionButton, {
+            position: "center",
+            jitterPx: 20,
+            durationMs: 500,
+            stepRange: [10, 20],
+        });
+        await reactionButton.dispose();
+        reactionButton = await getFirstVisibleElement(
+            page,
+            reactionButtonSelector
+        );
+
+        if (!reactionButton) {
+            console.log("Кнопка реакції зникла після прокручування");
             return false;
         }
 

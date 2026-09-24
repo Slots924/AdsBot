@@ -6,9 +6,10 @@ export const postDialogSelector =
 export const availablePostSelector =
     postDialogSelector;
 
-/** Область поста, до якої прокручуємо перед взаємодією з Like. */
+/** Кнопка реакції відкритого Facebook-поста, до якої прокручуємо перед взаємодією. */
 export const postLikeAreaSelector =
-    `${postDialogSelector} div[data-visualcompletion="ignore-dynamic"]`;
+    `${postDialogSelector} [role="button"][aria-label="Like" i], `
+    + `${postDialogSelector} [role="button"][aria-label^="Remove " i]`;
 
 /** Коментарі верхнього рівня у відкритому Facebook-пості. */
 export const topLevelCommentSelector =
