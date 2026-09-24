@@ -65,5 +65,6 @@ export function buildEducationSaveVariables({
         educationExperienceID: educationExperienceID
             ? String(educationExperienceID)
             : null,
+        __relay_internal__pv__ProfileCometFeaturedHighlightsPortraitAspectRatioGKrelayprovider: false,
     };
 }
