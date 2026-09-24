@@ -110,3 +110,9 @@ AdsBot/
 - Потрібна операція над профілем — шукати у `workflows/profile/` та `services/profile/`.
 - Потрібна зміна інтерфейсу — шукати відповідний компонент у `frontend/src/components/` або вкладку у `frontend/src/tabs/`.
 - Потрібно змінити формат API або proxy client — оновити реалізацію і відповідний документ у `docs/`.
+### Тимчасові правила Facebook Education API
+
+- Для Education API actions поки не передавати `logging_data.nav_chain` у mutation-запитах.
+- Якщо Facebook почне повертати помилки або відмовляти mutation без цього поля, перевірити його додавання з актуальним значенням.
+- `getEducationExperiences` виконує GraphQL `ProfileCometAboutAppSectionQuery` через `/api/graphql/`, використовуючи актуальні `collectionToken`, `sectionToken` і `rawSectionToken` секції `directory_education`.
+- Для цього GraphQL response перевіряти `data.errors`, а College брати лише зі шляху `data.user.about_app_sections.nodes[].activeCollections.nodes[].style_renderer.profile_field_sections[]` із `field_section_type === "directory_college"`.
