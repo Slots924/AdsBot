@@ -179,7 +179,7 @@ function readJsonValue(source, startIndex) {
 
 
 // Прибирає AJAX-префікс і підтримує кілька JSON-блоків у одному response.
-export function parseFacebookJson(rawResponse) {
+export function parseFacebookJsonChunks(rawResponse) {
     const source = String(rawResponse ?? "")
         .replace(/^for\s*\(\s*;;\s*\);\s*/, "");
     const values = [];
@@ -197,6 +197,13 @@ export function parseFacebookJson(rawResponse) {
     if (values.length === 0) {
         throw new SyntaxError("Facebook response не містить JSON-даних");
     }
+    return values;
+}
+
+
+export function parseFacebookJson(rawResponse) {
+    const values = parseFacebookJsonChunks(rawResponse);
+
     if (values.length === 1) return values[0];
 
     // Для About query пріоритет має блок із даними поточного користувача.

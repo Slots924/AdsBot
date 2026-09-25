@@ -37,6 +37,7 @@ export default async function captureGraphqlPayload(
     page,
     {
         profileUrl = "https://www.facebook.com/me",
+        friendlyName = null,
         timeout = defaultTimeoutMs,
         signal,
     } = {}
@@ -70,8 +71,18 @@ export default async function captureGraphqlPayload(
         // Починаємо слухати мережу до переходу на сторінку,
         // щоб не пропустити ранній GraphQL-запит.
         const requestPromise = page.waitForRequest(
-            (candidate) => candidate.method() === "POST"
-                && candidate.url().startsWith(facebookGraphqlUrl),
+            (candidate) => {
+                if (
+                    candidate.method() !== "POST"
+                    || !candidate.url().startsWith(facebookGraphqlUrl)
+                ) {
+                    return false;
+                }
+                if (!friendlyName) return true;
+
+                return new URLSearchParams(candidate.postData?.() ?? "")
+                    .get("fb_api_req_friendly_name") === friendlyName;
+            },
             { timeout: normalizedTimeout }
         );
 
