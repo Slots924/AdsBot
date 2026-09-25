@@ -41,7 +41,7 @@ function collectCollegeOptions(value, options = [], seen = new Set()) {
     const schoolId = value.fbid;
     const schoolName = typeof value.value === "string" ? value.value : title;
 
-    if (title && schoolId !== undefined && schoolName) {
+    if (title && schoolId !== undefined && schoolId !== "-1" && schoolName) {
         const key = `${schoolId}:${schoolName}`;
         if (!seen.has(key)) {
             seen.add(key);

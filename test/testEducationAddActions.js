@@ -6,6 +6,12 @@ import addEducation, {
 import addFallbackEducation, {
     addFallbackEducationStatuses,
 } from "../facebook/api-actions/education/addFallbackEducation.js";
+import searchCollege, {
+    searchCollegeStatuses,
+} from "../facebook/api-actions/education/searchCollege.js";
+import searchWorkplace, {
+    searchWorkplaceStatuses,
+} from "../facebook/api-actions/workplace/searchWorkplace.js";
 
 
 const commonPayload = {
@@ -76,6 +82,58 @@ const notFoundResult = await addEducation({
 assert.equal(notFoundResult.success, false);
 assert.equal(notFoundResult.status, addEducationStatuses.COLLEGE_NOT_FOUND);
 assert.equal(notFoundResult.stage, "SEARCH");
+
+const collegeCustomOptionResult = await searchCollege({
+    page: createPage([successResponse({
+        data: {
+            typeahead: {
+                title: "Add \"Unknown College\"",
+                fbid: "-1",
+                value: "Unknown College",
+            },
+        },
+    })]),
+    commonPayload,
+    query: "Unknown College",
+});
+
+assert.equal(collegeCustomOptionResult.success, true);
+assert.equal(
+    collegeCustomOptionResult.status,
+    searchCollegeStatuses.COLLEGES_NOT_FOUND
+);
+assert.deepEqual(collegeCustomOptionResult.data, []);
+
+const workplaceResult = await searchWorkplace({
+    page: createPage([successResponse({
+        data: {
+            viewer: {
+                profile_directory_typeahead_suggestions: [
+                    {
+                        title: "Example Company",
+                        fbid: "67890",
+                        value: "Example Company",
+                    },
+                    {
+                        title: "Add \"Example Company\"",
+                        fbid: "-1",
+                        value: "Example Company",
+                    },
+                ],
+            },
+        },
+    })]),
+    commonPayload,
+    query: "Example Company",
+});
+
+assert.equal(workplaceResult.success, true);
+assert.equal(workplaceResult.status, searchWorkplaceStatuses.COMPANIES_FOUND);
+assert.deepEqual(workplaceResult.data, [{
+    title: "Example Company",
+    fbid: "67890",
+    value: "Example Company",
+}]);
 
 const fallbackResult = await addFallbackEducation({
     page: createPage([successResponse({ data: { saved: true } })]),

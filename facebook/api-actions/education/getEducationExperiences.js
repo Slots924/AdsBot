@@ -13,7 +13,7 @@ const friendlyName = "ProfileCometAboutAppSectionQuery";
 const docId = "28648420368126790";
 
 // Relay-прапорці перехоплено з робочого ProfileCometAboutAppSectionQuery.
-const defaultRelayVariables = Object.freeze({
+export const defaultRelayVariables = Object.freeze({
     __relay_internal__pv__FBProfile_enable_perf_improv_gkrelayprovider: true,
     __relay_internal__pv__CometUFIReactionsEnableShortNamerelayprovider: false,
     __relay_internal__pv__FBReels_deprecate_short_form_video_context_gkrelayprovider: true,

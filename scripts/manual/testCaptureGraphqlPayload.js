@@ -1,5 +1,6 @@
 import "dotenv/config";
 
+import { randomUUID } from "node:crypto";
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "../../classes/AdsPower.js";
@@ -7,78 +8,43 @@ import captureGraphqlPayload
     from "../../facebook/api-actions/captureGraphqlPayload.js";
 import getAboutSectionTokens
     from "../../facebook/api-actions/getAboutSectionTokens.js";
-import updateBio
-    from "../../facebook/api-actions/updateBio.js";
+import getEducationExperiences
+    from "../../facebook/api-actions/education/getEducationExperiences.js";
+import deleteEducation
+    from "../../facebook/api-actions/education/deleteEducation.js";
+import searchCollege
+    from "../../facebook/api-actions/education/searchCollege.js";
+import createEducation
+    from "../../facebook/api-actions/education/createEducation.js";
 import ensureAdsPowerProfileReady
     from "../../workflows/profile/ensureAdsPowerProfileReady.js";
 
 
-// AdsPower-профіль, на якому запускається ручний тест.
 const profileNo = 1880;
-
-// Час очікування першого GraphQL POST-запиту.
 const actionTimeout = 30000;
+const educationSection = "directory_education";
+const targetSchoolName = "Northbridge Institute of Applied Cartography";
 
-// Усі секції About, для яких тест отримує токени.
-const aboutSections = [
-    "directory_intro",
-    "directory_personal_details",
-    "directory_work",
-    "directory_education",
-    "directory_activites",
-    "directory_interests",
-    "directory_travel",
-    "directory_links",
-    "directory_contact_info",
-    "directory_names",
-    "about_details",
-];
 
-// Друкує етап тесту в єдиному форматі, щоб по логах було легко орієнтуватися.
+// Виводить короткий заголовок етапу та, за потреби, його дані.
 function logStep(message, details = null) {
-    console.log(`\n[CAPTURE-GRAPHQL] ${message}`);
+    console.log(`\n[EDUCATION-TEST] ${message}`);
+    if (details) console.dir(details, { depth: null, colors: true });
+}
 
-    if (details) {
-        console.dir(details, { depth: null, colors: true });
+
+// Виводить повну відповідь або помилку Education action.
+function logActionResult(actionName, result) {
+    console.log(`[EDUCATION-TEST] Результат ${actionName}:`);
+    console.dir(result, { depth: null, colors: true });
+
+    if (!result?.success) {
+        console.error(`[EDUCATION-TEST] Помилка ${actionName}:`);
+        console.dir(result?.data?.errors ?? result, {
+            depth: null,
+            colors: true,
+        });
     }
-}
-
-
-// Маскує чутливі поля перед виведенням payload у консоль.
-// Сам action при цьому повертає повний payload без змін.
-function maskSensitivePayload(payload) {
-    const sensitiveFieldPattern = /token|cookie|password|secret|dtsg|jazoest|lsd|user|variable|spin|dyn|csr/i;
-
-    return Object.fromEntries(
-        Object.entries(payload ?? {}).map(([key, value]) => [
-            key,
-            sensitiveFieldPattern.test(key) ? "[ЗАМІНЕНО У ВИВОДІ]" : value,
-        ])
-    );
-}
-
-
-// Показує токени компактно: видно, що вони отримані, але не друкується весь секрет.
-function summarizeTokens(tokensBySection) {
-    return Object.fromEntries(
-        Object.entries(tokensBySection ?? {}).map(([section, tokens]) => ({
-            [section]: {
-                collectionToken: maskToken(tokens?.collectionToken),
-                sectionToken: maskToken(tokens?.sectionToken),
-                rawSectionToken: maskToken(tokens?.rawSectionToken),
-            },
-        }))
-    );
-}
-
-
-// Залишає початок і кінець токена для візуальної перевірки у консолі.
-function maskToken(token) {
-    const value = String(token ?? "");
-    if (!value) return null;
-    if (value.length <= 12) return "********";
-
-    return `${value.slice(0, 6)}...${value.slice(-6)}`;
 }
 
 
@@ -88,170 +54,182 @@ async function main() {
     let profileOpened = false;
 
     console.log("=".repeat(72));
-    console.log("ТЕСТ ACTION-ЛАНЦЮЖКА ДЛЯ FACEBOOK ABOUT");
+    console.log("ТЕСТ СТВОРЕННЯ FACEBOOK EDUCATION");
     console.log("=".repeat(72));
-    logStep("Параметри тесту", {
-        profileNo,
-        actionTimeout,
-        targetUrl: "https://www.facebook.com/me",
-        aboutSections,
-    });
 
     try {
-        logStep(`Отримуємо інформацію про AdsPower-профіль ${profileNo}`);
         const profile = await adsPower.getProfileByNo(profileNo);
-
         if (!profile) {
             throw new Error(`AdsPower-профіль ${profileNo} не знайдено`);
         }
-
-        logStep("Перевіряємо готовність профілю");
-        const profileReady = await ensureAdsPowerProfileReady(
-            adsPower,
-            profile
-        );
-
-        if (!profileReady) {
+        if (!await ensureAdsPowerProfileReady(adsPower, profile)) {
             throw new Error("AdsPower-профіль не готовий до запуску");
         }
 
-        logStep("Відкриваємо профіль у видимому режимі");
         const browserData = await adsPower.openProfile(profileNo, {
             browserMode: "visible",
         });
         profileOpened = true;
-
-        logStep("Підключаємо Puppeteer до відкритого профілю");
         browser = await puppeteer.connect({
             browserWSEndpoint: browserData.ws.puppeteer,
             defaultViewport: null,
         });
 
         const page = (await browser.pages())[0] ?? await browser.newPage();
-        logStep("Поточна сторінка браузера", { url: page.url() });
-
-        logStep("Запускаємо action captureGraphqlPayload");
-        const result = await captureGraphqlPayload(page, {
+        const payloadResult = await captureGraphqlPayload(page, {
             timeout: actionTimeout,
         });
-
-        logStep("Результат action", {
-            success: result.success,
-            status: result.status,
-            profileUrl: result.profileUrl,
-            navigationSuccess: result.navigationSuccess,
-            navigationError: result.navigationError,
+        logStep("Підготовка браузерної сесії", {
+            success: payloadResult.success,
+            status: payloadResult.status,
+            profileUrl: payloadResult.profileUrl,
         });
-
-        if (!result.success) {
+        if (!payloadResult.success) {
             throw new Error(
-                `captureGraphqlPayload завершився зі статусом ${result.status}: `
-                + `${result.error ?? "невідома помилка"}`
+                `captureGraphqlPayload: ${payloadResult.status} — `
+                + `${payloadResult.error ?? "невідома помилка"}`
             );
         }
 
-        const commonPayload = result.data ?? {};
-
-        logStep("Отримано commonPayload", {
-            fieldsCount: Object.keys(commonPayload).length,
-            fields: Object.keys(commonPayload),
-        });
-
-        console.log("\n1. Отриманий payload без чутливих значень:");
-        console.dir(maskSensitivePayload(commonPayload), {
-            depth: null,
-            colors: true,
-        });
-
-        logStep("Отримуємо токени для всіх секцій About");
+        const commonPayload = payloadResult.data ?? {};
         const tokensResult = await getAboutSectionTokens({
             page,
             commonPayload,
-            sections: aboutSections,
+            sections: [educationSection],
             timeout: actionTimeout,
         });
-
-        logStep("Результат getAboutSectionTokens", {
+        logStep("Отримання токенів Education", {
             success: tokensResult.success,
             status: tokensResult.status,
-            httpStatus: tokensResult.httpStatus,
             missingSections: tokensResult.missingSections,
             error: tokensResult.error,
         });
-
-        console.log("\n2. Отримані токени по секціях:");
-        console.dir(summarizeTokens(tokensResult.data), {
-            depth: null,
-            colors: true,
-        });
-
         if (!tokensResult.success) {
             throw new Error(
-                `getAboutSectionTokens завершився зі статусом ${tokensResult.status}: `
-                + `${tokensResult.error ?? "токени отримані не для всіх секцій"}`
+                `getAboutSectionTokens: ${tokensResult.status} — `
+                + `${tokensResult.error ?? "не вдалося отримати токени"}`
             );
         }
 
-        const bioTokens = tokensResult.data.directory_intro;
-
-        if (!bioTokens) {
-            throw new Error("Для directory_intro не отримані токени Bio");
+        const educationTokens = tokensResult.data?.[educationSection];
+        if (!educationTokens?.collectionToken || !educationTokens?.sectionToken
+            || !educationTokens?.rawSectionToken) {
+            throw new Error("Не отримано повний набір токенів для Education");
         }
 
-        // Порожній рядок передаємо для очищення поточного Bio.
-        const bio = "";
-
-        logStep("Очищуємо Bio", {
-            selectedBio: bio,
-            collectionTokenReceived: Boolean(bioTokens?.collectionToken),
-            sectionTokenReceived: Boolean(bioTokens?.sectionToken),
-        });
-
-        const updateResult = await updateBio({
+        const educationParams = {
             page,
             commonPayload,
-            collectionToken: bioTokens.collectionToken,
-            sectionToken: bioTokens.sectionToken,
-            value: bio,
+            collectionToken: educationTokens.collectionToken,
+            sectionToken: educationTokens.sectionToken,
+            rawSectionToken: educationTokens.rawSectionToken,
             timeout: actionTimeout,
-        });
+        };
 
-        logStep("3. Результат updateBio", {
-            success: updateResult.success,
-            status: updateResult.status,
-            httpStatus: updateResult.httpStatus,
-            error: updateResult.error,
-        });
-
-        console.log("\nВідповідь Facebook від updateBio:");
-        console.dir(updateResult.data, { depth: null, colors: true });
-
-        if (!updateResult.success) {
-            throw new Error(
-                `updateBio завершився зі статусом ${updateResult.status}: `
-                + `${updateResult.error ?? "невідома помилка"}`
-            );
+        logStep("Читаємо наявні навчальні заклади");
+        const initialEducation = await getEducationExperiences(educationParams);
+        logActionResult("початкового читання Education", initialEducation);
+        if (!initialEducation.success) {
+            throw new Error(`getEducationExperiences: ${initialEducation.status}`);
         }
 
-        console.log("\nBio успішно очищено");
+        for (const education of initialEducation.data) {
+            logStep("Видаляємо наявний навчальний заклад", {
+                name: education.school_name,
+                educationExperienceID: education.education_experience_id,
+            });
+            const deleteResult = await deleteEducation({
+                page,
+                commonPayload,
+                collectionToken: educationTokens.collectionToken,
+                sectionToken: educationTokens.sectionToken,
+                educationExperienceID: education.education_experience_id,
+                timeout: actionTimeout,
+            });
+            logActionResult("deleteEducation", deleteResult);
+            if (!deleteResult.success) {
+                throw new Error(`deleteEducation: ${deleteResult.status}`);
+            }
+        }
+
+        const afterDelete = await getEducationExperiences(educationParams);
+        logActionResult("перевірки після видалення", afterDelete);
+        if (!afterDelete.success) {
+            throw new Error(
+                `Перевірка після видалення: ${afterDelete.status}`
+            );
+        }
+        if (afterDelete.data.length > 0) {
+            throw new Error("Не всі наявні навчальні заклади вдалося видалити");
+        }
+        logStep("Профіль очищено від наявних навчальних закладів");
+
+        logStep("Шукаємо вигадану назву перед створенням", {
+            schoolName: targetSchoolName,
+        });
+        const searchResult = await searchCollege({
+            page,
+            commonPayload,
+            query: targetSchoolName,
+            timeout: actionTimeout,
+        });
+        logActionResult("searchCollege", searchResult);
+        if (!searchResult.success) {
+            throw new Error(`searchCollege: ${searchResult.status}`);
+        }
+
+        const school = {
+            id: randomUUID(),
+            name: targetSchoolName,
+        };
+        logStep("Надсилаємо mutation створення custom College", {
+            schoolId: school.id,
+            schoolName: school.name,
+            searchStatus: searchResult.status,
+            searchOptions: searchResult.data,
+        });
+        const createResult = await createEducation({
+            page,
+            commonPayload,
+            collectionToken: educationTokens.collectionToken,
+            sectionToken: educationTokens.sectionToken,
+            schoolId: school.id,
+            schoolName: school.name,
+            timeout: actionTimeout,
+        });
+        logActionResult("createEducation", createResult);
+
+        logStep("Фінально читаємо навчальні заклади профілю");
+        const finalEducation = await getEducationExperiences(educationParams);
+        logActionResult("фінальної перевірки Education", finalEducation);
+        if (!finalEducation.success) {
+            throw new Error(`Фінальна перевірка: ${finalEducation.status}`);
+        }
+
+        const targetWasCreated = finalEducation.data.some(
+            (item) => item.school_name.trim().toLowerCase()
+                === targetSchoolName.toLowerCase()
+        );
+        logStep("Підсумок тесту", {
+            createSuccess: createResult.success,
+            targetSchoolName,
+            targetWasCreated,
+            finalEducationCount: finalEducation.data.length,
+            finalEducation: finalEducation.data,
+        });
+        if (!createResult.success || !targetWasCreated) {
+            process.exitCode = 1;
+        }
     } catch (error) {
-        console.error("\n[CAPTURE-GRAPHQL] Помилка manual-тесту:");
+        console.error("\n[EDUCATION-TEST] Помилка ручного тесту:");
         console.error(error.stack ?? error.message ?? error);
         process.exitCode = 1;
     } finally {
-        if (browser) {
-            logStep("Відключаємо Puppeteer");
-            browser.disconnect();
-        }
-
+        if (browser) browser.disconnect();
         if (profileOpened) {
-            logStep(
-                `AdsPower-профіль ${profileNo} залишено відкритим для перевірки`
-            );
+            logStep(`AdsPower-профіль ${profileNo} залишено відкритим для перевірки`);
         }
-
-        console.log("\n" + "=".repeat(72));
-        console.log("ТЕСТ ACTION-ЛАНЦЮЖКА ЗАВЕРШЕНО");
+        console.log("\nТест завершено");
         console.log("=".repeat(72));
     }
 }
