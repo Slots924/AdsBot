@@ -37,6 +37,7 @@ export default async function captureGraphqlPayload(
     page,
     {
         profileUrl = "https://www.facebook.com/me",
+        graphqlUrl = facebookGraphqlUrl,
         friendlyName = null,
         timeout = defaultTimeoutMs,
         signal,
@@ -74,7 +75,7 @@ export default async function captureGraphqlPayload(
             (candidate) => {
                 if (
                     candidate.method() !== "POST"
-                    || !candidate.url().startsWith(facebookGraphqlUrl)
+                    || !candidate.url().startsWith(graphqlUrl)
                 ) {
                     return false;
                 }
@@ -110,7 +111,7 @@ export default async function captureGraphqlPayload(
 
         return createResult(false, status, null, {
             profileUrl,
-            graphqlUrl: facebookGraphqlUrl,
+            graphqlUrl,
             error: String(error?.message ?? error),
         });
     }
