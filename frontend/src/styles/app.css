@@ -936,6 +936,7 @@ button:focus-visible, input:focus-visible {
     color: #d5dae8;
     font-size: var(--font-caption);
 }
+.account-setup-api-toggle { margin-top: 12px; color: #d5d8e2; }
 .account-setup-hint { display: block; margin-top: 12px; line-height: 1.5; }
 .account-setup-advanced { margin-top: 15px; padding: 14px; border: 1px solid rgba(132,114,255,.24); border-radius: 12px; background: linear-gradient(145deg, rgba(255,255,255,.045), rgba(132,114,255,.035)); }
 .account-setup-advanced > summary { color: #edf0f8; cursor: pointer; font-weight: 700; }

@@ -7,6 +7,8 @@ import runParallelCommentingScenario
     from "../../scenarios/runParallelCommentingScenario.js";
 import runParallelCommentAccountSetupScenario
     from "../../scenarios/runParallelCommentAccountSetupScenario.js";
+import executeCommentAccountApiSetupWithProfile
+    from "../../workflows/accounts/executeCommentAccountApiSetupWithProfile.js";
 import runCommentReactionsScenario
     from "../../scenarios/runCommentReactionsScenario.js";
 import runCommentAccountHealthScenario
@@ -658,6 +660,7 @@ export default class AdsBotGuiService {
         universitiesGeo,
         professionsGeo,
         photosDirectory,
+        useApiRequests = false,
         operations = {},
         concurrency = 5,
         workerProxies = null,
@@ -725,6 +728,9 @@ export default class AdsBotGuiService {
             signal,
             onProgress,
             reportsDirectory: this.reportsDirectory,
+            executeSetup: useApiRequests
+                ? executeCommentAccountApiSetupWithProfile
+                : undefined,
             skipNameChange: !normalizedOperations.changeName,
             skipAvatarChange: !normalizedOperations.changeAvatar,
             skipCoverChange: !normalizedOperations.changeCover,

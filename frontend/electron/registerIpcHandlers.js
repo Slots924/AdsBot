@@ -2176,6 +2176,7 @@ export default function registerIpcHandlers({
                 professionsGeo: String(payload.professionsGeo ?? "").trim().toUpperCase() || geo,
             };
             const photosDirectory = String(payload.photosDirectory ?? "").trim();
+            const useApiRequests = payload.useApiRequests === true;
             const operations = {
                 changeName: payload.operations?.changeName !== false,
                 changeAvatar: payload.operations?.changeAvatar !== false,
@@ -2198,6 +2199,7 @@ export default function registerIpcHandlers({
                     femaleCount: payload.femaleCount,
                     ...profileDataSources,
                     photosDirectory,
+                    useApiRequests,
                     operations,
                     browserMode,
                     commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
@@ -2206,6 +2208,7 @@ export default function registerIpcHandlers({
                     profileNos,
                     geo,
                     browserMode,
+                    useApiRequests,
                 },
                 runner: async ({ signal, progress, waitForAction }) => {
                     const workerProxies = await resolveWorkerProxies(
@@ -2219,6 +2222,7 @@ export default function registerIpcHandlers({
                         femaleCount: payload.femaleCount,
                         ...profileDataSources,
                         photosDirectory,
+                        useApiRequests,
                         operations,
                         browserMode,
                         concurrency: payload.commentWorkerConcurrency,

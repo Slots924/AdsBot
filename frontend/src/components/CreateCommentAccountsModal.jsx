@@ -24,6 +24,7 @@ export default function CreateCommentAccountsModal({
         maleCount: String(profiles.length),
         femaleCount: "0",
         photosDirectory: "",
+        useApiRequests: false,
         operations: {
             changeName: true,
             changeAvatar: true,
@@ -94,6 +95,7 @@ export default function CreateCommentAccountsModal({
                 maleCount,
                 femaleCount,
                 photosDirectory: draft.photosDirectory,
+                useApiRequests: draft.useApiRequests,
                 operations: draft.operations,
                 browserMode: settings.accountSetupBrowserMode,
                 commentWorkerConcurrency: settings.accountSetupWorkerConcurrency,
@@ -124,6 +126,17 @@ export default function CreateCommentAccountsModal({
                         </span>
                     ))}
                 </div>
+                <label className="checkbox-line compact account-setup-api-toggle">
+                    <input
+                        type="checkbox"
+                        checked={draft.useApiRequests}
+                        onChange={(event) => setDraft((current) => ({
+                            ...current,
+                            useApiRequests: event.target.checked,
+                        }))}
+                    />
+                    <span>Використовувати API-запити</span>
+                </label>
                 <div className="creative-fields-row">
                     <label className="field geo-field">
                         <span>Цільова країна</span>

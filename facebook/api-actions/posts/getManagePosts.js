@@ -212,7 +212,12 @@ async function requestManagePostsPage({
 
 
 // Отримує всі сторінки, доступні через підтверджені Manage Posts root і refetch queries.
-export default async function getManagePosts({ page, commonPayload, timeout }) {
+export default async function getManagePosts({
+    page,
+    commonPayload,
+    timeout,
+    omitPinnedPost = true,
+}) {
     const validationError = validateMutationInput(page, commonPayload);
     const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
         .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
@@ -231,7 +236,7 @@ export default async function getManagePosts({ page, commonPayload, timeout }) {
             gridMediaWidth: 230,
             includeGroupScheduledPosts: false,
             includeScheduledPosts: false,
-            omitPinnedPost: true,
+            omitPinnedPost: omitPinnedPost === true,
             postedBy: null,
             privacy: null,
             privacySelectorRenderLocation: "COMET_STREAM",
@@ -277,7 +282,7 @@ export default async function getManagePosts({ page, commonPayload, timeout }) {
                     gridMediaWidth: 230,
                     includeGroupScheduledPosts: false,
                     includeScheduledPosts: false,
-                    omitPinnedPost: true,
+                    omitPinnedPost: omitPinnedPost === true,
                     postedBy: null,
                     privacy: null,
                     privacySelectorRenderLocation: "COMET_STREAM",

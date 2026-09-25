@@ -2,6 +2,12 @@ import ensureLogin from "../../facebook/state/ensureLogin.js";
 import markProfileAsLoginError from "../../services/profile/tags/markProfileAsLoginError.js";
 
 
+function waitBeforeLoginRetry() {
+    const delayMs = 1000 + Math.floor(Math.random() * 2001);
+    return new Promise((resolve) => setTimeout(resolve, delayMs));
+}
+
+
 export default async function ensureFacebookAccountLoggedIn(
     adsPower,
     profile,
@@ -11,8 +17,15 @@ export default async function ensureFacebookAccountLoggedIn(
 
     try {
         console.log("Перевіряємо вхід у Facebook...");
-        const loginSucceeded = await ensureLogin(page);
+        let loginSucceeded = await ensureLogin(page);
         console.log(`Результат ensureLogin: ${loginSucceeded}`);
+
+        if (!loginSucceeded) {
+            // Facebook інколи завершує авторизацію трохи пізніше за першу перевірку.
+            await waitBeforeLoginRetry();
+            loginSucceeded = await ensureLogin(page);
+            console.log(`Результат повторного ensureLogin: ${loginSucceeded}`);
+        }
 
         if (!loginSucceeded) {
             console.error("Не вдалося забезпечити вхід у Facebook");
