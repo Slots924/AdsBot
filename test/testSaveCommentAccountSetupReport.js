@@ -38,6 +38,15 @@ const report = {
                     ok: true,
                     detail: "bio; Mechaniker @ Firma; school",
                     fallback: "education, work",
+                    fields: {
+                        bio: { success: true, status: "UPDATED" },
+                        education: {
+                            success: true,
+                            status: "ADDED",
+                            fallback: true,
+                        },
+                        work: { success: true, status: "ADDED" },
+                    },
                 },
                 genderTag: { ok: true, detail: "Man" },
                 adsPowerRename: { ok: true, detail: "m_Holger Steinhof" },
@@ -99,6 +108,8 @@ assert.match(markdown, /Профіль 11 — завершено з помилк
 assert.match(markdown, /Аватарка \| Не вдалося — INVALID_IMAGE/);
 assert.match(markdown, /Профіль має тег Change Name Error/);
 assert.match(markdown, /Fallback \| education, work/);
+assert.match(markdown, /Bio \| UPDATED/);
+assert.match(markdown, /Освіта \| ADDED \(fallback\)/);
 
 const directory = await mkdtemp(path.join(os.tmpdir(), "adsbot-account-report-"));
 try {

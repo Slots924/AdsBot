@@ -223,7 +223,13 @@ export default async function updateBio({
                 false,
                 updateBioStatuses.GRAPHQL_ERROR,
                 response.data,
-                { httpStatus: response.statusCode }
+                {
+                    httpStatus: response.statusCode,
+                    error: response.data.errors
+                        .map((item) => item?.message)
+                        .filter(Boolean)
+                        .join("; ") || "Facebook GraphQL повернув помилку",
+                }
             );
         }
 

@@ -30,6 +30,12 @@ function emitInfo(logger, event, message, fields = {}) {
 }
 
 
+function emitWarning(logger, event, message, fields = {}) {
+    if (typeof logger?.warn !== "function") return;
+    logger.warn(event, message, fields);
+}
+
+
 // Підміняє лише Facebook UI-дії API-реалізаціями, залишаючи спільний lifecycle профілю та звіт.
 export default async function executeCommentAccountApiSetupWithProfile(options = {}) {
     const logger = options.logger ?? console;
@@ -151,6 +157,16 @@ export default async function executeCommentAccountApiSetupWithProfile(options =
             const bio = result.steps?.bio;
             if (bio?.success && !bio.skipped) {
                 emitInfo(logger, "facebook.api_setup.bio", "Bio очищено");
+            } else if (!bio?.skipped) {
+                emitWarning(
+                    logger,
+                    "facebook.api_setup.bio_failed",
+                    "Не вдалося очистити Bio",
+                    {
+                        status: bio?.status ?? "UNKNOWN",
+                        error: bio?.error ?? null,
+                    }
+                );
             }
             if (education?.success) {
                 emitInfo(

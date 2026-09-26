@@ -2,6 +2,306 @@
   "version": 1,
   "tasks": [
     {
+      "id": "eeee3678-f36f-40e4-8675-1b22c4ac6efc",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · HU · 7",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1434",
+          "label": "AdsPower 1434"
+        },
+        {
+          "key": "adspower-profile:1438",
+          "label": "AdsPower 1438"
+        },
+        {
+          "key": "adspower-profile:1439",
+          "label": "AdsPower 1439"
+        },
+        {
+          "key": "adspower-profile:1470",
+          "label": "AdsPower 1470"
+        },
+        {
+          "key": "adspower-profile:1762",
+          "label": "AdsPower 1762"
+        },
+        {
+          "key": "adspower-profile:1763",
+          "label": "AdsPower 1763"
+        },
+        {
+          "key": "adspower-profile:1764",
+          "label": "AdsPower 1764"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1434",
+          "1438",
+          "1439",
+          "1470",
+          "1762",
+          "1763",
+          "1764"
+        ],
+        "geo": "HU",
+        "maleCount": 7,
+        "femaleCount": 0,
+        "namesGeo": "HU",
+        "companiesGeo": "HU",
+        "universitiesGeo": "HU",
+        "professionsGeo": "HU",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
+        "useApiRequests": true,
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1434",
+          "1438",
+          "1439",
+          "1470",
+          "1762",
+          "1763",
+          "1764"
+        ],
+        "geo": "HU",
+        "browserMode": "visible",
+        "useApiRequests": true,
+        "reportId": "b3c9af10-9eb7-4e0d-813f-08f1e54ca7a9"
+      },
+      "progress": {
+        "completed": 7,
+        "total": 7,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 4,
+        "completedWithError": 0,
+        "failed": 3,
+        "skipped": 0,
+        "currentProfileNo": "1764",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-09-26_13-07-06-452.md",
+        "fatalError": null,
+        "success": 4,
+        "completedWithError": 0,
+        "failed": 3,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-26T09:59:32.596Z",
+      "startedAt": "2026-09-26T09:59:32.598Z",
+      "finishedAt": "2026-09-26T10:07:06.454Z",
+      "updatedAt": "2026-09-26T10:07:06.455Z"
+    },
+    {
+      "id": "7fa4b7b8-f0a9-450c-bebb-aaec99b23814",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · HU · 7",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "adspower-profile:1434",
+          "label": "AdsPower 1434"
+        },
+        {
+          "key": "adspower-profile:1438",
+          "label": "AdsPower 1438"
+        },
+        {
+          "key": "adspower-profile:1439",
+          "label": "AdsPower 1439"
+        },
+        {
+          "key": "adspower-profile:1470",
+          "label": "AdsPower 1470"
+        },
+        {
+          "key": "adspower-profile:1762",
+          "label": "AdsPower 1762"
+        },
+        {
+          "key": "adspower-profile:1763",
+          "label": "AdsPower 1763"
+        },
+        {
+          "key": "adspower-profile:1764",
+          "label": "AdsPower 1764"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1434",
+          "1438",
+          "1439",
+          "1470",
+          "1762",
+          "1763",
+          "1764"
+        ],
+        "geo": "HU",
+        "maleCount": 7,
+        "femaleCount": 0,
+        "namesGeo": "HU",
+        "companiesGeo": "HU",
+        "universitiesGeo": "HU",
+        "professionsGeo": "HU",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
+        "useApiRequests": false,
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1434",
+          "1438",
+          "1439",
+          "1470",
+          "1762",
+          "1763",
+          "1764"
+        ],
+        "geo": "HU",
+        "browserMode": "visible",
+        "useApiRequests": false,
+        "reportId": "bcf1e93b-01de-4e86-a76b-814fca720c2a"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 7,
+        "stage": "interrupted",
+        "message": "Задачу перервано",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 1,
+        "skipped": 0,
+        "currentProfileNo": "1434",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-09-26_12-59-18-192.md",
+        "fatalError": "Оформлення акаунтів перервано",
+        "interrupted": true
+      },
+      "error": {
+        "message": "Оформлення акаунтів перервано",
+        "code": "ACCOUNT_SETUP_ABORTED",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-09-26T09:58:35.533Z",
+      "startedAt": "2026-09-26T09:58:35.534Z",
+      "finishedAt": "2026-09-26T09:59:18.195Z",
+      "updatedAt": "2026-09-26T09:59:18.197Z"
+    },
+    {
+      "id": "80ab9bf5-3c7e-482d-8ef7-1f5d708acc36",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · HU · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1867",
+          "label": "AdsPower 1867"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1867"
+        ],
+        "geo": "HU",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "namesGeo": "HU",
+        "companiesGeo": "HU",
+        "universitiesGeo": "HU",
+        "professionsGeo": "HU",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
+        "useApiRequests": true,
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1867"
+        ],
+        "geo": "HU",
+        "browserMode": "visible",
+        "useApiRequests": true,
+        "reportId": "254f6822-09e6-4692-853f-0a9a112a3a43"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 0,
+        "currentProfileNo": "1867",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-09-26_12-31-55-558.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-26T09:30:35.129Z",
+      "startedAt": "2026-09-26T09:30:35.131Z",
+      "finishedAt": "2026-09-26T09:31:55.561Z",
+      "updatedAt": "2026-09-26T09:31:55.563Z"
+    },
+    {
       "id": "a8f2e222-40fc-4bfe-9955-6736184cc769",
       "type": "account-setup",
       "name": "Акаунти під коментарі · HU · 1",

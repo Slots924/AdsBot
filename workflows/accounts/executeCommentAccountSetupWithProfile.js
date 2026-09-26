@@ -91,6 +91,14 @@ function createEmptySteps() {
 }
 
 
+function collectAboutFallback(aboutResult) {
+    return Object.entries(aboutResult?.steps ?? {})
+        .filter(([, step]) => step?.success && step.fallback)
+        .map(([field]) => field)
+        .join(", ") || null;
+}
+
+
 async function tryProfilePhoto({
     changeFn,
     page,
@@ -773,14 +781,17 @@ export default async function executeCommentAccountSetupWithProfile({
                     `${persona.work?.position} @ ${persona.work?.company}`,
                     persona.education,
                 ].filter(Boolean).join("; "),
-                fallback: Object.entries(aboutResult.steps ?? {})
-                    .filter(([, step]) => step?.success && step.fallback)
-                    .map(([field]) => field)
-                    .join(", ") || null,
+                fields: aboutResult.steps ?? null,
+                fallback: collectAboutFallback(aboutResult),
             });
         } else {
             result.steps.about = createStep({
                 status: aboutResult?.status ?? null,
+                detail: Object.entries(aboutResult?.steps ?? {})
+                    .map(([field, step]) => `${field}: ${step.status}`)
+                    .join("; ") || null,
+                fields: aboutResult?.steps ?? null,
+                fallback: collectAboutFallback(aboutResult),
                 error: aboutResult?.error?.message
                     || aboutResult?.status
                     || "Не вдалося заповнити About",

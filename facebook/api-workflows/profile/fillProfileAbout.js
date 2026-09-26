@@ -152,7 +152,7 @@ export default async function fillProfileAbout({
         const tokenResult = await getAboutSectionTokens({
             page,
             commonPayload,
-            sections: ["directory_bio", "directory_education", "directory_work"],
+            sections: ["directory_intro", "directory_education", "directory_work"],
             timeout,
         });
         const tokens = tokenResult.data ?? {};
@@ -167,7 +167,7 @@ export default async function fillProfileAbout({
         }
 
         const shouldUpdateBio = !skipBio;
-        const bioTokens = tokens.directory_bio;
+        const bioTokens = tokens.directory_intro;
         const bioResult = !shouldUpdateBio
             ? step(true, "SKIPPED", { skipped: true })
             : bioTokens
@@ -195,7 +195,10 @@ export default async function fillProfileAbout({
             timeout,
         });
         const steps = {
-            bio: step(bioResult.success, bioResult.status),
+            bio: step(bioResult.success, bioResult.status, {
+                error: bioResult.error ?? null,
+                httpStatus: bioResult.httpStatus ?? null,
+            }),
             education: educationResult,
             work: workResult,
         };

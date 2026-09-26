@@ -131,6 +131,16 @@ function ordinaryStepValue(step) {
 }
 
 
+function aboutFieldValue(step) {
+    if (!step) return "Не виконували";
+    if (step.skipped) return "Пропущено";
+    if (step.success) {
+        return step.fallback ? `${step.status} (fallback)` : step.status;
+    }
+    return `Не вдалося — ${step.error || step.status || "невідома причина"}`;
+}
+
+
 function facebookNameValue(item, fullName) {
     const step = item.steps?.name;
     if (item.outcome === "skipped") {
@@ -171,6 +181,9 @@ function buildProfileSection(item) {
         ["Видалення постів", ordinaryStepValue(steps.deletePosts)],
         ["Нові пости", postsValue(steps.posts)],
         ["Дані про себе", ordinaryStepValue(steps.about)],
+        ["Bio", aboutFieldValue(steps.about?.fields?.bio)],
+        ["Освіта", aboutFieldValue(steps.about?.fields?.education)],
+        ["Робота", aboutFieldValue(steps.about?.fields?.work)],
         ["Fallback", steps.about?.fallback || "Не використовувався"],
     ]));
 
