@@ -197,6 +197,10 @@ export default async function executeCommentAccountApiSetupWithProfile(options =
 
     return executeCommentAccountSetupWithProfile({
         ...options,
+        skipEnsureEnglish: true,
+        skipPageTransitions: true,
+        skipHumanDelays: true,
+        skipBrowserWindowConfiguration: true,
         actions,
     });
 }

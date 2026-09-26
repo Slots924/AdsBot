@@ -222,6 +222,10 @@ export default async function executeCommentAccountSetupWithProfile({
     skipPublishPosts = false,
     skipFillAbout = false,
     skipBio = false,
+    skipEnsureEnglish = false,
+    skipPageTransitions = false,
+    skipHumanDelays = false,
+    skipBrowserWindowConfiguration = false,
     ignoreSkipReasons = false,
     actions = {},
 } = {}) {
@@ -360,10 +364,12 @@ export default async function executeCommentAccountSetupWithProfile({
         page = pages[0] ?? await browser.newPage();
 
         assertNotAborted();
-        result.stage = "CONFIGURE_BROWSER_WINDOW";
-        result.browserWindow = await configureBrowserWindow(page, {
-            browserMode,
-        });
+        if (!skipBrowserWindowConfiguration) {
+            result.stage = "CONFIGURE_BROWSER_WINDOW";
+            result.browserWindow = await configureBrowserWindow(page, {
+                browserMode,
+            });
+        }
 
         assertNotAborted();
         result.stage = "OPEN_FACEBOOK";
@@ -384,8 +390,10 @@ export default async function executeCommentAccountSetupWithProfile({
         }
 
         assertNotAborted();
-        result.stage = "ENSURE_ENGLISH";
-        await ensureLanguage(page);
+        if (!skipEnsureEnglish) {
+            result.stage = "ENSURE_ENGLISH";
+            await ensureLanguage(page);
+        }
     };
     const handleAbort = () => {
         abortCleanupPromise ??= stopOpenedProfile();
@@ -584,7 +592,10 @@ export default async function executeCommentAccountSetupWithProfile({
         const usedPaths = new Set();
         const fallbackPool = [...classified.rest];
 
-        if (!skipAvatarChange || !skipCoverChange || !skipDeletePosts || !skipPublishPosts) {
+        if (
+            !skipPageTransitions
+            && (!skipAvatarChange || !skipCoverChange || !skipDeletePosts || !skipPublishPosts)
+        ) {
             assertNotAborted();
             result.stage = "OPEN_PROFILE_PAGE";
             await openPage(page, FACEBOOK_ME_URL);
@@ -624,7 +635,7 @@ export default async function executeCommentAccountSetupWithProfile({
                     reason: "Аватар уже змінено, крок пропущено",
                 });
             } else {
-                await waitHuman("long", { random });
+                if (!skipHumanDelays) await waitHuman("long", { random });
                 const avatarAttempt = await tryProfilePhoto({
                     changeFn: changeAvatar,
                     page,
@@ -649,7 +660,7 @@ export default async function executeCommentAccountSetupWithProfile({
                     reason: "Обкладинку вже змінено, крок пропущено",
                 });
             } else {
-                await waitHuman("long", { random });
+                if (!skipHumanDelays) await waitHuman("long", { random });
                 const coverAttempt = await tryProfilePhoto({
                     changeFn: changeCover,
                     page,
@@ -716,8 +727,10 @@ export default async function executeCommentAccountSetupWithProfile({
             });
         } else if (postFiles.length > 0) {
             assertNotAborted();
-            result.stage = "OPEN_PROFILE_PAGE_FOR_POSTS";
-            await openPage(page, FACEBOOK_ME_URL);
+            if (!skipPageTransitions) {
+                result.stage = "OPEN_PROFILE_PAGE_FOR_POSTS";
+                await openPage(page, FACEBOOK_ME_URL);
+            }
             result.stage = "PUBLISH_POSTS";
             const dates = createRandomPostDates(postFiles.length, { random });
             const posts = postFiles.map((filePath, index) => ({
@@ -753,7 +766,7 @@ export default async function executeCommentAccountSetupWithProfile({
         }
 
         assertNotAborted();
-        result.stage = "OPEN_PROFILE_PAGE_FOR_ABOUT";
+        if (!skipPageTransitions) result.stage = "OPEN_PROFILE_PAGE_FOR_ABOUT";
         if (skipFillAbout) {
             result.steps.about = createStep({
                 ok: true,
@@ -761,7 +774,7 @@ export default async function executeCommentAccountSetupWithProfile({
                 reason: "About пропущено",
             });
         } else {
-        await openPage(page, FACEBOOK_ME_URL);
+        if (!skipPageTransitions) await openPage(page, FACEBOOK_ME_URL);
         result.stage = "FILL_ABOUT";
         const aboutResult = await fillAbout(page, {
             fields: {
