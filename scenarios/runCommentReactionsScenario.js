@@ -1,5 +1,6 @@
 import saveCommentReactionReport from "../services/reports/saveCommentReactionReport.js";
 import reactToPostCommentsWithProfile from "../workflows/comments/reactToPostCommentsWithProfile.js";
+import { profileActivityTypes } from "../services/profile/ProfileActivityStore.js";
 
 
 const validReactions = new Set(["like", "love", "care"]);
@@ -36,6 +37,7 @@ export default async function runCommentReactionsScenario({
     onProgress,
     reportsDirectory = "./data/reports",
     reactWithProfile = reactToPostCommentsWithProfile,
+    profileActivityStore = null,
 } = {}) {
     const profiles = [...new Set(profileNos.map((value) => String(value).trim()).filter(Boolean))];
     if (!profiles.length) throw new Error("Оберіть хоча б один профіль AdsPower");
@@ -85,6 +87,17 @@ export default async function runCommentReactionsScenario({
                 result = { profileNo: assignment.profileNo, reaction: assignment.reaction, outcome: "failed", applied: 0, failed: 0, alreadyReacted: 0, error: error.message };
             }
             report.profiles.push({ ...result, startedAt, finishedAt: new Date().toISOString(), workerId });
+            if (profileActivityStore && ["success", "completed_with_warnings"].includes(result.outcome)) {
+                try {
+                    await profileActivityStore.recordSuccessfulAction({
+                        profileNo: assignment.profileNo,
+                        actionType: profileActivityTypes.COMMENT_REACTIONS_TASK,
+                        outcome: result.outcome,
+                    });
+                } catch (error) {
+                    console.error("Не вдалося записати статистику профілю:", error.message);
+                }
+            }
             if (result.applied > 0) pendingReactions.shift();
             await onProgress?.({
                 completed: report.profiles.length,

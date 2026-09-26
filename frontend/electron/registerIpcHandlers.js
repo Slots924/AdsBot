@@ -162,6 +162,7 @@ export default function registerIpcHandlers({
         spendService,
         spendTaskCoordinator,
         spendScheduler,
+        profileActivityStore,
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
@@ -2286,6 +2287,14 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "logs:list",
         safeHandler((payload) => logger.list(payload))
+    );
+    ipcMain.handle(
+        "profile-activity:list",
+        safeHandler((payload) => profileActivityStore.list(payload))
+    );
+    ipcMain.handle(
+        "profile-activity:delete",
+        safeHandler(({ profileNos }) => profileActivityStore.remove(profileNos))
     );
     ipcMain.handle(
         "logs:scopes",

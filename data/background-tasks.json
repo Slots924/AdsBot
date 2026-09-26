@@ -2,6 +2,322 @@
   "version": 1,
   "tasks": [
     {
+      "id": "8b1c981b-8b05-4ce6-958f-8736212dc6a9",
+      "type": "comments",
+      "name": "Коментарі поста · HU · 138",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-group:8278298",
+          "label": "[HU] Hungary"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "8278298"
+        ],
+        "geo": "HU",
+        "creativeGeo": "HU",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61582088982251/posts/pfbid028t1iQEzNw72h87sfVgmXBVwE9upzp99bd6fwxN1W2m6nMpQbJCnvumzSYSKquJgJl",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "8278298"
+        ],
+        "geo": "HU",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "42ada299-5d7e-4fa7-a0ff-a2333c31b281"
+      },
+      "progress": {
+        "completed": 10,
+        "total": 10,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 10,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 1,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "2.2",
+        "currentProfileNo": "1757",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-09-26_15-15-20-029.md",
+        "published": 10,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 1,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-26T12:01:51.361Z",
+      "startedAt": "2026-09-26T12:01:51.362Z",
+      "finishedAt": "2026-09-26T12:15:20.033Z",
+      "updatedAt": "2026-09-26T12:15:20.035Z"
+    },
+    {
+      "id": "2f8c0aca-a6d6-4706-aa89-3d21ffedb040",
+      "type": "campaign",
+      "name": "HU | Creo_138 | 30+ 26/09 14:57",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "9f0bf53f-7077-4d33-a44f-4e34828a73b2"
+      },
+      "metadata": {
+        "campaignJobId": "9f0bf53f-7077-4d33-a44f-4e34828a73b2",
+        "accountKey": "account-018",
+        "adAccountId": "act_1759324075218646",
+        "uniqueKey": "campaign-job:9f0bf53f-7077-4d33-a44f-4e34828a73b2",
+        "reportId": "2a93cabb-5613-4383-94db-dc87472b25ab"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120249445326410003",
+          "creativeId": "2209824529566040",
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120249445327010003",
+              "name": "HU | Creo_138 | 30+ 26/09 14:57 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120249445327910003",
+              "name": "HU | Creo_138 | 30+ 26/09 14:57 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120249445328800003",
+              "name": "HU | Creo_138 | 30+ 26/09 14:57 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120249445329530003",
+              "name": "HU | Creo_138 | 30+ 26/09 14:57 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120249445331190003",
+              "name": "HU | Creo_138 | 30+ 26/09 14:57 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "id": "120249445327610003",
+              "name": "HU | Creo_138 | 30+ 26/09 14:57 | AD 01"
+            },
+            {
+              "index": 1,
+              "id": "120249445328260003",
+              "name": "HU | Creo_138 | 30+ 26/09 14:57 | AD 02"
+            },
+            {
+              "index": 2,
+              "id": "120249445329060003",
+              "name": "HU | Creo_138 | 30+ 26/09 14:57 | AD 03"
+            },
+            {
+              "index": 3,
+              "id": "120249445330690003",
+              "name": "HU | Creo_138 | 30+ 26/09 14:57 | AD 04"
+            },
+            {
+              "index": 4,
+              "id": "120249445331890003",
+              "name": "HU | Creo_138 | 30+ 26/09 14:57 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "9f0bf53f-7077-4d33-a44f-4e34828a73b2",
+        "campaignId": "120249445326410003",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-26T11:57:56.207Z",
+      "startedAt": "2026-09-26T11:57:56.208Z",
+      "finishedAt": "2026-09-26T11:59:13.089Z",
+      "updatedAt": "2026-09-26T11:59:13.091Z"
+    },
+    {
+      "id": "7a13ddf8-ff54-4b47-8d9c-93b5b6b3e776",
+      "type": "publication",
+      "name": "Публікація · HU · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-018",
+        "pageId": "842986062231301",
+        "geo": "HU",
+        "language": "",
+        "creativeGeo": "HU",
+        "creativeName": "138",
+        "siteUrl": "https://anikoset.lol/HPJ138U",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\14.jpeg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-018",
+        "pageId": "842986062231301",
+        "geo": "HU",
+        "language": "",
+        "creativeName": "138",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "cd8e4dc7-29ec-4815-b203-4f5406c1d70a"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-018",
+        "pageId": "842986062231301",
+        "geo": "HU",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "https://anikoset.lol/HPJ138U",
+        "postId": "842986062231301_122163856563069632",
+        "permalinkUrl": "https://www.facebook.com/61582088982251/posts/pfbid028t1iQEzNw72h87sfVgmXBVwE9upzp99bd6fwxN1W2m6nMpQbJCnvumzSYSKquJgJl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-26T11:57:30.328Z",
+      "startedAt": "2026-09-26T11:57:30.329Z",
+      "finishedAt": "2026-09-26T11:57:36.021Z",
+      "updatedAt": "2026-09-26T11:57:36.023Z"
+    },
+    {
+      "id": "3857cc74-9dba-4261-88a7-a8a7054a0055",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 842986062231301_122163840657069632",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-018",
+        "pageId": "842986062231301",
+        "postId": "842986062231301_122163840657069632"
+      },
+      "metadata": {
+        "accountKey": "account-018",
+        "pageId": "842986062231301",
+        "reportId": "8d794dd9-96a3-479b-91c5-cfaf02adaa59"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "842986062231301_122163840657069632"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-26T11:56:22.231Z",
+      "startedAt": "2026-09-26T11:56:22.233Z",
+      "finishedAt": "2026-09-26T11:56:27.704Z",
+      "updatedAt": "2026-09-26T11:56:27.706Z"
+    },
+    {
+      "id": "e695cebc-c130-40a8-ac31-80c5c4568a93",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-021",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2027",
+          "label": "AdsPower №2027"
+        }
+      ],
+      "input": {
+        "accountKey": "account-021",
+        "adsPowerProfileNo": "2027"
+      },
+      "metadata": {
+        "accountKey": "account-021",
+        "uniqueKey": "facebook-api-client-sync:account-021",
+        "reportId": "d40081be-d7f0-4b4d-b275-a2150ace8677"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-021",
+        "adsPowerProfileNo": "2027",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-26T11:51:09.148Z",
+      "startedAt": "2026-09-26T11:51:09.150Z",
+      "finishedAt": "2026-09-26T11:51:27.404Z",
+      "updatedAt": "2026-09-26T11:51:27.407Z"
+    },
+    {
       "id": "eeee3678-f36f-40e4-8675-1b22c4ac6efc",
       "type": "account-setup",
       "name": "Акаунти під коментарі · HU · 7",

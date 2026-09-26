@@ -23,6 +23,7 @@ import CreativeManager from "../creatives/CreativeManager.js";
 import { prepareCommentsForCampaign }
     from "../creatives/prepareCreativeForCampaign.js";
 import applyCreativeFont from "../creatives/applyCreativeFont.js";
+import { defaultProfileActivityStore, profileActivityTypes } from "../profile/ProfileActivityStore.js";
 
 
 const disableReasons = new Map([
@@ -165,6 +166,7 @@ export default class AdsBotGuiService {
     #creativeManagerFactory;
     #runCommentingScenario;
     #runParallelCommentingScenario;
+    #profileActivityStore;
     #accountStatuses = new Map();
     #activeAccountCheck = null;
 
@@ -181,6 +183,7 @@ export default class AdsBotGuiService {
         runParallelCommentingScenarioFn = runParallelCommentingScenario,
         reportsDirectory = "./data/reports",
         logger,
+        profileActivityStore = defaultProfileActivityStore,
     } = {}) {
         if (!facebookBackend) {
             throw createGuiError(
@@ -198,6 +201,7 @@ export default class AdsBotGuiService {
         this.#creativeManagerFactory = creativeManagerFactory;
         this.#runCommentingScenario = runCommentingScenarioFn;
         this.#runParallelCommentingScenario = runParallelCommentingScenarioFn;
+        this.#profileActivityStore = profileActivityStore;
         this.reportsDirectory = reportsDirectory;
         this.logger = normalizeLogger(logger);
     }
@@ -739,6 +743,10 @@ export default class AdsBotGuiService {
             skipPublishPosts: !normalizedOperations.publishPosts,
             skipFillAbout: !normalizedOperations.fillAbout,
             skipBio: !normalizedOperations.deleteBio,
+            profileActivityStore: this.#profileActivityStore,
+            profileActivityType: useApiRequests
+                ? profileActivityTypes.COMMENT_ACCOUNT_SETUP_API
+                : profileActivityTypes.COMMENT_ACCOUNT_SETUP_UI,
         });
         return {
             reportPath: report.reportPath,
@@ -758,6 +766,7 @@ export default class AdsBotGuiService {
             adsPower: this.adsPower,
             logger: this.logger,
             reportsDirectory: this.reportsDirectory,
+            profileActivityStore: this.#profileActivityStore,
             ...options,
         });
     }
@@ -846,6 +855,7 @@ export default class AdsBotGuiService {
             signal, onProgress,
             logger: this.logger,
             reportsDirectory: this.reportsDirectory,
+            profileActivityStore: this.#profileActivityStore,
         });
     }
 

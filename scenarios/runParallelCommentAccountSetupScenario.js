@@ -144,6 +144,8 @@ export default async function runParallelCommentAccountSetupScenario({
     skipFillAbout = false,
     skipBio = false,
     ignoreSkipReasons = false,
+    profileActivityStore = null,
+    profileActivityType = null,
 } = {}) {
     const workerLimit = normalizeConcurrency(concurrency);
     const requiresPhotoSet = !skipAvatarChange
@@ -181,6 +183,7 @@ export default async function runParallelCommentAccountSetupScenario({
     let progressQueue = Promise.resolve();
     let activeAttempts = 0;
     let abortError = null;
+    const activityWrites = new Set();
 
     const progress = (payload) => {
         if (typeof onProgress !== "function") return Promise.resolve();
@@ -256,7 +259,7 @@ export default async function runParallelCommentAccountSetupScenario({
                 const startedAt = new Date().toISOString();
                 const addReportItem = (result, extra = {}) => {
                     const finishedAt = new Date().toISOString();
-                    report.profiles.push(toReportItem(result, {
+                    const item = toReportItem(result, {
                         ...extra,
                         startedAt,
                         finishedAt,
@@ -264,7 +267,20 @@ export default async function runParallelCommentAccountSetupScenario({
                             0,
                             new Date(finishedAt) - new Date(startedAt)
                         ),
-                    }));
+                    });
+                    report.profiles.push(item);
+                    if (item.outcome === "success" && profileActivityStore && profileActivityType) {
+                        const write = profileActivityStore.recordSuccessfulAction({
+                            profileNo: item.profileNo,
+                            actionType: profileActivityType,
+                            occurredAt: item.finishedAt,
+                        }).catch((error) => scenarioLogger.warn(
+                            "activity.record-failed",
+                            "Не вдалося записати статистику профілю",
+                            { profileNo: item.profileNo, error }
+                        )).finally(() => activityWrites.delete(write));
+                        activityWrites.add(write);
+                    }
                 };
                 activeAttempts += 1;
                 await progress({
@@ -471,6 +487,7 @@ export default async function runParallelCommentAccountSetupScenario({
         if (report.interrupted) abortError = error;
     } finally {
         await Promise.allSettled(runningOperations);
+        await Promise.allSettled(activityWrites);
         report.finishedAt = new Date().toISOString();
         try {
             report.reportPath = await saveCommentAccountSetupReport(

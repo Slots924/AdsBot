@@ -187,6 +187,8 @@ contextBridge.exposeInMainWorld("adsBot", {
     resolveBackgroundTaskAction: (taskId, actionKey, payload) =>
         ipcRenderer.invoke("tasks:resolve-action", { taskId, actionKey, payload }),
     getLogs: (filters) => ipcRenderer.invoke("logs:list", filters),
+    getProfileActivity: (filters) => ipcRenderer.invoke("profile-activity:list", filters),
+    deleteProfileActivity: (profileNos) => ipcRenderer.invoke("profile-activity:delete", { profileNos }),
     getLogScopes: () => ipcRenderer.invoke("logs:scopes"),
     setLogLevel: (level) => ipcRenderer.invoke("logs:level-set", { level }),
     writeRendererLog: (entry) => ipcRenderer.invoke("logs:renderer-write", entry),

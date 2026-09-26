@@ -30,6 +30,7 @@ import SpendStore from "../../services/spend/SpendStore.js";
 import SpendService from "../../services/spend/SpendService.js";
 import SpendTaskCoordinator from "../../services/spend/SpendTaskCoordinator.js";
 import SpendScheduler from "../../services/spend/SpendScheduler.js";
+import { defaultProfileActivityStore } from "../../services/profile/ProfileActivityStore.js";
 import { configureRuntimeLogger } from "../../services/logging/runtimeLogger.js";
 import FacebookAccountManager
     from "../../facebook/accounts/FacebookAccountManager.js";
@@ -179,6 +180,7 @@ async function createWindow() {
         reportsDirectory: appPaths.reports,
         creativeManagerFactory: createCreativeManager,
         logger: appLogger.child("gui"),
+        profileActivityStore: defaultProfileActivityStore,
     });
     templateManager = new CampaignTemplateManager({
         templatesFile: appPaths.templates,
@@ -225,6 +227,7 @@ async function createWindow() {
     spendStore = await new SpendStore({
         databaseFile: appPaths.spendDatabase,
     }).initialize();
+    await defaultProfileActivityStore.initialize();
     const spendService = new SpendService({
         store: spendStore,
         guiService,
@@ -253,6 +256,7 @@ async function createWindow() {
         spendService,
         spendTaskCoordinator,
         spendScheduler,
+        profileActivityStore: defaultProfileActivityStore,
         templateManager,
         appStateStore,
         adAccountPreferencesStore,

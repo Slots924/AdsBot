@@ -10,6 +10,7 @@ import {
     shuffleArray,
     validateSettings,
 } from "./runCommentingScenario.js";
+import { profileActivityTypes } from "../services/profile/ProfileActivityStore.js";
 
 
 function normalizeConcurrency(value) {
@@ -91,6 +92,7 @@ export default async function runParallelCommentingScenario({
     reportsDirectory = "./data/reports",
     executeComment = executeCommentWithProfile,
     getGender = getProfileGender,
+    profileActivityStore = null,
 } = {}) {
     const workerLimit = normalizeConcurrency(concurrency);
     const workerProxyMap = workerProxies && typeof workerProxies === "object"
@@ -604,6 +606,24 @@ export default async function runParallelCommentingScenario({
         if (signal?.aborted) throw createAbortError();
         await Promise.all(runningOperations);
         if (stopTaskError) throw stopTaskError;
+
+        if (profileActivityStore) {
+            const occurredAt = new Date().toISOString();
+            const successfulProfiles = [...new Set(
+                report.published.map((item) => String(item.profileNo ?? "").trim()).filter(Boolean)
+            )];
+            await Promise.all(successfulProfiles.map((profileNo) => profileActivityStore
+                .recordSuccessfulAction({
+                    profileNo,
+                    actionType: profileActivityTypes.COMMENT_TASK,
+                    occurredAt,
+                })
+                .catch((error) => scenarioLogger.warn(
+                    "activity.record-failed",
+                    "Не вдалося записати статистику профілю",
+                    { profileNo, error }
+                ))));
+        }
 
         runnable.forEach((comment) => {
             if (terminalIds.has(comment.id) || queuedIds.has(comment.id)) return;

@@ -1,4 +1,5 @@
 import { BAN_TAG_ID } from "../../../config.js";
+import { defaultProfileActivityStore } from "../ProfileActivityStore.js";
 import hasBanTag from "./hasBanTag.js";
 
 
@@ -41,6 +42,11 @@ export default async function markProfileAsBanned(
         [BAN_TAG_ID],
         "2"
     );
+    try {
+        await defaultProfileActivityStore.markBanned(profile.profile_no);
+    } catch (error) {
+        console.error("Не вдалося записати BAN у статистику профілю:", error.message);
+    }
 
 
     return {
