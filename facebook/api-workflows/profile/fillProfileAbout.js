@@ -145,6 +145,7 @@ export default async function fillProfileAbout({
     page,
     commonPayload,
     fields = {},
+    skipBio = false,
     timeout,
 } = {}) {
     try {
@@ -165,8 +166,11 @@ export default async function fillProfileAbout({
             };
         }
 
+        const shouldUpdateBio = !skipBio;
         const bioTokens = tokens.directory_bio;
-        const bioResult = bioTokens
+        const bioResult = !shouldUpdateBio
+            ? step(true, "SKIPPED", { skipped: true })
+            : bioTokens
             ? await updateBio({
                 page,
                 commonPayload,

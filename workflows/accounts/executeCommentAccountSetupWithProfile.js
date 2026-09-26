@@ -213,6 +213,7 @@ export default async function executeCommentAccountSetupWithProfile({
     skipDeletePosts = false,
     skipPublishPosts = false,
     skipFillAbout = false,
+    skipBio = false,
     ignoreSkipReasons = false,
     actions = {},
 } = {}) {
@@ -394,7 +395,12 @@ export default async function executeCommentAccountSetupWithProfile({
             result.success = false;
             return;
         }
-        if (!result.nameChanged) {
+        if (result.error) {
+            result.outcome = "failed";
+            result.success = false;
+            return;
+        }
+        if (!skipNameChange && !result.nameChanged) {
             result.outcome = "failed";
             result.success = false;
             return;
@@ -504,10 +510,9 @@ export default async function executeCommentAccountSetupWithProfile({
         assertNotAborted();
         result.stage = "CHANGE_NAME";
         if (skipNameChange) {
-            result.nameChanged = true;
             result.steps.name = createStep({
                 skipped: true,
-                reason: "Ім’я вже змінено, крок пропущено",
+                reason: "Зміну імені вимкнено, крок пропущено",
             });
         } else {
         let nameResult;
@@ -756,6 +761,7 @@ export default async function executeCommentAccountSetupWithProfile({
                 work: persona.work,
                 education: persona.education,
             },
+            skipBio,
             logger,
         });
         if (aboutResult?.success) {
@@ -763,10 +769,14 @@ export default async function executeCommentAccountSetupWithProfile({
                 ok: true,
                 status: aboutResult.status,
                 detail: [
-                    persona.bio,
+                    skipBio ? null : "bio очищено",
                     `${persona.work?.position} @ ${persona.work?.company}`,
                     persona.education,
                 ].filter(Boolean).join("; "),
+                fallback: Object.entries(aboutResult.steps ?? {})
+                    .filter(([, step]) => step?.success && step.fallback)
+                    .map(([field]) => field)
+                    .join(", ") || null,
             });
         } else {
             result.steps.about = createStep({
@@ -799,7 +809,15 @@ export default async function executeCommentAccountSetupWithProfile({
                     error: error.message,
                 });
             }
+        } else if (skipNameChange) {
+            result.steps.adsPowerRename = createStep({
+                ok: true,
+                skipped: true,
+                reason: "Ім’я Facebook не змінювали",
+            });
+        }
 
+        if (result.nameChanged || skipNameChange) {
             try {
                 await markGender(adsPower, profile, persona.gender);
                 result.steps.genderTag = createStep({

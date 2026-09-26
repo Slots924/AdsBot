@@ -87,11 +87,14 @@ function halfText(value) {
 }
 
 
-export function normalizeFacebookPersonalProfileAboutFields(fields) {
+export function normalizeFacebookPersonalProfileAboutFields(fields, {
+    skipBio = false,
+} = {}) {
     if (fields == null || typeof fields !== "object" || Array.isArray(fields)) {
         return null;
     }
 
+    const bioRequested = !skipBio;
     const bio = trimField(fields.bio);
     let work = null;
     let workRequested = false;
@@ -126,7 +129,7 @@ export function normalizeFacebookPersonalProfileAboutFields(fields) {
 
     return {
         bio,
-        bioRequested: true,
+        bioRequested,
         work,
         workRequested,
         workSkipReason: workRequested ? null : workSkipReason,
@@ -466,6 +469,7 @@ export default async function fillFacebookPersonalProfileAbout(
     page,
     {
         fields,
+        skipBio = false,
         timeout = 90000,
         random = Math.random,
         sleep,
@@ -474,10 +478,10 @@ export default async function fillFacebookPersonalProfileAbout(
     } = {}
 ) {
     const startedAt = new Date().toISOString();
-    const normalized = normalizeFacebookPersonalProfileAboutFields(fields);
+    const normalized = normalizeFacebookPersonalProfileAboutFields(fields, { skipBio });
     const timingOptions = { random, ...(sleep ? { sleep } : {}) };
     const fieldStates = {
-        bio: createFieldState({ requested: true }),
+        bio: createFieldState({ requested: Boolean(normalized?.bioRequested) }),
         work: createFieldState({
             requested: Boolean(normalized?.workRequested),
             skipReason: normalized?.workSkipReason ?? null,
@@ -955,6 +959,9 @@ export default async function fillFacebookPersonalProfileAbout(
             fieldStates.work.status =
                 facebookPersonalProfileAboutFieldStatuses.SKIPPED;
         }
+        if (!normalized.bioRequested) {
+            fieldStates.bio.status = facebookPersonalProfileAboutFieldStatuses.SKIPPED;
+        }
         if (!normalized.educationRequested) {
             fieldStates.education.status =
                 facebookPersonalProfileAboutFieldStatuses.SKIPPED;
@@ -964,7 +971,7 @@ export default async function fillFacebookPersonalProfileAbout(
             "facebook.personal_about.started",
             "Починаємо заповнення About",
             {
-                bioRequested: true,
+                bioRequested: normalized.bioRequested,
                 workRequested: normalized.workRequested,
                 educationRequested: normalized.educationRequested,
             }
@@ -972,7 +979,7 @@ export default async function fillFacebookPersonalProfileAbout(
         await emitProgress(onProgress, {
             type: "about_started",
             fields: {
-                bio: Boolean(normalized.bio),
+                bio: normalized.bioRequested,
                 work: normalized.workRequested,
                 education: normalized.educationRequested,
             },
@@ -983,6 +990,7 @@ export default async function fillFacebookPersonalProfileAbout(
         await waitInspect({ kind: "aboutPanel" }, "бічна панель About");
         await pauseAfterChange("medium");
 
+        if (normalized.bioRequested) {
         stage = "BIO";
         await openSideTab(aboutSelectors.introTab, "вкладка Intro");
         await waitInspect(
@@ -1179,6 +1187,7 @@ export default async function fillFacebookPersonalProfileAbout(
             field: "bio",
             status: fieldStates.bio.status,
         });
+        }
 
         if (normalized.workRequested) {
             stage = "WORK";

@@ -225,6 +225,8 @@ assert.equal(profileCloseCount, 2);
 
 const openedPages = [];
 let aboutOpenedOnProfile = false;
+let adsPowerNameUpdateCount = 0;
+let receivedSkipBio = null;
 const disabledPhotoStepsSetup = await executeCommentAccountSetupWithProfile({
     adsPower: {
         async openProfile() {
@@ -258,16 +260,29 @@ const disabledPhotoStepsSetup = await executeCommentAccountSetupWithProfile({
         ensureLoggedIn: async () => true,
         ensureActive: async () => true,
         ensureEnglish: async () => {},
-        fillAbout: async () => {
+        fillAbout: async (_page, { skipBio }) => {
             aboutOpenedOnProfile = openedPages.at(-1) === "https://www.facebook.com/me";
-            return { success: true, status: "UPDATED" };
+            receivedSkipBio = skipBio;
+            return {
+                success: true,
+                status: "UPDATED",
+                steps: {
+                    education: { success: true, fallback: true },
+                },
+            };
         },
-        updateProfileName: async () => {},
+        updateProfileName: async () => {
+            adsPowerNameUpdateCount += 1;
+        },
         markGender: async () => {},
     },
 });
 assert.equal(disabledPhotoStepsSetup.success, true);
 assert.equal(disabledPhotoStepsSetup.steps.about.ok, true);
+assert.equal(adsPowerNameUpdateCount, 0);
+assert.equal(disabledPhotoStepsSetup.steps.adsPowerRename.skipped, true);
+assert.equal(receivedSkipBio, false);
+assert.equal(disabledPhotoStepsSetup.steps.about.fallback, "education");
 assert.equal(aboutOpenedOnProfile, true);
 assert.deepEqual(openedPages, [
     "https://www.facebook.com/",

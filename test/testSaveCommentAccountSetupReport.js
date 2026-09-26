@@ -34,7 +34,11 @@ const report = {
                 cover: { ok: true, detail: "2.jpg" },
                 deletePosts: { ok: true, detail: "старі пости видалено" },
                 posts: { ok: true, detail: "1 фото, дати 2023-04-01" },
-                about: { ok: true, detail: "bio; Mechaniker @ Firma; school" },
+                about: {
+                    ok: true,
+                    detail: "bio; Mechaniker @ Firma; school",
+                    fallback: "education, work",
+                },
                 genderTag: { ok: true, detail: "Man" },
                 adsPowerRename: { ok: true, detail: "m_Holger Steinhof" },
                 photoFolderRename: {
@@ -94,6 +98,7 @@ assert.match(markdown, /Профіль 10 — успішно/);
 assert.match(markdown, /Профіль 11 — завершено з помилкою/);
 assert.match(markdown, /Аватарка \| Не вдалося — INVALID_IMAGE/);
 assert.match(markdown, /Профіль має тег Change Name Error/);
+assert.match(markdown, /Fallback \| education, work/);
 
 const directory = await mkdtemp(path.join(os.tmpdir(), "adsbot-account-report-"));
 try {

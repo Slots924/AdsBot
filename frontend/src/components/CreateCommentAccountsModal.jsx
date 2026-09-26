@@ -32,6 +32,7 @@ export default function CreateCommentAccountsModal({
             deletePosts: true,
             publishPosts: true,
             fillAbout: true,
+            deleteBio: true,
         },
     });
     const [saving, setSaving] = useState(false);
@@ -187,6 +188,7 @@ export default function CreateCommentAccountsModal({
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.deletePosts} onChange={(event) => setOperation("deletePosts", event.target.checked)} /><span>Видалити старі пости</span></label>
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.publishPosts} onChange={(event) => setOperation("publishPosts", event.target.checked)} /><span>Опублікувати фото-пости</span></label>
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.fillAbout} onChange={(event) => setOperation("fillAbout", event.target.checked)} /><span>Заповнити інформацію About</span></label>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.deleteBio} disabled={!draft.operations.fillAbout} onChange={(event) => setOperation("deleteBio", event.target.checked)} /><span>Видалити bio</span></label>
                     </section>
                     <p className="settings-hint">Якщо поле країни не вибране, використовується цільова країна.</p>
                     <div className="form-grid">

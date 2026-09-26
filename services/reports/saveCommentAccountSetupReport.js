@@ -165,12 +165,13 @@ function buildProfileSection(item) {
     lines.push(createTable(["Дані", "Результат"], [
         ["Час виконання", formatDuration(item.durationMs)],
         ["Ім’я Facebook", facebookNameValue(item, fullName)],
-        ["Назва AdsPower", item.adsPowerName ? `\`${item.adsPowerName}\`` : ordinaryStepValue(steps.adsPowerRename)],
+        ["Назва AdsPower", ordinaryStepValue(steps.adsPowerRename)],
         ["Аватарка", photoValue(steps.avatar)],
         ["Обкладинка", photoValue(steps.cover)],
         ["Видалення постів", ordinaryStepValue(steps.deletePosts)],
         ["Нові пости", postsValue(steps.posts)],
         ["Дані про себе", ordinaryStepValue(steps.about)],
+        ["Fallback", steps.about?.fallback || "Не використовувався"],
     ]));
 
     const problem = profileProblem(item);

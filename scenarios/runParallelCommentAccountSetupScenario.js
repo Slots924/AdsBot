@@ -142,6 +142,7 @@ export default async function runParallelCommentAccountSetupScenario({
     skipDeletePosts = false,
     skipPublishPosts = false,
     skipFillAbout = false,
+    skipBio = false,
     ignoreSkipReasons = false,
 } = {}) {
     const workerLimit = normalizeConcurrency(concurrency);
@@ -362,6 +363,7 @@ export default async function runParallelCommentAccountSetupScenario({
                         skipDeletePosts,
                         skipPublishPosts,
                         skipFillAbout,
+                        skipBio,
                         ignoreSkipReasons,
                         browserMode: report.browserMode,
                         disableImages: report.disableImages,

@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "id": "45b9cfb5-fa78-4865-8a72-80c3fa29f3cb",
+  "taskId": "568f9478-01d3-4cdc-ae01-312a2523ff18",
+  "type": "page-post-delete",
+  "title": "Видалення поста · 110294058835644_122331925910007562",
+  "status": "failed",
+  "createdAt": "2026-09-26T07:53:52.597Z",
+  "startedAt": "2026-09-26T07:53:51.089Z",
+  "finishedAt": "2026-09-26T07:53:52.595Z",
+  "durationMs": 1506,
+  "inputSummary": {
+    "accountKey": "account-001",
+    "pageId": "110294058835644",
+    "postId": "110294058835644_122331925910007562"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Unsupported delete request. Object with ID '110294058835644_122331925910007562' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+      "code": "FACEBOOK_API_ERROR",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-001",
+    "pageId": "110294058835644"
+  }
+}

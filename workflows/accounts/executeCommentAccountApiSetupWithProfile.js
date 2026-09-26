@@ -136,20 +136,20 @@ export default async function executeCommentAccountApiSetupWithProfile(options =
                     : { message: result.error || result.status },
             };
         },
-        fillAbout: async (page, { fields }) => {
+        fillAbout: async (page, { fields, skipBio }) => {
             const commonPayload = await getCommonPayload(page);
             const result = await fillProfileAbout({
                 page,
                 commonPayload,
                 fields: {
                     ...fields,
-                    bio: "",
                 },
+                skipBio,
             });
             const education = result.steps?.education;
             const work = result.steps?.work;
             const bio = result.steps?.bio;
-            if (bio?.success) {
+            if (bio?.success && !bio.skipped) {
                 emitInfo(logger, "facebook.api_setup.bio", "Bio очищено");
             }
             if (education?.success) {

@@ -695,17 +695,6 @@ export default class AdsBotGuiService {
             universitiesGeo,
             professionsGeo,
         });
-        const personas = generated.profiles.map((profile) => ({
-            gender: profile.gender,
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            bio: "",
-            education: profile.university,
-            work: {
-                company: profile.company,
-                position: profile.profession,
-            },
-        }));
         const normalizedOperations = {
             changeName: operations.changeName !== false,
             changeAvatar: operations.changeAvatar !== false,
@@ -713,7 +702,19 @@ export default class AdsBotGuiService {
             deletePosts: operations.deletePosts !== false,
             publishPosts: operations.publishPosts !== false,
             fillAbout: operations.fillAbout !== false,
+            deleteBio: operations.deleteBio !== false,
         };
+        const personas = generated.profiles.map((profile) => ({
+            gender: profile.gender,
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            bio: normalizedOperations.deleteBio ? "" : profile.bio ?? "",
+            education: profile.university,
+            work: {
+                company: profile.company,
+                position: profile.profession,
+            },
+        }));
         const { report } = await runParallelCommentAccountSetupScenario({
             adsPower: this.adsPower,
             profileNos: numbers,
@@ -737,6 +738,7 @@ export default class AdsBotGuiService {
             skipDeletePosts: !normalizedOperations.deletePosts,
             skipPublishPosts: !normalizedOperations.publishPosts,
             skipFillAbout: !normalizedOperations.fillAbout,
+            skipBio: !normalizedOperations.deleteBio,
         });
         return {
             reportPath: report.reportPath,
