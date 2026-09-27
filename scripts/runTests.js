@@ -42,6 +42,7 @@ const backendSuites = {
         "test/testFacebookSelectors.js",
         "test/testEducationAddActions.js",
         "test/testCreateFanPageAction.js",
+        "test/testSwitchToAdditionalProfileAction.js",
         "test/testAutomatedBehaviorLocalization.js",
         "test/testOpenFacebookUserProfile.js",
         "test/testFacebookPagePostsMock.js",
