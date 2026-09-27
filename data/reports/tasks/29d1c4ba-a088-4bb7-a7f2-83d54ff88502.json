@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "id": "29d1c4ba-a088-4bb7-a7f2-83d54ff88502",
+  "taskId": "a1526677-f664-4a13-974e-11aac535f08f",
+  "type": "campaign",
+  "title": "HU | Creo_1 | 30+ 26/09 20:50",
+  "status": "failed",
+  "createdAt": "2026-09-26T17:50:32.542Z",
+  "startedAt": "2026-09-26T17:50:19.935Z",
+  "finishedAt": "2026-09-26T17:50:32.541Z",
+  "durationMs": 12606,
+  "inputSummary": {
+    "campaignJobId": "f1c95b9a-cf2f-4f2d-a084-96494d983393",
+    "accountKey": "account-024",
+    "adAccountId": "act_4593415000944156",
+    "campaignName": "HU | Creo_1 | 30+ 26/09 20:50",
+    "templateId": 13,
+    "pageId": "1364248796763986",
+    "postId": "1364248796763986_122095115985497525",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-09-26T17:50:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120257638120400777",
+      "creativeId": "1969853987306290",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120257638120760777",
+          "name": "HU | Creo_1 | 30+ 26/09 20:50 | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Update payment method: Visit the Billing and payment center to add a valid payment method.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 100,
+      "graphSubcode": 1359188,
+      "graphUserTitle": "No Payment Method",
+      "graphUserMessage": "Update payment method: Visit the Billing and payment center to add a valid payment method.",
+      "stage": "ad",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "f1c95b9a-cf2f-4f2d-a084-96494d983393",
+    "accountKey": "account-024",
+    "adAccountId": "act_4593415000944156",
+    "uniqueKey": "campaign-job:f1c95b9a-cf2f-4f2d-a084-96494d983393"
+  }
+}

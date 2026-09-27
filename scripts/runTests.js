@@ -41,6 +41,7 @@ const backendSuites = {
         "test/testConfirmedClick.js",
         "test/testFacebookSelectors.js",
         "test/testEducationAddActions.js",
+        "test/testCreateFanPageAction.js",
         "test/testAutomatedBehaviorLocalization.js",
         "test/testOpenFacebookUserProfile.js",
         "test/testFacebookPagePostsMock.js",
