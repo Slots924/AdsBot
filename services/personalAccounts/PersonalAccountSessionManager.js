@@ -237,21 +237,22 @@ export default class PersonalAccountSessionManager {
                 throw sessionError("Потрібен Additional profile ID", "ADDITIONAL_PROFILE_ID_REQUIRED");
             }
             await this.#ensureFacebookContext(session, session.mainActorId, profileUrl, "FACEBOOK_MAIN");
-            assertAction(await switchToAdditionalProfile({
+            const switchResult = assertAction(await switchToAdditionalProfile({
                 page: session.page,
                 commonPayload: session.payload,
                 additionalProfileId,
                 timeout: 60000,
             }), "Не вдалося перемкнутися на фанпейдж");
             session.additionalProfileId = additionalProfileId;
-            await this.#capture(session, profileUrl, "FACEBOOK_PAGE");
-            if (session.actorId !== additionalProfileId) {
-                throw sessionError(
-                    "Facebook не підтвердив перемикання на additional profile",
-                    "ADDITIONAL_PROFILE_SWITCH_NOT_CONFIRMED"
-                );
-            }
-            return { additionalProfileId, session: publicSession(session) };
+            // Facebook інколи не повертає body для успішного profile switch.
+            // Наступна дія самостійно захопить новий payload і перевірить actor.
+            session.payload = null;
+            session.context = "FACEBOOK_SWITCH_REQUESTED";
+            return {
+                status: switchResult.status,
+                additionalProfileId,
+                session: publicSession(session),
+            };
         });
     }
 

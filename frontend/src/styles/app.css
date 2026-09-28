@@ -1700,6 +1700,7 @@ button:focus-visible, input:focus-visible {
 .personal-tags span { padding: 4px 7px; border-radius: 6px; color: #b8bfd0; background: rgba(255,255,255,.05); font-size: 11px; }
 .personal-main-action { justify-self: start; min-height: 43px; }
 .personal-success { display: flex; align-items: center; gap: 9px; padding: 13px 15px; border: 1px solid rgba(75,213,137,.25); border-radius: 11px; color: #8aebbb; background: rgba(75,213,137,.07); }
+.personal-action-success { margin-top: 2px; font-size: 13px; font-weight: 650; }
 .personal-action-card { display: grid; gap: 13px; padding: 17px; }
 .personal-action-card h4, .personal-card-heading h4 { margin: 0; font-size: 16px; }
 .personal-two-columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
