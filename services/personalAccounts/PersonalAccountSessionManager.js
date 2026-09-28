@@ -493,6 +493,7 @@ export default class PersonalAccountSessionManager {
     requestPhoneCode(sessionId, input) {
         return this.#perform(sessionId, "ads.phone_code_request", async (session) => {
             await this.#ensureAdsManager(session, input.adAccountId);
+            await this.#ensureBillingPagePayload(session, input.adAccountId);
             const result = assertAction(await requestPhoneVerificationCode({
                 page: session.page,
                 commonPayload: session.payload,
@@ -517,6 +518,7 @@ export default class PersonalAccountSessionManager {
                 throw sessionError("Спочатку надішліть SMS-код", "PHONE_FLOW_REQUIRED");
             }
             await this.#ensureAdsManager(session, session.phoneFlow.adAccountId);
+            await this.#ensureBillingPagePayload(session, session.phoneFlow.adAccountId);
             const result = assertAction(await submitPhoneVerificationCode({
                 page: session.page,
                 commonPayload: session.payload,
@@ -777,7 +779,7 @@ export default class PersonalAccountSessionManager {
     }
 
 
-    async #ensureBillingPaymentSettings(session, adAccountId) {
+    async #ensureBillingPagePayload(session, adAccountId) {
         const normalizedAdAccountId = String(adAccountId ?? "")
             .replace(/^act_/, "")
             .trim();
@@ -785,7 +787,7 @@ export default class PersonalAccountSessionManager {
             throw sessionError(
                 "Потрібен коректний ID рекламного акаунта для платіжних налаштувань",
                 "BILLING_ACCOUNT_ID_INVALID",
-                { stage: "ENSURE_BILLING_PAYMENT_SETTINGS" }
+                { stage: "ENSURE_BILLING_PAGE_PAYLOAD" }
             );
         }
 
@@ -803,21 +805,40 @@ export default class PersonalAccountSessionManager {
             && currentUrl.pathname.replace(/\/$/, "") === billingPaymentSettingsPath.replace(/\/$/, "")
             && currentUrl.searchParams.get("asset_id") === normalizedAdAccountId
             && currentUrl.searchParams.get("payment_account_id") === normalizedAdAccountId;
+        let payloadUrl = null;
+        try {
+            payloadUrl = session.payloadUrl ? new URL(session.payloadUrl) : null;
+        } catch {
+            payloadUrl = null;
+        }
+        const hasBillingPayload = Boolean(
+            payloadUrl
+            && payloadUrl.hostname === targetUrl.hostname
+            && payloadUrl.pathname.replace(/\/$/, "") === billingPaymentSettingsPath.replace(/\/$/, "")
+            && payloadUrl.searchParams.get("asset_id") === normalizedAdAccountId
+            && payloadUrl.searchParams.get("payment_account_id") === normalizedAdAccountId
+        );
 
         await session.report.append("ads.billing_page.check", {
             currentHost: currentUrl.hostname,
             currentPath: currentUrl.pathname,
             targetPath: targetUrl.pathname,
             accountIdMatches: isCorrectPage,
-            navigated: !isCorrectPage,
+            payloadMatches: hasBillingPayload,
+            navigated: !isCorrectPage || !hasBillingPayload,
         });
 
-        if (!isCorrectPage) {
+        if (!isCorrectPage || !hasBillingPayload) {
             try {
-                await session.page.goto(targetUrl.toString(), {
-                    waitUntil: "domcontentloaded",
+                const captured = assertAction(await captureGraphqlPayload(session.page, {
+                    profileUrl: targetUrl.toString(),
+                    graphqlUrl: adsManagerGraphqlUrl,
                     timeout: 60000,
-                });
+                }), "Не вдалося отримати billing payload Ads Manager");
+                session.payload = captured.data;
+                session.payloadUrl = session.page.url();
+                session.actorId = String(captured.data.__user ?? "");
+                session.context = "ADS_MANAGER";
             } catch (error) {
                 await session.report.append("ads.billing_page.navigation_failed", {
                     message: String(error?.message ?? error),
@@ -825,10 +846,20 @@ export default class PersonalAccountSessionManager {
                 throw sessionError(
                     "Не вдалося відкрити сторінку платіжних налаштувань Ads Manager",
                     "BILLING_PAGE_NAVIGATION_FAILED",
-                    { stage: "NAVIGATE_BILLING_PAYMENT_SETTINGS" }
+                    { stage: "CAPTURE_BILLING_PAGE_PAYLOAD" }
                 );
             }
         }
+        await session.report.append("ads.billing_page.payload_ready", {
+            pageUrl: session.page.url(),
+            payloadUrl: session.payloadUrl,
+            accountId: normalizedAdAccountId,
+        });
+    }
+
+
+    async #ensureBillingPaymentSettings(session, adAccountId) {
+        await this.#ensureBillingPagePayload(session, adAccountId);
 
         const initiallyMissingModules = await session.page.evaluate((moduleNames) => {
             const isReady = (moduleName) => {
