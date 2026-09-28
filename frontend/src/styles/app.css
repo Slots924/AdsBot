@@ -1711,6 +1711,13 @@ button:focus-visible, input:focus-visible {
 .compact-field { max-width: 190px; }
 .selected-card-summary { display: grid; gap: 5px; padding: 14px 16px; }
 .phone-verification-row { display: grid; grid-template-columns: 76px minmax(150px,1fr) auto minmax(100px,.6fr) auto; align-items: end; gap: 10px; }
+.phone-verification-methods { display: flex; align-items: center; gap: 9px; }
+.phone-verification-method { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 7px 11px; border: 1px solid #343b4c; border-radius: 9px; color: #9ea7bb; background: #181c28; cursor: pointer; font: inherit; font-size: 13px; }
+.phone-verification-method::before { width: 8px; height: 8px; border-radius: 50%; background: #5e6678; content: ""; transition: background .15s, box-shadow .15s; }
+.phone-verification-method:hover:not(:disabled) { border-color: #545e76; color: #c8cfde; }
+.phone-verification-method.selected { border-color: rgba(75,213,137,.5); color: #d8f9e8; background: rgba(75,213,137,.08); }
+.phone-verification-method.selected::before { background: #56e49a; box-shadow: 0 0 0 3px rgba(86,228,154,.16), 0 0 10px rgba(86,228,154,.72); }
+.phone-verification-method:disabled { cursor: default; opacity: .55; }
 .personal-resource-list { display: grid; gap: 7px; }
 .personal-resource-list > div:not(.select-empty) { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 55px; padding: 9px 12px; border: 1px solid #2d3342; border-radius: 10px; background: #181c27; }
 .personal-resource-list span { display: grid; gap: 3px; }

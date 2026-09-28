@@ -501,8 +501,9 @@ export default class PersonalAccountSessionManager {
                 phoneE164: input.phoneE164,
                 countryCode: input.countryCode,
                 locale: input.locale ?? "en_US",
+                method: input.method,
                 timeout: 60000,
-            }), "Не вдалося надіслати SMS-код");
+            }), "Не вдалося надіслати код підтвердження");
             session.phoneFlow = result.data.flow;
             return {
                 status: result.status,
@@ -515,7 +516,7 @@ export default class PersonalAccountSessionManager {
     submitPhoneCode(sessionId, input) {
         return this.#perform(sessionId, "ads.phone_code_submit", async (session) => {
             if (!session.phoneFlow) {
-                throw sessionError("Спочатку надішліть SMS-код", "PHONE_FLOW_REQUIRED");
+                throw sessionError("Спочатку надішліть код підтвердження", "PHONE_FLOW_REQUIRED");
             }
             await this.#ensureAdsManager(session, session.phoneFlow.adAccountId);
             await this.#ensureBillingPagePayload(session, session.phoneFlow.adAccountId);
@@ -525,7 +526,7 @@ export default class PersonalAccountSessionManager {
                 flow: session.phoneFlow,
                 code: input.code,
                 timeout: 60000,
-            }), "Не вдалося підтвердити SMS-код");
+            }), "Не вдалося підтвердити код");
             session.phoneFlow = null;
             return { status: result.status, phoneVerified: true };
         });

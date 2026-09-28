@@ -16,15 +16,44 @@ const triggerDocId = "28631875969757608";
 const nextFriendlyName = "CometFacebookIXTNextMutation";
 const nextDocId = "29061690550105326";
 const smsMethod = "SMS";
+const whatsappMethod = "WHATSAPP_MESSAGE";
 
 const enterPhoneScreenType = "BVWizardAdvertiserVerificationEnterPhoneIXTScreenViewModel";
 const selectMethodScreenType = "ChallengeSelectIXTScreenViewModel";
 const confirmSmsScreenType = "ChallengeSMSConfirmIXTScreenViewModel";
 const enterSmsCodeScreenType = "ChallengeSMSEnterCodeIXTScreenViewModel";
+const confirmWhatsappScreenType = "ChallengeWhatsAppConfirmIXTScreenViewModel";
+const enterWhatsappCodeScreenType = "ChallengeWhatsAppEnterCodeIXTScreenViewModel";
+
+const deliveryMethods = Object.freeze({
+    [smsMethod]: {
+        confirmScreenType: confirmSmsScreenType,
+        enterCodeScreenType: enterSmsCodeScreenType,
+        confirmInputName: "challenge_sms_confirm",
+        getConfirmScreen: (viewModel) => viewModel?.bv_wizard_challenge_sms_confirm_screen ?? null,
+        getEnterCodeScreen: (viewModel) => viewModel?.bv_wizard_challenge_sms_enter_code_screen ?? null,
+        sentStatus: "SMS_CODE_SENT",
+    },
+    [whatsappMethod]: {
+        confirmScreenType: confirmWhatsappScreenType,
+        enterCodeScreenType: enterWhatsappCodeScreenType,
+        confirmInputName: "challenge_whatsapp_confirm",
+        getConfirmScreen: (viewModel) => viewModel?.challenge_whatsapp_confirm_screen_content_renderer
+            ?.bv_wizard_challenge_whatsapp_confirm_screen
+            ?? viewModel?.bv_wizard_challenge_whatsapp_confirm_screen
+            ?? null,
+        getEnterCodeScreen: (viewModel) => viewModel?.challenge_whatsapp_enter_code_screen_content_renderer
+            ?.bv_wizard_challenge_whatsapp_enter_code_screen
+            ?? viewModel?.bv_wizard_challenge_whatsapp_enter_code_screen
+            ?? null,
+        sentStatus: "WHATSAPP_CODE_SENT",
+    },
+});
 
 
 export const requestPhoneVerificationCodeStatuses = Object.freeze({
     SMS_CODE_SENT: "SMS_CODE_SENT",
+    WHATSAPP_CODE_SENT: "WHATSAPP_CODE_SENT",
     METHOD_UNAVAILABLE: "METHOD_UNAVAILABLE",
     METHOD_NOT_IMPLEMENTED: "METHOD_NOT_IMPLEMENTED",
     UNEXPECTED_SCREEN: "UNEXPECTED_SCREEN",
@@ -65,6 +94,14 @@ function parseNextScreen(data) {
         submissionId: viewModel?.submission_id ?? null,
         viewModel,
     };
+}
+
+
+function getChallengeSelectScreen(viewModel) {
+    return viewModel?.challenge_select_screen_content_renderer
+        ?.bv_wizard_challenge_select_screen
+        ?? viewModel?.bv_wizard_challenge_select_screen
+        ?? null;
 }
 
 
@@ -187,6 +224,7 @@ export default async function requestPhoneVerificationCode({
     const normalizedLocale = String(locale ?? "").trim();
     const normalizedMethod = String(method ?? "").trim().toUpperCase();
     const normalizedTriggerSessionId = String(triggerSessionId ?? "").trim();
+    const methodConfig = deliveryMethods[normalizedMethod] ?? null;
 
     if (validationError || missingRequestField || !normalizedAdAccountId
         || !/^\+[1-9]\d{6,14}$/.test(normalizedPhone)
@@ -200,7 +238,7 @@ export default async function requestPhoneVerificationCode({
         });
     }
 
-    if (normalizedMethod !== smsMethod) {
+    if (!methodConfig) {
         return createResult(false, requestPhoneVerificationCodeStatuses.METHOD_NOT_IMPLEMENTED, null, {
             error: `Метод ${normalizedMethod} ще не реалізований`,
             method: normalizedMethod,
@@ -283,15 +321,15 @@ export default async function requestPhoneVerificationCode({
             });
         }
 
-        const availableMethods = selectMethodScreen.viewModel
-            ?.bv_wizard_challenge_select_screen?.challenge_method_options ?? [];
-        if (!availableMethods.includes(smsMethod)) {
+        const challengeSelectScreen = getChallengeSelectScreen(selectMethodScreen.viewModel);
+        const availableMethods = challengeSelectScreen?.challenge_method_options ?? [];
+        if (!availableMethods.includes(normalizedMethod)) {
             return createResult(false, requestPhoneVerificationCodeStatuses.METHOD_UNAVAILABLE, {
                 flow: createFlow({
                     adAccountId: normalizedAdAccountId,
-                    method: smsMethod,
+                    method: normalizedMethod,
                     phoneE164: normalizedPhone,
-                    phoneDisplay: selectMethodScreen.viewModel?.phone_number ?? null,
+                    phoneDisplay: challengeSelectScreen?.phone_number ?? null,
                     countryCode: normalizedCountryCode,
                     locale: normalizedLocale,
                     screen: selectMethodScreen,
@@ -305,7 +343,7 @@ export default async function requestPhoneVerificationCode({
             });
         }
 
-        const selectSmsResult = await executeStep({
+        const selectMethodResult = await executeStep({
             page,
             commonPayload,
             adAccountId: normalizedAdAccountId,
@@ -314,7 +352,7 @@ export default async function requestPhoneVerificationCode({
             variables: {
                 input: {
                     challenge_select: {
-                        selected_challenge_method: smsMethod,
+                        selected_challenge_method: normalizedMethod,
                         serialized_state: selectMethodScreen.serializedState,
                     },
                     actor_id: String(commonPayload.__user),
@@ -323,26 +361,25 @@ export default async function requestPhoneVerificationCode({
                 scale: 1,
             },
             timeout: normalizedTimeout,
-            stage: "SELECT_SMS",
+            stage: `SELECT_${normalizedMethod}`,
         });
-        if (selectSmsResult.errorStatus) {
-            return createResult(false, selectSmsResult.errorStatus, selectSmsResult.data ?? null, selectSmsResult);
+        if (selectMethodResult.errorStatus) {
+            return createResult(false, selectMethodResult.errorStatus, selectMethodResult.data ?? null, selectMethodResult);
         }
 
-        const confirmSmsScreen = parseNextScreen(selectSmsResult.data);
-        const phoneDisplay = confirmSmsScreen.viewModel
-            ?.bv_wizard_challenge_sms_confirm_screen?.phone_number ?? null;
-        if (confirmSmsScreen.screenType !== confirmSmsScreenType
-            || !confirmSmsScreen.serializedState || !phoneDisplay) {
-            return createResult(false, requestPhoneVerificationCodeStatuses.UNEXPECTED_SCREEN, selectSmsResult.data, {
-                stage: "SELECT_SMS",
-                expectedScreenType: confirmSmsScreenType,
-                actualScreenType: confirmSmsScreen.screenType,
-                httpStatus: selectSmsResult.httpStatus,
+        const confirmScreen = parseNextScreen(selectMethodResult.data);
+        const phoneDisplay = methodConfig.getConfirmScreen(confirmScreen.viewModel)?.phone_number ?? null;
+        if (confirmScreen.screenType !== methodConfig.confirmScreenType
+            || !confirmScreen.serializedState || !phoneDisplay) {
+            return createResult(false, requestPhoneVerificationCodeStatuses.UNEXPECTED_SCREEN, selectMethodResult.data, {
+                stage: `SELECT_${normalizedMethod}`,
+                expectedScreenType: methodConfig.confirmScreenType,
+                actualScreenType: confirmScreen.screenType,
+                httpStatus: selectMethodResult.httpStatus,
             });
         }
 
-        const sendSmsResult = await executeStep({
+        const sendCodeResult = await executeStep({
             page,
             commonPayload,
             adAccountId: normalizedAdAccountId,
@@ -350,9 +387,9 @@ export default async function requestPhoneVerificationCode({
             docId: nextDocId,
             variables: {
                 input: {
-                    challenge_sms_confirm: {
+                    [methodConfig.confirmInputName]: {
                         phone_number: phoneDisplay,
-                        serialized_state: confirmSmsScreen.serializedState,
+                        serialized_state: confirmScreen.serializedState,
                     },
                     actor_id: String(commonPayload.__user),
                     client_mutation_id: "3",
@@ -360,37 +397,36 @@ export default async function requestPhoneVerificationCode({
                 scale: 1,
             },
             timeout: normalizedTimeout,
-            stage: "SEND_SMS",
+            stage: `SEND_${normalizedMethod}`,
         });
-        if (sendSmsResult.errorStatus) {
-            return createResult(false, sendSmsResult.errorStatus, sendSmsResult.data ?? null, sendSmsResult);
+        if (sendCodeResult.errorStatus) {
+            return createResult(false, sendCodeResult.errorStatus, sendCodeResult.data ?? null, sendCodeResult);
         }
 
-        const enterCodeScreen = parseNextScreen(sendSmsResult.data);
-        if (enterCodeScreen.screenType !== enterSmsCodeScreenType || !enterCodeScreen.serializedState) {
-            return createResult(false, requestPhoneVerificationCodeStatuses.UNEXPECTED_SCREEN, sendSmsResult.data, {
-                stage: "SEND_SMS",
-                expectedScreenType: enterSmsCodeScreenType,
+        const enterCodeScreen = parseNextScreen(sendCodeResult.data);
+        if (enterCodeScreen.screenType !== methodConfig.enterCodeScreenType || !enterCodeScreen.serializedState) {
+            return createResult(false, requestPhoneVerificationCodeStatuses.UNEXPECTED_SCREEN, sendCodeResult.data, {
+                stage: `SEND_${normalizedMethod}`,
+                expectedScreenType: methodConfig.enterCodeScreenType,
                 actualScreenType: enterCodeScreen.screenType,
-                httpStatus: sendSmsResult.httpStatus,
+                httpStatus: sendCodeResult.httpStatus,
             });
         }
 
-        return createResult(true, requestPhoneVerificationCodeStatuses.SMS_CODE_SENT, {
+        return createResult(true, requestPhoneVerificationCodeStatuses[methodConfig.sentStatus], {
             flow: createFlow({
                 adAccountId: normalizedAdAccountId,
-                method: smsMethod,
+                method: normalizedMethod,
                 phoneE164: normalizedPhone,
-                phoneDisplay: enterCodeScreen.viewModel
-                    ?.bv_wizard_challenge_sms_enter_code_screen?.phone_number ?? phoneDisplay,
+                phoneDisplay: methodConfig.getEnterCodeScreen(enterCodeScreen.viewModel)?.phone_number ?? phoneDisplay,
                 countryCode: normalizedCountryCode,
                 locale: normalizedLocale,
                 screen: enterCodeScreen,
                 triggerSessionId: normalizedTriggerSessionId,
             }),
-            response: sendSmsResult.data,
+            response: sendCodeResult.data,
         }, {
-            httpStatus: sendSmsResult.httpStatus,
+            httpStatus: sendCodeResult.httpStatus,
         });
     } catch (error) {
         return createResult(false, requestPhoneVerificationCodeStatuses.ERROR, null, {

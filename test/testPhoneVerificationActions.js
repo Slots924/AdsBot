@@ -64,8 +64,10 @@ const requestPage = createPage([
                 view_model: {
                     __typename: "ChallengeSelectIXTScreenViewModel",
                     serialized_state: "state-2",
-                    bv_wizard_challenge_select_screen: {
-                        challenge_method_options: ["SMS", "WHATSAPP_MESSAGE", "ROBOCALL"],
+                    challenge_select_screen_content_renderer: {
+                        bv_wizard_challenge_select_screen: {
+                            challenge_method_options: ["SMS", "WHATSAPP_MESSAGE", "ROBOCALL"],
+                        },
                     },
                 },
             },
@@ -178,6 +180,127 @@ assert.deepEqual(
     }
 );
 
+const whatsappPage = createPage([
+    successResponse({
+        data: {
+            ixt_xfac_bv_trigger: {
+                screen: {
+                    view_model: {
+                        __typename: "BVWizardAdvertiserVerificationEnterPhoneIXTScreenViewModel",
+                        serialized_state: "whatsapp-state-1",
+                    },
+                },
+            },
+        },
+    }),
+    successResponse({
+        data: {
+            ixt_screen_next: {
+                view_model: {
+                    __typename: "ChallengeSelectIXTScreenViewModel",
+                    serialized_state: "whatsapp-state-2",
+                    challenge_select_screen_content_renderer: {
+                        bv_wizard_challenge_select_screen: {
+                            challenge_method_options: ["SMS", "WHATSAPP_MESSAGE"],
+                        },
+                    },
+                },
+            },
+        },
+    }),
+    successResponse({
+        data: {
+            ixt_screen_next: {
+                view_model: {
+                    __typename: "ChallengeWhatsAppConfirmIXTScreenViewModel",
+                    serialized_state: "whatsapp-state-3",
+                    challenge_whatsapp_confirm_screen_content_renderer: {
+                        bv_wizard_challenge_whatsapp_confirm_screen: {
+                            phone_number: "(730) 278-4461",
+                        },
+                    },
+                },
+            },
+        },
+    }),
+    successResponse({
+        data: {
+            ixt_screen_next: {
+                view_model: {
+                    __typename: "ChallengeWhatsAppEnterCodeIXTScreenViewModel",
+                    serialized_state: "whatsapp-state-4",
+                },
+            },
+        },
+    }),
+]);
+const whatsappResult = await requestPhoneVerificationCode({
+    page: whatsappPage,
+    commonPayload,
+    adAccountId: "act_123",
+    phoneE164: "+17302784461",
+    countryCode: "US",
+    locale: "en_GB",
+    method: "WHATSAPP_MESSAGE",
+    triggerSessionId: "whatsapp-trigger-session",
+});
+assert.equal(whatsappResult.success, true);
+assert.equal(
+    whatsappResult.status,
+    requestPhoneVerificationCodeStatuses.WHATSAPP_CODE_SENT
+);
+assert.equal(whatsappResult.data.flow.serializedState, "whatsapp-state-4");
+const sendWhatsappParameters = new URLSearchParams(whatsappPage.calls[3].requestBody);
+assert.deepEqual(
+    JSON.parse(sendWhatsappParameters.get("variables")).input.challenge_whatsapp_confirm,
+    {
+        phone_number: "(730) 278-4461",
+        serialized_state: "whatsapp-state-3",
+    }
+);
+
+const whatsappSubmitPage = createPage([successResponse({
+    data: {
+        ixt_screen_next: null,
+    },
+})]);
+const whatsappSubmitResult = await submitPhoneVerificationCode({
+    page: whatsappSubmitPage,
+    commonPayload,
+    flow: whatsappResult.data.flow,
+    code: "123456",
+});
+assert.equal(whatsappSubmitResult.success, true);
+const whatsappSubmitParameters = new URLSearchParams(whatsappSubmitPage.calls[0].requestBody);
+assert.deepEqual(
+    JSON.parse(whatsappSubmitParameters.get("variables")).input.challenge_whatsapp_enter_code,
+    {
+        check_id: null,
+        code: "123456",
+        serialized_state: "whatsapp-state-4",
+    }
+);
+
+const rejectedWhatsappCodeResult = await submitPhoneVerificationCode({
+    page: createPage([successResponse({
+        data: { ixt_screen_next: null },
+        errors: [{
+            code: 1752126,
+            api_error_code: 100,
+            summary: "Invalid confirmation code",
+        }],
+    })]),
+    commonPayload,
+    flow: whatsappResult.data.flow,
+    code: "123456",
+});
+assert.equal(rejectedWhatsappCodeResult.success, false);
+assert.equal(
+    rejectedWhatsappCodeResult.status,
+    submitPhoneVerificationCodeStatuses.CODE_REJECTED
+);
+assert.equal(rejectedWhatsappCodeResult.error, "Невірний або прострочений код підтвердження");
+
 const unsupportedMethodResult = await requestPhoneVerificationCode({
     page: createPage([]),
     commonPayload,
@@ -185,7 +308,7 @@ const unsupportedMethodResult = await requestPhoneVerificationCode({
     phoneE164: "+17302784461",
     countryCode: "US",
     locale: "en_GB",
-    method: "WHATSAPP_MESSAGE",
+    method: "ROBOCALL",
 });
 
 assert.equal(unsupportedMethodResult.success, false);

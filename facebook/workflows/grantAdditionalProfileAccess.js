@@ -1,6 +1,6 @@
 import captureGraphqlPayload from "../api-actions/captureGraphqlPayload.js";
 import inviteAdditionalProfileAdmin from "../api-actions/pages/inviteAdditionalProfileAdmin.js";
-import reauthFacebookPassword from "../actions/reauthFacebookPassword.js";
+import reauthAdditionalProfileAdmin from "../api-actions/pages/reauthAdditionalProfileAdmin.js";
 
 
 const profileAccessUrl = "https://www.facebook.com/settings/?tab=profile_access";
@@ -20,24 +20,26 @@ export default async function grantAdditionalProfileAccess({
     });
     if (!captured.success) return { ...captured, stage: "CAPTURE_PROFILE_ACCESS_PAYLOAD" };
 
-    const reauth = await reauthFacebookPassword(page, password, { timeout: 8000 });
+    const reauth = await reauthAdditionalProfileAdmin({
+        page,
+        commonPayload: captured.data,
+        additionalProfileId,
+        password,
+        timeout,
+    });
     if (!reauth.success) return { ...reauth, stage: "REAUTH" };
 
-    let commonPayload = captured.data;
-    if (reauth.status === "REAUTHENTICATED") {
-        const refreshed = await captureGraphqlPayload(page, {
-            profileUrl: profileAccessUrl,
-            timeout,
-        });
-        if (!refreshed.success) {
-            return { ...refreshed, stage: "RECAPTURE_AFTER_REAUTH" };
-        }
-        commonPayload = refreshed.data;
+    const refreshed = await captureGraphqlPayload(page, {
+        profileUrl: profileAccessUrl,
+        timeout,
+    });
+    if (!refreshed.success) {
+        return { ...refreshed, stage: "RECAPTURE_AFTER_REAUTH" };
     }
 
     const result = await inviteAdditionalProfileAdmin({
         page,
-        commonPayload,
+        commonPayload: refreshed.data,
         additionalProfileId,
         targetUserId,
         timeout,

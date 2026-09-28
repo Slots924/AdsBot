@@ -12,6 +12,18 @@ import {
 const nextFriendlyName = "CometFacebookIXTNextMutation";
 const nextDocId = "29061690550105326";
 const phoneConsentScreenType = "XFBBVWizardAdvertiserVerificationAdsManagerPhoneConsentIXTScreenViewModel";
+const codeInputNames = Object.freeze({
+    SMS: "challenge_sms_enter_code",
+    WHATSAPP_MESSAGE: "challenge_whatsapp_enter_code",
+});
+
+
+function getInvalidCodeError(data) {
+    const errors = Array.isArray(data?.errors) ? data.errors : [];
+    return errors.find((item) => Number(item?.code) === 1752126
+        || Number(item?.api_error_code) === 100
+        || String(item?.summary ?? "").toLowerCase().includes("invalid confirmation code")) ?? null;
+}
 
 
 export const submitPhoneVerificationCodeStatuses = Object.freeze({
@@ -58,10 +70,12 @@ export default async function submitPhoneVerificationCode({
     const normalizedSerializedState = String(flow?.serializedState ?? "").trim();
     const normalizedCode = String(code ?? "").trim();
     const normalizedMutationId = String(clientMutationId ?? "").trim();
+    const normalizedMethod = String(flow?.method ?? "SMS").trim().toUpperCase();
+    const codeInputName = codeInputNames[normalizedMethod] ?? null;
 
     if (validationError || missingRequestField || !normalizedAdAccountId
         || !normalizedSerializedState || !/^\d{4,8}$/.test(normalizedCode)
-        || !normalizedMutationId) {
+        || !normalizedMutationId || !codeInputName) {
         return createResult(false, submitPhoneVerificationCodeStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
@@ -76,7 +90,7 @@ export default async function submitPhoneVerificationCode({
             docId: nextDocId,
             variables: {
                 input: {
-                    challenge_sms_enter_code: {
+                    [codeInputName]: {
                         check_id: null,
                         code: normalizedCode,
                         serialized_state: normalizedSerializedState,
@@ -124,6 +138,15 @@ export default async function submitPhoneVerificationCode({
                 httpStatus: response.statusCode,
             });
         }
+        const invalidCodeError = getInvalidCodeError(data);
+        if (invalidCodeError) {
+            return createResult(false, submitPhoneVerificationCodeStatuses.CODE_REJECTED, data, {
+                error: "Невірний або прострочений код підтвердження",
+                graphCode: invalidCodeError.code ?? null,
+                graphSubcode: invalidCodeError.api_error_code ?? null,
+                httpStatus: response.statusCode,
+            });
+        }
         if (hasGraphqlErrors(data)) {
             return createResult(false, submitPhoneVerificationCodeStatuses.GRAPHQL_ERROR, data, {
                 httpStatus: response.statusCode,
@@ -133,10 +156,20 @@ export default async function submitPhoneVerificationCode({
         const screen = parseNextScreen(data);
         const nextFlow = {
             ...flow,
-            serializedState: screen.serializedState,
-            submissionId: screen.submissionId,
-            currentScreenType: screen.screenType,
+            serializedState: screen.serializedState ?? flow.serializedState,
+            submissionId: screen.submissionId ?? flow.submissionId,
+            currentScreenType: screen.screenType ?? flow.currentScreenType,
         };
+        if (normalizedMethod === "WHATSAPP_MESSAGE") {
+            return createResult(true, submitPhoneVerificationCodeStatuses.PHONE_VERIFIED, {
+                flow: nextFlow,
+                response: data,
+            }, {
+                phoneVerified: true,
+                optionalConsentRequired: false,
+                httpStatus: response.statusCode,
+            });
+        }
         if (screen.screenType !== phoneConsentScreenType || !screen.serializedState) {
             return createResult(false, submitPhoneVerificationCodeStatuses.CODE_REJECTED, {
                 flow: nextFlow,
