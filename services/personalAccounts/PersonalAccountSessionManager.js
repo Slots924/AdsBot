@@ -37,6 +37,119 @@ const profileUrl = "https://www.facebook.com/me";
 const facebookGraphqlUrl = "https://www.facebook.com/api/graphql/";
 const adsManagerUrl = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
 const adsManagerGraphqlUrl = "https://adsmanager.facebook.com/api/graphql/";
+const billingPaymentSettingsPath = "/adsmanager/billing_hub/payment_settings/";
+const billingPaymentRuntimeModules = [
+    "BillingProtectedString",
+    "BillingCreditCardUtils",
+    "BillingSaveCardCredentialStateMutation.graphql",
+    "BillingCheckRiskStateQuery.graphql",
+    "BillingPTTUtils",
+    "BillingPTTSharedUtils",
+];
+const billingCardRuntimeModules = [
+    "BillingCreditCardTypes",
+    "BillingCreditCardNumber",
+];
+const frontierPaymentCardModules = [
+    "FrontierPMAmericanExpressCard",
+    "FrontierPMDinersClubCard",
+    "FrontierPMDiscoverCard",
+    "FrontierPMJCBCard",
+    "FrontierPMMastercardCard",
+    "FrontierPMVisaCard",
+];
+const billingRuntimeModuleChunks = Object.freeze([
+    {
+        name: "BillingProtectedString",
+        url: "https://static.xx.fbcdn.net/rsrc.php/v4i-sZ4/yN/l/en_GB-j/_Xc03kAy42K.js",
+        moduleNames: ["BillingProtectedString"],
+    },
+    {
+        name: "FrontierPM card assets",
+        url: "https://static.xx.fbcdn.net/rsrc.php/v4iMLq4/y2/l/en_GB-j/hXHc1K_nBLw.js",
+        moduleNames: frontierPaymentCardModules,
+    },
+    {
+        name: "BillingCreditCardUtils",
+        url: "https://static.xx.fbcdn.net/rsrc.php/v4iSwq4/yu/l/en_GB-j/HAismX0HAm7.js",
+        moduleNames: ["BillingCreditCardUtils"],
+    },
+    {
+        name: "BillingSaveCardCredentialStateMutation.graphql",
+        url: "https://static.xx.fbcdn.net/rsrc.php/v4i3dl4/yH/l/en_GB-j/j2_ypcBNBxs.js",
+        moduleNames: ["BillingSaveCardCredentialStateMutation.graphql"],
+    },
+    {
+        name: "BillingCheckRiskStateQuery.graphql",
+        url: "https://static.xx.fbcdn.net/rsrc.php/v4i38S4/ys/l/en_GB-j/e50AF4rQD_S.js",
+        moduleNames: ["BillingCheckRiskStateQuery.graphql"],
+    },
+]);
+const billingIxAssets = Object.freeze({
+    "883711": {
+        sprited: 2,
+        spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        _spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        w: 30,
+        h: 20,
+        p: "0 0",
+        sz: "auto",
+    },
+    "883713": {
+        sprited: 2,
+        spi: "https://static.xx.fbcdn.net/rsrc.php/yn/r/4E6NHBwbnhe.webp",
+        _spi: "https://static.xx.fbcdn.net/rsrc.php/yn/r/4E6NHBwbnhe.webp",
+        w: 30,
+        h: 20,
+        p: "0 -151px",
+        sz: "auto",
+    },
+    "883715": {
+        sprited: 2,
+        spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        _spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        w: 30,
+        h: 20,
+        p: "0 -21px",
+        sz: "auto",
+    },
+    "883717": {
+        sprited: 2,
+        spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        _spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        w: 30,
+        h: 20,
+        p: "0 -42px",
+        sz: "auto",
+    },
+    "883719": {
+        sprited: 2,
+        spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        _spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        w: 30,
+        h: 20,
+        p: "0 -63px",
+        sz: "auto",
+    },
+    "883721": {
+        sprited: 2,
+        spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        _spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        w: 30,
+        h: 20,
+        p: "0 -84px",
+        sz: "auto",
+    },
+    "883723": {
+        sprited: 2,
+        spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        _spi: "https://static.xx.fbcdn.net/rsrc.php/yl/r/TLh2UkguiiB.webp",
+        w: 30,
+        h: 20,
+        p: "0 -105px",
+        sz: "auto",
+    },
+});
 
 
 function isAdsManagerUrl(value) {
@@ -95,6 +208,12 @@ function publicResult(result) {
         status: result.status,
         ...(result.error ? { error: result.error } : {}),
         ...(result.httpStatus ? { httpStatus: result.httpStatus } : {}),
+        ...(result.moduleName ? { moduleName: result.moduleName } : {}),
+        ...(result.failureStage ? { failureStage: result.failureStage } : {}),
+        ...(result.moduleDiagnostics ? { moduleDiagnostics: result.moduleDiagnostics } : {}),
+        ...(result.pageContext ? { pageContext: result.pageContext } : {}),
+        ...(result.contextDiagnostics ? { contextDiagnostics: result.contextDiagnostics } : {}),
+        ...(result.billingDiagnostics ? { billingDiagnostics: result.billingDiagnostics } : {}),
     };
 }
 
@@ -346,6 +465,7 @@ export default class PersonalAccountSessionManager {
     addCreditCard(sessionId, input) {
         return this.#perform(sessionId, "ads.card_add", async (session) => {
             await this.#ensureAdsManager(session, input.adAccountId);
+            await this.#ensureBillingPaymentSettings(session, input.adAccountId);
             const card = await this.creditCardStore.getForUse(input.cardId);
             const result = await addCreditCardPaymentMethod({
                 page: session.page,
@@ -574,7 +694,15 @@ export default class PersonalAccountSessionManager {
                 await session.report.append(`${action}.failed`, {
                     durationMs: Date.now() - startedAt,
                     context: session.context,
-                    error,
+                    error: {
+                        name: error?.name ?? "Error",
+                        message: String(error?.message ?? error),
+                        code: error?.code ?? null,
+                        stage: error?.stage ?? null,
+                        ...(error?.result ? { result: error.result } : {}),
+                        ...(error?.moduleName ? { moduleName: error.moduleName } : {}),
+                        ...(error?.stack ? { stack: error.stack } : {}),
+                    },
                 }).catch(() => {});
                 this.logger?.error(`${action}.failed`, "Дія персонального акаунта завершилася помилкою", {
                     sessionId: session.id,
@@ -646,6 +774,332 @@ export default class PersonalAccountSessionManager {
             await this.#capture(session, url, "ADS_MANAGER");
         }
         await this.#readAccessToken(session);
+    }
+
+
+    async #ensureBillingPaymentSettings(session, adAccountId) {
+        const normalizedAdAccountId = String(adAccountId ?? "")
+            .replace(/^act_/, "")
+            .trim();
+        if (!/^\d+$/.test(normalizedAdAccountId)) {
+            throw sessionError(
+                "Потрібен коректний ID рекламного акаунта для платіжних налаштувань",
+                "BILLING_ACCOUNT_ID_INVALID",
+                { stage: "ENSURE_BILLING_PAYMENT_SETTINGS" }
+            );
+        }
+
+        const targetUrl = new URL(
+            billingPaymentSettingsPath,
+            "https://adsmanager.facebook.com"
+        );
+        targetUrl.searchParams.set("nav_entry_point", "ads_ecosystem_navigation_menu");
+        targetUrl.searchParams.set("placement", "ads_manager");
+        targetUrl.searchParams.set("asset_id", normalizedAdAccountId);
+        targetUrl.searchParams.set("payment_account_id", normalizedAdAccountId);
+
+        const currentUrl = new URL(session.page.url());
+        const isCorrectPage = currentUrl.hostname === targetUrl.hostname
+            && currentUrl.pathname.replace(/\/$/, "") === billingPaymentSettingsPath.replace(/\/$/, "")
+            && currentUrl.searchParams.get("asset_id") === normalizedAdAccountId
+            && currentUrl.searchParams.get("payment_account_id") === normalizedAdAccountId;
+
+        await session.report.append("ads.billing_page.check", {
+            currentHost: currentUrl.hostname,
+            currentPath: currentUrl.pathname,
+            targetPath: targetUrl.pathname,
+            accountIdMatches: isCorrectPage,
+            navigated: !isCorrectPage,
+        });
+
+        if (!isCorrectPage) {
+            try {
+                await session.page.goto(targetUrl.toString(), {
+                    waitUntil: "domcontentloaded",
+                    timeout: 60000,
+                });
+            } catch (error) {
+                await session.report.append("ads.billing_page.navigation_failed", {
+                    message: String(error?.message ?? error),
+                });
+                throw sessionError(
+                    "Не вдалося відкрити сторінку платіжних налаштувань Ads Manager",
+                    "BILLING_PAGE_NAVIGATION_FAILED",
+                    { stage: "NAVIGATE_BILLING_PAYMENT_SETTINGS" }
+                );
+            }
+        }
+
+        const initiallyMissingModules = await session.page.evaluate((moduleNames) => {
+            const isReady = (moduleName) => {
+                try {
+                    const moduleValue = require(moduleName);
+                    if (moduleName === "BillingCreditCardUtils") {
+                        return Boolean(
+                            moduleValue
+                            && typeof moduleValue.formatCardNumber === "function"
+                            && typeof moduleValue.buildSaveCardCredentialInput === "function"
+                        );
+                    }
+                    return moduleValue !== null && typeof moduleValue !== "undefined";
+                } catch {
+                    return false;
+                }
+            };
+            return moduleNames.filter((moduleName) => !isReady(moduleName));
+        }, billingPaymentRuntimeModules).catch(() => billingPaymentRuntimeModules);
+
+        await session.report.append("ads.billing_modules.checked", {
+            moduleNames: billingPaymentRuntimeModules,
+            missingModules: initiallyMissingModules,
+            pageUrl: session.page.url(),
+        });
+
+        if (initiallyMissingModules.length > 0) {
+            const chunkResults = await session.page.evaluate(async ({ missingModules, chunks }) => {
+                const inspectModule = (moduleName) => {
+                    try {
+                        const moduleValue = require(moduleName);
+                        const requiredMethods = moduleName === "BillingCreditCardUtils"
+                            ? ["formatCardNumber", "buildSaveCardCredentialInput"]
+                            : [];
+                        const missingMethods = requiredMethods.filter(
+                            (methodName) => typeof moduleValue?.[methodName] !== "function"
+                        );
+                        return {
+                            moduleName,
+                            ready: moduleValue !== null
+                                && typeof moduleValue !== "undefined"
+                                && missingMethods.length === 0,
+                            valueType: moduleValue === null ? "null" : typeof moduleValue,
+                            missingMethods,
+                        };
+                    } catch (error) {
+                        return {
+                            moduleName,
+                            ready: false,
+                            valueType: "unavailable",
+                            missingMethods: [],
+                            error: String(error?.message ?? error),
+                        };
+                    }
+                };
+                const isChunkReady = (chunk) => chunk.moduleNames.every(
+                    (moduleName) => inspectModule(moduleName).ready
+                );
+                const cardUtilsNeedsLoad = missingModules.includes("BillingCreditCardUtils");
+                const cardBootstrapChunkNames = [
+                    "BillingProtectedString",
+                    "FrontierPM card assets",
+                    "BillingCreditCardUtils",
+                ];
+                const shouldLoadChunk = (chunk) => (
+                    chunk.moduleNames.some((moduleName) => missingModules.includes(moduleName))
+                    || (cardUtilsNeedsLoad && cardBootstrapChunkNames.includes(chunk.name))
+                );
+                const loadChunk = (chunk) => new Promise((resolve) => {
+                    const isCardBootstrapChunk = cardBootstrapChunkNames.includes(chunk.name);
+                    if (!isCardBootstrapChunk && isChunkReady(chunk)) {
+                        resolve({
+                            chunkName: chunk.name,
+                            url: chunk.url,
+                            status: "already_ready",
+                            moduleStates: chunk.moduleNames.map(inspectModule),
+                        });
+                        return;
+                    }
+
+                    const script = document.createElement("script");
+                    const finish = (status) => {
+                        window.clearTimeout(timeoutId);
+                        if (status !== "loaded") script.remove();
+                        resolve({
+                            chunkName: chunk.name,
+                            url: chunk.url,
+                            status,
+                            moduleStates: isCardBootstrapChunk
+                                ? []
+                                : chunk.moduleNames.map(inspectModule),
+                        });
+                    };
+                    const timeoutId = window.setTimeout(() => finish("timeout"), 30000);
+                    script.src = chunk.url;
+                    script.async = false;
+                    script.onload = () => finish("loaded");
+                    script.onerror = () => finish("load_error");
+                    document.head.appendChild(script);
+                });
+
+                const results = [];
+                for (const chunk of chunks) {
+                    if (shouldLoadChunk(chunk)) results.push(await loadChunk(chunk));
+                }
+                return results;
+            }, {
+                missingModules: initiallyMissingModules,
+                chunks: billingRuntimeModuleChunks,
+            }).catch((error) => [{
+                status: "injection_error",
+                error: String(error?.message ?? error),
+            }]);
+
+            await session.report.append("ads.billing_modules.chunks_loaded", {
+                initiallyMissingModules,
+                chunkResults,
+            });
+        }
+
+        const ixBootstrap = await session.page.evaluate((assets) => {
+            const inspectModule = (moduleName) => {
+                try {
+                    const moduleValue = require(moduleName);
+                    const requiredMethods = moduleName === "BillingCreditCardUtils"
+                        ? ["formatCardNumber", "buildSaveCardCredentialInput"]
+                        : [];
+                    const missingMethods = requiredMethods.filter(
+                        (methodName) => typeof moduleValue?.[methodName] !== "function"
+                    );
+                    return {
+                        moduleName,
+                        ready: moduleValue !== null
+                            && typeof moduleValue !== "undefined"
+                            && missingMethods.length === 0,
+                        valueType: moduleValue === null ? "null" : typeof moduleValue,
+                        missingMethods,
+                    };
+                } catch (error) {
+                    return {
+                        moduleName,
+                        ready: false,
+                        valueType: "unavailable",
+                        missingMethods: [],
+                        error: String(error?.message ?? error),
+                    };
+                }
+            };
+
+            try {
+                const ix = require("ix");
+                if (!ix || typeof ix.add !== "function") {
+                    throw new Error("IX_ASSET_REGISTRY_UNAVAILABLE");
+                }
+                ix.add(assets, {});
+                return {
+                    registered: true,
+                    assetIds: Object.keys(assets),
+                    moduleStates: [
+                        "BillingCreditCardTypes",
+                        "BillingCreditCardNumber",
+                        "BillingCreditCardUtils",
+                    ].map(inspectModule),
+                };
+            } catch (error) {
+                return {
+                    registered: false,
+                    assetIds: Object.keys(assets),
+                    error: String(error?.message ?? error),
+                };
+            }
+        }, billingIxAssets).catch((error) => ({
+            registered: false,
+            assetIds: Object.keys(billingIxAssets),
+            error: String(error?.message ?? error),
+        }));
+
+        await session.report.append("ads.billing_ix_assets_registered", ixBootstrap);
+        await session.report.append("ads.billing_card_types_ready", {
+            moduleState: ixBootstrap.moduleStates?.find(
+                ({ moduleName }) => moduleName === "BillingCreditCardTypes"
+            ) ?? null,
+        });
+        await session.report.append("ads.billing_card_number_ready", {
+            moduleState: ixBootstrap.moduleStates?.find(
+                ({ moduleName }) => moduleName === "BillingCreditCardNumber"
+            ) ?? null,
+        });
+
+        const requiredRuntimeModules = [
+            ...billingPaymentRuntimeModules,
+            ...billingCardRuntimeModules,
+        ];
+
+        await session.report.append("ads.billing_modules.waiting", {
+            moduleNames: requiredRuntimeModules,
+            timeoutMs: 45000,
+        });
+
+        try {
+            await session.page.waitForFunction(
+                (moduleNames) => moduleNames.every((moduleName) => {
+                    try {
+                        const moduleValue = require(moduleName);
+                        if (moduleName === "BillingCreditCardUtils") {
+                            return Boolean(
+                                moduleValue
+                                && typeof moduleValue.formatCardNumber === "function"
+                                && typeof moduleValue.buildSaveCardCredentialInput === "function"
+                            );
+                        }
+                        return moduleValue !== null && typeof moduleValue !== "undefined";
+                    } catch {
+                        return false;
+                    }
+                }),
+                { timeout: 45000 },
+                requiredRuntimeModules
+            );
+        } catch {
+            const unresolvedModules = await session.page.evaluate((moduleNames) => (
+                moduleNames.map((moduleName) => {
+                    try {
+                        const moduleValue = require(moduleName);
+                        const missingMethods = moduleName === "BillingCreditCardUtils"
+                            ? ["formatCardNumber", "buildSaveCardCredentialInput"].filter(
+                                (methodName) => typeof moduleValue?.[methodName] !== "function"
+                            )
+                            : [];
+                        return {
+                            moduleName,
+                            ready: moduleValue !== null
+                                && typeof moduleValue !== "undefined"
+                                && missingMethods.length === 0,
+                            valueType: moduleValue === null ? "null" : typeof moduleValue,
+                            missingMethods,
+                        };
+                    } catch (error) {
+                        return {
+                            moduleName,
+                            ready: false,
+                            valueType: "unavailable",
+                            missingMethods: [],
+                            error: String(error?.message ?? error),
+                        };
+                    }
+                }).filter((moduleState) => !moduleState.ready)
+            ), requiredRuntimeModules).catch(() => (
+                requiredRuntimeModules.map((moduleName) => ({ moduleName, ready: false }))
+            ));
+            const missingModules = unresolvedModules.map(({ moduleName }) => moduleName);
+
+            await session.report.append("ads.billing_modules.wait_failed", {
+                missingModules,
+                unresolvedModules,
+                pageUrl: session.page.url(),
+            });
+            throw sessionError(
+                `Billing-модулі не завантажилися: ${missingModules.join(", ")}`,
+                "BILLING_MODULES_NOT_READY",
+                {
+                    stage: "WAIT_BILLING_MODULES",
+                    result: { missingModules },
+                }
+            );
+        }
+
+        await session.report.append("ads.billing_modules.ready", {
+            moduleNames: requiredRuntimeModules,
+            pagePath: new URL(session.page.url()).pathname,
+        });
     }
 
 
