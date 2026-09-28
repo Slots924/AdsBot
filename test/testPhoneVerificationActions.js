@@ -9,7 +9,6 @@ import submitPhoneVerificationCode, {
 
 
 const commonPayload = {
-    av: "61593928954145",
     __user: "61593928954145",
     __a: "1",
     fb_dtsg: "token",
@@ -19,7 +18,6 @@ const commonPayload = {
     __spin_r: "1048592354",
     __spin_b: "trunk",
     __spin_t: "1790506573",
-    __crn: "comet.fbweb.CometHomeRoute",
 };
 
 
@@ -127,6 +125,8 @@ assert.equal(
 );
 assert.equal(rootParameters.get("doc_id"), "28631875969757608");
 assert.equal(rootParameters.get("__aaid"), "act_123");
+assert.equal(rootParameters.get("av"), null);
+assert.equal(rootParameters.get("__crn"), null);
 assert.equal(
     JSON.parse(rootParameters.get("variables")).input.trigger_session_id,
     "test-trigger-session"

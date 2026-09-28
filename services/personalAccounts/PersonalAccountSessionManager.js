@@ -34,7 +34,9 @@ import PersonalAccountSessionReport from "./PersonalAccountSessionReport.js";
 
 const facebookUrl = "https://www.facebook.com/";
 const profileUrl = "https://www.facebook.com/me";
-const adsManagerUrl = "https://www.facebook.com/adsmanager/manage/campaigns";
+const facebookGraphqlUrl = "https://www.facebook.com/api/graphql/";
+const adsManagerUrl = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
+const adsManagerGraphqlUrl = "https://adsmanager.facebook.com/api/graphql/";
 
 
 function isAdsManagerUrl(value) {
@@ -589,8 +591,12 @@ export default class PersonalAccountSessionManager {
 
 
     async #capture(session, url, context) {
+        const graphqlUrl = context === "ADS_MANAGER"
+            ? adsManagerGraphqlUrl
+            : facebookGraphqlUrl;
         const captured = assertAction(await captureGraphqlPayload(session.page, {
             profileUrl: url,
+            graphqlUrl,
             timeout: 60000,
         }), `Не вдалося отримати payload для ${context}`);
         session.payload = captured.data;
@@ -651,8 +657,11 @@ export default class PersonalAccountSessionManager {
 
     #hasCurrentPayload(session, context) {
         if (!session.payload || session.context !== context || !session.payloadUrl) return false;
-        if (session.payloadUrl !== session.page.url()) return false;
-        return context !== "ADS_MANAGER" || isAdsManagerUrl(session.page.url());
+        if (context === "ADS_MANAGER") {
+            return isAdsManagerUrl(session.payloadUrl)
+                && isAdsManagerUrl(session.page.url());
+        }
+        return session.payloadUrl === session.page.url();
     }
 
 

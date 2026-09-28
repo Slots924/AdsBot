@@ -6,7 +6,6 @@ import checkBillingAccountInformation, {
 
 
 const commonPayload = {
-    av: "user-id",
     __user: "user-id",
     __a: "1",
     fb_dtsg: "token",
@@ -16,7 +15,6 @@ const commonPayload = {
     __spin_r: "1048593722",
     __spin_b: "trunk",
     __spin_t: "1790514310",
-    __crn: "comet.adsmanager.AdsBillingHubPaymentSettingsRouteDefinition",
 };
 
 
@@ -83,6 +81,8 @@ assert.equal(
 );
 assert.equal(parameters.get("doc_id"), "28130792889912915");
 assert.equal(parameters.get("__aaid"), "payment-account-id");
+assert.equal(parameters.get("av"), null);
+assert.equal(parameters.get("__crn"), null);
 assert.deepEqual(JSON.parse(parameters.get("variables")), {
     paymentAccountID: "payment-account-id",
 });

@@ -75,8 +75,8 @@ export default async function checkBillingAccountInformation({
     paymentAccountId,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
+    const validationError = validateMutationInput(page, commonPayload, { requireAv: false });
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
         .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
     const normalizedPaymentAccountId = String(paymentAccountId ?? "").trim();
 

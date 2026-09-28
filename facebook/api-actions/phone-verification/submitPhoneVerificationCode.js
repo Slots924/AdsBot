@@ -51,8 +51,8 @@ export default async function submitPhoneVerificationCode({
     clientMutationId = "4",
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
+    const validationError = validateMutationInput(page, commonPayload, { requireAv: false });
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
         .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
     const normalizedAdAccountId = String(flow?.adAccountId ?? "").trim();
     const normalizedSerializedState = String(flow?.serializedState ?? "").trim();

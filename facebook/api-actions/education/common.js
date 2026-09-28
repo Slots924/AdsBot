@@ -22,7 +22,7 @@ export function normalizeTimeout(timeout) {
 
 
 // Перевіряє Page та мінімальний набір спільних Facebook параметрів.
-export function validateMutationInput(page, commonPayload) {
+export function validateMutationInput(page, commonPayload, { requireAv = true } = {}) {
     if (!page || typeof page.evaluate !== "function") {
         return "Не передано Puppeteer page";
     }
@@ -32,7 +32,6 @@ export function validateMutationInput(page, commonPayload) {
     }
 
     const requiredFields = [
-        "av",
         "__user",
         "__a",
         "fb_dtsg",
@@ -40,6 +39,7 @@ export function validateMutationInput(page, commonPayload) {
         "lsd",
         "__comet_req",
     ];
+    if (requireAv) requiredFields.unshift("av");
     const missingField = requiredFields.find(
         (field) => commonPayload[field] === undefined
             || commonPayload[field] === null
@@ -58,8 +58,9 @@ export function buildMutationBody(commonPayload, {
     variables,
     extraParameters = {},
 }) {
+    const actorValue = String(commonPayload.av ?? "").trim();
     const parameters = {
-        av: String(commonPayload.av),
+        ...(actorValue ? { av: actorValue } : {}),
         __user: String(commonPayload.__user),
         __a: String(commonPayload.__a),
         fb_dtsg: String(commonPayload.fb_dtsg),
