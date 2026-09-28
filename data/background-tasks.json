@@ -2,44 +2,417 @@
   "version": 1,
   "tasks": [
     {
-      "id": "7c80be73-6ff1-40ae-a3ea-b922f18165a6",
-      "type": "facebook-api-client-sync",
-      "name": "Синхронізація API-клієнта account-021",
-      "status": "completed",
+      "id": "23e774d7-8eaf-4d68-bb71-6eb5c2e805a5",
+      "type": "comments",
+      "name": "Коментарі поста · DE · 138",
+      "status": "completed_with_warnings",
       "resources": [
         {
-          "key": "adspower-profile:2027",
-          "label": "AdsPower №2027"
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
+        },
+        {
+          "key": "adspower-group:7887373",
+          "label": "[AT] Austria"
+        },
+        {
+          "key": "adspower-group:7887378",
+          "label": "[CH] Switherland"
         }
       ],
       "input": {
-        "accountKey": "account-021",
-        "adsPowerProfileNo": "2027"
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "creativeGeo": "DE",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61550054730184/posts/pfbid02E6rTni9cyszZNMNsagS7fDmVJN1XRfgUFhDmrv973TX9d9QLKrWvTZDQqDSUYw7ul",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
       },
       "metadata": {
-        "accountKey": "account-021",
-        "uniqueKey": "facebook-api-client-sync:account-021",
-        "reportId": "c82339c9-55a2-403b-8ade-a4b79adcd6ea"
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "1ae47b4a-76c9-4710-83f5-5256e0bf77b5"
       },
       "progress": {
-        "completed": 0,
-        "total": 0,
+        "completed": 10,
+        "total": 10,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 9,
+        "skipped": 0,
+        "failedComments": 1,
+        "failedProfiles": 4,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "2.1",
+        "currentProfileNo": "209",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-09-28_08-36-14-785.md",
+        "published": 9,
+        "skipped": 0,
+        "failedComments": 1,
+        "failedProfiles": 4,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-28T05:18:24.563Z",
+      "startedAt": "2026-09-28T05:18:24.564Z",
+      "finishedAt": "2026-09-28T05:36:14.789Z",
+      "updatedAt": "2026-09-28T05:36:14.791Z"
+    },
+    {
+      "id": "a1955988-8139-4d9e-a632-8c596d05c89a",
+      "type": "publication",
+      "name": "Публікація · DE · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-001",
+        "pageId": "122094974030009906",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "138",
+        "siteUrl": "https://show-me.click/DJ138E",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\14.jpeg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-001",
+        "pageId": "122094974030009906",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "138",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "0329d899-3bcb-49c0-b0ab-4c50e73469e5"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
         "stage": "completed",
         "message": "Задачу завершено"
       },
       "result": {
-        "accountKey": "account-021",
-        "adsPowerProfileNo": "2027",
-        "userAgentUpdated": true,
-        "accessTokenUpdated": true,
-        "cookieUpdated": true
+        "accountKey": "account-001",
+        "pageId": "122094974030009906",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "https://show-me.click/DJ138E",
+        "postId": "122094974030009906_122364129776001824",
+        "permalinkUrl": "https://www.facebook.com/61550054730184/posts/pfbid02E6rTni9cyszZNMNsagS7fDmVJN1XRfgUFhDmrv973TX9d9QLKrWvTZDQqDSUYw7ul",
+        "type": "photo",
+        "verified": true,
+        "comments": null
       },
       "error": null,
       "waitingReason": null,
-      "createdAt": "2026-09-27T15:10:50.711Z",
-      "startedAt": "2026-09-27T15:10:50.712Z",
-      "finishedAt": "2026-09-27T15:11:08.869Z",
-      "updatedAt": "2026-09-27T15:11:08.871Z"
+      "createdAt": "2026-09-28T05:01:38.871Z",
+      "startedAt": "2026-09-28T05:01:38.872Z",
+      "finishedAt": "2026-09-28T05:01:48.454Z",
+      "updatedAt": "2026-09-28T05:01:48.457Z"
+    },
+    {
+      "id": "bff951e4-a376-48e5-90ec-bb741c3bb226",
+      "type": "publication",
+      "name": "Публікація · DE · 38",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-002",
+        "pageId": "122094974030009906",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "38",
+        "siteUrl": "https://show-me.click/DJ138E",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\14.jpeg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-002",
+        "pageId": "122094974030009906",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "38",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "374acc95-5320-4487-a3f1-212d937a37f1"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 3,
+        "stage": "failed",
+        "message": "Оригінал креативу не знайдено"
+      },
+      "result": null,
+      "error": {
+        "message": "Оригінал креативу не знайдено",
+        "code": "CREATIVE_ORIGINAL_NOT_FOUND",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-09-28T04:59:54.559Z",
+      "startedAt": "2026-09-28T05:00:31.015Z",
+      "finishedAt": "2026-09-28T05:00:31.019Z",
+      "updatedAt": "2026-09-28T05:00:31.020Z"
+    },
+    {
+      "id": "b008514a-96cf-40b0-9615-a7c8d16050a7",
+      "type": "page-rebuild",
+      "name": "Пересетаплення фанпейджа · 122094974030009906",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-page:account-002:122094974030009906",
+          "label": "фанпейджа 122094974030009906"
+        }
+      ],
+      "input": {
+        "accountKey": "account-002",
+        "pageId": "122094974030009906",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\1.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\760566420_122101859385413512_2124363438533877778_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\760620694_122101859913413512_3266162988344480675_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\761546672_122101860219413512_1842967651833529189_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\762553405_122101860489413512_4276474847541696709_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\762600600_122101860351413512_4268732902063792248_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\763925848_122101860657413512_8223271984076290018_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\764006337_122101860135413512_6939071310635721340_n.jpg"
+        ],
+        "pageCreatedAt": "2023-10-10",
+        "preserveDates": false
+      },
+      "metadata": {
+        "accountKey": "account-002",
+        "pageId": "122094974030009906",
+        "uniqueKey": "page-rebuild:account-002:122094974030009906",
+        "reportId": "8426f2b8-01de-4fe6-8ea1-6809e2a39f29"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "current": 6,
+        "count": 6
+      },
+      "result": {
+        "pageId": "122094974030009906",
+        "avatar": {
+          "file": "1.jpg",
+          "photoId": "122364128390001824"
+        },
+        "cover": {
+          "file": "764006337_122101860135413512_6939071310635721340_n.jpg",
+          "photoId": "122364128474001824"
+        },
+        "cleanup": {
+          "deletedPostIds": [
+            "122094974030009906_122363953016001824",
+            "122094974030009906_122353628168001824",
+            "122094974030009906_122353628234001824"
+          ],
+          "deletedPhotoIds": [],
+          "hiddenPostIds": []
+        },
+        "publications": [
+          {
+            "file": "760566420_122101859385413512_2124363438533877778_n.jpg",
+            "photoId": "122364128588001824",
+            "postId": "122094974030009906_122364128630001824",
+            "backdatedTime": "2024-01-01T00:00:00.000Z"
+          },
+          {
+            "file": "760620694_122101859913413512_3266162988344480675_n.jpg",
+            "photoId": "122364128690001824",
+            "postId": "122094974030009906_122364128726001824",
+            "backdatedTime": "2024-08-12T00:00:00.000Z"
+          },
+          {
+            "file": "761546672_122101860219413512_1842967651833529189_n.jpg",
+            "photoId": "122364128810001824",
+            "postId": "122094974030009906_122364128858001824",
+            "backdatedTime": "2024-09-19T00:00:00.000Z"
+          },
+          {
+            "file": "762553405_122101860489413512_4276474847541696709_n.jpg",
+            "photoId": "122364128960001824",
+            "postId": "122094974030009906_122364129026001824",
+            "backdatedTime": "2025-01-05T00:00:00.000Z"
+          },
+          {
+            "file": "762600600_122101860351413512_4268732902063792248_n.jpg",
+            "photoId": "122364129116001824",
+            "postId": "122094974030009906_122364129164001824",
+            "backdatedTime": "2026-03-29T00:00:00.000Z"
+          },
+          {
+            "file": "763925848_122101860657413512_8223271984076290018_n.jpg",
+            "photoId": "122364129284001824",
+            "postId": "122094974030009906_122364129332001824",
+            "backdatedTime": "2026-08-03T00:00:00.000Z"
+          }
+        ],
+        "warnings": [
+          {
+            "stage": "delete-photo",
+            "objectId": "122363952986001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) Viewer does not have permission to delete this photo"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122363952938001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) Viewer does not have permission to delete this photo"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122353628198001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122353628132001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122353628066001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122353627994001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122343829394001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122343829328001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122342974196001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122342974058001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122342973236001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "122342973182001824",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          }
+        ],
+        "resumed": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-09-28T04:58:47.399Z",
+      "startedAt": "2026-09-28T04:58:47.402Z",
+      "finishedAt": "2026-09-28T05:00:31.011Z",
+      "updatedAt": "2026-09-28T05:00:31.013Z"
     }
   ]
 }
