@@ -321,6 +321,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         subscribe("accounts:adspower-states", callback),
     onFacebookAccountStatusUpdated: (callback) =>
         subscribe("accounts:facebook-status", callback),
+    onApiClientCreated: (callback) =>
+        subscribe("accounts:api-client-created", callback),
     onCampaignsRefreshed: (callback) =>
         subscribe("campaigns:refreshed", callback),
     onKeitaroCampaignLeadsRefreshed: (callback) =>

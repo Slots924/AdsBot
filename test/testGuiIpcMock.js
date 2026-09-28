@@ -30,6 +30,9 @@ const creditCardStore = {
 const personalAccountSessionManager = {
     async start({ profileNo }) { return { id: "session-1", profileNo, connected: true }; },
     async get(sessionId) { return { id: sessionId, connected: true }; },
+    async createApiProfile(sessionId, input) {
+        return { sessionId, input, account: { accountKey: "api-2" } };
+    },
     async disconnect(sessionId) { return { sessionId, disconnected: true }; },
     async closeProfile(sessionId) { return { sessionId, profileClosed: true }; },
 };
@@ -430,6 +433,17 @@ assert.deepEqual(
         data: { id: "session-1", profileNo: "2034", connected: true },
     }
 );
+assert.equal(
+    (await handlers.get("personal-account:api-profile-create")({}, {
+        sessionId: "session-1",
+        name: "MYRAHA",
+    })).ok,
+    true
+);
+assert.deepEqual(rendererEvents.at(-1), {
+    channel: "accounts:api-client-created",
+    payload: { accountKey: "api-2" },
+});
 
 assert.deepEqual(
     await handlers.get("proxies:list")({}, {}),

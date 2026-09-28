@@ -37,6 +37,16 @@ const profileUrl = "https://www.facebook.com/me";
 const adsManagerUrl = "https://www.facebook.com/adsmanager/manage/campaigns";
 
 
+function isAdsManagerUrl(value) {
+    try {
+        const url = new URL(String(value ?? ""));
+        return url.hostname.endsWith("facebook.com") && url.pathname.startsWith("/adsmanager");
+    } catch {
+        return false;
+    }
+}
+
+
 function sessionError(message, code, details = {}) {
     return Object.assign(new Error(message), { code, ...details });
 }
@@ -171,6 +181,7 @@ export default class PersonalAccountSessionManager {
                 opened,
                 context: "FACEBOOK_MAIN",
                 payload: captured.data,
+                payloadUrl: page.url(),
                 actorId: String(captured.data.__user ?? ""),
                 mainActorId: String(captured.data.__user ?? ""),
                 pageId: null,
@@ -288,7 +299,7 @@ export default class PersonalAccountSessionManager {
 
     listAdAccounts(sessionId) {
         return this.#perform(sessionId, "ads.accounts_list", async (session) => {
-            await this.#ensureAdsManager(session);
+            await this.#ensureAccessToken(session);
             const result = assertAction(await getBrowserAdAccounts({
                 page: session.page,
                 accessToken: session.accessToken,
@@ -399,7 +410,7 @@ export default class PersonalAccountSessionManager {
 
     listPixels(sessionId, input) {
         return this.#perform(sessionId, "ads.pixels_list", async (session) => {
-            await this.#ensureAdsManager(session, input.adAccountId);
+            await this.#ensureAccessToken(session);
             const result = assertAction(await getAdPixels({
                 page: session.page,
                 accessToken: session.accessToken,
@@ -413,7 +424,7 @@ export default class PersonalAccountSessionManager {
 
     createPixel(sessionId, input) {
         return this.#perform(sessionId, "ads.pixel_create", async (session) => {
-            await this.#ensureAdsManager(session, input.adAccountId);
+            await this.#ensureAccessToken(session);
             const result = assertAction(await createAdPixel({
                 page: session.page,
                 accessToken: session.accessToken,
@@ -428,7 +439,7 @@ export default class PersonalAccountSessionManager {
 
     createApiProfile(sessionId, input) {
         return this.#perform(sessionId, "api_profile.create", async (session) => {
-            await this.#ensureAdsManager(session, input.adAccountId);
+            await this.#ensureAccessToken(session);
             const card = input.cardId
                 ? await this.creditCardStore.getForUse(input.cardId)
                 : null;
@@ -583,6 +594,7 @@ export default class PersonalAccountSessionManager {
             timeout: 60000,
         }), `Не вдалося отримати payload для ${context}`);
         session.payload = captured.data;
+        session.payloadUrl = session.page.url();
         session.actorId = String(captured.data.__user ?? "");
         session.context = context;
         return captured.data;
@@ -590,8 +602,12 @@ export default class PersonalAccountSessionManager {
 
 
     async #ensureFacebookContext(session, actorId, url, context) {
-        await this.#capture(session, url, context);
         const expectedActor = String(actorId ?? "").trim();
+        if (this.#hasCurrentPayload(session, context)
+            && (!expectedActor || session.actorId === expectedActor)) {
+            return;
+        }
+        await this.#capture(session, url, context);
         if (!expectedActor || session.actorId === expectedActor) return;
         assertAction(await switchToAdditionalProfile({
             page: session.page,
@@ -607,12 +623,41 @@ export default class PersonalAccountSessionManager {
 
 
     async #ensureAdsManager(session, adAccountId = "") {
-        await this.#ensureFacebookContext(session, session.mainActorId, profileUrl, "FACEBOOK_MAIN");
         const normalizedAdAccountId = String(adAccountId ?? "").replace(/^act_/, "").trim();
         const url = normalizedAdAccountId
             ? `${adsManagerUrl}?act=${normalizedAdAccountId}`
             : adsManagerUrl;
-        await this.#capture(session, url, "ADS_MANAGER");
+        if (!this.#hasCurrentPayload(session, "ADS_MANAGER")) {
+            await this.#capture(session, url, "ADS_MANAGER");
+        }
+        if (session.actorId !== session.mainActorId) {
+            assertAction(await switchToAdditionalProfile({
+                page: session.page,
+                commonPayload: session.payload,
+                additionalProfileId: session.mainActorId,
+                timeout: 60000,
+            }), "Не вдалося перемкнути Facebook actor для Ads Manager");
+            await this.#capture(session, url, "ADS_MANAGER");
+        }
+        await this.#readAccessToken(session);
+    }
+
+
+    async #ensureAccessToken(session) {
+        if (session.accessToken) return;
+        await this.#ensureAdsManager(session);
+    }
+
+
+    #hasCurrentPayload(session, context) {
+        if (!session.payload || session.context !== context || !session.payloadUrl) return false;
+        if (session.payloadUrl !== session.page.url()) return false;
+        return context !== "ADS_MANAGER" || isAdsManagerUrl(session.page.url());
+    }
+
+
+    async #readAccessToken(session) {
+        if (session.accessToken) return;
         await session.page.waitForFunction(
             () => document.documentElement?.innerHTML.includes("EAA"),
             { timeout: 15000 }

@@ -1302,9 +1302,13 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "personal-account:api-profile-create",
-        safeHandler(({ sessionId, ...payload }) => (
-            personalAccountSessionManager.createApiProfile(sessionId, payload)
-        ))
+        safeHandler(async ({ sessionId, ...payload }) => {
+            const result = await personalAccountSessionManager.createApiProfile(sessionId, payload);
+            sendRendererEvent("accounts:api-client-created", {
+                accountKey: result.account?.accountKey ?? null,
+            });
+            return result;
+        })
     );
     ipcMain.handle(
         "personal-account:disconnect",

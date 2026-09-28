@@ -187,6 +187,9 @@ export default function App() {
                         : account
                 )));
             }) ?? (() => {});
+        const offApiClientCreated = window.adsBot.onApiClientCreated?.(() => {
+            void loadAccounts(false);
+        }) ?? (() => {});
         const initialize = async () => {
             try {
                 const state = await unwrap(window.adsBot.loadAppState());
@@ -232,7 +235,7 @@ export default function App() {
             setHydrated(true);
         };
         initialize();
-        return () => { offLog(); offTasks(); offWorkspace(); offAdsPowerStates(); offFacebookAccountStatus(); };
+        return () => { offLog(); offTasks(); offWorkspace(); offAdsPowerStates(); offFacebookAccountStatus(); offApiClientCreated(); };
     }, []);
 
     useEffect(() => { if (selectedAccount?.status === "active") loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status]);
