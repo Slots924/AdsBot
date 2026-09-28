@@ -1667,3 +1667,84 @@ button:focus-visible, input:focus-visible {
     color: #f3f4ff;
     background: rgba(255,255,255,.04);
 }
+
+/* Персональні акаунти та локальні платіжні картки */
+.personal-account-layer { padding: 12px; }
+.personal-account-modal { display: flex; width: min(1160px, calc(100vw - 24px)); height: calc(100vh - 24px); min-height: 0; overflow: hidden; flex-direction: column; border: 1px solid #34394a; border-radius: 18px; color: #edf0f7; background: #11141e; box-shadow: 0 32px 90px rgba(0,0,0,.68); }
+.personal-account-header { display: grid; grid-template-columns: minmax(250px,1fr) auto 36px; align-items: center; gap: 18px; min-height: 78px; padding: 14px 18px; border-bottom: 1px solid var(--stroke); background: #151925; }
+.personal-account-title { display: flex; align-items: center; gap: 12px; }
+.personal-account-title h2 { margin: 2px 0 0; font-size: 21px; }
+.personal-account-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: #b8afff; background: rgba(132,114,255,.14); }
+.personal-account-session-state { display: grid; justify-items: end; gap: 3px; color: #7f879b; }
+.personal-account-session-state > span { display: inline-flex; align-items: center; gap: 7px; color: #9ba2b4; font-size: 13px; font-weight: 700; }
+.personal-account-session-state i, .credit-card-ready i { width: 8px; height: 8px; border-radius: 50%; background: #6d7382; }
+.personal-account-session-state > span.online { color: #77e9b2; }
+.personal-account-session-state > span.online i, .credit-card-ready i { background: #4bd589; box-shadow: 0 0 0 3px rgba(75,213,137,.1); }
+.personal-account-session-state small { font-size: 11px; }
+.personal-account-layout { display: grid; grid-template-columns: 210px minmax(0,1fr); min-height: 0; flex: 1; }
+.personal-account-nav { display: flex; min-height: 0; padding: 16px 12px; overflow-y: auto; flex-direction: column; gap: 6px; border-right: 1px solid var(--stroke); background: #121621; }
+.personal-account-nav button { display: grid; grid-template-columns: 24px 18px 1fr; align-items: center; gap: 7px; min-height: 43px; padding: 0 10px; border: 0; border-radius: 10px; color: #929aac; background: transparent; cursor: pointer; text-align: left; font-weight: 700; }
+.personal-account-nav button > span { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid #3a4051; border-radius: 50%; font-size: 11px; }
+.personal-account-nav button.active { color: #dedaff; background: rgba(132,114,255,.14); }
+.personal-account-nav button.active > span { border-color: #8278da; color: #fff; background: #7065cb; }
+.personal-account-body { min-height: 0; padding: 24px 28px 36px; overflow-y: auto; scrollbar-color: #525a6e #151925; }
+.personal-section { display: grid; gap: 16px; max-width: 820px; margin: 0 auto; }
+.personal-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.personal-section-heading h3 { margin: 3px 0 5px; font-size: 23px; }
+.personal-section-heading p { margin: 0; color: #868ea1; font-size: 13px; }
+.personal-profile-card, .personal-action-card, .selected-card-summary, .api-name-preview { border: 1px solid #303646; border-radius: 13px; background: #181c28; }
+.personal-profile-card { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px; }
+.personal-profile-card > div:first-child { display: grid; gap: 5px; }
+.personal-profile-card small, .selected-card-summary small { color: #858da0; }
+.personal-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
+.personal-tags span { padding: 4px 7px; border-radius: 6px; color: #b8bfd0; background: rgba(255,255,255,.05); font-size: 11px; }
+.personal-main-action { justify-self: start; min-height: 43px; }
+.personal-success { display: flex; align-items: center; gap: 9px; padding: 13px 15px; border: 1px solid rgba(75,213,137,.25); border-radius: 11px; color: #8aebbb; background: rgba(75,213,137,.07); }
+.personal-action-card { display: grid; gap: 13px; padding: 17px; }
+.personal-action-card h4, .personal-card-heading h4 { margin: 0; font-size: 16px; }
+.personal-two-columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.personal-card-heading { display: flex; align-items: center; justify-content: space-between; }
+.personal-note { margin: 0; color: #858da0; font-size: 12px; }
+.personal-inline-actions, .personal-create-row { display: flex; align-items: end; flex-wrap: wrap; gap: 10px; }
+.personal-create-row > .field { min-width: 260px; flex: 1; }
+.compact-field { max-width: 190px; }
+.selected-card-summary { display: grid; gap: 5px; padding: 14px 16px; }
+.phone-verification-row { display: grid; grid-template-columns: 76px minmax(150px,1fr) auto minmax(100px,.6fr) auto; align-items: end; gap: 10px; }
+.personal-resource-list { display: grid; gap: 7px; }
+.personal-resource-list > div:not(.select-empty) { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 55px; padding: 9px 12px; border: 1px solid #2d3342; border-radius: 10px; background: #181c27; }
+.personal-resource-list span { display: grid; gap: 3px; }
+.personal-resource-list small { color: #81899b; }
+.api-name-preview { display: grid; gap: 5px; padding: 13px 15px; }
+.api-name-preview small { color: #7d8598; }
+.personal-account-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 68px; padding: 12px 18px; border-top: 1px solid var(--stroke); background: #151925; }
+.personal-account-footer > div { display: flex; align-items: center; gap: 10px; }
+.personal-account-footer span { display: inline-flex; align-items: center; gap: 7px; color: #a8afc0; }
+.personal-account-footer small { color: #6f778a; }
+
+.credit-card-settings { display: grid; gap: 18px; }
+.credit-card-settings-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.credit-card-settings-head h3 { margin: 0 0 6px; font-size: 22px; }
+.credit-card-settings-head p { margin: 0; color: #868ea1; }
+.credit-card-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 14px; }
+.credit-card-tile { position: relative; display: grid; min-height: 208px; padding: 18px; overflow: hidden; border: 1px solid #373a54; border-radius: 18px; color: #f0f1fb; background: radial-gradient(circle at 92% 0%, rgba(132,114,255,.18), transparent 38%), linear-gradient(145deg,#25263b,#202235); box-shadow: 0 14px 32px rgba(0,0,0,.2); }
+.credit-card-top { display: flex; align-items: flex-start; justify-content: space-between; color: #858ba0; font-size: 12px; }
+.credit-card-ready { display: inline-flex; align-items: center; gap: 7px; color: #c6cada; font-weight: 700; }
+.credit-card-chip { margin-top: 10px; color: #747991; }
+.credit-card-identity { display: grid; align-self: end; gap: 3px; margin-top: 9px; }
+.credit-card-identity strong { font-size: 17px; letter-spacing: .02em; }
+.credit-card-identity small { color: #9ba1b4; }
+.credit-card-number { align-self: end; margin-top: 13px; font-size: 16px; font-weight: 800; letter-spacing: .09em; }
+.credit-card-meta { display: flex; gap: 18px; margin-top: 10px; color: #777e92; font-size: 12px; }
+.credit-card-meta strong { color: #c2c7d7; }
+.credit-card-actions { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 5px; }
+.credit-card-editor { display: grid; gap: 16px; padding: 20px; border: 1px solid #393f50; border-radius: 14px; background: #181c28; }
+.credit-card-editor-head { display: flex; align-items: center; justify-content: space-between; }
+.credit-card-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.credit-card-form .wide { grid-column: 1 / -1; }
+
+@media (max-width: 900px) {
+    .personal-account-layout { grid-template-columns: 176px minmax(0,1fr); }
+    .personal-account-body { padding: 20px; }
+    .phone-verification-row { grid-template-columns: 76px 1fr; }
+    .phone-verification-row > button { align-self: end; }
+}

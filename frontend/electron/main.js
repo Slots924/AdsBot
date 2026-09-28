@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, net, protocol, shell } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, net, protocol, safeStorage, shell } from "electron";
 import { config as loadEnv } from "dotenv";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -38,6 +38,9 @@ import ProxyManager from "../../services/proxy/ProxyManager.js";
 import KeitaroGuiService from "../../services/keitaro/KeitaroGuiService.js";
 import KeitaroCampaignSettingsManager from "../../services/keitaro/KeitaroCampaignSettingsManager.js";
 import KeitaroStreamTemplateManager from "../../services/keitaro/KeitaroStreamTemplateManager.js";
+import CreditCardStore from "../../services/personalAccounts/CreditCardStore.js";
+import PersonalAccountSessionManager
+    from "../../services/personalAccounts/PersonalAccountSessionManager.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
 
@@ -72,6 +75,7 @@ let appLogger = null;
 let taskReportManager = null;
 let spendStore = null;
 let spendScheduler = null;
+let personalAccountSessionManager = null;
 let closeApproved = false;
 let closePromptOpen = false;
 let cacheProtocolReady = false;
@@ -162,6 +166,21 @@ async function createWindow() {
         accountsFile: appPaths.accounts,
     });
     await facebookAccountManager.migrateLegacyAccountKeys();
+    const creditCardStore = new CreditCardStore({
+        cardsFile: appPaths.creditCards,
+        encrypt: (value) => {
+            if (!safeStorage.isEncryptionAvailable()) {
+                throw new Error("Системне шифрування Electron недоступне");
+            }
+            return safeStorage.encryptString(String(value)).toString("base64");
+        },
+        decrypt: (value) => {
+            if (!safeStorage.isEncryptionAvailable()) {
+                throw new Error("Системне шифрування Electron недоступне");
+            }
+            return safeStorage.decryptString(Buffer.from(String(value), "base64"));
+        },
+    });
     const proxyManager = new ProxyManager({
         proxiesFile: appPaths.proxies,
     });
@@ -181,6 +200,14 @@ async function createWindow() {
         creativeManagerFactory: createCreativeManager,
         logger: appLogger.child("gui"),
         profileActivityStore: defaultProfileActivityStore,
+    });
+    personalAccountSessionManager = new PersonalAccountSessionManager({
+        adsPower: guiService.adsPower,
+        creditCardStore,
+        facebookAccountManager,
+        reloadFacebookBackend: () => guiService.reloadFacebookBackend(),
+        reportsDirectory: appPaths.personalAccountReports,
+        logger: appLogger.child("personal-account"),
     });
     templateManager = new CampaignTemplateManager({
         templatesFile: appPaths.templates,
@@ -271,6 +298,8 @@ async function createWindow() {
         proxyManager,
         logger: appLogger,
         reportManager: taskReportManager,
+        creditCardStore,
+        personalAccountSessionManager,
         getWindow: () => mainWindow,
     });
 
@@ -281,6 +310,7 @@ async function createWindow() {
         closePromptOpen = true;
         if (!await backgroundTaskManager.hasUnfinished()) {
             closePromptOpen = false;
+            await personalAccountSessionManager?.disconnectAll();
             spendScheduler?.stop();
             spendStore?.close();
             await appLogger.flush();
@@ -307,6 +337,7 @@ async function createWindow() {
             message: "Безпечно зупиняємо активні задачі…",
         });
         await backgroundTaskManager.shutdown();
+        await personalAccountSessionManager?.disconnectAll();
         spendScheduler?.stop();
         spendStore?.close();
         await appLogger.flush();

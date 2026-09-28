@@ -156,13 +156,15 @@ export default function registerIpcHandlers({
     refreshProxyIpFn = refreshProxyIp,
     logger,
     reportManager,
-        keitaroGuiService,
-        keitaroStreamTemplateManager,
-        keitaroCampaignSettingsManager,
-        spendService,
-        spendTaskCoordinator,
-        spendScheduler,
-        profileActivityStore,
+    creditCardStore,
+    personalAccountSessionManager,
+    keitaroGuiService,
+    keitaroStreamTemplateManager,
+    keitaroCampaignSettingsManager,
+    spendService,
+    spendTaskCoordinator,
+    spendScheduler,
+    profileActivityStore,
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
@@ -1209,6 +1211,108 @@ export default function registerIpcHandlers({
             await facebookAccountManager.delete(accountKey);
             return refreshManagedAccounts();
         })
+    );
+    ipcMain.handle(
+        "credit-cards:list",
+        safeHandler(() => creditCardStore.list())
+    );
+    ipcMain.handle(
+        "credit-cards:create",
+        safeHandler((payload) => creditCardStore.create(payload))
+    );
+    ipcMain.handle(
+        "credit-cards:update",
+        safeHandler(({ id, ...payload }) => creditCardStore.update(id, payload))
+    );
+    ipcMain.handle(
+        "credit-cards:delete",
+        safeHandler(({ id }) => creditCardStore.remove(id))
+    );
+    ipcMain.handle(
+        "personal-account:start",
+        safeHandler((payload) => personalAccountSessionManager.start(payload))
+    );
+    ipcMain.handle(
+        "personal-account:get",
+        safeHandler(({ sessionId }) => personalAccountSessionManager.get(sessionId))
+    );
+    ipcMain.handle(
+        "personal-account:fanpage-create",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.createFanPage(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:fanpage-switch",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.switchToFanPage(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:fanpage-access-grant",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.grantFanPageAccess(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:ad-accounts-list",
+        safeHandler(({ sessionId }) => personalAccountSessionManager.listAdAccounts(sessionId))
+    );
+    ipcMain.handle(
+        "personal-account:business-info-check",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.checkBusinessInfo(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:business-info-update",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.updateBusinessInfo(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:card-add",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.addCreditCard(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:phone-request",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.requestPhoneCode(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:phone-submit",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.submitPhoneCode(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:pixels-list",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.listPixels(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:pixel-create",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.createPixel(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:api-profile-create",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.createApiProfile(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:disconnect",
+        safeHandler(({ sessionId }) => personalAccountSessionManager.disconnect(sessionId))
+    );
+    ipcMain.handle(
+        "personal-account:profile-close",
+        safeHandler(({ sessionId }) => personalAccountSessionManager.closeProfile(sessionId))
     );
     ipcMain.handle("proxies:list", safeHandler(listProxies));
     ipcMain.handle(

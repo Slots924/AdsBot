@@ -49,6 +49,8 @@ const backendSuites = {
         "test/testCheckBillingAccountInformationAction.js",
         "test/testCreateAdPixelAction.js",
         "test/testGetAdPixelsAction.js",
+        "test/testGetBrowserAdAccountsAction.js",
+        "test/testCreditCardStore.js",
         "test/testInviteAdditionalProfileAdminAction.js",
         "test/testAutomatedBehaviorLocalization.js",
         "test/testOpenFacebookUserProfile.js",

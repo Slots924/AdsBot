@@ -21,6 +21,7 @@ import { errorDetails, unwrap } from "../lib/api.js";
 import WorkerProxyPicker from "./WorkerProxyPicker.jsx";
 import KeitaroCampaignSettings from "./KeitaroCampaignSettings.jsx";
 import SpendSettings from "./SpendSettings.jsx";
+import CreditCardsSettings from "./CreditCardsSettings.jsx";
 
 
 const minimumScale = 80;
@@ -216,6 +217,13 @@ export default function SettingsModal({
                         </button>
                         <button
                             type="button"
+                            className={tab === "credit-cards" ? "active" : ""}
+                            onClick={() => setTab("credit-cards")}
+                        >
+                            <WalletCards size={15} /> Кредитні картки
+                        </button>
+                        <button
+                            type="button"
                             className={tab === "spend" ? "active" : ""}
                             onClick={() => setTab("spend")}
                         >
@@ -223,6 +231,9 @@ export default function SettingsModal({
                         </button>
                     </nav>
                     <div className="settings-body" ref={settingsBodyRef}>
+                        {tab === "credit-cards" && (
+                            <CreditCardsSettings onError={onError} showToast={showToast} />
+                        )}
                         {tab === "general" && (
                             <>
                                 <p>Зміни застосовуються одразу та зберігаються після закриття програми.</p>

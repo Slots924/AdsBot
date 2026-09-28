@@ -7,10 +7,12 @@ import {
     RefreshCw,
     Star,
     UserPlus,
+    UserRoundCog,
 } from "lucide-react";
 
 import CreateCommentAccountsModal from "../components/CreateCommentAccountsModal.jsx";
 import CommentReactionsModal from "../components/CommentReactionsModal.jsx";
+import PersonalAccountModal from "../components/PersonalAccountModal.jsx";
 import SearchSelect from "../components/SearchSelect.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import {
@@ -193,6 +195,7 @@ export default function CommentAccountsTab({
     const [moving, setMoving] = useState(false);
     const [createOpen, setCreateOpen] = useState(false);
     const [reactionsOpen, setReactionsOpen] = useState(false);
+    const [personalAccountOpen, setPersonalAccountOpen] = useState(false);
     const [checkingAccounts, setCheckingAccounts] = useState(false);
     const leftSelected = useMemo(
         () => new Set(leftSelectedIds),
@@ -376,6 +379,15 @@ export default function CommentAccountsTab({
                     <button
                         type="button"
                         className="secondary-button"
+                        disabled={selectedProfiles.length !== 1}
+                        title={selectedProfiles.length === 1 ? "Відкрити персональний акаунт" : "Оберіть рівно один профіль"}
+                        onClick={() => setPersonalAccountOpen(true)}
+                    >
+                        <UserRoundCog size={16} /> Персональні акаунти
+                    </button>
+                    <button
+                        type="button"
+                        className="secondary-button"
                         disabled={selectedProfiles.length === 0 || checkingAccounts}
                         onClick={checkAccounts}
                     >
@@ -490,6 +502,14 @@ export default function CommentAccountsTab({
                         showToast?.("Задачу реакцій поставлено в чергу", "success");
                     }}
                     onError={onError}
+                />
+            )}
+            {personalAccountOpen && selectedProfiles.length === 1 && (
+                <PersonalAccountModal
+                    profile={selectedProfiles[0]}
+                    onClose={() => setPersonalAccountOpen(false)}
+                    onError={onError}
+                    showToast={showToast}
                 />
             )}
         </section>

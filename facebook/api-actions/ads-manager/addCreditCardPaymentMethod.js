@@ -66,10 +66,10 @@ export default async function addCreditCardPaymentMethod({
     if (!normalizedPaymentAccountId || !/^\d+$/.test(normalizedCardNumber)
         || !/^\d{3,4}$/.test(normalizedSecurityCode)
         || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(normalizedExpiration)
-        || !normalizedCardholderName || !normalizedPostalCode
+        || !normalizedCardholderName
         || !/^[A-Z]{2}$/.test(normalizedCountryCode)) {
         return createResult(false, addCreditCardPaymentMethodStatuses.INVALID_INPUT, null, {
-            error: "Потрібні paymentAccountId, номер карти, CVV, expiration у форматі MM/YY, ім'я, ZIP і countryCode",
+            error: "Потрібні paymentAccountId, номер карти, CVV, expiration у форматі MM/YY, ім'я і countryCode",
         });
     }
 
@@ -359,7 +359,14 @@ export default async function addCreditCardPaymentMethod({
                             moduleName: error.moduleName,
                         };
                     }
-                    return { status: "ERROR" };
+                    const errorMessage = error?.message
+                        ?? error?.errors?.[0]?.message
+                        ?? error?.source?.errors?.[0]?.message
+                        ?? null;
+                    return {
+                        status: "ERROR",
+                        errorMessage: errorMessage ? String(errorMessage) : null,
+                    };
                 }
             },
             {
@@ -427,7 +434,8 @@ export default async function addCreditCardPaymentMethod({
         }
 
         return createResult(false, addCreditCardPaymentMethodStatuses.ERROR, null, {
-            error: "Не вдалося додати платіжну карту через Billing Hub",
+            error: runtimeResult?.errorMessage
+                || "Не вдалося додати платіжну карту через Billing Hub",
         });
     } catch {
         return createResult(false, addCreditCardPaymentMethodStatuses.ERROR, null, {

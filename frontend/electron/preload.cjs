@@ -169,6 +169,42 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("comment-reactions:run", options),
     checkCommentAccounts: (options) =>
         ipcRenderer.invoke("comment-account-health:run", options),
+    getCreditCards: () => ipcRenderer.invoke("credit-cards:list"),
+    createCreditCard: (payload) => ipcRenderer.invoke("credit-cards:create", payload),
+    updateCreditCard: (id, payload) => ipcRenderer.invoke("credit-cards:update", { id, ...payload }),
+    deleteCreditCard: (id) => ipcRenderer.invoke("credit-cards:delete", { id }),
+    startPersonalAccountSession: (profileNo) =>
+        ipcRenderer.invoke("personal-account:start", { profileNo }),
+    getPersonalAccountSession: (sessionId) =>
+        ipcRenderer.invoke("personal-account:get", { sessionId }),
+    createPersonalFanPage: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:fanpage-create", { sessionId, ...payload }),
+    switchPersonalFanPage: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:fanpage-switch", { sessionId, ...payload }),
+    grantPersonalFanPageAccess: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:fanpage-access-grant", { sessionId, ...payload }),
+    getPersonalAdAccounts: (sessionId) =>
+        ipcRenderer.invoke("personal-account:ad-accounts-list", { sessionId }),
+    checkPersonalBusinessInfo: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:business-info-check", { sessionId, ...payload }),
+    updatePersonalBusinessInfo: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:business-info-update", { sessionId, ...payload }),
+    addPersonalCreditCard: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:card-add", { sessionId, ...payload }),
+    requestPersonalPhoneCode: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:phone-request", { sessionId, ...payload }),
+    submitPersonalPhoneCode: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:phone-submit", { sessionId, ...payload }),
+    getPersonalPixels: (sessionId, adAccountId) =>
+        ipcRenderer.invoke("personal-account:pixels-list", { sessionId, adAccountId }),
+    createPersonalPixel: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:pixel-create", { sessionId, ...payload }),
+    createPersonalApiProfile: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:api-profile-create", { sessionId, ...payload }),
+    disconnectPersonalAccountSession: (sessionId) =>
+        ipcRenderer.invoke("personal-account:disconnect", { sessionId }),
+    closePersonalAccountProfile: (sessionId) =>
+        ipcRenderer.invoke("personal-account:profile-close", { sessionId }),
     startCreativeLaunch: (options) =>
         ipcRenderer.invoke("creative-launch:start", options),
     getCreativeLaunch: (workflowJobId) =>

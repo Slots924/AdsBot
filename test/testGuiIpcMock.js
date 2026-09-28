@@ -21,6 +21,18 @@ const reportManager = {
     delete: async (id) => id,
     exportMarkdown: async (_id, file) => file,
 };
+const creditCardStore = {
+    async list() { return [{ id: "card-1", nickname: "MYRAHA 1", last4: "6273" }]; },
+    async create(payload) { return { id: "card-2", ...payload, last4: payload.cardNumber.slice(-4) }; },
+    async update(id, payload) { return { id, ...payload }; },
+    async remove(id) { return { id }; },
+};
+const personalAccountSessionManager = {
+    async start({ profileNo }) { return { id: "session-1", profileNo, connected: true }; },
+    async get(sessionId) { return { id: sessionId, connected: true }; },
+    async disconnect(sessionId) { return { sessionId, disconnected: true }; },
+    async closeProfile(sessionId) { return { sessionId, profileClosed: true }; },
+};
 const templateManager = {
     async list() {
         return [{ id: 1, name: "AT", pixel: "123" }];
@@ -395,6 +407,8 @@ registerIpcHandlers({
     }),
     logger,
     reportManager,
+    creditCardStore,
+    personalAccountSessionManager,
     getWindow: () => ({
         isDestroyed: () => false,
         webContents: {
@@ -407,6 +421,15 @@ registerIpcHandlers({
         },
     }),
 });
+
+assert.equal((await handlers.get("credit-cards:list")({}, {})).data[0].last4, "6273");
+assert.deepEqual(
+    await handlers.get("personal-account:start")({}, { profileNo: "2034" }),
+    {
+        ok: true,
+        data: { id: "session-1", profileNo: "2034", connected: true },
+    }
+);
 
 assert.deepEqual(
     await handlers.get("proxies:list")({}, {}),

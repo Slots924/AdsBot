@@ -44,6 +44,8 @@ export const appPaths = {
     pageRebuildJobs: path.join(projectRoot, "data/page-rebuild-jobs.json"),
     reports: path.join(projectRoot, "data/reports"),
     taskReports: path.join(projectRoot, "data/reports/tasks"),
+    personalAccountReports: path.join(projectRoot, "data/reports/personal-accounts"),
+    creditCards: path.join(projectRoot, "data/credit-cards.json"),
     logs: path.join(projectRoot, "data/logs"),
     renderer: path.join(frontendRoot, "dist/index.html"),
     preload: path.join(electronDirectory, "preload.cjs"),
