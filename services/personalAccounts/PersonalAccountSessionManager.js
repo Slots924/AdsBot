@@ -397,11 +397,12 @@ export default class PersonalAccountSessionManager {
             await this.#ensureFacebookContext(
                 session,
                 additionalProfileId,
-                "https://www.facebook.com/settings/?tab=profile_access",
-                "FACEBOOK_PAGE_ACCESS"
+                profileUrl,
+                "FACEBOOK_MAIN"
             );
             const result = assertAction(await grantAdditionalProfileAccess({
                 page: session.page,
+                commonPayload: session.payload,
                 additionalProfileId,
                 targetUserId: input.targetUserId,
                 password: session.profile.password,
