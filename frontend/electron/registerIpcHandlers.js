@@ -1245,6 +1245,12 @@ export default function registerIpcHandlers({
         safeHandler(({ sessionId }) => personalAccountSessionManager.listFanPages(sessionId))
     );
     ipcMain.handle(
+        "personal-account:switchable-profiles-list",
+        safeHandler(({ sessionId }) => (
+            personalAccountSessionManager.listSwitchableFacebookProfiles(sessionId)
+        ))
+    );
+    ipcMain.handle(
         "personal-account:fanpage-create",
         safeHandler(({ sessionId, ...payload }) => (
             personalAccountSessionManager.createFanPage(sessionId, payload)

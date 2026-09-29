@@ -84,7 +84,8 @@ export default function PersonalAccountModal({ profile, onClose, onError = () =>
     const [busy, setBusy] = useState("");
     const [completed, setCompleted] = useState(new Set());
     const [accounts, setAccounts] = useState([]);
-    const [fanPages, setFanPages] = useState([]);
+    const [overviewFanPages, setOverviewFanPages] = useState([]);
+    const [switchableProfiles, setSwitchableProfiles] = useState([]);
     const [selectedFanPageId, setSelectedFanPageId] = useState("");
     const [fanPageSearch, setFanPageSearch] = useState("");
     const [minimized, setMinimized] = useState(false);
@@ -112,15 +113,15 @@ export default function PersonalAccountModal({ profile, onClose, onError = () =>
     const [apiName, setApiName] = useState("");
     const activeCard = useMemo(() => cards.find((item) => item.id === cardId), [cards, cardId]);
     const selectedFanPage = useMemo(
-        () => fanPages.find((item) => item.pageId === selectedFanPageId) ?? null,
-        [fanPages, selectedFanPageId]
+        () => switchableProfiles.find((item) => item.id === selectedFanPageId) ?? null,
+        [switchableProfiles, selectedFanPageId]
     );
     const visibleFanPages = useMemo(() => {
         const query = fanPageSearch.trim().toLowerCase();
-        if (!query) return fanPages;
-        return fanPages.filter((item) => [item.name, item.pageId, item.additionalProfileId]
+        if (!query) return switchableProfiles;
+        return switchableProfiles.filter((item) => [item.name, item.id]
             .some((value) => String(value ?? "").toLowerCase().includes(query)));
-    }, [fanPages, fanPageSearch]);
+    }, [switchableProfiles, fanPageSearch]);
     const normalizedDialingCode = normalizeDialingCode(phoneDialingCode);
     const dialingDigits = normalizedDialingCode.slice(1);
     const phoneCountryCode = dialingCountryCodes[dialingDigits] ?? "";
@@ -173,7 +174,7 @@ export default function PersonalAccountModal({ profile, onClose, onError = () =>
         const overview = nextSession.overview;
         if (!overview) return;
         setAccounts(overview.adAccounts ?? []);
-        setFanPages(overview.fanPages ?? []);
+        setOverviewFanPages(overview.fanPages ?? []);
         setAdsManagerReady(Boolean(overview.hasAdsManagerPayload));
         if (!adAccountId && overview.adAccounts?.[0]) {
             setAdAccountId(overview.adAccounts[0].accountId || overview.adAccounts[0].id);
@@ -183,6 +184,15 @@ export default function PersonalAccountModal({ profile, onClose, onError = () =>
         if (!requireSession()) return;
         const value = await run("overview", () => window.adsBot.refreshPersonalAccountOverview(session.id), "Інформацію профілю оновлено");
         applyOverview(value);
+    };
+    const refreshSwitchableProfiles = async () => {
+        if (!requireSession()) return;
+        const value = await run(
+            "fanpage.list",
+            () => window.adsBot.getPersonalSwitchableFacebookProfiles(session.id),
+            "Список фанпейджів оновлено"
+        );
+        if (value) setSwitchableProfiles(value);
     };
     const initializeAdsManager = async () => {
         if (!requireSession()) return;
@@ -259,16 +269,16 @@ export default function PersonalAccountModal({ profile, onClose, onError = () =>
                         <div className="personal-profile-card"><div><strong>{profile.name || "Без назви"}</strong><small>{profile.groupName || "Без групи"}</small></div><div className="personal-tags">{profile.tags?.map((tag) => <span key={tag.id || tag.name}>{tag.name}</span>)}</div></div>
                         {!session && <button type="button" className="primary-button personal-main-action" disabled={Boolean(busy)} aria-busy={busy === "launch"} onClick={async () => { const value = await run("launch", () => window.adsBot.startPersonalAccountSession(profile.profileNo), "Профіль готовий до роботи"); applyOverview(value); }}>{busy === "launch" ? <><LoaderCircle className="spin" size={16} /> Запускаю профіль…</> : <><Play size={16} /> Запустити і перевірити</>}</button>}
                         <div className="personal-status-grid">{[["Facebook payload", session?.overview?.hasFacebookPayload], ["Ads Manager payload", session?.overview?.hasAdsManagerPayload], ["Access token", session?.overview?.hasAccessToken]].map(([label, ready]) => <div className={`personal-status ${ready ? "ready" : ""}`} key={label}><i /> <span>{label}</span><small>{ready ? "Завантажено" : "Ще не завантажено"}</small></div>)}</div>
-                        <div className="personal-overview-card"><div className="personal-card-heading"><h4>Фанпейджі</h4><span>{fanPages.length}</span></div>{fanPages.length ? <div className="overview-page-list">{fanPages.map((item) => <div key={item.pageId} className="overview-page"><div className="fanpage-avatar">{item.pictureUrl ? <img src={item.pictureUrl} alt="" /> : <PanelsTopLeft size={16} />}</div><div><strong>{item.name}</strong><small>Page ID: {item.pageId}</small><small>Profile ID: {item.additionalProfileId || "ще не визначено"}</small></div></div>)}</div> : <p className="personal-empty">{session?.overview?.fanPagesError || (session ? "Фанпейджів не знайдено." : "Список з’явиться після запуску профілю.")}</p>}</div>
+                        <div className="personal-overview-card"><div className="personal-card-heading"><h4>Фанпейджі</h4><span>{overviewFanPages.length}</span></div>{overviewFanPages.length ? <div className="overview-page-list">{overviewFanPages.map((item) => <div key={item.pageId} className="overview-page"><div className="fanpage-avatar">{item.pictureUrl ? <img src={item.pictureUrl} alt="" /> : <PanelsTopLeft size={16} />}</div><div><strong>{item.name}</strong><small>Page ID: {item.pageId}</small><small>Profile ID: {item.additionalProfileId || "ще не визначено"}</small></div></div>)}</div> : <p className="personal-empty">{session?.overview?.fanPagesError || (session ? "Фанпейджів не знайдено." : "Список з’явиться після запуску профілю.")}</p>}</div>
                         <div className="personal-overview-card"><div className="personal-card-heading"><h4>Рекламні кабінети та пікселі</h4><span>{accounts.length}</span></div>{accounts.length ? <div className="overview-accounts">{accounts.map((account) => <div className="overview-account" key={account.id}><div><strong><i className={account.accountStatus === 1 ? "online" : ""} /> {account.name}</strong><small>{account.id}</small></div><div className="pixel-chips">{account.pixels?.slice(0, 3).map((pixel) => <span key={pixel.id}>{pixel.name} · {pixel.id}</span>)}{account.pixels?.length > 3 && <span>+ ще {account.pixels.length - 3}</span>}{!account.pixels?.length && <small>{account.pixelsError || "Пікселів немає"}</small>}</div></div>)}</div> : <p className="personal-empty">{session?.overview?.adAccountsError || (session ? "Рекламних кабінетів не знайдено." : "Рекламні кабінети ще не завантажено.")}</p>}</div>
                         <div className="personal-overview-card"><div className="personal-card-heading"><h4>Бізнес-інфо</h4><span>скоро</span></div><p className="personal-empty">Тут з’явиться бізнес-інформація вибраного рекламного кабінету.</p></div>
                     </section>}
 
                     {section === "fanpage" && <section className="personal-section personal-fanpage">
                         <div className="personal-section-heading"><div><span className="eyebrow">Facebook</span><h3>Фанпейдж</h3><p>Перед кожною дією програма перевіряє actor і отримує свіжий payload.</p></div></div>
-                        <div className="personal-action-card"><div className="personal-card-heading"><h4>Вибрати фанпейдж</h4><button type="button" className="secondary-button" disabled={!session || Boolean(busy)} onClick={refreshOverview}><RefreshCw size={16} /> Оновити список</button></div><label className="field"><span>Пошук за назвою, Page ID або Profile ID</span><input value={fanPageSearch} placeholder="Почніть вводити…" onChange={(event) => setFanPageSearch(event.target.value)} /></label><div className="fanpage-picker">{visibleFanPages.map((item) => <button type="button" key={item.pageId} className={selectedFanPageId === item.pageId ? "selected" : ""} onClick={() => setSelectedFanPageId(item.pageId)}><div className="fanpage-avatar">{item.pictureUrl ? <img src={item.pictureUrl} alt="" /> : <PanelsTopLeft size={16} />}</div><span><strong>{item.name}</strong><small>Page ID: {item.pageId}</small><small>Profile ID: {item.additionalProfileId || "недоступний"}</small></span></button>)}{!visibleFanPages.length && <p className="personal-empty">Немає фанпейджів за цим пошуком.</p>}</div><button type="button" className="secondary-button" disabled={!selectedFanPage?.additionalProfileId || Boolean(busy)} onClick={async () => { if (!requireSession()) return; const value = await run("fanpage", () => window.adsBot.switchPersonalFanPage(session.id, { additionalProfileId: selectedFanPage.additionalProfileId }), "Запит на перемикання на фанпейдж прийнято Facebook", "fanpage.switch"); if (value?.session) setSession(value.session); }}>Перемкнутися на вибрану фанпейджу</button>{selectedFanPage && !selectedFanPage.additionalProfileId && <p className="personal-note">Для цієї сторінки Facebook не повернув Profile ID, тому перемикання недоступне.</p>}</div>
-                        <div className="personal-action-card"><h4>Надати Full Access</h4><p className="personal-note">Доступ буде надано вибраній фанпейджі. Page ID і Profile ID не змішуються: для дії використовується лише Profile ID.</p><label className="field"><span>Facebook User ID отримувача</span><input inputMode="numeric" value={targetUserId} onChange={(event) => setTargetUserId(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button" disabled={!selectedFanPage?.additionalProfileId || !targetUserId || Boolean(busy)} onClick={() => requireSession() && run("fanpage", () => window.adsBot.grantPersonalFanPageAccess(session.id, { additionalProfileId: selectedFanPage.additionalProfileId, targetUserId }), "Запит на Full Access відправлено", "fanpage.access")}>Надати доступ</button>{feedback["fanpage.access"] && <SuccessNotice>{feedback["fanpage.access"]}</SuccessNotice>}</div>
-                        <div className="personal-action-card"><h4>Створення фанпейджа</h4><label className="field"><span>Назва</span><input value={fanName} onChange={(event) => setFanName(event.target.value)} /></label><label className="checkbox-line"><input type="checkbox" checked={manualCategory} onChange={(event) => setManualCategory(event.target.checked)} /><span><strong>Ввести ID категорії вручну</strong><small>Стандартне значення: {defaultCategoryId}</small></span></label><label className="field"><span>Category ID</span><input disabled={!manualCategory} value={categoryId} onChange={(event) => setCategoryId(event.target.value)} /></label><button type="button" className="primary-button" disabled={!fanName.trim() || Boolean(busy)} onClick={async () => { if (!requireSession()) return; const value = await run("fanpage", () => window.adsBot.createPersonalFanPage(session.id, { name: fanName, categoryId: manualCategory ? categoryId : "" }), "Фанпейдж успішно створено", "fanpage.create"); if (value) { setSelectedFanPageId(value.pageId); setFanName(""); applyOverview(value.session); } }}><PanelsTopLeft size={16} /> Створити фанпейдж</button>{feedback["fanpage.create"] && <SuccessNotice>{feedback["fanpage.create"]}</SuccessNotice>}</div>
+                        <div className="personal-action-card"><div className="personal-card-heading"><h4>Вибрати фанпейдж</h4><button type="button" className="secondary-button" disabled={!session || Boolean(busy)} onClick={refreshSwitchableProfiles}><RefreshCw size={16} /> Оновити список</button></div><label className="field"><span>Пошук за назвою або Profile ID</span><input value={fanPageSearch} placeholder="Почніть вводити…" onChange={(event) => setFanPageSearch(event.target.value)} /></label><div className="fanpage-picker">{visibleFanPages.map((item) => <button type="button" key={item.id} className={selectedFanPageId === item.id ? "selected" : ""} onClick={() => setSelectedFanPageId(item.id)}><div className="fanpage-avatar">{item.photoUrl ? <img src={item.photoUrl} alt="" /> : <PanelsTopLeft size={16} />}</div><span><strong>{item.name || "Без назви"}</strong><small>Profile ID: {item.id}</small></span></button>)}{!visibleFanPages.length && <p className="personal-empty">Оновіть список, щоб отримати доступні фанпейджі.</p>}</div><button type="button" className="secondary-button" disabled={!selectedFanPage || Boolean(busy)} onClick={async () => { if (!requireSession()) return; const selectedName = selectedFanPage.name || "фанпейджу"; const value = await run("fanpage", () => window.adsBot.switchPersonalFanPage(session.id, { additionalProfileId: selectedFanPage.id }), `Перемкнено на: ${selectedName}`, "fanpage.switch"); if (value?.session) setSession(value.session); }}>Перемкнутися на вибрану фанпейджу</button></div>
+                        <div className="personal-action-card"><h4>Надати Full Access</h4><p className="personal-note">Доступ буде надано вибраній фанпейджі за її Profile ID.</p><label className="field"><span>Facebook User ID отримувача</span><input inputMode="numeric" value={targetUserId} onChange={(event) => setTargetUserId(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button" disabled={!selectedFanPage || !targetUserId || Boolean(busy)} onClick={() => requireSession() && run("fanpage", () => window.adsBot.grantPersonalFanPageAccess(session.id, { additionalProfileId: selectedFanPage.id, targetUserId }), "Запит на Full Access відправлено", "fanpage.access")}>Надати доступ</button>{feedback["fanpage.access"] && <SuccessNotice>{feedback["fanpage.access"]}</SuccessNotice>}</div>
+                        <div className="personal-action-card"><h4>Створення фанпейджа</h4><label className="field"><span>Назва</span><input value={fanName} onChange={(event) => setFanName(event.target.value)} /></label><label className="checkbox-line"><input type="checkbox" checked={manualCategory} onChange={(event) => setManualCategory(event.target.checked)} /><span><strong>Ввести ID категорії вручну</strong><small>Стандартне значення: {defaultCategoryId}</small></span></label><label className="field"><span>Category ID</span><input disabled={!manualCategory} value={categoryId} onChange={(event) => setCategoryId(event.target.value)} /></label><button type="button" className="primary-button" disabled={!fanName.trim() || Boolean(busy)} onClick={async () => { if (!requireSession()) return; const value = await run("fanpage", () => window.adsBot.createPersonalFanPage(session.id, { name: fanName, categoryId: manualCategory ? categoryId : "" }), "Фанпейдж успішно створено", "fanpage.create"); if (value) { setSwitchableProfiles(value.profiles ?? []); setSelectedFanPageId(value.additionalProfileId); setFanName(""); } }}><PanelsTopLeft size={16} /> Створити фанпейдж</button>{feedback["fanpage.create"] && <SuccessNotice>{feedback["fanpage.create"]}</SuccessNotice>}</div>
                     </section>}
 
                     {section === "business" && <section className="personal-section">

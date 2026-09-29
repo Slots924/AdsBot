@@ -181,6 +181,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("personal-account:overview-refresh", { sessionId }),
     getPersonalFanPages: (sessionId) =>
         ipcRenderer.invoke("personal-account:fanpage-list", { sessionId }),
+    getPersonalSwitchableFacebookProfiles: (sessionId) =>
+        ipcRenderer.invoke("personal-account:switchable-profiles-list", { sessionId }),
     createPersonalFanPage: (sessionId, payload) =>
         ipcRenderer.invoke("personal-account:fanpage-create", { sessionId, ...payload }),
     switchPersonalFanPage: (sessionId, payload) =>

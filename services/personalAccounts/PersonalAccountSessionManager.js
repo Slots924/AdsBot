@@ -9,7 +9,11 @@ import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
 import captureGraphqlPayload from "../../facebook/api-actions/captureGraphqlPayload.js";
 import createFanPage from "../../facebook/api-actions/pages/createFanPage.js";
 import getFanPages from "../../facebook/api-actions/pages/getFanPages.js";
+import getSwitchableFacebookProfiles
+    from "../../facebook/api-actions/pages/getSwitchableFacebookProfiles.js";
 import switchToAdditionalProfile from "../../facebook/api-actions/pages/switchToAdditionalProfile.js";
+import confirmFacebookProfileSwitch
+    from "../../facebook/workflows/confirmFacebookProfileSwitch.js";
 import grantAdditionalProfileAccess
     from "../../facebook/workflows/grantAdditionalProfileAccess.js";
 import checkBillingAccountInformation
@@ -392,20 +396,12 @@ export default class PersonalAccountSessionManager {
             }), "Не вдалося створити фанпейдж");
             session.pageId = String(result.pageId);
             session.additionalProfileId = String(result.additionalProfileId ?? "");
-            session.fanPages = [
-                ...session.fanPages.filter((item) => item.pageId !== session.pageId),
-                {
-                    pageId: session.pageId,
-                    additionalProfileId: session.additionalProfileId,
-                    name: String(input.name ?? "Без назви"),
-                    pictureUrl: "",
-                },
-            ];
-            await this.#refreshOverview(session);
+            const profiles = await this.#getSwitchableProfiles(session);
             return {
                 status: result.status,
                 pageId: session.pageId,
                 additionalProfileId: session.additionalProfileId,
+                profiles,
                 session: publicSession(session),
             };
         });
@@ -421,19 +417,70 @@ export default class PersonalAccountSessionManager {
                 throw sessionError("Потрібен Additional profile ID", "ADDITIONAL_PROFILE_ID_REQUIRED");
             }
             await this.#ensureFacebookContext(session, session.mainActorId, profileUrl, "FACEBOOK_MAIN");
-            const switchResult = assertAction(await switchToAdditionalProfile({
-                page: session.page,
-                commonPayload: session.payload,
-                additionalProfileId,
-                timeout: 60000,
-            }), "Не вдалося перемкнутися на фанпейдж");
+            const startedAt = Date.now();
+            await session.report.append("fanpage.switch.mutation_started", {
+                startedAt: new Date(startedAt).toISOString(),
+                context: session.context,
+            });
+            let switchResult;
+            try {
+                switchResult = assertAction(await switchToAdditionalProfile({
+                    page: session.page,
+                    commonPayload: session.payload,
+                    additionalProfileId,
+                    timeout: 60000,
+                }), "Не вдалося перемкнутися на фанпейдж");
+            } catch (error) {
+                await session.report.append("fanpage.switch.mutation_failed", {
+                    completedAt: new Date().toISOString(),
+                    durationMs: Date.now() - startedAt,
+                    error: String(error?.message ?? error),
+                });
+                throw error;
+            }
+            await session.report.append("fanpage.switch.mutation_completed", {
+                completedAt: new Date().toISOString(),
+                durationMs: Date.now() - startedAt,
+                context: session.context,
+            });
             session.additionalProfileId = additionalProfileId;
-            // Facebook інколи не повертає body для успішного profile switch.
-            // Наступна дія самостійно захопить новий payload і перевірить actor.
             session.payload = null;
             session.context = "FACEBOOK_SWITCH_REQUESTED";
+            const confirmationStartedAt = Date.now();
+            await session.report.append("fanpage.switch.confirmation_started", {
+                startedAt: new Date(confirmationStartedAt).toISOString(),
+                targetProfileId: additionalProfileId,
+            });
+            let confirmed;
+            try {
+                confirmed = assertAction(await confirmFacebookProfileSwitch({
+                    page: session.page,
+                    targetProfileId: additionalProfileId,
+                    profileUrl,
+                    timeout: 60000,
+                }), "Не вдалося підтвердити перемикання Facebook actor");
+            } catch (error) {
+                await session.report.append("fanpage.switch.confirmation_failed", {
+                    completedAt: new Date().toISOString(),
+                    durationMs: Date.now() - confirmationStartedAt,
+                    targetProfileId: additionalProfileId,
+                    error: String(error?.message ?? error),
+                });
+                throw error;
+            }
+            session.payload = confirmed.data.payload;
+            session.payloadUrl = session.page.url();
+            session.actorId = confirmed.data.actorId;
+            session.context = "FACEBOOK_ADDITIONAL_PROFILE";
+            await session.report.append("fanpage.switch.confirmed", {
+                completedAt: new Date().toISOString(),
+                durationMs: Date.now() - confirmationStartedAt,
+                actorId: session.actorId,
+                targetProfileId: additionalProfileId,
+            });
             return {
-                status: switchResult.status,
+                status: confirmed.status,
+                mutationStatus: switchResult.status,
                 additionalProfileId,
                 session: publicSession(session),
             };
@@ -488,6 +535,13 @@ export default class PersonalAccountSessionManager {
             await this.#refreshOverview(session);
             return session.overview.fanPages;
         });
+    }
+
+
+    listSwitchableFacebookProfiles(sessionId) {
+        return this.#perform(sessionId, "fanpage.switchable_profiles_list", async (session) => (
+            this.#getSwitchableProfiles(session)
+        ));
     }
 
 
@@ -805,6 +859,23 @@ export default class PersonalAccountSessionManager {
         const result = session.operation.then(execute, execute);
         session.operation = result.catch(() => {});
         return result;
+    }
+
+
+    // Гарантує Facebook main context і повертає лише профілі для перемикання.
+    async #getSwitchableProfiles(session) {
+        await this.#ensureFacebookContext(
+            session,
+            session.mainActorId,
+            profileUrl,
+            "FACEBOOK_MAIN"
+        );
+        const result = assertAction(await getSwitchableFacebookProfiles({
+            page: session.page,
+            commonPayload: session.payload,
+            timeout: 60000,
+        }), "Не вдалося отримати доступні для перемикання профілі");
+        return result.data;
     }
 
 
