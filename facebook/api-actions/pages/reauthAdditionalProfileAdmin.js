@@ -9,7 +9,8 @@ import {
 
 const reauthFriendlyName = "ProfilePlusMarkReauthedMutation";
 const reauthDocId = "24066063156313418";
-const encryptionQueryModule = "CometProfilePlusAdminPermissionsRootQuery.graphql";
+const encryptionQueryFriendlyName = "CometProfilePlusAdminPermissionsRootQuery";
+const encryptionQueryDocId = "28986292094287748";
 
 
 export const reauthAdditionalProfileAdminStatuses = Object.freeze({
@@ -37,35 +38,62 @@ async function submitReauthInPage(page, {
     return page.evaluate(
         async ({ payload, profileId, plaintextPassword, timeoutMs }) => {
             const getEncryptionKeys = async () => {
-                const Relay = require("CometRelay");
-                const environment = require("RelayFBEnvironment");
-                const query = require("CometProfilePlusAdminPermissionsRootQuery.graphql");
+                const response = await fetch("/api/graphql/", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "content-type": "application/x-www-form-urlencoded",
+                        "x-fb-friendly-name": "CometProfilePlusAdminPermissionsRootQuery",
+                        "x-fb-lsd": String(payload.lsd),
+                    },
+                    body: new URLSearchParams({
+                        ...(payload.av ? { av: String(profileId) } : {}),
+                        __user: String(payload.__user),
+                        __a: String(payload.__a),
+                        fb_dtsg: String(payload.fb_dtsg),
+                        jazoest: String(payload.jazoest),
+                        lsd: String(payload.lsd),
+                        __comet_req: String(payload.__comet_req),
+                        fb_api_caller_class: "RelayModern",
+                        fb_api_req_friendly_name: "CometProfilePlusAdminPermissionsRootQuery",
+                        server_timestamps: "true",
+                        doc_id: "28986292094287748",
+                        variables: JSON.stringify({
+                            scale: window.devicePixelRatio || 1,
+                        }),
+                        ...(payload.__spin_r ? { __spin_r: String(payload.__spin_r) } : {}),
+                        ...(payload.__spin_b ? { __spin_b: String(payload.__spin_b) } : {}),
+                        ...(payload.__spin_t ? { __spin_t: String(payload.__spin_t) } : {}),
+                        ...(payload.__crn ? { __crn: String(payload.__crn) } : {}),
+                    }).toString(),
+                });
+                if (!response.ok) throw new Error(`ENCRYPTION_KEY_QUERY_HTTP_${response.status}`);
+                const source = (await response.text()).replace(/^for\s*\(\s*;;\s*\);\s*/, "");
+                const data = JSON.parse(source);
+                if (Array.isArray(data?.errors) && data.errors.length) {
+                    throw new Error("ENCRYPTION_KEY_QUERY_GRAPHQL_ERROR");
+                }
+                const actor = data?.data?.viewer?.actor;
+                if (String(actor?.id ?? actor?.__id ?? "") !== String(profileId)) {
+                    throw new Error("ENCRYPTION_KEY_ACTOR_MISMATCH");
+                }
+                const key = actor?.public_key_and_id_for_encryption;
+                if (!key?.key_id || !key?.public_key) {
+                    throw new Error("RUNTIME_ENCRYPTION_KEYS_UNAVAILABLE");
+                }
+                return { keyId: key.key_id, publicKey: key.public_key };
+            };
 
+            const getModule = async (name) => {
+                try {
+                    return require(name);
+                } catch {}
                 return new Promise((resolve, reject) => {
-                    Relay.fetchQuery(
-                        environment,
-                        query,
-                        { scale: window.devicePixelRatio || 1 }
-                    ).subscribe({
-                        next(data) {
-                            try {
-                                const actorId = data?.viewer?.actor?.__id
-                                    ?? environment.actorIdentifier;
-                                const source = environment.getStore?.().getSource?.();
-                                const actor = actorId ? source?.get(actorId) : null;
-                                const keyRecordId = actor?.public_key_and_id_for_encryption?.__ref;
-                                const keyRecord = keyRecordId ? source?.get(keyRecordId) : null;
-
-                                if (!keyRecord?.key_id || !keyRecord?.public_key) {
-                                    throw new Error("RUNTIME_ENCRYPTION_KEYS_UNAVAILABLE");
-                                }
-                                resolve({ keyId: keyRecord.key_id, publicKey: keyRecord.public_key });
-                            } catch (error) {
-                                reject(error);
-                            }
-                        },
-                        error: reject,
-                    });
+                    try {
+                        require("Bootloader").loadModules([name], (module) => resolve(module), "adsbot_reauth");
+                    } catch (error) {
+                        reject(error);
+                    }
                 });
             };
 
@@ -74,7 +102,13 @@ async function submitReauthInPage(page, {
 
             try {
                 const { keyId, publicKey } = await getEncryptionKeys();
-                const encryptedPassword = await require("FBBrowserPasswordEncryption").encryptPassword(
+                const encryptionModule = await getModule("FBBrowserPasswordEncryption");
+                const encryptPassword = encryptionModule?.encryptPassword
+                    ?? encryptionModule?.default?.encryptPassword;
+                if (typeof encryptPassword !== "function") {
+                    throw new Error("RUNTIME_PASSWORD_ENCRYPTION_UNAVAILABLE");
+                }
+                const encryptedPassword = await encryptPassword(
                     keyId,
                     publicKey,
                     plaintextPassword,

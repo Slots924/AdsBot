@@ -203,6 +203,15 @@ function isConnectionRefused(error) {
 }
 
 
+// Маскує пароль для діагностичного звіту, не розкриваючи його повністю.
+function maskReauthCredential(value) {
+    const credential = String(value ?? "");
+    if (!credential) return null;
+    if (credential.length < 3) return "***";
+    return `${credential[0]}${"*".repeat(credential.length - 2)}${credential.at(-1)}`;
+}
+
+
 function sessionError(message, code, details = {}) {
     return Object.assign(new Error(message), { code, ...details });
 }
@@ -497,21 +506,72 @@ export default class PersonalAccountSessionManager {
 
     grantFanPageAccess(sessionId, input = {}) {
         return this.#perform(sessionId, "fanpage.access_grant", async (session) => {
-            const additionalProfileId = String(
-                input.additionalProfileId ?? session.additionalProfileId ?? ""
-            ).trim();
+            const targetUserId = String(input.targetUserId ?? "").trim();
+            const credential = String(session.profile?.password ?? "");
+            if (!/^\d+$/.test(targetUserId)) {
+                throw sessionError(
+                    "Потрібен числовий Facebook User ID отримувача",
+                    "TARGET_USER_ID_REQUIRED"
+                );
+            }
+            if (!credential) {
+                throw sessionError(
+                    "У профілі AdsPower відсутній пароль Facebook для повторної авторизації",
+                    "FACEBOOK_PASSWORD_REQUIRED"
+                );
+            }
+
+            // Використовує поточний Facebook actor або отримує свіжий payload після переходу на /me.
             await this.#ensureFacebookContext(
                 session,
-                additionalProfileId,
+                "",
                 profileUrl,
-                "FACEBOOK_MAIN"
+                "FACEBOOK_CURRENT"
             );
+            const additionalProfileId = String(
+                session.payload?.__user ?? session.actorId ?? ""
+            ).trim();
+
+            // Фіксує лише безпечні ознаки вхідних даних для діагностики reauth.
+            await session.report.append("fanpage.access_grant.diagnostics", {
+                requestedTargetUserId: targetUserId,
+                requestedTargetUserIdIsNumeric: true,
+                sessionActorId: session.actorId || null,
+                sessionMainActorId: session.mainActorId || null,
+                sessionAdditionalProfileId: session.additionalProfileId || null,
+                sessionContext: session.context || null,
+                payloadAdditionalProfileId: additionalProfileId || null,
+                payloadAdditionalProfileIdIsNumeric: /^\d+$/.test(additionalProfileId),
+                reauthCredentialPresent: true,
+                reauthCredentialLength: credential.length,
+                reauthCredentialPreview: maskReauthCredential(credential),
+            });
+            if (!/^\d+$/.test(additionalProfileId)) {
+                throw sessionError(
+                    "Не вдалося визначити поточну фанпейджу з Facebook payload",
+                    "ADDITIONAL_PROFILE_ID_REQUIRED"
+                );
+            }
+            const commonPayload = {
+                ...session.payload,
+                // DevTools-виклик Facebook використовує поточний Additional Profile як av.
+                av: additionalProfileId,
+            };
+            await session.report.append("fanpage.access_grant.context_verified", {
+                additionalProfileId,
+                actorId: session.actorId || null,
+                actorMatchesAdditionalProfile: session.actorId === additionalProfileId,
+                payloadUserId: String(commonPayload.__user ?? "") || null,
+                payloadUserMatchesAdditionalProfile: String(commonPayload.__user ?? "") === additionalProfileId,
+                payloadAv: String(commonPayload.av ?? "") || null,
+                payloadAvMatchesAdditionalProfile: String(commonPayload.av ?? "") === additionalProfileId,
+            });
             const result = assertAction(await grantAdditionalProfileAccess({
                 page: session.page,
-                commonPayload: session.payload,
+                commonPayload,
                 additionalProfileId,
-                targetUserId: input.targetUserId,
-                password: session.profile.password,
+                targetUserId,
+                password: credential,
                 timeout: 60000,
             }), "Не вдалося надати доступ до фанпейджа");
             session.payload = null;
