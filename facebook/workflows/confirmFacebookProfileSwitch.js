@@ -5,7 +5,6 @@ export const confirmFacebookProfileSwitchStatuses = Object.freeze({
     PROFILE_SWITCH_CONFIRMED: "PROFILE_SWITCH_CONFIRMED",
     INVALID_INPUT: "INVALID_INPUT",
     BRING_TO_FRONT_FAILED: "BRING_TO_FRONT_FAILED",
-    RELOAD_FAILED: "RELOAD_FAILED",
     PAYLOAD_CAPTURE_FAILED: "PAYLOAD_CAPTURE_FAILED",
     ACTOR_MISMATCH: "ACTOR_MISMATCH",
     ERROR: "ERROR",
@@ -25,8 +24,7 @@ export default async function confirmFacebookProfileSwitch({
     timeout = 60000,
 }) {
     const normalizedTargetProfileId = String(targetProfileId ?? "").trim();
-    if (!page || typeof page.bringToFront !== "function" || typeof page.reload !== "function"
-        || !normalizedTargetProfileId) {
+    if (!page || typeof page.bringToFront !== "function" || !normalizedTargetProfileId) {
         return createResult(false, confirmFacebookProfileSwitchStatuses.INVALID_INPUT, null, {
             error: "Потрібні Puppeteer page та Additional profile ID",
         });
@@ -40,14 +38,7 @@ export default async function confirmFacebookProfileSwitch({
         });
     }
 
-    try {
-        await page.reload({ waitUntil: "domcontentloaded", timeout });
-    } catch (error) {
-        return createResult(false, confirmFacebookProfileSwitchStatuses.RELOAD_FAILED, null, {
-            error: String(error?.message ?? error),
-        });
-    }
-
+    // Перехід на /me одночасно оновлює інтерфейс і дає GraphQL-запит для свіжого payload.
     const captured = await captureGraphqlPayload(page, { profileUrl, timeout });
     if (!captured.success) {
         return createResult(false, confirmFacebookProfileSwitchStatuses.PAYLOAD_CAPTURE_FAILED, null, {

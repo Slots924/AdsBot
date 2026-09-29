@@ -478,10 +478,17 @@ export default class PersonalAccountSessionManager {
                 actorId: session.actorId,
                 targetProfileId: additionalProfileId,
             });
+            const profiles = await this.#getSwitchableProfiles(session);
+            await session.report.append("fanpage.switch.profiles_refreshed", {
+                completedAt: new Date().toISOString(),
+                count: profiles.length,
+                actorId: session.actorId,
+            });
             return {
                 status: confirmed.status,
                 mutationStatus: switchResult.status,
                 additionalProfileId,
+                profiles,
                 session: publicSession(session),
             };
         });
@@ -862,14 +869,15 @@ export default class PersonalAccountSessionManager {
     }
 
 
-    // Гарантує Facebook main context і повертає лише профілі для перемикання.
+    // Оновлює payload поточного Facebook actor, не перемикаючи профіль заради списку.
     async #getSwitchableProfiles(session) {
-        await this.#ensureFacebookContext(
-            session,
-            session.mainActorId,
-            profileUrl,
-            "FACEBOOK_MAIN"
-        );
+        const hasCurrentFacebookPayload = Boolean(session.payload)
+            && Boolean(session.payloadUrl)
+            && !isAdsManagerUrl(session.payloadUrl)
+            && session.payloadUrl === session.page.url();
+        if (!hasCurrentFacebookPayload) {
+            await this.#capture(session, profileUrl, "FACEBOOK_CURRENT");
+        }
         const result = assertAction(await getSwitchableFacebookProfiles({
             page: session.page,
             commonPayload: session.payload,
