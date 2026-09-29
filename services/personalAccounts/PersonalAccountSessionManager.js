@@ -38,6 +38,19 @@ const facebookGraphqlUrl = "https://www.facebook.com/api/graphql/";
 const adsManagerUrl = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
 const adsManagerGraphqlUrl = "https://adsmanager.facebook.com/api/graphql/";
 const billingPaymentSettingsPath = "/adsmanager/billing_hub/payment_settings/";
+const adsManagerSupplementalPayloadFields = Object.freeze([
+    "av",
+    "__user",
+    "__a",
+    "fb_dtsg",
+    "jazoest",
+    "lsd",
+    "__comet_req",
+    "__spin_r",
+    "__spin_b",
+    "__spin_t",
+    "__crn",
+]);
 const billingPaymentRuntimeModules = [
     "BillingProtectedString",
     "BillingCreditCardUtils",
@@ -159,6 +172,18 @@ function isAdsManagerUrl(value) {
     } catch {
         return false;
     }
+}
+
+
+// Доповнює Ads Manager payload лише полями, яких у ньому немає.
+function supplementAdsManagerPayload(adsManagerPayload, facebookPayload) {
+    const payload = { ...adsManagerPayload };
+    for (const field of adsManagerSupplementalPayloadFields) {
+        if (payload[field] !== undefined && payload[field] !== null) continue;
+        if (facebookPayload?.[field] === undefined || facebookPayload[field] === null) continue;
+        payload[field] = facebookPayload[field];
+    }
+    return payload;
 }
 
 
@@ -302,6 +327,7 @@ export default class PersonalAccountSessionManager {
                 opened,
                 context: "FACEBOOK_MAIN",
                 payload: captured.data,
+                facebookPayload: captured.data,
                 payloadUrl: page.url(),
                 actorId: String(captured.data.__user ?? ""),
                 mainActorId: String(captured.data.__user ?? ""),
@@ -731,9 +757,14 @@ export default class PersonalAccountSessionManager {
             graphqlUrl,
             timeout: 60000,
         }), `Не вдалося отримати payload для ${context}`);
-        session.payload = captured.data;
+        if (context === "FACEBOOK_MAIN") {
+            session.facebookPayload = captured.data;
+        }
+        session.payload = context === "ADS_MANAGER"
+            ? supplementAdsManagerPayload(captured.data, session.facebookPayload)
+            : captured.data;
         session.payloadUrl = session.page.url();
-        session.actorId = String(captured.data.__user ?? "");
+        session.actorId = String(session.payload.__user ?? "");
         session.context = context;
         return captured.data;
     }
@@ -832,15 +863,11 @@ export default class PersonalAccountSessionManager {
 
         if (!isCorrectPage || !hasBillingPayload) {
             try {
-                const captured = assertAction(await captureGraphqlPayload(session.page, {
-                    profileUrl: targetUrl.toString(),
-                    graphqlUrl: adsManagerGraphqlUrl,
-                    timeout: 60000,
-                }), "Не вдалося отримати billing payload Ads Manager");
-                session.payload = captured.data;
-                session.payloadUrl = session.page.url();
-                session.actorId = String(captured.data.__user ?? "");
-                session.context = "ADS_MANAGER";
+                await this.#capture(
+                    session,
+                    targetUrl.toString(),
+                    "ADS_MANAGER"
+                );
             } catch (error) {
                 await session.report.append("ads.billing_page.navigation_failed", {
                     message: String(error?.message ?? error),
