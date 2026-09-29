@@ -61,6 +61,8 @@ export default async function syncFacebookApiClientFromAdsPowerProfile({
         const browserData = await adsPower.openProfile(normalizedProfileNo, {
             browserMode: browserMode === "headless" ? "headless" : "visible",
             disableImages: disableImages === true,
+            restoreLastOpenedTabs: false,
+            proxyDetection: true,
         });
         opened = true;
         browser = await puppeteer.connect({

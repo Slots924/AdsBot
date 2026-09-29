@@ -117,6 +117,8 @@ export default async function reactToPostCommentsWithProfile({
         const browserData = await adsPower.openProfile(profileNo, {
             browserMode: browserMode === "headless" ? "headless" : "visible",
             disableImages: disableImages === true,
+            restoreLastOpenedTabs: false,
+            proxyDetection: true,
         });
         profileOpened = true;
         browser = await puppeteer.connect({

@@ -38,6 +38,11 @@ const facebookGraphqlUrl = "https://www.facebook.com/api/graphql/";
 const adsManagerUrl = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
 const adsManagerGraphqlUrl = "https://adsmanager.facebook.com/api/graphql/";
 const billingPaymentSettingsPath = "/adsmanager/billing_hub/payment_settings/";
+const personalAccountLaunchOptions = Object.freeze({
+    browserMode: "visible",
+    restoreLastOpenedTabs: false,
+    proxyDetection: true,
+});
 const adsManagerSupplementalPayloadFields = Object.freeze([
     "av",
     "__user",
@@ -187,6 +192,12 @@ function supplementAdsManagerPayload(adsManagerPayload, facebookPayload) {
 }
 
 
+function isConnectionRefused(error) {
+    return error?.code === "ECONNREFUSED"
+        || /\bECONNREFUSED\b/i.test(String(error?.message ?? error));
+}
+
+
 function sessionError(message, code, details = {}) {
     return Object.assign(new Error(message), { code, ...details });
 }
@@ -290,16 +301,16 @@ export default class PersonalAccountSessionManager {
         let opened = false;
         try {
             await report.append("session.starting", { profileName: profile.name ?? "" });
-            const browserData = await this.adsPower.openProfile(normalizedProfileNo, {
-                browserMode: "visible",
-                restoreLastOpenedTabs: false,
-            });
+            const browserData = await this.adsPower.openProfile(
+                normalizedProfileNo,
+                personalAccountLaunchOptions
+            );
             opened = true;
             browser = await puppeteer.connect({
                 browserWSEndpoint: browserData.ws.puppeteer,
                 defaultViewport: null,
             });
-            const page = (await browser.pages())[0] ?? await browser.newPage();
+            const page = await browser.newPage();
             await configureFacebookAutomationWindow(page, { browserMode: "visible" });
             await openPageWithoutPopups(page, facebookUrl, { timeout: 60000 });
             if (!await ensureFacebookAccountLoggedIn(this.adsPower, profile, page)) {
@@ -659,15 +670,33 @@ export default class PersonalAccountSessionManager {
         await session.operation.catch(() => {});
         await session.report.append("session.reconnecting", {});
         let browser;
+        let startedNewProfile = false;
         try {
-            browser = await puppeteer.connect({
-                browserWSEndpoint: session.wsEndpoint,
-                defaultViewport: null,
-            });
-            const pages = await browser.pages();
-            const page = pages.find((item) => item.url().includes("facebook.com"))
-                ?? pages[0]
-                ?? await browser.newPage();
+            try {
+                browser = await puppeteer.connect({
+                    browserWSEndpoint: session.wsEndpoint,
+                    defaultViewport: null,
+                });
+            } catch (error) {
+                if (!isConnectionRefused(error)) throw error;
+                await session.report.append("session.websocket_stale", {});
+                const browserData = await this.adsPower.openProfile(
+                    session.profileNo,
+                    personalAccountLaunchOptions
+                );
+                session.wsEndpoint = browserData.ws.puppeteer;
+                browser = await puppeteer.connect({
+                    browserWSEndpoint: session.wsEndpoint,
+                    defaultViewport: null,
+                });
+                startedNewProfile = true;
+            }
+            const pages = startedNewProfile ? [] : await browser.pages();
+            const page = startedNewProfile
+                ? await browser.newPage()
+                : (pages.find((item) => item.url().includes("facebook.com"))
+                    ?? pages[0]
+                    ?? await browser.newPage());
             session.browser = browser;
             session.page = page;
             await configureFacebookAutomationWindow(page, { browserMode: "visible" });

@@ -110,20 +110,31 @@ class AdsPower {
         const url =
             `${this.apiUrl}/api/v2/browser-profile/start`;
 
+        const launchOptions = options && typeof options === "object"
+            ? options
+            : {};
+        const launchArgs = Array.isArray(launchOptions.launchArgs)
+            ? launchOptions.launchArgs
+                .map((argument) => String(argument ?? "").trim())
+                .filter(Boolean)
+            : [];
+
         const data = {
             profile_no: String(profileNo),
-            last_opened_tabs: options?.restoreLastOpenedTabs === true ? "1" : "0",
-            proxy_detection: "1",
+            last_opened_tabs: launchOptions.restoreLastOpenedTabs === true ? "1" : "0",
+            proxy_detection: launchOptions.proxyDetection === false ? "0" : "1",
         };
 
         if (options && typeof options === "object") {
-            data.headless = options.browserMode === "headless" ? "1" : "0";
+            data.headless = launchOptions.browserMode === "headless" ? "1" : "0";
+        }
 
-            if (options.disableImages === true) {
-                data.launch_args = [
-                    "--blink-settings=imagesEnabled=false",
-                ];
-            }
+        if (launchOptions.disableImages === true
+            && !launchArgs.includes("--blink-settings=imagesEnabled=false")) {
+            launchArgs.push("--blink-settings=imagesEnabled=false");
+        }
+        if (launchArgs.length > 0) {
+            data.launch_args = launchArgs;
         }
 
         try {

@@ -340,6 +340,7 @@ export default class AdsBotGuiService {
         await this.adsPower.openProfile(profileNo, {
             browserMode: "visible",
             restoreLastOpenedTabs: true,
+            proxyDetection: true,
         });
         return { isOpen: true };
     }

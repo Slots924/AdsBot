@@ -173,6 +173,8 @@ export default async function executeCommentWithProfile({
         const browserData = await adsPower.openProfile(profileNo, {
             browserMode: browserMode === "headless" ? "headless" : "visible",
             disableImages: disableImages === true,
+            restoreLastOpenedTabs: false,
+            proxyDetection: true,
         });
         profileOpened = true;
 
