@@ -1704,6 +1704,8 @@ button:focus-visible, input:focus-visible {
 .personal-action-success { margin-top: 2px; font-size: 13px; font-weight: 650; }
 .personal-action-card { display: grid; gap: 13px; padding: 17px; }
 .personal-overview { max-width: 960px; }
+.personal-fanpage > .personal-action-card { order: 2; }
+.personal-fanpage > .personal-action-card:last-child { order: 1; }
 .personal-status-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
 .personal-status { display: grid; grid-template-columns: 9px 1fr; align-items: center; gap: 5px 8px; padding: 13px; border: 1px solid #303646; border-radius: 12px; color: #9ba4b8; background: #181c28; }
 .personal-status i, .overview-account strong i, .personal-account-minimized i { width: 8px; height: 8px; border-radius: 50%; background: #656d7d; }

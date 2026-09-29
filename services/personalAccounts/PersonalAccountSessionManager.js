@@ -811,12 +811,22 @@ export default class PersonalAccountSessionManager {
     // Формує єдиний read-only знімок для огляду без повторного збереження payload чи token.
     async #refreshOverview(session) {
         await this.#ensureAccessToken(session);
-        const [fanPagesResult, accountsResult] = await Promise.all([
+        const [fanPagesResult, accountsResult] = await Promise.allSettled([
             getFanPages({ page: session.page, accessToken: session.accessToken, timeout: 60000 }),
             getBrowserAdAccounts({ page: session.page, accessToken: session.accessToken, timeout: 60000 }),
         ]);
-        const fanPages = assertAction(fanPagesResult, "Не вдалося отримати список фанпейджів");
-        const accounts = assertAction(accountsResult, "Не вдалося отримати рекламні кабінети");
+        const fanPagesResponse = fanPagesResult.status === "fulfilled"
+            ? fanPagesResult.value
+            : { success: false, error: String(fanPagesResult.reason?.message ?? fanPagesResult.reason) };
+        const accountsResponse = accountsResult.status === "fulfilled"
+            ? accountsResult.value
+            : { success: false, error: String(accountsResult.reason?.message ?? accountsResult.reason) };
+        const fanPages = fanPagesResponse.success && Array.isArray(fanPagesResponse.data)
+            ? fanPagesResponse.data
+            : [];
+        const accounts = accountsResponse.success && Array.isArray(accountsResponse.data)
+            ? accountsResponse.data
+            : [];
         const knownFanPages = new Map(session.fanPages.map((item) => [item.pageId, item]));
         const mergedFanPages = fanPages.map((item) => ({
             ...item,
@@ -846,6 +856,12 @@ export default class PersonalAccountSessionManager {
             hasAccessToken: Boolean(session.accessToken),
             fanPages: mergedFanPages,
             adAccounts: accountsWithPixels,
+            fanPagesError: fanPagesResponse.success
+                ? null
+                : (fanPagesResponse.error ?? "Не вдалося отримати список фанпейджів"),
+            adAccountsError: accountsResponse.success
+                ? null
+                : (accountsResponse.error ?? "Не вдалося отримати рекламні кабінети"),
             businessInfo: null,
             updatedAt: new Date().toISOString(),
         };
