@@ -1671,7 +1671,8 @@ button:focus-visible, input:focus-visible {
 /* Персональні акаунти та локальні платіжні картки */
 .personal-account-layer { padding: 12px; }
 .personal-account-modal { display: flex; width: min(1160px, calc(100vw - 24px)); height: calc(100vh - 24px); min-height: 0; overflow: hidden; flex-direction: column; border: 1px solid #34394a; border-radius: 18px; color: #edf0f7; background: #11141e; box-shadow: 0 32px 90px rgba(0,0,0,.68); }
-.personal-account-header { display: grid; grid-template-columns: minmax(250px,1fr) auto 36px; align-items: center; gap: 18px; min-height: 78px; padding: 14px 18px; border-bottom: 1px solid var(--stroke); background: #151925; }
+.personal-account-header { display: grid; grid-template-columns: minmax(250px,1fr) auto auto; align-items: center; gap: 18px; min-height: 78px; padding: 14px 18px; border-bottom: 1px solid var(--stroke); background: #151925; }
+.personal-header-actions { display: flex; gap: 6px; }
 .personal-account-title { display: flex; align-items: center; gap: 12px; }
 .personal-account-title h2 { margin: 2px 0 0; font-size: 21px; }
 .personal-account-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: #b8afff; background: rgba(132,114,255,.14); }
@@ -1702,6 +1703,32 @@ button:focus-visible, input:focus-visible {
 .personal-success { display: flex; align-items: center; gap: 9px; padding: 13px 15px; border: 1px solid rgba(75,213,137,.25); border-radius: 11px; color: #8aebbb; background: rgba(75,213,137,.07); }
 .personal-action-success { margin-top: 2px; font-size: 13px; font-weight: 650; }
 .personal-action-card { display: grid; gap: 13px; padding: 17px; }
+.personal-overview { max-width: 960px; }
+.personal-status-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.personal-status { display: grid; grid-template-columns: 9px 1fr; align-items: center; gap: 5px 8px; padding: 13px; border: 1px solid #303646; border-radius: 12px; color: #9ba4b8; background: #181c28; }
+.personal-status i, .overview-account strong i, .personal-account-minimized i { width: 8px; height: 8px; border-radius: 50%; background: #656d7d; }
+.personal-status.ready { border-color: rgba(75,213,137,.32); color: #a4ecc5; background: rgba(75,213,137,.06); }
+.personal-status.ready i, .overview-account strong i.online, .personal-account-minimized i.online { background: #4bd589; box-shadow: 0 0 0 3px rgba(75,213,137,.12); }
+.personal-status small { grid-column: 2; color: #788196; font-size: 11px; }
+.personal-overview-card { display: grid; gap: 12px; padding: 16px; border: 1px solid #303646; border-radius: 13px; background: #181c28; }
+.personal-card-heading > span { padding: 3px 7px; border-radius: 6px; color: #aab3c8; background: rgba(255,255,255,.06); font-size: 11px; }
+.overview-page-list, .overview-accounts { display: grid; gap: 8px; }
+.overview-page { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 9px; background: rgba(255,255,255,.025); }
+.overview-page > div:last-child, .fanpage-picker button > span { display: grid; gap: 2px; }
+.overview-page small, .fanpage-picker small, .overview-account small { color: #7f899d; font-size: 11px; }
+.fanpage-avatar { display: grid; place-items: center; width: 34px; height: 34px; overflow: hidden; flex: 0 0 auto; border-radius: 50%; color: #aaa1ff; background: #272c3d; }
+.fanpage-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.overview-account { display: grid; gap: 9px; padding: 12px; border: 1px solid #2b3140; border-radius: 10px; }
+.overview-account > div:first-child { display: grid; gap: 3px; }
+.overview-account strong { display: inline-flex; align-items: center; gap: 7px; }
+.pixel-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pixel-chips span { max-width: 100%; overflow: hidden; padding: 4px 7px; border-radius: 6px; color: #bfc6d6; background: rgba(132,114,255,.12); text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.personal-empty { margin: 0; color: #7f899d; font-size: 13px; }
+.fanpage-picker { display: grid; max-height: 230px; overflow-y: auto; gap: 6px; padding: 4px; border: 1px solid #303646; border-radius: 10px; }
+.fanpage-picker button { display: flex; align-items: center; gap: 10px; padding: 9px; border: 1px solid transparent; border-radius: 8px; color: #d9ddeb; background: transparent; cursor: pointer; text-align: left; }
+.fanpage-picker button:hover, .fanpage-picker button.selected { border-color: rgba(132,114,255,.48); background: rgba(132,114,255,.12); }
+.personal-account-minimized { position: fixed; z-index: 1002; display: inline-flex; align-items: center; gap: 8px; min-width: 220px; padding: 11px 14px; border: 1px solid #3b4357; border-radius: 11px; color: #e5e9f4; background: #181d2a; box-shadow: 0 12px 28px rgba(0,0,0,.42); cursor: grab; user-select: none; font-size: 13px; font-weight: 700; }
+.personal-account-minimized:active { cursor: grabbing; }
 .personal-action-card h4, .personal-card-heading h4 { margin: 0; font-size: 16px; }
 .personal-two-columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
 .personal-card-heading { display: flex; align-items: center; justify-content: space-between; }
@@ -1755,4 +1782,9 @@ button:focus-visible, input:focus-visible {
     .personal-account-body { padding: 20px; }
     .phone-verification-row { grid-template-columns: 76px 1fr; }
     .phone-verification-row > button { align-self: end; }
+}
+@media (max-width: 620px) {
+    .personal-status-grid, .personal-two-columns { grid-template-columns: 1fr; }
+    .personal-account-header { grid-template-columns: 1fr auto; }
+    .personal-account-session-state { display: none; }
 }

@@ -1237,6 +1237,14 @@ export default function registerIpcHandlers({
         safeHandler(({ sessionId }) => personalAccountSessionManager.get(sessionId))
     );
     ipcMain.handle(
+        "personal-account:overview-refresh",
+        safeHandler(({ sessionId }) => personalAccountSessionManager.refreshOverview(sessionId))
+    );
+    ipcMain.handle(
+        "personal-account:fanpage-list",
+        safeHandler(({ sessionId }) => personalAccountSessionManager.listFanPages(sessionId))
+    );
+    ipcMain.handle(
         "personal-account:fanpage-create",
         safeHandler(({ sessionId, ...payload }) => (
             personalAccountSessionManager.createFanPage(sessionId, payload)

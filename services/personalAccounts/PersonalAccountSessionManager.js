@@ -8,6 +8,7 @@ import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.
 import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
 import captureGraphqlPayload from "../../facebook/api-actions/captureGraphqlPayload.js";
 import createFanPage from "../../facebook/api-actions/pages/createFanPage.js";
+import getFanPages from "../../facebook/api-actions/pages/getFanPages.js";
 import switchToAdditionalProfile from "../../facebook/api-actions/pages/switchToAdditionalProfile.js";
 import grantAdditionalProfileAccess
     from "../../facebook/workflows/grantAdditionalProfileAccess.js";
@@ -231,6 +232,7 @@ function publicSession(session) {
         additionalProfileId: session.additionalProfileId,
         hasAccessToken: Boolean(session.accessToken),
         hasPhoneFlow: Boolean(session.phoneFlow),
+        overview: session.overview ?? null,
         connected: Boolean(session.browser?.connected),
         reportPath: session.report.file,
         createdAt: session.createdAt,
@@ -345,12 +347,15 @@ export default class PersonalAccountSessionManager {
                 pageId: null,
                 additionalProfileId: null,
                 accessToken: "",
+                fanPages: [],
+                overview: null,
                 phoneFlow: null,
                 operation: Promise.resolve(),
                 report,
                 createdAt: new Date().toISOString(),
             };
             this.#sessions.set(id, session);
+            await this.#refreshOverview(session);
             await report.append("session.started", {
                 actorId: session.actorId,
                 context: session.context,
@@ -387,6 +392,16 @@ export default class PersonalAccountSessionManager {
             }), "Не вдалося створити фанпейдж");
             session.pageId = String(result.pageId);
             session.additionalProfileId = String(result.additionalProfileId ?? "");
+            session.fanPages = [
+                ...session.fanPages.filter((item) => item.pageId !== session.pageId),
+                {
+                    pageId: session.pageId,
+                    additionalProfileId: session.additionalProfileId,
+                    name: String(input.name ?? "Без назви"),
+                    pictureUrl: "",
+                },
+            ];
+            await this.#refreshOverview(session);
             return {
                 status: result.status,
                 pageId: session.pageId,
@@ -464,6 +479,22 @@ export default class PersonalAccountSessionManager {
                 accessToken: session.accessToken,
             }), "Не вдалося отримати рекламні акаунти");
             return result.data;
+        });
+    }
+
+
+    listFanPages(sessionId) {
+        return this.#perform(sessionId, "fanpage.list", async (session) => {
+            await this.#refreshOverview(session);
+            return session.overview.fanPages;
+        });
+    }
+
+
+    refreshOverview(sessionId) {
+        return this.#perform(sessionId, "overview.refresh", async (session) => {
+            await this.#refreshOverview(session);
+            return publicSession(session);
         });
     }
 
@@ -774,6 +805,50 @@ export default class PersonalAccountSessionManager {
         const result = session.operation.then(execute, execute);
         session.operation = result.catch(() => {});
         return result;
+    }
+
+
+    // Формує єдиний read-only знімок для огляду без повторного збереження payload чи token.
+    async #refreshOverview(session) {
+        await this.#ensureAccessToken(session);
+        const [fanPagesResult, accountsResult] = await Promise.all([
+            getFanPages({ page: session.page, accessToken: session.accessToken, timeout: 60000 }),
+            getBrowserAdAccounts({ page: session.page, accessToken: session.accessToken, timeout: 60000 }),
+        ]);
+        const fanPages = assertAction(fanPagesResult, "Не вдалося отримати список фанпейджів");
+        const accounts = assertAction(accountsResult, "Не вдалося отримати рекламні кабінети");
+        const knownFanPages = new Map(session.fanPages.map((item) => [item.pageId, item]));
+        const mergedFanPages = fanPages.map((item) => ({
+            ...item,
+            additionalProfileId: knownFanPages.get(item.pageId)?.additionalProfileId ?? "",
+        }));
+        for (const item of session.fanPages) {
+            if (!mergedFanPages.some((page) => page.pageId === item.pageId)) mergedFanPages.push(item);
+        }
+        const accountsWithPixels = [];
+        for (const account of accounts) {
+            const pixelsResult = await getAdPixels({
+                page: session.page,
+                accessToken: session.accessToken,
+                adAccountId: account.id,
+                timeout: 60000,
+            });
+            accountsWithPixels.push({
+                ...account,
+                pixels: pixelsResult.success ? pixelsResult.data : [],
+                pixelsError: pixelsResult.success ? null : (pixelsResult.error ?? pixelsResult.status),
+            });
+        }
+        session.fanPages = mergedFanPages;
+        session.overview = {
+            hasFacebookPayload: Boolean(session.facebookPayload),
+            hasAdsManagerPayload: session.context === "ADS_MANAGER" && Boolean(session.payload),
+            hasAccessToken: Boolean(session.accessToken),
+            fanPages: mergedFanPages,
+            adAccounts: accountsWithPixels,
+            businessInfo: null,
+            updatedAt: new Date().toISOString(),
+        };
     }
 
 

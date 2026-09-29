@@ -177,6 +177,10 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("personal-account:start", { profileNo }),
     getPersonalAccountSession: (sessionId) =>
         ipcRenderer.invoke("personal-account:get", { sessionId }),
+    refreshPersonalAccountOverview: (sessionId) =>
+        ipcRenderer.invoke("personal-account:overview-refresh", { sessionId }),
+    getPersonalFanPages: (sessionId) =>
+        ipcRenderer.invoke("personal-account:fanpage-list", { sessionId }),
     createPersonalFanPage: (sessionId, payload) =>
         ipcRenderer.invoke("personal-account:fanpage-create", { sessionId, ...payload }),
     switchPersonalFanPage: (sessionId, payload) =>
