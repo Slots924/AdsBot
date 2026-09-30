@@ -655,6 +655,26 @@ export default class AdsBotGuiService {
     }
 
 
+    async updateAdsPowerProfileName(profileId, name) {
+        const normalizedProfileId = String(profileId ?? "").trim();
+        const normalizedName = String(name ?? "").trim();
+        if (!normalizedProfileId || !normalizedName) {
+            throw createGuiError(
+                "Не вказано профіль або його нову назву",
+                "GUI_VALIDATION_ERROR"
+            );
+        }
+        if (!this.adsPower) {
+            throw createGuiError(
+                "AdsPower не підключено",
+                "GUI_BACKEND_CONFIG_ERROR"
+            );
+        }
+        await this.adsPower.updateProfileName(normalizedProfileId, normalizedName);
+        return { profileId: normalizedProfileId, name: normalizedName };
+    }
+
+
     async runCommentAccountSetup({
         profileNos,
         geo,

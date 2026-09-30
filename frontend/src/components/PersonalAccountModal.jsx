@@ -10,6 +10,7 @@ import {
     LogOut,
     Minus,
     PanelsTopLeft,
+    Pencil,
     Phone,
     Play,
     RefreshCw,
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
+import SearchSelect from "./SearchSelect.jsx";
 
 
 const defaultTargetUserId = "61594188892743";
@@ -78,7 +80,15 @@ function SuccessNotice({ children }) {
 }
 
 
-export default function PersonalAccountModal({ profile, onClose, onError = () => {}, showToast }) {
+export default function PersonalAccountModal({
+    profile,
+    groups = [],
+    onRefreshGroups,
+    onProfileChanged,
+    onClose,
+    onError = () => {},
+    showToast,
+}) {
     const [section, setSection] = useState("launch");
     const [session, setSession] = useState(null);
     const [busy, setBusy] = useState("");
@@ -94,6 +104,9 @@ export default function PersonalAccountModal({ profile, onClose, onError = () =>
     const [adAccountId, setAdAccountId] = useState("");
     const [adsManagerReady, setAdsManagerReady] = useState(false);
     const [feedback, setFeedback] = useState({});
+    const [profileName, setProfileName] = useState(profile.name || "");
+    const [profileGroupId, setProfileGroupId] = useState(String(profile.groupId || ""));
+    const [editingProfileName, setEditingProfileName] = useState(false);
     const [cards, setCards] = useState([]);
     const [pixels, setPixels] = useState([]);
     const [fanName, setFanName] = useState("");
@@ -131,6 +144,11 @@ export default function PersonalAccountModal({ profile, onClose, onError = () =>
         && phoneE164.length <= 16;
 
     useEffect(() => {
+        setProfileName(profile.name || "");
+        setProfileGroupId(String(profile.groupId || ""));
+    }, [profile.groupId, profile.name]);
+
+    useEffect(() => {
         unwrap(window.adsBot.getCreditCards()).then(setCards).catch(() => {});
     }, []);
 
@@ -152,6 +170,31 @@ export default function PersonalAccountModal({ profile, onClose, onError = () =>
         } finally {
             setBusy("");
         }
+    };
+    const saveProfileName = async () => {
+        const name = profileName.trim();
+        if (!name || name === profile.name || busy) {
+            setEditingProfileName(false);
+            return;
+        }
+        const result = await run(
+            "profile.name",
+            () => window.adsBot.renameAdsPowerProfile(profile.profileId, name),
+            "Назву AdsPower-профілю оновлено"
+        );
+        if (result) {
+            setEditingProfileName(false);
+            await onProfileChanged?.();
+        }
+    };
+    const saveProfileGroup = async () => {
+        if (!profileGroupId || String(profileGroupId) === String(profile.groupId) || busy) return;
+        const result = await run(
+            "profile.group",
+            () => window.adsBot.moveAdsPowerProfiles([profile.profileId], profileGroupId),
+            "Групу AdsPower змінено"
+        );
+        if (result) await onProfileChanged?.();
     };
     const requireSession = () => {
         if (session) return true;
@@ -266,7 +309,7 @@ export default function PersonalAccountModal({ profile, onClose, onError = () =>
                 <main className="personal-account-body">
                     {section === "launch" && <section className="personal-section personal-overview">
                         <div className="personal-section-heading"><div><span className="eyebrow">AdsPower №{profile.profileNo}</span><h3>Огляд профілю</h3><p>Підключення, фанпейджі, рекламні кабінети та пікселі в одному місці.</p></div>{session && <button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshOverview}><RefreshCw className={busy === "overview" ? "spin" : ""} size={16} /> Оновити інфу</button>}</div>
-                        <div className="personal-profile-card"><div><strong>{profile.name || "Без назви"}</strong><small>{profile.groupName || "Без групи"}</small></div><div className="personal-tags">{profile.tags?.map((tag) => <span key={tag.id || tag.name}>{tag.name}</span>)}</div></div>
+                        <div className="personal-profile-card"><div className="personal-profile-details"><div className="personal-profile-name">{editingProfileName ? <input autoFocus value={profileName} maxLength="100" aria-label="Назва AdsPower-профілю" onChange={(event) => setProfileName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void saveProfileName(); if (event.key === "Escape") { setProfileName(profile.name || ""); setEditingProfileName(false); } }} /> : <strong>{profileName || "Без назви"}</strong>}<button type="button" className="icon-button personal-edit-name" title="Змінити назву профілю" aria-label="Змінити назву профілю" disabled={Boolean(busy)} onClick={() => editingProfileName ? void saveProfileName() : setEditingProfileName(true)}>{editingProfileName ? <Check size={15} /> : <Pencil size={14} />}</button></div><div className="personal-profile-group"><span>Група AdsPower</span><SearchSelect items={groups} value={profileGroupId} onChange={setProfileGroupId} getId={(item) => item.groupId} getTitle={(item) => item.groupName} getSubtitle={(item) => item.groupId} getSearchText={(item) => `${item.groupName} ${item.groupId}`} placeholder="Без групи" searchPlaceholder="Пошук групи…" ariaLabel="Група AdsPower профілю" disabled={Boolean(busy)} className="personal-group-select" /><button type="button" className="icon-button" title="Оновити список груп" aria-label="Оновити список груп" disabled={Boolean(busy)} onClick={onRefreshGroups}><RefreshCw size={14} /></button><button type="button" className="text-button" disabled={Boolean(busy) || !profileGroupId || String(profileGroupId) === String(profile.groupId)} onClick={() => void saveProfileGroup()}>Зберегти</button></div></div><div className="personal-tags">{profile.tags?.map((tag) => <span key={tag.id || tag.name}>{tag.name}</span>)}</div></div>
                         {!session && <button type="button" className="primary-button personal-main-action" disabled={Boolean(busy)} aria-busy={busy === "launch"} onClick={async () => { const value = await run("launch", () => window.adsBot.startPersonalAccountSession(profile.profileNo), "Профіль готовий до роботи"); applyOverview(value); }}>{busy === "launch" ? <><LoaderCircle className="spin" size={16} /> Запускаю профіль…</> : <><Play size={16} /> Запустити і перевірити</>}</button>}
                         <div className="personal-status-grid">{[["Facebook payload", session?.overview?.hasFacebookPayload], ["Ads Manager payload", session?.overview?.hasAdsManagerPayload], ["Access token", session?.overview?.hasAccessToken]].map(([label, ready]) => <div className={`personal-status ${ready ? "ready" : ""}`} key={label}><i /> <span>{label}</span><small>{ready ? "Завантажено" : "Ще не завантажено"}</small></div>)}</div>
                         <div className="personal-overview-card"><div className="personal-card-heading"><h4>Фанпейджі</h4><span>{overviewFanPages.length}</span></div>{overviewFanPages.length ? <div className="overview-page-list">{overviewFanPages.map((item) => <div key={item.pageId} className="overview-page"><div className="fanpage-avatar">{item.pictureUrl ? <img src={item.pictureUrl} alt="" /> : <PanelsTopLeft size={16} />}</div><div><strong>{item.name}</strong><small>Page ID: {item.pageId}</small><small>Profile ID: {item.additionalProfileId || "ще не визначено"}</small></div></div>)}</div> : <p className="personal-empty">{session?.overview?.fanPagesError || (session ? "Фанпейджів не знайдено." : "Список з’явиться після запуску профілю.")}</p>}</div>

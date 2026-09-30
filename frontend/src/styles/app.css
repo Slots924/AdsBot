@@ -1696,6 +1696,22 @@ button:focus-visible, input:focus-visible {
 .personal-profile-card, .personal-action-card, .selected-card-summary, .api-name-preview { border: 1px solid #303646; border-radius: 13px; background: #181c28; }
 .personal-profile-card { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px; }
 .personal-profile-card > div:first-child { display: grid; gap: 5px; }
+.personal-profile-details { min-width: 0; }
+.personal-profile-name, .personal-profile-group { display: flex; align-items: center; gap: 7px; }
+.personal-profile-name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.personal-profile-name input { width: min(290px, 100%); height: 29px; padding: 4px 8px; border: 1px solid #4b5367; border-radius: 7px; color: #edf0f7; background: #121621; font: inherit; font-weight: 700; }
+.personal-edit-name { width: 27px; height: 27px; opacity: .72; }
+.personal-profile-name:hover .personal-edit-name { opacity: 1; }
+.personal-profile-group { min-height: 28px; color: #7f8799; font-size: 11px; }
+.personal-profile-group > span { white-space: nowrap; }
+.personal-group-select { width: min(235px, 42vw); }
+.personal-group-select .select-trigger { min-height: 27px; padding: 3px 7px; border-color: transparent; background: transparent; }
+.personal-group-select .select-trigger:hover, .personal-group-select.open .select-trigger { border-color: #394154; background: #121621; }
+.personal-group-select .select-trigger strong { font-size: 12px; font-weight: 600; }
+.personal-group-select .select-trigger small { display: none; }
+.personal-profile-group .icon-button { width: 27px; height: 27px; }
+.text-button { padding: 3px 5px; border: 0; color: #9f95f5; background: transparent; cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; }
+.text-button:disabled { color: #5d6474; cursor: default; }
 .personal-profile-card small, .selected-card-summary small { color: #858da0; }
 .personal-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
 .personal-tags span { padding: 4px 7px; border-radius: 6px; color: #b8bfd0; background: rgba(255,255,255,.05); font-size: 11px; }

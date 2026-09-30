@@ -507,6 +507,9 @@ export default function CommentAccountsTab({
             {personalAccountOpen && selectedProfiles.length === 1 && (
                 <PersonalAccountModal
                     profile={selectedProfiles[0]}
+                    groups={groups}
+                    onRefreshGroups={refreshGroups}
+                    onProfileChanged={refreshPaneProfiles}
                     onClose={() => setPersonalAccountOpen(false)}
                     onError={onError}
                     showToast={showToast}

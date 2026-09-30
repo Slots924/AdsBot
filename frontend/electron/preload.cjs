@@ -159,6 +159,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("groups:profiles", { groupId }),
     moveAdsPowerProfiles: (profileIds, groupId) =>
         ipcRenderer.invoke("profiles:move", { profileIds, groupId }),
+    renameAdsPowerProfile: (profileId, name) =>
+        ipcRenderer.invoke("profiles:rename", { profileId, name }),
     publishCreativePost: (options) =>
         ipcRenderer.invoke("post:publish", options),
     runCommentingCampaign: (options) =>

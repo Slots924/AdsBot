@@ -1988,6 +1988,13 @@ export default function registerIpcHandlers({
         ))
     );
     ipcMain.handle(
+        "profiles:rename",
+        safeHandler((payload) => guiService.updateAdsPowerProfileName(
+            payload?.profileId,
+            payload?.name
+        ))
+    );
+    ipcMain.handle(
         "post:publish",
         safeHandler(async (payload) => {
             const input = {
