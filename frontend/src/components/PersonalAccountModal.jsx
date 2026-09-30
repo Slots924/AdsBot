@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     BadgeDollarSign,
     Bot,
@@ -22,6 +22,7 @@ import {
 
 import { errorDetails, unwrap } from "../lib/api.js";
 import SearchSelect from "./SearchSelect.jsx";
+import SmsPoolPanel from "./SmsPoolPanel.jsx";
 
 
 const defaultTargetUserId = "61594188892743";
@@ -122,6 +123,13 @@ export default function PersonalAccountModal({
     const [phoneCode, setPhoneCode] = useState("");
     const [phoneSent, setPhoneSent] = useState(false);
     const [phoneMethod, setPhoneMethod] = useState("SMS");
+    const [smsPoolDashboard, setSmsPoolDashboard] = useState({
+        service: "Facebook / Meta Viewpoints",
+        balance: null,
+        countries: [],
+        history: [],
+        job: null,
+    });
     const [pixelName, setPixelName] = useState("");
     const [apiName, setApiName] = useState("");
     const activeCard = useMemo(() => cards.find((item) => item.id === cardId), [cards, cardId]);
@@ -150,6 +158,25 @@ export default function PersonalAccountModal({
 
     useEffect(() => {
         unwrap(window.adsBot.getCreditCards()).then(setCards).catch(() => {});
+    }, []);
+
+    useEffect(() => {
+        unwrap(window.adsBot.getPersonalSmsPoolDashboard())
+            .then(setSmsPoolDashboard)
+            .catch(() => {});
+    }, []);
+
+    const applySmsPoolOrder = useCallback((job) => {
+        const orderPhone = String(job?.order?.phone ?? "");
+        if (orderPhone) {
+            const dialingCode = String(job?.country?.dialingCode ?? "");
+            setPhoneDialingCode(dialingCode ? `+${dialingCode}` : "+");
+            setPhone(orderPhone.replace(/^\+/, "").replace(new RegExp(`^${dialingCode}`), ""));
+        }
+        if (job?.order?.code) {
+            setPhoneCode(job.order.code);
+            setPhoneSent(true);
+        }
     }, []);
 
     const mark = (key) => setCompleted((current) => new Set([...current, key]));
@@ -339,6 +366,7 @@ export default function PersonalAccountModal({
                         <div className="phone-verification-row"><label className="field country"><span>Код країни</span><input inputMode="numeric" placeholder="+1" value={phoneDialingCode} onChange={(event) => { setPhoneDialingCode(event.target.value); setPhoneSent(false); setPhoneCode(""); }} /></label><label className="field"><span>Номер телефону</span><input inputMode="numeric" placeholder="2025550123" value={phone} onChange={(event) => { setPhone(event.target.value.replace(/\D/g, "").slice(0, 14)); setPhoneSent(false); setPhoneCode(""); }} /></label><button type="button" className="secondary-button" disabled={!adAccountId || !hasValidPhone || Boolean(busy)} onClick={async () => { const value = await run("phone", () => window.adsBot.requestPersonalPhoneCode(session.id, { adAccountId, phoneE164, countryCode: phoneCountryCode, locale: "en_US", method: phoneMethod }), `Facebook прийняв запит і надіслав код через ${phoneVerificationMethods.find((item) => item.value === phoneMethod)?.label ?? phoneMethod}`, "phone.sent"); setPhoneSent(Boolean(value)); }}>Надіслати код</button><label className="field"><span>Код підтвердження</span><input disabled={!phoneSent} inputMode="numeric" value={phoneCode} onChange={(event) => setPhoneCode(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button" disabled={!phoneSent || !/^\d{4,8}$/.test(phoneCode) || Boolean(busy)} onClick={async () => { const value = await run("phone", () => window.adsBot.submitPersonalPhoneCode(session.id, { code: phoneCode }), "Код прийнято, номер телефону підтверджено", "phone.verified"); if (value) { setPhoneSent(false); setPhoneCode(""); } }}>Підтвердити</button></div>
                         <div className="phone-verification-methods" role="radiogroup" aria-label="Спосіб отримання коду">{phoneVerificationMethods.map((item) => <button key={item.value} type="button" role="radio" aria-checked={phoneMethod === item.value} className={`phone-verification-method${phoneMethod === item.value ? " selected" : ""}`} disabled={Boolean(busy)} onClick={() => { setPhoneMethod(item.value); setPhoneSent(false); setPhoneCode(""); }}>{item.label}</button>)}</div>
                         <p className="personal-note">{phoneCountryCode ? `Facebook отримає ${phoneE164} · країна ${phoneCountryCode}.` : "Для цього коду країни ще немає ISO-відповідника."}</p>{feedback["phone.sent"] && <SuccessNotice>{feedback["phone.sent"]}</SuccessNotice>}{feedback["phone.verified"] && <SuccessNotice>{feedback["phone.verified"]}</SuccessNotice>}
+                        <SmsPoolPanel sessionId={session?.id ?? null} adAccountId={adAccountId} dashboard={smsPoolDashboard} onDashboard={setSmsPoolDashboard} onOrderChange={applySmsPoolOrder} onError={onError} showToast={showToast} />
                     </section>}
 
                     {section === "pixels" && <section className="personal-section"><div className="personal-section-heading"><div><span className="eyebrow">Events Manager</span><h3>Пікселі</h3></div><div className="personal-inline-actions"><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw size={16} /> Оновити РК</button><button type="button" className="secondary-button" disabled={!adAccountId || Boolean(busy)} onClick={async () => { if (!requireSession()) return; const value = await run("pixels", () => window.adsBot.getPersonalPixels(session.id, adAccountId), "Пікселі оновлено", "pixels.list"); if (value) setPixels(value); }}><RefreshCw size={16} /> Оновити пікселі</button></div></div><AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} /><div className="personal-create-row"><label className="field"><span>Назва нового пікселя</span><input value={pixelName} onChange={(event) => setPixelName(event.target.value)} /></label><button type="button" className="primary-button" disabled={!adAccountId || !pixelName.trim() || Boolean(busy)} onClick={async () => { const value = await run("pixels", () => window.adsBot.createPersonalPixel(session.id, { adAccountId, name: pixelName }), "Піксель успішно створено", "pixels.create"); if (value) { setPixelName(""); const list = await run("pixels", () => window.adsBot.getPersonalPixels(session.id, adAccountId)); if (list) setPixels(list); } }}>Створити піксель</button></div>{feedback["pixels.create"] && <SuccessNotice>{feedback["pixels.create"]}</SuccessNotice>}<div className="personal-resource-list">{pixels.map((pixel) => <div key={pixel.id}><span><strong>{pixel.name}</strong><small>{pixel.id}</small></span><button type="button" className="icon-button" title="Копіювати" onClick={() => navigator.clipboard.writeText(`${pixel.name} · ${pixel.id}`)}><Copy size={15} /></button></div>)}{!pixels.length && <div className="select-empty">Натисніть «Оновити пікселі».</div>}</div></section>}

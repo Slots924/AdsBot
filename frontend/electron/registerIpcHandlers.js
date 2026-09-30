@@ -158,6 +158,7 @@ export default function registerIpcHandlers({
     reportManager,
     creditCardStore,
     personalAccountSessionManager,
+    smsPoolPhoneVerificationManager,
     keitaroGuiService,
     keitaroStreamTemplateManager,
     keitaroCampaignSettingsManager,
@@ -1303,6 +1304,30 @@ export default function registerIpcHandlers({
         ))
     );
     ipcMain.handle(
+        "personal-account:sms-pool-dashboard",
+        safeHandler(({ sessionId }) => smsPoolPhoneVerificationManager.getDashboard(sessionId))
+    );
+    ipcMain.handle(
+        "personal-account:sms-pool-state",
+        safeHandler(({ sessionId }) => smsPoolPhoneVerificationManager.getState(sessionId))
+    );
+    ipcMain.handle(
+        "personal-account:sms-pool-start",
+        safeHandler(({ sessionId, ...payload }) => (
+            smsPoolPhoneVerificationManager.start(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:sms-pool-resend",
+        safeHandler(({ sessionId, ...payload }) => (
+            smsPoolPhoneVerificationManager.resend(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
+        "personal-account:sms-pool-stop",
+        safeHandler(({ sessionId }) => smsPoolPhoneVerificationManager.stop(sessionId))
+    );
+    ipcMain.handle(
         "personal-account:pixels-list",
         safeHandler(({ sessionId, ...payload }) => (
             personalAccountSessionManager.listPixels(sessionId, payload)
@@ -1326,11 +1351,17 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "personal-account:disconnect",
-        safeHandler(({ sessionId }) => personalAccountSessionManager.disconnect(sessionId))
+        safeHandler(async ({ sessionId }) => {
+            await smsPoolPhoneVerificationManager.stop(sessionId);
+            return personalAccountSessionManager.disconnect(sessionId);
+        })
     );
     ipcMain.handle(
         "personal-account:profile-close",
-        safeHandler(({ sessionId }) => personalAccountSessionManager.closeProfile(sessionId))
+        safeHandler(async ({ sessionId }) => {
+            await smsPoolPhoneVerificationManager.stop(sessionId);
+            return personalAccountSessionManager.closeProfile(sessionId);
+        })
     );
     ipcMain.handle("proxies:list", safeHandler(listProxies));
     ipcMain.handle(

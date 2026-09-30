@@ -203,6 +203,16 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("personal-account:phone-request", { sessionId, ...payload }),
     submitPersonalPhoneCode: (sessionId, payload) =>
         ipcRenderer.invoke("personal-account:phone-submit", { sessionId, ...payload }),
+    getPersonalSmsPoolDashboard: (sessionId = null) =>
+        ipcRenderer.invoke("personal-account:sms-pool-dashboard", { sessionId }),
+    getPersonalSmsPoolState: (sessionId) =>
+        ipcRenderer.invoke("personal-account:sms-pool-state", { sessionId }),
+    startPersonalSmsPoolVerification: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:sms-pool-start", { sessionId, ...payload }),
+    resendPersonalSmsPoolVerification: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:sms-pool-resend", { sessionId, ...payload }),
+    stopPersonalSmsPoolVerification: (sessionId) =>
+        ipcRenderer.invoke("personal-account:sms-pool-stop", { sessionId }),
     getPersonalPixels: (sessionId, adAccountId) =>
         ipcRenderer.invoke("personal-account:pixels-list", { sessionId, adAccountId }),
     createPersonalPixel: (sessionId, payload) =>

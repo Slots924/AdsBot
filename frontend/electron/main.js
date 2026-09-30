@@ -41,6 +41,9 @@ import KeitaroStreamTemplateManager from "../../services/keitaro/KeitaroStreamTe
 import CreditCardStore from "../../services/personalAccounts/CreditCardStore.js";
 import PersonalAccountSessionManager
     from "../../services/personalAccounts/PersonalAccountSessionManager.js";
+import SmsPoolPhoneVerificationManager
+    from "../../services/personalAccounts/SmsPoolPhoneVerificationManager.js";
+import SmsPool from "../../classes/SmsPool.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
 
@@ -76,6 +79,7 @@ let taskReportManager = null;
 let spendStore = null;
 let spendScheduler = null;
 let personalAccountSessionManager = null;
+let smsPoolPhoneVerificationManager = null;
 let closeApproved = false;
 let closePromptOpen = false;
 let cacheProtocolReady = false;
@@ -209,11 +213,17 @@ async function createWindow() {
         reportsDirectory: appPaths.personalAccountReports,
         logger: appLogger.child("personal-account"),
     });
-    templateManager = new CampaignTemplateManager({
-        templatesFile: appPaths.templates,
-    });
     countryCatalog = new CountryCatalog({
         countriesFile: appPaths.countries,
+    });
+    smsPoolPhoneVerificationManager = new SmsPoolPhoneVerificationManager({
+        smsPool: new SmsPool(),
+        personalAccountSessionManager,
+        countryCatalog,
+        logger: appLogger.child("sms-pool-phone"),
+    });
+    templateManager = new CampaignTemplateManager({
+        templatesFile: appPaths.templates,
     });
     languageCatalog = new LanguageCatalog();
     campaignCreationJournal = new CampaignCreationJournal({
@@ -300,6 +310,7 @@ async function createWindow() {
         reportManager: taskReportManager,
         creditCardStore,
         personalAccountSessionManager,
+        smsPoolPhoneVerificationManager,
         getWindow: () => mainWindow,
     });
 
@@ -310,6 +321,7 @@ async function createWindow() {
         closePromptOpen = true;
         if (!await backgroundTaskManager.hasUnfinished()) {
             closePromptOpen = false;
+            await smsPoolPhoneVerificationManager?.stopAll();
             await personalAccountSessionManager?.disconnectAll();
             spendScheduler?.stop();
             spendStore?.close();
@@ -337,6 +349,7 @@ async function createWindow() {
             message: "Безпечно зупиняємо активні задачі…",
         });
         await backgroundTaskManager.shutdown();
+        await smsPoolPhoneVerificationManager?.stopAll();
         await personalAccountSessionManager?.disconnectAll();
         spendScheduler?.stop();
         spendStore?.close();
