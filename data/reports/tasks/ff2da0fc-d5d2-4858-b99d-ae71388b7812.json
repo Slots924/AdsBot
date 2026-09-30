@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "id": "ff2da0fc-d5d2-4858-b99d-ae71388b7812",
+  "taskId": "cedfb1ff-0ebd-4b08-9e10-73845d94d4f8",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 1272566002614696",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-09-30T08:12:13.529Z",
+  "startedAt": "2026-09-30T08:11:08.316Z",
+  "finishedAt": "2026-09-30T08:12:13.528Z",
+  "durationMs": 65212,
+  "inputSummary": {
+    "accountKey": "account-030",
+    "pageId": "1272566002614696"
+  },
+  "resultSummary": {
+    "pageId": "1272566002614696",
+    "avatar": {
+      "file": "1.jpg",
+      "photoId": "122104538541489761"
+    },
+    "cover": {
+      "file": "561365932_122286114638218434_7215111708807147462_n.jpg",
+      "photoId": "122104538661489761"
+    },
+    "cleanup": {
+      "deletedPostIds": [],
+      "deletedPhotoIds": [],
+      "hiddenPostIds": []
+    },
+    "publications": [
+      {
+        "file": "491401163_122243719022218434_521417264765945619_n.jpg",
+        "photoId": "122104538781489761",
+        "postId": "1272566002614696_122104538847489761",
+        "backdatedTime": null
+      },
+      {
+        "file": "594743745_122296776632218434_1284837695415395863_n.jpg",
+        "photoId": "122104538973489761",
+        "postId": "1272566002614696_122104539021489761",
+        "backdatedTime": null
+      },
+      {
+        "file": "611146558_122303646632218434_4009124088993164703_n.jpg",
+        "photoId": "122104539093489761",
+        "postId": "1272566002614696_122104539141489761",
+        "backdatedTime": null
+      },
+      {
+        "file": "640929000_122313247976218434_3371178519056197825_n.jpg",
+        "photoId": "122104539207489761",
+        "postId": "1272566002614696_122104539249489761",
+        "backdatedTime": null
+      }
+    ],
+    "warnings": [
+      {
+        "stage": "delete-photo",
+        "objectId": "122104461267489761",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      }
+    ],
+    "resumed": false
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-030",
+    "pageId": "1272566002614696",
+    "uniqueKey": "page-rebuild:account-030:1272566002614696"
+  }
+}
