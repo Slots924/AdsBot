@@ -2,8 +2,18 @@ import { createNewAccountSelector } from "../selectors/login.js";
 
 
 async function detectLoginStatus(page) {
-    const isLoginPage = await page.evaluate(
-        (selector) => Boolean(document.querySelector(selector)),
+    const isLoginPage = await page.evaluate((selector) => (
+        [...document.querySelectorAll(selector)].some((element) => {
+            const rectangle = element.getBoundingClientRect();
+            const style = window.getComputedStyle(element);
+
+            return rectangle.width > 0
+                && rectangle.height > 0
+                && style.display !== "none"
+                && style.visibility !== "hidden"
+                && style.opacity !== "0";
+        })
+    ),
         createNewAccountSelector
     );
 

@@ -1,4 +1,137 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "36f8384b-3b6f-4e4f-a9a4-023877f96e41",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · DE · 10",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "adspower-profile:1713",
+          "label": "AdsPower 1713"
+        },
+        {
+          "key": "adspower-profile:1723",
+          "label": "AdsPower 1723"
+        },
+        {
+          "key": "adspower-profile:1726",
+          "label": "AdsPower 1726"
+        },
+        {
+          "key": "adspower-profile:1727",
+          "label": "AdsPower 1727"
+        },
+        {
+          "key": "adspower-profile:1728",
+          "label": "AdsPower 1728"
+        },
+        {
+          "key": "adspower-profile:1729",
+          "label": "AdsPower 1729"
+        },
+        {
+          "key": "adspower-profile:1730",
+          "label": "AdsPower 1730"
+        },
+        {
+          "key": "adspower-profile:1731",
+          "label": "AdsPower 1731"
+        },
+        {
+          "key": "adspower-profile:1732",
+          "label": "AdsPower 1732"
+        },
+        {
+          "key": "adspower-profile:1733",
+          "label": "AdsPower 1733"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1713",
+          "1723",
+          "1726",
+          "1727",
+          "1728",
+          "1729",
+          "1730",
+          "1731",
+          "1732",
+          "1733"
+        ],
+        "geo": "DE",
+        "maleCount": 10,
+        "femaleCount": 0,
+        "namesGeo": "DE",
+        "companiesGeo": "DE",
+        "universitiesGeo": "DE",
+        "professionsGeo": "DE",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE",
+        "useApiRequests": true,
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1713",
+          "1723",
+          "1726",
+          "1727",
+          "1728",
+          "1729",
+          "1730",
+          "1731",
+          "1732",
+          "1733"
+        ],
+        "geo": "DE",
+        "browserMode": "visible",
+        "useApiRequests": true,
+        "reportId": "764bc819-82b3-4f2c-822f-feda14a4c936"
+      },
+      "progress": {
+        "completed": 8,
+        "total": 10,
+        "stage": "interrupted",
+        "message": "Задачу перервано",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 2,
+        "completedWithError": 0,
+        "failed": 6,
+        "skipped": 0,
+        "currentProfileNo": "1731",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-09-30_09-51-29-494.md",
+        "fatalError": "Оформлення акаунтів перервано",
+        "interrupted": true
+      },
+      "error": {
+        "message": "Оформлення акаунтів перервано",
+        "code": "ACCOUNT_SETUP_ABORTED",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-09-30T06:39:49.870Z",
+      "startedAt": "2026-09-30T06:39:49.872Z",
+      "finishedAt": "2026-09-30T06:51:29.495Z",
+      "updatedAt": "2026-09-30T06:51:29.497Z"
+    }
+  ]
 }

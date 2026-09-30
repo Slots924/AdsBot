@@ -9,6 +9,9 @@ import detectLoginStatus from "./detectLoginStatus.js";
 import fillLoginCredentials from "./fillLoginCredentials.js";
 
 
+const passwordInputSelector = 'input[type="password"]';
+
+
 async function clickSelector(page, selector, timeout, timingOptions) {
     const initial = await waitForVisibleElement(page, selector, { timeout });
     await initial.dispose().catch(() => {});
@@ -28,10 +31,33 @@ async function clickSelector(page, selector, timeout, timingOptions) {
 }
 
 
+async function waitForLoginFormToDisappear(page, timeout) {
+    let completionHandle;
+
+    try {
+        completionHandle = await page.waitForFunction((selector) => {
+            return ![...document.querySelectorAll(selector)].some((element) => {
+                const rectangle = element.getBoundingClientRect();
+                const style = window.getComputedStyle(element);
+
+                return rectangle.width > 0
+                    && rectangle.height > 0
+                    && style.display !== "none"
+                    && style.visibility !== "hidden"
+                    && style.opacity !== "0";
+            });
+        }, { timeout }, passwordInputSelector);
+    } finally {
+        await completionHandle?.dispose().catch(() => {});
+    }
+}
+
+
 export default async function login(
     page,
     {
         timeout = 30000,
+        completionTimeout = 15000,
         random = Math.random,
         sleep,
     } = {}
@@ -94,7 +120,12 @@ export default async function login(
             timeout,
             timingOptions
         );
-        await waitHuman("extraLong", timingOptions);
+
+        console.log("Чекаємо, доки видима форма входу зникне");
+        await waitForLoginFormToDisappear(
+            page,
+            Math.min(timeout, completionTimeout)
+        );
 
         const loginStatus = await detectLoginStatus(page);
 

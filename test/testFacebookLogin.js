@@ -154,6 +154,14 @@ assert.equal(
     true
 );
 assert.equal(
+    variantWithAccounts.events.some((event) => (
+        Array.isArray(event)
+        && event.length === 2
+        && event[1] === 'input[type="password"]'
+    )),
+    true
+);
+assert.equal(
     variantWithAccounts.events.some((event) =>
         Array.isArray(event)
         && event[0] === "click"
