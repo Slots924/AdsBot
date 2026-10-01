@@ -1320,6 +1320,10 @@ export default function registerIpcHandlers({
         "business-manager:get",
         safeHandler(({ sessionId }) => businessManagerSessionManager.get(sessionId))
     );
+    ipcMain.handle("business-manager:available-list", safeHandler(({ sessionId }) =>
+        businessManagerSessionManager.listBusinessManagers(sessionId)));
+    ipcMain.handle("business-manager:ad-account-request", safeHandler(({ sessionId, businessId, adAccountId }) =>
+        businessManagerSessionManager.requestAdAccountAccess(sessionId, { businessId, adAccountId })));
     ipcMain.handle(
         "business-manager:disconnect",
         safeHandler(({ sessionId }) => businessManagerSessionManager.disconnect(sessionId))
@@ -1368,6 +1372,12 @@ export default function registerIpcHandlers({
         "personal-account:ad-accounts-list",
         safeHandler(({ sessionId }) => personalAccountSessionManager.listAdAccounts(sessionId))
     );
+    ipcMain.handle("personal-account:ad-access-prepare", safeHandler(({ sessionId, adAccountId }) =>
+        personalAccountSessionManager.prepareAdAccountAccess(sessionId, { adAccountId })));
+    ipcMain.handle("personal-account:ad-access-find", safeHandler(({ sessionId, ...input }) =>
+        personalAccountSessionManager.findAdAccountAccessRequest(sessionId, input)));
+    ipcMain.handle("personal-account:ad-access-accept", safeHandler(({ sessionId, invite }) =>
+        personalAccountSessionManager.acceptAdAccountAccessRequest(sessionId, invite)));
     ipcMain.handle(
         "personal-account:business-info-check",
         safeHandler(({ sessionId, ...payload }) => (

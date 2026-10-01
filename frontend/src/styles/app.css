@@ -1782,7 +1782,34 @@ button:focus-visible, input:focus-visible {
 .personal-launch-panel .personal-status { display: flex; gap: 7px; min-width: 0; padding: 9px 10px; border-radius: 9px; font-size: 11px; white-space: nowrap; }
 .personal-launch-panel .personal-status i { flex: 0 0 8px; }
 .personal-profile-card { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px; }
+.personal-profile-combined { display: grid; align-items: stretch; gap: 13px; }
+.personal-profile-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; min-width: 0; }
+.personal-profile-combined .personal-profile-details { display: grid; gap: 7px; min-width: 0; }
+.personal-profile-current { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.personal-profile-current input { width: 120px; height: 31px; padding: 4px 9px; border: 1px solid #454d60; border-radius: 8px; color: #f0f3fb; background: #10141e; font: inherit; }
+.personal-profile-current input:focus { outline: 2px solid rgba(139,126,244,.55); outline-offset: 1px; }
+.personal-profile-current small { white-space: nowrap; }
+.personal-profile-combined .personal-profile-group { flex-wrap: wrap; justify-content: flex-end; max-width: 370px; }
+.personal-profile-combined .personal-tags { justify-content: flex-start; }
+.personal-profile-combined .personal-status-grid { gap: 7px; }
+.personal-profile-combined .personal-status { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 9px 10px; border-radius: 9px; font-size: 11px; white-space: nowrap; }
+.personal-profile-combined .personal-status i { flex: 0 0 8px; }
+.personal-bm-select .select-trigger { min-height: 43px; height: 43px; padding: 4px 11px; }
+.personal-bm-select .select-trigger strong { font-size: 12px; }
+.personal-bm-select .select-trigger small { font-size: 11px; }
+.personal-bm-select .select-trigger-value, .personal-business-select .select-trigger-value, .personal-ad-account-select .select-trigger-value { min-width: 0; overflow: hidden; }
+.personal-bm-select .select-trigger-value > span, .personal-business-select .select-trigger-value > span, .personal-ad-account-select .select-trigger-value > span { overflow: hidden; }
+.personal-business-select, .personal-ad-account-select { width: 100%; min-width: 0; }
+.personal-business-select .select-trigger, .personal-ad-account-select .select-trigger { min-height: 52px; border-color: #3c4659; background: #121824; }
+.personal-bm-section .personal-action-card { display: grid; gap: 14px; min-width: 0; }
+.personal-bm-section .personal-inline-actions { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; min-width: 0; }
+.personal-countdown { color: #b9b1ff; font-size: 13px; font-weight: 700; }
+@media (max-width: 850px) {
+    .personal-profile-top { flex-direction: column; }
+    .personal-profile-combined .personal-profile-group { justify-content: flex-start; max-width: 100%; }
+}
 .personal-profile-card > div:first-child { display: grid; gap: 5px; }
+.personal-profile-card.personal-profile-combined > .personal-profile-top { display: flex; gap: 16px; }
 .personal-profile-details { min-width: 0; }
 .personal-profile-name, .personal-profile-group { display: flex; align-items: center; gap: 7px; }
 .personal-profile-name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

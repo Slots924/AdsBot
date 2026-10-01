@@ -357,10 +357,12 @@ describe("GUI helpers", () => {
         render(<PersonalAccountModal profile={null} initialBmKey="bm-002"
             businessManagers={[{ accountKey: "bm-001", name: "Primary BM", isPrimary: true, adsPowerProfileNo: "127" }, { accountKey: "bm-002", name: "Chosen BM", adsPowerProfileNo: "129" }]}
             onClose={vi.fn()} onError={vi.fn()} />);
-        expect(screen.getByLabelText("Номер профілю AdsPower")).toHaveValue("");
+        expect(screen.getByLabelText("Номер AdsPower-профілю")).toHaveValue("");
+        fireEvent.click(screen.getByRole("button", { name: /Бізнесменеджер/ }));
         expect(screen.getByText("Chosen BM")).toBeInTheDocument();
-        fireEvent.change(screen.getByLabelText("Номер профілю AdsPower"), { target: { value: "128" } });
-        fireEvent.click(screen.getByRole("button", { name: "Підтвердити номер профілю AdsPower" }));
+        fireEvent.click(screen.getByRole("button", { name: /Огляд/ }));
+        fireEvent.change(screen.getByLabelText("Номер AdsPower-профілю"), { target: { value: "128" } });
+        fireEvent.click(screen.getByRole("button", { name: "Запустити і перевірити" }));
         await waitFor(() => expect(window.adsBot.switchPersonalAccountProfile).toHaveBeenCalledWith(null, "128"));
         await waitFor(() => expect(screen.getByText("My profile")).toBeInTheDocument());
     });

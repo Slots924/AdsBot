@@ -22,6 +22,10 @@ import updateBusinessInfo from "../../facebook/api-actions/ads-manager/updateBus
 import addCreditCardPaymentMethod
     from "../../facebook/api-actions/ads-manager/addCreditCardPaymentMethod.js";
 import getBrowserAdAccounts from "../../facebook/api-actions/ads-manager/getAdAccounts.js";
+import getBrowserBusinessManagers from "../../facebook/api-actions/ads-manager/getBrowserBusinessManagers.js";
+import requestAdAccountAccess from "../../facebook/api-actions/ads-manager/requestAdAccountAccess.js";
+import getAdAccountAccessRequest from "../../facebook/api-actions/ads-manager/getAdAccountAccessRequest.js";
+import acceptAdAccountAccessRequest from "../../facebook/api-actions/ads-manager/acceptAdAccountAccessRequest.js";
 import getAdPixels from "../../facebook/api-actions/ads-manager/getAdPixels.js";
 import createAdPixel from "../../facebook/api-actions/ads-manager/createAdPixel.js";
 import requestPhoneVerificationCode
@@ -43,6 +47,7 @@ const facebookGraphqlUrl = "https://www.facebook.com/api/graphql/";
 const adsManagerUrl = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
 const adsManagerGraphqlUrl = "https://adsmanager.facebook.com/api/graphql/";
 const businessManagerSettingsUrl = "https://business.facebook.com/latest/settings";
+const adAccountSettingsPath = "/adsmanager/manage/ad_account_settings/ad_account_setup";
 const businessManagerGraphqlUrls = [
     "https://business.facebook.com/api/graphql/",
     "https://www.facebook.com/api/graphql/",
@@ -380,6 +385,8 @@ export default class PersonalAccountSessionManager {
                 additionalProfileId: null,
                 accessToken: "",
                 businessManagerPayload: null,
+                addAccountSettingsPayload: null,
+                addAccountSettingsPayloadUrl: "",
                 fanPages: [],
                 overview: null,
                 phoneFlow: null,
@@ -422,6 +429,8 @@ export default class PersonalAccountSessionManager {
             session.payloadUrl = "";
             session.facebookPayload = null;
             session.businessManagerPayload = null;
+            session.addAccountSettingsPayload = null;
+            session.addAccountSettingsPayloadUrl = "";
             session.accessToken = "";
             session.overview = null;
             session.fanPages = [];
@@ -440,6 +449,80 @@ export default class PersonalAccountSessionManager {
             await this.#refreshOverview(session);
             if (this.mode === "businessManager") await this.#captureBusinessManagerPayload(session);
             return publicSession(session);
+        });
+    }
+
+    listBusinessManagers(sessionId) {
+        return this.#perform(sessionId, "business.managers_list", async (session) => {
+            if (this.mode !== "businessManager") throw sessionError("Потрібна сесія БМ", "BUSINESS_SESSION_REQUIRED");
+            await this.#ensureAccessToken(session);
+            return assertAction(await getBrowserBusinessManagers({
+                page: session.page, accessToken: session.accessToken,
+            }), "Не вдалося отримати список бізнес-менеджерів").data;
+        });
+    }
+
+    requestAdAccountAccess(sessionId, { businessId, adAccountId }) {
+        return this.#perform(sessionId, "ads.access_request", async (session) => {
+            if (this.mode !== "businessManager") throw sessionError("Потрібна сесія БМ", "BUSINESS_SESSION_REQUIRED");
+            if (!/^\d+$/.test(String(businessId)) || !/^\d+$/.test(String(adAccountId).replace(/^act_/, ""))) {
+                throw sessionError("Некоректний ID бізнесу або РК", "INVALID_INPUT");
+            }
+            const target = `${businessManagerSettingsUrl}/ad_accounts?business_id=${businessId}`;
+            const current = session.page.url();
+            if (current !== target || !session.businessManagerPayload || session.businessManagerPayloadUrl !== current) {
+                const captured = assertAction(await captureGraphqlPayload(session.page, {
+                    profileUrl: target, graphqlUrl: businessManagerGraphqlUrls, timeout: 60000,
+                }), "Не вдалося отримати payload налаштувань БМ");
+                session.businessManagerPayload = captured.data;
+                session.businessManagerPayloadUrl = session.page.url();
+            }
+            return assertAction(await requestAdAccountAccess({
+                page: session.page, businessId, adAccountId,
+            }), "Не вдалося надіслати запит на доступ до РК").data;
+        });
+    }
+
+    prepareAdAccountAccess(sessionId, { adAccountId }) {
+        return this.#perform(sessionId, "ads.access_prepare", async (session) => {
+            if (this.mode === "businessManager") throw sessionError("Потрібен персональний профіль", "PERSONAL_SESSION_REQUIRED");
+            const accountId = String(adAccountId ?? "").replace(/^act_/, "");
+            if (!/^\d+$/.test(accountId)) throw sessionError("Некоректний ID РК", "INVALID_INPUT");
+            const target = `https://adsmanager.facebook.com${adAccountSettingsPath}?act=${accountId}`;
+            if (session.page.url() !== target || session.addAccountSettingsPayloadUrl !== target) {
+                const captured = assertAction(await captureGraphqlPayload(session.page, {
+                    profileUrl: target, graphqlUrl: adsManagerGraphqlUrl, timeout: 60000,
+                }), "Не вдалося отримати Add Account Settings payload");
+                session.addAccountSettingsPayload = captured.data;
+                session.addAccountSettingsPayloadUrl = session.page.url();
+                session.payload = supplementAdsManagerPayload(captured.data, session.facebookPayload);
+                session.payloadUrl = session.page.url();
+                session.actorId = String(session.payload.__user ?? "");
+                session.context = "ADS_MANAGER";
+            }
+            return { ready: Boolean(session.addAccountSettingsPayload) };
+        });
+    }
+
+    findAdAccountAccessRequest(sessionId, input) {
+        return this.#perform(sessionId, "ads.access_find", async (session) => {
+            if (this.mode === "businessManager" || !session.addAccountSettingsPayload
+                || session.addAccountSettingsPayloadUrl !== session.page.url()) {
+                throw sessionError("Спочатку відкрийте налаштування РК", "ACCOUNT_SETTINGS_REQUIRED");
+            }
+            return assertAction(await getAdAccountAccessRequest({ page: session.page, ...input }),
+                "Не вдалося перевірити запрошення");
+        });
+    }
+
+    acceptAdAccountAccessRequest(sessionId, invite) {
+        return this.#perform(sessionId, "ads.access_accept", async (session) => {
+            if (this.mode === "businessManager" || !session.addAccountSettingsPayload
+                || session.addAccountSettingsPayloadUrl !== session.page.url()) {
+                throw sessionError("Спочатку відкрийте налаштування РК", "ACCOUNT_SETTINGS_REQUIRED");
+            }
+            return assertAction(await acceptAdAccountAccessRequest({ page: session.page, invite }),
+                "Не вдалося прийняти запрошення").data;
         });
     }
 

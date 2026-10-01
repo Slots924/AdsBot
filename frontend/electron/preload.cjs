@@ -185,6 +185,10 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("business-manager:start", { accountKey, previousSessionId }),
     getBusinessManagerSession: (sessionId) =>
         ipcRenderer.invoke("business-manager:get", { sessionId }),
+    getAvailableBusinessManagers: (sessionId) =>
+        ipcRenderer.invoke("business-manager:available-list", { sessionId }),
+    requestBusinessAdAccountAccess: (sessionId, businessId, adAccountId) =>
+        ipcRenderer.invoke("business-manager:ad-account-request", { sessionId, businessId, adAccountId }),
     disconnectBusinessManagerSession: (sessionId) =>
         ipcRenderer.invoke("business-manager:disconnect", { sessionId }),
     closeBusinessManagerProfile: (sessionId) =>
@@ -205,6 +209,12 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("personal-account:fanpage-access-grant", { sessionId, ...payload }),
     getPersonalAdAccounts: (sessionId) =>
         ipcRenderer.invoke("personal-account:ad-accounts-list", { sessionId }),
+    preparePersonalAdAccountAccess: (sessionId, adAccountId) =>
+        ipcRenderer.invoke("personal-account:ad-access-prepare", { sessionId, adAccountId }),
+    findPersonalAdAccountAccess: (sessionId, input) =>
+        ipcRenderer.invoke("personal-account:ad-access-find", { sessionId, ...input }),
+    acceptPersonalAdAccountAccess: (sessionId, invite) =>
+        ipcRenderer.invoke("personal-account:ad-access-accept", { sessionId, invite }),
     checkPersonalBusinessInfo: (sessionId, payload) =>
         ipcRenderer.invoke("personal-account:business-info-check", { sessionId, ...payload }),
     updatePersonalBusinessInfo: (sessionId, payload) =>

@@ -62,6 +62,7 @@ function normalizeDialingCode(value) {
 
 const sections = [
     ["launch", "Огляд", Play],
+    ["bm", "Бізнесменеджер", BriefcaseBusiness],
     ["fanpage", "Фанпейдж", PanelsTopLeft],
     ["business", "Бізнес інфа", BriefcaseBusiness],
     ["payment", "Спосіб оплати", CreditCard],
@@ -72,7 +73,13 @@ const sections = [
 
 
 function AccountSelect({ accounts, value, onChange, disabled = false }) {
-    return <label className="field"><span>Рекламний кабінет</span><select disabled={disabled} value={value} onChange={(event) => onChange(event.target.value)}><option value="">Оберіть РК</option>{accounts.map((account) => <option key={account.id} value={account.accountId || account.id}>{account.accountStatus === 1 ? "●" : "○"} {account.name} · {account.id} · {account.currency || "—"}</option>)}</select></label>;
+    return <SearchSelect items={accounts} value={value} onChange={onChange} disabled={disabled}
+        getId={(item) => item.accountId || item.id} getTitle={(item) => item.name || "РК без назви"}
+        getSubtitle={(item) => `ID РК: ${item.accountId || item.id}`}
+        getSearchText={(item) => `${item.name} ${item.accountId || item.id}`}
+        getStatus={(item) => item.accountStatus === 1 ? "active" : "inactive"}
+        placeholder="Оберіть РК" searchPlaceholder="Пошук РК…"
+        ariaLabel="Рекламний кабінет персонального профілю" className="personal-ad-account-select" />;
 }
 
 
@@ -96,6 +103,13 @@ export default function PersonalAccountModal({
     const [profileNoDraft, setProfileNoDraft] = useState(String(profile?.profileNo ?? ""));
     const [businessSession, setBusinessSession] = useState(null);
     const [businessBusy, setBusinessBusy] = useState(false);
+    const [availableBusinesses, setAvailableBusinesses] = useState([]);
+    const [selectedBusinessId, setSelectedBusinessId] = useState("");
+    const [accessRequest, setAccessRequest] = useState(null);
+    const [accessState, setAccessState] = useState("");
+    const [accessSeconds, setAccessSeconds] = useState(60);
+    const accessStop = useRef(false);
+    const accessTimer = useRef(null);
     const [selectedBmKey, setSelectedBmKey] = useState(initialBmKey ?? businessManagers.find((item) => item.isPrimary)?.accountKey ?? "");
     const [bmSelectionManual, setBmSelectionManual] = useState(Boolean(initialBmKey));
     const [section, setSection] = useState("launch");
@@ -173,6 +187,16 @@ export default function PersonalAccountModal({
             setSelectedBmKey(businessManagers.find((item) => item.isPrimary)?.accountKey ?? businessManagers[0]?.accountKey ?? "");
         }
     }, [businessManagers, bmSelectionManual]);
+
+    useEffect(() => () => {
+        accessStop.current = true;
+        clearInterval(accessTimer.current);
+    }, []);
+
+    useEffect(() => {
+        setAccessRequest(null);
+        setAccessState("");
+    }, [selectedBusinessId, adAccountId]);
 
     useEffect(() => {
         unwrap(window.adsBot.getCreditCards()).then(setCards).catch(() => {});
@@ -318,7 +342,12 @@ export default function PersonalAccountModal({
         }
     };
     const startPersonal = async () => {
-        if (!activeProfile.profileNo || busy) return;
+        const nextNo = profileNoDraft.trim();
+        if (!/^\d+$/.test(nextNo) || busy || businessBusy) return;
+        if (nextNo !== String(activeProfile.profileNo)) {
+            await switchProfile();
+            return;
+        }
         setFeedback((current) => ({ ...current, launch: "" }));
         setSession((current) => current ? { ...current, overview: null } : null);
         const value = await run("launch", () => window.adsBot.startPersonalAccountSession(activeProfile.profileNo), "Профіль готовий до роботи");
@@ -332,6 +361,15 @@ export default function PersonalAccountModal({
         try {
             const value = await unwrap(window.adsBot.startBusinessManagerSession(selectedBmKey, businessSession?.id ?? null));
             setBusinessSession(value);
+            try {
+                const businesses = await unwrap(window.adsBot.getAvailableBusinessManagers(value.id));
+                setAvailableBusinesses(businesses);
+                setSelectedBusinessId((current) => businesses.some((item) => item.id === current) ? current : businesses[0]?.id ?? "");
+            } catch (listError) {
+                setAvailableBusinesses([]);
+                setSelectedBusinessId("");
+                onError({ ...errorDetails(listError), title: "БМ запущено, але список бізнесів не завантажився" });
+            }
             setFeedback((current) => ({ ...current, businessLaunch: "Запуск успішний" }));
             showToast?.("БМ перевірено", "success");
         } catch (error) {
@@ -342,6 +380,80 @@ export default function PersonalAccountModal({
             onError({ ...errorDetails(error), title: "Не вдалося перевірити БМ" });
         } finally {
             setBusinessBusy(false);
+        }
+    };
+    const refreshAvailableBusinesses = async () => {
+        if (!visibleBusinessSession) return;
+        setBusinessBusy(true);
+        try {
+            const businesses = await unwrap(window.adsBot.getAvailableBusinessManagers(visibleBusinessSession.id));
+            setAvailableBusinesses(businesses);
+            setSelectedBusinessId((current) => businesses.some((item) => item.id === current) ? current : businesses[0]?.id ?? "");
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося оновити список БМ" });
+        } finally { setBusinessBusy(false); }
+    };
+    const sendAccessRequest = async () => {
+        if (!visibleBusinessSession || !selectedBusinessId || !adAccountId || businessBusy) return;
+        setBusinessBusy(true);
+        setAccessRequest(null);
+        setAccessState("");
+        try {
+            const request = await unwrap(window.adsBot.requestBusinessAdAccountAccess(
+                visibleBusinessSession.id, selectedBusinessId, adAccountId
+            ));
+            if (!request?.adMarketId) throw new Error("Facebook не повернув ID запиту");
+            setAccessRequest(request);
+            setAccessState("sent");
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося надіслати запрошення" });
+        } finally { setBusinessBusy(false); }
+    };
+    const stopAccessAcceptance = () => {
+        accessStop.current = true;
+        setAccessState("stopped");
+        clearInterval(accessTimer.current);
+    };
+    const acceptAccessRequest = async () => {
+        if (!session || !accessRequest || busy) return;
+        accessStop.current = false;
+        const deadline = Date.now() + 60000;
+        setAccessSeconds(60);
+        setAccessState("searching");
+        setBusy("access.accept");
+        accessTimer.current = setInterval(() => setAccessSeconds(Math.max(0, Math.ceil((deadline - Date.now()) / 1000))), 250);
+        try {
+            await unwrap(window.adsBot.preparePersonalAdAccountAccess(session.id, accessRequest.adAccountId));
+            while (!accessStop.current && Date.now() < deadline) {
+                const found = await unwrap(window.adsBot.findPersonalAdAccountAccess(session.id, {
+                    adAccountId: accessRequest.adAccountId,
+                    agencyId: accessRequest.businessId,
+                    adMarketId: accessRequest.adMarketId,
+                }));
+                if (accessStop.current) break;
+                if (found.status === "FOUND") {
+                    await unwrap(window.adsBot.acceptPersonalAdAccountAccess(session.id, found.data));
+                    if (!accessStop.current) setAccessState("accepted");
+                    return;
+                }
+                await new Promise((resolve) => {
+                    const wait = Math.min(5000, Math.max(0, deadline - Date.now()));
+                    const timer = setTimeout(resolve, wait);
+                    const check = setInterval(() => {
+                        if (accessStop.current) { clearTimeout(timer); clearInterval(check); resolve(); }
+                    }, 100);
+                    setTimeout(() => clearInterval(check), wait);
+                });
+            }
+            if (!accessStop.current) setAccessState("timeout");
+        } catch (error) {
+            if (!accessStop.current) {
+                setAccessState("error");
+                onError({ ...errorDetails(error), title: "Не вдалося прийняти запрошення" });
+            }
+        } finally {
+            clearInterval(accessTimer.current);
+            setBusy("");
         }
     };
     const refreshOverview = async () => {
@@ -441,13 +553,29 @@ export default function PersonalAccountModal({
                 <main className="personal-account-body">
                     {section === "launch" && <section className="personal-section personal-overview">
                         <div className="personal-section-heading"><div><span className="eyebrow">{activeProfile.profileNo ? `AdsPower №${activeProfile.profileNo}` : "AdsPower профіль не вибрано"}</span><h3>Огляд профілю</h3><p>Підключення, фанпейджі, рекламні кабінети та пікселі в одному місці.</p></div>{session && <button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshOverview}><RefreshCw className={busy === "overview" ? "spin" : ""} size={16} /> Оновити інфу</button>}</div>
-                        <div className="personal-profile-card"><div className="personal-profile-details"><div className="personal-profile-name">{editingProfileName ? <input autoFocus value={profileName} maxLength="100" aria-label="Назва AdsPower-профілю" onChange={(event) => setProfileName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void saveProfileName(); if (event.key === "Escape") { setProfileName(activeProfile.name || ""); setEditingProfileName(false); } }} /> : <strong>{profileName || "Без назви"}</strong>}<button type="button" className="icon-button personal-edit-name" title="Змінити назву профілю" aria-label="Змінити назву профілю" disabled={Boolean(busy) || !activeProfile.profileId} onClick={() => editingProfileName ? void saveProfileName() : setEditingProfileName(true)}>{editingProfileName ? <Check size={15} /> : <Pencil size={14} />}</button></div><div className="personal-profile-group"><span>Група AdsPower</span><SearchSelect items={groups} value={profileGroupId} onChange={setProfileGroupId} getId={(item) => item.groupId} getTitle={(item) => item.groupName} getSubtitle={(item) => item.groupId} getSearchText={(item) => `${item.groupName} ${item.groupId}`} placeholder="Без групи" searchPlaceholder="Пошук групи…" ariaLabel="Група AdsPower профілю" disabled={Boolean(busy) || !activeProfile.profileId} className="personal-group-select" /><button type="button" className="icon-button" title="Оновити список груп" aria-label="Оновити список груп" disabled={Boolean(busy)} onClick={onRefreshGroups}><RefreshCw size={14} /></button><button type="button" className="text-button" disabled={Boolean(busy) || !activeProfile.profileId || !profileGroupId || String(profileGroupId) === String(activeProfile.groupId)} onClick={() => void saveProfileGroup()}>Зберегти</button></div></div><div className="personal-tags">{activeProfile.tags?.map((tag) => <span key={tag.id || tag.name}>{tag.name}</span>)}</div></div>
-                        <div className="personal-profile-number"><label htmlFor="personal-profile-no">Номер профілю AdsPower</label><div><input id="personal-profile-no" inputMode="numeric" placeholder="Вкажіть номер" value={profileNoDraft} onChange={(event) => setProfileNoDraft(event.target.value.replace(/\D/g, ""))} onKeyDown={(event) => { if (event.key === "Enter") void switchProfile(); }} disabled={Boolean(busy) || businessBusy} /><button type="button" className="icon-button" title="Підтвердити профіль" aria-label="Підтвердити номер профілю AdsPower" disabled={!profileNoDraft || profileNoDraft === String(activeProfile.profileNo) || Boolean(busy) || businessBusy} onClick={() => void switchProfile()}>{busy === "profile.switch" ? <LoaderCircle className="spin" size={16} /> : <Check size={16} />}</button><small>{activeProfile.profileNo ? `Поточний: №${activeProfile.profileNo}` : "Профіль ще не вибрано"}</small></div></div>
-                        <div className="personal-launch-panel"><div className="personal-launch-heading"><span>01 · Персональний профіль</span><small>Facebook та Ads Manager</small></div><div className="personal-status-grid">{[["Facebook payload", session?.overview?.hasFacebookPayload], ["Ads Manager payload", session?.overview?.hasAdsManagerPayload], ["Access token", session?.overview?.hasAccessToken]].map(([label, ready]) => <div className={`personal-status ${ready ? "ready" : ""}`} key={label}><i /> <span>{label}</span></div>)}</div><div className="personal-launch-action"><button type="button" className="primary-button personal-main-action" disabled={!activeProfile.profileNo || Boolean(busy)} aria-busy={busy === "launch"} onClick={() => void startPersonal()}>{busy === "launch" ? <><LoaderCircle className="spin" size={16} /> Перевіряю…</> : <><Play size={16} /> Запустити і перевірити</>}</button>{feedback.launch && <span className="personal-launch-success"><Check size={15} /> Запуск успішний</span>}</div></div>
-                        <div className="personal-launch-panel business"><div className="personal-launch-heading"><span>02 · Бізнес-менеджер</span><small>Окрема сесія та перевірка</small></div><div className="personal-status-grid business">{[["Facebook payload", visibleBusinessSession?.overview?.hasFacebookPayload], ["Ads Manager payload", visibleBusinessSession?.overview?.hasAdsManagerPayload], ["Access token", visibleBusinessSession?.overview?.hasAccessToken], ["BM payload", visibleBusinessSession?.overview?.hasBusinessManagerPayload]].map(([label, ready]) => <div className={`personal-status ${ready ? "ready" : ""}`} key={label}><i /> <span>{label}</span></div>)}</div><div className="personal-launch-action"><button type="button" className="primary-button personal-main-action" disabled={!selectedBmKey || !businessManagers.find((item) => item.accountKey === selectedBmKey)?.adsPowerProfileNo || businessBusy} aria-busy={businessBusy} onClick={() => void startBusiness()}>{businessBusy ? <><LoaderCircle className="spin" size={16} /> Перевіряю БМ…</> : <><Play size={16} /> Запустити і перевірити</>}</button><SearchSelect items={businessManagers} value={selectedBmKey} onChange={(value) => { setSelectedBmKey(value); setBmSelectionManual(true); setFeedback((current) => ({ ...current, businessLaunch: "" })); }} getId={(item) => item.accountKey} getTitle={(item) => item.name || "БМ без назви"} getSubtitle={(item) => item.adsPowerProfileNo ? `AdsPower №${item.adsPowerProfileNo}` : "Немає AdsPower-профілю"} getSearchText={(item) => `${item.name} ${item.adsPowerProfileNo ?? ""}`} placeholder="Оберіть БМ" searchPlaceholder="Пошук БМ…" ariaLabel="Бізнес-менеджер для запуску" className="personal-bm-select" />{feedback.businessLaunch && <span className="personal-launch-success"><Check size={15} /> Запуск успішний</span>}</div></div>
+                        <div className="personal-profile-card personal-profile-combined">
+                            <div className="personal-profile-top">
+                                <div className="personal-profile-details">
+                                    <div className="personal-profile-name">{editingProfileName ? <input autoFocus value={profileName} maxLength="100" aria-label="Назва AdsPower-профілю" onChange={(event) => setProfileName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void saveProfileName(); if (event.key === "Escape") { setProfileName(activeProfile.name || ""); setEditingProfileName(false); } }} /> : <strong>{profileName || "Без назви"}</strong>}<button type="button" className="icon-button personal-edit-name" title="Змінити назву профілю" aria-label="Змінити назву профілю" disabled={Boolean(busy) || !activeProfile.profileId} onClick={() => editingProfileName ? void saveProfileName() : setEditingProfileName(true)}>{editingProfileName ? <Check size={15} /> : <Pencil size={14} />}</button></div>
+                                    <div className="personal-profile-current"><input id="personal-profile-no" aria-label="Номер AdsPower-профілю" inputMode="numeric" placeholder="Номер профілю" value={profileNoDraft} onChange={(event) => setProfileNoDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void startPersonal(); }} disabled={Boolean(busy) || businessBusy} /><small>{activeProfile.profileNo ? `Поточний: №${activeProfile.profileNo}` : "Профіль не вибрано"}</small></div>
+                                </div>
+                                <div className="personal-profile-group"><span>Група</span><SearchSelect items={groups} value={profileGroupId} onChange={setProfileGroupId} getId={(item) => item.groupId} getTitle={(item) => item.groupName} getSubtitle={(item) => item.groupId} getSearchText={(item) => `${item.groupName} ${item.groupId}`} placeholder="Без групи" searchPlaceholder="Пошук групи…" ariaLabel="Група AdsPower профілю" disabled={Boolean(busy) || !activeProfile.profileId} className="personal-group-select" /><button type="button" className="icon-button" title="Оновити список груп" aria-label="Оновити список груп" disabled={Boolean(busy)} onClick={onRefreshGroups}><RefreshCw size={14} /></button><button type="button" className="text-button" disabled={Boolean(busy) || !activeProfile.profileId || !profileGroupId || String(profileGroupId) === String(activeProfile.groupId)} onClick={() => void saveProfileGroup()}>Зберегти</button></div>
+                            </div>
+                            <div className="personal-tags">{activeProfile.tags?.map((tag) => <span key={tag.id || tag.name}>{tag.name}</span>)}</div>
+                            <div className="personal-status-grid">{[["Facebook payload", session?.overview?.hasFacebookPayload], ["Ads Manager payload", session?.overview?.hasAdsManagerPayload], ["Access token", session?.overview?.hasAccessToken]].map(([label, ready]) => <div className={`personal-status ${ready ? "ready" : ""}`} key={label}><i /> <span>{label}</span></div>)}</div>
+                            <div className="personal-launch-action"><button type="button" className="primary-button personal-main-action" disabled={!/^\d+$/.test(profileNoDraft.trim()) || Boolean(busy) || businessBusy} aria-busy={busy === "launch" || busy === "profile.switch"} onClick={() => void startPersonal()}>{busy === "launch" || busy === "profile.switch" ? <><LoaderCircle className="spin" size={16} /> Перевіряю…</> : <><Play size={16} /> Запустити і перевірити</>}</button>{feedback.launch && <span className="personal-launch-success"><Check size={15} /> Запуск успішний</span>}</div>
+                        </div>
                         <div className="personal-overview-card"><div className="personal-card-heading"><h4>Фанпейджі</h4><span>{overviewFanPages.length}</span></div>{overviewFanPages.length ? <div className="overview-page-list">{overviewFanPages.map((item) => <div key={item.pageId} className="overview-page"><div className="fanpage-avatar">{item.pictureUrl ? <img src={item.pictureUrl} alt="" /> : <PanelsTopLeft size={16} />}</div><div><strong>{item.name}</strong><small>Page ID: {item.pageId}</small><small>Profile ID: {item.additionalProfileId || "ще не визначено"}</small></div></div>)}</div> : <p className="personal-empty">{session?.overview?.fanPagesError || (session ? "Фанпейджів не знайдено." : "Список з’явиться після запуску профілю.")}</p>}</div>
                         <div className="personal-overview-card"><div className="personal-card-heading"><h4>Рекламні кабінети та пікселі</h4><span>{accounts.length}</span></div>{accounts.length ? <div className="overview-accounts">{accounts.map((account) => <div className="overview-account" key={account.id}><div><strong><i className={account.accountStatus === 1 ? "online" : ""} /> {account.name}</strong><small>{account.id}</small></div><div className="pixel-chips">{account.pixels?.slice(0, 3).map((pixel) => <span key={pixel.id}>{pixel.name} · {pixel.id}</span>)}{account.pixels?.length > 3 && <span>+ ще {account.pixels.length - 3}</span>}{!account.pixels?.length && <small>{account.pixelsError || "Пікселів немає"}</small>}</div></div>)}</div> : <p className="personal-empty">{session?.overview?.adAccountsError || (session ? "Рекламних кабінетів не знайдено." : "Рекламні кабінети ще не завантажено.")}</p>}</div>
                         <div className="personal-overview-card"><div className="personal-card-heading"><h4>Бізнес-інфо</h4><span>скоро</span></div><p className="personal-empty">Тут з’явиться бізнес-інформація вибраного рекламного кабінету.</p></div>
+                    </section>}
+
+                    {section === "bm" && <section className="personal-section personal-bm-section">
+                        <div className="personal-section-heading"><div><span className="eyebrow">Business Manager</span><h3>Бізнесменеджер</h3><p>Окрема сесія БМ та доступ до РК персонального профілю.</p></div></div>
+                        <div className="personal-launch-panel business"><div className="personal-launch-heading"><span>БМ-профіль</span><small>Окрема сесія</small></div><div className="personal-status-grid business">{[["Facebook payload", visibleBusinessSession?.overview?.hasFacebookPayload], ["Ads Manager payload", visibleBusinessSession?.overview?.hasAdsManagerPayload], ["Access token", visibleBusinessSession?.overview?.hasAccessToken], ["BM payload", visibleBusinessSession?.overview?.hasBusinessManagerPayload]].map(([label, ready]) => <div className={`personal-status ${ready ? "ready" : ""}`} key={label}><i /> <span>{label}</span></div>)}</div><div className="personal-launch-action"><button type="button" className="primary-button personal-main-action" disabled={!selectedBm?.adsPowerProfileNo || businessBusy || Boolean(busy)} aria-busy={businessBusy} onClick={() => void startBusiness()}>{businessBusy ? <><LoaderCircle className="spin" size={16} /> Перевіряю БМ…</> : <><Play size={16} /> Запустити і перевірити</>}</button><SearchSelect items={businessManagers} value={selectedBmKey} onChange={(value) => { setSelectedBmKey(value); setBmSelectionManual(true); setAvailableBusinesses([]); setSelectedBusinessId(""); setFeedback((current) => ({ ...current, businessLaunch: "" })); }} getId={(item) => item.accountKey} getTitle={(item) => item.name || "БМ без назви"} getSubtitle={() => "БМ-профіль"} getSearchText={(item) => `${item.name} ${item.adsPowerProfileNo ?? ""}`} placeholder="Оберіть БМ" searchPlaceholder="Пошук БМ…" ariaLabel="БМ-профіль для запуску" className="personal-bm-select" />{feedback.businessLaunch && <span className="personal-launch-success"><Check size={15} /> Запуск успішний</span>}</div></div>
+                        <div className="personal-action-card"><div className="personal-card-heading"><h4>Доступні бізнесменеджери</h4><button type="button" className="secondary-button" disabled={!visibleBusinessSession || businessBusy || accessState === "searching"} onClick={() => void refreshAvailableBusinesses()}><RefreshCw size={15} /> Оновити</button></div><SearchSelect items={availableBusinesses} value={selectedBusinessId} onChange={setSelectedBusinessId} getId={(item) => item.id} getTitle={(item) => item.name} getSubtitle={(item) => `ID: ${item.id} · ${item.active ? "Активний" : "Неактивний"}`} getSearchText={(item) => `${item.name} ${item.id}`} getStatus={(item) => item.active ? "active" : "inactive"} placeholder="БМ не знайдено" searchPlaceholder="Пошук БМ…" ariaLabel="Доступний бізнесменеджер" disabled={!availableBusinesses.length || accessState === "searching"} className="personal-business-select" /></div>
+                        <div className="personal-action-card"><div className="personal-card-heading"><h4>Рекламний кабінет персонального профілю</h4><button type="button" className="secondary-button" disabled={!session || Boolean(busy)} onClick={() => void refreshAccounts()}><RefreshCw size={15} /> Оновити</button></div><AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} disabled={!session || Boolean(busy)} /></div>
+                        <div className="personal-action-card"><div className="personal-inline-actions"><button type="button" className="primary-button" disabled={!visibleBusinessSession || !selectedBusinessId || !adAccountId || businessBusy || accessState === "searching"} onClick={() => void sendAccessRequest()}>Кинути запрошення</button>{accessRequest && <span className="personal-launch-success"><Check size={15} /> Запит відправлено · ID {accessRequest.adMarketId}</span>}</div><div className="personal-inline-actions"><button type="button" className="primary-button" disabled={!session || !accessRequest || Boolean(busy) || accessState === "accepted"} onClick={() => void acceptAccessRequest()}>{accessState === "searching" && <LoaderCircle className="spin" size={16} />} Прийняти запит</button>{accessState === "searching" && <><span className="personal-countdown">{accessSeconds} с</span><button type="button" className="secondary-button" onClick={stopAccessAcceptance}>Стоп</button></>}{accessState === "accepted" && <span className="personal-launch-success"><Check size={15} /> Запрошення ID {accessRequest?.adMarketId} прийнято</span>}{accessState === "timeout" && <small>Запрошення не знайдено за 60 секунд</small>}{accessState === "stopped" && <small>Операцію зупинено</small>}</div></div>
                     </section>}
 
                     {section === "fanpage" && <section className="personal-section personal-fanpage">
