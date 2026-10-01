@@ -416,6 +416,9 @@ describe("Дизайн workspace фанпейджів", () => {
             .find((button) => button.textContent.includes("act_1")));
         fireEvent.click(screen.getByRole("button", { name: "Продовжити" }));
 
+        const templatePicker = await screen.findByRole("combobox", { name: "Шаблон" });
+        fireEvent.focus(templatePicker);
+        fireEvent.click(await screen.findByRole("button", { name: "DE Leads" }));
         expect(await screen.findByRole("heading", {
             name: /^DE \| Creo_1 \| 21\+ \d{2}\/\d{2} \d{2}:\d{2}$/,
         })).toBeInTheDocument();

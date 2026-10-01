@@ -194,12 +194,6 @@ export default function CampaignCreationWizard({
             ));
             setTemplates(sortedTemplates);
             setLanguages(nextLanguages ?? []);
-            if (sourcePage) {
-                setForm((current) => current.templateId ? current : {
-                    ...current,
-                    templateId: String(sortedTemplates[0]?.id || ""),
-                });
-            }
         }).catch((error) => {
             if (active) setFailure(errorDetails(error));
         }).finally(() => {

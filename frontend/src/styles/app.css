@@ -895,6 +895,7 @@ button:focus-visible, input:focus-visible {
 .creative-launch-header { position: relative; flex: 0 0 auto; padding: 2px 44px 18px 2px; border-bottom: 1px solid var(--stroke); }
 .post-campaign-launch-modal .creative-launch-header { padding-right: 350px; }
 .post-campaign-launch-modal .creative-launch-header .campaign-launch-statuses { top: 38px; right: 44px; }
+.post-campaign-launch-modal .campaign-title-editor h2 { flex: 0 1 auto; min-width: 0; }
 .campaign-title-editor { display: flex; align-items: center; gap: 9px; margin-top: 8px; }
 .campaign-title-editor h2 { flex: 1; margin: 0; color: #f7f8fd; font-size: clamp(23px, 2.4vw, 34px); line-height: 1.15; letter-spacing: -.045em; }
 .campaign-title-editor input { flex: 1; height: 46px; padding: 0 3px; border: 0; border-bottom: 1px solid rgba(132,114,255,.55); color: #f7f8fd; background: transparent; font-size: clamp(21px, 2.2vw, 31px); font-weight: 700; outline: none; }
