@@ -12,7 +12,6 @@ import {
 
 import CreateCommentAccountsModal from "../components/CreateCommentAccountsModal.jsx";
 import CommentReactionsModal from "../components/CommentReactionsModal.jsx";
-import PersonalAccountModal from "../components/PersonalAccountModal.jsx";
 import SearchSelect from "../components/SearchSelect.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import {
@@ -166,6 +165,8 @@ function GroupPane({
 
 export default function CommentAccountsTab({
     groups,
+    refreshVersion = 0,
+    onOpenPersonalAccount = () => {},
     onGroupsChange,
     favoriteGroupIds,
     onFavoriteGroupIdsChange,
@@ -195,7 +196,6 @@ export default function CommentAccountsTab({
     const [moving, setMoving] = useState(false);
     const [createOpen, setCreateOpen] = useState(false);
     const [reactionsOpen, setReactionsOpen] = useState(false);
-    const [personalAccountOpen, setPersonalAccountOpen] = useState(false);
     const [checkingAccounts, setCheckingAccounts] = useState(false);
     const leftSelected = useMemo(
         () => new Set(leftSelectedIds),
@@ -244,6 +244,11 @@ export default function CommentAccountsTab({
 
     useEffect(() => { loadProfiles(leftGroupId, "left"); }, [leftGroupId]);
     useEffect(() => { loadProfiles(rightGroupId, "right"); }, [rightGroupId]);
+    useEffect(() => {
+        if (!refreshVersion) return;
+        if (leftGroupId) loadProfiles(leftGroupId, "left");
+        if (rightGroupId) loadProfiles(rightGroupId, "right");
+    }, [refreshVersion]);
 
     const refreshGroups = async () => {
         setGroupsLoading(true);
@@ -381,7 +386,7 @@ export default function CommentAccountsTab({
                         className="secondary-button"
                         disabled={selectedProfiles.length !== 1}
                         title={selectedProfiles.length === 1 ? "Відкрити персональний акаунт" : "Оберіть рівно один профіль"}
-                        onClick={() => setPersonalAccountOpen(true)}
+                        onClick={() => onOpenPersonalAccount(selectedProfiles[0])}
                     >
                         <UserRoundCog size={16} /> Персональні акаунти
                     </button>
@@ -502,17 +507,6 @@ export default function CommentAccountsTab({
                         showToast?.("Задачу реакцій поставлено в чергу", "success");
                     }}
                     onError={onError}
-                />
-            )}
-            {personalAccountOpen && selectedProfiles.length === 1 && (
-                <PersonalAccountModal
-                    profile={selectedProfiles[0]}
-                    groups={groups}
-                    onRefreshGroups={refreshGroups}
-                    onProfileChanged={refreshPaneProfiles}
-                    onClose={() => setPersonalAccountOpen(false)}
-                    onError={onError}
-                    showToast={showToast}
                 />
             )}
         </section>

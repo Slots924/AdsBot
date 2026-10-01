@@ -160,6 +160,7 @@ export default function registerIpcHandlers({
     reportManager,
     creditCardStore,
     personalAccountSessionManager,
+    businessManagerSessionManager,
     smsPoolPhoneVerificationManager,
     keitaroGuiService,
     keitaroStreamTemplateManager,
@@ -171,6 +172,13 @@ export default function registerIpcHandlers({
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
+    const startingProfiles = new Set();
+    const withProfileReservation = async (profileNo, action) => {
+        const key = String(profileNo ?? "").trim();
+        if (startingProfiles.has(key)) throw new Error(`AdsPower-профіль №${key} уже запускається`);
+        startingProfiles.add(key);
+        try { return await action(); } finally { startingProfiles.delete(key); }
+    };
     const workspaceRefreshes = new Map();
     const campaignStatisticsRefreshIntervalMs = 10 * 60_000;
     const activeAccountStatusRefreshIntervalMs = 5 * 60_000;
@@ -613,6 +621,7 @@ export default function registerIpcHandlers({
                 adsPowerOpen: null,
                 ...graphAccount,
                 name: stored.name ?? "",
+                ...(stored.isPrimary === undefined ? {} : { isPrimary: stored.isPrimary }),
                 archived: false,
             };
         });
@@ -1077,6 +1086,14 @@ export default function registerIpcHandlers({
         })
     );
     ipcMain.handle(
+        "accounts:set-primary",
+        safeHandler(async ({ accountKey }) => {
+            const manager = managerForAccount(accountKey);
+            await manager.setPrimary(accountKey);
+            return refreshManagedAccounts();
+        })
+    );
+    ipcMain.handle(
         "accounts:check",
         safeHandler(async ({ accountKey }) => {
             const account = await managerForAccount(accountKey).get(accountKey);
@@ -1247,7 +1264,69 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "personal-account:start",
-        safeHandler((payload) => personalAccountSessionManager.start(payload))
+        safeHandler((payload) => withProfileReservation(payload.profileNo, () => {
+            if (businessManagerSessionManager?.hasActiveProfile(payload.profileNo)) {
+                throw new Error("Цей AdsPower-профіль уже використовується сесією БМ");
+            }
+            return personalAccountSessionManager.start(payload);
+        }))
+    );
+    ipcMain.handle(
+        "personal-account:switch-profile",
+        safeHandler(async ({ sessionId, profileNo }) => {
+            const nextNo = String(profileNo ?? "").trim();
+            if (!/^\d+$/.test(nextNo)) throw new Error("Вкажіть коректний номер AdsPower-профілю");
+            if (businessManagerSessionManager?.hasActiveProfile(nextNo)) {
+                throw new Error("Цей AdsPower-профіль уже використовується сесією БМ");
+            }
+            return withProfileReservation(nextNo, async () => {
+                const raw = await guiService.adsPower.getProfileByNo(nextNo);
+                if (sessionId) await personalAccountSessionManager.closeProfile(sessionId);
+                const profile = {
+                    profileId: String(raw.profile_id ?? ""),
+                    profileNo: String(raw.profile_no ?? nextNo),
+                    name: String(raw.name ?? raw.username ?? ""),
+                    groupId: String(raw.group_id ?? ""),
+                    tags: [],
+                };
+                const session = await personalAccountSessionManager.start({ profileNo: nextNo });
+                return { profile, session };
+            });
+        })
+    );
+    ipcMain.handle(
+        "business-manager:start",
+        safeHandler(async ({ accountKey, previousSessionId }) => {
+            if (!businessManagerSessionManager) throw new Error("Сесія БМ недоступна");
+            const account = await bmAccountManager.get(accountKey);
+            if (!account?.adsPowerProfileNo) throw new Error("Вкажіть AdsPower-профіль для БМ");
+            const profileNo = String(account.adsPowerProfileNo);
+            return withProfileReservation(profileNo, async () => {
+                if (personalAccountSessionManager.hasActiveProfile(profileNo)) {
+                    throw new Error("Цей AdsPower-профіль уже використовується персональною сесією");
+                }
+                if (previousSessionId) {
+                    let previous = null;
+                    try { previous = businessManagerSessionManager.get(previousSessionId); } catch {}
+                    if (previous && String(previous.profileNo) !== profileNo) {
+                        await businessManagerSessionManager.closeProfile(previousSessionId);
+                    }
+                }
+                return businessManagerSessionManager.start({ profileNo });
+            });
+        })
+    );
+    ipcMain.handle(
+        "business-manager:get",
+        safeHandler(({ sessionId }) => businessManagerSessionManager.get(sessionId))
+    );
+    ipcMain.handle(
+        "business-manager:disconnect",
+        safeHandler(({ sessionId }) => businessManagerSessionManager.disconnect(sessionId))
+    );
+    ipcMain.handle(
+        "business-manager:profile-close",
+        safeHandler(({ sessionId }) => businessManagerSessionManager.closeProfile(sessionId))
     );
     ipcMain.handle(
         "personal-account:get",

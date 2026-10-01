@@ -10,6 +10,7 @@ import AccountsTab from "./tabs/AccountsTab.jsx";
 import JournalTab from "./tabs/JournalTab.jsx";
 import PagesTab from "./tabs/PagesTab.jsx";
 import CommentAccountsTab from "./tabs/CommentAccountsTab.jsx";
+import PersonalAccountModal from "./components/PersonalAccountModal.jsx";
 import KeitaroWorkspaceTab from "./tabs/KeitaroWorkspaceTab.jsx";
 import SpendTab from "./tabs/SpendTab.jsx";
 import { errorDetails, unwrap } from "./lib/api.js";
@@ -91,6 +92,8 @@ export default function App() {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [hydrated, setHydrated] = useState(false);
     const [modal, setModal] = useState(null);
+    const [personalDialog, setPersonalDialog] = useState(null);
+    const [commentProfilesRefreshVersion, setCommentProfilesRefreshVersion] = useState(0);
     const [toast, setToast] = useState(null);
 
     const selectedAccount = useMemo(() => accounts.find((item) => item.accountKey === selectedAccountKey) || null, [accounts, selectedAccountKey]);
@@ -263,6 +266,7 @@ export default function App() {
     };
     const updateWorkspaceAccounts = (adAccounts) => setWorkspaceCache((current) => ({ ...current, [selectedAccountKey]: { ...(current[selectedAccountKey] || workspace), adAccounts } }));
     const createAccount = async (input) => { applyAccounts(await unwrap(window.adsBot.createAccount(input))); showToast("API-клієнта створено", "success"); };
+    const setPrimaryAccount = async (accountKey) => { applyAccounts(await unwrap(window.adsBot.setPrimaryAccount(accountKey))); showToast("Основний клієнт змінено", "success"); };
     const updateAccount = async (key, patch) => {
         const updated = await unwrap(window.adsBot.updateAccount(key, patch));
         setAccounts((current) => current.map((account) => (
@@ -350,7 +354,7 @@ export default function App() {
                 <button className="icon-button settings-trigger" onClick={() => setSettingsOpen(true)}><Settings size={17}/></button>
             </nav>
             <div className="content-scroll"><AnimatePresence mode="wait">
-                {activeTab === "accounts" && <motion.section key="accounts" className="accounts-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><AccountsTab accounts={accounts} selectedAccountKey={selectedAccountKey} accountsLoading={accountsLoading || adsPowerStatesLoading} onSelectAccount={selectAccount} onRefreshAccounts={() => loadAccounts(true)} onCreateAccount={createAccount} onUpdateAccount={updateAccount} onDeleteAccount={deleteAccount} onCheckAccount={checkAccount} onSyncAccount={syncAccount} onOpenAccountProfile={openAccountProfile} onCloseAccountProfile={closeAccountProfile} syncingAccountKeys={syncingApiClientKeys} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onSyncProxy={syncProxy} onReorderProxies={reorderProxies} onError={setModal}/></motion.section>}
+                {activeTab === "accounts" && <motion.section key="accounts" className="accounts-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><AccountsTab accounts={accounts} selectedAccountKey={selectedAccountKey} accountsLoading={accountsLoading || adsPowerStatesLoading} onSelectAccount={selectAccount} onRefreshAccounts={() => loadAccounts(true)} onCreateAccount={createAccount} onUpdateAccount={updateAccount} onDeleteAccount={deleteAccount} onCheckAccount={checkAccount} onSetPrimaryAccount={setPrimaryAccount} onOpenPersonalAccount={(account) => setPersonalDialog({ profile: null, bmKey: account.accountKey })} onSyncAccount={syncAccount} onOpenAccountProfile={openAccountProfile} onCloseAccountProfile={closeAccountProfile} syncingAccountKeys={syncingApiClientKeys} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onSyncProxy={syncProxy} onReorderProxies={reorderProxies} onError={setModal}/></motion.section>}
                 {activeTab === "ads" && <AdsWorkspaceTab key="ads" adsSubtab={adsSubtab} onSubtabChange={setAdsSubtab} selectedAccount={selectedAccount} workspaceAccounts={workspace.adAccounts} onWorkspaceAccountsChange={updateWorkspaceAccounts} onError={setModal} showToast={showToast} addLog={addLog} selectedId={selectedAdAccountId} setSelectedId={setSelectedAdAccountId} createCampaignsPaused={createCampaignsPaused} createAdSetsPaused={createAdSetsPaused} createAdsPaused={createAdsPaused} defaultPixelId={defaultPixelId} defaultUtm={defaultUtm} keitaroAvailableGroupIds={keitaroAvailableGroupIds}/>}
                 {activeTab === "pages" && (
                     <PagesTab
@@ -371,6 +375,8 @@ export default function App() {
                 {activeTab === "comment-accounts" && (
                     <CommentAccountsTab
                         key="comment-accounts"
+                        refreshVersion={commentProfilesRefreshVersion}
+                        onOpenPersonalAccount={(profile) => setPersonalDialog({ profile, bmKey: null })}
                         groups={groups}
                         onGroupsChange={setGroups}
                         favoriteGroupIds={favoriteGroupIds}
@@ -446,6 +452,20 @@ export default function App() {
         </main>
         <BackgroundTaskPanel tasks={tasks} collapsed={taskPanelCollapsed} onCollapsedChange={setTaskPanelCollapsed} onRefresh={refreshTasks} onError={setModal} openTaskId={taskToOpen} onOpenTaskHandled={() => setTaskToOpen(null)} proxies={proxies} proxiesLoading={proxiesLoading} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp}/>
         <Modal modal={modal} onClose={() => setModal(null)}/>
+        {personalDialog && <PersonalAccountModal
+            profile={personalDialog.profile}
+            initialBmKey={personalDialog.bmKey}
+            businessManagers={accounts.filter((account) => account.kind === "bm" && !account.archived)}
+            groups={groups}
+            onRefreshGroups={async () => setGroups(await unwrap(window.adsBot.refreshAdsPowerGroups()))}
+            onProfileChanged={async () => {
+                setGroups(await unwrap(window.adsBot.refreshAdsPowerGroups()));
+                setCommentProfilesRefreshVersion((current) => current + 1);
+            }}
+            onClose={() => setPersonalDialog(null)}
+            onError={setModal}
+            showToast={showToast}
+        />}
         {settingsOpen && <SettingsModal scale={uiScale} onScaleChange={async (value) => setUiScale(await unwrap(window.adsBot.setUiScale(value)))} createCampaignsPaused={createCampaignsPaused} onCreateCampaignsPausedChange={setCreateCampaignsPaused} createAdSetsPaused={createAdSetsPaused} onCreateAdSetsPausedChange={setCreateAdSetsPaused} createAdsPaused={createAdsPaused} onCreateAdsPausedChange={setCreateAdsPaused} commentWorkerConcurrency={commentWorkerConcurrency} onCommentWorkerConcurrencyChange={setCommentWorkerConcurrency} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} defaultPixelId={defaultPixelId} onDefaultPixelIdChange={setDefaultPixelId} defaultUtm={defaultUtm} onDefaultUtmChange={setDefaultUtm} commentBrowserMode={commentBrowserMode} onCommentBrowserModeChange={setCommentBrowserMode} commentDisableImages={commentDisableImages} onCommentDisableImagesChange={setCommentDisableImages} accountSetupWorkerConcurrency={accountSetupWorkerConcurrency} onAccountSetupWorkerConcurrencyChange={setAccountSetupWorkerConcurrency} accountSetupWorkerProxyIds={accountSetupWorkerProxyIds} onAccountSetupWorkerProxyIdsChange={setAccountSetupWorkerProxyIds} accountSetupBrowserMode={accountSetupBrowserMode} onAccountSetupBrowserModeChange={setAccountSetupBrowserMode} reactionWorkerConcurrency={reactionWorkerConcurrency} onReactionWorkerConcurrencyChange={setReactionWorkerConcurrency} reactionWorkerProxyIds={reactionWorkerProxyIds} onReactionWorkerProxyIdsChange={setReactionWorkerProxyIds} reactionBrowserMode={reactionBrowserMode} onReactionBrowserModeChange={setReactionBrowserMode} reactionDisableImages={reactionDisableImages} onReactionDisableImagesChange={setReactionDisableImages} apiClientsBrowserMode={apiClientsBrowserMode} onApiClientsBrowserModeChange={setApiClientsBrowserMode} apiClientsDisableImages={apiClientsDisableImages} onApiClientsDisableImagesChange={setApiClientsDisableImages} logLevel={logLevel} onLogLevelChange={async (value) => setLogLevel(await unwrap(window.adsBot.setLogLevel(value)))} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} keitaroAvailableGroupIds={keitaroAvailableGroupIds} onKeitaroAvailableGroupIdsChange={setKeitaroAvailableGroupIds} keitaroConcurrency={keitaroConcurrency} onKeitaroConcurrencyChange={setKeitaroConcurrency} showToast={showToast} onError={setModal} onClose={() => setSettingsOpen(false)}/>}<Toast toast={toast}/>
     </div>;
 }

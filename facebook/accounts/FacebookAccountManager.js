@@ -171,7 +171,7 @@ export function normalizeFacebookCookie(value) {
 }
 
 
-function safeAccount(account) {
+function safeAccount(account, primaryAccountKey = "") {
     return {
         accountKey: String(account.accountKey ?? ""),
         name: String(account.name ?? ""),
@@ -183,6 +183,7 @@ function safeAccount(account) {
         adsPowerProfileNo: String(account.adsPowerProfileNo ?? "").trim(),
         proxyId: String(account.proxyId ?? "").trim(),
         kind: String(account.kind ?? "api"),
+        isPrimary: Boolean(primaryAccountKey && account.accountKey === primaryAccountKey),
     };
 }
 
@@ -202,7 +203,7 @@ export default class FacebookAccountManager {
         return this.#enqueue(async () => {
             const store = await this.#read();
             if (this.#migrateAccounts(store)) await this.#write(store);
-            return store.accounts.map(safeAccount);
+            return store.accounts.map((account) => safeAccount(account, store.primaryAccountKey));
         });
     }
 
@@ -212,7 +213,7 @@ export default class FacebookAccountManager {
             const store = await this.#read();
             if (!this.#migrateAccounts(store)) return [];
             await this.#write(store);
-            return store.accounts.map(safeAccount);
+            return store.accounts.map((account) => safeAccount(account, store.primaryAccountKey));
         });
     }
 
@@ -260,8 +261,9 @@ export default class FacebookAccountManager {
                 archived: false,
             };
             store.accounts.push(account);
+            if (this.kind !== "api" && !store.primaryAccountKey) store.primaryAccountKey = accountKey;
             await this.#write(store);
-            return safeAccount(account);
+            return safeAccount(account, store.primaryAccountKey);
         });
     }
 
@@ -310,7 +312,7 @@ export default class FacebookAccountManager {
                 account.proxyId = String(input.proxyId ?? "").trim();
             }
             await this.#write(store);
-            return safeAccount(account);
+            return safeAccount(account, store.primaryAccountKey);
         });
     }
 
@@ -330,7 +332,7 @@ export default class FacebookAccountManager {
                     "FACEBOOK_ACCOUNT_NOT_FOUND"
                 );
             }
-            return safeAccount(account);
+            return safeAccount(account, store.primaryAccountKey);
         });
     }
 
@@ -350,8 +352,28 @@ export default class FacebookAccountManager {
                 );
             }
             account.archived = Boolean(archived);
+            if (this.kind !== "api" && account.archived && store.primaryAccountKey === account.accountKey) {
+                store.primaryAccountKey = store.accounts.find((item) => !item.archived)?.accountKey ?? "";
+            }
+            if (this.kind !== "api" && !account.archived && !store.primaryAccountKey) {
+                store.primaryAccountKey = account.accountKey;
+            }
             await this.#write(store);
-            return safeAccount(account);
+            return safeAccount(account, store.primaryAccountKey);
+        });
+    }
+
+    async setPrimary(accountKey) {
+        if (this.kind === "api") throw createAccountError("Для API-клієнтів основний запис не обирається", "ACCOUNT_PRIMARY_UNSUPPORTED");
+        return this.#enqueue(async () => {
+            const store = await this.#read();
+            this.#migrateAccounts(store);
+            const key = normalizeAccountKey(accountKey);
+            const selected = store.accounts.find((account) => account.accountKey === key && !account.archived);
+            if (!selected) throw createAccountError("Клієнта не знайдено", "FACEBOOK_ACCOUNT_NOT_FOUND");
+            store.primaryAccountKey = key;
+            await this.#write(store);
+            return store.accounts.map((account) => safeAccount(account, key));
         });
     }
 
@@ -371,6 +393,9 @@ export default class FacebookAccountManager {
                 );
             }
             const [deleted] = store.accounts.splice(index, 1);
+            if (store.primaryAccountKey === deleted.accountKey) {
+                store.primaryAccountKey = store.accounts.find((account) => !account.archived)?.accountKey ?? "";
+            }
             await this.#write(store);
             return safeAccount(deleted);
         });
@@ -387,8 +412,11 @@ export default class FacebookAccountManager {
             store.accounts = store.accounts.filter((account) => (
                 account.archived !== true
             ));
+            if (!store.accounts.some((account) => account.accountKey === store.primaryAccountKey)) {
+                store.primaryAccountKey = store.accounts.find((account) => !account.archived)?.accountKey ?? "";
+            }
             await this.#write(store);
-            return deleted.map(safeAccount);
+            return deleted.map((account) => safeAccount(account));
         });
     }
 
@@ -469,6 +497,13 @@ export default class FacebookAccountManager {
         if (!Number.isInteger(nextAccountNumber) || nextAccountNumber <= maximum) {
             store.nextAccountNumber = maximum + 1;
             changed = true;
+        }
+        if (this.kind !== "api" && !store.accounts.some((account) => account.accountKey === store.primaryAccountKey && !account.archived)) {
+            const nextPrimaryKey = store.accounts.find((account) => !account.archived)?.accountKey ?? "";
+            if (store.primaryAccountKey !== nextPrimaryKey) {
+                store.primaryAccountKey = nextPrimaryKey;
+                changed = true;
+            }
         }
         return changed;
     }

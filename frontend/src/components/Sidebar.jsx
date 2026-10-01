@@ -10,6 +10,8 @@ import {
     Power,
     RefreshCw,
     RotateCw,
+    Star,
+    UserRoundCog,
     X,
 } from "lucide-react";
 
@@ -140,6 +142,8 @@ export default function Sidebar({
     onUpdate,
     onDelete,
     onCheck = async () => {},
+    onSetPrimary = async () => {},
+    onOpenPersonalAccount = () => {},
     onSync = async () => {},
     onOpenProfile = async () => {},
     onCloseProfile = async () => {},
@@ -227,6 +231,7 @@ export default function Sidebar({
                                 <span className={`status-dot ${account.status}`} />
                                 <span className="account-copy">
                                     <strong>{account.name || "Без назви"}</strong>
+                                    {(account.kind === "bm" || account.kind === "system") && account.isPrimary && <small className="account-primary-label">Основний</small>}
                                     <span>{account.archived ? "В архіві" : account.kind === "system" ? "System User" : account.kind === "bm" ? "BM" : "API-клієнт"}</span>
                                     <small>{account.facebookUserId || account.accountKey}</small>
                                     {account.adsPowerProfileNo && <small>AdsPower № {account.adsPowerProfileNo}</small>}
@@ -249,6 +254,8 @@ export default function Sidebar({
                                 {busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <RotateCw size={13} />}
                             </button>}
                             <span className="account-card-tools">
+                                {account.kind === "bm" && <button type="button" className="icon-button account-personal-button" title="Відкрити персональний акаунт із цим БМ" aria-label={`Персональний акаунт для ${account.name || "БМ"}`} disabled={account.archived} onClick={(event) => { event.stopPropagation(); onOpenPersonalAccount(account); }}><UserRoundCog size={14} /></button>}
+                                {(account.kind === "bm" || account.kind === "system") && <button type="button" className={`icon-button account-primary-button ${account.isPrimary ? "active" : ""}`} title={account.isPrimary ? "Основний клієнт" : "Зробити основним"} aria-label={account.isPrimary ? "Основний клієнт" : "Зробити основним"} disabled={account.isPrimary || busyKey === account.accountKey} onClick={(event) => { event.stopPropagation(); setBusyKey(account.accountKey); Promise.resolve(onSetPrimary(account.accountKey)).catch((error) => onError({ ...errorDetails(error), title: "Не вдалося обрати основного клієнта" })).finally(() => setBusyKey(null)); }}><Star size={14} fill={account.isPrimary ? "currentColor" : "none"} /></button>}
                                 {account.kind !== "system" && (() => {
                                     const syncing = syncingAccountKeys.includes(account.accountKey);
                                     const unavailable = !account.adsPowerProfileNo;

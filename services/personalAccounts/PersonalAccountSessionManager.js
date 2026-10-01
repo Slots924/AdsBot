@@ -42,6 +42,11 @@ const profileUrl = "https://www.facebook.com/me";
 const facebookGraphqlUrl = "https://www.facebook.com/api/graphql/";
 const adsManagerUrl = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
 const adsManagerGraphqlUrl = "https://adsmanager.facebook.com/api/graphql/";
+const businessManagerSettingsUrl = "https://business.facebook.com/latest/settings";
+const businessManagerGraphqlUrls = [
+    "https://business.facebook.com/api/graphql/",
+    "https://www.facebook.com/api/graphql/",
+];
 const billingPaymentSettingsPath = "/adsmanager/billing_hub/payment_settings/";
 const personalAccountLaunchOptions = Object.freeze({
     browserMode: "visible",
@@ -184,6 +189,16 @@ function isAdsManagerUrl(value) {
     }
 }
 
+function isBusinessManagerSettingsUrl(value) {
+    try {
+        const url = new URL(String(value ?? ""));
+        return url.origin === "https://business.facebook.com"
+            && url.pathname.startsWith("/latest/settings");
+    } catch {
+        return false;
+    }
+}
+
 
 // Доповнює Ads Manager payload лише полями, яких у ньому немає.
 function supplementAdsManagerPayload(adsManagerPayload, facebookPayload) {
@@ -244,6 +259,7 @@ function publicSession(session) {
         pageId: session.pageId,
         additionalProfileId: session.additionalProfileId,
         hasAccessToken: Boolean(session.accessToken),
+        hasBusinessManagerPayload: Boolean(session.businessManagerPayload),
         hasPhoneFlow: Boolean(session.phoneFlow),
         overview: session.overview ?? null,
         connected: Boolean(session.browser?.connected),
@@ -280,6 +296,7 @@ export default class PersonalAccountSessionManager {
         reloadFacebookBackend = async () => {},
         reportsDirectory,
         logger = null,
+        mode = "personal",
     } = {}) {
         this.adsPower = adsPower;
         this.creditCardStore = creditCardStore;
@@ -287,6 +304,7 @@ export default class PersonalAccountSessionManager {
         this.reloadFacebookBackend = reloadFacebookBackend;
         this.reportsDirectory = reportsDirectory;
         this.logger = logger;
+        this.mode = mode;
     }
 
 
@@ -297,8 +315,9 @@ export default class PersonalAccountSessionManager {
         }
         for (const active of this.#sessions.values()) {
             if (active.profileNo !== normalizedProfileNo) continue;
-            if (active.browser?.connected) return publicSession(active);
-            return this.#reconnect(active);
+            if (active.browser?.connected) return this.refresh(active.id);
+            await this.#reconnect(active);
+            return this.refresh(active.id);
         }
 
         const profile = await this.adsPower.getProfileByNo(normalizedProfileNo);
@@ -360,6 +379,7 @@ export default class PersonalAccountSessionManager {
                 pageId: null,
                 additionalProfileId: null,
                 accessToken: "",
+                businessManagerPayload: null,
                 fanPages: [],
                 overview: null,
                 phoneFlow: null,
@@ -369,6 +389,7 @@ export default class PersonalAccountSessionManager {
             };
             this.#sessions.set(id, session);
             await this.#refreshOverview(session);
+            if (this.mode === "businessManager") await this.#captureBusinessManagerPayload(session);
             await report.append("session.started", {
                 actorId: session.actorId,
                 context: session.context,
@@ -389,6 +410,37 @@ export default class PersonalAccountSessionManager {
 
     get(sessionId) {
         return publicSession(this.#require(sessionId));
+    }
+
+    hasActiveProfile(profileNo) {
+        return [...this.#sessions.values()].some((session) => session.profileNo === String(profileNo) && session.browser?.connected);
+    }
+
+    refresh(sessionId) {
+        return this.#perform(sessionId, "session.refresh", async (session) => {
+            session.payload = null;
+            session.payloadUrl = "";
+            session.facebookPayload = null;
+            session.businessManagerPayload = null;
+            session.accessToken = "";
+            session.overview = null;
+            session.fanPages = [];
+            await openPageWithoutPopups(session.page, facebookUrl, { timeout: 60000 });
+            if (!await ensureFacebookAccountLoggedIn(this.adsPower, session.profile, session.page)) {
+                throw sessionError("Facebook-вхід не підтверджено", "FACEBOOK_NOT_LOGGED_IN");
+            }
+            if (!await ensureFacebookAccountActive(this.adsPower, session.profile, session.page)) {
+                throw sessionError("Facebook-профіль неактивний", "FACEBOOK_NOT_ACTIVE");
+            }
+            if (!await ensureEnglish(session.page)) {
+                throw sessionError("Не вдалося перемкнути Facebook на English", "FACEBOOK_ENGLISH_FAILED");
+            }
+            await this.#capture(session, profileUrl, "FACEBOOK_MAIN");
+            await this.#ensureAdsManager(session);
+            await this.#refreshOverview(session);
+            if (this.mode === "businessManager") await this.#captureBusinessManagerPayload(session);
+            return publicSession(session);
+        });
     }
 
 
@@ -993,6 +1045,7 @@ export default class PersonalAccountSessionManager {
             hasFacebookPayload: Boolean(session.facebookPayload),
             hasAdsManagerPayload: session.context === "ADS_MANAGER" && Boolean(session.payload),
             hasAccessToken: Boolean(session.accessToken),
+            hasBusinessManagerPayload: Boolean(session.businessManagerPayload),
             fanPages: mergedFanPages,
             adAccounts: accountsWithPixels,
             fanPagesError: fanPagesResponse.success
@@ -1026,6 +1079,23 @@ export default class PersonalAccountSessionManager {
         session.actorId = String(session.payload.__user ?? "");
         session.context = context;
         return captured.data;
+    }
+
+    async #captureBusinessManagerPayload(session) {
+        const captured = assertAction(await captureGraphqlPayload(session.page, {
+            profileUrl: businessManagerSettingsUrl,
+            graphqlUrl: businessManagerGraphqlUrls,
+            timeout: 60000,
+        }), "Не вдалося отримати Business Manager payload");
+        if (!isBusinessManagerSettingsUrl(session.page.url())) {
+            throw sessionError("Не відкрито налаштування Business Manager", "BUSINESS_MANAGER_SETTINGS_UNAVAILABLE");
+        }
+        if (!captured.data || Object.keys(captured.data).length === 0) {
+            throw sessionError("Business Manager payload порожній", "BUSINESS_MANAGER_PAYLOAD_EMPTY");
+        }
+        session.businessManagerPayload = captured.data;
+        session.businessManagerPayloadUrl = session.page.url();
+        if (session.overview) session.overview.hasBusinessManagerPayload = true;
     }
 
 

@@ -55,6 +55,7 @@ export default async function captureGraphqlPayload(
     const normalizedTimeout = Number.isFinite(Number(timeout))
         ? Math.max(1, Number(timeout))
         : defaultTimeoutMs;
+    const graphqlEndpoints = Array.isArray(graphqlUrl) ? graphqlUrl : [graphqlUrl];
 
     if (signal?.aborted) {
         return createResult(
@@ -75,7 +76,7 @@ export default async function captureGraphqlPayload(
             (candidate) => {
                 if (
                     candidate.method() !== "POST"
-                    || !candidate.url().startsWith(graphqlUrl)
+                    || !graphqlEndpoints.some((endpoint) => candidate.url().startsWith(endpoint))
                 ) {
                     return false;
                 }

@@ -233,16 +233,26 @@ button:focus-visible, input:focus-visible {
 .account-proxy-picker { position: relative; }
 .account-proxy-choice, .account-proxy-options button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 8px 11px; border: 1px solid var(--stroke); border-radius: 9px; color: #edf0f7; background: #10131f; cursor: pointer; text-align: left; }
 .account-proxy-choice strong, .account-proxy-options strong { min-height: 16px; font-size: var(--font-control); font-weight: 650; }
-.account-proxy-choice small, .account-proxy-options small { color: #858da3; font-size: 10px; font-weight: 400; }
+.account-proxy-choice small, .account-proxy-options small { color: #858da3; font-size: 11px; font-weight: 400; }
 .account-proxy-options { position: absolute; z-index: 3; top: calc(100% + 4px); right: 0; left: 0; max-height: 180px; overflow-y: auto; padding: 4px; border: 1px solid var(--stroke-bright); border-radius: 10px; background: #111523; box-shadow: var(--shadow); }
 .account-proxy-options button { border: 0; background: transparent; }
 .account-proxy-options button:hover, .account-proxy-options button[aria-selected="true"] { background: rgba(132,114,255,.13); }
 .kind-bm .account-card { border-color: rgba(66,190,204,.24); background: linear-gradient(135deg, rgba(66,190,204,.085), rgba(255,255,255,.02)); }
+.kind-bm .account-card { min-height: 172px; }
+.kind-bm .account-card-tools { top: 48px; gap: 6px; }
 .kind-bm .account-card.selected { border-color: rgba(66,190,204,.68); background: linear-gradient(135deg, rgba(66,190,204,.2), rgba(66,190,204,.045)); }
+.kind-bm:has(.account-primary-button.active) .account-card { box-shadow: inset 3px 0 #59c8d3, 0 0 24px rgba(66,190,204,.08); }
 .kind-system .account-card { border-color: rgba(230,165,91,.24); background: linear-gradient(135deg, rgba(230,165,91,.09), rgba(255,255,255,.02)); }
 .kind-system .account-card { cursor: default; }
 .kind-system .account-card.selected { border-color: rgba(230,165,91,.68); background: linear-gradient(135deg, rgba(230,165,91,.2), rgba(230,165,91,.04)); }
+.kind-system:has(.account-primary-button.active) .account-card { box-shadow: inset 3px 0 #e8b675, 0 0 24px rgba(230,165,91,.08); }
 .kind-system .account-card-tools { top: 10px; }
+.account-primary-button.active { opacity: 1; }
+.kind-bm .account-primary-button.active, .kind-bm .account-primary-label { color: #8ddfe6; }
+.kind-bm .account-personal-button { color: #91e0e8; border-color: rgba(91, 201, 214, .27); background: rgba(70, 192, 205, .1); }
+.kind-bm .account-personal-button:hover:not(:disabled) { border-color: rgba(91, 201, 214, .65); background: rgba(70, 192, 205, .22); }
+.kind-system .account-primary-button.active, .kind-system .account-primary-label { color: #f1ce99; }
+.account-primary-label { display: inline-flex; align-self: flex-start; padding: 2px 6px; border-radius: 5px; background: rgba(255,255,255,.055); font-size: 11px !important; font-weight: 700; }
 :root { --card-future-mint: #67caa5; --card-future-coral: #dd8c9e; }
 .account-card:hover { background: rgba(255,255,255,.045); }
 .account-card.selected { border-color: rgba(132, 114, 255, .62); background: linear-gradient(135deg, rgba(132,114,255,.15), rgba(79,140,255,.07)); box-shadow: inset 0 0 24px rgba(132,114,255,.07), 0 10px 28px rgba(0,0,0,.17); }
@@ -1150,7 +1160,7 @@ button:focus-visible, input:focus-visible {
 .stream-template-row.selected { background: rgba(92, 159, 255, .12); }
 .stream-template-select { display: flex; flex: 1; align-items: center; min-width: 0; gap: 9px; padding: 4px; border: 0; color: #f4f5f8; background: transparent; text-align: left; cursor: pointer; }
 .stream-template-select strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
-.stream-os-badge { flex: 0 0 auto; padding: 3px 6px; border: 1px solid rgba(132,114,255,.42); border-radius: 6px; color: #d5d0ff; background: rgba(132,114,255,.14); font-size: 10px; font-weight: 800; line-height: 1; }
+.stream-os-badge { flex: 0 0 auto; padding: 3px 6px; border: 1px solid rgba(132,114,255,.42); border-radius: 6px; color: #d5d0ff; background: rgba(132,114,255,.14); font-size: 11px; font-weight: 800; line-height: 1; }
 .stream-os-badge.android { border-color: rgba(80,201,99,.42); color: #adf2b6; background: rgba(80,201,99,.12); }
 .stream-template-actions { display: flex; flex: 0 0 auto; gap: 2px; }
 .stream-template-icon {
@@ -1751,6 +1761,26 @@ button:focus-visible, input:focus-visible {
 .personal-section-heading h3 { margin: 3px 0 5px; font-size: 23px; }
 .personal-section-heading p { margin: 0; color: #868ea1; font-size: 13px; }
 .personal-profile-card, .personal-action-card, .selected-card-summary, .api-name-preview { border: 1px solid #303646; border-radius: 13px; background: #181c28; }
+.personal-profile-number { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 15px; border: 1px solid #303646; border-radius: 12px; background: #181c28; }
+.personal-profile-number > label { color: #aeb7ca; font-size: 12px; font-weight: 700; }
+.personal-profile-number > div { display: flex; align-items: center; gap: 8px; }
+.personal-profile-number input { width: 130px; min-height: 34px; padding: 5px 10px; border: 1px solid #454d60; border-radius: 8px; color: #f0f3fb; background: #10141e; font: inherit; }
+.personal-profile-number input:focus { outline: 2px solid rgba(139, 126, 244, .55); outline-offset: 1px; }
+.personal-profile-number small { min-width: 110px; color: #8e98ac; font-size: 11px; }
+.personal-launch-panel { display: grid; gap: 12px; padding: 16px; border: 1px solid rgba(132, 114, 255, .26); border-radius: 14px; background: linear-gradient(135deg, rgba(132, 114, 255, .09), rgba(24, 28, 40, .88) 55%); }
+.personal-launch-panel.business { border-color: rgba(79, 195, 207, .26); background: linear-gradient(135deg, rgba(67, 184, 199, .09), rgba(24, 28, 40, .88) 55%); }
+.personal-launch-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.personal-launch-heading span { color: #d8d2ff; font-size: 13px; font-weight: 800; }
+.personal-launch-panel.business .personal-launch-heading span { color: #a4e6eb; }
+.personal-launch-heading small { color: #8490a6; font-size: 11px; }
+.personal-launch-action { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; }
+.personal-launch-success { display: inline-flex; align-items: center; gap: 5px; color: #75e5ac; font-size: 12px; font-weight: 700; }
+.personal-bm-select { width: min(270px, 100%); min-width: 180px; }
+.personal-bm-select .select-trigger { min-height: 43px; background: #121b25; border-color: rgba(79, 195, 207, .28); }
+.personal-launch-panel .personal-status-grid { gap: 7px; }
+.personal-launch-panel .personal-status-grid.business { grid-template-columns: repeat(4, minmax(0,1fr)); }
+.personal-launch-panel .personal-status { display: flex; gap: 7px; min-width: 0; padding: 9px 10px; border-radius: 9px; font-size: 11px; white-space: nowrap; }
+.personal-launch-panel .personal-status i { flex: 0 0 8px; }
 .personal-profile-card { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px; }
 .personal-profile-card > div:first-child { display: grid; gap: 5px; }
 .personal-profile-details { min-width: 0; }
@@ -1907,4 +1937,7 @@ button:focus-visible, input:focus-visible {
     .personal-status-grid, .personal-two-columns { grid-template-columns: 1fr; }
     .personal-account-header { grid-template-columns: 1fr auto; }
     .personal-account-session-state { display: none; }
+    .personal-profile-number { align-items: stretch; flex-direction: column; }
+    .personal-profile-number > div { flex-wrap: wrap; }
+    .personal-launch-panel .personal-status-grid, .personal-launch-panel .personal-status-grid.business { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }

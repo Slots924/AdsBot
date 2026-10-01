@@ -81,6 +81,7 @@ let taskReportManager = null;
 let spendStore = null;
 let spendScheduler = null;
 let personalAccountSessionManager = null;
+let businessManagerSessionManager = null;
 let smsPoolPhoneVerificationManager = null;
 let closeApproved = false;
 let closePromptOpen = false;
@@ -218,6 +219,15 @@ async function createWindow() {
         reportsDirectory: appPaths.personalAccountReports,
         logger: appLogger.child("personal-account"),
     });
+    businessManagerSessionManager = new PersonalAccountSessionManager({
+        adsPower: guiService.adsPower,
+        creditCardStore,
+        facebookAccountManager: bmAccountManager,
+        reloadFacebookBackend: () => guiService.reloadFacebookBackend(),
+        reportsDirectory: appPaths.personalAccountReports,
+        logger: appLogger.child("business-manager"),
+        mode: "businessManager",
+    });
     countryCatalog = new CountryCatalog({
         countriesFile: appPaths.countries,
     });
@@ -317,6 +327,7 @@ async function createWindow() {
         reportManager: taskReportManager,
         creditCardStore,
         personalAccountSessionManager,
+        businessManagerSessionManager,
         smsPoolPhoneVerificationManager,
         getWindow: () => mainWindow,
     });
@@ -330,6 +341,7 @@ async function createWindow() {
             closePromptOpen = false;
             await smsPoolPhoneVerificationManager?.stopAll();
             await personalAccountSessionManager?.disconnectAll();
+            await businessManagerSessionManager?.disconnectAll();
             spendScheduler?.stop();
             spendStore?.close();
             await appLogger.flush();
@@ -358,6 +370,7 @@ async function createWindow() {
         await backgroundTaskManager.shutdown();
         await smsPoolPhoneVerificationManager?.stopAll();
         await personalAccountSessionManager?.disconnectAll();
+        await businessManagerSessionManager?.disconnectAll();
         spendScheduler?.stop();
         spendStore?.close();
         await appLogger.flush();

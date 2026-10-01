@@ -11,6 +11,7 @@ import { afterEach, beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
 import Sidebar from "../components/Sidebar.jsx";
+import PersonalAccountModal from "../components/PersonalAccountModal.jsx";
 import ImageListDropzone from "../components/ImageListDropzone.jsx";
 import ProxyStrip from "../components/ProxyStrip.jsx";
 import AccountsTab from "../tabs/AccountsTab.jsx";
@@ -330,6 +331,38 @@ describe("GUI helpers", () => {
         expect(screen.getByTitle("Додати акаунт")).toBeInTheDocument();
         expect(screen.getByText("Додати API-клієнта")).toBeInTheDocument();
         expect(screen.queryByText("AdsBot")).not.toBeInTheDocument();
+    });
+
+    it("позначає основний БМ і відкриває персональний діалог із його картки", async () => {
+        const bm = { accountKey: "bm-001", kind: "bm", name: "Business One", adsPowerProfileNo: "128", isPrimary: false };
+        const onSetPrimary = vi.fn().mockResolvedValue(undefined);
+        const onOpenPersonalAccount = vi.fn();
+        render(<Sidebar standalone accounts={[bm]} selectedAccountKey="" loading={false}
+            onSelect={vi.fn()} onRefresh={vi.fn()} onSetPrimary={onSetPrimary}
+            onOpenPersonalAccount={onOpenPersonalAccount} onError={vi.fn()} />);
+        fireEvent.click(screen.getByRole("radio", { name: "BM" }));
+        fireEvent.click(screen.getByRole("button", { name: "Зробити основним" }));
+        await waitFor(() => expect(onSetPrimary).toHaveBeenCalledWith("bm-001"));
+        fireEvent.click(screen.getByRole("button", { name: "Персональний акаунт для Business One" }));
+        expect(onOpenPersonalAccount).toHaveBeenCalledWith(bm);
+    });
+
+    it("відкриває персональний діалог із порожнім профілем та вибраним БМ", async () => {
+        window.adsBot.getCreditCards = vi.fn().mockResolvedValue({ ok: true, data: [] });
+        window.adsBot.getPersonalSmsPoolDashboard = vi.fn().mockResolvedValue({ ok: true, data: {} });
+        window.adsBot.switchPersonalAccountProfile = vi.fn().mockResolvedValue({
+            ok: true,
+            data: { profile: { profileId: "profile-1", profileNo: "128", name: "My profile", groupId: "", tags: [] }, session: null },
+        });
+        render(<PersonalAccountModal profile={null} initialBmKey="bm-002"
+            businessManagers={[{ accountKey: "bm-001", name: "Primary BM", isPrimary: true, adsPowerProfileNo: "127" }, { accountKey: "bm-002", name: "Chosen BM", adsPowerProfileNo: "129" }]}
+            onClose={vi.fn()} onError={vi.fn()} />);
+        expect(screen.getByLabelText("Номер профілю AdsPower")).toHaveValue("");
+        expect(screen.getByText("Chosen BM")).toBeInTheDocument();
+        fireEvent.change(screen.getByLabelText("Номер профілю AdsPower"), { target: { value: "128" } });
+        fireEvent.click(screen.getByRole("button", { name: "Підтвердити номер профілю AdsPower" }));
+        await waitFor(() => expect(window.adsBot.switchPersonalAccountProfile).toHaveBeenCalledWith(null, "128"));
+        await waitFor(() => expect(screen.getByText("My profile")).toBeInTheDocument());
     });
 
     it("створює System User з окремою проксі та User-Agent", async () => {

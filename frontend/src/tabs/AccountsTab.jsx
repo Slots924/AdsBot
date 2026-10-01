@@ -12,6 +12,8 @@ export default function AccountsTab({
     onUpdateAccount,
     onDeleteAccount,
     onCheckAccount,
+    onSetPrimaryAccount,
+    onOpenPersonalAccount,
     onSyncAccount,
     onOpenAccountProfile,
     onCloseAccountProfile,
@@ -44,6 +46,8 @@ export default function AccountsTab({
                     onUpdate={onUpdateAccount}
                     onDelete={onDeleteAccount}
                     onCheck={onCheckAccount}
+                    onSetPrimary={onSetPrimaryAccount}
+                    onOpenPersonalAccount={onOpenPersonalAccount}
                     onSync={onSyncAccount}
                     onOpenProfile={onOpenAccountProfile}
                     onCloseProfile={onCloseAccountProfile}

@@ -2,6 +2,46 @@
   "version": 1,
   "tasks": [
     {
+      "id": "68c50590-63b5-4e48-8b18-a3382acfcc30",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта bm-001",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:258",
+          "label": "AdsPower №258"
+        }
+      ],
+      "input": {
+        "accountKey": "bm-001",
+        "adsPowerProfileNo": "258"
+      },
+      "metadata": {
+        "accountKey": "bm-001",
+        "uniqueKey": "facebook-api-client-sync:bm-001",
+        "reportId": "fe9a78ff-24f4-452b-bff1-6a70b13391cc"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "bm-001",
+        "adsPowerProfileNo": "258",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-01T15:26:21.472Z",
+      "startedAt": "2026-10-01T15:26:21.474Z",
+      "finishedAt": "2026-10-01T15:26:41.397Z",
+      "updatedAt": "2026-10-01T15:26:41.400Z"
+    },
+    {
       "id": "15e207bf-d720-43e2-bbac-3a74881a4049",
       "type": "facebook-api-client-sync",
       "name": "Синхронізація API-клієнта account-025",

@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     createAccount: (account) => ipcRenderer.invoke("accounts:create", account),
     updateAccount: (accountKey, patch) =>
         ipcRenderer.invoke("accounts:update", { accountKey, ...patch }),
+    setPrimaryAccount: (accountKey) => ipcRenderer.invoke("accounts:set-primary", { accountKey }),
     checkAccount: (accountKey) =>
         ipcRenderer.invoke("accounts:check", { accountKey }),
     syncAccountFromAdsPower: (accountKey, options = {}) =>
@@ -178,6 +179,16 @@ contextBridge.exposeInMainWorld("adsBot", {
     deleteCreditCard: (id) => ipcRenderer.invoke("credit-cards:delete", { id }),
     startPersonalAccountSession: (profileNo) =>
         ipcRenderer.invoke("personal-account:start", { profileNo }),
+    switchPersonalAccountProfile: (sessionId, profileNo) =>
+        ipcRenderer.invoke("personal-account:switch-profile", { sessionId, profileNo }),
+    startBusinessManagerSession: (accountKey, previousSessionId) =>
+        ipcRenderer.invoke("business-manager:start", { accountKey, previousSessionId }),
+    getBusinessManagerSession: (sessionId) =>
+        ipcRenderer.invoke("business-manager:get", { sessionId }),
+    disconnectBusinessManagerSession: (sessionId) =>
+        ipcRenderer.invoke("business-manager:disconnect", { sessionId }),
+    closeBusinessManagerProfile: (sessionId) =>
+        ipcRenderer.invoke("business-manager:profile-close", { sessionId }),
     getPersonalAccountSession: (sessionId) =>
         ipcRenderer.invoke("personal-account:get", { sessionId }),
     refreshPersonalAccountOverview: (sessionId) =>
