@@ -12,7 +12,8 @@
     "test": "npm run test:campaign",
     "test:campaign": "node scripts/runTests.js campaign",
     "test:all": "node scripts/runTests.js all",
-    "test:campaign:live": "node scripts/manual/validateCampaign.js"
+    "test:campaign:live": "node scripts/manual/validateCampaign.js",
+    "manual:compare-payloads": "node scripts/manual/compareProfilePayloadContexts.js"
   },
   "keywords": [],
   "author": "",

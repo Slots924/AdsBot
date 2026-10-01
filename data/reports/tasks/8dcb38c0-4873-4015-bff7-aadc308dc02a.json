@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "8dcb38c0-4873-4015-bff7-aadc308dc02a",
+  "taskId": "643f2024-a4df-47fe-87b2-43a35a34cbc2",
+  "type": "campaign",
+  "title": "HU | Creo_17 | 30+ 01/10 10:05",
+  "status": "failed",
+  "createdAt": "2026-10-01T07:12:20.950Z",
+  "startedAt": "2026-10-01T07:12:20.313Z",
+  "finishedAt": "2026-10-01T07:12:20.949Z",
+  "durationMs": 636,
+  "inputSummary": {
+    "campaignJobId": "6377f41c-f35f-45df-bb10-e99f5982eebc",
+    "accountKey": "account-028",
+    "adAccountId": "act_2887003648343947",
+    "campaignName": "HU | Creo_17 | 30+ 01/10 10:05",
+    "templateId": 13,
+    "pageId": "1369212719603682",
+    "postId": "1369212719603682_122097346101499153",
+    "adSetCount": 5,
+    "dailyBudget": 5,
+    "startTime": "2026-10-01T07:05:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": null,
+      "creativeId": null,
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Error validating access token: The session has been invalidated because the user changed their password or Facebook has changed the session for security reasons.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 401,
+      "graphCode": 190,
+      "graphSubcode": 452,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "preflight",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "6377f41c-f35f-45df-bb10-e99f5982eebc",
+    "accountKey": "account-028",
+    "adAccountId": "act_2887003648343947",
+    "uniqueKey": "campaign-job:6377f41c-f35f-45df-bb10-e99f5982eebc"
+  }
+}

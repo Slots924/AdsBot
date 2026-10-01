@@ -5,76 +5,71 @@ import puppeteer from "puppeteer-core";
 import AdsPower from "../../classes/AdsPower.js";
 import configureFacebookAutomationWindow
     from "../../facebook/browser/configureFacebookAutomationWindow.js";
-import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
 import captureGraphqlPayload from "../../facebook/api-actions/captureGraphqlPayload.js";
 import ensureAdsPowerProfileReady from "../../workflows/profile/ensureAdsPowerProfileReady.js";
 import ensureFacebookAccountActive from "../../workflows/profile/ensureFacebookAccountActive.js";
 import ensureFacebookAccountLoggedIn from "../../workflows/profile/ensureFacebookAccountLoggedIn.js";
 
 
-const profileNo = String(process.argv[2] ?? "2031").trim();
+const profileNo = String(process.argv[2] ?? "258").trim();
 const contexts = Object.freeze([
     {
-        name: "Facebook",
-        url: "https://www.facebook.com/",
+        name: "Business ad account settings",
+        url: "https://business.facebook.com/latest/settings/ad_accounts/?business_id=703191138787237&selected_asset_id=120250251488120224&selected_asset_type=ad-account",
+        graphqlUrl: "https://business.facebook.com/api/graphql/",
+    },
+    {
+        name: "Facebook profile",
+        url: "https://www.facebook.com/profile.php?id=61594039212572",
         graphqlUrl: "https://www.facebook.com/api/graphql/",
     },
     {
-        name: "Profile access",
-        url: "https://www.facebook.com/settings/?tab=profile_access",
-        graphqlUrl: "https://www.facebook.com/api/graphql/",
-    },
-    {
-        name: "Ads Manager",
-        url: "https://adsmanager.facebook.com/adsmanager/manage/campaigns",
+        name: "Ads Manager campaigns",
+        url: "https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=2658195981214921",
         graphqlUrl: "https://adsmanager.facebook.com/api/graphql/",
     },
 ]);
-const comparedFields = Object.freeze([
-    "__user",
-    "fb_dtsg",
-    "jazoest",
-    "lsd",
-    "__spin_r",
-    "__spin_b",
-    "__spin_t",
-    "__crn",
-    "doc_id",
-    "fb_api_req_friendly_name",
-]);
 
 
-// Повертає лише форму URL без значень потенційно чутливих query-параметрів.
 function safeUrl(value) {
     const url = new URL(value);
     return `${url.origin}${url.pathname}${url.search ? "?…" : ""}`;
 }
 
 
-// Порівнює payload-и без виведення токенів, cookies, пароля або самих значень полів.
 function comparePayloads(reference, payload) {
     if (!reference || !payload) {
-        return { sameFields: "—", differentFields: "—" };
+        return { same: "—", different: "—", missing: "—" };
     }
+
+    const fields = [...new Set([...Object.keys(reference), ...Object.keys(payload)])].sort();
     const same = [];
     const different = [];
-    for (const field of comparedFields) {
-        if (String(reference[field] ?? "") === String(payload[field] ?? "")) {
+    const missing = [];
+
+    for (const field of fields) {
+        const hasReference = Object.hasOwn(reference, field);
+        const hasPayload = Object.hasOwn(payload, field);
+        if (!hasReference || !hasPayload) {
+            missing.push(field);
+        } else if (String(reference[field]) === String(payload[field])) {
             same.push(field);
         } else {
             different.push(field);
         }
     }
+
     return {
-        sameFields: same.join(", ") || "—",
-        differentFields: different.join(", ") || "—",
+        same: same.length ? same.join(", ") : "—",
+        different: different.length ? different.join(", ") : "—",
+        missing: missing.length ? missing.join(", ") : "—",
     };
 }
 
 
 async function main() {
     if (!/^\d+$/.test(profileNo)) {
-        throw new Error("Передай числовий номер AdsPower-профілю, наприклад: node scripts/manual/compareProfilePayloadContexts.js 2031");
+        throw new Error("Вкажіть числовий номер AdsPower-профілю, наприклад: node scripts/manual/compareProfilePayloadContexts.js 258");
     }
 
     const adsPower = new AdsPower();
@@ -84,7 +79,7 @@ async function main() {
     try {
         const profile = await adsPower.getProfileByNo(profileNo);
         if (!profile || !await ensureAdsPowerProfileReady(adsPower, profile)) {
-            throw new Error(`AdsPower-профіль ${profileNo} не готовий до запуску`);
+            throw new Error(`AdsPower-профіль ${profileNo} не знайдено або він не готовий`);
         }
 
         const browserData = await adsPower.openProfile(profileNo, {
@@ -95,8 +90,11 @@ async function main() {
         browser = await puppeteer.connect({ browserWSEndpoint: browserData.ws.puppeteer });
         const page = (await browser.pages())[0] ?? await browser.newPage();
         await configureFacebookAutomationWindow(page, { browserMode: "visible" });
-        await openPageWithoutPopups(page, "https://www.facebook.com/", { timeout: 60000 });
 
+        await page.goto("https://www.facebook.com/", {
+            waitUntil: "domcontentloaded",
+            timeout: 60000,
+        });
         if (!await ensureFacebookAccountLoggedIn(adsPower, profile, page)) {
             throw new Error("Facebook-вхід не підтверджено");
         }
@@ -114,22 +112,24 @@ async function main() {
             captured.push({ context, result, finalUrl: page.url() });
         }
 
-        const facebookPayload = captured[0]?.result?.success ? captured[0].result.data : null;
-        const table = captured.map(({ context, result, finalUrl }) => {
-            const comparison = comparePayloads(facebookPayload, result.success ? result.data : null);
+        const reference = captured[0]?.result?.success ? captured[0].result.data : null;
+        const table = captured.map(({ context, result, finalUrl }, index) => {
+            const comparison = index === 0
+                ? { same: "Еталон", different: "—", missing: "—" }
+                : comparePayloads(reference, result.success ? result.data : null);
             return {
-                context: context.name,
-                page: safeUrl(finalUrl),
-                captured: result.success ? "так" : "ні",
-                status: result.status,
-                payloadFields: result.success ? Object.keys(result.data).length : 0,
-                sameAsFacebook: comparison.sameFields,
-                differentFromFacebook: comparison.differentFields,
+                Сторінка: context.name,
+                URL: safeUrl(finalUrl),
+                Зібрано: result.success ? "так" : "ні",
+                Полів: result.success ? Object.keys(result.data).length : 0,
+                "Однакові з Business": comparison.same,
+                "Відмінні значення": comparison.different,
+                "Відсутні поля": comparison.missing,
             };
         });
 
         console.table(table);
-        console.log("Payload-и, токени, cookies, пароль та їхні значення не виводилися.");
+        console.log("Значення payload, cookies та токени не виводилися. Поля порівняні з Business ad account settings.");
     } finally {
         try { browser?.disconnect(); } catch {}
         if (profileOpened) {
@@ -140,6 +140,6 @@ async function main() {
 
 
 main().catch((error) => {
-    console.error("Тест порівняння payload-ів завершився помилкою:", error?.message ?? error);
+    console.error("Порівняння payload завершилося помилкою:", error?.message ?? error);
     process.exitCode = 1;
 });
