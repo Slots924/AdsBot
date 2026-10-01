@@ -1755,6 +1755,7 @@ button:focus-visible, input:focus-visible {
 .personal-account-nav button > span { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid #3a4051; border-radius: 50%; font-size: 11px; }
 .personal-account-nav button.active { color: #dedaff; background: rgba(132,114,255,.14); }
 .personal-account-nav button.active > span { border-color: #8278da; color: #fff; background: #7065cb; }
+.personal-account-nav .nav-business-manager { margin-top: auto; }
 .personal-account-body { min-height: 0; padding: 24px 28px 36px; overflow-y: auto; scrollbar-color: #525a6e #151925; }
 .personal-section { display: grid; gap: 16px; max-width: 820px; margin: 0 auto; }
 .personal-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
@@ -1778,7 +1779,7 @@ button:focus-visible, input:focus-visible {
 .personal-bm-select { width: min(270px, 100%); min-width: 180px; }
 .personal-bm-select .select-trigger { min-height: 43px; background: #121b25; border-color: rgba(79, 195, 207, .28); }
 .personal-launch-panel .personal-status-grid { gap: 7px; }
-.personal-launch-panel .personal-status-grid.business { grid-template-columns: repeat(4, minmax(0,1fr)); }
+.personal-launch-panel .personal-status-grid.business { grid-template-columns: repeat(3, minmax(0,1fr)); }
 .personal-launch-panel .personal-status { display: flex; gap: 7px; min-width: 0; padding: 9px 10px; border-radius: 9px; font-size: 11px; white-space: nowrap; }
 .personal-launch-panel .personal-status i { flex: 0 0 8px; }
 .personal-profile-card { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px; }
@@ -1802,6 +1803,8 @@ button:focus-visible, input:focus-visible {
 .personal-business-select, .personal-ad-account-select { width: 100%; min-width: 0; }
 .personal-business-select .select-trigger, .personal-ad-account-select .select-trigger { min-height: 52px; border-color: #3c4659; background: #121824; }
 .personal-bm-section .personal-action-card { display: grid; gap: 14px; min-width: 0; }
+.personal-bm-section .personal-ad-access-card { gap: 16px; }
+.personal-ad-access-card > .personal-inline-actions:nth-of-type(3) { padding-top: 15px; border-top: 1px solid #303b4d; }
 .personal-bm-section .personal-inline-actions { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; min-width: 0; }
 .personal-countdown { color: #b9b1ff; font-size: 13px; font-weight: 700; }
 @media (max-width: 850px) {

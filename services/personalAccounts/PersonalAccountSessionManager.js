@@ -194,17 +194,6 @@ function isAdsManagerUrl(value) {
     }
 }
 
-function isBusinessManagerSettingsUrl(value) {
-    try {
-        const url = new URL(String(value ?? ""));
-        return url.origin === "https://business.facebook.com"
-            && url.pathname.startsWith("/latest/settings");
-    } catch {
-        return false;
-    }
-}
-
-
 // Доповнює Ads Manager payload лише полями, яких у ньому немає.
 function supplementAdsManagerPayload(adsManagerPayload, facebookPayload) {
     const payload = { ...adsManagerPayload };
@@ -396,7 +385,6 @@ export default class PersonalAccountSessionManager {
             };
             this.#sessions.set(id, session);
             await this.#refreshOverview(session);
-            if (this.mode === "businessManager") await this.#captureBusinessManagerPayload(session);
             await report.append("session.started", {
                 actorId: session.actorId,
                 context: session.context,
@@ -447,7 +435,6 @@ export default class PersonalAccountSessionManager {
             await this.#capture(session, profileUrl, "FACEBOOK_MAIN");
             await this.#ensureAdsManager(session);
             await this.#refreshOverview(session);
-            if (this.mode === "businessManager") await this.#captureBusinessManagerPayload(session);
             return publicSession(session);
         });
     }
@@ -1163,24 +1150,6 @@ export default class PersonalAccountSessionManager {
         session.context = context;
         return captured.data;
     }
-
-    async #captureBusinessManagerPayload(session) {
-        const captured = assertAction(await captureGraphqlPayload(session.page, {
-            profileUrl: businessManagerSettingsUrl,
-            graphqlUrl: businessManagerGraphqlUrls,
-            timeout: 60000,
-        }), "Не вдалося отримати Business Manager payload");
-        if (!isBusinessManagerSettingsUrl(session.page.url())) {
-            throw sessionError("Не відкрито налаштування Business Manager", "BUSINESS_MANAGER_SETTINGS_UNAVAILABLE");
-        }
-        if (!captured.data || Object.keys(captured.data).length === 0) {
-            throw sessionError("Business Manager payload порожній", "BUSINESS_MANAGER_PAYLOAD_EMPTY");
-        }
-        session.businessManagerPayload = captured.data;
-        session.businessManagerPayloadUrl = session.page.url();
-        if (session.overview) session.overview.hasBusinessManagerPayload = true;
-    }
-
 
     async #ensureFacebookContext(session, actorId, url, context) {
         const expectedActor = String(actorId ?? "").trim();

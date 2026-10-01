@@ -367,6 +367,24 @@ describe("GUI helpers", () => {
         await waitFor(() => expect(screen.getByText("My profile")).toBeInTheDocument());
     });
 
+    it("дозволяє запустити БМ, поки персональний профіль завантажується", async () => {
+        window.adsBot.getCreditCards = vi.fn().mockResolvedValue({ ok: true, data: [] });
+        window.adsBot.getPersonalSmsPoolDashboard = vi.fn().mockResolvedValue({ ok: true, data: {} });
+        window.adsBot.startPersonalAccountSession = vi.fn(() => new Promise(() => {}));
+        window.adsBot.startBusinessManagerSession = vi.fn(() => new Promise(() => {}));
+        const { container } = render(<PersonalAccountModal
+            profile={{ profileId: "profile-1", profileNo: "128", name: "Personal", groupId: "", tags: [] }}
+            businessManagers={[{ accountKey: "bm-1", name: "Business", adsPowerProfileNo: "129" }]}
+            initialBmKey="bm-1" onClose={vi.fn()} onError={vi.fn()} />);
+        fireEvent.click(screen.getByRole("button", { name: "Запустити і перевірити" }));
+        expect(window.adsBot.startPersonalAccountSession).toHaveBeenCalledWith("128");
+        const nav = container.querySelector(".personal-account-nav");
+        expect(nav.lastElementChild).toHaveClass("nav-business-manager");
+        fireEvent.click(nav.lastElementChild);
+        fireEvent.click(screen.getByRole("button", { name: "Запустити і перевірити" }));
+        expect(window.adsBot.startBusinessManagerSession).toHaveBeenCalledWith("bm-1", null);
+    });
+
     it("створює System User з окремою проксі та User-Agent", async () => {
         const onCreate = vi.fn().mockResolvedValue(undefined);
         render(<Sidebar standalone accounts={[]} proxies={[{ id: "proxy-001", name: "Main proxy", type: "socks5" }]}
