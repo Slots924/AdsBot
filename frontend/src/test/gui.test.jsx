@@ -832,7 +832,7 @@ describe("GUI helpers", () => {
                 }],
             },
         });
-        window.adsBot.refreshAdCampaignStatistics = vi.fn().mockResolvedValue({
+        window.adsBot.refreshAdCampaignData = vi.fn().mockResolvedValue({
             ok: true,
             data: {
                 adAccountId: "act_1",
@@ -886,18 +886,14 @@ describe("GUI helpers", () => {
             .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d", false));
 
         fireEvent.click(screen.getByRole("button", { name: "Оновити" }));
-        await waitFor(() => expect(window.adsBot.getAdCampaigns)
-            .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d", true));
-
-        fireEvent.click(screen.getByTitle("Оновити статистику"));
-        await waitFor(() => expect(window.adsBot.refreshAdCampaignStatistics)
+        await waitFor(() => expect(window.adsBot.refreshAdCampaignData)
             .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d"));
 
         const accountCallsBeforeRkRefresh = window.adsBot.getAdAccounts.mock.calls.length;
         const campaignCallsBeforeRkRefresh = window.adsBot.getAdCampaigns.mock.calls.length;
-        fireEvent.click(screen.getByRole("button", { name: "Оновити РК" }));
-        await waitFor(() => expect(window.adsBot.getAdAccounts.mock.calls.length)
-            .toBe(accountCallsBeforeRkRefresh + 1));
+        fireEvent.click(screen.getByRole("button", { name: "Оновити рекламні кабінети" }));
+        expect(window.adsBot.getAdAccounts.mock.calls.length)
+            .toBe(accountCallsBeforeRkRefresh);
         expect(window.adsBot.getAdCampaigns.mock.calls.length)
             .toBe(campaignCallsBeforeRkRefresh);
 

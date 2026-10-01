@@ -27,6 +27,8 @@ const placementOptions = [
 ];
 const ageOptions = Array.from({ length: 48 }, (_, index) => index + 18);
 
+const ageLabel = (age) => Number(age) === 65 ? "65+" : String(age);
+
 
 function emptyDraft() {
     return {
@@ -116,12 +118,12 @@ function cloneTemplate(template) {
 
 function AgePicker({ value, options, onChange, ariaLabel }) {
     const root = useRef(null);
-    const [query, setQuery] = useState(String(value));
+    const [query, setQuery] = useState(ageLabel(value));
     const [open, setOpen] = useState(false);
-    const visible = options.filter((age) => String(age).includes(query.trim()));
+    const visible = options.filter((age) => String(age).includes(query.replace(/\D/g, "")));
 
     useEffect(() => {
-        setQuery(String(value));
+        setQuery(ageLabel(value));
     }, [value]);
     useEffect(() => {
         const close = (event) => {
@@ -146,7 +148,7 @@ function AgePicker({ value, options, onChange, ariaLabel }) {
             {visible.length === 0 && <span>Немає такого віку</span>}
             {visible.map((age) => <button type="button" key={age} className={age === value ? "selected" : ""} onClick={() => {
                 onChange(age);
-                setQuery(String(age));
+                setQuery(ageLabel(age));
                 setOpen(false);
             }}>{age === 65 ? "65+" : age}</button>)}
         </div>}

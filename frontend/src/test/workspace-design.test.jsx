@@ -417,7 +417,7 @@ describe("Дизайн workspace фанпейджів", () => {
         fireEvent.click(screen.getByRole("button", { name: "Продовжити" }));
 
         expect(await screen.findByRole("heading", {
-            name: "DE | Creo_1 | 21+",
+            name: /^DE \| Creo_1 \| 21\+ \d{2}\/\d{2} \d{2}:\d{2}$/,
         })).toBeInTheDocument();
         expect(screen.getByText("Джерело реклами")).toBeInTheDocument();
         expect(screen.getAllByText("10_20").length).toBeGreaterThan(0);
@@ -429,7 +429,7 @@ describe("Дизайн workspace фанпейджів", () => {
             accountKey: "client",
             adAccountId: "act_1",
             templateId: 7,
-            campaignName: "DE | Creo_1 | 21+",
+            campaignName: expect.stringMatching(/^DE \| Creo_1 \| 21\+ \d{2}\/\d{2} \d{2}:\d{2}$/),
             pageId: "10",
             postId: "10_20",
             pixelId: "30",

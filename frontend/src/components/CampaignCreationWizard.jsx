@@ -150,6 +150,11 @@ export default function CampaignCreationWizard({
     const [pixels, setPixels] = useState([]);
     const [pixelsLoading, setPixelsLoading] = useState(false);
     const [savedKeitaroPixels, setSavedKeitaroPixels] = useState([]);
+    const [launchStatuses, setLaunchStatuses] = useState(() => ({
+        campaign: !createPaused,
+        adSet: !createAdSetsPaused,
+        ad: !createAdsPaused,
+    }));
     const [form, setForm] = useState({
         campaignName: "",
         templateId: "",
@@ -189,6 +194,12 @@ export default function CampaignCreationWizard({
             ));
             setTemplates(sortedTemplates);
             setLanguages(nextLanguages ?? []);
+            if (sourcePage) {
+                setForm((current) => current.templateId ? current : {
+                    ...current,
+                    templateId: String(sortedTemplates[0]?.id || ""),
+                });
+            }
         }).catch((error) => {
             if (active) setFailure(errorDetails(error));
         }).finally(() => {
@@ -391,9 +402,9 @@ export default function CampaignCreationWizard({
         adSetCount: Number(form.adSetCount),
         dailyBudget: Number(form.dailyBudget),
         startTime: zonedValueToIso(form.startTime, timezone),
-        createPaused,
-        createAdSetsPaused,
-        createAdsPaused,
+        createPaused: !launchStatuses.campaign,
+        createAdSetsPaused: !launchStatuses.adSet,
+        createAdsPaused: !launchStatuses.ad,
         pixelId: form.pixelId.trim(),
         utm: form.utm,
     });
@@ -653,6 +664,26 @@ export default function CampaignCreationWizard({
                                     <X size={18} />
                                 </button>
                             )}
+                        </div>
+                        <div className="campaign-launch-statuses" aria-label="Статуси об'єктів після створення">
+                            {[
+                                ["campaign", "Кампанія"],
+                                ["adSet", "Ad set"],
+                                ["ad", "Оголошення"],
+                            ].map(([key, label]) => (
+                                <label key={key} className={`campaign-launch-switch ${launchStatuses[key] ? "active" : ""}`}>
+                                    <span>{label}</span>
+                                    <input
+                                        type="checkbox"
+                                        role="switch"
+                                        checked={launchStatuses[key]}
+                                        disabled={creating}
+                                        onChange={(event) => setLaunchStatuses((current) => ({ ...current, [key]: event.target.checked }))}
+                                        aria-label={`Увімкнути ${label.toLowerCase()} після створення`}
+                                    />
+                                    <i aria-hidden="true" />
+                                </label>
+                            ))}
                         </div>
                     </header>
 

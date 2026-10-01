@@ -274,44 +274,50 @@ export default function SettingsModal({
                                 </section>
 
                                 <section className="scale-setting campaign-safety-setting">
-                                    <label className="checkbox-line">
+                                    <label className={`campaign-default-switch ${!createCampaignsPaused ? "active" : ""}`}>
                                         <input
                                             type="checkbox"
-                                            checked={createCampaignsPaused}
+                                            role="switch"
+                                            checked={!createCampaignsPaused}
                                             onChange={(event) => onCreateCampaignsPausedChange(
-                                                event.target.checked
+                                                !event.target.checked
                                             )}
                                         />
                                         <span>
-                                            <strong>Залишати campaign на паузі</strong>
-                                            <small>Новостворений campaign матиме статус PAUSED.</small>
+                                            <strong>Campaign активна після створення</strong>
+                                            <small>Початкове значення перемикача в новій кампанії.</small>
                                         </span>
+                                        <i aria-hidden="true" />
                                     </label>
-                                    <label className="checkbox-line">
+                                    <label className={`campaign-default-switch ${!createAdSetsPaused ? "active" : ""}`}>
                                         <input
                                             type="checkbox"
-                                            checked={createAdSetsPaused}
+                                            role="switch"
+                                            checked={!createAdSetsPaused}
                                             onChange={(event) => onCreateAdSetsPausedChange(
-                                                event.target.checked
+                                                !event.target.checked
                                             )}
                                         />
                                         <span>
-                                            <strong>Залишати Ad Set на паузі</strong>
-                                            <small>Новостворені набори реклами матимуть статус PAUSED.</small>
+                                            <strong>Ad set активний після створення</strong>
+                                            <small>Початкове значення перемикача в новій кампанії.</small>
                                         </span>
+                                        <i aria-hidden="true" />
                                     </label>
-                                    <label className="checkbox-line">
+                                    <label className={`campaign-default-switch ${!createAdsPaused ? "active" : ""}`}>
                                         <input
                                             type="checkbox"
-                                            checked={createAdsPaused}
+                                            role="switch"
+                                            checked={!createAdsPaused}
                                             onChange={(event) => onCreateAdsPausedChange(
-                                                event.target.checked
+                                                !event.target.checked
                                             )}
                                         />
                                         <span>
-                                            <strong>Залишати оголошення на паузі</strong>
-                                            <small>Новостворені рекламні оголошення матимуть статус PAUSED.</small>
+                                            <strong>Оголошення активне після створення</strong>
+                                            <small>Початкове значення перемикача в новій кампанії.</small>
                                         </span>
+                                        <i aria-hidden="true" />
                                     </label>
                                 </section>
 
