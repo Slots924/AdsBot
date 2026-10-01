@@ -300,6 +300,20 @@ class AdsPower {
         }
     }
 
+    async getProxyById(proxyId) {
+        const response = await this.request(
+            "post",
+            `${this.apiUrl}/api/v2/proxy-list/list`,
+            { proxy_id: [String(proxyId)], page: "1", limit: "1" }
+        );
+        if (response.data?.code !== 0) {
+            throw new Error(response.data?.msg || "Не вдалося отримати проксі AdsPower");
+        }
+        const proxy = response.data?.data?.list?.find((item) => String(item.proxy_id) === String(proxyId));
+        if (!proxy) throw new Error(`Проксі AdsPower ${proxyId} не знайдено`);
+        return proxy;
+    }
+
 
     // Отримує список груп AdsPower
     // Отримує профілі за їхніми номерами одним запитом Profile API V2

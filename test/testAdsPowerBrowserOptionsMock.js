@@ -6,6 +6,17 @@ import path from "node:path";
 import AdsPower from "../classes/AdsPower.js";
 import AppStateStore, { normalizeState } from "../services/gui/AppStateStore.js";
 
+const queriedProxyAdsPower = new AdsPower({ apiUrl: "http://127.0.0.1:50325" });
+let proxyQuery = null;
+queriedProxyAdsPower.request = async (method, url, data) => {
+    proxyQuery = { method, url, data };
+    return { data: { code: 0, data: { list: [{ proxy_id: "14", type: "socks5", host: "example.test", port: "1234" }] } } };
+};
+assert.equal((await queriedProxyAdsPower.getProxyById(14)).host, "example.test");
+assert.equal(proxyQuery.method, "post");
+assert(proxyQuery.url.endsWith("/api/v2/proxy-list/list"));
+assert.deepEqual(proxyQuery.data.proxy_id, ["14"]);
+
 
 const cases = [
     {

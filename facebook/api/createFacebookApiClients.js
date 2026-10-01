@@ -5,13 +5,14 @@ import ProxyHttpClient from "../../services/proxy/ProxyHttpClient.js";
 import FacebookGraphApi from "./FacebookGraphApi.js";
 
 
-async function readJson(filePath, label) {
+async function readJson(filePath, label, optional = false) {
     const absolutePath = path.resolve(filePath);
 
     try {
         const content = await readFile(absolutePath, "utf8");
         return JSON.parse(content);
     } catch (error) {
+        if (optional && error.code === "ENOENT") return { accounts: [] };
         throw new Error(
             `Не вдалося прочитати ${label} "${absolutePath}": ${error.message}`
         );
@@ -94,6 +95,7 @@ function normalizeAccounts(accounts) {
             name: String(account?.name ?? ""),
             facebookUserId: String(account?.facebookUserId ?? ""),
             metadata: account?.metadata ?? {},
+            proxyId: String(account?.proxyId ?? "").trim(),
         };
     }).filter(Boolean);
 }
@@ -106,16 +108,18 @@ function normalizeAccounts(accounts) {
  */
 export default async function createFacebookApiClients({
     accountsFilePath = "./data/facebookApi/accounts.json",
+    bmFilePath = "./data/facebookApi/businessManagers.json",
     proxiesFilePath = "./data/facebookApi/proxies.json",
     httpClient,
     checkProxyFn,
 } = {}) {
-    const [accountsConfig, proxiesConfig] = await Promise.all([
+    const [accountsConfig, bmConfig, proxiesConfig] = await Promise.all([
         readJson(accountsFilePath, "конфіг Facebook-акаунтів"),
+        readJson(bmFilePath, "конфіг BM", true),
         readJson(proxiesFilePath, "конфіг проксі"),
     ]);
     const accounts = normalizeAccounts(
-        accountsConfig?.accounts?.filter((account) => account?.archived !== true)
+        [...(accountsConfig?.accounts ?? []), ...(bmConfig?.accounts ?? [])].filter((account) => account?.archived !== true)
     );
     const proxyHttpClient = new ProxyHttpClient({
         proxies: (proxiesConfig?.proxies ?? []).filter((proxy) => (
@@ -127,6 +131,12 @@ export default async function createFacebookApiClients({
     const facebookApiClients = new Map();
 
     accounts.forEach((account) => {
+        const selectedProxy = account.proxyId
+            ? (proxiesConfig?.proxies ?? []).find((proxy) => proxy.id === account.proxyId && proxy.type !== "no_proxy")
+            : null;
+        if (account.proxyId && !selectedProxy) {
+            throw new Error(`Проксі "${account.proxyId}" для клієнта "${account.accountKey}" не знайдено`);
+        }
         facebookApiClients.set(
             account.accountKey,
             new FacebookGraphApi({
@@ -136,7 +146,9 @@ export default async function createFacebookApiClients({
                 accessToken: account.accessToken,
                 cookie: account.cookie,
                 userAgent: account.userAgent,
-                proxyHttpClient,
+                proxyHttpClient: selectedProxy
+                    ? new ProxyHttpClient({ proxies: [selectedProxy], ...(httpClient ? { httpClient } : {}), ...(checkProxyFn ? { checkProxyFn } : {}) })
+                    : proxyHttpClient,
             })
         );
     });

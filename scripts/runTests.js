@@ -28,6 +28,7 @@ const backendSuites = {
         "test/testDeleteAllFacebookPersonalProfilePosts.js",
         "test/testGetFacebookPersonalProfileCreationDate.js",
         "test/testFacebookAccountManager.js",
+        "test/testFacebookClientVariants.js",
         "test/testProxyManager.js",
         "test/testParseProxyPaste.js",
         "test/testRefreshProxyIp.js",

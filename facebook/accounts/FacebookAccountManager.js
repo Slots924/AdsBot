@@ -20,7 +20,6 @@ const facebookCookieNames = new Set([
     "i_user",
     "m_page_voice",
 ]);
-const internalAccountKeyPattern = /^account-(\d{3,})$/i;
 
 
 function createAccountError(message, code) {
@@ -47,15 +46,16 @@ function normalizeAccountName(value) {
 }
 
 
-function isInternalAccountKey(value) {
-    return internalAccountKeyPattern.test(String(value ?? "").trim());
+function accountKeyPattern(prefix) {
+    return new RegExp(`^${prefix}-(\\d{3,})$`, "i");
 }
 
 
-function nextInternalAccountKey(store) {
+function nextInternalAccountKey(store, prefix = "account") {
+    const pattern = accountKeyPattern(prefix);
     const maximum = store.accounts.reduce((currentMaximum, account) => {
         const match = String(account?.accountKey ?? "").trim().match(
-            internalAccountKeyPattern
+            pattern
         );
         return match ? Math.max(currentMaximum, Number(match[1])) : currentMaximum;
     }, 0);
@@ -64,7 +64,7 @@ function nextInternalAccountKey(store) {
         maximum + 1
     );
     store.nextAccountNumber = nextNumber + 1;
-    return `account-${String(nextNumber).padStart(3, "0")}`;
+    return `${prefix}-${String(nextNumber).padStart(3, "0")}`;
 }
 
 
@@ -181,6 +181,8 @@ function safeAccount(account) {
         hasAccessToken: Boolean(String(account.accessToken ?? "").trim()),
         hasCookie: Boolean(String(account.cookie ?? "").trim()),
         adsPowerProfileNo: String(account.adsPowerProfileNo ?? "").trim(),
+        proxyId: String(account.proxyId ?? "").trim(),
+        kind: String(account.kind ?? "api"),
     };
 }
 
@@ -189,8 +191,10 @@ export default class FacebookAccountManager {
     #operation = Promise.resolve();
 
 
-    constructor({ accountsFile = "./data/facebookApi/accounts.json" } = {}) {
+    constructor({ accountsFile = "./data/facebookApi/accounts.json", kind = "api" } = {}) {
         this.accountsFile = accountsFile;
+        this.kind = kind;
+        this.keyPrefix = kind === "bm" ? "bm" : kind === "system" ? "system" : "account";
     }
 
 
@@ -217,7 +221,7 @@ export default class FacebookAccountManager {
         return this.#enqueue(async () => {
             const store = await this.#read();
             this.#migrateAccounts(store);
-            const accountKey = nextInternalAccountKey(store);
+            const accountKey = nextInternalAccountKey(store, this.keyPrefix);
             const name = normalizeAccountName(input.name);
             if (!name) {
                 throw createAccountError(
@@ -248,8 +252,10 @@ export default class FacebookAccountManager {
                 facebookUserId: "",
                 userAgent,
                 accessToken,
-                cookie: input.cookie ? normalizeFacebookCookie(input.cookie) : "",
+                cookie: this.kind === "system" ? "" : input.cookie ? normalizeFacebookCookie(input.cookie) : "",
                 adsPowerProfileNo,
+                proxyId: String(input.proxyId ?? "").trim(),
+                kind: this.kind,
                 metadata: {},
                 archived: false,
             };
@@ -292,13 +298,16 @@ export default class FacebookAccountManager {
             }
             if (userAgent) account.userAgent = userAgent;
             if (accessToken) account.accessToken = accessToken;
-            if (cookie && (typeof cookie !== "string" || cookie.length)) {
+            if (this.kind !== "system" && cookie && (typeof cookie !== "string" || cookie.length)) {
                 account.cookie = normalizeFacebookCookie(cookie);
             }
             if (String(input.adsPowerProfileNo ?? "").trim()) {
                 account.adsPowerProfileNo = normalizeAdsPowerProfileNo(
                     input.adsPowerProfileNo
                 );
+            }
+            if (Object.hasOwn(input, "proxyId")) {
+                account.proxyId = String(input.proxyId ?? "").trim();
             }
             await this.#write(store);
             return safeAccount(account);
@@ -408,15 +417,16 @@ export default class FacebookAccountManager {
 
 
     #migrateAccounts(store) {
+        const pattern = accountKeyPattern(this.keyPrefix);
         let changed = false;
         const usedKeys = new Set();
         let nextNumber = 1;
 
         const nextKey = () => {
-            while (usedKeys.has(`account-${String(nextNumber).padStart(3, "0")}`)) {
+            while (usedKeys.has(`${this.keyPrefix}-${String(nextNumber).padStart(3, "0")}`)) {
                 nextNumber += 1;
             }
-            const key = `account-${String(nextNumber).padStart(3, "0")}`;
+            const key = `${this.keyPrefix}-${String(nextNumber).padStart(3, "0")}`;
             usedKeys.add(key);
             nextNumber += 1;
             return key;
@@ -425,10 +435,10 @@ export default class FacebookAccountManager {
         store.accounts.forEach((account) => {
             const currentKey = String(account?.accountKey ?? "").trim();
             const normalizedKey = currentKey.toLowerCase();
-            if (isInternalAccountKey(currentKey) && !usedKeys.has(normalizedKey)) {
+            if (pattern.test(currentKey) && !usedKeys.has(normalizedKey)) {
                 account.accountKey = normalizedKey;
                 usedKeys.add(normalizedKey);
-                const number = Number(normalizedKey.match(internalAccountKeyPattern)[1]);
+                const number = Number(normalizedKey.match(pattern)[1]);
                 nextNumber = Math.max(nextNumber, number + 1);
                 if (currentKey !== normalizedKey) changed = true;
                 return;
@@ -440,6 +450,10 @@ export default class FacebookAccountManager {
         });
 
         store.accounts.forEach((account) => {
+            if (account.kind !== this.kind) {
+                account.kind = this.kind;
+                changed = true;
+            }
             if (typeof account.archived !== "boolean") {
                 account.archived = false;
                 changed = true;
@@ -447,7 +461,7 @@ export default class FacebookAccountManager {
         });
         const maximum = store.accounts.reduce((currentMaximum, account) => {
             const match = String(account.accountKey ?? "").match(
-                internalAccountKeyPattern
+                pattern
             );
             return match ? Math.max(currentMaximum, Number(match[1])) : currentMaximum;
         }, 0);

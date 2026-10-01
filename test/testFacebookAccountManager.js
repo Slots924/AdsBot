@@ -123,6 +123,22 @@ try {
         ["account-001", "account-004"]
     );
 
+    const bmFile = path.join(directory, "businessManagers.json");
+    const systemFile = path.join(directory, "systemUsers.json");
+    const bmManager = new FacebookAccountManager({ accountsFile: bmFile, kind: "bm" });
+    const systemManager = new FacebookAccountManager({ accountsFile: systemFile, kind: "system" });
+    const bm = await bmManager.create({ name: "My BM", adsPowerProfileNo: "123", proxyId: "proxy-001" });
+    const system = await systemManager.create({ name: "System User", userAgent: "Mozilla/5.0", accessToken: "secret", proxyId: "proxy-002" });
+    assert.equal(bm.accountKey, "bm-001");
+    assert.equal(bm.proxyId, "proxy-001");
+    assert.equal(system.accountKey, "system-001");
+    assert.equal(system.hasCookie, false);
+    assert.equal(system.proxyId, "proxy-002");
+    await systemManager.update(system.accountKey, { proxyId: "" });
+    assert.equal((await systemManager.list())[0].proxyId, "");
+    assert.equal(JSON.parse(await readFile(bmFile, "utf8")).accounts.length, 1);
+    assert.equal(JSON.parse(await readFile(systemFile, "utf8")).accounts.length, 1);
+
     console.log("Перевірка менеджера Facebook-акаунтів пройшла успішно");
 } finally {
     await rm(directory, { recursive: true, force: true });

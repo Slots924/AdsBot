@@ -11,6 +11,7 @@ import { afterEach, beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 
 import Sidebar from "../components/Sidebar.jsx";
+import ImageListDropzone from "../components/ImageListDropzone.jsx";
 import ProxyStrip from "../components/ProxyStrip.jsx";
 import AccountsTab from "../tabs/AccountsTab.jsx";
 import SettingsModal from "../components/SettingsModal.jsx";
@@ -296,11 +297,13 @@ describe("GUI helpers", () => {
         });
         fireEvent.click(screen.getByText("Створити"));
         await waitFor(() => expect(onCreate).toHaveBeenCalledWith({
+            kind: "api",
             name: "Client 2",
             adsPowerProfileNo: "",
             userAgent: "Mozilla/5.0 Test",
             accessToken: "token",
             cookie: "c_user=1; xs=2",
+            proxyId: "",
         }));
 
         fireEvent.click(screen.getByTitle("Видалити API-клієнта"));
@@ -327,6 +330,31 @@ describe("GUI helpers", () => {
         expect(screen.getByTitle("Додати акаунт")).toBeInTheDocument();
         expect(screen.getByText("Додати API-клієнта")).toBeInTheDocument();
         expect(screen.queryByText("AdsBot")).not.toBeInTheDocument();
+    });
+
+    it("створює System User з окремою проксі та User-Agent", async () => {
+        const onCreate = vi.fn().mockResolvedValue(undefined);
+        render(<Sidebar standalone accounts={[]} proxies={[{ id: "proxy-001", name: "Main proxy", type: "socks5" }]}
+            selectedAccountKey="" loading={false} onSelect={vi.fn()} onRefresh={vi.fn()}
+            onCreate={onCreate} onUpdate={vi.fn()} onDelete={vi.fn()} onError={vi.fn()} />);
+        fireEvent.click(screen.getByRole("radio", { name: "System Users" }));
+        fireEvent.click(screen.getByText("Додати System User"));
+        fireEvent.change(screen.getByLabelText("Назва системного юзера"), { target: { value: "Sys 1" } });
+        fireEvent.change(screen.getByLabelText("User-Agent"), { target: { value: screen.getByLabelText("User-Agent").options[1].value } });
+        fireEvent.change(screen.getByLabelText("accessToken"), { target: { value: "token" } });
+        fireEvent.click(screen.getByLabelText("Прив’язати проксі"));
+        expect(screen.getByText("Main proxy")).toBeInTheDocument();
+        fireEvent.click(screen.getByText("Створити"));
+        await waitFor(() => expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ kind: "system", name: "Sys 1", proxyId: "proxy-001", accessToken: "token" })));
+    });
+
+    it("показує локальне прев’ю фото без file URL", async () => {
+        window.adsBot.getImagePreview = vi.fn().mockResolvedValue({ ok: true, data: "data:image/png;base64,dGVzdA==" });
+        render(<ImageListDropzone value={["C:/images/photo.png"]} onChange={vi.fn()} />);
+        const image = await screen.findByRole("img", { name: "photo.png" });
+        expect(image).toHaveAttribute("src", "data:image/png;base64,dGVzdA==");
+        expect(screen.getByRole("button", { name: "Перетягнути photo.png" })).toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: /ліворуч|праворуч/ })).not.toBeInTheDocument();
     });
 
     it("показує проксі й перевіряє статус", async () => {
@@ -537,7 +565,7 @@ describe("GUI helpers", () => {
         );
 
         expect(document.querySelector(".accounts-workspace")).toBeInTheDocument();
-        expect(screen.getByText("API-клієнти")).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "API-клієнти" })).toBeInTheDocument();
         expect(screen.getByText("Проксі")).toBeInTheDocument();
         expect(screen.getByTitle("Додати проксі")).toBeInTheDocument();
     });

@@ -73,6 +73,8 @@ let countryCatalog = null;
 let languageCatalog = null;
 let campaignCreationJournal = null;
 let facebookAccountManager = null;
+let bmAccountManager = null;
+let systemUserManager = null;
 let backgroundTaskManager = null;
 let appLogger = null;
 let taskReportManager = null;
@@ -170,6 +172,8 @@ async function createWindow() {
         accountsFile: appPaths.accounts,
     });
     await facebookAccountManager.migrateLegacyAccountKeys();
+    bmAccountManager = new FacebookAccountManager({ accountsFile: appPaths.businessManagers, kind: "bm" });
+    systemUserManager = new FacebookAccountManager({ accountsFile: appPaths.systemUsers, kind: "system" });
     const creditCardStore = new CreditCardStore({
         cardsFile: appPaths.creditCards,
         encrypt: (value) => {
@@ -192,6 +196,7 @@ async function createWindow() {
         facebookBackendOptions: {
             facebookApiClientsOptions: {
                 accountsFilePath: appPaths.accounts,
+                bmFilePath: appPaths.businessManagers,
                 proxiesFilePath: appPaths.proxies,
             },
             creativeManagerFactory: createCreativeManager,
@@ -305,6 +310,8 @@ async function createWindow() {
         campaignCreationJournal,
         backgroundTaskManager,
         facebookAccountManager,
+        bmAccountManager,
+        systemUserManager,
         proxyManager,
         logger: appLogger,
         reportManager: taskReportManager,

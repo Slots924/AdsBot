@@ -31,6 +31,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     deleteAccount: (accountKey) =>
         ipcRenderer.invoke("accounts:delete", { accountKey }),
     getProxies: () => ipcRenderer.invoke("proxies:list"),
+    syncProxyFromAdsPower: (proxyId) => ipcRenderer.invoke("proxies:sync-from-adspower", { proxyId }),
     getProxy: (proxyId) => ipcRenderer.invoke("proxies:get", { proxyId }),
     createProxy: (proxy) => ipcRenderer.invoke("proxies:create", proxy),
     updateProxy: (proxyId, patch) =>
@@ -318,6 +319,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     setUiScale: (scale) => ipcRenderer.invoke("app:set-zoom", { scale }),
     selectImage: () => ipcRenderer.invoke("dialog:select-image"),
     selectImages: () => ipcRenderer.invoke("dialog:select-images"),
+    getImagePreview: (imagePath) => ipcRenderer.invoke("images:preview", { imagePath }),
     selectPageRebuildImages: () =>
         ipcRenderer.invoke("dialog:select-page-rebuild-images"),
     selectAccountPhotosFolder: (defaultPath) =>

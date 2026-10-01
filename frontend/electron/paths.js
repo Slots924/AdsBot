@@ -9,6 +9,8 @@ export const frontendRoot = path.join(projectRoot, "frontend");
 export const appPaths = {
     env: path.join(projectRoot, ".env"),
     accounts: path.join(projectRoot, "data/facebookApi/accounts.json"),
+    businessManagers: path.join(projectRoot, "data/facebookApi/businessManagers.json"),
+    systemUsers: path.join(projectRoot, "data/facebookApi/systemUsers.json"),
     proxies: path.join(projectRoot, "data/facebookApi/proxies.json"),
     countries: path.join(projectRoot, "data/countries.json"),
     creatives: path.join(projectRoot, "data/creatives"),

@@ -151,6 +151,8 @@ export default function registerIpcHandlers({
     campaignCreationJournal,
     backgroundTaskManager,
     facebookAccountManager,
+    bmAccountManager = { list: async () => [] },
+    systemUserManager = { list: async () => [] },
     proxyManager,
     checkProxyFn = checkProxy,
     refreshProxyIpFn = refreshProxyIp,
@@ -586,12 +588,15 @@ export default function registerIpcHandlers({
         return statistics ?? data;
     };
     const mergeAccountStates = async (graphAccounts) => {
-        const storedAccounts = await facebookAccountManager.list();
+        const storedAccounts = (await Promise.all([
+            facebookAccountManager.list(), bmAccountManager.list(), systemUserManager.list(),
+        ])).flat();
         const graphByKey = new Map(graphAccounts.map((account) => [
             account.accountKey,
             account,
         ]));
         return storedAccounts.map((stored) => {
+            if (stored.kind === "system") return { ...stored, status: "unknown", error: null };
             if (stored.archived) {
                 return {
                     ...stored,
@@ -655,6 +660,14 @@ export default function registerIpcHandlers({
     const refreshManagedAccounts = async () => prepareManagedAccounts(
         await guiService.refreshAccounts()
     );
+    const managerForAccount = (accountKey) => String(accountKey ?? "").startsWith("bm-")
+        ? bmAccountManager
+        : String(accountKey ?? "").startsWith("system-") ? systemUserManager : facebookAccountManager;
+    const validateAccountProxy = async (payload) => {
+        if (!payload.proxyId) return;
+        const proxy = await proxyManager.getById(payload.proxyId);
+        if (proxy.type === "no_proxy") throw new Error("Оберіть мережеву проксі");
+    };
     const refreshClientsAfterProxyChange = async () => {
         try {
             await refreshManagedAccounts();
@@ -1049,14 +1062,16 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "accounts:create",
         safeHandler(async (payload) => {
-            await facebookAccountManager.create(payload);
+            await validateAccountProxy(payload);
+            await (payload.kind === "bm" ? bmAccountManager : payload.kind === "system" ? systemUserManager : facebookAccountManager).create(payload);
             return refreshManagedAccounts();
         })
     );
     ipcMain.handle(
         "accounts:update",
         safeHandler(async ({ accountKey, ...patch }) => {
-            const account = await facebookAccountManager.update(accountKey, patch);
+            await validateAccountProxy(patch);
+            const account = await managerForAccount(accountKey).update(accountKey, patch);
             await guiService.reloadFacebookBackend();
             return account;
         })
@@ -1064,7 +1079,8 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "accounts:check",
         safeHandler(async ({ accountKey }) => {
-            const account = await facebookAccountManager.get(accountKey);
+            const account = await managerForAccount(accountKey).get(accountKey);
+            if (account.kind === "system") return { ...account, status: "unknown", error: null };
             const [status, adsPowerOpen] = await Promise.all([
                 guiService.checkAccount(accountKey),
                 account.adsPowerProfileNo
@@ -1085,7 +1101,7 @@ export default function registerIpcHandlers({
         "accounts:sync-from-adspower",
         safeHandler(async ({ accountKey, browserMode, disableImages }) => {
             const normalizedKey = String(accountKey ?? "").trim();
-            const account = (await facebookAccountManager.list()).find((item) => (
+            const account = (await managerForAccount(normalizedKey).list()).find((item) => (
                 item.accountKey.toLowerCase() === normalizedKey.toLowerCase()
             ));
             if (!account) throw Object.assign(new Error("API-клієнт не знайдено"), { code: "FACEBOOK_ACCOUNT_NOT_FOUND" });
@@ -1105,7 +1121,7 @@ export default function registerIpcHandlers({
                         signal,
                         onProgress: progress,
                     });
-                    await facebookAccountManager.update(account.accountKey, {
+                    await managerForAccount(account.accountKey).update(account.accountKey, {
                         userAgent: credentials.userAgent,
                         accessToken: credentials.accessToken,
                         cookie: credentials.cookies,
@@ -1175,7 +1191,7 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "accounts:adspower-open",
         safeHandler(async ({ accountKey }) => {
-            const account = (await facebookAccountManager.list()).find((item) => (
+            const account = (await managerForAccount(accountKey).list()).find((item) => (
                 item.accountKey === String(accountKey ?? "").trim()
             ));
             if (!account?.adsPowerProfileNo) throw Object.assign(new Error("Додайте номер профілю AdsPower"), { code: "ADSPOWER_PROFILE_NO_REQUIRED" });
@@ -1186,7 +1202,7 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "accounts:adspower-close",
         safeHandler(async ({ accountKey }) => {
-            const account = (await facebookAccountManager.list()).find((item) => (
+            const account = (await managerForAccount(accountKey).list()).find((item) => (
                 item.accountKey === String(accountKey ?? "").trim()
             ));
             if (!account?.adsPowerProfileNo) throw Object.assign(new Error("Додайте номер профілю AdsPower"), { code: "ADSPOWER_PROFILE_NO_REQUIRED" });
@@ -1202,14 +1218,14 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "accounts:archive-set",
         safeHandler(async ({ accountKey, archived }) => {
-            await facebookAccountManager.setArchived(accountKey, archived);
+            await managerForAccount(accountKey).setArchived(accountKey, archived);
             return refreshManagedAccounts();
         })
     );
     ipcMain.handle(
         "accounts:delete",
         safeHandler(async ({ accountKey }) => {
-            await facebookAccountManager.delete(accountKey);
+            await managerForAccount(accountKey).delete(accountKey);
             return refreshManagedAccounts();
         })
     );
@@ -1365,6 +1381,24 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle("proxies:list", safeHandler(listProxies));
     ipcMain.handle(
+        "proxies:sync-from-adspower",
+        safeHandler(async ({ proxyId }) => {
+            const stored = await proxyManager.getById(proxyId);
+            if (stored.adsPowerId == null) throw new Error("Вкажіть AdsPower ID проксі");
+            const source = await guiService.adsPower.getProxyById(stored.adsPowerId);
+            await proxyManager.update(proxyId, {
+                type: source.type,
+                host: source.host,
+                port: source.port,
+                username: source.user ?? "",
+                password: source.password ?? "",
+                refreshUrl: source.proxy_url ?? "",
+            });
+            await refreshClientsAfterProxyChange();
+            return listProxies();
+        })
+    );
+    ipcMain.handle(
         "proxies:get",
         safeHandler(async ({ proxyId }) => proxyManager.getById(proxyId))
     );
@@ -1387,6 +1421,10 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "proxies:delete",
         safeHandler(async ({ proxyId }) => {
+            const assigned = (await Promise.all([
+                facebookAccountManager.list(), bmAccountManager.list(), systemUserManager.list(),
+            ])).flat().find((account) => account.proxyId === proxyId);
+            if (assigned) throw new Error(`Проксі прив’язана до «${assigned.name}». Спочатку змініть прив’язку клієнта.`);
             await proxyManager.remove(proxyId);
             await refreshClientsAfterProxyChange();
             return listProxies();
@@ -2922,6 +2960,18 @@ export default function registerIpcHandlers({
                 }],
             });
             return result.canceled ? [] : result.filePaths;
+        })
+    );
+    ipcMain.handle(
+        "images:preview",
+        safeHandler(async ({ imagePath }) => {
+            const extension = path.extname(String(imagePath ?? "")).toLowerCase();
+            const mime = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp" }[extension];
+            if (!mime) throw new Error("Формат зображення не підтримується");
+            const info = await stat(imagePath);
+            if (!info.isFile() || info.size > 20 * 1024 * 1024) throw new Error("Зображення завелике для перегляду");
+            const content = await readFile(imagePath);
+            return `data:${mime};base64,${content.toString("base64")}`;
         })
     );
     ipcMain.handle(

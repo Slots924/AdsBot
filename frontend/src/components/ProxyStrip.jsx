@@ -10,6 +10,7 @@ import {
     Plus,
     RefreshCw,
     ShieldCheck,
+    CloudDownload,
     X,
 } from "lucide-react";
 
@@ -301,6 +302,7 @@ function ProxyCard({
     onDragEnd,
     onCheckStatus,
     onRefreshIp,
+    onSync,
     onEdit,
     onRemove,
 }) {
@@ -334,11 +336,12 @@ function ProxyCard({
             </span>
             <span className="account-copy">
                 <strong>{proxy.adsPowerId ?? "Без AdsPower ID"}</strong>
-                <span>{proxy.name || "Без імені"}</span>
+                <span>{proxy.name || " "}</span>
                 {apiDefault && <small className="proxy-api-badge">API</small>}
                 {status.ip && <small>IP {status.ip}</small>}
             </span>
             <span className="proxy-card-actions">
+                {onSync && <button type="button" className="icon-button" title="Синхронізувати з AdsPower" disabled={proxy.adsPowerId == null || busyId === proxy.id} onClick={(event) => onSync(event, proxy)}><CloudDownload size={13} /></button>}
                 <button
                     type="button"
                     className="icon-button"
@@ -423,6 +426,7 @@ export default function ProxyStrip({
     onCheck,
     onCheckConfig,
     onRefreshIp,
+    onSync = null,
     onReorder,
     onError,
     variant = "strip",
@@ -514,6 +518,13 @@ export default function ProxyStrip({
             });
         }
     };
+    const syncProxy = async (event, proxy) => {
+        event.stopPropagation();
+        setBusyId(proxy.id);
+        try { await onSync(proxy.id); }
+        catch (error) { onError({ ...errorDetails(error), title: "Не вдалося синхронізувати проксі з AdsPower" }); }
+        finally { setBusyId(null); }
+    };
 
     const removeProxy = async (event, proxy) => {
         event.stopPropagation();
@@ -574,6 +585,7 @@ export default function ProxyStrip({
                 onDragEnd={() => onReorder?.(orderedIdsRef.current)}
                 onCheckStatus={checkStatus}
                 onRefreshIp={refreshIp}
+                onSync={onSync ? syncProxy : null}
                 onEdit={openEditor}
                 onRemove={removeProxy}
             />

@@ -25,6 +25,7 @@ export default function AccountsTab({
     onCheckProxy,
     onCheckProxyConfig,
     onRefreshProxyIp,
+    onSyncProxy,
     onReorderProxies,
     onError,
 }) {
@@ -34,6 +35,7 @@ export default function AccountsTab({
                 <Sidebar
                     standalone
                     accounts={accounts}
+                    proxies={proxies}
                     selectedAccountKey={selectedAccountKey}
                     loading={accountsLoading}
                     onSelect={onSelectAccount}
@@ -58,6 +60,7 @@ export default function AccountsTab({
                     onCheck={onCheckProxy}
                     onCheckConfig={onCheckProxyConfig}
                     onRefreshIp={onRefreshProxyIp}
+                    onSync={onSyncProxy}
                     onReorder={onReorderProxies}
                     onError={onError}
                 />
