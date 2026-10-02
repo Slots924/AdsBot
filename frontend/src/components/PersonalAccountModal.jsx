@@ -107,9 +107,9 @@ export default function PersonalAccountModal({
     const [selectedBusinessId, setSelectedBusinessId] = useState("");
     const [accessRequest, setAccessRequest] = useState(null);
     const [accessState, setAccessState] = useState("");
-    const [accessSeconds, setAccessSeconds] = useState(60);
-    const accessStop = useRef(false);
-    const accessTimer = useRef(null);
+    const [accessInvites, setAccessInvites] = useState([]);
+    const [selectedInviteKey, setSelectedInviteKey] = useState("");
+    const [accessError, setAccessError] = useState("");
     const [selectedBmKey, setSelectedBmKey] = useState(initialBmKey ?? businessManagers.find((item) => item.isPrimary)?.accountKey ?? "");
     const [bmSelectionManual, setBmSelectionManual] = useState(Boolean(initialBmKey));
     const [section, setSection] = useState("launch");
@@ -188,11 +188,6 @@ export default function PersonalAccountModal({
         }
     }, [businessManagers, bmSelectionManual]);
 
-    useEffect(() => () => {
-        accessStop.current = true;
-        clearInterval(accessTimer.current);
-    }, []);
-
     useEffect(() => {
         setAccessRequest(null);
         setAccessState("");
@@ -222,7 +217,13 @@ export default function PersonalAccountModal({
     }, []);
 
     const mark = (key) => setCompleted((current) => new Set([...current, key]));
-    const run = async (key, operation, successMessage, feedbackKey = key) => {
+    const run = async (
+        key,
+        operation,
+        successMessage,
+        feedbackKey = key,
+        errorTitle = "Не вдалося виконати дію"
+    ) => {
         if (busy) return null;
         setBusy(key);
         try {
@@ -234,7 +235,7 @@ export default function PersonalAccountModal({
             mark(key);
             return result;
         } catch (error) {
-            onError({ ...errorDetails(error), title: "Не вдалося виконати дію" });
+            onError({ ...errorDetails(error), title: errorTitle });
             return null;
         } finally {
             setBusy("");
@@ -409,50 +410,57 @@ export default function PersonalAccountModal({
             onError({ ...errorDetails(error), title: "Не вдалося надіслати запрошення" });
         } finally { setBusinessBusy(false); }
     };
-    const stopAccessAcceptance = () => {
-        accessStop.current = true;
-        setAccessState("stopped");
-        clearInterval(accessTimer.current);
-    };
-    const acceptAccessRequest = async () => {
-        if (!session || !accessRequest || busy) return;
-        accessStop.current = false;
-        const deadline = Date.now() + 60000;
-        setAccessSeconds(60);
+    const inviteKey = (invite) => `${invite.adAccountId}:${invite.agencyId}:${invite.adMarketId}`;
+    const selectedInvite = accessInvites.find((invite) => inviteKey(invite) === selectedInviteKey);
+    const checkAccessInvites = async () => {
+        if (!session || busy) return;
+        setBusy("access.check");
         setAccessState("searching");
-        setBusy("access.accept");
-        accessTimer.current = setInterval(() => setAccessSeconds(Math.max(0, Math.ceil((deadline - Date.now()) / 1000))), 250);
+        setAccessError("");
         try {
-            await unwrap(window.adsBot.preparePersonalAdAccountAccess(session.id, accessRequest.adAccountId));
-            while (!accessStop.current && Date.now() < deadline) {
-                const found = await unwrap(window.adsBot.findPersonalAdAccountAccess(session.id, {
-                    adAccountId: accessRequest.adAccountId,
-                    agencyId: accessRequest.businessId,
-                    adMarketId: accessRequest.adMarketId,
-                }));
-                if (accessStop.current) break;
-                if (found.status === "FOUND") {
-                    await unwrap(window.adsBot.acceptPersonalAdAccountAccess(session.id, found.data));
-                    if (!accessStop.current) setAccessState("accepted");
-                    return;
+            const accountIds = [...new Set(accounts.map((account) =>
+                String(account.accountId || account.id || "").replace(/^act_/, ""))
+                .filter((id) => /^\d+$/.test(id)))];
+            if (!accountIds.length && adAccountId) accountIds.push(String(adAccountId).replace(/^act_/, ""));
+            const invites = [];
+            const errors = [];
+            for (const accountId of accountIds) {
+                try {
+                    await unwrap(window.adsBot.preparePersonalAdAccountAccess(session.id, accountId));
+                    const result = await unwrap(window.adsBot.listPersonalAdAccountAccess(session.id, accountId));
+                    invites.push(...result.invites);
+                    errors.push(...result.errors.map((error) => `РК ${accountId}, ID ${error.adMarketId}: ${error.message}`));
+                } catch (error) {
+                    errors.push(`РК ${accountId}: ${error.message}`);
                 }
-                await new Promise((resolve) => {
-                    const wait = Math.min(5000, Math.max(0, deadline - Date.now()));
-                    const timer = setTimeout(resolve, wait);
-                    const check = setInterval(() => {
-                        if (accessStop.current) { clearTimeout(timer); clearInterval(check); resolve(); }
-                    }, 100);
-                    setTimeout(() => clearInterval(check), wait);
-                });
             }
-            if (!accessStop.current) setAccessState("timeout");
-        } catch (error) {
-            if (!accessStop.current) {
-                setAccessState("error");
-                onError({ ...errorDetails(error), title: "Не вдалося прийняти запрошення" });
-            }
+            setAccessInvites(invites);
+            setSelectedInviteKey((current) => invites.some((invite) => inviteKey(invite) === current)
+                ? current : (invites[0] ? inviteKey(invites[0]) : ""));
+            setAccessError(errors.join("; "));
+            setAccessState("checked");
         } finally {
-            clearInterval(accessTimer.current);
+            setBusy("");
+        }
+    };
+    const changeAccessInvite = async (operation) => {
+        if (!session || !selectedInvite || busy) return;
+        setBusy(`access.${operation}`);
+        setAccessError("");
+        try {
+            await unwrap(window.adsBot.preparePersonalAdAccountAccess(session.id, selectedInvite.adAccountId));
+            await unwrap(operation === "accept"
+                ? window.adsBot.acceptPersonalAdAccountAccess(session.id, selectedInvite)
+                : window.adsBot.rejectPersonalAdAccountAccess(session.id, selectedInvite));
+            const remaining = accessInvites.filter((invite) => inviteKey(invite) !== selectedInviteKey);
+            setAccessInvites(remaining);
+            setSelectedInviteKey(remaining[0] ? inviteKey(remaining[0]) : "");
+            setAccessState(operation === "accept" ? "accepted" : "rejected");
+        } catch (error) {
+            setAccessError(error.message);
+            onError({ ...errorDetails(error), title: operation === "accept"
+                ? "Не вдалося прийняти запрошення" : "Не вдалося відхилити запрошення" });
+        } finally {
             setBusy("");
         }
     };
@@ -573,12 +581,20 @@ export default function PersonalAccountModal({
                     {section === "bm" && <section className="personal-section personal-bm-section">
                         <div className="personal-section-heading"><div><span className="eyebrow">Business Manager</span><h3>Бізнесменеджер</h3><p>Окрема сесія БМ та доступ до РК персонального профілю.</p></div></div>
                         <div className="personal-launch-panel business"><div className="personal-launch-heading"><span>БМ-профіль</span><small>Окрема сесія</small></div><div className="personal-status-grid business">{[["Facebook payload", visibleBusinessSession?.overview?.hasFacebookPayload], ["Ads Manager payload", visibleBusinessSession?.overview?.hasAdsManagerPayload], ["Access token", visibleBusinessSession?.overview?.hasAccessToken]].map(([label, ready]) => <div className={`personal-status ${ready ? "ready" : ""}`} key={label}><i /> <span>{label}</span></div>)}</div><div className="personal-launch-action"><button type="button" className="primary-button personal-main-action" disabled={!selectedBm?.adsPowerProfileNo || businessBusy} aria-busy={businessBusy} onClick={() => void startBusiness()}>{businessBusy ? <><LoaderCircle className="spin" size={16} /> Перевіряю БМ…</> : <><Play size={16} /> Запустити і перевірити</>}</button><SearchSelect items={businessManagers} value={selectedBmKey} onChange={(value) => { setSelectedBmKey(value); setBmSelectionManual(true); setAvailableBusinesses([]); setSelectedBusinessId(""); setFeedback((current) => ({ ...current, businessLaunch: "" })); }} getId={(item) => item.accountKey} getTitle={(item) => item.name || "БМ без назви"} getSubtitle={() => "БМ-профіль"} getSearchText={(item) => `${item.name} ${item.adsPowerProfileNo ?? ""}`} placeholder="Оберіть БМ" searchPlaceholder="Пошук БМ…" ariaLabel="БМ-профіль для запуску" className="personal-bm-select" />{feedback.businessLaunch && <span className="personal-launch-success"><Check size={15} /> Запуск успішний</span>}</div></div>
-                        <div className="personal-action-card"><div className="personal-card-heading"><h4>Доступні бізнесменеджери</h4><button type="button" className="secondary-button" disabled={!visibleBusinessSession || businessBusy || accessState === "searching"} onClick={() => void refreshAvailableBusinesses()}><RefreshCw size={15} /> Оновити</button></div><SearchSelect items={availableBusinesses} value={selectedBusinessId} onChange={setSelectedBusinessId} getId={(item) => item.id} getTitle={(item) => item.name} getSubtitle={(item) => `ID: ${item.id} · ${item.active ? "Активний" : "Неактивний"}`} getSearchText={(item) => `${item.name} ${item.id}`} getStatus={(item) => item.active ? "active" : "inactive"} placeholder="БМ не знайдено" searchPlaceholder="Пошук БМ…" ariaLabel="Доступний бізнесменеджер" disabled={!availableBusinesses.length || accessState === "searching"} className="personal-business-select" /></div>
+                        <div className="personal-action-card"><div className="personal-card-heading"><h4>Доступні бізнесменеджери</h4><button type="button" className="secondary-button" disabled={!visibleBusinessSession || businessBusy || Boolean(busy)} onClick={() => void refreshAvailableBusinesses()}><RefreshCw size={15} /> Оновити</button></div><SearchSelect items={availableBusinesses} value={selectedBusinessId} onChange={setSelectedBusinessId} getId={(item) => item.id} getTitle={(item) => item.name} getSubtitle={(item) => `ID: ${item.id} · ${item.active ? "Активний" : "Неактивний"}`} getSearchText={(item) => `${item.name} ${item.id}`} getStatus={(item) => item.active ? "active" : "inactive"} placeholder="БМ не знайдено" searchPlaceholder="Пошук БМ…" ariaLabel="Доступний бізнесменеджер" disabled={!availableBusinesses.length || Boolean(busy)} className="personal-business-select" /></div>
                         <div className="personal-action-card personal-ad-access-card">
                             <div className="personal-card-heading"><h4>Рекламний кабінет персонального профілю</h4><button type="button" className="secondary-button" disabled={!session || Boolean(busy)} onClick={() => void refreshAccounts()}><RefreshCw size={15} /> Оновити</button></div>
                             <AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} disabled={!session || Boolean(busy)} />
-                            <div className="personal-inline-actions"><button type="button" className="primary-button" disabled={!visibleBusinessSession || !selectedBusinessId || !adAccountId || businessBusy || accessState === "searching"} onClick={() => void sendAccessRequest()}>Надіслати запит на доступ</button>{accessRequest && <span className="personal-launch-success"><Check size={15} /> Запит відправлено · ID {accessRequest.adMarketId}</span>}</div>
-                            <div className="personal-inline-actions"><button type="button" className="primary-button" disabled={!session || !accessRequest || Boolean(busy) || accessState === "accepted"} onClick={() => void acceptAccessRequest()}>{accessState === "searching" && <LoaderCircle className="spin" size={16} />} Прийняти запит на доступ</button>{accessState === "searching" && <><span className="personal-countdown">{accessSeconds} с</span><button type="button" className="secondary-button" onClick={stopAccessAcceptance}>Стоп</button></>}{accessState === "accepted" && <span className="personal-launch-success"><Check size={15} /> Запрошення ID {accessRequest?.adMarketId} прийнято</span>}{accessState === "timeout" && <small>Запрошення не знайдено за 60 секунд</small>}{accessState === "stopped" && <small>Операцію зупинено</small>}</div>
+                            <div className="personal-inline-actions"><button type="button" className="primary-button" disabled={!visibleBusinessSession || !selectedBusinessId || !adAccountId || businessBusy || Boolean(busy)} onClick={() => void sendAccessRequest()}>Надіслати запит на доступ</button>{accessRequest && <span className="personal-launch-success"><Check size={15} /> Запит відправлено · ID {accessRequest.adMarketId}</span>}</div>
+                            <div className="personal-inline-actions personal-invite-actions">
+                                <button type="button" className="secondary-button" disabled={!session || Boolean(busy)} onClick={() => void checkAccessInvites()}>{accessState === "searching" && <LoaderCircle className="spin" size={16} />} Перевірити інвайти</button>
+                                <SearchSelect items={accessInvites} value={selectedInviteKey} onChange={setSelectedInviteKey} getId={inviteKey} getTitle={(item) => `ID інвайта ${item.adMarketId}`} getSubtitle={(item) => `БМ: ${availableBusinesses.find((business) => String(business.id) === item.agencyId)?.name || item.agencyId} (${item.agencyId}) · РК: ${item.adAccountId}`} getSearchText={(item) => `${item.adMarketId} ${item.agencyId} ${item.adAccountId}`} placeholder="Інвайтів не знайдено" searchPlaceholder="Пошук інвайта…" ariaLabel="Інвайт на доступ до РК" disabled={!accessInvites.length || Boolean(busy)} className="personal-invite-select" />
+                                <button type="button" className="primary-button" disabled={!selectedInvite || Boolean(busy)} onClick={() => void changeAccessInvite("accept")}>Прийняти</button>
+                                <button type="button" className="secondary-button" disabled={!selectedInvite || Boolean(busy)} onClick={() => void changeAccessInvite("reject")}>Відхилити</button>
+                            </div>
+                            {accessError && <small className="personal-invite-error">{accessError}</small>}
+                            {accessState === "checked" && !accessInvites.length && !accessError && <small>Запрошень не знайдено</small>}
+                            {(accessState === "accepted" || accessState === "rejected") && <span className="personal-launch-success"><Check size={15} /> Запрошення {accessState === "accepted" ? "прийнято" : "відхилено"}</span>}
                         </div>
                     </section>}
 
@@ -596,7 +612,7 @@ export default function PersonalAccountModal({
                         {businessEditor && <div className="personal-action-card business-editor"><div className="personal-card-heading"><h4>Business information</h4><button type="button" className="icon-button" onClick={() => setBusinessEditor(false)}><X size={15} /></button></div><div className="personal-two-columns">{[["street1", "Адреса"], ["street2", "Адреса 2"], ["city", "Місто"], ["state", "Штат"], ["zip", "ZIP"], ["countryCode", "Країна"], ["businessName", "Назва бізнесу"], ["currency", "Валюта"], ["timezone", "Timezone"]].map(([key, label]) => <label className="field" key={key}><span>{label}</span><input value={business[key]} onChange={(event) => setBusiness({ ...business, [key]: event.target.value })} /></label>)}</div><div className="form-actions"><button type="button" className="secondary-button" onClick={() => setBusinessEditor(false)}>Назад</button><button type="button" className="primary-button" disabled={Boolean(busy)} onClick={async () => { const value = await run("business", () => window.adsBot.updatePersonalBusinessInfo(session.id, { adAccountId, currency: business.currency, timezone: business.timezone, tax: { businessName: business.businessName, businessAddress: business } }), "Business info успішно оновлено", "business.update"); if (value) setBusinessEditor(false); }}>Підтвердити</button></div>{feedback["business.update"] && <SuccessNotice>{feedback["business.update"]}</SuccessNotice>}</div>}</>}
                     </section>}
 
-                    {section === "payment" && <section className="personal-section"><div className="personal-section-heading"><div><span className="eyebrow">Billing</span><h3>Додати спосіб оплати</h3><p>Карта читається із зашифрованого локального сховища; CVC не зберігається.</p></div><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw size={16} /> Оновити РК</button></div><AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} /><label className="field"><span>Кредитна картка</span><select value={cardId} onChange={(event) => setCardId(event.target.value)}><option value="">Оберіть картку</option>{cards.map((card) => <option key={card.id} value={card.id}>{card.nickname.toUpperCase()} · {card.cardholderName} · {card.network} {card.last4} · {card.expiration}</option>)}</select></label>{activeCard && <div className="selected-card-summary"><strong>{activeCard.nickname.toUpperCase()}</strong><small>{activeCard.cardholderName} · {activeCard.network} •••• {activeCard.last4} · EXP {activeCard.expiration}{activeCard.postalCode ? ` · ZIP ${activeCard.postalCode}` : ""}</small></div>}<label className="field compact-field"><span>CVC · не зберігається</span><input type="password" inputMode="numeric" maxLength="4" value={securityCode} onChange={(event) => setSecurityCode(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button personal-main-action" disabled={!adAccountId || !cardId || !/^\d{3,4}$/.test(securityCode) || Boolean(busy)} onClick={async () => { const value = await run("payment", () => window.adsBot.addPersonalCreditCard(session.id, { adAccountId, cardId, securityCode }), "Спосіб оплати успішно додано", "payment.add"); if (value) setSecurityCode(""); }}><BadgeDollarSign size={16} /> Додати карту</button>{feedback["payment.add"] && <SuccessNotice>{feedback["payment.add"]}</SuccessNotice>}</section>}
+                    {section === "payment" && <section className="personal-section"><div className="personal-section-heading"><div><span className="eyebrow">Billing</span><h3>Додати спосіб оплати</h3><p>Карта читається із зашифрованого локального сховища; CVC не зберігається.</p></div><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw size={16} /> Оновити РК</button></div><AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} /><label className="field"><span>Кредитна картка</span><select value={cardId} onChange={(event) => setCardId(event.target.value)}><option value="">Оберіть картку</option>{cards.map((card) => <option key={card.id} value={card.id}>{card.nickname.toUpperCase()} · {card.cardholderName} · {card.network} {card.last4} · {card.expiration}</option>)}</select></label>{activeCard && <div className="selected-card-summary"><strong>{activeCard.nickname.toUpperCase()}</strong><small>{activeCard.cardholderName} · {activeCard.network} •••• {activeCard.last4} · EXP {activeCard.expiration}{activeCard.postalCode ? ` · ZIP ${activeCard.postalCode}` : ""}</small></div>}<label className="field compact-field"><span>CVC · не зберігається</span><input type="password" inputMode="numeric" maxLength="4" value={securityCode} onChange={(event) => setSecurityCode(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button personal-main-action" disabled={!adAccountId || !cardId || !/^\d{3,4}$/.test(securityCode) || Boolean(busy)} onClick={async () => { const value = await run("payment", () => window.adsBot.addPersonalCreditCard(session.id, { adAccountId, cardId, securityCode }), "Спосіб оплати успішно додано", "payment.add", "Не вдалося додати карту"); if (value) setSecurityCode(""); }}><BadgeDollarSign size={16} /> Додати карту</button>{feedback["payment.add"] && <SuccessNotice>{feedback["payment.add"]}</SuccessNotice>}</section>}
 
                     {section === "phone" && <section className="personal-section">
                         <div className="personal-section-heading"><div><span className="eyebrow">Verification</span><h3>Підтвердження номера телефону</h3><p>Код країни можна вводити як з плюсом, так і без нього; Facebook отримає нормалізований E.164 номер.</p></div><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw size={16} /> Оновити РК</button></div>

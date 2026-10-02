@@ -39,18 +39,27 @@ export async function performAgencyRequest(page, {
         let actorId;
         let fbDtsg;
         let lsd;
+        let fbDtsgAg;
         try {
             actorId = String(require("CurrentUserInitialData").USER_ID ?? "");
-            fbDtsg = String(require("DTSGInitialData").token ?? "");
-            lsd = String(require("LSD").token ?? "");
+            if (request.method === "GET") {
+                const dtsgAsync = require("DTSG_ASYNC");
+                fbDtsgAg = String(dtsgAsync?.getCachedToken?.()
+                    || await dtsgAsync?.getToken?.() || "");
+            } else {
+                fbDtsg = String(require("DTSGInitialData").token ?? "");
+                lsd = String(require("LSD").token ?? "");
+            }
         } catch {
             return { runtimeUnavailable: true };
         }
-        if (!/^\d+$/.test(actorId) || !fbDtsg || !lsd) {
+        if (!/^\d+$/.test(actorId)
+            || (request.method === "GET" ? !fbDtsgAg : !fbDtsg || !lsd)) {
             return { runtimeUnavailable: true };
         }
 
-        const jazoest = `2${[...fbDtsg].reduce((sum, character) =>
+        const jazoestToken = request.method === "GET" ? fbDtsgAg : fbDtsg;
+        const jazoest = `2${[...jazoestToken].reduce((sum, character) =>
             sum + character.charCodeAt(0), 0)}`;
         const parameters = new URLSearchParams({
             ad_market_id: request.adMarketId,
@@ -61,7 +70,7 @@ export async function performAgencyRequest(page, {
             jazoest,
         });
         if (request.method === "GET") {
-            parameters.set("fb_dtsg_ag", fbDtsg);
+            parameters.set("fb_dtsg_ag", fbDtsgAg);
         } else {
             parameters.set("operation", request.operation);
             parameters.set("ext", request.ext);
@@ -157,10 +166,12 @@ export function getAgencyResponseError(body) {
         const error = payload?.error ?? (Array.isArray(payload?.errors) ? payload.errors[0] : null);
         if (!error) return null;
         return {
-            code: typeof error === "object" ? error.code ?? null : null,
+            code: typeof error === "object" ? error.code ?? null : error,
             message: typeof error === "object"
                 ? String(error.message ?? error.summary ?? payload.errorSummary ?? "Facebook повернув помилку")
                 : String(payload.errorSummary ?? error),
+            description: String(payload.errorDescription ?? ""),
+            lid: String(payload.lid ?? ""),
         };
     } catch {
         return null;

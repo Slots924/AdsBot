@@ -139,6 +139,31 @@ assert.deepEqual(unavailableContextResult.contextDiagnostics, {
 });
 assert.equal(unavailableContextResult.billingDiagnostics[0].request.paymentAccountIdMasked, "********2834");
 
+const cardAccountLimitResult = await addCreditCardPaymentMethod({
+    page: createPage({
+        status: "ERROR",
+        failureStage: "BUILD_CARD_NUMBER",
+        errorMessage: "GraphQL operation responded with error 4992003: Remove it from another account and try again or add a different payment method.",
+    }),
+    paymentAccountId: "payment-account-id",
+    cardNumber: "4000000000000002",
+    securityCode: "123",
+    expiration: "09/28",
+    cardholderName: "Test Cardholder",
+    postalCode: "20500",
+});
+
+assert.equal(cardAccountLimitResult.success, false);
+assert.equal(
+    cardAccountLimitResult.status,
+    addCreditCardPaymentMethodStatuses.CARD_ACCOUNT_LIMIT_REACHED
+);
+assert.equal(cardAccountLimitResult.failureStage, "BUILD_CARD_NUMBER");
+assert.equal(
+    cardAccountLimitResult.error,
+    "Неможливо додати карту: перевищено ліміт рекламних кабінетів для цієї карти. Видаліть її з іншого РК або використайте іншу карту."
+);
+
 const invalidResult = await addCreditCardPaymentMethod({
     page: createPage({ status: "ADDED" }),
     paymentAccountId: "",

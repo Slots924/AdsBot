@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "2c719e83-4282-4da5-9ee5-a9da3212ac1d",
+  "taskId": "02e299ee-6396-4a6b-855c-4f635216bd7f",
+  "type": "campaign",
+  "title": "DE | Creo_1 | 40+ 02/10 08:54",
+  "status": "failed",
+  "createdAt": "2026-10-02T06:10:27.691Z",
+  "startedAt": "2026-10-02T06:10:25.085Z",
+  "finishedAt": "2026-10-02T06:10:27.689Z",
+  "durationMs": 2604,
+  "inputSummary": {
+    "campaignJobId": "a7fcfa27-1fc8-4d9a-a028-141e77c31707",
+    "accountKey": "account-026",
+    "adAccountId": "act_2125983458312840",
+    "campaignName": "DE | Creo_1 | 40+ 02/10 08:54",
+    "templateId": 26,
+    "pageId": "1272886725918152",
+    "postId": "1272886725918152_122095661043503197",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-02T05:54:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": null,
+      "creativeId": null,
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Unsupported get request. Object with ID '1272886725918152_122095661043503197' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 100,
+      "graphSubcode": 33,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "preflight",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "a7fcfa27-1fc8-4d9a-a028-141e77c31707",
+    "accountKey": "account-026",
+    "adAccountId": "act_2125983458312840",
+    "uniqueKey": "campaign-job:a7fcfa27-1fc8-4d9a-a028-141e77c31707"
+  }
+}

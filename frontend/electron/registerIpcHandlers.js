@@ -1376,8 +1376,12 @@ export default function registerIpcHandlers({
         personalAccountSessionManager.prepareAdAccountAccess(sessionId, { adAccountId })));
     ipcMain.handle("personal-account:ad-access-find", safeHandler(({ sessionId, ...input }) =>
         personalAccountSessionManager.findAdAccountAccessRequest(sessionId, input)));
+    ipcMain.handle("personal-account:ad-access-list", safeHandler(({ sessionId, adAccountId }) =>
+        personalAccountSessionManager.listAdAccountAccessRequests(sessionId, { adAccountId })));
     ipcMain.handle("personal-account:ad-access-accept", safeHandler(({ sessionId, invite }) =>
         personalAccountSessionManager.acceptAdAccountAccessRequest(sessionId, invite)));
+    ipcMain.handle("personal-account:ad-access-reject", safeHandler(({ sessionId, invite }) =>
+        personalAccountSessionManager.rejectAdAccountAccessRequest(sessionId, invite)));
     ipcMain.handle(
         "personal-account:business-info-check",
         safeHandler(({ sessionId, ...payload }) => (

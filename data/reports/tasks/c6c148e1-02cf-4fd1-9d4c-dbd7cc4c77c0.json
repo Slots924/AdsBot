@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "c6c148e1-02cf-4fd1-9d4c-dbd7cc4c77c0",
+  "taskId": "841f728c-87da-4978-a035-5d6f310f0f56",
+  "type": "campaign",
+  "title": "DE | Creo_17 | 40+ 02/10 09:51",
+  "status": "failed",
+  "createdAt": "2026-10-02T06:51:32.179Z",
+  "startedAt": "2026-10-02T06:51:21.185Z",
+  "finishedAt": "2026-10-02T06:51:32.177Z",
+  "durationMs": 10992,
+  "inputSummary": {
+    "campaignJobId": "54e41cda-4819-4a23-98ce-53f5dd1ee9ab",
+    "accountKey": "account-026",
+    "adAccountId": "act_2125983458312840",
+    "campaignName": "DE | Creo_17 | 40+ 02/10 09:51",
+    "templateId": 26,
+    "pageId": "1272886725918152",
+    "postId": "1272886725918152_122095693047503197",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-02T06:51:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120250835260520382",
+      "creativeId": "1418330852981731",
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "You have been temporarily blocked from performing this action.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 10,
+      "graphSubcode": 2859015,
+      "graphUserTitle": "Your account is restricted at the moment",
+      "graphUserMessage": "You have been temporarily blocked from performing this action.",
+      "stage": "adset",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "54e41cda-4819-4a23-98ce-53f5dd1ee9ab",
+    "accountKey": "account-026",
+    "adAccountId": "act_2125983458312840",
+    "uniqueKey": "campaign-job:54e41cda-4819-4a23-98ce-53f5dd1ee9ab"
+  }
+}

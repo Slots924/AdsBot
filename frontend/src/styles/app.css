@@ -1736,7 +1736,7 @@ button:focus-visible, input:focus-visible {
 }
 
 /* Персональні акаунти та локальні платіжні картки */
-.personal-account-layer { padding: 12px; }
+.personal-account-layer { z-index: 190; padding: 12px; }
 .personal-account-modal { display: flex; width: min(1160px, calc(100vw - 24px)); height: calc(100vh - 24px); min-height: 0; overflow: hidden; flex-direction: column; border: 1px solid #34394a; border-radius: 18px; color: #edf0f7; background: #11141e; box-shadow: 0 32px 90px rgba(0,0,0,.68); }
 .personal-account-header { display: grid; grid-template-columns: minmax(250px,1fr) auto auto; align-items: center; gap: 18px; min-height: 78px; padding: 14px 18px; border-bottom: 1px solid var(--stroke); background: #151925; }
 .personal-header-actions { display: flex; gap: 6px; }
@@ -1806,6 +1806,9 @@ button:focus-visible, input:focus-visible {
 .personal-bm-section .personal-ad-access-card { gap: 16px; }
 .personal-ad-access-card > .personal-inline-actions:nth-of-type(3) { padding-top: 15px; border-top: 1px solid #303b4d; }
 .personal-bm-section .personal-inline-actions { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; min-width: 0; }
+.personal-invite-actions .personal-invite-select { flex: 1 1 260px; min-width: 220px; }
+.personal-invite-actions .personal-invite-select .select-trigger { min-height: 52px; border-color: #3c4659; background: #121824; }
+.personal-invite-error { color: #ff9b9b; overflow-wrap: anywhere; }
 .personal-countdown { color: #b9b1ff; font-size: 13px; font-weight: 700; }
 @media (max-width: 850px) {
     .personal-profile-top { flex-direction: column; }

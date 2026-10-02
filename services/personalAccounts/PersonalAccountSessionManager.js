@@ -25,7 +25,9 @@ import getBrowserAdAccounts from "../../facebook/api-actions/ads-manager/getAdAc
 import getBrowserBusinessManagers from "../../facebook/api-actions/ads-manager/getBrowserBusinessManagers.js";
 import requestAdAccountAccess from "../../facebook/api-actions/ads-manager/requestAdAccountAccess.js";
 import getAdAccountAccessRequest from "../../facebook/api-actions/ads-manager/getAdAccountAccessRequest.js";
+import listAdAccountAccessRequests from "../../facebook/api-actions/ads-manager/listAdAccountAccessRequests.js";
 import acceptAdAccountAccessRequest from "../../facebook/api-actions/ads-manager/acceptAdAccountAccessRequest.js";
+import rejectAdAccountAccessRequest from "../../facebook/api-actions/ads-manager/rejectAdAccountAccessRequest.js";
 import getAdPixels from "../../facebook/api-actions/ads-manager/getAdPixels.js";
 import createAdPixel from "../../facebook/api-actions/ads-manager/createAdPixel.js";
 import requestPhoneVerificationCode
@@ -229,13 +231,14 @@ function sessionError(message, code, details = {}) {
 function assertAction(result, fallback) {
     if (result?.success) return result;
     throw sessionError(
-        result?.error || fallback,
+        result?.error || result?.facebookError?.description || result?.facebookError?.message || fallback,
         result?.status || "PERSONAL_ACCOUNT_ACTION_FAILED",
         {
             stage: result?.stage ?? null,
             httpStatus: result?.httpStatus ?? null,
             graphCode: result?.graphCode ?? null,
             graphSubcode: result?.graphSubcode ?? null,
+            facebookError: result?.facebookError ?? null,
         }
     );
 }
@@ -451,6 +454,11 @@ export default class PersonalAccountSessionManager {
 
     requestAdAccountAccess(sessionId, { businessId, adAccountId }) {
         return this.#perform(sessionId, "ads.access_request", async (session) => {
+            await session.report.append("ads.access_request.request", {
+                method: "POST",
+                businessId,
+                adAccountId,
+            });
             if (this.mode !== "businessManager") throw sessionError("Потрібна сесія БМ", "BUSINESS_SESSION_REQUIRED");
             if (!/^\d+$/.test(String(businessId)) || !/^\d+$/.test(String(adAccountId).replace(/^act_/, ""))) {
                 throw sessionError("Некоректний ID бізнесу або РК", "INVALID_INPUT");
@@ -464,9 +472,17 @@ export default class PersonalAccountSessionManager {
                 session.businessManagerPayload = captured.data;
                 session.businessManagerPayloadUrl = session.page.url();
             }
-            return assertAction(await requestAdAccountAccess({
+            const result = await requestAdAccountAccess({
                 page: session.page, businessId, adAccountId,
-            }), "Не вдалося надіслати запит на доступ до РК").data;
+            });
+            await session.report.append("ads.access_request.response", {
+                status: result.status,
+                httpStatus: result.httpStatus ?? null,
+                error: result.error ?? null,
+                graphCode: result.graphCode ?? null,
+                graphSubcode: result.graphSubcode ?? null,
+            });
+            return assertAction(result, "Не вдалося надіслати запит на доступ до РК").data;
         });
     }
 
@@ -493,23 +509,119 @@ export default class PersonalAccountSessionManager {
 
     findAdAccountAccessRequest(sessionId, input) {
         return this.#perform(sessionId, "ads.access_find", async (session) => {
+            await session.report.append("ads.access_find.request", {
+                method: "GET",
+                path: "/adaccount/agency/accept_reject_dialog/",
+                adAccountId: input?.adAccountId,
+                agencyId: input?.agencyId,
+                adMarketId: input?.adMarketId,
+            });
             if (this.mode === "businessManager" || !session.addAccountSettingsPayload
                 || session.addAccountSettingsPayloadUrl !== session.page.url()) {
                 throw sessionError("Спочатку відкрийте налаштування РК", "ACCOUNT_SETTINGS_REQUIRED");
             }
-            return assertAction(await getAdAccountAccessRequest({ page: session.page, ...input }),
-                "Не вдалося перевірити запрошення");
+            const result = await getAdAccountAccessRequest({ page: session.page, ...input });
+            await session.report.append("ads.access_find.response", {
+                status: result.status,
+                httpStatus: result.httpStatus ?? null,
+                facebookError: result.facebookError ?? null,
+                hasAccept: Boolean(result.data?.accept),
+                hasReject: Boolean(result.data?.reject),
+                error: result.error ?? null,
+            });
+            return assertAction(result, "Не вдалося перевірити запрошення");
+        });
+    }
+
+    listAdAccountAccessRequests(sessionId, { adAccountId }) {
+        return this.#perform(sessionId, "ads.access_list", async (session) => {
+            if (this.mode === "businessManager" || !session.addAccountSettingsPayload
+                || session.addAccountSettingsPayloadUrl !== session.page.url()) {
+                throw sessionError("Спочатку відкрийте налаштування РК", "ACCOUNT_SETTINGS_REQUIRED");
+            }
+            const listed = assertAction(await listAdAccountAccessRequests({ page: session.page, adAccountId }),
+                "Не вдалося отримати список запрошень").data;
+            await session.report.append("ads.access_list.candidates", {
+                adAccountId, candidates: listed,
+            });
+            const invites = [];
+            const errors = [];
+            for (const candidate of listed) {
+                const result = await getAdAccountAccessRequest({ page: session.page, ...candidate });
+                await session.report.append("ads.access_list.response", {
+                    adAccountId: candidate.adAccountId,
+                    agencyId: candidate.agencyId,
+                    adMarketId: candidate.adMarketId,
+                    status: result.status,
+                    httpStatus: result.httpStatus ?? null,
+                    facebookError: result.facebookError ?? null,
+                    hasAccept: Boolean(result.data?.accept),
+                    hasReject: Boolean(result.data?.reject),
+                    error: result.error ?? null,
+                });
+                if (result.success && result.status === "FOUND") invites.push(result.data);
+                else if (!result.success) errors.push({
+                    ...candidate,
+                    status: result.status,
+                    message: result.error || result.facebookError?.description
+                        || result.facebookError?.message || result.status,
+                });
+            }
+            return { invites, errors };
         });
     }
 
     acceptAdAccountAccessRequest(sessionId, invite) {
         return this.#perform(sessionId, "ads.access_accept", async (session) => {
+            await session.report.append("ads.access_accept.request", {
+                method: "POST",
+                path: "/adaccount/agency/request/accept_reject/",
+                adAccountId: invite?.adAccountId,
+                agencyId: invite?.agencyId,
+                adMarketId: invite?.adMarketId,
+                operation: "0",
+                hasExt: Boolean(invite?.accept?.ext),
+                hasHash: Boolean(invite?.accept?.hash),
+            });
             if (this.mode === "businessManager" || !session.addAccountSettingsPayload
                 || session.addAccountSettingsPayloadUrl !== session.page.url()) {
                 throw sessionError("Спочатку відкрийте налаштування РК", "ACCOUNT_SETTINGS_REQUIRED");
             }
-            return assertAction(await acceptAdAccountAccessRequest({ page: session.page, invite }),
-                "Не вдалося прийняти запрошення").data;
+            const result = await acceptAdAccountAccessRequest({ page: session.page, invite });
+            await session.report.append("ads.access_accept.response", {
+                status: result.status,
+                httpStatus: result.httpStatus ?? null,
+                facebookError: result.facebookError ?? null,
+                error: result.error ?? null,
+            });
+            return assertAction(result, "Не вдалося прийняти запрошення").data;
+        });
+    }
+
+    rejectAdAccountAccessRequest(sessionId, invite) {
+        return this.#perform(sessionId, "ads.access_reject", async (session) => {
+            await session.report.append("ads.access_reject.request", {
+                method: "POST",
+                path: "/adaccount/agency/request/accept_reject/",
+                adAccountId: invite?.adAccountId,
+                agencyId: invite?.agencyId,
+                adMarketId: invite?.adMarketId,
+                operation: "1",
+                hasExt: Boolean(invite?.reject?.ext),
+                hasHash: Boolean(invite?.reject?.hash),
+            });
+            if (this.mode === "businessManager" || !session.addAccountSettingsPayload
+                || session.addAccountSettingsPayloadUrl !== session.page.url()) {
+                throw sessionError("Спочатку відкрийте налаштування РК", "ACCOUNT_SETTINGS_REQUIRED");
+            }
+            const result = await rejectAdAccountAccessRequest({ page: session.page, invite });
+            await session.report.append("ads.access_reject.response", {
+                status: result.status,
+                httpStatus: result.httpStatus ?? null,
+                facebookError: result.facebookError ?? null,
+                error: result.error ?? null,
+            });
+            return assertAction(result, "Не вдалося відхилити запрошення").data;
         });
     }
 
@@ -1015,7 +1127,15 @@ export default class PersonalAccountSessionManager {
                 await session.report.append(`${action}.completed`, {
                     durationMs: Date.now() - startedAt,
                     context: session.context,
-                    result,
+                    result: (action === "ads.access_find" || action === "ads.access_list") ? {
+                        success: result.success,
+                        status: result.status ?? null,
+                        httpStatus: result.httpStatus ?? null,
+                        hasAccept: Boolean(result.data?.accept),
+                        hasReject: Boolean(result.data?.reject),
+                        inviteCount: result.invites?.length ?? null,
+                        errorCount: result.errors?.length ?? null,
+                    } : result,
                 });
                 this.logger?.info(action, "Дію персонального акаунта виконано", {
                     sessionId: session.id,
@@ -1032,6 +1152,8 @@ export default class PersonalAccountSessionManager {
                         message: String(error?.message ?? error),
                         code: error?.code ?? null,
                         stage: error?.stage ?? null,
+                        httpStatus: error?.httpStatus ?? null,
+                        facebookError: error?.facebookError ?? null,
                         ...(error?.result ? { result: error.result } : {}),
                         ...(error?.moduleName ? { moduleName: error.moduleName } : {}),
                         ...(error?.stack ? { stack: error.stack } : {}),

@@ -12,6 +12,7 @@ export const addCreditCardPaymentMethodStatuses = Object.freeze({
     AUTHENTICATION_REQUIRED: "AUTHENTICATION_REQUIRED",
     REQUIRES_RISK_VERIFICATION: "REQUIRES_RISK_VERIFICATION",
     CARD_SAVE_REJECTED: "CARD_SAVE_REJECTED",
+    CARD_ACCOUNT_LIMIT_REACHED: "CARD_ACCOUNT_LIMIT_REACHED",
     PTT_GENERATION_FAILED: "PTT_GENERATION_FAILED",
     RISK_CHECK_FAILED: "RISK_CHECK_FAILED",
     RUNTIME_MODULE_UNAVAILABLE: "RUNTIME_MODULE_UNAVAILABLE",
@@ -20,6 +21,14 @@ export const addCreditCardPaymentMethodStatuses = Object.freeze({
     REQUEST_TIMEOUT: "REQUEST_TIMEOUT",
     ERROR: "ERROR",
 });
+
+
+// Розпізнає відмову Meta, коли карту вже не можна прив'язати до ще одного рекламного кабінету.
+function isCardAccountLimitError(message) {
+    const normalized = String(message ?? "");
+    return /\b4992003\b/.test(normalized)
+        || /remove it from another account/i.test(normalized);
+}
 
 
 // Нормалізує необов'язковий рядок без збереження його поза поточним викликом.
@@ -670,6 +679,18 @@ export default async function addCreditCardPaymentMethod({
             return createResult(false, addCreditCardPaymentMethodStatuses.REQUEST_TIMEOUT, null, {
                 error: "Час очікування вичерпано; не повторюйте запит автоматично, доки не перевірите Billing Hub",
             });
+        }
+
+        if (isCardAccountLimitError(runtimeResult?.errorMessage)) {
+            return createResult(
+                false,
+                addCreditCardPaymentMethodStatuses.CARD_ACCOUNT_LIMIT_REACHED,
+                null,
+                {
+                    failureStage: runtimeResult?.failureStage ?? null,
+                    error: "Неможливо додати карту: перевищено ліміт рекламних кабінетів для цієї карти. Видаліть її з іншого РК або використайте іншу карту.",
+                }
+            );
         }
 
         return createResult(false, addCreditCardPaymentMethodStatuses.ERROR, null, {

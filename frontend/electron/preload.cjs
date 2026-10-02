@@ -213,8 +213,12 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("personal-account:ad-access-prepare", { sessionId, adAccountId }),
     findPersonalAdAccountAccess: (sessionId, input) =>
         ipcRenderer.invoke("personal-account:ad-access-find", { sessionId, ...input }),
+    listPersonalAdAccountAccess: (sessionId, adAccountId) =>
+        ipcRenderer.invoke("personal-account:ad-access-list", { sessionId, adAccountId }),
     acceptPersonalAdAccountAccess: (sessionId, invite) =>
         ipcRenderer.invoke("personal-account:ad-access-accept", { sessionId, invite }),
+    rejectPersonalAdAccountAccess: (sessionId, invite) =>
+        ipcRenderer.invoke("personal-account:ad-access-reject", { sessionId, invite }),
     checkPersonalBusinessInfo: (sessionId, payload) =>
         ipcRenderer.invoke("personal-account:business-info-check", { sessionId, ...payload }),
     updatePersonalBusinessInfo: (sessionId, payload) =>
