@@ -7,7 +7,9 @@ import "./styles/app.css";
 
 const root = createRoot(document.getElementById("root"));
 
-if (new URLSearchParams(window.location.search).has("gray-ui")) {
+if (new URLSearchParams(window.location.search).has("bm-ui") && !window.adsBot) {
+    import("./design/BusinessManagerShowcase.jsx").then(({ default: BusinessManagerShowcase }) => root.render(<BusinessManagerShowcase />));
+} else if (new URLSearchParams(window.location.search).has("gray-ui")) {
     import("./design/KeitaroGrayShowcase.jsx").then(({ default: KeitaroGrayShowcase }) => root.render(<KeitaroGrayShowcase />));
 } else {
     root.render(<App />);

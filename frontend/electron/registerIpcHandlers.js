@@ -4,6 +4,8 @@ import path from "node:path";
 import { appPaths } from "./paths.js";
 import checkProxy from "../../services/proxy/checkProxy.js";
 import refreshProxyIp from "../../services/proxy/refreshProxyIp.js";
+import BusinessManagerService from "../../services/gui/BusinessManagerService.js";
+import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
 
 
 function safeMessage(value) {
@@ -672,6 +674,23 @@ export default function registerIpcHandlers({
     const managerForAccount = (accountKey) => String(accountKey ?? "").startsWith("bm-")
         ? bmAccountManager
         : String(accountKey ?? "").startsWith("system-") ? systemUserManager : facebookAccountManager;
+    const bmService = new BusinessManagerService({
+        cache: remoteDataCacheStore,
+        listAccounts: async () => (await Promise.all([bmAccountManager.list(), systemUserManager.list()])).flat(),
+        createClient: async (accountKey) => {
+            const clients = await createFacebookApiClients({
+                accountsFilePath: appPaths.accounts, bmFilePath: appPaths.businessManagers,
+                systemUsersFilePath: appPaths.systemUsers, proxiesFilePath: appPaths.proxies,
+                businessOnly: true, onlyAccountKey: accountKey,
+            });
+            const client = clients.get(accountKey);
+            if (!client) throw new Error("Для клієнта БМ потрібно налаштувати токен і User-Agent");
+            return client;
+        },
+        logger: logger?.child?.("bm"),
+        onProgress: (progress) => sendRendererEvent("bm:progress", progress),
+    });
+    ipcMain.handle("bm:request", safeHandler((payload) => bmService.execute(payload)));
     const validateAccountProxy = async (payload) => {
         if (!payload.proxyId) return;
         const proxy = await proxyManager.getById(payload.proxyId);

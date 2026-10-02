@@ -572,6 +572,327 @@ export default class FacebookGraphApi {
     }
 
 
+    /** Повертає бізнеси, доступні поточному токену Graph API. */
+    async getBusinessManagers() {
+        const businesses = await this.#getAll("/me/businesses", {
+            fields: "id,name,verification_status,created_time",
+            limit: 100,
+        });
+
+        return businesses.map((business) => ({
+            id: String(business.id ?? ""),
+            name: String(business.name ?? ""),
+            verificationStatus: business.verification_status ?? null,
+            createdTime: business.created_time ?? null,
+        }));
+    }
+
+
+    /** Читає доступ, користувачів та активи одного Business Manager. */
+    async getBusinessManagementSection(businessId, section) {
+        const id = this.#businessId(businessId);
+        const edge = (name, fields) => this.#getAll(`/${id}/${name}`, { fields, limit: 100 });
+        const assets = async (kind, fields) => {
+            const [owned, shared] = await Promise.all([edge(`owned_${kind}`, fields), edge(`client_${kind}`, fields)]);
+            return [...new Map([...shared.map((item) => ({ ...item, ownership: "shared" })), ...owned.map((item) => ({ ...item, ownership: "owned" }))].map((item) => [String(item.id), { ...item, id: String(item.id) }])).values()];
+        };
+        const adAccounts = () => assets("ad_accounts", "id,name,account_id,account_status,currency,business{id,name}");
+        if (section === "adAccounts") return { adAccounts: await adAccounts() };
+        if (section === "users") {
+            const [users, pending, systemUsers, pages, accounts] = await Promise.all([
+                edge("business_users", "id,name,first_name,last_name,email,pending_email,role,finance_permission,tasks"),
+                edge("pending_users", "id,email,role"),
+                edge("system_users", "id,name"),
+                assets("pages", "id,name"), adAccounts(),
+            ]);
+            const systemIds = new Set(systemUsers.map((user) => String(user.id)));
+            const people = users.filter((user) => !systemIds.has(String(user.id)) && ["ADMIN", "EMPLOYEE", "DEFAULT"].includes(user.role));
+            // Обмежуємо одночасні запити до призначень активів.
+            const all = [...pages, ...accounts];
+            for (let offset = 0; offset < all.length; offset += 4) {
+                await Promise.all(all.slice(offset, offset + 4).map(async (asset) => {
+                    try {
+                        asset.assignedUsers = await this.#getAll(`/${asset.id}/assigned_users`, { business: id, fields: "id,name,tasks", limit: 100 });
+                    } catch (error) {
+                        asset.assignmentError = { message: error.message, code: error.graphCode ?? error.code };
+                    }
+                }));
+            }
+            return { users: people, pending, pages, adAccounts: accounts };
+        }
+        if (section === "pixels") {
+            const [pixels, accounts] = await Promise.all([assets("pixels", "id,name"), adAccounts()]);
+            for (const pixel of pixels) {
+                try {
+                    pixel.sharedAccounts = await this.#getAll(`/${pixel.id}/shared_accounts`, { business: id, fields: "id,name,account_id", limit: 100 });
+                } catch (error) {
+                    pixel.assignmentError = { message: error.message, code: error.graphCode ?? error.code };
+                }
+            }
+            return { pixels, adAccounts: accounts };
+        }
+        throw new Error("Невідомий розділ БМ");
+    }
+
+    #businessId(value) {
+        const id = String(value ?? "").trim();
+        if (!/^\d+$/.test(id)) throw new Error("Некоректний ID БМ, користувача або активу");
+        return id;
+    }
+
+    async #businessMutation(pathname, parameters, method = "post") {
+        const result = await this.#request(pathname, {}, {
+            method, data: new URLSearchParams(parameters),
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            retryOnConnectionError: false,
+            outcomeUnknownCode: "FACEBOOK_BUSINESS_OUTCOME_UNKNOWN",
+            outcomeUnknownMessage: "Результат зміни БМ невідомий. Оновіть дані перед повторною спробою",
+        });
+        if (result === false || result?.success === false) throw new Error("Meta не підтвердила виконання операції");
+        return result;
+    }
+
+    /** Знімає призначення користувача з одного активу. */
+    removeBusinessUserFromAsset({ assetId, userId }) {
+        const asset = String(assetId ?? "").replace(/^act_/, "");
+        this.#businessId(asset);
+        return this.#businessMutation(`/${String(assetId)}/assigned_users`, { user: this.#businessId(userId) }, "delete");
+    }
+
+    /** Видаляє бізнес-користувача з БМ. */
+    removeBusinessUser(userId) {
+        return this.#businessMutation(`/${this.#businessId(userId)}`, {}, "delete");
+    }
+
+    /** Змінює ім'я саме бізнес-користувача. */
+    renameBusinessUser({ userId, firstName, lastName = "" }) {
+        if (!String(firstName ?? "").trim()) throw new Error("Вкажіть ім’я користувача");
+        return this.#businessMutation(`/${this.#businessId(userId)}`, { first_name: String(firstName).trim(), last_name: String(lastName).trim() });
+    }
+
+    /** Змінює зв'язок пікселя з рекламним акаунтом у поточному БМ. */
+    setBusinessPixelAccount({ pixelId, accountId, businessId, enabled }) {
+        return this.#businessMutation(`/${this.#businessId(pixelId)}/shared_accounts`, {
+            account_id: this.#businessId(String(accountId).replace(/^act_/, "")), business: this.#businessId(businessId),
+        }, enabled ? "post" : "delete");
+    }
+
+    /** Прибирає доступ поточного БМ до наданого рекламного акаунта. */
+    removeSharedBusinessAdAccount({ accountId, businessId }) {
+        return this.#businessMutation(`/act_${this.#businessId(String(accountId).replace(/^act_/, ""))}/agencies`, { business: this.#businessId(businessId) }, "delete");
+    }
+
+    async getBusinessManagerSnapshot(businessId, { systemUserId = "" } = {}) {
+        const id = String(businessId ?? "").trim();
+        if (!/^\d+$/.test(id)) {
+            throw new Error("Некоректний ID Business Manager");
+        }
+
+        const readEdge = async (pathname, params = {}) => {
+            try {
+                return { data: await this.#getAll(pathname, { limit: 100, ...params }) };
+            } catch (error) {
+                return { error: {
+                    message: error.message,
+                    code: error.graphCode ?? null,
+                    subcode: error.graphSubcode ?? null,
+                } };
+            }
+        };
+        const readNode = async (pathname, params = {}) => {
+            try {
+                return { data: await this.#request(pathname, params) };
+            } catch (error) {
+                return { error: {
+                    message: error.message,
+                    code: error.graphCode ?? null,
+                    subcode: error.graphSubcode ?? null,
+                } };
+            }
+        };
+
+        const [business, systemUsers, businessUsers, pendingUsers, ownedAdAccounts, clientAdAccounts,
+            ownedPixels, clientPixels, ownedPages, clientPages] = await Promise.all([
+            readNode(`/${id}`, { fields: "id,name,verification_status,created_time" }),
+            readEdge(`/${id}/system_users`, { fields: "id,name" }),
+            readEdge(`/${id}/business_users`, {
+                fields: "id,name,email,pending_email,role,finance_permission,tasks",
+            }),
+            readEdge(`/${id}/pending_users`),
+            readEdge(`/${id}/owned_ad_accounts`, { fields: "id,name,account_id,account_status,currency" }),
+            readEdge(`/${id}/client_ad_accounts`, { fields: "id,name,account_id,account_status,currency" }),
+            readEdge(`/${id}/owned_pixels`, { fields: "id,name" }),
+            readEdge(`/${id}/client_pixels`, { fields: "id,name" }),
+            readEdge(`/${id}/owned_pages`, { fields: "id,name" }),
+            readEdge(`/${id}/client_pages`, { fields: "id,name" }),
+        ]);
+
+        const targetSystemUserId = String(systemUserId ?? "").trim();
+        const systemUser = systemUsers.data?.find((item) => String(item.id) === targetSystemUserId) ?? null;
+        const adAccounts = [
+            ...(ownedAdAccounts.data ?? []),
+            ...(clientAdAccounts.data ?? []),
+        ];
+        const pixels = [
+            ...(ownedPixels.data ?? []),
+            ...(clientPixels.data ?? []),
+        ];
+
+        const [assignedAdAccounts, adAccountDetails, pixelAssignments] = await Promise.all([
+            targetSystemUserId
+                ? readEdge(`/${targetSystemUserId}/assigned_ad_accounts`, {
+                    fields: "id,name,account_id,account_status,currency",
+                })
+                : Promise.resolve(null),
+            Promise.all(adAccounts.map(async (account) => {
+                const accountId = String(account.id ?? "");
+                const [campaigns, adsets, assignedUsers] = await Promise.all([
+                    readEdge(`/${accountId}/campaigns`, { fields: "id,name,status,effective_status" }),
+                    readEdge(`/${accountId}/adsets`, { fields: "id,name,status,effective_status,campaign_id" }),
+                    readEdge(`/${accountId}/assigned_users`, {
+                        fields: "id,name,tasks",
+                        business: id,
+                    }),
+                ]);
+                return {
+                    account,
+                    campaigns,
+                    adsets,
+                    assignedUsers,
+                };
+            })),
+            Promise.all(pixels.map(async (pixel) => ({
+                pixel,
+                assignedUsers: await readEdge(`/${String(pixel.id ?? "")}/assigned_users`, {
+                    fields: "id,name,tasks",
+                    business: id,
+                }),
+            }))),
+        ]);
+
+        return {
+            business,
+            systemUsers,
+            systemUser,
+            businessUsers,
+            pendingUsers,
+            ownedAdAccounts,
+            clientAdAccounts,
+            assignedAdAccounts,
+            adAccountDetails,
+            ownedPixels,
+            clientPixels,
+            pixelAssignments,
+            ownedPages,
+            clientPages,
+        };
+    }
+
+
+    /** Надсилає запрошення користувачу в Business Manager із базовою роллю та фінансовим рівнем. */
+    async inviteBusinessUser({
+        businessId,
+        email,
+        role = "EMPLOYEE",
+        financePermission = "FINANCE_EDITOR",
+        useTasks = false,
+    } = {}) {
+        const id = String(businessId ?? "").trim();
+        const normalizedEmail = String(email ?? "").trim();
+        if (!/^\d+$/.test(id) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+            throw new Error("Некоректний ID Business Manager або email користувача");
+        }
+        if (!["EMPLOYEE", "ADMIN"].includes(role)) {
+            throw new Error("Дозволено лише роль EMPLOYEE або ADMIN");
+        }
+
+        const body = new URLSearchParams({
+            email: normalizedEmail,
+            role,
+        });
+        if (useTasks) body.set("tasks", JSON.stringify([role, ...(financePermission ? [financePermission] : [])]));
+        else if (financePermission) body.set("finance_permission", String(financePermission));
+
+        return this.#request(`/${id}/business_users`, {}, {
+            method: "post",
+            data: body,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            retryOnConnectionError: false,
+            outcomeUnknownCode: "FACEBOOK_BUSINESS_INVITE_OUTCOME_UNKNOWN",
+            outcomeUnknownMessage: "Не вдалося визначити, чи Meta надіслала запрошення до Business Manager",
+        });
+    }
+
+
+    /** Призначає користувачу перелік задач для сторінки або рекламного акаунта. */
+    async assignBusinessUserToAsset({ assetId, userId, tasks, businessId } = {}) {
+        const asset = String(assetId ?? "").trim();
+        const user = String(userId ?? "").trim();
+        if (!/^\d+$/.test(asset.replace(/^act_/, "")) || !/^\d+$/.test(user)) {
+            throw new Error("Некоректний ID активу або користувача Business Manager");
+        }
+        if (!Array.isArray(tasks) || tasks.some((task) => !String(task ?? "").trim())) {
+            throw new Error("Не задано задачі доступу до активу");
+        }
+
+        const body = new URLSearchParams({
+            user,
+            tasks: JSON.stringify(tasks),
+        });
+        const normalizedBusinessId = String(businessId ?? "").trim();
+        if (normalizedBusinessId) body.set("business", normalizedBusinessId);
+
+        return this.#request(`/${asset}/assigned_users`, {}, {
+            method: "post",
+            data: body,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            retryOnConnectionError: false,
+            outcomeUnknownCode: "FACEBOOK_BUSINESS_ASSET_ASSIGNMENT_OUTCOME_UNKNOWN",
+            outcomeUnknownMessage: "Не вдалося визначити, чи Meta призначила користувачу доступ до активу",
+        });
+    }
+
+
+    /** Перевіряє, чи існує активне або очікуване запрошення з указаною адресою. */
+    async getBusinessUserInviteStatus(businessId, email) {
+        const id = String(businessId ?? "").trim();
+        const normalizedEmail = String(email ?? "").trim().toLowerCase();
+        if (!/^\d+$/.test(id) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+            throw new Error("Некоректний ID Business Manager або email користувача");
+        }
+
+        const [users, pendingUsers] = await Promise.all([
+            this.#getAll(`/${id}/business_users`, {
+                fields: "id,email,pending_email,role,finance_permission,tasks",
+                limit: 100,
+            }),
+            this.#getAll(`/${id}/pending_users`, { limit: 100 }),
+        ]);
+        const matches = (items) => items.filter((item) => (
+            [item.email, item.pending_email]
+                .some((value) => String(value ?? "").trim().toLowerCase() === normalizedEmail)
+        ));
+
+        return {
+            users: matches(users),
+            pendingUsers: matches(pendingUsers),
+        };
+    }
+
+
+    /** Читає роль і фінансовий рівень доступу користувача Business Manager. */
+    async getBusinessUserDetails(userId) {
+        const id = String(userId ?? "").trim();
+        if (!/^\d+$/.test(id)) {
+            throw new Error("Некоректний ID користувача Business Manager");
+        }
+
+        return this.#request(`/${id}`, {
+            fields: "id,email,role,finance_permission,tasks",
+        });
+    }
+
+
     /**
      * Повертає всі доступні рекламні акаунти.
      * @returns {Promise<object[]>}

@@ -13,10 +13,12 @@ import CommentAccountsTab from "./tabs/CommentAccountsTab.jsx";
 import PersonalAccountModal from "./components/PersonalAccountModal.jsx";
 import KeitaroWorkspaceTab from "./tabs/KeitaroWorkspaceTab.jsx";
 import SpendTab from "./tabs/SpendTab.jsx";
+import BusinessManagerTab from "./tabs/BusinessManagerTab.jsx";
 import { errorDetails, unwrap } from "./lib/api.js";
 
 const tabs = [
     { id: "accounts", label: "API-клієнти", icon: Bot },
+    { id: "bm", label: "БМ", icon: PanelsTopLeft },
     { id: "ads", label: "Рекламні кабінети", icon: BadgeDollarSign },
     { id: "pages", label: "Фанпейджі", icon: PanelsTopLeft },
     { id: "comment-accounts", label: "Акаунти під коментарі", icon: MessageSquare },
@@ -356,6 +358,7 @@ export default function App() {
             <div className="content-scroll"><AnimatePresence mode="wait">
                 {activeTab === "accounts" && <motion.section key="accounts" className="accounts-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><AccountsTab accounts={accounts} selectedAccountKey={selectedAccountKey} accountsLoading={accountsLoading || adsPowerStatesLoading} onSelectAccount={selectAccount} onRefreshAccounts={() => loadAccounts(true)} onCreateAccount={createAccount} onUpdateAccount={updateAccount} onDeleteAccount={deleteAccount} onCheckAccount={checkAccount} onSetPrimaryAccount={setPrimaryAccount} onOpenPersonalAccount={(account) => setPersonalDialog({ profile: null, bmKey: account.accountKey })} onSyncAccount={syncAccount} onOpenAccountProfile={openAccountProfile} onCloseAccountProfile={closeAccountProfile} syncingAccountKeys={syncingApiClientKeys} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} onSyncProxy={syncProxy} onReorderProxies={reorderProxies} onError={setModal}/></motion.section>}
                 {activeTab === "ads" && <AdsWorkspaceTab key="ads" adsSubtab={adsSubtab} onSubtabChange={setAdsSubtab} selectedAccount={selectedAccount} workspaceAccounts={workspace.adAccounts} onWorkspaceAccountsChange={updateWorkspaceAccounts} onError={setModal} showToast={showToast} addLog={addLog} selectedId={selectedAdAccountId} setSelectedId={setSelectedAdAccountId} createCampaignsPaused={createCampaignsPaused} createAdSetsPaused={createAdSetsPaused} createAdsPaused={createAdsPaused} defaultPixelId={defaultPixelId} defaultUtm={defaultUtm} keitaroAvailableGroupIds={keitaroAvailableGroupIds}/>}
+                {activeTab === "bm" && <BusinessManagerTab accounts={accounts} selectedAccountKey={selectedAccountKey} />}
                 {activeTab === "pages" && (
                     <PagesTab
                         key="pages"

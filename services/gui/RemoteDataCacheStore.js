@@ -14,6 +14,7 @@ function emptyStore() {
         workspaces: {},
         posts: {},
         campaigns: {},
+        businessManagers: {},
     };
 }
 
@@ -97,6 +98,16 @@ export default class RemoteDataCacheStore {
         return safeClone(store.workspaces[
             normalizedPart(accountKey, "CACHE_ACCOUNT_KEY_REQUIRED")
         ] ?? null);
+    }
+
+    async getBusinessData(key) {
+        return safeClone((await this.#read()).businessManagers[normalizedPart(key, "CACHE_BUSINESS_KEY_REQUIRED")] ?? null);
+    }
+
+    setBusinessData(key, value) {
+        return this.#update((store) => {
+            store.businessManagers[normalizedPart(key, "CACHE_BUSINESS_KEY_REQUIRED")] = cacheEntry(value);
+        });
     }
 
 

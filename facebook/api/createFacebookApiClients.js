@@ -48,7 +48,7 @@ function normalizeAccounts(accounts) {
             );
         }
 
-        const credentialsMissing = !accessToken || !userAgent || !cookie;
+        const credentialsMissing = !accessToken || !userAgent || (!cookie && account.kind !== "system");
         if (credentialsMissing && adsPowerProfileNo) {
             // API-клієнт очікує фонову синхронізацію з AdsPower.
             return null;
@@ -66,7 +66,7 @@ function normalizeAccounts(accounts) {
             );
         }
 
-        if (!cookie) {
+        if (!cookie && account.kind !== "system") {
             throw new Error(
                 `Facebook-акаунт "${accountKey}" не містить cookie`
             );
@@ -110,6 +110,9 @@ export default async function createFacebookApiClients({
     accountsFilePath = "./data/facebookApi/accounts.json",
     bmFilePath = "./data/facebookApi/businessManagers.json",
     proxiesFilePath = "./data/facebookApi/proxies.json",
+    systemUsersFilePath,
+    businessOnly = false,
+    onlyAccountKey,
     httpClient,
     checkProxyFn,
 } = {}) {
@@ -118,8 +121,9 @@ export default async function createFacebookApiClients({
         readJson(bmFilePath, "конфіг BM", true),
         readJson(proxiesFilePath, "конфіг проксі"),
     ]);
+    const systemConfig = systemUsersFilePath ? await readJson(systemUsersFilePath, "конфіг системних користувачів", true) : {};
     const accounts = normalizeAccounts(
-        [...(accountsConfig?.accounts ?? []), ...(bmConfig?.accounts ?? [])].filter((account) => account?.archived !== true)
+        [...(businessOnly ? [] : accountsConfig?.accounts ?? []), ...(bmConfig?.accounts ?? []), ...(systemConfig?.accounts ?? []).map((item) => ({ ...item, kind: "system" }))].filter((account) => account?.archived !== true && (!onlyAccountKey || account.accountKey === onlyAccountKey))
     );
     const proxyHttpClient = new ProxyHttpClient({
         proxies: (proxiesConfig?.proxies ?? []).filter((proxy) => (

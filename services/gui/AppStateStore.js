@@ -154,6 +154,7 @@ function normalizeState(state = {}) {
     const legacyTab = ["publish", "comments"].includes(state.activeTab) ? "pages" : state.activeTab;
     const allowedTabs = new Set([
         "accounts",
+        "bm",
         "ads",
         "pages",
         "comment-accounts",

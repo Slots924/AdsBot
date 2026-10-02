@@ -13,6 +13,8 @@ function subscribe(channel, callback) {
 
 
 contextBridge.exposeInMainWorld("adsBot", {
+    bmRequest: (payload) => ipcRenderer.invoke("bm:request", payload),
+    onBMProgress: (callback) => subscribe("bm:progress", callback),
     getAccounts: () => ipcRenderer.invoke("accounts:list"),
     refreshAccounts: () => ipcRenderer.invoke("accounts:refresh"),
     createAccount: (account) => ipcRenderer.invoke("accounts:create", account),

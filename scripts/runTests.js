@@ -74,6 +74,7 @@ const backendSuites = {
         "test/testGuiIpcMock.js",
         "test/testPagePreferencesStore.js",
         "test/testRemoteDataCacheStore.js",
+        "test/testBusinessManagerService.js",
         "test/testSpendService.js",
         "test/testRunCommentingScenarioMock.js",
         "test/testRunParallelCommentingScenarioMock.js",
@@ -90,6 +91,7 @@ const frontendSuites = {
     all: [
         "src/test/campaign.test.jsx",
         "src/test/gui.test.jsx",
+        "src/test/business-manager.test.jsx",
         "src/test/spend.test.jsx",
         "src/test/typography.test.js",
         "src/test/workspace-design.test.jsx",
