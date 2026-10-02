@@ -43,34 +43,27 @@ export default async function changeAdAccountAccessRequest({
         if (response?.requestError) {
             return createResult(false, "REQUEST_FAILED", null, { error: response.requestError });
         }
-        if (!response?.ok) {
-            return createResult(false, "HTTP_ERROR", null, {
-                httpStatus: response?.statusCode ?? null,
-            });
-        }
-        const facebookError = getAgencyResponseError(response.body);
-        if (facebookError) {
-            return createResult(false, "FACEBOOK_ERROR", null, {
-                httpStatus: response.statusCode,
-                facebookError,
-            });
-        }
         let payload;
         try {
             payload = parseFacebookJson(response.body);
         } catch {
-            return createResult(false, "PARSE_ERROR", null, {
+            return createResult(false, response?.ok ? "PARSE_ERROR" : "HTTP_ERROR", null, {
                 httpStatus: response.statusCode,
+                response: null,
             });
         }
-        if (payload?.__ar !== 1 && payload?.__ar !== true) {
-            return createResult(false, "RESULT_UNCONFIRMED", null, {
-                httpStatus: response.statusCode,
+        const details = { httpStatus: response.statusCode, response: payload };
+        if (payload?.error || payload?.errors?.length) {
+            return createResult(false, "FACEBOOK_ERROR", null, {
+                ...details,
+                facebookError: getAgencyResponseError(response.body),
             });
         }
-        return createResult(true, completedStatus, {
+        if (!response.ok) return createResult(false, "HTTP_ERROR", null, details);
+        const success = response.ok && !payload?.error && !payload?.errors?.length;
+        return createResult(success, completedStatus, {
             ...input,
-        }, { httpStatus: response.statusCode });
+        }, details);
     } catch (error) {
         return createResult(false, "ERROR", null, {
             error: String(error?.message ?? error),

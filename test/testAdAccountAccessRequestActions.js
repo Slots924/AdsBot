@@ -29,6 +29,7 @@ const originalRequire = globalThis.require;
 function mockSession(handler) {
     globalThis.require = (name) => ({
         CurrentUserInitialData: { USER_ID: "123456789" },
+        DTSG_ASYNC: { getCachedToken: () => "abc" },
         DTSGInitialData: { token: "abc" },
         LSD: { token: "lsd-token" },
     })[name];
@@ -79,15 +80,25 @@ try {
         assert.equal(result.success, true);
         assert.equal(result.status, expectedStatus);
         assert.equal(requests.length, 1);
-        assert.equal(requests[0].url, "/adaccount/agency/request/accept_reject/");
+        assert.equal(requests[0].url, expectedOperation === "0"
+            ? "/adaccount/agency/request/accept_reject/?ads_manager_write_regions=true"
+            : "/adaccount/agency/request/accept_reject/");
         assert.equal(requests[0].options.method, "POST");
         assert.equal(requests[0].options.credentials, "include");
+        assert.equal(requests[0].options.headers["content-type"], "application/x-www-form-urlencoded");
+        assert.equal(requests[0].options.headers["x-fb-lsd"], expectedOperation === "0" ? "lsd-token" : undefined);
         const body = new URLSearchParams(requests[0].options.body);
         assert.equal(body.get("operation"), expectedOperation);
         assert.equal(body.get("hash"), expectedHash);
         assert.equal(body.get("ext"), "1791115362");
         assert.equal(body.get("fb_dtsg"), "abc");
         assert.equal(body.get("lsd"), "lsd-token");
+        assert.deepEqual([...body.keys()].sort(), [
+            "ad_market_id", "agency_id", "operation", "ext", "hash", "__aaid",
+            "__user", "__a", "fb_dtsg", "jazoest", "lsd",
+        ].sort());
+        assert.equal(result.httpStatus, 200);
+        assert.deepEqual(result.response, { __ar: 1, payload: null });
     }
 
     let requestCount = 0;
@@ -102,10 +113,19 @@ try {
     mockSession(async () => reply('for (;;);{"__ar":1,"error":{"code":100,"message":"Request expired"}}'));
     const rejectedByFacebook = await acceptAdAccountAccessRequest({ page, invite: found.data });
     assert.equal(rejectedByFacebook.status, acceptAdAccountAccessRequestStatuses.FACEBOOK_ERROR);
+    assert.equal(rejectedByFacebook.success, false);
+
+    mockSession(async () => reply('for (;;);{"__ar":1,"error":2859017,"errorSummary":"Action not allowed"}'));
+    const forbidden = await acceptAdAccountAccessRequest({ page, invite: found.data });
+    assert.equal(forbidden.success, false);
+    assert.equal(forbidden.status, acceptAdAccountAccessRequestStatuses.FACEBOOK_ERROR);
+    assert.equal(forbidden.facebookError.code, 2859017);
+    assert.equal(forbidden.response.errorSummary, "Action not allowed");
 
     mockSession(async () => reply('for (;;);{"payload":null}'));
-    const unconfirmed = await rejectAdAccountAccessRequest({ page, invite: found.data });
-    assert.equal(unconfirmed.status, rejectAdAccountAccessRequestStatuses.RESULT_UNCONFIRMED);
+    const acceptedWithoutAr = await acceptAdAccountAccessRequest({ page, invite: found.data });
+    assert.equal(acceptedWithoutAr.success, true);
+    assert.equal(acceptedWithoutAr.status, acceptAdAccountAccessRequestStatuses.ACCEPTED);
 
     mockSession(async () => reply('for (;;);{"error":{"code":100,"message":"Session expired"}}'));
     const error = await getAdAccountAccessRequest({ page, ...ids });

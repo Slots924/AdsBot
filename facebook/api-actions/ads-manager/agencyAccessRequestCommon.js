@@ -84,12 +84,17 @@ export async function performAgencyRequest(page, {
         try {
             const endpoint = request.method === "GET"
                 ? `${request.dialogPath}?${parameters}`
-                : request.actionPath;
+                : request.operation === "0"
+                    ? `${request.actionPath}?ads_manager_write_regions=true`
+                    : request.actionPath;
             const response = await fetch(endpoint, {
                 method: request.method,
                 credentials: "include",
                 ...(request.method === "POST" ? {
-                    headers: { "content-type": "application/x-www-form-urlencoded" },
+                    headers: {
+                        "content-type": "application/x-www-form-urlencoded",
+                        ...(request.operation === "0" ? { "x-fb-lsd": lsd } : {}),
+                    },
                     body: parameters.toString(),
                 } : {}),
                 signal: controller.signal,

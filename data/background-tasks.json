@@ -1,4 +1,75 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "36ca7398-ea60-4ab4-a106-a0973047f8dd",
+      "type": "comments",
+      "name": "Коментарі поста · DE · 17",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7887375"
+        ],
+        "geo": "DE",
+        "creativeGeo": "DE",
+        "language": "",
+        "creativeName": "17",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61595095912229/posts/pfbid0ykTRE9kv9RnRF5HqRrkc5eVz2xsxQqDu8yspjuwCab5PqF4nKHZnbDEWex4kQ38ql",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7887375"
+        ],
+        "geo": "DE",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "23f1edd9-667a-45df-9bc2-03c6ab7d18a0"
+      },
+      "progress": {
+        "completed": 18,
+        "total": 18,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 9,
+        "skipped": 2,
+        "failedComments": 7,
+        "failedProfiles": 4,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "13",
+        "currentProfileNo": "1713",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-02_10-49-48-917.md",
+        "published": 9,
+        "skipped": 2,
+        "failedComments": 7,
+        "failedProfiles": 4,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-02T07:35:18.331Z",
+      "startedAt": "2026-10-02T07:35:18.332Z",
+      "finishedAt": "2026-10-02T07:49:48.921Z",
+      "updatedAt": "2026-10-02T07:49:48.923Z"
+    }
+  ]
 }
