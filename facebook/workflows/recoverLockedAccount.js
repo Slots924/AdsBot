@@ -4,6 +4,8 @@ import { clickRecoveryControl, typeRecoveryValue, waitRecoveryCondition, emitRec
 import handleAccountProtection from "../modals/accountProtection.js";
 import { getFacebookCredentials, getFirstmailCredentials, saveRecoveredFacebookPassword, appendRecoveryPasswordNote } from "../../services/adspower/profileCredentials.js";
 import readRecoveryPassword from "../../services/adspower/recoveryPassword.js";
+import Firstmail from "../../classes/Firstmail.js";
+import prepareFacebookCodeWaiter from "../../services/mail/prepareFacebookCodeWaiter.js";
 
 const runningPages = new WeakSet();
 
@@ -16,7 +18,9 @@ export default async function recoverLockedAccount(page, options = {}) {
     let codeAttempts = 0;
     let passwordSubmitted = false;
     const settings = { timeout: 60000, ...options };
-    const requestCode = options.requestConfirmationCode ?? requestRecoveryValue;
+    const requestCode = options.requestConfirmationCode;
+    let mailClient;
+    let codeWaiter;
     const nextStep = async (previous, rejection = null, hadRejection = false, submitControl = "next") => {
         let rejectionCleared = !hadRejection;
         let pendingObserved = false;
@@ -36,11 +40,21 @@ export default async function recoverLockedAccount(page, options = {}) {
             throw Object.assign(new Error("Відсутній контекст AdsPower-профілю"), { code: "PROFILE_CONTEXT_REQUIRED" });
         }
         const profile = await options.adsPower.getProfileById(options.profile.profile_id);
+        let firstmail;
+        try { firstmail = getFirstmailCredentials(profile); } catch {
+            throw Object.assign(new Error("Облікові дані Firstmail не знайдені або неповні"), { code: "FIRSTMAIL_CREDENTIALS_NOT_FOUND" });
+        }
+        if (!firstmail) throw Object.assign(new Error("Облікові дані Firstmail не знайдені"), { code: "FIRSTMAIL_CREDENTIALS_NOT_FOUND" });
         const facebook = getFacebookCredentials(profile);
-        const firstmail = getFirstmailCredentials(profile);
         await emitRecoveryStep(settings, "recovery.start", {
             timeout: settings.timeout, facebookCredentialsAvailable: Boolean(facebook), firstmailCredentialsAvailable: Boolean(firstmail),
         });
+        if (!requestCode) {
+            mailClient = options.firstmailClient ?? new Firstmail(firstmail);
+            await emitRecoveryStep(settings, "mail.auth.start");
+            await mailClient.connect(settings.signal);
+            await emitRecoveryStep(settings, "mail.auth.complete");
+        }
         for (let transitions = 0; transitions < 24; transitions += 1) {
             throwIfRecoveryAborted(settings.signal);
             if (Date.now() - started > (settings.totalTimeout ?? 900000)) {
@@ -85,6 +99,13 @@ export default async function recoverLockedAccount(page, options = {}) {
                     if (!snapshot.emailSelected) await clickRecoveryControl(page, "radio", settings);
                     await waitRecoveryCondition(page, async () => (await detectAccountRecoveryStep(page)).emailSelected,
                         settings, "вибір email");
+                    if (!requestCode) {
+                        codeWaiter?.dispose();
+                        codeWaiter = await prepareFacebookCodeWaiter({ credentials: firstmail, mailClient, connected: true,
+                            signal: settings.signal, onStep: (event, details) => emitRecoveryStep(settings, event, details),
+                            codeTimeout: settings.codeTimeout ?? 60000 });
+                        codeWaiter.start();
+                    }
                     await clickRecoveryControl(page, "next", settings);
                     await nextStep(snapshot.step);
                     break;
@@ -95,14 +116,20 @@ export default async function recoverLockedAccount(page, options = {}) {
                     }
                     await emitRecoveryStep(settings, "code.request", { attempt: codeAttempts, rejected: snapshot.codeRejected });
                     // Провайдер отримує дані пошти лише в пам'яті, без журналювання контексту.
-                    const code = await requestCode({ page, kind: "code", retry: codeAttempts > 1,
+                    if (!requestCode && !codeWaiter) {
+                        throw Object.assign(new Error("Немає межі нових листів перед відправленням"), { code: "FIRSTMAIL_SEND_REQUIRED" });
+                    }
+                    const code = requestCode ? await requestCode({ page, kind: "code", retry: codeAttempts > 1,
                         signal: settings.signal, onStep: settings.onStep, manualTimeout: settings.manualTimeout,
-                        firstmailCredentials: firstmail, attempt: codeAttempts });
+                        firstmailCredentials: firstmail, attempt: codeAttempts }) : await codeWaiter.waitForCode();
                     await typeRecoveryValue(page, "code", code, settings);
                     const beforeSubmit = await detectAccountRecoveryStep(page);
                     await clickRecoveryControl(page, "next", settings);
                     const after = await nextStep(snapshot.step, "codeRejected", beforeSubmit.codeRejected);
-                    if (after.codeRejected && after.step === snapshot.step) await emitRecoveryStep(settings, "code.rejected", { attempt: codeAttempts });
+                    if (after.codeRejected && after.step === snapshot.step) {
+                        await emitRecoveryStep(settings, "code.rejected", { attempt: codeAttempts });
+                        if (!requestCode) throw Object.assign(new Error("Facebook відхилив отриманий код"), { code: "FACEBOOK_CODE_REJECTED" });
+                    }
                     break;
                 }
                 case "CURRENT_PASSWORD":
@@ -149,6 +176,8 @@ export default async function recoverLockedAccount(page, options = {}) {
         await emitRecoveryStep(settings, "recovery.failed", { ...result, errorType: error.name, elapsedMs: Date.now() - started });
         return result;
     } finally {
+        codeWaiter?.dispose();
+        mailClient?.close();
         newPassword = null;
         runningPages.delete(page);
     }

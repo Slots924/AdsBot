@@ -165,6 +165,30 @@ assert.equal(ariaAncestorPage.saves, 1);
 assert.equal(JSON.stringify(events).includes("mock-new-password"), false);
 assert.equal(JSON.stringify(events).includes("123456"), false);
 
+const autoEvents = [];
+let mailConnections = 0;
+const autoPage = pageFixture();
+const autoResult = await recoverLockedAccount(autoPage, {
+    adsPower: clientFixture(), profile: profileFixture(), newPassword: "mock-new-password",
+    sleep: async () => {}, onStep: (event, details) => autoEvents.push({ event, details }),
+    firstmailClient: {
+        connect: async () => { mailConnections += 1; return { uidNext: 10, uidValidity: "1" }; },
+        refreshBaseline: async () => ({ uidNext: 10, uidValidity: "1" }),
+        subscribe: () => () => {}, close() {},
+        listNewMessages: async () => [{ uid: 10, size: 100, envelope: {
+            from: [{ address: "security@facebookmail.com" }], subject: "123456 is your Facebook security code",
+        } }],
+        readMessage: async () => ({ from: { value: [{ address: "security@facebookmail.com" }] },
+            to: { value: [{ address: "mock-mail" }] }, subject: "123456 is your Facebook security code",
+            text: "Confirm this email address\n123456" }),
+    },
+});
+assert.equal(autoResult.recovered, true);
+assert.equal(mailConnections, 1);
+assert.ok(autoEvents.findIndex((entry) => entry.event === "mail.listener.ready")
+    < autoEvents.findIndex((entry) => entry.event === "click.prepare" && entry.details.action === "next"));
+assert.equal(JSON.stringify(autoEvents).includes("123456"), false);
+
 const rejected = pageFixture({ rejectFirstCode: true });
 assert.equal((await recoverLockedAccount(rejected, {
     adsPower: clientFixture(), profile: profileFixture(), newPassword: "mock-new-password",
@@ -185,6 +209,7 @@ assert.equal(unchangedClient.writes, 0);
 const currentPasswordPage = pageFixture({ initial: "CURRENT_PASSWORD", changePassword: false, protection: false });
 assert.equal((await recoverLockedAccount(currentPasswordPage, {
     adsPower: clientFixture(), profile: profileFixture(), newPassword: "mock-new-password",
+    requestConfirmationCode: async () => "123456",
     sleep: async () => {}, onStep: () => {}, protectionTimeout: 1,
 })).recovered, true);
 assert.equal(currentPasswordPage.saves, 0);

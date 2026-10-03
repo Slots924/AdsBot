@@ -2,6 +2,7 @@ import dismissAutomatedBehavior from "../../facebook/actions/dismissAutomatedBeh
 import fixAccountLock from "../../facebook/actions/fixAccountLock.js";
 import detectFacebookState from "../../facebook/state/detectFacebookState.js";
 import markProfileAsBanned from "../../services/profile/tags/markProfileAsBanned.js";
+import markProfileAsLoginError from "../../services/profile/tags/markProfileAsLoginError.js";
 
 
 export default async function ensureFacebookAccountActive(
@@ -10,6 +11,16 @@ export default async function ensureFacebookAccountActive(
     page,
     options = {}
 ) {
+    let accountLockDetected = false;
+    const markLockedLoginError = async () => {
+        try {
+            const result = await markProfileAsLoginError(adsPower, profile);
+            await options.onStep?.("account.lock.login_error", { added: result.added, alreadyMarked: result.alreadyMarked });
+            console.log("Не вдалося відновити locked-акаунт. Профіль позначено Login Error.");
+        } catch {
+            console.error("Не вдалося додати тег Login Error до locked-профілю");
+        }
+    };
     console.log(
         "Перевіряємо, чи Facebook-акаунт активний..."
     );
@@ -36,12 +47,16 @@ export default async function ensureFacebookAccountActive(
         }
 
         if (facebookState === "ACCOUNT_LOCK") {
+            accountLockDetected = true;
             const fixSucceeded = await fixAccountLock(page, { ...options, adsPower, profile });
             console.log(`Результат fixAccountLock: ${fixSucceeded}`);
 
             facebookState = await detectFacebookState(page);
             console.log(`Стан Facebook після fixAccountLock: ${facebookState}`);
-            if (!fixSucceeded) return false;
+            if (!fixSucceeded || facebookState !== "READY") {
+                await markLockedLoginError();
+                return false;
+            }
         }
 
         if (facebookState === "READY") {
@@ -76,6 +91,7 @@ export default async function ensureFacebookAccountActive(
 
         return false;
     } catch (error) {
+        if (accountLockDetected) await markLockedLoginError();
         console.error(
             "Не вдалося перевірити активність Facebook-акаунта:",
             error.message

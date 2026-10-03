@@ -44,6 +44,7 @@ console.log = (...args) => messages.push(args.join(" "));
 try {
     const adsPower = {
         updateProfile: async () => assert.fail("ACCOUNT_LOCK не повинен додавати BAN"),
+        updateProfileTags: async (_id, tags) => assert.equal(tags.includes("1464743"), true),
     };
     assert.equal(await ensureFacebookAccountActive(adsPower, {}, lockedPage), false);
 } finally {

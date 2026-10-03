@@ -71,7 +71,7 @@ async function main() {
     let finalRecoveryResult = null;
     const listeners = [];
     try {
-        log("test.start", { profileNo, observationMs, logFile, actionTimeout: 60000, manualTimeout: 300000 });
+        log("test.start", { profileNo, observationMs, logFile, actionTimeout: 60000, codeTimeout: 60000, codeProvider: "Firstmail IMAP" });
         const profile = await adsPower.getProfileByNo(profileNo);
         const newPassword = await readRecoveryPassword();
         if (newPassword) secrets.add(newPassword);
@@ -79,8 +79,10 @@ async function main() {
             for (const value of [account.login_user, account.password, account.fakey]) if (value) secrets.add(value);
         }
         for (const value of [profile.username, profile.password, profile.fakey, process.env.FACEBOOK_RECOVERY_NEW_PASSWORD]) if (value) secrets.add(value);
-        const facebook = getFacebookCredentials(profile);
-        const firstmail = getFirstmailCredentials(profile);
+        let facebook;
+        let firstmail;
+        try { facebook = getFacebookCredentials(profile); } catch { log("profile.facebook.credentials.incomplete"); }
+        try { firstmail = getFirstmailCredentials(profile); } catch { log("profile.firstmail.credentials.incomplete"); }
         log("profile.credentials.checked", { facebookAvailable: Boolean(facebook), firstmailAvailable: Boolean(firstmail), platformCount: profile.platform_account?.length ?? 0 });
         log("browser.open.start");
         const browserData = await adsPower.openProfile(profileNo, { browserMode: "visible" });
@@ -128,7 +130,7 @@ async function main() {
         log("account.check.start", { state });
         if (state === "ACCOUNT_LOCK") {
             const active = await ensureFacebookAccountActive(adsPower, profile, page, {
-                timeout: 60000, manualTimeout: 300000, signal: controller.signal,
+                timeout: 60000, codeTimeout: 60000, manualTimeout: 300000, signal: controller.signal,
                 newPassword,
                 onStep: log,
                 onRecoveryResult: (result) => { finalRecoveryResult = result; log("recovery.result", result); },
