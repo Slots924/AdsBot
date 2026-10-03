@@ -18,6 +18,34 @@ const counterColumns = Object.freeze({
     [profileActivityTypes.COMMENT_REACTIONS_TASK]: "comment_reactions_task_count",
 });
 
+const accountTypes = ["regular", "ui", "api"];
+const comparisonTasks = [
+    { key: profileActivityTypes.COMMENT_TASK, label: "Комент-задачі, середнє" },
+    { key: profileActivityTypes.COMMENT_REACTIONS_TASK, label: "Лайк-задачі, середнє" },
+];
+
+// Для забанених профілів тип фіксується за останнім оформленням до першого бану.
+const classifiedProfiles = `WITH classified AS (
+    SELECT p.*, COALESCE((
+        SELECT CASE e.action_type
+            WHEN 'comment_account_setup_ui' THEN 'ui' ELSE 'api' END
+        FROM profile_activity_events e
+        WHERE e.profile_no = p.profile_no
+            AND e.action_type IN ('comment_account_setup_ui', 'comment_account_setup_api')
+            AND e.outcome = 'success'
+            AND (p.is_banned = 0 OR julianday(e.occurred_at) <= julianday(p.banned_at))
+        ORDER BY julianday(e.occurred_at) DESC, e.id DESC LIMIT 1
+    ), 'regular') AS account_type
+    FROM profile_activity p
+)`;
+
+function normalizeComparisonDate(value) {
+    if (!value) return null;
+    const date = new Date(value);
+    if (!Number.isFinite(date.getTime())) throw new Error("Некоректна дата періоду статистики");
+    return date.toISOString();
+}
+
 
 function normalizeProfileNo(value) {
     return String(value ?? "").trim();
@@ -28,6 +56,7 @@ function toProfile(row) {
     return {
         profileNo: row.profile_no,
         isBanned: Boolean(row.is_banned),
+        accountType: row.account_type,
         bannedAt: row.banned_at,
         commentAccountSetupUiCount: Number(row.comment_account_setup_ui_count),
         commentAccountSetupApiCount: Number(row.comment_account_setup_api_count),
@@ -142,25 +171,65 @@ export default class ProfileActivityStore {
     }
 
 
-    async list({ bannedOnly = true, sortByDate = true, page = 1, pageSize = 50 } = {}) {
+    async list({ bannedOnly = true, sortByDate = true, page = 1, pageSize = 50,
+        includedAccountTypes = accountTypes, comparisonDateFrom, comparisonDateTo } = {}) {
         await this.initialize();
         const normalizedPageSize = [25, 50, 100].includes(Number(pageSize)) ? Number(pageSize) : 50;
         const normalizedPage = Math.max(1, Math.floor(Number(page) || 1));
-        const where = bannedOnly ? "WHERE is_banned = 1" : "";
+        const includedTypes = accountTypes.filter((type) => includedAccountTypes.includes(type));
+        const where = `WHERE ${bannedOnly ? "is_banned = 1 AND " : ""}
+            account_type IN (${includedTypes.map(() => "?").join(", ") || "NULL"})`;
         const orderBy = sortByDate
             ? "updated_at DESC, profile_no DESC"
             : "total_target_actions DESC, updated_at DESC, profile_no DESC";
-        const total = Number(this.db.prepare(`SELECT COUNT(*) AS total FROM profile_activity ${where}`).get().total);
+        const total = Number(this.db.prepare(`${classifiedProfiles} SELECT COUNT(*) AS total FROM classified ${where}`).get(...includedTypes).total);
         const rows = this.db.prepare(`
-            SELECT * FROM profile_activity ${where}
+            ${classifiedProfiles} SELECT * FROM classified ${where}
             ORDER BY ${orderBy} LIMIT ? OFFSET ?
-        `).all(normalizedPageSize, (normalizedPage - 1) * normalizedPageSize);
+        `).all(...includedTypes, normalizedPageSize, (normalizedPage - 1) * normalizedPageSize);
         return {
             items: rows.map(toProfile),
             total,
             page: normalizedPage,
             pageSize: normalizedPageSize,
             totalPages: Math.max(1, Math.ceil(total / normalizedPageSize)),
+            comparison: await this.compareBanned({ dateFrom: comparisonDateFrom, dateTo: comparisonDateTo }),
+        };
+    }
+
+
+    async compareBanned({ dateFrom, dateTo } = {}) {
+        await this.initialize();
+        const from = normalizeComparisonDate(dateFrom);
+        const to = normalizeComparisonDate(dateTo);
+        if (from && to && from > to) throw new Error("Дата «Від» має бути не пізніше дати «До»");
+        const conditions = ["p.is_banned = 1"];
+        const parameters = [];
+        if (from) { conditions.push("julianday(p.banned_at) >= julianday(?)"); parameters.push(from); }
+        if (to) { conditions.push("julianday(p.banned_at) <= julianday(?)"); parameters.push(to); }
+        // Події після бану не входять у середнє; акаунти без задач враховуються як нуль.
+        const averages = comparisonTasks.map(({ key }, index) => `AVG((
+            SELECT COUNT(*) FROM profile_activity_events e
+            WHERE e.profile_no = p.profile_no AND e.action_type = '${key}'
+                AND e.outcome IN ('success', 'completed_with_warnings')
+                AND julianday(e.occurred_at) <= julianday(p.banned_at)
+        )) AS average_${index}`);
+        const rows = this.db.prepare(`
+            ${classifiedProfiles}
+            SELECT p.account_type, COUNT(*) AS banned_count, ${averages.join(", ")}
+            FROM classified p WHERE ${conditions.join(" AND ")} GROUP BY p.account_type
+        `).all(...parameters);
+        return {
+            tasks: comparisonTasks,
+            groups: accountTypes.map((accountType) => {
+                const row = rows.find((item) => item.account_type === accountType);
+                return {
+                    accountType,
+                    bannedCount: Number(row?.banned_count ?? 0),
+                    averages: Object.fromEntries(comparisonTasks.map(({ key }, index) =>
+                        [key, row ? Number(row[`average_${index}`]) : null])),
+                };
+            }),
         };
     }
 

@@ -25,6 +25,34 @@ const show = () => render(<BusinessManagerTab accounts={[{ accountKey: "system-0
 const loaded = async () => screen.findByText("Test Person");
 
 describe("БМ", () => {
+    it.each(["system", "bm"])("показує всі фанки БМ для клієнта %s", async (kind) => {
+        const previous = bmRequest.getMockImplementation();
+        const pages = { value: { pages: [{ id: "21", name: "Owned Page", ownership: "owned" }, { id: "22", name: "Shared Page", ownership: "shared" }] } };
+        bmRequest.mockImplementation(async (payload) => payload.action === "section" && payload.section === "pages"
+            ? { ok: true, data: pages } : previous(payload));
+        render(<BusinessManagerTab accounts={[{ accountKey: "system-001", name: "Client", kind }]} />);
+        await loaded();
+        fireEvent.click(screen.getByRole("button", { name: "Фанки" }));
+        await screen.findByText("Owned Page");
+        expect(screen.getByText("Shared Page")).toBeInTheDocument();
+        expect(screen.getByText("Власна")).toBeInTheDocument();
+        expect(screen.getByText("Надано іншою стороною")).toBeInTheDocument();
+        expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+        fireEvent.change(screen.getByRole("textbox", { name: "Назва або ID" }), { target: { value: "22" } });
+        expect(screen.queryByText("Owned Page")).not.toBeInTheDocument();
+        expect(screen.getByText("Shared Page")).toBeInTheDocument();
+    });
+
+    it("відкриває натиснутий API-клієнт замість попереднього вибору з кешу", async () => {
+        render(<BusinessManagerTab accounts={[
+            { accountKey: "system-001", name: "System", kind: "system" },
+            { accountKey: "bm-002", name: "Selected BM", kind: "bm" },
+        ]} selectedAccountKey="bm-002" />);
+        await loaded();
+        expect(screen.getByRole("combobox", { name: "API-клієнт БМ" })).toHaveValue("Selected BM");
+        expect(bmRequest).toHaveBeenCalledWith(expect.objectContaining({ action: "list", accountKey: "bm-002" }));
+    });
+
     it("відкриває кеш без запитів оновлення та виключає звичайних API-клієнтів", async () => {
         show(); await loaded();
         expect(bmRequest.mock.calls.some(([payload]) => payload.force)).toBe(false);

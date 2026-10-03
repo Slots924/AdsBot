@@ -13,11 +13,13 @@ export default class BusinessManagerService {
     }
 
     key(accountKey, businessId, section) {
-        return JSON.stringify([accountKey, businessId, section]);
+        // Старі списки могли бути обмежені призначеннями юзера або локальним вибором.
+        const cacheSection = ["users", "pages", "adAccounts", "pixels"].includes(section) ? `business-v2:${section}` : section;
+        return JSON.stringify([accountKey, businessId, cacheSection]);
     }
 
     async section(client, accountKey, businessId, section, force = false) {
-        if (!["users", "adAccounts", "pixels"].includes(section)) throw new Error("Невідомий розділ БМ");
+        if (!["users", "adAccounts", "pixels", "pages"].includes(section)) throw new Error("Невідомий розділ БМ");
         const key = this.key(accountKey, businessId, section);
         const cached = await this.cache.getBusinessData(key);
         if (!force) return cached;
@@ -33,15 +35,43 @@ export default class BusinessManagerService {
         const accounts = (await this.listAccounts()).filter((item) => ["bm", "system"].includes(item.kind) && !item.archived);
         if (!accounts.some((item) => item.accountKey === accountKey)) throw new Error("Оберіть доступний БМ або системного користувача");
         if (action === "select") {
-            await this.cache.setBusinessData("preferences", { accountKey, businessId: String(businessId ?? ""), section: ["users", "adAccounts", "pixels"].includes(payload.section) ? payload.section : "users" });
+            await this.cache.setBusinessData("preferences", { accountKey, businessId: String(businessId ?? ""), section: ["users", "adAccounts", "pixels", "pages"].includes(payload.section) ? payload.section : "users" });
             return true;
         }
         if (action === "list" && !payload.force) return this.cache.getBusinessData(this.key(accountKey, "", "list"));
         if (action === "section" && !payload.force) return this.section(null, accountKey, businessId, payload.section);
         const client = await this.createClient(accountKey);
         if (action === "list") {
-            const value = await client.getBusinessManagers();
+            let value;
+            const account = accounts.find((item) => item.accountKey === accountKey);
+            if (account.kind === "system") {
+                const known = new Set((await this.cache.getBusinessData(this.key(accountKey, "", "list")))?.value?.map((business) => business.id) ?? []);
+                const businessClients = accounts.filter((item) => item.kind === "bm");
+                for (const other of businessClients) {
+                    const cached = await this.cache.getBusinessData(this.key(other.accountKey, "", "list"));
+                    for (const business of cached?.value ?? []) known.add(business.id);
+                }
+                let discoveryError;
+                try { value = await client.getSystemUserBusinessManagers({ knownBusinessIds: [...known] }); }
+                catch (error) {
+                    if (error.code !== "SYSTEM_USER_BUSINESS_NOT_DISCOVERED") throw error;
+                    discoveryError = error;
+                }
+                if (!value) {
+                    for (const other of businessClients) {
+                        try {
+                            const available = await (await this.createClient(other.accountKey)).getBusinessManagers();
+                            for (const business of available) known.add(business.id);
+                        } catch (error) {
+                            this.logger?.warn?.("bm.system-discovery.candidate-failed", "Не вдалося отримати кандидатів БМ", { error: errorInfo(error) });
+                        }
+                    }
+                    if (known.size) value = await client.getSystemUserBusinessManagers({ knownBusinessIds: [...known] });
+                    else throw discoveryError;
+                }
+            } else value = await client.getBusinessManagers();
             await this.cache.setBusinessData(this.key(accountKey, "", "list"), value);
+            this.logger?.info?.("bm.list.completed", "Оновлено список доступних БМ", { accountKey, count: value.length });
             return this.cache.getBusinessData(this.key(accountKey, "", "list"));
         }
         if (!/^\d+$/.test(String(businessId ?? ""))) throw new Error("Оберіть БМ");

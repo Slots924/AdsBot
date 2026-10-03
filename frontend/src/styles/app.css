@@ -874,6 +874,12 @@ button:focus-visible, input:focus-visible {
 .profile-stats-table th[draggable="true"] { cursor: grab; }
 .profile-stats-table tbody tr:hover { background: rgba(255,255,255,.035); }
 .profile-stats-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 9px; padding: 10px; color: var(--muted); font-size: var(--font-caption); }
+.profile-stat-check { color: #39c979; vertical-align: middle; }
+.profile-stats-comparison { margin-top: 24px; }
+.profile-stats-comparison h2 { margin-bottom: 8px; }
+.profile-stats-comparison p, .profile-stats-period-hint { color: var(--muted); font-size: var(--font-caption); }
+.profile-stats-period-hint { padding-bottom: 10px; }
+.profile-stats-comparison-table { min-width: 560px; }
 .markdown-preview { min-height: 0; max-height: none; flex: 1; overflow: auto; padding: 18px; border: 1px solid var(--stroke); border-radius: 11px; color: #c8cedb; background: #080a10; line-height: 1.55; }
 .markdown-preview h1, .markdown-preview h2, .markdown-preview h3 { margin: 18px 0 9px; color: #f2f4fa; }
 .markdown-preview h1:first-child { margin-top: 0; font-size: 21px; }

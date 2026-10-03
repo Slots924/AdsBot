@@ -10,12 +10,12 @@ import {
 const friendlyName = "BizKitSettingsRequestAdAccountAccessMutation";
 const docId = "23962130140039997";
 const defaultBusinessId = "703191138787237";
-const permittedRoles = [
+export const fullAdAccountTaskIds = Object.freeze([
     "864195700451909",
     "151821535410699",
     "610690166001223",
     "186595505260379",
-];
+]);
 
 
 export const requestAdAccountAccessStatuses = Object.freeze({
@@ -91,7 +91,7 @@ export default async function requestAdAccountAccess({
                     actor_id: runtime.actorId,
                     client_mutation_id: "3",
                     ad_account_id: accountId,
-                    permitted_roles: permittedRoles,
+                    permitted_roles: fullAdAccountTaskIds,
                     permitted_tasks: [],
                     requesting_business_id: requestingBusinessId,
                 },

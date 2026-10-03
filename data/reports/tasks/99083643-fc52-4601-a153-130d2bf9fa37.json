@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "id": "99083643-fc52-4601-a153-130d2bf9fa37",
+  "taskId": "5d4f15ca-0e72-4c41-9114-da06e711390e",
+  "type": "campaign",
+  "title": "HU | Creo_1 | 30+ 02/10 22:15",
+  "status": "failed",
+  "createdAt": "2026-10-02T19:17:07.509Z",
+  "startedAt": "2026-10-02T19:16:44.727Z",
+  "finishedAt": "2026-10-02T19:17:07.508Z",
+  "durationMs": 22781,
+  "inputSummary": {
+    "campaignJobId": "d3c00a81-9e95-4443-be74-f9c1da62297b",
+    "accountKey": "account-031",
+    "adAccountId": "act_1051963314178272",
+    "campaignName": "HU | Creo_1 | 30+ 02/10 22:15",
+    "templateId": 13,
+    "pageId": "1364248796763986",
+    "postId": "1364248796763986_122095115985497525",
+    "adSetCount": 5,
+    "dailyBudget": 5,
+    "startTime": "2026-10-02T19:15:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120251560954570053",
+      "creativeId": "2172081116738635",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120251560955810053",
+          "name": "HU | Creo_1 | 30+ 02/10 22:15 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120251560958200053",
+          "name": "HU | Creo_1 | 30+ 02/10 22:15 | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120251560956810053",
+          "name": "HU | Creo_1 | 30+ 02/10 22:15 | AD 01"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "An unexpected error has occurred. Please retry your request later.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 2,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "ad",
+      "itemIndex": 1,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "d3c00a81-9e95-4443-be74-f9c1da62297b",
+    "accountKey": "account-031",
+    "adAccountId": "act_1051963314178272",
+    "uniqueKey": "campaign-job:d3c00a81-9e95-4443-be74-f9c1da62297b"
+  }
+}

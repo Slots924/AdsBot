@@ -368,6 +368,7 @@ export default class FacebookGraphApi {
         accountKey,
         accountName = "",
         facebookUserId = "",
+        kind = "api",
         accessToken,
         cookie,
         userAgent,
@@ -380,6 +381,7 @@ export default class FacebookGraphApi {
         this.accountKey = accountKey;
         this.accountName = String(accountName ?? "").trim();
         this.facebookUserId = String(facebookUserId ?? "").trim();
+        this.kind = kind;
         this.userAgent = userAgent;
         this.apiUrl = "https://graph.facebook.com/v26.0";
         this.#accessToken = accessToken;
@@ -417,7 +419,7 @@ export default class FacebookGraphApi {
                 headers: {
                     Accept: "application/json",
                     Authorization: `Bearer ${accessToken}`,
-                    Cookie: this.#cookie,
+                    ...(String(this.#cookie ?? "").trim() ? { Cookie: this.#cookie } : {}),
                     "User-Agent": this.userAgent,
                     ...headers,
                 },
@@ -574,6 +576,7 @@ export default class FacebookGraphApi {
 
     /** Повертає бізнеси, доступні поточному токену Graph API. */
     async getBusinessManagers() {
+        if (this.kind === "system") return this.getSystemUserBusinessManagers();
         const businesses = await this.#getAll("/me/businesses", {
             fields: "id,name,verification_status,created_time",
             limit: 100,
@@ -587,23 +590,91 @@ export default class FacebookGraphApi {
         }));
     }
 
+    /** Визначає власний БМ системного юзера і перевіряє його членство. */
+    async getSystemUserBusinessManagers({ knownBusinessIds = [] } = {}) {
+        const me = await this.#request("/me", { fields: "id,name" });
+        const userId = this.#businessId(me?.id);
+        const candidates = new Set();
+        const diagnostics = [];
+        const addCandidate = (value) => { if (/^\d+$/.test(String(value ?? ""))) candidates.add(String(value)); };
+        knownBusinessIds.forEach(addCandidate);
+        const attempt = async (stage, action) => {
+            try { return await action(); }
+            catch (error) { diagnostics.push({ stage, code: error.code, graphCode: error.graphCode, graphSubcode: error.graphSubcode, message: redactSensitiveText(error.message).replace(/\d+/g, "[ID]") }); return null; }
+        };
+        const checked = new Set();
+        const verify = async () => {
+            for (const businessId of candidates) {
+                if (checked.has(businessId)) continue;
+                checked.add(businessId);
+                const users = await attempt("business-membership", () => this.#getAll(`/${businessId}/system_users`, { fields: "id", limit: 100 }));
+                if (!users?.some((user) => String(user.id) === userId)) continue;
+                const business = await this.#request(`/${businessId}`, { fields: "id,name,verification_status,created_time" });
+                return [{ id: String(business.id), name: String(business.name ?? ""), verificationStatus: business.verification_status ?? null, createdTime: business.created_time ?? null }];
+            }
+            return null;
+        };
+        const fromCache = await verify();
+        if (fromCache) return fromCache;
+        const metadata = (await attempt("token-metadata", () => this.#request("/debug_token", { input_token: this.#accessToken })))?.data;
+        addCandidate(metadata?.business_id);
+        for (const scope of metadata?.granular_scopes ?? []) {
+            if (scope.scope === "business_management") (scope.target_ids ?? []).forEach(addCandidate);
+        }
+        if (metadata?.app_id) {
+            const app = await attempt("application-business", () => this.#request(`/${this.#businessId(metadata.app_id)}`, { fields: "id,business{id,name}" }));
+            addCandidate(app?.business?.id);
+        }
+        const memberships = await attempt("business-user-memberships", () => this.#getAll("/me/business_users", { fields: "business{id,name}", limit: 100 }));
+        for (const membership of memberships ?? []) addCandidate(membership.business?.id);
+        const fromApp = await verify();
+        if (fromApp) return fromApp;
+        const accounts = await attempt("assigned-account-businesses", () => this.#getAll(`/${userId}/assigned_ad_accounts`, { fields: "id,business{id,name}", limit: 100 }));
+        for (const account of accounts ?? []) addCandidate(account.business?.id);
+        const fromAssets = await verify();
+        if (fromAssets) return fromAssets;
+        getLogger("facebook-graph", { accountKey: this.accountKey }).warn("bm.system-discovery.failed", "Не вдалося визначити власний БМ системного юзера", { diagnostics, candidateCount: candidates.size });
+        const error = new Error("Не вдалося визначити власний БМ системного юзера. Додайте у вкладці API-клієнти БМ-клієнта з доступом до цього бізнесу та перевірте дозвіл business_management системного токена");
+        error.code = "SYSTEM_USER_BUSINESS_NOT_DISCOVERED";
+        throw error;
+    }
+
+
+    /** Повертає призначені системному користувачу фанки або РК без токенів сторінок. */
+    async getSystemUserAssignedAssets(kind) {
+        if (this.kind !== "system" || !["pages", "ad_accounts"].includes(kind)) throw new Error("Оберіть активи системного користувача");
+        const me = await this.getMe();
+        return this.#getAll(`/${this.#businessId(me.id)}/assigned_${kind}`, {
+            fields: kind === "pages" ? "id,name" : "id,name,account_id,account_status,business{id,name}", limit: 100,
+        });
+    }
+
+    async #getBusinessAssets(businessId, kind, fields) {
+        const id = this.#businessId(businessId);
+        const edge = (name) => this.#getAll(`/${id}/${name}_${kind}`, { fields, limit: 100 });
+        const [owned, shared] = await Promise.all([edge("owned"), edge("client")]);
+        return [...new Map([...shared.map((item) => ({ ...item, ownership: "shared" })), ...owned.map((item) => ({ ...item, ownership: "owned" }))].map((item) => [String(item.id), { ...item, id: String(item.id) }])).values()];
+    }
+
+    /** Повертає власні та надані фанки БМ незалежно від призначення поточному юзеру. */
+    async getBusinessPages(businessId) {
+        return this.#getBusinessAssets(businessId, "pages", "id,name");
+    }
 
     /** Читає доступ, користувачів та активи одного Business Manager. */
     async getBusinessManagementSection(businessId, section) {
         const id = this.#businessId(businessId);
         const edge = (name, fields) => this.#getAll(`/${id}/${name}`, { fields, limit: 100 });
-        const assets = async (kind, fields) => {
-            const [owned, shared] = await Promise.all([edge(`owned_${kind}`, fields), edge(`client_${kind}`, fields)]);
-            return [...new Map([...shared.map((item) => ({ ...item, ownership: "shared" })), ...owned.map((item) => ({ ...item, ownership: "owned" }))].map((item) => [String(item.id), { ...item, id: String(item.id) }])).values()];
-        };
+        const assets = (kind, fields) => this.#getBusinessAssets(id, kind, fields);
         const adAccounts = () => assets("ad_accounts", "id,name,account_id,account_status,currency,business{id,name}");
+        if (section === "pages") return { pages: await this.getBusinessPages(id) };
         if (section === "adAccounts") return { adAccounts: await adAccounts() };
         if (section === "users") {
             const [users, pending, systemUsers, pages, accounts] = await Promise.all([
                 edge("business_users", "id,name,first_name,last_name,email,pending_email,role,finance_permission,tasks"),
                 edge("pending_users", "id,email,role"),
                 edge("system_users", "id,name"),
-                assets("pages", "id,name"), adAccounts(),
+                this.getBusinessPages(id), adAccounts(),
             ]);
             const systemIds = new Set(systemUsers.map((user) => String(user.id)));
             const people = users.filter((user) => !systemIds.has(String(user.id)) && ["ADMIN", "EMPLOYEE", "DEFAULT"].includes(user.role));

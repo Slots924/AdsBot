@@ -18,12 +18,12 @@ import { errorDetails, unwrap } from "./lib/api.js";
 
 const tabs = [
     { id: "accounts", label: "API-клієнти", icon: Bot },
-    { id: "bm", label: "БМ", icon: PanelsTopLeft },
     { id: "ads", label: "Рекламні кабінети", icon: BadgeDollarSign },
     { id: "pages", label: "Фанпейджі", icon: PanelsTopLeft },
     { id: "comment-accounts", label: "Акаунти під коментарі", icon: MessageSquare },
     { id: "keitaro", label: "Keitaro", icon: BarChart3 },
     { id: "spend", label: "Спенд", icon: CircleDollarSign },
+    { id: "bm", label: "БМ", icon: PanelsTopLeft },
     { id: "journal", label: "Журнал", icon: BookOpen },
 ];
 
@@ -243,7 +243,7 @@ export default function App() {
         return () => { offLog(); offTasks(); offWorkspace(); offAdsPowerStates(); offFacebookAccountStatus(); offApiClientCreated(); };
     }, []);
 
-    useEffect(() => { if (selectedAccount?.status === "active") loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status]);
+    useEffect(() => { if (selectedAccount?.status === "active" && !["bm", "system"].includes(selectedAccount.kind)) loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status, selectedAccount?.kind]);
     useEffect(() => {
         if (!hydrated) return undefined;
         const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, reactionWorkerConcurrency, reactionWorkerProxyIds, reactionBrowserMode, reactionDisableImages, apiClientsBrowserMode, apiClientsDisableImages, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped }).catch(() => {}), 250);
@@ -325,7 +325,16 @@ export default function App() {
         .filter((task) => task.type === "facebook-api-client-sync" && ["queued", "running"].includes(task.status))
         .map((task) => task.metadata?.accountKey)
         .filter(Boolean);
-    const selectAccount = (key) => { setSelectedAccountKey(key); setActiveTab("ads"); loadWorkspace(key); };
+    const selectAccount = (key) => {
+        setSelectedAccountKey(key);
+        const account = accounts.find((item) => item.accountKey === key);
+        if (["bm", "system"].includes(account?.kind)) {
+            setActiveTab("bm");
+            return;
+        }
+        setActiveTab("ads");
+        loadWorkspace(key);
+    };
     const createProxy = async (input) => { setProxies(await unwrap(window.adsBot.createProxy(input))); showToast("Проксі додано", "success"); };
     const updateProxy = async (proxyId, patch) => { setProxies(await unwrap(window.adsBot.updateProxy(proxyId, patch))); showToast("Проксі оновлено", "success"); };
     const deleteProxy = async (proxyId) => {

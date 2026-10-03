@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Building2, Users, CreditCard, ScanLine, RefreshCw, LoaderCircle, Copy, Pencil, X, UserPlus, ShieldCheck, Check, Search } from "lucide-react";
+import { Building2, Users, CreditCard, ScanLine, RefreshCw, LoaderCircle, Copy, Pencil, X, UserPlus, ShieldCheck, Check, Search, Files } from "lucide-react";
 import { GrayButton, GrayField, GrayInput, GrayModal, GraySearch, GraySelect } from "../components/gray-ui/index.js";
 import { unwrap } from "../lib/api.js";
 import "../styles/business-manager.css";
 import { businessAssetAssignment as assigned, hasFullBusinessAccess as full } from "../../../facebook/api/businessAccess.js";
 
-const sections = [{ id: "users", name: "Користувачі", icon: Users }, { id: "adAccounts", name: "Рекламні РК", icon: CreditCard }, { id: "pixels", name: "Пікселі", icon: ScanLine }];
+const sections = [{ id: "users", name: "Користувачі", icon: Users }, { id: "pages", name: "Фанки", icon: Files }, { id: "adAccounts", name: "Рекламні РК", icon: CreditCard }, { id: "pixels", name: "Пікселі", icon: ScanLine }];
 const idOf = (item) => String(item.id).replace(/^act_/, "");
 const matches = (item, search) => `${item.name ?? ""} ${item.id} ${item.email ?? ""} ${item.pending_email ?? ""}`.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase());
 const stamp = (entry) => entry?.updatedAt ? `Оновлено: ${new Date(entry.updatedAt).toLocaleString("uk-UA", { timeZone: "Europe/Kiev" })}` : "Дані ще не завантажені";
@@ -81,19 +81,20 @@ export default function BusinessManagerTab({ accounts, selectedAccountKey }) {
     const data = entry?.value;
     const users = entries.users?.value;
     const currentClient = clients.find((item) => item.accountKey === accountKey);
+    const availableSections = sections;
 
     useEffect(() => {
         if (!signature) return undefined;
         let cancelled = false;
         unwrap(window.adsBot.bmRequest({ action: "preferences" })).then((preferences) => {
             if (cancelled) return;
-            const preferred = clients.find((item) => item.accountKey === preferences.accountKey) ?? clients.find((item) => item.accountKey === selectedAccountKey) ?? clients[0];
+            const preferred = clients.find((item) => item.accountKey === selectedAccountKey) ?? clients.find((item) => item.accountKey === preferences.accountKey) ?? clients[0];
             setAccountKey(preferred.accountKey);
             setBusinessId(preferred.accountKey === preferences.accountKey ? preferences.businessId ?? "" : "");
             setSection(preferences.section ?? "users");
         }).catch((failure) => { if (!cancelled) { setAccountKey(clients[0].accountKey); setError(failure.message); } });
         return () => { cancelled = true; };
-    }, [signature]);
+    }, [signature, selectedAccountKey]);
 
     useEffect(() => {
         if (!accountKey) return undefined;
@@ -130,10 +131,11 @@ export default function BusinessManagerTab({ accounts, selectedAccountKey }) {
     async function run(label, work, invitation = false) {
         if (busy) return;
         setBusy(label); setError(""); setProgress(null);
-        try { await work(); }
+        try { await work(); return true; }
         catch (failure) {
             if (invitation) setInviteMessage({ success: false, text: failure.message });
             else setDialog({ type: "error", title: "Не вдалося виконати операцію", message: failure.message });
+            return false;
         } finally { setBusy(""); }
     }
 
@@ -202,11 +204,11 @@ export default function BusinessManagerTab({ accounts, selectedAccountKey }) {
         <header className="bm-heading"><div><h1><Building2 size={25} />Бізнес-менеджер</h1><p>{currentClient ? `${currentClient.name} · ${currentClient.kind === "system" ? "Системний користувач" : "БМ"}` : "Для роботи додайте БМ або системного користувача у вкладці API-клієнти"}</p></div>
             <div className="bm-selectors"><GraySelect items={clients.map((item) => ({ id: item.accountKey, name: item.name }))} value={accountKey} onChange={(key) => { setBusinessId(""); setAccountKey(key); }} ariaLabel="API-клієнт БМ" placeholder="Оберіть клієнта" disabled={Boolean(busy)} portal />
                 <div className="bm-business-select"><button type="button" className="bm-refresh-link" disabled={Boolean(busy) || !accountKey} onClick={refreshList}><RefreshCw size={12} className={busy === "list" ? "bm-spin" : ""} />Оновити список БМ</button><GraySelect items={list?.value ?? []} value={businessId} onChange={(id) => setBusinessId(String(id))} ariaLabel="Бізнес-менеджер" placeholder="Оберіть БМ" disabled={Boolean(busy)} portal /></div>
-                <GrayButton disabled={disabled} onClick={() => run("business", async () => { for (const item of sections) await refreshPage(item.id); })}>{busyIcon}Оновити БМ</GrayButton>
+                <GrayButton disabled={disabled} onClick={() => run("business", async () => { for (const item of availableSections) await refreshPage(item.id); })}>{busyIcon}Оновити БМ</GrayButton>
             </div>
         </header>
-        <div className="bm-layout"><aside className="bm-nav">{sections.map((item) => { const Icon = item.icon; return <button type="button" key={item.id} disabled={Boolean(busy)} className={section === item.id ? "active" : ""} onClick={() => { setSection(item.id); setSearch(""); }}><Icon size={17} /><span>{item.name}</span>{totalFor(item.id) != null && <small>{totalFor(item.id)}</small>}</button>; })}<small className="bm-cache-note">Дані зберігаються на диску.<br />Оновлення — за кнопками.</small></aside>
-            <div className="bm-content"><div className="bm-section-heading"><div><h2>{sections.find((item) => item.id === section)?.name}</h2><small>{stamp(entry)}</small></div><GrayButton disabled={disabled} onClick={() => run("section", () => refreshPage())}>{busyIcon}Оновити</GrayButton></div>
+        <div className="bm-layout"><aside className="bm-nav">{availableSections.map((item) => { const Icon = item.icon; return <button type="button" key={item.id} disabled={Boolean(busy)} className={section === item.id ? "active" : ""} onClick={() => { setSection(item.id); setSearch(""); }}><Icon size={17} /><span>{item.name}</span>{totalFor(item.id) != null && <small>{totalFor(item.id)}</small>}</button>; })}<small className="bm-cache-note">Дані зберігаються на диску.<br />Оновлення — за кнопками.</small></aside>
+            <div className="bm-content"><div className="bm-section-heading"><div><h2>{availableSections.find((item) => item.id === section)?.name}</h2><small>{stamp(entry)}</small></div><GrayButton disabled={disabled} onClick={() => run("section", () => refreshPage())}>{busyIcon}Оновити</GrayButton></div>
                 {error && <p role="alert" className="bm-feedback error">{error}</p>}
                 {section === "users" && businessId && <>
                     <div className="bm-invite-panel"><GrayField label="Email для запрошення" help="Постійний доступ · Повні права на фінанси"><GrayInput aria-label="Email для запрошення" type="email" value={email} placeholder="name@example.com" disabled={Boolean(busy)} onChange={(event) => { setEmail(event.target.value); clearTimeout(inviteTimer.current); setInviteMessage(null); }} onKeyDown={(event) => { if (event.key === "Enter" && !disabled) invite("EMPLOYEE"); }} /></GrayField><div className="bm-invite-actions"><GrayButton variant="primary" disabled={disabled} onClick={() => invite("EMPLOYEE")}>{busy === "invite-EMPLOYEE" ? <LoaderCircle className="bm-spin" size={16} /> : <UserPlus size={16} />}Запросити користувача</GrayButton><GrayButton disabled={disabled} onClick={() => invite("ADMIN")}>{busy === "invite-ADMIN" ? <LoaderCircle className="bm-spin" size={16} /> : <ShieldCheck size={16} />}Запросити адміна</GrayButton><div className="bm-invite-feedback" role="status">{inviteMessage && <span className={inviteMessage.success ? "bm-success" : "bm-error"}>{inviteMessage.success && "✓ "}{inviteMessage.text}</span>}</div></div></div>
@@ -214,10 +216,11 @@ export default function BusinessManagerTab({ accounts, selectedAccountKey }) {
                 </>}
                 {data && <div className="bm-toolbar"><GraySearch value={search} onChange={(event) => setSearch(event.target.value)} placeholder={section === "users" ? "Ім’я, пошта або ID" : "Назва або ID"} />{section === "users" && <GraySelect ariaLabel="Фільтр людей" items={[{ id: "all", name: "Усі ролі" }, { id: "EMPLOYEE", name: "Користувачі" }, { id: "ADMIN", name: "Адміністратори" }, { id: "missing", name: "Не всі доступи" }]} value={roleFilter} onChange={setRoleFilter} portal />}</div>}
                 {!data ? <div className="bm-empty"><Search size={30} /><p>{!accountKey ? "Додайте БМ або системного користувача" : !businessId ? "Оновіть список і виберіть БМ" : "Немає кешованих даних. Натисніть «Оновити»"}</p></div> : <div className="bm-table-wrap">
+                    {section === "pages" && <table className="bm-table"><thead><tr><th>Фанпейдж</th><th>Власність</th></tr></thead><tbody>{data.pages.filter((page) => matches(page, search)).map((page) => <tr key={page.id}><td><Identity item={page} /></td><td><span className="bm-badge">{page.ownership === "owned" ? "Власна" : "Надано іншою стороною"}</span></td></tr>)}</tbody></table>}
                     {section === "users" && <table className="bm-table"><thead><tr><th>Користувач</th><th>Доступ до БМ</th><th>Фанки</th><th>РК</th><th><span className="bm-sr-only">Дії</span></th></tr></thead><tbody>{visibleUsers.map((user) => <tr key={user.id}><td><div className="bm-person"><Identity item={user} /><GrayButton iconOnly aria-label={`Змінити ім’я ${user.name}`} disabled={disabled} onClick={() => { setFirstName(user.first_name || user.name?.split(" ")[0] || ""); setLastName(user.last_name || user.name?.split(" ").slice(1).join(" ") || ""); setDialog({ type: "rename", title: "Змінити ім’я користувача", userId: user.id }); }}><Pencil size={14} /></GrayButton></div></td><td><span className="bm-badge">{user.role === "ADMIN" ? "Адміністратор" : "Частковий"}</span><small>Фінанси: {/[Ee][Dd][Ii][Tt]/.test(user.finance_permission ?? "") || user.tasks?.some((task) => ["FINANCE_EDITOR", "FINANCE_EDIT"].includes(task)) ? "повний" : user.finance_permission || "не надано"}</small></td>{["pages", "adAccounts"].map((kind) => <td key={kind}>{data[kind].some((asset) => asset.assignmentError) ? <span className="bm-error" title="Оновіть сторінку, щоб отримати всі доступи">Недоступно</span> : <><GrayButton disabled={disabled} onClick={() => openPicker({ userId: user.id, kind })}>{data[kind].filter((asset) => assigned(asset, user.id)).length} / {data[kind].length}</GrayButton>{data[kind].some((asset) => assigned(asset, user.id) && !full(asset, user.id, kind)) && <small className="bm-error">Неповні права</small>}</>}</td>)}<td><GrayButton iconOnly variant="danger" disabled={disabled} aria-label={`Видалити ${user.name}`} onClick={() => setDialog({ type: "confirm", title: "Видалити користувача з БМ?", message: `${user.name || user.email} · ID ${user.id}. Доступ до цього БМ буде втрачено.`, action: "removeUser", extra: { userId: user.id } })}><X size={16} /></GrayButton></td></tr>)}{(data.pending ?? []).filter((user) => matches(user, search) && roleFilter === "all").map((user, index) => <tr key={`pending-${user.id || index}`}><td><Identity item={user} /></td><td colSpan={4}><span className="bm-badge">Очікує прийняття</span></td></tr>)}</tbody></table>}
                     {section === "adAccounts" && <table className="bm-table"><thead><tr><th>Рекламний акаунт</th><th>Статус</th><th>Власник</th><th>Дія</th></tr></thead><tbody>{visibleAccounts.map((account) => <tr key={account.id}><td><Identity item={account} /></td><td><span className={`bm-badge ${account.account_status === 1 ? "success" : ""}`}>{statusNames[account.account_status] || `Статус ${account.account_status ?? "невідомий"}`}</span></td><td><span className="bm-badge">{account.ownership === "owned" ? "Власний" : "Надано іншою стороною"}</span><small>{account.business?.name || account.business?.id}</small></td><td><GrayButton variant="danger" disabled={disabled || account.ownership === "owned"} title={account.ownership === "owned" ? "Видалення власного РК недоступне через Graph API" : "Прибрати доступ цього БМ"} onClick={() => setDialog({ type: "confirm", title: "Прибрати наданий РК із БМ?", message: `${account.name} · ID ${idOf(account)}. Цей БМ втратить доступ до РК.`, action: "removeAccount", extra: { assetId: account.id } })}><X size={15} />Прибрати з БМ</GrayButton></td></tr>)}</tbody></table>}
                     {section === "pixels" && <table className="bm-table"><thead><tr><th>Піксель</th><th>Власність</th><th>Підключені РК</th></tr></thead><tbody>{data.pixels.filter((pixel) => matches(pixel, search)).map((pixel) => <tr key={pixel.id}><td><Identity item={pixel} /></td><td><span className="bm-badge">{pixel.ownership === "owned" ? "Власний" : "Надано іншою стороною"}</span></td><td>{pixel.assignmentError ? <span className="bm-error" title={pixel.assignmentError.message}>Не вдалося завантажити</span> : <GrayButton disabled={disabled} onClick={() => openPicker({ pixelId: pixel.id })}>РК: {data.adAccounts.filter((account) => pixel.sharedAccounts.some((item) => idOf(item) === idOf(account))).length} / {data.adAccounts.length}</GrayButton>}</td></tr>)}</tbody></table>}
-                    {((section === "users" && !visibleUsers.length && !data.pending?.some((user) => roleFilter === "all" && matches(user, search))) || (section === "adAccounts" && !visibleAccounts.length) || (section === "pixels" && !data.pixels.some((pixel) => matches(pixel, search)))) && <p className="bm-empty">Нічого не знайдено</p>}
+                    {((section === "pages" && !data.pages.some((page) => matches(page, search))) || (section === "users" && !visibleUsers.length && !data.pending?.some((user) => roleFilter === "all" && matches(user, search))) || (section === "adAccounts" && !visibleAccounts.length) || (section === "pixels" && !data.pixels.some((pixel) => matches(pixel, search)))) && <p className="bm-empty">Нічого не знайдено</p>}
                 </div>}
             </div>
         </div>

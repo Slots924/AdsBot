@@ -96,6 +96,7 @@ function normalizeAccounts(accounts) {
             facebookUserId: String(account?.facebookUserId ?? ""),
             metadata: account?.metadata ?? {},
             proxyId: String(account?.proxyId ?? "").trim(),
+            kind: String(account?.kind ?? "api"),
         };
     }).filter(Boolean);
 }
@@ -147,6 +148,7 @@ export default async function createFacebookApiClients({
                 accountKey: account.accountKey,
                 accountName: account.name,
                 facebookUserId: account.facebookUserId,
+                kind: account.kind,
                 accessToken: account.accessToken,
                 cookie: account.cookie,
                 userAgent: account.userAgent,

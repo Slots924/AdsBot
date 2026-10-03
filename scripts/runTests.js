@@ -13,6 +13,7 @@ const backendSuites = {
         "test/testCampaignTemplateManager.js",
     ],
     all: [
+        "test/testProfileActivityStore.js",
         "test/testAdAccountPreferencesStore.js",
         "test/testAdsBotGuiServiceMock.js",
         "test/testAdsPowerBrowserOptionsMock.js",
@@ -54,6 +55,7 @@ const backendSuites = {
         "test/testCreditCardStore.js",
         "test/testSmsPoolPhoneVerificationManager.js",
         "test/testInviteAdditionalProfileAdminAction.js",
+        "test/testInviteBusinessUserAction.js",
         "test/testAutomatedBehaviorLocalization.js",
         "test/testOpenFacebookUserProfile.js",
         "test/testFacebookPagePostsMock.js",
@@ -75,6 +77,7 @@ const backendSuites = {
         "test/testPagePreferencesStore.js",
         "test/testRemoteDataCacheStore.js",
         "test/testBusinessManagerService.js",
+        "test/testSystemUserBusinessDiscovery.js",
         "test/testSpendService.js",
         "test/testRunCommentingScenarioMock.js",
         "test/testRunParallelCommentingScenarioMock.js",
@@ -91,6 +94,7 @@ const frontendSuites = {
     all: [
         "src/test/campaign.test.jsx",
         "src/test/gui.test.jsx",
+        "src/test/journal-stats.test.jsx",
         "src/test/business-manager.test.jsx",
         "src/test/spend.test.jsx",
         "src/test/typography.test.js",

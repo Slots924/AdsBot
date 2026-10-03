@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
+    Check,
     Download,
     FileText,
     LoaderCircle,
@@ -40,6 +41,20 @@ const profileStatColumns = [
     ["updatedAt", "Остання зміна"],
 ];
 const profileStatSettingsKey = "adsbot.profile-stat-columns";
+const accountTypeLabels = { regular: "Звичайні", ui: "UI", api: "API" };
+
+function comparisonDates(range, from, to) {
+    if (range === "all") return {};
+    if (range === "custom") return {
+        comparisonDateFrom: from ? new Date(`${from}T00:00:00`).toISOString() : undefined,
+        comparisonDateTo: to ? new Date(`${to}T23:59:59.999`).toISOString() : new Date().toISOString(),
+    };
+    const now = new Date();
+    const start = new Date(now);
+    start.setHours(0, 0, 0, 0);
+    start.setDate(start.getDate() - Number(range) + 1);
+    return { comparisonDateFrom: start.toISOString(), comparisonDateTo: now.toISOString() };
+}
 
 function readProfileStatColumns() {
     try {
@@ -130,6 +145,13 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
     const [columnSettingsOpen, setColumnSettingsOpen] = useState(false);
     const [profileStatColumnsState, setProfileStatColumnsState] = useState(readProfileStatColumns);
     const [draggedColumnKey, setDraggedColumnKey] = useState(null);
+    const [includedAccountTypes, setIncludedAccountTypes] = useState(["regular", "ui", "api"]);
+    const [comparison, setComparison] = useState(null);
+    const [comparisonRange, setComparisonRange] = useState("all");
+    const [comparisonFrom, setComparisonFrom] = useState("");
+    const [comparisonTo, setComparisonTo] = useState("");
+    const profileStatsRequest = useRef(0);
+    const comparisonRangeInvalid = comparisonRange === "custom" && comparisonFrom && comparisonTo && comparisonFrom > comparisonTo;
 
     const fail = (error, title) => onError({ ...errorDetails(error), title });
 
@@ -194,6 +216,8 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
     };
 
     const loadProfileStats = async () => {
+        const requestId = ++profileStatsRequest.current;
+        if (comparisonRangeInvalid) { setLoading(false); return; }
         setLoading(true);
         try {
             const response = await unwrap(window.adsBot.getProfileActivity({
@@ -201,15 +225,20 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
                 sortByDate,
                 page: profileStatsPage,
                 pageSize: profileStatsPageSize,
+                includedAccountTypes,
+                ...comparisonDates(comparisonRange, comparisonFrom, comparisonTo),
             }));
+            if (requestId !== profileStatsRequest.current) return;
             setProfileStats(response.items);
             setProfileStatsTotal(response.total);
             setProfileStatsTotalPages(response.totalPages);
             setSelectedProfileNos([]);
+            setComparison(response.comparison ?? null);
         } catch (error) {
+            if (requestId !== profileStatsRequest.current) return;
             fail(error, "Не вдалося завантажити статистику профілів");
         } finally {
-            setLoading(false);
+            if (requestId === profileStatsRequest.current) setLoading(false);
         }
     };
 
@@ -224,8 +253,8 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
             else if (mode === "workflow-reports") loadWorkflowReports();
             else loadProfileStats();
         }, 200);
-        return () => window.clearTimeout(timeout);
-    }, [mode, query, level, scope, taskId, logTaskType, reportType, reportStatus, workflowReportType, workflowReportRange, dateFrom, dateTo, bannedOnly, sortByDate, profileStatsPage, profileStatsPageSize]);
+        return () => { window.clearTimeout(timeout); profileStatsRequest.current += 1; };
+    }, [mode, query, level, scope, taskId, logTaskType, reportType, reportStatus, workflowReportType, workflowReportRange, dateFrom, dateTo, bannedOnly, sortByDate, profileStatsPage, profileStatsPageSize, includedAccountTypes, comparisonRange, comparisonFrom, comparisonTo]);
 
     useEffect(() => {
         try {
@@ -334,6 +363,10 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
 
             {mode === "profile-stats" && <div className="profile-stats-toolbar">
                 <label className="profile-stats-toggle"><input type="checkbox" checked={bannedOnly} onChange={(event) => { setBannedOnly(event.target.checked); setProfileStatsPage(1); }} /> <span>Лише забанені</span></label>
+                {Object.entries(accountTypeLabels).map(([type, label]) => <label className="profile-stats-toggle" key={type}><input type="checkbox" checked={includedAccountTypes.includes(type)} onChange={(event) => {
+                    setIncludedAccountTypes((current) => event.target.checked ? [...current, type] : current.filter((item) => item !== type));
+                    setProfileStatsPage(1);
+                }} /> <span>{label} акаунти</span></label>)}
                 <label className="profile-stats-toggle"><input type="checkbox" checked={sortByDate} onChange={(event) => { setSortByDate(event.target.checked); setProfileStatsPage(1); }} /> <span>За датою</span></label>
                 <label className="field profile-stats-page-size"><span>На сторінці</span><select value={profileStatsPageSize} onChange={(event) => { setProfileStatsPageSize(Number(event.target.value)); setProfileStatsPage(1); }}><option value={25}>25</option><option value={50}>50</option><option value={100}>100</option></select></label>
                 <button className="secondary-button" onClick={() => setColumnSettingsOpen((value) => !value)}><Settings size={15} /> Колонки</button>
@@ -366,12 +399,32 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
                         {visibleProfileStatColumns.map((column) => <th key={column.key} draggable onDragStart={() => setDraggedColumnKey(column.key)} onDragOver={(event) => event.preventDefault()} onDrop={() => { moveProfileStatColumn(draggedColumnKey, column.key); setDraggedColumnKey(null); }} title="Перетягніть, щоб змінити порядок">{profileStatLabel(column.key)}</th>)}
                     </tr></thead>
                     <tbody>{profileStats.map((item) => <tr key={item.profileNo}><td><input type="checkbox" checked={selectedProfileNos.includes(item.profileNo)} onChange={(event) => setSelectedProfileNos((current) => event.target.checked ? [...new Set([...current, item.profileNo])] : current.filter((profileNo) => profileNo !== item.profileNo))} /></td>
-                        {visibleProfileStatColumns.map((column) => <td key={column.key}>{column.key === "isBanned" ? (item.isBanned ? "BAN" : "—") : column.key.endsWith("At") ? formatStatDate(item[column.key]) : item[column.key]}</td>)}
+                        {visibleProfileStatColumns.map((column) => <td key={column.key}>{["commentAccountSetupApiCount", "commentAccountSetupUiCount"].includes(column.key)
+                            ? (item.accountType === (column.key === "commentAccountSetupApiCount" ? "api" : "ui") ? <Check className="profile-stat-check" size={18} aria-label={`Оформлено через ${accountTypeLabels[item.accountType]}`} /> : "—")
+                            : column.key === "isBanned" ? (item.isBanned ? "BAN" : "—") : column.key.endsWith("At") ? formatStatDate(item[column.key]) : item[column.key]}</td>)}
                     </tr>)}</tbody>
                 </table>
                 {!loading && !profileStats.length && <div className="journal-empty">Статистики за цими фільтрами поки немає.</div>}
                 <div className="profile-stats-pagination"><span>Всього: {profileStatsTotal}</span><button className="secondary-button" disabled={profileStatsPage <= 1 || loading} onClick={() => setProfileStatsPage((page) => page - 1)}>Назад</button><span>Сторінка {profileStatsPage} / {profileStatsTotalPages}</span><button className="secondary-button" disabled={profileStatsPage >= profileStatsTotalPages || loading} onClick={() => setProfileStatsPage((page) => page + 1)}>Далі</button></div>
             </div>}
+
+            {mode === "profile-stats" && <section className="profile-stats-comparison">
+                <h2>Середня кількість задач до бану</h2>
+                <p>За датою першого виявлення бану. Усі забанені акаунти групи, включно з тими, що не виконали задач; незалежно від фільтрів основної таблиці.</p>
+                <div className="profile-stats-toolbar">
+                    <label className="field"><span>Період бану</span><select value={comparisonRange} onChange={(event) => setComparisonRange(event.target.value)}><option value="all">За весь час</option><option value="30">Останні 30 днів</option><option value="60">Останні 60 днів</option><option value="custom">Власний період</option></select></label>
+                    {comparisonRange === "custom" && <>
+                        <label className="field"><span>Від</span><input type="date" value={comparisonFrom} max={comparisonTo || undefined} onChange={(event) => setComparisonFrom(event.target.value)} /></label>
+                        <label className="field"><span>До</span><input type="date" value={comparisonTo} min={comparisonFrom || undefined} onChange={(event) => setComparisonTo(event.target.value)} /></label>
+                        <span className="profile-stats-period-hint">Порожнє поле «До» — до сьогодні.</span>
+                    </>}
+                </div>
+                {comparisonRangeInvalid ? <p role="alert" className="error">Дата «Від» має бути не пізніше дати «До».</p> : comparison && <div className="profile-stats-table-wrap" aria-busy={loading}>
+                    <table className="profile-stats-table profile-stats-comparison-table"><thead><tr><th>Тип акаунта</th><th>Забанено</th>{comparison.tasks.map((task) => <th key={task.key}>{task.label}</th>)}</tr></thead>
+                        <tbody>{comparison.groups.map((group) => <tr key={group.accountType}><td>{accountTypeLabels[group.accountType]}</td><td>{group.bannedCount}</td>{comparison.tasks.map((task) => <td key={task.key}>{group.averages[task.key] == null ? "—" : group.averages[task.key].toLocaleString("uk-UA", { maximumFractionDigits: 2 })}</td>)}</tr>)}</tbody>
+                    </table>
+                </div>}
+            </section>}
 
             {(selectedLog || selectedReport || selectedWorkflowReport) && <div className="overlay" onMouseDown={() => { setSelectedLog(null); setSelectedReport(null); setSelectedWorkflowReport(null); }}><div className="modal journal-detail-modal" onMouseDown={(event) => event.stopPropagation()}>
                 <button className="modal-close" onClick={() => { setSelectedLog(null); setSelectedReport(null); setSelectedWorkflowReport(null); }}><X size={17} /></button>
