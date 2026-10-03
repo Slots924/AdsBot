@@ -64,6 +64,7 @@ export default class ProxyManager {
             const current = this.#findRaw(store, proxyId);
             const next = normalizeStoredProxy({
                 id: current.id,
+                isPublic: "isPublic" in input ? input.isPublic : current.isPublic,
                 adsPowerId: "adsPowerId" in input
                     ? normalizeAdsPowerId(input.adsPowerId)
                     : current.adsPowerId,

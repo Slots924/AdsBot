@@ -492,6 +492,7 @@ describe("GUI helpers", () => {
         );
 
         fireEvent.click(screen.getByTitle("Додати проксі"));
+        expect(screen.getByRole("switch", { name: "Загальнодоступна" })).toBeChecked();
         fireEvent.change(screen.getByLabelText("AdsPower ID"), {
             target: { value: "14" },
         });
@@ -508,6 +509,7 @@ describe("GUI helpers", () => {
         await waitFor(() => expect(onCreate).toHaveBeenCalledWith({
             adsPowerId: "14",
             name: "Київ",
+            isPublic: true,
             type: "socks5",
             host: "proxy.example.com",
             port: "10000",
@@ -553,10 +555,12 @@ describe("GUI helpers", () => {
     });
 
     it("підставляє збережені дані проксі в форму редагування", async () => {
+        const onUpdate = vi.fn().mockResolvedValue(undefined);
         const onGet = vi.fn().mockResolvedValue({
             id: "proxy-001",
             adsPowerId: 14,
             name: "Київ",
+            isPublic: false,
             type: "socks5",
             host: "proxy.example.com",
             port: "10000",
@@ -577,7 +581,7 @@ describe("GUI helpers", () => {
                 }]}
                 loading={false}
                 onCreate={vi.fn()}
-                onUpdate={vi.fn()}
+                onUpdate={onUpdate}
                 onDelete={vi.fn()}
                 onGet={onGet}
                 onCheck={vi.fn()}
@@ -593,6 +597,24 @@ describe("GUI helpers", () => {
         expect(screen.getByLabelText("Посилання для зміни IP").value)
             .toBe("https://provider.example/changeip/token");
         expect(screen.queryByText(/залишаться без змін/)).not.toBeInTheDocument();
+        const editorToggle = screen.getAllByRole("switch", { name: "Загальнодоступна" }).find((input) => input.closest("form"));
+        expect(editorToggle).not.toBeChecked();
+        fireEvent.click(editorToggle);
+        fireEvent.click(screen.getByRole("button", { name: "Зберегти" }));
+        await waitFor(() => expect(onUpdate).toHaveBeenCalledWith("proxy-001", expect.objectContaining({ isPublic: true })));
+    });
+
+    it("змінює доступність проксі на картці без вибору проксі", async () => {
+        const onUpdate = vi.fn().mockResolvedValue(undefined);
+        const onSelect = vi.fn();
+        render(<ProxyStrip proxies={[{ id: "proxy-001", type: "http", name: "Private", isPublic: false }]}
+            loading={false} selectable onSelect={onSelect} onUpdate={onUpdate} onError={vi.fn()} />);
+        const toggle = screen.getByRole("switch", { name: "Загальнодоступна" });
+        expect(toggle).not.toBeChecked();
+        expect(screen.queryByText("API")).not.toBeInTheDocument();
+        fireEvent.click(toggle);
+        await waitFor(() => expect(onUpdate).toHaveBeenCalledWith("proxy-001", { isPublic: true }));
+        expect(onSelect).not.toHaveBeenCalled();
     });
 
     it("ставить дві полоси клієнтів і проксі поруч", () => {

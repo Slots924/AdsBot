@@ -27,6 +27,7 @@ try {
     assert.equal(listed[0].id, "proxy-001");
     assert.equal(listed[0].adsPowerId, null);
     assert.equal(listed[0].name, "");
+    assert.equal(listed[0].isPublic, true);
     assert.equal(listed[0].hasUsername, true);
     assert.equal(listed[0].hasPassword, true);
     assert.equal(listed[0].hasRefreshUrl, false);
@@ -47,6 +48,7 @@ try {
     assert.equal(created.id, "proxy-002");
     assert.equal(created.adsPowerId, 14);
     assert.equal(created.name, "Київ");
+    assert.equal(created.isPublic, true);
     assert.equal(created.hasRefreshUrl, true);
     assert(!("password" in created));
 
@@ -54,12 +56,17 @@ try {
         adsPowerId: 14,
         name: "Київ",
         type: "socks5",
+        isPublic: false,
         host: "second.example.com",
         port: "30000",
     });
     const afterCreate = await manager.list();
     assert.equal(afterCreate.length, 3);
     assert.equal(afterCreate[2].id, "proxy-003");
+    assert.equal(afterCreate[2].isPublic, false);
+
+    await manager.update("proxy-001", { isPublic: false });
+    assert.equal((await manager.getById("proxy-001")).isPublic, false);
     assert.equal(afterCreate[1].name, afterCreate[2].name);
 
     await manager.update("proxy-001", {
@@ -76,6 +83,7 @@ try {
     const first = persisted.find((item) => item.id === "proxy-001");
     assert.equal(first.adsPowerId, 9);
     assert.equal(first.name, "Одеса");
+    assert.equal(first.isPublic, false);
     assert.equal(first.type, "https");
     assert.equal(first.host, "updated.example.com");
     assert.equal(first.port, "11000");
@@ -124,6 +132,9 @@ try {
         ["proxy-003", "proxy-001", "proxy-002", "proxy-004"]
     );
     await assert.rejects(manager.reorder(["proxy-001"]), { code: "PROXY_ORDER_INVALID" });
+    assert.equal((await manager.list()).find((item) => item.id === "proxy-003").isPublic, false);
+    await manager.update("proxy-001", { isPublic: true });
+    assert.equal((await manager.getById("proxy-001")).isPublic, true);
 
     const removed = await manager.remove("proxy-002");
     assert.equal(removed.id, "proxy-002");

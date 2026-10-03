@@ -155,6 +155,12 @@ button:focus-visible, input:focus-visible {
 .proxy-editor-row > span { color: #a5abba; font-size: var(--font-control); font-weight: 700; }
 .proxy-editor-row input, .proxy-editor-row select { width: 100%; height: 51px; padding: 0 13px; color: var(--text); border: 1px solid var(--stroke); border-radius: 13px; background: rgba(7, 9, 16, .58); font-size: var(--font-control); }
 .proxy-editor-row input:disabled, .proxy-editor-row select:disabled { opacity: .5; }
+.proxy-public-label { display: flex; align-items: center; gap: 6px; margin-top: 5px; color: var(--muted); font-size: 11px; cursor: pointer; }
+.proxy-public-toggle, .proxy-editor-row input.proxy-public-toggle { appearance: none; width: 30px; min-width: 30px; height: 17px; padding: 2px; border: 1px solid var(--stroke); border-radius: 999px; background: rgba(7, 9, 16, .58); cursor: pointer; }
+.proxy-public-toggle::before { content: ""; display: block; width: 11px; height: 11px; border-radius: 50%; background: #a5abba; transition: transform .15s; }
+.proxy-public-toggle:checked { background: #7562db; }
+.proxy-public-toggle:checked::before { transform: translateX(13px); background: white; }
+.proxy-public-toggle:disabled { opacity: .5; cursor: default; }
 .proxy-editor-control { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; min-width: 0; }
 .proxy-editor-control input { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .proxy-editor-control .secondary-button { min-height: 51px; padding: 0 14px; font-size: var(--font-control); white-space: nowrap; }

@@ -126,13 +126,11 @@ export default async function createFacebookApiClients({
     const accounts = normalizeAccounts(
         [...(businessOnly ? [] : accountsConfig?.accounts ?? []), ...(bmConfig?.accounts ?? []), ...(systemConfig?.accounts ?? []).map((item) => ({ ...item, kind: "system" }))].filter((account) => account?.archived !== true && (!onlyAccountKey || account.accountKey === onlyAccountKey))
     );
-    const proxyHttpClient = new ProxyHttpClient({
-        proxies: (proxiesConfig?.proxies ?? []).filter((proxy) => (
-            String(proxy?.type ?? "").trim().toLowerCase() !== "no_proxy"
-        )),
-        ...(httpClient ? { httpClient } : {}),
-        ...(checkProxyFn ? { checkProxyFn } : {}),
-    });
+    const publicProxies = (proxiesConfig?.proxies ?? []).filter((proxy) => (
+        String(proxy?.type ?? "").trim().toLowerCase() !== "no_proxy"
+        && proxy.isPublic !== false
+    ));
+    let proxyHttpClient;
     const facebookApiClients = new Map();
 
     accounts.forEach((account) => {
@@ -141,6 +139,22 @@ export default async function createFacebookApiClients({
             : null;
         if (account.proxyId && !selectedProxy) {
             throw new Error(`Проксі "${account.proxyId}" для клієнта "${account.accountKey}" не знайдено`);
+        }
+        if (!selectedProxy && !proxyHttpClient) {
+            if (!publicProxies.length) {
+                const rejectUnavailablePool = async () => {
+                    throw Object.assign(new Error("Немає загальнодоступних проксі. Прив’яжіть проксі або зробіть одну загальнодоступною"), {
+                        code: "PROXY_POOL_EXHAUSTED",
+                    });
+                };
+                proxyHttpClient = { request: rejectUnavailablePool, get: rejectUnavailablePool };
+            } else {
+                proxyHttpClient = new ProxyHttpClient({
+                    proxies: publicProxies,
+                    ...(httpClient ? { httpClient } : {}),
+                    ...(checkProxyFn ? { checkProxyFn } : {}),
+                });
+            }
         }
         facebookApiClients.set(
             account.accountKey,

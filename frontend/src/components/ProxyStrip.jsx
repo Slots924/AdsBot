@@ -31,6 +31,7 @@ function emptyProxyDraft() {
     return {
         adsPowerId: "",
         name: "",
+        isPublic: true,
         type: "socks5",
         host: "",
         port: "",
@@ -46,6 +47,7 @@ function ProxyEditor({ editor, onClose, onSave, onCheckConfig, onError }) {
         ...emptyProxyDraft(),
         adsPowerId: editor.adsPowerId ?? "",
         name: editor.name ?? "",
+        isPublic: editor.isPublic !== false,
         type: editor.type ?? "socks5",
         host: editor.host ?? "",
         port: editor.port ?? "",
@@ -155,6 +157,16 @@ function ProxyEditor({ editor, onClose, onSave, onCheckConfig, onError }) {
                                 <option key={type.value} value={type.value}>{type.label}</option>
                             ))}
                         </select>
+                    </label>
+                    <label className="proxy-editor-row">
+                        <span>Загальнодоступна</span>
+                        <input
+                            className="proxy-public-toggle"
+                            type="checkbox"
+                            role="switch"
+                            checked={draft.isPublic}
+                            onChange={(event) => setDraft((current) => ({ ...current, isPublic: event.target.checked }))}
+                        />
                     </label>
                     <div className="proxy-editor-row">
                         <span>Вставити проксі</span>
@@ -305,6 +317,7 @@ function ProxyCard({
     onSync,
     onEdit,
     onRemove,
+    onTogglePublic,
 }) {
     const dragControls = useDragControls();
     const flashlightOn = status.working === true;
@@ -339,6 +352,17 @@ function ProxyCard({
                 <span>{proxy.name || " "}</span>
                 {apiDefault && <small className="proxy-api-badge">API</small>}
                 {status.ip && <small>IP {status.ip}</small>}
+                <label className="proxy-public-label" onClick={(event) => event.stopPropagation()} onPointerDown={(event) => event.stopPropagation()}>
+                    <input
+                        className="proxy-public-toggle"
+                        type="checkbox"
+                        role="switch"
+                        checked={proxy.isPublic !== false}
+                        disabled={busyId === proxy.id || !onTogglePublic}
+                        onChange={(event) => onTogglePublic?.(proxy, event.target.checked)}
+                    />
+                    Загальнодоступна
+                </label>
             </span>
             <span className="proxy-card-actions">
                 {onSync && <button type="button" className="icon-button" title="Синхронізувати з AdsPower" disabled={proxy.adsPowerId == null || busyId === proxy.id} onClick={(event) => onSync(event, proxy)}><CloudDownload size={13} /></button>}
@@ -448,7 +472,7 @@ export default function ProxyStrip({
         [proxies, excluded]
     );
     const canReorder = typeof onReorder === "function" && !selectable;
-    const apiDefaultId = proxies.find((proxy) => proxy.type !== "no_proxy")?.id ?? null;
+    const apiDefaultId = proxies.find((proxy) => proxy.type !== "no_proxy" && proxy.isPublic !== false)?.id ?? null;
 
     useEffect(() => {
         const next = visibleProxies.map((proxy) => proxy.id);
@@ -472,6 +496,13 @@ export default function ProxyStrip({
     const saveProxy = (draft) => editor.mode === "create"
         ? onCreate(draft)
         : onUpdate(editor.proxyId, draft);
+
+    const togglePublic = async (proxy, isPublic) => {
+        setBusyId(proxy.id);
+        try { await onUpdate(proxy.id, { isPublic }); }
+        catch (error) { onError({ ...errorDetails(error), title: "Не вдалося змінити доступність проксі" }); }
+        finally { setBusyId(null); }
+    };
 
     const patchStatus = (proxyId, patch) => {
         setStatuses((current) => ({
@@ -550,6 +581,7 @@ export default function ProxyStrip({
                 proxyId: details.id ?? proxy.id,
                 adsPowerId: details.adsPowerId ?? "",
                 name: details.name ?? "",
+                isPublic: details.isPublic !== false,
                 type: details.type ?? "socks5",
                 host: details.host ?? "",
                 port: details.port ?? "",
@@ -588,6 +620,7 @@ export default function ProxyStrip({
                 onSync={onSync ? syncProxy : null}
                 onEdit={openEditor}
                 onRemove={removeProxy}
+                onTogglePublic={onUpdate ? togglePublic : null}
             />
         ));
 
