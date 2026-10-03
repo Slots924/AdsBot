@@ -300,6 +300,38 @@ class AdsPower {
         }
     }
 
+    // Читає актуальні дані профілю за внутрішнім ідентифікатором.
+    async getProfileById(profileId) {
+        const response = await this.request("post", `${this.apiUrl}/api/v2/browser-profile/list`, {
+            profile_id: [String(profileId)], page: "1", limit: "1",
+        });
+        if (response.data?.code !== 0) throw new Error("AdsPower не зміг прочитати профіль");
+        const profile = response.data?.data?.list?.[0];
+        if (!profile || String(profile.profile_id) !== String(profileId)) {
+            throw new Error("AdsPower не повернув потрібний профіль");
+        }
+        return profile;
+    }
+
+    // Оновлює лише платформи, основні облікові поля та нотатки.
+    async updateProfileCredentials(profileId, changes) {
+        if (!profileId) throw new Error("Не вказано profile_id");
+        const allowed = ["platform_account", "username", "password", "fakey", "remark"];
+        if (!changes || Object.keys(changes).some((key) => !allowed.includes(key))) {
+            throw new Error("Непідтримувані поля облікових даних");
+        }
+        try {
+            const response = await this.request("post", `${this.apiUrl}/api/v2/browser-profile/update`, {
+                ...changes, profile_id: String(profileId),
+            });
+            if (response.data?.code !== 0) throw new Error("UPDATE_FAILED");
+            return true;
+        } catch {
+            // Повідомлення API може містити відправлені секретні значення.
+            throw new Error("Не вдалося зберегти облікові дані в AdsPower");
+        }
+    }
+
     async getProxyById(proxyId) {
         const response = await this.request(
             "post",

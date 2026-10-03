@@ -1,3 +1,4 @@
+import isAccountLocked from "./checks/isAccountLocked.js";
 import isAutomatedBehavior from "./checks/isAutomatedBehavior.js";
 import isBanned from "./checks/isBanned.js";
 import isNotice from "./checks/isNotice.js";
@@ -8,6 +9,10 @@ async function detectFacebookState(page) {
     await new Promise((resolve) => {
         setTimeout(resolve, 3000);
     });
+
+    if (await isAccountLocked(page)) {
+        return "ACCOUNT_LOCK";
+    }
 
     if (await isAutomatedBehavior(page)) {
         return "AUTOMATED_BEHAVIOR";

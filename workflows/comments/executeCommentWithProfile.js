@@ -220,7 +220,8 @@ export default async function executeCommentWithProfile({
         const active = await ensureFacebookAccountActive(
             adsPower,
             profile,
-            page
+            page,
+            { signal }
         );
 
         if (!active) {

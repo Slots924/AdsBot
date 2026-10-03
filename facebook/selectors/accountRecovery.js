@@ -1,0 +1,21 @@
+export const accountRecovery = Object.freeze({
+    controls: '[role="button"], button, input[type="submit"]',
+    dialog: '[role="dialog"]',
+    protectionText: "Meta took steps to protect your account",
+    labels: {
+        start: ["Get Started"],
+        email: ["Get a code by email"],
+        next: ["Next", "Continue"],
+        save: ["Save changes"],
+        back: ["Back to Facebook"],
+    },
+    headings: {
+        code: ["Enter confirmation code", "Enter the code"],
+        newPassword: ["Enter new password", "Enter a new password", "Create a new password", "Choose a new password"],
+        currentPassword: ["Enter your password", "Enter your Facebook password", "Confirm your password"],
+    },
+    codeErrors: ["incorrect code", "invalid code", "code you entered is incorrect", "code you've entered is incorrect", "code has expired", "code doesn't match"],
+    passwordErrors: ["incorrect password", "password you entered is incorrect", "password is too short", "choose a stronger password"],
+    authenticated: '[role="button"][aria-label="Account" i], [role="button"][aria-label="Your profile" i], [role="button"][aria-label="Обліковий запис" i], [role="button"][aria-label="Ваш профіль" i]',
+    login: 'input[autocomplete="username"], input[name="email"], a[aria-label="Create new account" i]',
+});

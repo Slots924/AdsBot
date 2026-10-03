@@ -1,251 +1,172 @@
 import "dotenv/config";
-
+import { mkdirSync, appendFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import puppeteer from "puppeteer-core";
-
 import AdsPower from "../../classes/AdsPower.js";
-import configureFacebookAutomationWindow
-    from "../../facebook/browser/configureFacebookAutomationWindow.js";
+import configureFacebookAutomationWindow from "../../facebook/browser/configureFacebookAutomationWindow.js";
 import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
 import detectLoginStatus from "../../facebook/state/detectLoginStatus.js";
 import ensureLogin from "../../facebook/state/ensureLogin.js";
-import {
-    createNewAccountSelector,
-    logInButtonSelector,
-    useAnotherProfileSelector,
-} from "../../facebook/selectors/login.js";
+import detectFacebookState from "../../facebook/state/detectFacebookState.js";
+import detectAccountRecoveryStep from "../../facebook/state/detectAccountRecoveryStep.js";
+import ensureFacebookAccountActive from "../../workflows/profile/ensureFacebookAccountActive.js";
+import { getFacebookCredentials, getFirstmailCredentials } from "../../services/adspower/profileCredentials.js";
+import readRecoveryPassword from "../../services/adspower/recoveryPassword.js";
 
+const root = fileURLToPath(new URL("../../", import.meta.url));
+const profileNo = String(process.argv[2] ?? "2242").trim();
+const observationMs = Number(process.argv[3] ?? 90000);
+const started = Date.now();
+const logDirectory = path.join(root, "data", "logs", "manual-recovery");
+mkdirSync(logDirectory, { recursive: true });
+const logFile = path.join(logDirectory, `${new Date().toISOString().replace(/[:.]/g, "-")}.jsonl`);
+const secrets = new Set();
+let sequence = 0;
 
-const defaultProfileNo = "1726";
-const defaultObservationMs = 90000;
-const observationIntervalMs = 3000;
-
-
-function parsePositiveInteger(value, fallback) {
-    const parsed = Number.parseInt(String(value ?? ""), 10);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
-}
-
-
-function readArguments() {
-    const values = process.argv.slice(2);
-    const profileNo = String(values[0] ?? defaultProfileNo).trim();
-    const observationMs = parsePositiveInteger(values[1], defaultObservationMs);
-
-    if (!profileNo) {
-        throw new Error("Вкажіть номер AdsPower-профілю");
-    }
-
-    return { profileNo, observationMs };
-}
-
-
-function log(step, details = null) {
-    const suffix = details ? ` ${JSON.stringify(details, null, 2)}` : "";
-    console.log(`[LOGIN-STATUS-TEST] ${step}${suffix}`);
-}
-
-
-async function inspectLoginDom(page) {
-    return page.evaluate((selectors) => {
-        const isVisible = (element) => {
-            if (!element) return false;
-            const style = window.getComputedStyle(element);
-            const rectangle = element.getBoundingClientRect();
-            return rectangle.width > 0
-                && rectangle.height > 0
-                && style.display !== "none"
-                && style.visibility !== "hidden"
-                && style.opacity !== "0";
-        };
-        const describe = (element) => ({
-            tag: element.tagName.toLowerCase(),
-            type: element.getAttribute("type"),
-            role: element.getAttribute("role"),
-            name: element.getAttribute("name"),
-            id: element.id || null,
-            ariaLabel: element.getAttribute("aria-label"),
-            placeholder: element.getAttribute("placeholder"),
-            visible: isVisible(element),
-            disabled: element.disabled === true,
-            text: (element.innerText || element.textContent || "")
-                .trim()
-                .replace(/\s+/g, " ")
-                .slice(0, 180),
+function sanitize(value) {
+    if (typeof value === "string") {
+        let text = value;
+        for (const secret of [...secrets].sort((a, b) => b.length - a.length)) text = text.split(secret).join("[REDACTED]");
+        return text.replace(/Bearer\s+\S+/gi, "Bearer [REDACTED]").replace(/https?:\/\/[^\s]+/g, (address) => {
+            try { const url = new URL(address); return `${url.origin}${url.pathname}`; } catch { return "[URL]"; }
         });
-        const visible = (selector) => [...document.querySelectorAll(selector)]
-            .filter(isVisible)
-            .map(describe);
-        const passwordInputs = visible('input[type="password"]');
-        const identifierInputs = visible([
-            'input[type="email"]',
-            'input[type="text"][name="email"]',
-            'input[autocomplete="username"]',
-            'input[autocomplete="email"]',
-        ].join(", "));
-        const dialogs = visible('[role="dialog"]');
-        const loginControls = visible([
-            selectors.logInButton,
-            'button[type="submit"]',
-            'input[type="submit"]',
-        ].join(", "));
-        const bodyText = (document.body?.innerText || "")
-            .replace(/\s+/g, " ")
-            .slice(0, 1200);
-
-        return {
-            url: location.href,
-            title: document.title,
-            readyState: document.readyState,
-            passwordInputs,
-            identifierInputs,
-            createNewAccount: visible(selectors.createNewAccount),
-            useAnotherProfile: visible(selectors.useAnotherProfile),
-            loginControls,
-            dialogs: dialogs.map((dialog) => ({
-                ...dialog,
-                text: dialog.text.slice(0, 500),
-            })),
-            bodyText,
-        };
-    }, {
-        createNewAccount: createNewAccountSelector,
-        useAnotherProfile: useAnotherProfileSelector,
-        logInButton: logInButtonSelector,
-    });
+    }
+    if (Array.isArray(value)) return value.map(sanitize);
+    if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) =>
+        [key, /^(password|login|username|login_user|fakey|twoFactorKey|value|cookie|authorization|firstmailCredentials)$/i.test(key)
+            ? "[REDACTED]" : sanitize(item)]));
+    return value;
 }
 
-
-function decideStatus(snapshot, legacyStatus) {
-    const hasPasswordInput = snapshot.passwordInputs.length > 0;
-    const hasIdentifierInput = snapshot.identifierInputs.length > 0;
-    const hasLoginControl = snapshot.loginControls.length > 0;
-    const hasCreateAccount = snapshot.createNewAccount.length > 0;
-    const hasAccountPicker = snapshot.useAnotherProfile.length > 0;
-    const hasLoginForm = hasPasswordInput || (hasIdentifierInput && hasLoginControl);
-
-    if (hasLoginForm) {
-        return {
-            status: "LOGIN_FORM_VISIBLE",
-            reason: "Є видиме поле пароля або повна форма входу; авторизацію не можна вважати підтвердженою.",
-        };
-    }
-    if (hasAccountPicker) {
-        return {
-            status: "ACCOUNT_PICKER_VISIBLE",
-            reason: "Facebook показує вибір профілю; це не доказ активної сесії потрібного акаунта.",
-        };
-    }
-    if (hasCreateAccount) {
-        return {
-            status: "LOGGED_OUT_UI_VISIBLE",
-            reason: "Видно елемент сторінки входу «Create new account».",
-        };
-    }
-    if (legacyStatus === "LOGGED_IN") {
-        return {
-            status: "NO_LOGIN_UI_DETECTED",
-            reason: "Старий детектор не знайшов Create new account, але це лише непряма ознака — перевірку треба трактувати обережно.",
-        };
-    }
-    return {
-        status: "UNKNOWN",
-        reason: "Ознаки входу й активної сесії суперечливі або недостатні.",
-    };
+function log(event, details = {}) {
+    const { elapsedMs: operationElapsedMs, ...remaining } = details;
+    const entry = sanitize({ ...remaining, sequence: ++sequence, timestamp: new Date().toISOString(),
+        elapsedMs: Date.now() - started, event,
+        ...(operationElapsedMs === undefined ? {} : { operationElapsedMs }),
+    });
+    const line = JSON.stringify(entry);
+    console.log(`[FB-MANUAL] ${line}`);
+    appendFileSync(logFile, `${line}\n`, "utf8");
 }
 
-
-async function waitForExitOrTimeout(timeoutMs) {
-    log("Спостереження триває. Натисніть Enter, щоб завершити раніше.", {
-        timeoutMs,
-        intervalMs: observationIntervalMs,
-    });
-
-    process.stdin.setEncoding("utf8");
-    process.stdin.resume();
-
-    return new Promise((resolve) => {
-        const timeout = setTimeout(() => {
-            process.stdin.pause();
-            resolve("timeout");
-        }, timeoutMs);
-        process.stdin.once("data", () => {
-            clearTimeout(timeout);
-            process.stdin.pause();
-            resolve("enter");
-        });
-    });
+function safeLocation(address) {
+    try { const url = new URL(address); return { hostname: url.hostname, pathname: url.pathname }; }
+    catch { return { hostname: "unknown" }; }
 }
-
 
 async function main() {
-    const { profileNo, observationMs } = readArguments();
+    if (!/^\d+$/.test(profileNo) || !Number.isFinite(observationMs) || observationMs <= 0) {
+        throw new Error("Вкажіть номер профілю та додатний час спостереження в мілісекундах");
+    }
     const adsPower = new AdsPower();
+    const controller = new AbortController();
+    const onInterrupt = () => { log("task.cancel.requested"); controller.abort(); };
+    process.once("SIGINT", onInterrupt);
     let browser;
-    let profileOpened = false;
-
+    let timer;
+    let inspecting = false;
+    let pendingInspection = Promise.resolve();
+    let previousSnapshot = "";
+    let finalRecoveryResult = null;
+    const listeners = [];
     try {
-        log("Початок діагностики", { profileNo, observationMs });
+        log("test.start", { profileNo, observationMs, logFile, actionTimeout: 60000, manualTimeout: 300000 });
         const profile = await adsPower.getProfileByNo(profileNo);
-        const browserData = await adsPower.openProfile(profileNo, {
-            browserMode: "visible",
+        const newPassword = await readRecoveryPassword();
+        if (newPassword) secrets.add(newPassword);
+        for (const account of profile.platform_account ?? []) {
+            for (const value of [account.login_user, account.password, account.fakey]) if (value) secrets.add(value);
+        }
+        for (const value of [profile.username, profile.password, profile.fakey, process.env.FACEBOOK_RECOVERY_NEW_PASSWORD]) if (value) secrets.add(value);
+        const facebook = getFacebookCredentials(profile);
+        const firstmail = getFirstmailCredentials(profile);
+        log("profile.credentials.checked", { facebookAvailable: Boolean(facebook), firstmailAvailable: Boolean(firstmail), platformCount: profile.platform_account?.length ?? 0 });
+        log("browser.open.start");
+        const browserData = await adsPower.openProfile(profileNo, { browserMode: "visible" });
+        browser = await puppeteer.connect({ browserWSEndpoint: browserData.ws.puppeteer, defaultViewport: null });
+        const pages = await browser.pages();
+        const page = pages.find((candidate) => ["facebook.com", "www.facebook.com"].includes(safeLocation(candidate.url()).hostname))
+            ?? pages[0] ?? await browser.newPage();
+        const listen = (event, callback) => { page.on(event, callback); listeners.push(() => page.off(event, callback)); };
+        listen("framenavigated", (frame) => { if (frame === page.mainFrame()) log("browser.navigation", safeLocation(frame.url())); });
+        listen("domcontentloaded", () => log("browser.domcontentloaded"));
+        listen("load", () => log("browser.load"));
+        listen("close", () => { log("browser.page.closed"); controller.abort(); });
+        listen("pageerror", (error) => log("browser.javascript.error", { errorType: error.name }));
+        listen("console", (message) => {
+            if (["error", "warning"].includes(message.type())) log("browser.console.issue", { type: message.type() });
         });
-        profileOpened = true;
-        browser = await puppeteer.connect({
-            browserWSEndpoint: browserData.ws.puppeteer,
-            defaultViewport: null,
+        listen("requestfailed", (request) => log("network.failed", { ...safeLocation(request.url()), resourceType: request.resourceType(), failure: request.failure()?.errorText }));
+        listen("response", (response) => {
+            if (response.status() >= 400 || response.request().isNavigationRequest()) {
+                log("network.response", { ...safeLocation(response.url()), status: response.status(), resourceType: response.request().resourceType() });
+            }
         });
-
-        const page = (await browser.pages())[0] ?? await browser.newPage();
         await configureFacebookAutomationWindow(page, { browserMode: "visible" });
-        await openPageWithoutPopups(page, "https://www.facebook.com/", {
-            timeout: 60000,
-        });
-
-        const startedAt = Date.now();
-        let attempt = 0;
-        const inspect = async () => {
-            attempt += 1;
-            const [snapshot, legacyStatus] = await Promise.all([
-                inspectLoginDom(page),
-                detectLoginStatus(page),
-            ]);
-            const decision = decideStatus(snapshot, legacyStatus);
-            log("Знімок DOM", {
-                attempt,
-                elapsedMs: Date.now() - startedAt,
-                profileNo: profile.profile_no,
-                legacyStatus,
-                decision,
-                snapshot,
-            });
+        await openPageWithoutPopups(page, "https://www.facebook.com/", { timeout: 60000 });
+        const inspect = async (reason) => {
+            if (inspecting || page.isClosed()) return;
+            inspecting = true;
+            try {
+                const snapshot = await detectAccountRecoveryStep(page);
+                const signature = JSON.stringify(snapshot);
+                log(signature === previousSnapshot ? "dom.heartbeat" : "dom.changed", { reason, snapshot });
+                previousSnapshot = signature;
+            } catch (error) { log("dom.inspect.failed", { errorType: error.name }); }
+            finally { inspecting = false; }
         };
-
-        await inspect();
-        const interval = setInterval(() => {
-            inspect().catch((error) => {
-                log("Не вдалося зчитати DOM", { message: error.message });
+        await inspect("initial");
+        timer = setInterval(() => { if (!inspecting) pendingInspection = inspect("interval"); }, 3000);
+        const stateBeforeLogin = await detectFacebookState(page);
+        log("login.check.start", { stateBeforeLogin, detectedLoginStatus: await detectLoginStatus(page) });
+        if (stateBeforeLogin !== "ACCOUNT_LOCK") {
+            const loginSucceeded = await ensureLogin(page, { timeout: 60000 });
+            log("login.check.complete", { loginSucceeded });
+        } else log("login.check.checkpoint", { reason: "Переходимо до recovery на поточній вкладці" });
+        const state = await detectFacebookState(page);
+        log("account.check.start", { state });
+        if (state === "ACCOUNT_LOCK") {
+            const active = await ensureFacebookAccountActive(adsPower, profile, page, {
+                timeout: 60000, manualTimeout: 300000, signal: controller.signal,
+                newPassword,
+                onStep: log,
+                onRecoveryResult: (result) => { finalRecoveryResult = result; log("recovery.result", result); },
             });
-        }, observationIntervalMs);
-
-        log("Запускаємо один реальний процес ensureLogin без повторної спроби й без тегування профілю");
-        const loginSucceeded = await ensureLogin(page, { timeout: 60000 });
-        log("Результат ensureLogin", { loginSucceeded });
-        await inspect();
-
-        const exitReason = await waitForExitOrTimeout(observationMs);
-        clearInterval(interval);
-        await inspect();
-        log("Діагностику завершено", { exitReason });
+            log("account.check.complete", { active });
+            if (!active) process.exitCode = 1;
+        } else {
+            log("account.check.complete", { active: state === "READY", recoveryNeeded: false, state });
+            if (state !== "READY") process.exitCode = 1;
+        }
+        await inspect("after_workflow");
+        log("observation.start", { observationMs, hint: "Enter завершує спостереження; Ctrl+C скасовує recovery" });
+        if (!controller.signal.aborted) await new Promise((resolve) => {
+            const finish = () => {
+                clearTimeout(timeout);
+                process.stdin.off("data", finish);
+                process.stdin.pause();
+                controller.signal.removeEventListener("abort", finish);
+                resolve();
+            };
+            const timeout = setTimeout(finish, observationMs);
+            process.stdin.once("data", finish);
+            controller.signal.addEventListener("abort", finish, { once: true });
+            process.stdin.resume();
+        });
+        await inspect("final");
+        log("test.complete", { recovery: finalRecoveryResult, aborted: controller.signal.aborted, exitCode: process.exitCode ?? 0 });
     } catch (error) {
-        console.error("[LOGIN-STATUS-TEST] ПОМИЛКА:", error.stack ?? error.message);
+        log("test.failed", { errorType: error.name, code: error.code ?? null, message: error.message });
         process.exitCode = 1;
     } finally {
+        clearInterval(timer);
+        await pendingInspection;
+        for (const remove of listeners) remove();
+        process.off("SIGINT", onInterrupt);
         browser?.disconnect();
-        if (profileOpened) {
-            log("Профіль залишено відкритим для ручного огляду", { profileNo });
-        }
+        log("browser.disconnected", { profileLeftOpen: Boolean(browser), profileNo });
     }
 }
 
-
-main();
+main().catch((error) => { log("test.failed", { errorType: error.name, message: error.message }); process.exitCode = 1; });

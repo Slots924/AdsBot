@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "id": "0e8cd27a-ca14-450f-8c2a-bbf41c7b0e22",
+  "taskId": "db568990-12fe-409a-8c06-5e3d8ba58726",
+  "type": "account-setup",
+  "title": "Акаунти під коментарі · HU · 2",
+  "status": "interrupted",
+  "createdAt": "2026-10-03T09:48:46.936Z",
+  "startedAt": "2026-10-03T09:48:03.302Z",
+  "finishedAt": "2026-10-03T09:48:46.935Z",
+  "durationMs": 43633,
+  "inputSummary": {
+    "profileNos": [
+      "2244",
+      "2245"
+    ],
+    "geo": "HU",
+    "maleCount": 2,
+    "femaleCount": 0,
+    "namesGeo": "HU",
+    "companiesGeo": "HU",
+    "universitiesGeo": "HU",
+    "professionsGeo": "HU",
+    "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
+    "useApiRequests": true,
+    "operations": {
+      "changeName": true,
+      "changeAvatar": true,
+      "changeCover": true,
+      "deletePosts": true,
+      "publishPosts": true,
+      "fillAbout": true
+    },
+    "browserMode": "visible",
+    "commentWorkerProxyIds": "[REDACTED]"
+  },
+  "resultSummary": {
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-03_12-48-46-931.md",
+    "fatalError": "Оформлення акаунтів перервано",
+    "interrupted": true
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Оформлення акаунтів перервано",
+      "code": "ACCOUNT_SETUP_ABORTED",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "2244",
+      "2245"
+    ],
+    "geo": "HU",
+    "browserMode": "visible",
+    "useApiRequests": true
+  }
+}

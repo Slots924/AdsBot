@@ -1,4 +1,5 @@
 import dismissAutomatedBehavior from "../../facebook/actions/dismissAutomatedBehavior.js";
+import fixAccountLock from "../../facebook/actions/fixAccountLock.js";
 import detectFacebookState from "../../facebook/state/detectFacebookState.js";
 import markProfileAsBanned from "../../services/profile/tags/markProfileAsBanned.js";
 
@@ -6,7 +7,8 @@ import markProfileAsBanned from "../../services/profile/tags/markProfileAsBanned
 export default async function ensureFacebookAccountActive(
     adsPower,
     profile,
-    page
+    page,
+    options = {}
 ) {
     console.log(
         "Перевіряємо, чи Facebook-акаунт активний..."
@@ -31,6 +33,15 @@ export default async function ensureFacebookAccountActive(
             console.log(
                 `Стан Facebook після Dismiss: ${facebookState}`
             );
+        }
+
+        if (facebookState === "ACCOUNT_LOCK") {
+            const fixSucceeded = await fixAccountLock(page, { ...options, adsPower, profile });
+            console.log(`Результат fixAccountLock: ${fixSucceeded}`);
+
+            facebookState = await detectFacebookState(page);
+            console.log(`Стан Facebook після fixAccountLock: ${facebookState}`);
+            if (!fixSucceeded) return false;
         }
 
         if (facebookState === "READY") {

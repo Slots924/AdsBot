@@ -9,6 +9,10 @@ frontend/dist/
 # Файли логів
 *.log
 
+# Локальні секрети відновлення та діагностичні журнали.
+data/local-secrets/
+data/logs/manual-recovery/
+
 # Звіти кампаній коментування
 data/reports/*.md
 data/reports/facebook-name-change-report_*.json

@@ -65,7 +65,7 @@ export default async function checkFacebookCommentProfile({
             result.error = "Facebook-вхід не підтверджено";
             return result;
         }
-        const active = await ensureFacebookAccountActive(adsPower, profile, page);
+        const active = await ensureFacebookAccountActive(adsPower, profile, page, { signal });
         result.active = active ? "OK" : "FAIL";
         if (!active) {
             const state = await detectFacebookState(page).catch(() => "UNKNOWN");

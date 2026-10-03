@@ -2,6 +2,262 @@
   "version": 1,
   "tasks": [
     {
+      "id": "ac5b39da-10d8-4d60-bcd6-ab888f05fa4f",
+      "type": "campaign",
+      "name": "HU | Creo_1 | 30+ 03/10 13:26",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "24326d41-2a73-4d59-bea1-0957860c0cb7"
+      },
+      "metadata": {
+        "campaignJobId": "24326d41-2a73-4d59-bea1-0957860c0cb7",
+        "accountKey": "account-031",
+        "adAccountId": "act_1760236478435080",
+        "uniqueKey": "campaign-job:24326d41-2a73-4d59-bea1-0957860c0cb7",
+        "reportId": "475502c1-50d4-4f3b-b3a1-d0ac12f0e113"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120252595167410734",
+          "creativeId": "1667340464985234",
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120252595168000734",
+              "name": "HU | Creo_1 | 30+ 03/10 13:26 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120252595169150734",
+              "name": "HU | Creo_1 | 30+ 03/10 13:26 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120252595169690734",
+              "name": "HU | Creo_1 | 30+ 03/10 13:26 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120252595170340734",
+              "name": "HU | Creo_1 | 30+ 03/10 13:26 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120252595172020734",
+              "name": "HU | Creo_1 | 30+ 03/10 13:26 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "id": "120252595168810734",
+              "name": "HU | Creo_1 | 30+ 03/10 13:26 | AD 01"
+            },
+            {
+              "index": 1,
+              "id": "120252595169490734",
+              "name": "HU | Creo_1 | 30+ 03/10 13:26 | AD 02"
+            },
+            {
+              "index": 2,
+              "id": "120252595170010734",
+              "name": "HU | Creo_1 | 30+ 03/10 13:26 | AD 03"
+            },
+            {
+              "index": 3,
+              "id": "120252595171500734",
+              "name": "HU | Creo_1 | 30+ 03/10 13:26 | AD 04"
+            },
+            {
+              "index": 4,
+              "id": "120252595172750734",
+              "name": "HU | Creo_1 | 30+ 03/10 13:26 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "24326d41-2a73-4d59-bea1-0957860c0cb7",
+        "campaignId": "120252595167410734",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-03T10:50:08.133Z",
+      "startedAt": "2026-10-03T10:50:08.134Z",
+      "finishedAt": "2026-10-03T10:51:30.390Z",
+      "updatedAt": "2026-10-03T10:51:30.394Z"
+    },
+    {
+      "id": "ea3a97d7-07b7-4241-973e-2ba470828d61",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · HU · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2245",
+          "label": "AdsPower 2245"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "2245"
+        ],
+        "geo": "HU",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "namesGeo": "HU",
+        "companiesGeo": "HU",
+        "universitiesGeo": "HU",
+        "professionsGeo": "HU",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
+        "useApiRequests": false,
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-004"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "2245"
+        ],
+        "geo": "HU",
+        "browserMode": "visible",
+        "useApiRequests": false,
+        "reportId": "3f15d49c-d577-4bcb-b13b-a7bf0092207a"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 1,
+        "skipped": 0,
+        "currentProfileNo": "2245",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-03_12-50-48-703.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-03T09:49:25.812Z",
+      "startedAt": "2026-10-03T09:49:25.814Z",
+      "finishedAt": "2026-10-03T09:50:48.703Z",
+      "updatedAt": "2026-10-03T09:50:48.705Z"
+    },
+    {
+      "id": "db568990-12fe-409a-8c06-5e3d8ba58726",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · HU · 2",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "adspower-profile:2244",
+          "label": "AdsPower 2244"
+        },
+        {
+          "key": "adspower-profile:2245",
+          "label": "AdsPower 2245"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "2244",
+          "2245"
+        ],
+        "geo": "HU",
+        "maleCount": 2,
+        "femaleCount": 0,
+        "namesGeo": "HU",
+        "companiesGeo": "HU",
+        "universitiesGeo": "HU",
+        "professionsGeo": "HU",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
+        "useApiRequests": true,
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "visible",
+        "commentWorkerProxyIds": {
+          "1": "proxy-004"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "2244",
+          "2245"
+        ],
+        "geo": "HU",
+        "browserMode": "visible",
+        "useApiRequests": true,
+        "reportId": "0e8cd27a-ca14-450f-8c2a-bbf41c7b0e22"
+      },
+      "progress": {
+        "completed": 2,
+        "total": 2,
+        "stage": "interrupted",
+        "message": "Задачу перервано",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 2,
+        "skipped": 0,
+        "currentProfileNo": "2245",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-03_12-48-46-931.md",
+        "fatalError": "Оформлення акаунтів перервано",
+        "interrupted": true
+      },
+      "error": {
+        "message": "Оформлення акаунтів перервано",
+        "code": "ACCOUNT_SETUP_ABORTED",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-10-03T09:48:03.300Z",
+      "startedAt": "2026-10-03T09:48:03.302Z",
+      "finishedAt": "2026-10-03T09:48:46.935Z",
+      "updatedAt": "2026-10-03T09:48:46.937Z"
+    },
+    {
       "id": "7c77c2cc-2f0e-40c9-a755-2f6edd41a53f",
       "type": "account-setup",
       "name": "Акаунти під коментарі · HU · 4",

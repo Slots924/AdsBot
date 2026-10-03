@@ -386,7 +386,7 @@ export default async function executeCommentAccountSetupWithProfile({
 
         assertNotAborted();
         result.stage = "FACEBOOK_ACTIVE";
-        const active = await ensureActive(adsPower, profile, page);
+        const active = await ensureActive(adsPower, profile, page, { signal });
         if (!active) {
             throw new Error("Facebook-акаунт не активний");
         }

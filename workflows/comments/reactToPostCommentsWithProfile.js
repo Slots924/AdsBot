@@ -133,7 +133,7 @@ export default async function reactToPostCommentsWithProfile({
         if (!await ensureFacebookAccountLoggedIn(adsPower, activeProfile, page)) {
             throw new Error("Не вдалося підтвердити вхід у Facebook");
         }
-        if (!await ensureFacebookAccountActive(adsPower, activeProfile, page)) {
+        if (!await ensureFacebookAccountActive(adsPower, activeProfile, page, { signal })) {
             throw new Error("Facebook-акаунт неактивний");
         }
         result.stage = "ENSURE_ENGLISH";
