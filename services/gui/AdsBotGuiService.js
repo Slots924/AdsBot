@@ -648,9 +648,7 @@ export default class AdsBotGuiService {
             );
         }
 
-        for (const profileId of ids) {
-            await this.adsPower.updateProfileGroup(profileId, normalizedGroupId);
-        }
+        await this.adsPower.moveProfilesToGroup(ids, normalizedGroupId);
         return { moved: ids.length, groupId: normalizedGroupId };
     }
 

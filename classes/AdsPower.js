@@ -675,25 +675,33 @@ class AdsPower {
 
     // Переміщує профіль в іншу групу AdsPower
     async updateProfileGroup(profileId, groupId) {
-        const normalizedProfileId = String(profileId ?? "").trim();
+        return this.moveProfilesToGroup([profileId], groupId);
+    }
+
+
+    // Переміщує вибрані профілі одним запитом до AdsPower
+    async moveProfilesToGroup(profileIds, groupId) {
+        const ids = Array.isArray(profileIds)
+            ? [...new Set(profileIds.map((id) => String(id ?? "").trim()).filter(Boolean))]
+            : [];
         const normalizedGroupId = String(groupId ?? "").trim();
 
-        if (!normalizedProfileId) {
-            throw new Error("Не вказано profile_id AdsPower-профілю");
+        if (ids.length === 0) {
+            throw new Error("Не вибрано профілі для переміщення");
         }
 
         if (!normalizedGroupId) {
             throw new Error("Не вказано ID групи AdsPower");
         }
 
-        const url = `${this.apiUrl}/api/v2/browser-profile/update`;
+        const url = `${this.apiUrl}/api/v1/user/regroup`;
 
         try {
             const response = await this.request(
                 "post",
                 url,
                 {
-                    profile_id: normalizedProfileId,
+                    user_ids: ids,
                     group_id: normalizedGroupId,
                 }
             );
@@ -711,7 +719,7 @@ class AdsPower {
                 || "Невідома помилка";
 
             throw new Error(
-                `Не вдалося перемістити профіль ${normalizedProfileId} у групу ${normalizedGroupId}: ${message}`
+                `Не вдалося перемістити профілі у групу ${normalizedGroupId}: ${message}`
             );
         }
     }
