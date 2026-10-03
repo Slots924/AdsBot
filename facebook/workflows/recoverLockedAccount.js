@@ -62,7 +62,7 @@ export default async function recoverLockedAccount(page, options = {}) {
             }
             const snapshot = await detectAccountRecoveryStep(page);
             result.step = snapshot.step;
-            await emitRecoveryStep(settings, "state.detected", { transition: transitions, elapsedMs: Date.now() - started, snapshot });
+            await emitRecoveryStep(settings, "state.detected", { transition: transitions, elapsedMs: Date.now() - started, step: snapshot.step });
             if (passwordSubmitted && ["AUTHENTICATED", "PROTECTION_DIALOG"].includes(snapshot.step)) {
                 result.passwordChanged = true;
                 await emitRecoveryStep(settings, "password.change.confirmed");
@@ -122,9 +122,13 @@ export default async function recoverLockedAccount(page, options = {}) {
                     const code = requestCode ? await requestCode({ page, kind: "code", retry: codeAttempts > 1,
                         signal: settings.signal, onStep: settings.onStep, manualTimeout: settings.manualTimeout,
                         firstmailCredentials: firstmail, attempt: codeAttempts }) : await codeWaiter.waitForCode();
+                    await emitRecoveryStep(settings, "code.received", { provider: requestCode ? "custom" : "Firstmail" });
+                    await emitRecoveryStep(settings, "code.input.start");
                     await typeRecoveryValue(page, "code", code, settings);
+                    await emitRecoveryStep(settings, "code.input.complete");
                     const beforeSubmit = await detectAccountRecoveryStep(page);
                     await clickRecoveryControl(page, "next", settings);
+                    await emitRecoveryStep(settings, "code.submit.complete");
                     const after = await nextStep(snapshot.step, "codeRejected", beforeSubmit.codeRejected);
                     if (after.codeRejected && after.step === snapshot.step) {
                         await emitRecoveryStep(settings, "code.rejected", { attempt: codeAttempts });

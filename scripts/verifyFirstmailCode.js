@@ -92,12 +92,12 @@ assert.deepEqual(tags, [{ ids: [LOGIN_ERROR_TAG_ID], type: "2" }]);
 const queries = [];
 const fakeImap = { mailbox: { uidNext: 10, uidValidity: 1n }, on() {}, close() {}, connect: async () => {},
     mailboxOpen: async (_folder, options) => { assert.equal(options.readOnly, true); },
-    status: async () => ({ uidNext: 12, uidValidity: 1n }),
+    status: async () => ({ uidNext: 10, uidValidity: 1n }),
     search: async () => [9, 10, 11],
     fetchAll: async (range) => { queries.push(range); return [{ uid: 10 }, { uid: 11 }]; },
 };
 const transport = new Firstmail(credentials, { clientFactory: () => fakeImap });
-await transport.connect();
+assert.equal((await transport.connect()).uidNext, 12);
 assert.equal((await transport.listNewMessages(10, "1")).length, 2);
 assert.deepEqual(queries, ["10,11"]);
 transport.close();

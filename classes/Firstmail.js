@@ -31,7 +31,7 @@ export default class Firstmail {
                 await this.client.mailboxOpen("INBOX", { readOnly: true });
                 if (signal?.aborted) throw mailError("RECOVERY_ABORTED");
             } finally { signal?.removeEventListener("abort", abort); }
-            return this.baseline();
+            return await this.refreshBaseline();
         } catch (error) {
             this.close();
             if (signal?.aborted) throw mailError("RECOVERY_ABORTED");
@@ -51,7 +51,9 @@ export default class Firstmail {
         try {
             const mailbox = await this.client.status("INBOX", { uidValidity: true, uidNext: true });
             if (!mailbox?.uidValidity || !mailbox.uidNext) throw mailError("FIRSTMAIL_MAILBOX_INVALID");
-            return { uidValidity: String(mailbox.uidValidity), uidNext: Number(mailbox.uidNext) };
+            const existing = await this.client.search({ all: true }, { uid: true }) || [];
+            const highestUid = existing.reduce((maximum, uid) => Math.max(maximum, uid), 0);
+            return { uidValidity: String(mailbox.uidValidity), uidNext: Math.max(Number(mailbox.uidNext), highestUid + 1) };
         } catch (error) {
             throw mailError(error.code === "FIRSTMAIL_MAILBOX_INVALID" ? error.code : "FIRSTMAIL_CONNECTION_LOST");
         }
@@ -72,9 +74,10 @@ export default class Firstmail {
     async listNewMessages(uidNext, uidValidity) {
         const status = await this.client.status("INBOX", { uidValidity: true, uidNext: true });
         if (String(status.uidValidity) !== uidValidity) throw mailError("FIRSTMAIL_UIDVALIDITY_CHANGED");
-        if (Number(status.uidNext) <= uidNext) return [];
+        // UIDNEXT може запізнюватися; наявність нових листів перевіряємо пошуком UID.
         const uids = (await this.client.search({ uid: `${uidNext}:*` }, { uid: true }) || [])
             .filter((uid) => uid >= uidNext).sort((a, b) => a - b).slice(0, 100);
+        this.lastPoll = { uidFrom: uidNext, reportedUidNext: Number(status.uidNext), foundCount: uids.length };
         if (!uids.length) return [];
         return (await this.client.fetchAll(uids.join(","), { envelope: true, size: true, internalDate: true }, { uid: true }))
             .sort((a, b) => a.uid - b.uid);

@@ -13,9 +13,10 @@ import detectAccountRecoveryStep from "../../facebook/state/detectAccountRecover
 import ensureFacebookAccountActive from "../../workflows/profile/ensureFacebookAccountActive.js";
 import { getFacebookCredentials, getFirstmailCredentials } from "../../services/adspower/profileCredentials.js";
 import readRecoveryPassword from "../../services/adspower/recoveryPassword.js";
+import describeRecoveryEvent from "../../services/logging/describeRecoveryEvent.js";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
-const profileNo = String(process.argv[2] ?? "2242").trim();
+const profileNo = String(process.argv[2] ?? "2244").trim();
 const observationMs = Number(process.argv[3] ?? 90000);
 const started = Date.now();
 const logDirectory = path.join(root, "data", "logs", "manual-recovery");
@@ -40,13 +41,14 @@ function sanitize(value) {
 }
 
 function log(event, details = {}) {
+    if (event === "pointer.event" || event === "browser.console.issue") return;
     const { elapsedMs: operationElapsedMs, ...remaining } = details;
     const entry = sanitize({ ...remaining, sequence: ++sequence, timestamp: new Date().toISOString(),
         elapsedMs: Date.now() - started, event,
         ...(operationElapsedMs === undefined ? {} : { operationElapsedMs }),
     });
     const line = JSON.stringify(entry);
-    console.log(`[FB-MANUAL] ${line}`);
+    console.log(`[+${(entry.elapsedMs / 1000).toFixed(1)}с] ${describeRecoveryEvent(event, entry)}`);
     appendFileSync(logFile, `${line}\n`, "utf8");
 }
 
@@ -99,9 +101,13 @@ async function main() {
         listen("console", (message) => {
             if (["error", "warning"].includes(message.type())) log("browser.console.issue", { type: message.type() });
         });
-        listen("requestfailed", (request) => log("network.failed", { ...safeLocation(request.url()), resourceType: request.resourceType(), failure: request.failure()?.errorText }));
+        listen("requestfailed", (request) => {
+            if (["document", "xhr", "fetch"].includes(request.resourceType())) {
+                log("network.failed", { ...safeLocation(request.url()), resourceType: request.resourceType(), failure: request.failure()?.errorText });
+            }
+        });
         listen("response", (response) => {
-            if (response.status() >= 400 || response.request().isNavigationRequest()) {
+            if ((response.status() >= 400 && ["document", "xhr", "fetch"].includes(response.request().resourceType())) || response.request().isNavigationRequest()) {
                 log("network.response", { ...safeLocation(response.url()), status: response.status(), resourceType: response.request().resourceType() });
             }
         });
@@ -112,8 +118,8 @@ async function main() {
             inspecting = true;
             try {
                 const snapshot = await detectAccountRecoveryStep(page);
-                const signature = JSON.stringify(snapshot);
-                log(signature === previousSnapshot ? "dom.heartbeat" : "dom.changed", { reason, snapshot });
+                const signature = snapshot.step;
+                if (signature !== previousSnapshot) log("state.observed", { step: snapshot.step });
                 previousSnapshot = signature;
             } catch (error) { log("dom.inspect.failed", { errorType: error.name }); }
             finally { inspecting = false; }

@@ -116,3 +116,6 @@ AdsBot/
 - Якщо Facebook почне повертати помилки або відмовляти mutation без цього поля, перевірити його додавання з актуальним значенням.
 - `getEducationExperiences` виконує GraphQL `ProfileCometAboutAppSectionQuery` через `/api/graphql/`, використовуючи актуальні `collectionToken`, `sectionToken` і `rawSectionToken` секції `directory_education`.
 - Для цього GraphQL response перевіряти `data.errors`, а College брати лише зі шляху `data.user.about_app_sections.nodes[].activeCollections.nodes[].style_renderer.profile_field_sections[]` із `field_section_type === "directory_college"`.
+
+
+!!!зараз програма лагає якшо бачиш шо я 2 рази підряд написав те саме це баг. Потрібно написати шо повідомлення дубоюється не витрачати зря токени на роздуми.

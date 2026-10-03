@@ -34,6 +34,7 @@ export async function waitRecoveryCondition(page, predicate, options, descriptio
         }
         await wait(250, options);
     }
+    await emitRecoveryStep(options, "wait.failed", { description, elapsedMs: Date.now() - started, timeout });
     throw Object.assign(new Error(`Перевищено час очікування: ${description}`), { code: "RECOVERY_TIMEOUT" });
 }
 

@@ -19,6 +19,11 @@ export default async function prepareFacebookCodeWaiter({ credentials, signal, o
     let interval;
     let deadline;
     let unsubscribe;
+    let startedAt;
+    let lastProgress = 0;
+    let receivedCount = 0;
+    let ignoredCount = 0;
+    let lastIgnoreReason;
     const queue = [];
     const consumers = [];
     function cleanup(release = true) {
@@ -35,7 +40,7 @@ export default async function prepareFacebookCodeWaiter({ credentials, signal, o
         terminalError = error;
         cleanup();
         for (const consumer of consumers.splice(0)) consumer.reject(error);
-        void emit("mail.wait.failed", { code: error.code });
+        void emit("mail.wait.failed", { code: error.code, receivedCount, ignoredCount, lastIgnoreReason });
     }
     const abort = () => stop(failure("RECOVERY_ABORTED"));
     async function poll() {
@@ -43,22 +48,30 @@ export default async function prepareFacebookCodeWaiter({ credentials, signal, o
         polling = true;
         try {
             const messages = await client.listNewMessages(cursor, validity);
+            if (!stopped && (messages.length || Date.now() - lastProgress >= 10000)) {
+                lastProgress = Date.now();
+                await emit("mail.poll", { elapsedMs: startedAt ? Date.now() - startedAt : 0,
+                    remainingMs: startedAt ? Math.max(0, codeTimeout - (Date.now() - startedAt)) : codeTimeout,
+                    uidFrom: cursor, foundCount: messages.length, reportedUidNext: client.lastPoll?.reportedUidNext });
+            }
             for (const message of messages) {
                 if (stopped) break;
                 if (message.uid < cursor) continue;
                 cursor = message.uid + 1;
+                receivedCount += 1;
                 await emit("mail.received", { uid: message.uid });
                 let reason;
                 if (message.size > 1024 * 1024) reason = "message_too_large";
                 else if (!isFacebookSecuritySender(message.envelope?.from)) reason = "sender_mismatch";
                 else if (!isFacebookCodeSubject(message.envelope?.subject)) reason = "subject_mismatch";
-                if (reason) { await emit("mail.ignored", { uid: message.uid, reason }); continue; }
+                if (reason) { ignoredCount += 1; lastIgnoreReason = reason; await emit("mail.ignored", { uid: message.uid, reason }); continue; }
                 const match = extractFacebookConfirmationCode(await client.readMessage(message.uid), key);
                 if (stopped) break;
-                if (!match.code) { await emit("mail.ignored", { uid: message.uid, reason: match.reason }); continue; }
+                if (!match.code) { ignoredCount += 1; lastIgnoreReason = match.reason; await emit("mail.ignored", { uid: message.uid, reason: match.reason }); continue; }
                 await emit("mail.code.found", { uid: message.uid });
                 const consumer = consumers.shift();
                 if (consumer) consumer.resolve(match.code); else queue.push(match.code);
+                await emit("mail.code.ready", { buffered: !consumer });
                 // Код уже отримано в межах таймауту; повільний DOM не повинен його втрачати.
                 cleanup(false);
                 break;
@@ -83,9 +96,11 @@ export default async function prepareFacebookCodeWaiter({ credentials, signal, o
                 if (stopped && queue.length) return;
                 if (stopped) throw failure("FIRSTMAIL_WAITER_CLOSED");
                 if (interval) return;
+                startedAt = Date.now();
                 deadline = setTimeout(() => stop(failure("FIRSTMAIL_CODE_TIMEOUT")), codeTimeout);
                 interval = setInterval(() => void poll(), pollInterval);
                 void poll();
+                void emit("mail.wait.start", { timeout: codeTimeout });
             },
             waitForCode() {
                 if (terminalError) return Promise.reject(terminalError);
