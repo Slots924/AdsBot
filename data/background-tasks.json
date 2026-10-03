@@ -2,6 +2,200 @@
   "version": 1,
   "tasks": [
     {
+      "id": "08fc2582-62de-4b3e-99ab-00314d276c87",
+      "type": "campaign",
+      "name": "HU | Creo_138 | 30+ 03/10 20:26",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "08d04262-adae-4329-bce3-be4e60731234"
+      },
+      "metadata": {
+        "campaignJobId": "08d04262-adae-4329-bce3-be4e60731234",
+        "accountKey": "account-031",
+        "adAccountId": "act_1070313932433402",
+        "uniqueKey": "campaign-job:08d04262-adae-4329-bce3-be4e60731234",
+        "reportId": "4512024b-560e-4651-a119-f58da9047c91"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120253161159950418",
+          "creativeId": "1613088593524513",
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120253161160480418",
+              "name": "HU | Creo_138 | 30+ 03/10 20:26 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120253161161110418",
+              "name": "HU | Creo_138 | 30+ 03/10 20:26 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120253161161670418",
+              "name": "HU | Creo_138 | 30+ 03/10 20:26 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120253161162230418",
+              "name": "HU | Creo_138 | 30+ 03/10 20:26 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120253161162830418",
+              "name": "HU | Creo_138 | 30+ 03/10 20:26 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "id": "120253161160900418",
+              "name": "HU | Creo_138 | 30+ 03/10 20:26 | AD 01"
+            },
+            {
+              "index": 1,
+              "id": "120253161161460418",
+              "name": "HU | Creo_138 | 30+ 03/10 20:26 | AD 02"
+            },
+            {
+              "index": 2,
+              "id": "120253161162090418",
+              "name": "HU | Creo_138 | 30+ 03/10 20:26 | AD 03"
+            },
+            {
+              "index": 3,
+              "id": "120253161162470418",
+              "name": "HU | Creo_138 | 30+ 03/10 20:26 | AD 04"
+            },
+            {
+              "index": 4,
+              "id": "120253161163240418",
+              "name": "HU | Creo_138 | 30+ 03/10 20:26 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "08d04262-adae-4329-bce3-be4e60731234",
+        "campaignId": "120253161159950418",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-03T17:26:35.062Z",
+      "startedAt": "2026-10-03T17:27:27.928Z",
+      "finishedAt": "2026-10-03T17:28:49.174Z",
+      "updatedAt": "2026-10-03T17:28:49.178Z"
+    },
+    {
+      "id": "65bf5328-7713-4ba0-a120-0c6afc8e0227",
+      "type": "campaign",
+      "name": "HU | Creo_1 | 30+ 03/10 20:25",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "a86b9934-a31a-4865-b9b3-6ae8cbff511e"
+      },
+      "metadata": {
+        "campaignJobId": "a86b9934-a31a-4865-b9b3-6ae8cbff511e",
+        "accountKey": "account-031",
+        "adAccountId": "act_1070313932433402",
+        "uniqueKey": "campaign-job:a86b9934-a31a-4865-b9b3-6ae8cbff511e",
+        "reportId": "7cf1b893-6719-4419-bee0-8c579b455c21"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120253161149340418",
+          "creativeId": "3004300783254268",
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120253161150450418",
+              "name": "HU | Creo_1 | 30+ 03/10 20:25 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120253161151540418",
+              "name": "HU | Creo_1 | 30+ 03/10 20:25 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120253161152750418",
+              "name": "HU | Creo_1 | 30+ 03/10 20:25 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120253161154170418",
+              "name": "HU | Creo_1 | 30+ 03/10 20:25 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120253161155330418",
+              "name": "HU | Creo_1 | 30+ 03/10 20:25 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "id": "120253161151210418",
+              "name": "HU | Creo_1 | 30+ 03/10 20:25 | AD 01"
+            },
+            {
+              "index": 1,
+              "id": "120253161152220418",
+              "name": "HU | Creo_1 | 30+ 03/10 20:25 | AD 02"
+            },
+            {
+              "index": 2,
+              "id": "120253161153710418",
+              "name": "HU | Creo_1 | 30+ 03/10 20:25 | AD 03"
+            },
+            {
+              "index": 3,
+              "id": "120253161155040418",
+              "name": "HU | Creo_1 | 30+ 03/10 20:25 | AD 04"
+            },
+            {
+              "index": 4,
+              "id": "120253161156070418",
+              "name": "HU | Creo_1 | 30+ 03/10 20:25 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "a86b9934-a31a-4865-b9b3-6ae8cbff511e",
+        "campaignId": "120253161149340418",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-03T17:26:03.764Z",
+      "startedAt": "2026-10-03T17:26:03.765Z",
+      "finishedAt": "2026-10-03T17:27:27.923Z",
+      "updatedAt": "2026-10-03T17:27:27.927Z"
+    },
+    {
       "id": "ac5b39da-10d8-4d60-bcd6-ab888f05fa4f",
       "type": "campaign",
       "name": "HU | Creo_1 | 30+ 03/10 13:26",
