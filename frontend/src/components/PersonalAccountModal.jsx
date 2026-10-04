@@ -639,8 +639,8 @@ export default function PersonalAccountModal({
                         {!adsManagerReady && <div className="personal-action-card"><h4>Ініціалізація Ads Manager</h4><p className="personal-note">Відкрийте Ads Manager, щоб отримати токен і список РК.</p><button type="button" className="primary-button personal-main-action" disabled={Boolean(busy)} onClick={initializeAdsManager}><BriefcaseBusiness size={16} /> Ініціалізувати Ads Manager</button></div>}
                         {adsManagerReady && <AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} disabled={Boolean(busy)} />}
                         <PersonalBusinessInfoForm
+                            key={`${session?.id ?? ""}:${adAccountId}`}
                             value={business}
-                            onChange={setBusiness}
                             ready={Boolean(adsManagerReady && adAccountId && session)}
                             checked={businessCheckedFor === adAccountId && Boolean(adAccountId)}
                             busy={Boolean(busy)}
@@ -655,19 +655,21 @@ export default function PersonalAccountModal({
                                     setBusinessRefreshError("");
                                 }
                             }}
-                            onSave={async () => {
+                            onSave={async (draft) => {
                                 if (!requireSession()) return;
                                 const selectedId = adAccountId;
                                 const value = await run("business", () => window.adsBot.updatePersonalBusinessInfo(session.id, {
                                     adAccountId: selectedId,
-                                    currency: business.currency,
-                                    timezone: business.timezone,
-                                    tax: { businessName: business.businessName, businessAddress: business },
+                                    currency: draft.currency,
+                                    timezone: draft.timezone,
+                                    tax: { businessName: draft.businessName, businessAddress: draft },
                                 }), "Бізнес-інформацію оновлено", "business.update");
                                 if (value && selectedId === adAccountId) {
                                     setBusiness((current) => ({ ...current, ...value }));
                                     setBusinessRefreshError(value.refreshError ?? "");
+                                    setBusinessCheckedFor(value.refreshError ? "" : selectedId);
                                 }
+                                return value;
                             }}
                         />
 
