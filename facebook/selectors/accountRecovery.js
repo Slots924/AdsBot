@@ -12,7 +12,7 @@ export const accountRecovery = Object.freeze({
         back: ["Back to Facebook"],
     },
     headings: {
-        recoveryMethod: ["Confirm that this is your account"],
+        recoveryMethod: ["Confirm that this is your account", "Confirm that this is your Meta Account"],
         code: ["Enter confirmation code", "Enter the code"],
         newPassword: ["Enter new password", "Enter a new password", "Create a new password", "Choose a new password"],
         currentPassword: ["Enter your password", "Enter your Facebook password", "Confirm your password"],

@@ -28,6 +28,7 @@ export default function describeRecoveryEvent(event, d = {}) {
     const reason = (value) => reasons[value] ?? value ?? "Причина невідома";
     switch (event) {
         case "state.detected": case "state.observed": return `Екран: ${d.step}`;
+        case "state.unrecognized": return `Екран не розпізнано: ${d.methodDiagnostics?.reason ?? "UNKNOWN"}; завантаження=${Boolean(d.loading)}; методи=${(d.methodDiagnostics?.visibleMethods ?? []).join(", ") || "не знайдено"}`;
         case "click.prepare": return `Готуємо клік: ${d.action}`;
         case "click.complete": return `Клік виконано: ${d.action}`;
         case "input.complete": return `Поле ${d.field} заповнено й перевірено`;

@@ -33,7 +33,7 @@ function clientFixture(failWrites = false) {
 }
 
 // Мінімальний DOM відтворює дублікати, реактивні поля та переходи без зовнішніх запитів.
-function pageFixture({ changePassword = true, rejectFirstCode = false, protection = true, initial = "GET_STARTED", hostname = "www.facebook.com", authenticatedMarker = true, ancestorAriaHidden = false, startAriaHidden = false, inert = false, methods = ["email"], hiddenMethods = [], disabledMethods = [], methodHeadingHidden = false, readyState = "complete", emailDelayMs = 0 } = {}) {
+function pageFixture({ changePassword = true, rejectFirstCode = false, protection = true, initial = "GET_STARTED", hostname = "www.facebook.com", pathname = "/checkpoint/828281030927956/", authenticatedMarker = true, ancestorAriaHidden = false, startAriaHidden = false, inert = false, methods = ["email"], hiddenMethods = [], disabledMethods = [], methodHeadingHidden = false, methodHeadingText = config.headings.recoveryMethod[0], readyState = "complete", loading = false, loadingMs = 0, emailDelayMs = 0, startPhase = "CHOOSE_EMAIL" } = {}) {
     const createdAt = Date.now();
     let phase = initial;
     let current;
@@ -67,11 +67,13 @@ function pageFixture({ changePassword = true, rejectFirstCode = false, protectio
     dialog.querySelectorAll = (selector) => selector === config.controls ? [back] : [];
     const query = (selector) => {
         if (selector === 'h1, h2, [role="heading"], span' && phase === "CHOOSE_RECOVERY_METHOD") {
-            const heading = element("method-heading", config.headings.recoveryMethod[0], {}, methodHeadingHidden);
+            if (methodHeadingText === null) return [];
+            const heading = element("method-heading", methodHeadingText, {}, methodHeadingHidden);
             heading.parentElement = { querySelectorAll: query, parentElement: null };
             return [heading];
         }
         if (selector === config.dialog) return phase === "PROTECTION_DIALOG" ? [dialog] : [];
+        if (selector === '[aria-busy="true"], [role="progressbar"]') return loading || Date.now() - createdAt < loadingMs ? [element("loading")] : [];
         if (selector === config.controls) {
             if (phase === "GET_STARTED") {
                 const start = button("start", "Get Started");
@@ -101,7 +103,7 @@ function pageFixture({ changePassword = true, rejectFirstCode = false, protectio
     };
     const context = () => ({ URL, config,
         location: { href: phase === "AUTHENTICATED" || phase === "PROTECTION_DIALOG"
-            ? `https://${hostname}/` : `https://${hostname}/checkpoint/828281030927956/` },
+            ? `https://${hostname}/` : `https://${hostname}${pathname}` },
         document: { readyState, querySelectorAll: query, body: { innerText:
             phase === "CONFIRMATION_CODE" ? `ENTER CONFIRMATION CODE ${rejected ? "INCORRECT CODE" : ""}`
                 : phase === "NEW_PASSWORD" ? "ENTER NEW PASSWORD" : phase === "CURRENT_PASSWORD" ? "ENTER YOUR PASSWORD" : "" } },
@@ -123,7 +125,7 @@ function pageFixture({ changePassword = true, rejectFirstCode = false, protectio
         },
         isClosed: () => false,
         mouse: { move: async () => {}, down: async () => {}, up: async () => {
-            if (current.id === "start") phase = "CHOOSE_EMAIL";
+            if (current.id === "start") phase = startPhase;
             if (current.id === "email") phase = "EMAIL_CONTACT";
             if (current.id === "radio") { selected = true; radio.checked = true; }
             if (current.id === "next") {
@@ -166,7 +168,26 @@ const methodSnapshot = await methodPage.snapshot();
 assert.equal(methodSnapshot.step, "CHOOSE_RECOVERY_METHOD");
 assert.deepEqual([...methodSnapshot.availableMethods], ["phone", "whatsapp"]);
 assert.equal(methodSnapshot.emailAvailable, false);
-assert.equal((await pageFixture({ initial: "CHOOSE_RECOVERY_METHOD", methods: ["phone"], methodHeadingHidden: true }).snapshot()).step, "UNKNOWN");
+for (const headingOptions of [
+    { methodHeadingText: "Confirm that this is your Meta Account" },
+    { methodHeadingText: "CHOOSE A WAY TO VERIFY YOUR IDENTITY" },
+    { methodHeadingText: null },
+    { methodHeadingHidden: true },
+]) {
+    const detected = await pageFixture({ initial: "CHOOSE_RECOVERY_METHOD", methods: ["phone", "whatsapp"], ...headingOptions }).snapshot();
+    assert.equal(detected.step, "CHOOSE_RECOVERY_METHOD");
+    assert.deepEqual([...detected.availableMethods], ["phone", "whatsapp"]);
+}
+for (const contextOptions of [
+    { pathname: "/settings/" },
+    { pathname: "/checkpoint/unknown/", methodHeadingText: "Unknown heading" },
+    { hostname: "example.com" },
+]) {
+    const detected = await pageFixture({ initial: "CHOOSE_RECOVERY_METHOD", methods: ["phone", "whatsapp"], ...contextOptions }).snapshot();
+    assert.notEqual(detected.step, "CHOOSE_RECOVERY_METHOD");
+    assert.deepEqual([...detected.availableMethods], []);
+    assert.equal(detected.methodDiagnostics.reason, "RECOVERY_CONTEXT_MISSING");
+}
 const hiddenEmail = await pageFixture({ initial: "CHOOSE_RECOVERY_METHOD", methods: ["email", "phone"], hiddenMethods: ["email"] }).snapshot();
 assert.deepEqual([...hiddenEmail.availableMethods], ["phone"]);
 const noMailClient = { getProfileById: async () => ({ ...profileFixture(), platform_account: [] }) };
@@ -180,9 +201,19 @@ assert.equal(unsupported.code, "NO_SUPPORTED_RECOVERY_METHOD");
 assert.deepEqual([...unsupported.availableMethods], ["phone", "whatsapp"]);
 assert.equal(unsupportedEvents.some(({ event }) => event === "mail.auth.start"), false);
 assert.match(describeRecoveryEvent("recovery.failed", unsupported), /телефон, WhatsApp/);
+const realScreen = await recoverLockedAccount(pageFixture({
+    startPhase: "CHOOSE_RECOVERY_METHOD", methods: ["phone", "whatsapp"],
+    methodHeadingText: "Confirm that this is your Meta Account",
+}), {
+    adsPower: noMailClient, profile: profileFixture(), newPassword: "mock-new-password",
+    sleep: async () => {}, onStep: () => {},
+});
+assert.equal(realScreen.code, "NO_SUPPORTED_RECOVERY_METHOD");
+assert.deepEqual([...realScreen.availableMethods], ["phone", "whatsapp"]);
 for (const options of [
     { methods: ["email", "phone"], disabledMethods: ["email"] },
     { methods: ["phone"], readyState: "loading" },
+    { methods: ["phone", "whatsapp"], loading: true },
     { methods: [] },
 ]) {
     const pending = await recoverLockedAccount(pageFixture({ initial: "CHOOSE_RECOVERY_METHOD", ...options }), {
@@ -196,11 +227,26 @@ const emailRecovery = await recoverLockedAccount(pageFixture({ initial: "CHOOSE_
     requestConfirmationCode: async () => "123456", sleep: async () => {}, onStep: () => {},
 });
 assert.equal(emailRecovery.recovered, true);
-const delayedEmail = await recoverLockedAccount(pageFixture({ initial: "CHOOSE_RECOVERY_METHOD", methods: ["email", "phone"], emailDelayMs: 300 }), {
+const delayedEmail = await recoverLockedAccount(pageFixture({ initial: "CHOOSE_RECOVERY_METHOD", methods: ["email", "phone"], emailDelayMs: 300, methodHeadingText: null }), {
     adsPower: clientFixture(), profile: profileFixture(), newPassword: "mock-new-password",
     requestConfirmationCode: async () => "123456", sleep: async () => {}, onStep: () => {},
 });
 assert.equal(delayedEmail.recovered, true);
+const lateEmail = await recoverLockedAccount(pageFixture({
+    initial: "CHOOSE_RECOVERY_METHOD", methods: ["email", "phone"],
+    emailDelayMs: 1200, loadingMs: 1400, methodHeadingText: "Another heading",
+}), {
+    adsPower: clientFixture(), profile: profileFixture(), newPassword: "mock-new-password",
+    requestConfirmationCode: async () => "123456", sleep: async () => {}, onStep: () => {},
+});
+assert.equal(lateEmail.recovered, true);
+const unknownEvents = [];
+const unknownResult = await recoverLockedAccount(pageFixture({ initial: "CHOOSE_RECOVERY_METHOD", methods: [], methodHeadingText: null }), {
+    adsPower: noMailClient, profile: profileFixture(), newPassword: "mock-new-password",
+    timeout: 20, sleep: async () => {}, onStep: (event, details) => unknownEvents.push({ event, details }),
+});
+assert.equal(unknownResult.code, "RECOVERY_TIMEOUT");
+assert.equal(unknownEvents.find(({ event }) => event === "state.unrecognized").details.methodDiagnostics.reason, "RECOVERY_METHODS_NOT_FOUND");
 const originalMarkBanned = defaultProfileActivityStore.markBanned;
 const tags = [];
 let callbackResult;

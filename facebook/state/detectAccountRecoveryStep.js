@@ -26,22 +26,24 @@ export function inspectRecoveryInPage(config, action = null) {
     const findControl = (name) => controls.find((element) => enabled(element) && textMatches(element, config.labels[name]));
     const bodyText = normalize(document.body?.innerText);
     const heading = (name) => config.headings[name].some((text) => bodyText.includes(normalize(text)));
+    const url = new URL(location.href);
+    const validHost = ["facebook.com", "www.facebook.com", "m.facebook.com"].includes(url.hostname);
     const methodHeading = all('h1, h2, [role="heading"], span').find((element) =>
         visible(element) && textMatches(element, config.headings.recoveryMethod));
-    let methodRoot = methodHeading?.parentElement;
-    while (methodRoot && !all(config.controls, methodRoot).some((element) =>
-        visible(element) && config.recoveryMethods.some((name) => textMatches(element, config.labels[name])))) {
-        methodRoot = methodRoot.parentElement;
-    }
-    const methodControls = methodRoot ? all(config.controls, methodRoot) : [];
-    const availableMethods = config.recoveryMethods.filter((name) => methodControls.some((element) =>
+    const lockedPath = /^\/checkpoint\/828281030927956\/?$/.test(url.pathname);
+    const recoveryPath = /^\/(checkpoint|recover)(\/|\.|$)/i.test(url.pathname);
+    const recoveryContext = validHost && (lockedPath || (recoveryPath && Boolean(methodHeading)));
+    // Збираємо всі видимі методи до аналізу заголовка, щоб не втратити email в іншій гілці DOM.
+    const methodControls = controls.filter((element) => visible(element)
+        && config.recoveryMethods.some((name) => textMatches(element, config.labels[name])));
+    const visibleMethods = config.recoveryMethods.filter((name) => methodControls.some((element) =>
         visible(element) && textMatches(element, config.labels[name])));
-    const emailAvailable = methodControls.some((element) => enabled(element) && textMatches(element, config.labels.email));
+    const availableMethods = recoveryContext ? visibleMethods : [];
+    const emailAvailable = recoveryContext && methodControls.some((element) => enabled(element) && textMatches(element, config.labels.email));
+    const loading = all('[aria-busy="true"], [role="progressbar"]').some(visible);
     const passwords = all('input[type="password"]').filter(enabled);
     const radios = all('input[type="radio"]').filter((element) => enabled(element) && String(element.value).includes("@"));
     const codeInputs = all('input[type="text"], input[type="tel"], input[type="number"]').filter(enabled);
-    const url = new URL(location.href);
-    const validHost = ["facebook.com", "www.facebook.com", "m.facebook.com"].includes(url.hostname);
     const blockedPath = /^\/(checkpoint|login|recover|confirmemail|two_step_verification|auth_platform|accounts\/login)(\/|\.|$)/i.test(url.pathname);
     const hasLogin = all(config.login).some(visible);
     const authenticated = validHost && !blockedPath && !hasLogin && passwords.length === 0
@@ -53,7 +55,7 @@ export function inspectRecoveryInPage(config, action = null) {
     else if (heading("newPassword") && passwords.length) step = "NEW_PASSWORD";
     else if (heading("currentPassword") && passwords.length) step = "CURRENT_PASSWORD";
     else if (heading("code") && codeInputs.length) step = "CONFIRMATION_CODE";
-    else if (methodHeading && availableMethods.length) step = "CHOOSE_RECOVERY_METHOD";
+    else if (recoveryContext && availableMethods.length) step = "CHOOSE_RECOVERY_METHOD";
     else if (findControl("start")) step = "GET_STARTED";
     else if (findControl("email")) step = "CHOOSE_EMAIL";
     else if (radios.length && findControl("next")) step = "EMAIL_CONTACT";
@@ -64,7 +66,7 @@ export function inspectRecoveryInPage(config, action = null) {
         if (action === "password") return passwords.length === 1 ? passwords[0] : null;
         if (action === "code") return codeInputs.length === 1 ? codeInputs[0] : null;
         if (action === "radio") return radios.length === 1 ? radios[0] : null;
-        if (action === "email" && methodHeading) return methodControls.find((element) =>
+        if (action === "email" && recoveryContext) return methodControls.find((element) =>
             enabled(element) && textMatches(element, config.labels.email)) ?? null;
         return findControl(action) ?? null;
     }
@@ -98,7 +100,13 @@ export function inspectRecoveryInPage(config, action = null) {
     return {
         step, hostname: url.hostname, pathname: url.pathname, readyState: document.readyState,
         authenticated, protectionDialog: Boolean(protection), dialogCount: dialogs.length,
-        availableMethods, emailAvailable,
+        availableMethods, emailAvailable, loading,
+        methodDiagnostics: {
+            recoveryContext, lockedPath, headingMatched: Boolean(methodHeading), visibleMethods,
+            reason: !recoveryContext ? "RECOVERY_CONTEXT_MISSING"
+                : !visibleMethods.length ? "RECOVERY_METHODS_NOT_FOUND"
+                    : loading ? "RECOVERY_SCREEN_LOADING" : null,
+        },
         passwordInputCount: passwords.length, codeInputCount: codeInputs.length,
         emailContactCount: radios.length, emailSelected: radios.some((element) => element.checked),
         codeRejected: config.codeErrors.some((text) => bodyText.includes(normalize(text))),

@@ -24,8 +24,16 @@ export default async function recoverLockedAccount(page, options = {}) {
     const nextStep = async (previous, rejection = null, hadRejection = false, submitControl = "next") => {
         let rejectionCleared = !hadRejection;
         let pendingObserved = false;
+        let diagnosticAt = 0;
         return waitRecoveryCondition(page, async () => {
             const snapshot = await detectAccountRecoveryStep(page);
+            if (snapshot.step === "UNKNOWN" && Date.now() - diagnosticAt >= 5000) {
+                diagnosticAt = Date.now();
+                await emitRecoveryStep(settings, "state.unrecognized", {
+                    step: snapshot.step, readyState: snapshot.readyState, loading: snapshot.loading,
+                    methodDiagnostics: snapshot.methodDiagnostics, controls: snapshot.controls,
+                });
+            }
             if (rejection && !snapshot[rejection]) rejectionCleared = true;
             if (snapshot.controls[submitControl].enabled === 0) pendingObserved = true;
             const freshRejection = rejection && snapshot[rejection]
@@ -97,7 +105,7 @@ export default async function recoverLockedAccount(page, options = {}) {
                         if (current.emailAvailable) return current;
                         const methods = current.availableMethods?.join(",") ?? "";
                         // Відсутність email підтверджуємо лише на стабільному завантаженому екрані.
-                        if (current.step !== "CHOOSE_RECOVERY_METHOD" || current.readyState !== "complete"
+                        if (current.step !== "CHOOSE_RECOVERY_METHOD" || current.readyState !== "complete" || current.loading
                             || !methods || current.availableMethods.includes("email") || methods !== previousMethods) {
                             stableSince = Date.now();
                             previousMethods = methods;
