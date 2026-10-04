@@ -628,7 +628,7 @@ export default function CampaignCreationWizard({
                     className="modal creative-launch-modal post-campaign-launch-modal"
                     onMouseDown={(event) => event.stopPropagation()}
                 >
-                    <button type="button" className="modal-close" disabled={creating} onClick={onClose}>
+                    <button type="button" className="modal-close" aria-label="??????? ?????" disabled={creating} onClick={onClose}>
                         <X size={18} />
                     </button>
                     <header className="creative-launch-header">
@@ -751,6 +751,10 @@ export default function CampaignCreationWizard({
                                 <span>Старт <b>{timezone}</b></span>
                                 <input type="datetime-local" step="60" value={form.startTime} onChange={(event) => change("startTime", event.target.value)} />
                             </label>
+                            <div className="launch-budget-grid">
+                                <label className="field"><span>Ad sets</span><input type="number" min="1" max="100" value={form.adSetCount} onChange={(event) => change("adSetCount", event.target.value)} /></label>
+                                <label className="field"><span>Бюджет / ad set, {adAccount.currency}</span><input type="number" min="0.01" step="0.01" value={form.dailyBudget} onChange={(event) => change("dailyBudget", event.target.value)} /></label>
+                            </div>
                             <div className="campaign-launch-statuses" aria-label="Статуси об'єктів після створення">
                                 {[
                                     ["campaign", "Кампанія"],
@@ -770,10 +774,6 @@ export default function CampaignCreationWizard({
                                         <i aria-hidden="true" />
                                     </label>
                                 ))}
-                            </div>
-                            <div className="launch-budget-grid">
-                                <label className="field"><span>Ad sets</span><input type="number" min="1" max="100" value={form.adSetCount} onChange={(event) => change("adSetCount", event.target.value)} /></label>
-                                <label className="field"><span>Бюджет / ad set, {adAccount.currency}</span><input type="number" min="0.01" step="0.01" value={form.dailyBudget} onChange={(event) => change("dailyBudget", event.target.value)} /></label>
                             </div>
                         </section>
 
