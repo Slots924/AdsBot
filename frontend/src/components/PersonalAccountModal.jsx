@@ -23,20 +23,21 @@ import {
 import { errorDetails, unwrap } from "../lib/api.js";
 import SearchSelect from "./SearchSelect.jsx";
 import SmsPoolPanel from "./SmsPoolPanel.jsx";
+import PersonalBusinessInfoForm from "./PersonalBusinessInfoForm.jsx";
 
 
 const defaultTargetUserId = "61594188892743";
 const defaultCategoryId = "802560142464893";
 const defaultBusiness = {
-    street1: "1600 Pennsylvania Avenue NW",
+    street1: "",
     street2: "",
-    city: "Washington",
-    state: "DC",
-    zip: "20500",
-    countryCode: "US",
+    city: "",
+    state: "",
+    zip: "",
+    countryCode: "",
     businessName: "",
-    currency: "USD",
-    timezone: "Europe/Kiev",
+    currency: "",
+    timezone: "",
 };
 
 const dialingCountryCodes = Object.freeze({
@@ -139,7 +140,8 @@ export default function PersonalAccountModal({
     const [fanPagePasswordRequest, setFanPagePasswordRequest] = useState(null);
     const [fanPagePassword, setFanPagePassword] = useState("");
     const [business, setBusiness] = useState(defaultBusiness);
-    const [businessEditor, setBusinessEditor] = useState(false);
+    const [businessCheckedFor, setBusinessCheckedFor] = useState("");
+    const [businessRefreshError, setBusinessRefreshError] = useState("");
     const [cardId, setCardId] = useState("");
     const [securityCode, setSecurityCode] = useState("");
     const [phoneDialingCode, setPhoneDialingCode] = useState("+1");
@@ -189,6 +191,12 @@ export default function PersonalAccountModal({
             setSelectedBmKey(businessManagers.find((item) => item.isPrimary)?.accountKey ?? businessManagers[0]?.accountKey ?? "");
         }
     }, [businessManagers, bmSelectionManual]);
+
+    useEffect(() => {
+        setBusiness(defaultBusiness);
+        setBusinessCheckedFor("");
+        setBusinessRefreshError("");
+    }, [adAccountId]);
 
     useEffect(() => {
         setAccessRequest(null);
@@ -628,9 +636,41 @@ export default function PersonalAccountModal({
 
                     {section === "business" && <section className="personal-section">
                         <div className="personal-section-heading"><div><span className="eyebrow">Ads Manager</span><h3>Рекламний кабінет і business info</h3><p>Спершу ініціалізуйте Ads Manager: програма отримає свіжі payload, token і список РК.</p></div>{adsManagerReady && <button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw className={busy === "accounts" ? "spin" : ""} size={16} /> Оновити РК</button>}</div>
-                        {!adsManagerReady ? <div className="personal-action-card"><h4>Ініціалізація Ads Manager</h4><p className="personal-note">Перехід у Ads Manager, отримання payload і token, після чого список доступних РК завантажиться автоматично.</p><button type="button" className="primary-button personal-main-action" disabled={Boolean(busy)} onClick={initializeAdsManager}><BriefcaseBusiness size={16} /> Ініціалізувати Ads Manager</button>{feedback["business.initialize"] && <SuccessNotice>{feedback["business.initialize"]}</SuccessNotice>}</div> : <><AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} />
-                        <div className="personal-inline-actions"><button type="button" className="secondary-button" disabled={!adAccountId || Boolean(busy)} onClick={() => requireSession() && run("business", () => window.adsBot.checkPersonalBusinessInfo(session.id, { adAccountId }), "Business info перевірено", "business.check")}>Перевірити business info</button><button type="button" className="primary-button" disabled={!adAccountId || Boolean(busy)} onClick={() => setBusinessEditor(true)}><BriefcaseBusiness size={16} /> Оновити business info</button></div>{feedback["business.check"] && <SuccessNotice>{feedback["business.check"]}</SuccessNotice>}
-                        {businessEditor && <div className="personal-action-card business-editor"><div className="personal-card-heading"><h4>Business information</h4><button type="button" className="icon-button" onClick={() => setBusinessEditor(false)}><X size={15} /></button></div><div className="personal-two-columns">{[["street1", "Адреса"], ["street2", "Адреса 2"], ["city", "Місто"], ["state", "Штат"], ["zip", "ZIP"], ["countryCode", "Країна"], ["businessName", "Назва бізнесу"], ["currency", "Валюта"], ["timezone", "Timezone"]].map(([key, label]) => <label className="field" key={key}><span>{label}</span><input value={business[key]} onChange={(event) => setBusiness({ ...business, [key]: event.target.value })} /></label>)}</div><div className="form-actions"><button type="button" className="secondary-button" onClick={() => setBusinessEditor(false)}>Назад</button><button type="button" className="primary-button" disabled={Boolean(busy)} onClick={async () => { const value = await run("business", () => window.adsBot.updatePersonalBusinessInfo(session.id, { adAccountId, currency: business.currency, timezone: business.timezone, tax: { businessName: business.businessName, businessAddress: business } }), "Business info успішно оновлено", "business.update"); if (value) setBusinessEditor(false); }}>Підтвердити</button></div>{feedback["business.update"] && <SuccessNotice>{feedback["business.update"]}</SuccessNotice>}</div>}</>}
+                        {!adsManagerReady && <div className="personal-action-card"><h4>Ініціалізація Ads Manager</h4><p className="personal-note">Відкрийте Ads Manager, щоб отримати токен і список РК.</p><button type="button" className="primary-button personal-main-action" disabled={Boolean(busy)} onClick={initializeAdsManager}><BriefcaseBusiness size={16} /> Ініціалізувати Ads Manager</button></div>}
+                        {adsManagerReady && <AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} disabled={Boolean(busy)} />}
+                        <PersonalBusinessInfoForm
+                            value={business}
+                            onChange={setBusiness}
+                            ready={Boolean(adsManagerReady && adAccountId && session)}
+                            checked={businessCheckedFor === adAccountId && Boolean(adAccountId)}
+                            busy={Boolean(busy)}
+                            refreshError={businessRefreshError}
+                            onCheck={async () => {
+                                if (!requireSession()) return;
+                                const selectedId = adAccountId;
+                                const value = await run("business", () => window.adsBot.checkPersonalBusinessInfo(session.id, { adAccountId: selectedId }), "Бізнес-інформацію перевірено", "business.check");
+                                if (value && selectedId === adAccountId) {
+                                    setBusiness((current) => ({ ...current, ...value }));
+                                    setBusinessCheckedFor(selectedId);
+                                    setBusinessRefreshError("");
+                                }
+                            }}
+                            onSave={async () => {
+                                if (!requireSession()) return;
+                                const selectedId = adAccountId;
+                                const value = await run("business", () => window.adsBot.updatePersonalBusinessInfo(session.id, {
+                                    adAccountId: selectedId,
+                                    currency: business.currency,
+                                    timezone: business.timezone,
+                                    tax: { businessName: business.businessName, businessAddress: business },
+                                }), "Бізнес-інформацію оновлено", "business.update");
+                                if (value && selectedId === adAccountId) {
+                                    setBusiness((current) => ({ ...current, ...value }));
+                                    setBusinessRefreshError(value.refreshError ?? "");
+                                }
+                            }}
+                        />
+
                     </section>}
 
                     {section === "payment" && <section className="personal-section"><div className="personal-section-heading"><div><span className="eyebrow">Billing</span><h3>Додати спосіб оплати</h3><p>Карта читається із зашифрованого локального сховища; CVC не зберігається.</p></div><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw size={16} /> Оновити РК</button></div><AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} /><label className="field"><span>Кредитна картка</span><select value={cardId} onChange={(event) => setCardId(event.target.value)}><option value="">Оберіть картку</option>{cards.map((card) => <option key={card.id} value={card.id}>{card.nickname.toUpperCase()} · {card.cardholderName} · {card.network} {card.last4} · {card.expiration}</option>)}</select></label>{activeCard && <div className="selected-card-summary"><strong>{activeCard.nickname.toUpperCase()}</strong><small>{activeCard.cardholderName} · {activeCard.network} •••• {activeCard.last4} · EXP {activeCard.expiration}{activeCard.postalCode ? ` · ZIP ${activeCard.postalCode}` : ""}</small></div>}<label className="field compact-field"><span>CVC · не зберігається</span><input type="password" inputMode="numeric" maxLength="4" value={securityCode} onChange={(event) => setSecurityCode(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button personal-main-action" disabled={!adAccountId || !cardId || !/^\d{3,4}$/.test(securityCode) || Boolean(busy)} onClick={async () => { const value = await run("payment", () => window.adsBot.addPersonalCreditCard(session.id, { adAccountId, cardId, securityCode }), "Спосіб оплати успішно додано", "payment.add", "Не вдалося додати карту"); if (value) setSecurityCode(""); }}><BadgeDollarSign size={16} /> Додати карту</button>{feedback["payment.add"] && <SuccessNotice>{feedback["payment.add"]}</SuccessNotice>}</section>}

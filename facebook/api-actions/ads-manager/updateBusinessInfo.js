@@ -15,12 +15,12 @@ const updateBusinessInfoFriendlyName = "BillingAccountInformationUtilsUpdateAcco
 const updateBusinessInfoDocId = "28163983213226133";
 
 const defaultBusinessAddress = Object.freeze({
-    street1: "1600 Pennsylvania Avenue NW",
+    street1: "",
     street2: "",
-    city: "Washington",
-    state: "DC",
-    zip: "20500",
-    countryCode: "US",
+    city: "",
+    state: "",
+    zip: "",
+    countryCode: "",
 });
 
 
@@ -100,10 +100,10 @@ export default async function updateBusinessInfo({
     page,
     commonPayload,
     billableAccountPaymentLegacyAccountId,
-    currency = "USD",
+    currency = null,
     deviceCountry = null,
     tax = {},
-    timezone = "Europe/Kiev",
+    timezone = "",
     uplLoggingData = null,
     clientMutationId = "10",
     includeCreateNewFromOldFragment = false,

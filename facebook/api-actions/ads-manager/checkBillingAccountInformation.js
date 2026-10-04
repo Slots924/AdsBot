@@ -48,6 +48,8 @@ function parseBillingAccountInformation(data, paymentAccountId) {
             postalCode: taxInfo?.intl_address?.postal_code ?? null,
         },
         taxId: taxInfo?.tax_id ?? null,
+        secondTaxId: taxInfo?.second_tax_id ?? null,
+        taxRegistrationStatus: taxInfo?.tax_registration_status ?? null,
         taxIdType: taxInfo?.tax_id_type_enum ?? null,
         isPersonal: taxInfo?.is_personal ?? null,
         businessVerificationType: taxInfo?.business_verification_type ?? null,

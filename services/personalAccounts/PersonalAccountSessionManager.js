@@ -22,6 +22,7 @@ import updateBusinessInfo from "../../facebook/api-actions/ads-manager/updateBus
 import addCreditCardPaymentMethod
     from "../../facebook/api-actions/ads-manager/addCreditCardPaymentMethod.js";
 import getBrowserAdAccounts from "../../facebook/api-actions/ads-manager/getAdAccounts.js";
+import getAdAccountBusinessInfo from "../../facebook/api-actions/ads-manager/getAdAccountBusinessInfo.js";
 import getBrowserBusinessManagers from "../../facebook/api-actions/ads-manager/getBrowserBusinessManagers.js";
 import requestAdAccountAccess from "../../facebook/api-actions/ads-manager/requestAdAccountAccess.js";
 import getAdAccountAccessRequest from "../../facebook/api-actions/ads-manager/getAdAccountAccessRequest.js";
@@ -847,13 +848,14 @@ export default class PersonalAccountSessionManager {
     checkBusinessInfo(sessionId, input) {
         return this.#perform(sessionId, "ads.business_info_check", async (session) => {
             await this.#ensureAdsManager(session, input.adAccountId);
-            const result = assertAction(await checkBillingAccountInformation({
+            await this.#ensureAccessToken(session);
+            const details = assertAction(await getAdAccountBusinessInfo({
                 page: session.page,
-                commonPayload: session.payload,
-                paymentAccountId: input.adAccountId,
+                accessToken: session.accessToken,
+                adAccountId: input.adAccountId,
                 timeout: 60000,
-            }), "Не вдалося перевірити business info");
-            return result.data;
+            }), "Не вдалося отримати бізнес-інформацію через Graph API");
+            return details.data;
         });
     }
 
@@ -861,17 +863,53 @@ export default class PersonalAccountSessionManager {
     updateBusinessInfo(sessionId, input) {
         return this.#perform(sessionId, "ads.business_info_update", async (session) => {
             await this.#ensureAdsManager(session, input.adAccountId);
-            const result = assertAction(await updateBusinessInfo({
+            await this.#ensureAccessToken(session);
+            const current = assertAction(await getAdAccountBusinessInfo({
+                page: session.page,
+                accessToken: session.accessToken,
+                adAccountId: input.adAccountId,
+                timeout: 60000,
+            }), "Не вдалося перевірити поточну бізнес-інформацію").data;
+            const address = input.tax?.businessAddress ?? {};
+            if (![address.street1, address.city, address.state, address.zip, address.countryCode]
+                .every((value) => String(value ?? "").trim())) {
+                throw new Error("Заповніть країну та обов’язкові поля адреси");
+            }
+            const billing = await checkBillingAccountInformation({
+                page: session.page,
+                commonPayload: session.payload,
+                paymentAccountId: input.adAccountId,
+                timeout: 60000,
+            });
+            if (!billing.success) throw new Error("Не вдалося перевірити податкові дані перед оновленням");
+            const taxInfo = billing.data?.businessInfo ?? {};
+            assertAction(await updateBusinessInfo({
                 page: session.page,
                 commonPayload: session.payload,
                 billableAccountPaymentLegacyAccountId: input.adAccountId,
-                currency: input.currency ?? "USD",
-                timezone: input.timezone ?? "Europe/Kiev",
+                currency: input.currency || current.currency,
+                timezone: input.timezone || current.timezone,
                 deviceCountry: input.deviceCountry ?? null,
-                tax: input.tax ?? {},
+                tax: {
+                    ...input.tax,
+                    businessName: taxInfo.businessName || current.businessName || input.tax?.businessName || "",
+                    taxId: taxInfo.taxId ?? "",
+                    secondTaxId: taxInfo.secondTaxId ?? "",
+                    taxRegistrationStatus: taxInfo.taxRegistrationStatus ?? "",
+                    isPersonalUse: taxInfo.isPersonal ?? false,
+                },
                 timeout: 60000,
             }), "Не вдалося оновити business info");
-            return result.data?.businessInfo ?? result.data;
+            const refreshed = await getAdAccountBusinessInfo({
+                page: session.page,
+                accessToken: session.accessToken,
+                adAccountId: input.adAccountId,
+                timeout: 60000,
+            });
+            return refreshed.success ? refreshed.data : {
+                ...current,
+                refreshError: refreshed.error ?? "Повторна перевірка не вдалася",
+            };
         });
     }
 
