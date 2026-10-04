@@ -10,6 +10,8 @@ Workflow: `facebook/workflows/recoverLockedAccount.js`. Результат мі�
 
 Наявність декількох email у recovery вимагає ручного уточнення: workflow завершується з `AMBIGUOUS_EMAIL_CONTACT`, не вибираючи випадкову адресу. Підтримуються англійські екрани, надані у прикладі. Невідомий екран очікується до таймауту, не клікається навмання.
 
+Екран `Confirm that this is your account` визначається як `CHOOSE_RECOVERY_METHOD`. Детектор збирає видимі методи `email`, `phone`, `whatsapp` у `availableMethods`; натискання email потребує активної кнопки. Якщо завантажений екран стабільно протягом секунди показує лише інші відомі методи, recovery повертає `NO_SUPPORTED_RECOVERY_METHOD` та список методів. Прихований заголовок, невідомий екран, завантаження або тимчасово неактивна кнопка email не є підставою для цього статусу. Загальний ліміт workflow за замовчуванням — 3 хвилини (`options.totalTimeout` може його змінити).
+
 ## Ручний запуск
 
 З кореня проєкту:
@@ -25,13 +27,13 @@ node scripts/manual/testFacebookLoginStatus.js 2244
 
 ## Firstmail та отримання коду
 
-`classes/Firstmail.js` використовує ImapFlow і MailParser. Типове з'єднання — `imap.firstmail.ltd:993` через TLS; hostname можна змінити через `FIRSTMAIL_IMAP_HOST`. Пошта відкривається лише для читання. Перед recovery-кліками перевіряються облікові дані та авторизація. Відсутній або неповний запис дає `FIRSTMAIL_CREDENTIALS_NOT_FOUND`, помилка авторизації — `FIRSTMAIL_AUTH_FAILED`, недоступне з'єднання — `FIRSTMAIL_CONNECTION_FAILED`.
+`classes/Firstmail.js` використовує ImapFlow і MailParser. Типове з'єднання — `imap.firstmail.ltd:993` через TLS; hostname можна змінити через `FIRSTMAIL_IMAP_HOST`. Пошта відкривається лише для читання. Облікові дані та авторизація перевіряються перед вибором email або відправленням коду, після визначення доступного методу. Відсутній або неповний запис дає `FIRSTMAIL_CREDENTIALS_NOT_FOUND`, помилка авторизації — `FIRSTMAIL_AUTH_FAILED`, недоступне з'єднання — `FIRSTMAIL_CONNECTION_FAILED`.
 
 Перед Next, який надсилає код, сервіс `services/mail/prepareFacebookCodeWaiter.js` фіксує UIDVALIDITY/UIDNEXT, підписується на нові листи та додатково перевіряє їх кожні 2 секунди. Межа UID відсікає попередні листи незалежно від прочитаності. Перевіряються точний відправник `security@facebookmail.com`, отримувач, відома тема і збіг шестизначного коду в темі та тілі. Код, отриманий до появи поля у Facebook, зберігається в пам'яті; його не втрачаємо через повільний DOM. Для однієї пошти допускається лише один активний waiter.
 
 Через 60 секунд без коду повертається `FIRSTMAIL_CODE_TIMEOUT`. Якщо UIDVALIDITY змінився або з'єднання обірвалось, workflow зупиняється з окремою помилкою; автоматичного читання старих листів, повторного надсилання або переходу до ручного коду немає. Якщо запуск почався вже на екрані коду без підготовленої межі UID, повертається `FIRSTMAIL_SEND_REQUIRED`; почніть recovery з початкового екрана. Відхилений Facebook код дає `FACEBOOK_CODE_REJECTED`.
 
-Якщо locked-акаунт не вдалося відновити, `ensureFacebookAccountActive()` додає тег Login Error через наявний сервіс. Ця гілка не додає BAN, навіть якщо після recovery змінився checkpoint URL. Обробка незалежно виявленого BANNED залишається окремою.
+Якщо locked-акаунт не вдалося відновити, `ensureFacebookAccountActive()` додає тег Login Error через наявний сервіс. Виняток — `NO_SUPPORTED_RECOVERY_METHOD`: для цього результату додається лише BAN, бо підтримуваний метод email недоступний. Зміна checkpoint URL сама по собі не є підставою для BAN у recovery. Обробка незалежно виявленого BANNED залишається окремою.
 
 Для ізольованих перевірок можна передати `options.requestConfirmationCode(context)` або `options.firstmailClient`. У робочому запуску за замовчуванням використовується Firstmail. Значення коду, облікові дані та вміст листів не журналюються. Журнал містить події підключення, готовності слухача, UID листів, причини відсіву, успіх і таймаути.
 

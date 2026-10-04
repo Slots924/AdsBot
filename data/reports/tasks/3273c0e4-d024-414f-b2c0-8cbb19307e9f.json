@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "3273c0e4-d024-414f-b2c0-8cbb19307e9f",
+  "taskId": "64e4cd92-7335-4833-b353-97e5e44618d9",
+  "type": "campaign",
+  "title": "DE | Creo_138 | 40+ 03/10 21:45",
+  "status": "failed",
+  "createdAt": "2026-10-03T18:45:45.903Z",
+  "startedAt": "2026-10-03T18:45:39.419Z",
+  "finishedAt": "2026-10-03T18:45:45.901Z",
+  "durationMs": 6482,
+  "inputSummary": {
+    "campaignJobId": "cf4244a2-a57e-492d-ae5e-4796b4421657",
+    "accountKey": "account-031",
+    "adAccountId": "act_29317685727823871",
+    "campaignName": "DE | Creo_138 | 40+ 03/10 21:45",
+    "templateId": 26,
+    "pageId": "1251747324697859",
+    "postId": "1251747324697859_122117330631467973",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-03T18:45:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": null,
+      "creativeId": null,
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Please reduce the amount of data you're asking for, then retry your request",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 1,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "campaign",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "cf4244a2-a57e-492d-ae5e-4796b4421657",
+    "accountKey": "account-031",
+    "adAccountId": "act_29317685727823871",
+    "uniqueKey": "campaign-job:cf4244a2-a57e-492d-ae5e-4796b4421657"
+  }
+}

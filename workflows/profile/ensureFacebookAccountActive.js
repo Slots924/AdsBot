@@ -48,8 +48,29 @@ export default async function ensureFacebookAccountActive(
 
         if (facebookState === "ACCOUNT_LOCK") {
             accountLockDetected = true;
-            const fixSucceeded = await fixAccountLock(page, { ...options, adsPower, profile });
+            let recoveryResult;
+            const fixSucceeded = await fixAccountLock(page, { ...options, adsPower, profile,
+                onRecoveryResult: async (result) => {
+                    recoveryResult = result;
+                    await options.onRecoveryResult?.(result);
+                },
+            });
             console.log(`Результат fixAccountLock: ${fixSucceeded}`);
+
+            if (recoveryResult?.code === "NO_SUPPORTED_RECOVERY_METHOD") {
+                accountLockDetected = false;
+                try {
+                    const markResult = await markProfileAsBanned(adsPower, profile);
+                    await options.onStep?.("account.lock.banned", {
+                        added: markResult.added, alreadyBanned: markResult.alreadyBanned,
+                        code: recoveryResult.code, availableMethods: recoveryResult.availableMethods,
+                    });
+                    console.log("Email для відновлення недоступний. Профіль позначено BAN.");
+                } catch (error) {
+                    console.error("Не вдалося додати тег BAN:", error.message);
+                }
+                return false;
+            }
 
             facebookState = await detectFacebookState(page);
             console.log(`Стан Facebook після fixAccountLock: ${facebookState}`);

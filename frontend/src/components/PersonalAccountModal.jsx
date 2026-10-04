@@ -136,6 +136,8 @@ export default function PersonalAccountModal({
     const [manualCategory, setManualCategory] = useState(false);
     const [categoryId, setCategoryId] = useState(defaultCategoryId);
     const [targetUserId, setTargetUserId] = useState(defaultTargetUserId);
+    const [fanPagePasswordRequest, setFanPagePasswordRequest] = useState(null);
+    const [fanPagePassword, setFanPagePassword] = useState("");
     const [business, setBusiness] = useState(defaultBusiness);
     const [businessEditor, setBusinessEditor] = useState(false);
     const [cardId, setCardId] = useState("");
@@ -222,7 +224,8 @@ export default function PersonalAccountModal({
         operation,
         successMessage,
         feedbackKey = key,
-        errorTitle = "Не вдалося виконати дію"
+        errorTitle = "Не вдалося виконати дію",
+        handleError
     ) => {
         if (busy) return null;
         setBusy(key);
@@ -235,7 +238,7 @@ export default function PersonalAccountModal({
             mark(key);
             return result;
         } catch (error) {
-            onError({ ...errorDetails(error), title: errorTitle });
+            if (!handleError?.(error)) onError({ ...errorDetails(error), title: errorTitle });
             return null;
         } finally {
             setBusy("");
@@ -275,6 +278,24 @@ export default function PersonalAccountModal({
         showToast?.("Спочатку запустіть профіль", "info");
         setSection("launch");
         return false;
+    };
+    const dismissFanPagePassword = () => {
+        setFanPagePassword("");
+        setFanPagePasswordRequest(null);
+    };
+    const grantFanPageAccess = async (password) => {
+        if (!requireSession() || busy) return;
+        const request = fanPagePasswordRequest ?? { sessionId: session.id, targetUserId };
+        const result = await run("fanpage", () => window.adsBot.grantPersonalFanPageAccess(request.sessionId, {
+            targetUserId: request.targetUserId,
+            ...(password === undefined ? {} : { password }),
+        }), "Запит на Full Access відправлено", "fanpage.access", "Не вдалося надати доступ до фанпейджа", (error) => {
+            if (error.code !== "FACEBOOK_PASSWORD_REQUIRED") return false;
+            setFanPagePasswordRequest({ ...request, message: error.message });
+            return true;
+        });
+        setFanPagePassword("");
+        if (result !== null) setFanPagePasswordRequest(null);
     };
     const refreshAccounts = async () => {
         if (!requireSession()) return;
@@ -601,7 +622,7 @@ export default function PersonalAccountModal({
                     {section === "fanpage" && <section className="personal-section personal-fanpage">
                         <div className="personal-section-heading"><div><span className="eyebrow">Facebook</span><h3>Фанпейдж</h3><p>Перед кожною дією програма перевіряє actor і отримує свіжий payload.</p></div></div>
                         <div className="personal-action-card"><div className="personal-card-heading"><h4>Вибрати фанпейдж</h4><button type="button" className="secondary-button" disabled={!session || Boolean(busy)} onClick={refreshSwitchableProfiles}><RefreshCw size={16} /> Оновити список</button></div><label className="field"><span>Пошук за назвою або Profile ID</span><input value={fanPageSearch} placeholder="Почніть вводити…" onChange={(event) => setFanPageSearch(event.target.value)} /></label><div className="fanpage-picker">{visibleFanPages.map((item) => <button type="button" key={item.id} className={selectedFanPageId === item.id ? "selected" : ""} onClick={() => setSelectedFanPageId(item.id)}><div className="fanpage-avatar">{item.photoUrl ? <img src={item.photoUrl} alt="" /> : <PanelsTopLeft size={16} />}</div><span><strong>{item.name || "Без назви"}</strong><small>Profile ID: {item.id}</small></span></button>)}{!visibleFanPages.length && <p className="personal-empty">Оновіть список, щоб отримати доступні фанпейджі.</p>}</div><button type="button" className="secondary-button" disabled={!selectedFanPage || Boolean(busy)} onClick={async () => { if (!requireSession()) return; const selectedName = selectedFanPage.name || "фанпейджу"; const value = await run("fanpage", () => window.adsBot.switchPersonalFanPage(session.id, { additionalProfileId: selectedFanPage.id }), `Перемкнено на: ${selectedName}`, "fanpage.switch"); if (value?.profiles) setSwitchableProfiles(value.profiles); if (value?.session) setSession(value.session); }}>Перемкнутися на вибрану фанпейджу</button></div>
-                        <div className="personal-action-card"><h4>Надати Full Access</h4><p className="personal-note">Доступ буде надано фанпейджі поточного Facebook actor у відкритій вкладці. Вибирати її у списку не потрібно.</p><label className="field"><span>Facebook User ID отримувача</span><input inputMode="numeric" value={targetUserId} onChange={(event) => setTargetUserId(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button" disabled={!targetUserId || Boolean(busy)} onClick={() => requireSession() && run("fanpage", () => window.adsBot.grantPersonalFanPageAccess(session.id, { targetUserId }), "Запит на Full Access відправлено", "fanpage.access")}>Надати доступ</button>{feedback["fanpage.access"] && <SuccessNotice>{feedback["fanpage.access"]}</SuccessNotice>}</div>
+                        <div className="personal-action-card"><h4>Надати Full Access</h4><p className="personal-note">Доступ буде надано фанпейджі поточного Facebook actor у відкритій вкладці. Вибирати її у списку не потрібно.</p><label className="field"><span>Facebook User ID отримувача</span><input inputMode="numeric" value={targetUserId} onChange={(event) => setTargetUserId(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button" disabled={!targetUserId || Boolean(busy)} onClick={() => void grantFanPageAccess()}>Надати доступ</button>{feedback["fanpage.access"] && <SuccessNotice>{feedback["fanpage.access"]}</SuccessNotice>}</div>
                         <div className="personal-action-card"><h4>Створення фанпейджа</h4><label className="field"><span>Назва</span><input value={fanName} onChange={(event) => setFanName(event.target.value)} /></label><label className="checkbox-line"><input type="checkbox" checked={manualCategory} onChange={(event) => setManualCategory(event.target.checked)} /><span><strong>Ввести ID категорії вручну</strong><small>Стандартне значення: {defaultCategoryId}</small></span></label><label className="field"><span>Category ID</span><input disabled={!manualCategory} value={categoryId} onChange={(event) => setCategoryId(event.target.value)} /></label><button type="button" className="primary-button" disabled={!fanName.trim() || Boolean(busy)} onClick={async () => { if (!requireSession()) return; const value = await run("fanpage", () => window.adsBot.createPersonalFanPage(session.id, { name: fanName, categoryId: manualCategory ? categoryId : "" }), "Фанпейдж успішно створено", "fanpage.create"); if (value) { setSwitchableProfiles(value.profiles ?? []); setSelectedFanPageId(value.additionalProfileId); setFanName(""); } }}><PanelsTopLeft size={16} /> Створити фанпейдж</button>{feedback["fanpage.create"] && <SuccessNotice>{feedback["fanpage.create"]}</SuccessNotice>}</div>
                     </section>}
 
@@ -630,5 +651,22 @@ export default function PersonalAccountModal({
             </div>
             <footer className="personal-account-footer"><div>{busy && <span><LoaderCircle className="spin" size={15} /> Виконується дія…</span>}{session?.reportPath && <small>Детальний звіт створюється автоматично</small>}</div><div><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={() => void close(false)}><LogOut size={16} /> Відключити Puppeteer</button><button type="button" className="danger-button" disabled={!session || Boolean(busy)} onClick={() => void close(true)}>Закрити профіль</button></div></footer>
         </div>
+        {fanPagePasswordRequest && <div className="overlay" onMouseDown={(event) => { event.stopPropagation(); if (!busy) dismissFanPagePassword(); }}>
+            <form className="modal" role="dialog" aria-modal="true" aria-labelledby="fanpage-password-title"
+                onMouseDown={(event) => event.stopPropagation()}
+                onKeyDown={(event) => { if (event.key === "Escape" && !busy) { event.stopPropagation(); dismissFanPagePassword(); } }}
+                onSubmit={(event) => { event.preventDefault(); if (fanPagePassword && !busy) void grantFanPageAccess(fanPagePassword); }}>
+                <h2 id="fanpage-password-title">Не вказано пароль Facebook</h2>
+                <p>{fanPagePasswordRequest.message}</p>
+                <label className="field"><span>Пароль Facebook</span><input type="password" autoFocus autoComplete="off"
+                    value={fanPagePassword} disabled={Boolean(busy)} onChange={(event) => setFanPagePassword(event.target.value)} /></label>
+                <div className="form-actions">
+                    <button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={dismissFanPagePassword}>Скасувати</button>
+                    <button type="submit" className="primary-button" disabled={!fanPagePassword || Boolean(busy)}>
+                        {busy ? <><LoaderCircle className="spin" size={16} /> Надання доступу…</> : "Повторити з цим паролем"}
+                    </button>
+                </div>
+            </form>
+        </div>}
     </div>;
 }

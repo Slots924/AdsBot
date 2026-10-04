@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "id": "a2fdecf2-4a33-48cf-8d61-e331a00f5473",
+  "taskId": "11aa778e-c598-4baf-8191-576d5990fd41",
+  "type": "campaign",
+  "title": "DE | Creo_17 | 40+ 03/10 21:24",
+  "status": "failed",
+  "createdAt": "2026-10-03T18:26:16.269Z",
+  "startedAt": "2026-10-03T18:25:57.126Z",
+  "finishedAt": "2026-10-03T18:26:16.268Z",
+  "durationMs": 19142,
+  "inputSummary": {
+    "campaignJobId": "bd7f12ab-a2d5-404f-8644-3634d3b70027",
+    "accountKey": "account-031",
+    "adAccountId": "act_1788954092379996",
+    "campaignName": "DE | Creo_17 | 40+ 03/10 21:24",
+    "templateId": 26,
+    "pageId": "1272886725918152",
+    "postId": "1272886725918152_122095693047503197",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-03T18:24:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120251892636200096",
+      "creativeId": "2026438294735047",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120251892638390096",
+          "name": "DE | Creo_17 | 40+ 03/10 21:24 | AS 01"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120251892640170096",
+          "name": "DE | Creo_17 | 40+ 03/10 21:24 | AD 01"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Only active accounts can create or edit ads.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 100,
+      "graphSubcode": 1885316,
+      "graphUserTitle": "Disabled accounts can't create or edit ads",
+      "graphUserMessage": "Only active accounts can create or edit ads.",
+      "stage": "adset",
+      "itemIndex": 1,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "bd7f12ab-a2d5-404f-8644-3634d3b70027",
+    "accountKey": "account-031",
+    "adAccountId": "act_1788954092379996",
+    "uniqueKey": "campaign-job:bd7f12ab-a2d5-404f-8644-3634d3b70027"
+  }
+}

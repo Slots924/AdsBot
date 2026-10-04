@@ -10,7 +10,7 @@ import prepareFacebookCodeWaiter from "../../services/mail/prepareFacebookCodeWa
 const runningPages = new WeakSet();
 
 export default async function recoverLockedAccount(page, options = {}) {
-    const result = { recovered: false, passwordChanged: false, credentialsSaved: false, step: "UNKNOWN", code: null };
+    const result = { recovered: false, passwordChanged: false, credentialsSaved: false, step: "UNKNOWN", code: null, availableMethods: [] };
     if (runningPages.has(page)) return { ...result, code: "RECOVERY_ALREADY_RUNNING" };
     runningPages.add(page);
     const started = Date.now();
@@ -41,27 +41,27 @@ export default async function recoverLockedAccount(page, options = {}) {
         }
         const profile = await options.adsPower.getProfileById(options.profile.profile_id);
         let firstmail;
-        try { firstmail = getFirstmailCredentials(profile); } catch {
-            throw Object.assign(new Error("Облікові дані Firstmail не знайдені або неповні"), { code: "FIRSTMAIL_CREDENTIALS_NOT_FOUND" });
-        }
-        if (!firstmail) throw Object.assign(new Error("Облікові дані Firstmail не знайдені"), { code: "FIRSTMAIL_CREDENTIALS_NOT_FOUND" });
+        try { firstmail = getFirstmailCredentials(profile); } catch { firstmail = null; }
         const facebook = getFacebookCredentials(profile);
         await emitRecoveryStep(settings, "recovery.start", {
             timeout: settings.timeout, facebookCredentialsAvailable: Boolean(facebook), firstmailCredentialsAvailable: Boolean(firstmail),
         });
-        if (!requestCode) {
+        const ensureRecoveryMail = async () => {
+            if (!firstmail) throw Object.assign(new Error("Облікові дані Firstmail не знайдені або неповні"), { code: "FIRSTMAIL_CREDENTIALS_NOT_FOUND" });
+            if (requestCode || mailClient) return;
             mailClient = options.firstmailClient ?? new Firstmail(firstmail);
             await emitRecoveryStep(settings, "mail.auth.start");
             await mailClient.connect(settings.signal);
             await emitRecoveryStep(settings, "mail.auth.complete");
-        }
+        };
         for (let transitions = 0; transitions < 24; transitions += 1) {
             throwIfRecoveryAborted(settings.signal);
-            if (Date.now() - started > (settings.totalTimeout ?? 900000)) {
+            if (Date.now() - started > (settings.totalTimeout ?? 180000)) {
                 throw Object.assign(new Error("Перевищено загальний час recovery"), { code: "RECOVERY_TOTAL_TIMEOUT" });
             }
             const snapshot = await detectAccountRecoveryStep(page);
             result.step = snapshot.step;
+            if (snapshot.availableMethods?.length) result.availableMethods = snapshot.availableMethods;
             await emitRecoveryStep(settings, "state.detected", { transition: transitions, elapsedMs: Date.now() - started, step: snapshot.step });
             if (passwordSubmitted && ["AUTHENTICATED", "PROTECTION_DIALOG"].includes(snapshot.step)) {
                 result.passwordChanged = true;
@@ -88,11 +88,41 @@ export default async function recoverLockedAccount(page, options = {}) {
                     await clickRecoveryControl(page, "start", settings);
                     await nextStep(snapshot.step);
                     break;
+                case "CHOOSE_RECOVERY_METHOD": {
+                    let stableSince = Date.now();
+                    let previousMethods = snapshot.availableMethods.join(",");
+                    const selection = await waitRecoveryCondition(page, async () => {
+                        const current = await detectAccountRecoveryStep(page);
+                        if (current.step !== "CHOOSE_RECOVERY_METHOD" && current.step !== "UNKNOWN") return current;
+                        if (current.emailAvailable) return current;
+                        const methods = current.availableMethods?.join(",") ?? "";
+                        // Відсутність email підтверджуємо лише на стабільному завантаженому екрані.
+                        if (current.step !== "CHOOSE_RECOVERY_METHOD" || current.readyState !== "complete"
+                            || !methods || current.availableMethods.includes("email") || methods !== previousMethods) {
+                            stableSince = Date.now();
+                            previousMethods = methods;
+                            return false;
+                        }
+                        return Date.now() - stableSince >= 1000 ? current : false;
+                    }, settings, "доступні методи відновлення");
+                    if (selection.step !== "CHOOSE_RECOVERY_METHOD") break;
+                    result.availableMethods = selection.availableMethods;
+                    await emitRecoveryStep(settings, "recovery.methods", { availableMethods: result.availableMethods });
+                    if (!selection.emailAvailable) {
+                        throw Object.assign(new Error("Відновлення підтримується лише через email"), { code: "NO_SUPPORTED_RECOVERY_METHOD" });
+                    }
+                    await ensureRecoveryMail();
+                    await clickRecoveryControl(page, "email", settings);
+                    await nextStep(snapshot.step);
+                    break;
+                }
                 case "CHOOSE_EMAIL":
+                    await ensureRecoveryMail();
                     await clickRecoveryControl(page, "email", settings);
                     await nextStep(snapshot.step);
                     break;
                 case "EMAIL_CONTACT":
+                    await ensureRecoveryMail();
                     if (snapshot.emailContactCount !== 1) {
                         throw Object.assign(new Error("Неоднозначний вибір email"), { code: "AMBIGUOUS_EMAIL_CONTACT" });
                     }

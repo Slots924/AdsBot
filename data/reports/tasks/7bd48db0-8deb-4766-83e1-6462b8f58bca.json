@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "7bd48db0-8deb-4766-83e1-6462b8f58bca",
+  "taskId": "552dffe8-791b-40ed-84de-7f4d8073de3e",
+  "type": "campaign",
+  "title": "HU | Creo_138 | 40+ 03/10 21:44",
+  "status": "interrupted",
+  "createdAt": "2026-10-03T18:45:14.617Z",
+  "startedAt": "2026-10-03T18:45:04.617Z",
+  "finishedAt": "2026-10-03T18:45:14.616Z",
+  "durationMs": 9999,
+  "inputSummary": {
+    "campaignJobId": "c454c782-cee4-4beb-afc4-4e835ba5ef46",
+    "accountKey": "account-031",
+    "adAccountId": "act_29317685727823871",
+    "campaignName": "HU | Creo_138 | 40+ 03/10 21:44",
+    "templateId": 26,
+    "pageId": "842986062231301",
+    "postId": "842986062231301_122163856563069632",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-03T18:44:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120253385466280526",
+      "creativeId": "1094677236880156",
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Створення кампанії перервано",
+      "code": "CAMPAIGN_CREATION_INTERRUPTED",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "creative",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "c454c782-cee4-4beb-afc4-4e835ba5ef46",
+    "accountKey": "account-031",
+    "adAccountId": "act_29317685727823871",
+    "uniqueKey": "campaign-job:c454c782-cee4-4beb-afc4-4e835ba5ef46"
+  }
+}

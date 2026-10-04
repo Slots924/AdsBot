@@ -214,15 +214,6 @@ function isConnectionRefused(error) {
 }
 
 
-// Маскує пароль для діагностичного звіту, не розкриваючи його повністю.
-function maskReauthCredential(value) {
-    const credential = String(value ?? "");
-    if (!credential) return null;
-    if (credential.length < 3) return "***";
-    return `${credential[0]}${"*".repeat(credential.length - 2)}${credential.at(-1)}`;
-}
-
-
 function sessionError(message, code, details = {}) {
     return Object.assign(new Error(message), { code, ...details });
 }
@@ -416,6 +407,7 @@ export default class PersonalAccountSessionManager {
 
     refresh(sessionId) {
         return this.#perform(sessionId, "session.refresh", async (session) => {
+            session.profile = await this.adsPower.getProfileByNo(session.profileNo);
             session.payload = null;
             session.payloadUrl = "";
             session.facebookPayload = null;
@@ -741,7 +733,7 @@ export default class PersonalAccountSessionManager {
     grantFanPageAccess(sessionId, input = {}) {
         return this.#perform(sessionId, "fanpage.access_grant", async (session) => {
             const targetUserId = String(input.targetUserId ?? "").trim();
-            const credential = String(session.profile?.password ?? "");
+            const credential = String(input.password ?? session.profile?.password ?? "");
             if (!/^\d+$/.test(targetUserId)) {
                 throw sessionError(
                     "Потрібен числовий Facebook User ID отримувача",
@@ -777,8 +769,6 @@ export default class PersonalAccountSessionManager {
                 payloadAdditionalProfileId: additionalProfileId || null,
                 payloadAdditionalProfileIdIsNumeric: /^\d+$/.test(additionalProfileId),
                 reauthCredentialPresent: true,
-                reauthCredentialLength: credential.length,
-                reauthCredentialPreview: maskReauthCredential(credential),
             });
             if (!/^\d+$/.test(additionalProfileId)) {
                 throw sessionError(

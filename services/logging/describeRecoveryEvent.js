@@ -12,6 +12,7 @@ const reasons = {
     FACEBOOK_CODE_REJECTED: "Facebook відхилив отриманий код",
     RECOVERY_TIMEOUT: "Facebook не показав очікуваний елемент або наступний екран",
     RECOVERY_ABORTED: "Операцію скасовано",
+    NO_SUPPORTED_RECOVERY_METHOD: "Відновлення підтримується лише через email",
     CREDENTIALS_SAVE_FAILED: "Пароль змінено, але його збереження в AdsPower не підтверджено",
     sender_mismatch: "відправник не відповідає security@facebookmail.com",
     subject_mismatch: "тема не відповідає листу підтвердження Facebook",
@@ -22,6 +23,8 @@ const reasons = {
 };
 
 export default function describeRecoveryEvent(event, d = {}) {
+    const methodNames = { email: "email", phone: "телефон", whatsapp: "WhatsApp" };
+    const methods = (d.availableMethods ?? []).map((method) => methodNames[method] ?? method).join(", ");
     const reason = (value) => reasons[value] ?? value ?? "Причина невідома";
     switch (event) {
         case "state.detected": case "state.observed": return `Екран: ${d.step}`;
@@ -48,10 +51,12 @@ export default function describeRecoveryEvent(event, d = {}) {
         case "code.input.start": return "Вводимо код у Facebook";
         case "code.input.complete": return "Введення коду підтверджено";
         case "code.submit.complete": return "Код відправлено на перевірку Facebook";
-        case "recovery.failed": return `Recovery не завершено на ${d.step}: ${reason(d.code)}`;
+        case "recovery.methods": return `Доступні методи відновлення: ${methods}`;
+        case "recovery.failed": return `Recovery не завершено на ${d.step}: ${reason(d.code)}${d.code === "NO_SUPPORTED_RECOVERY_METHOD" ? `; доступні методи: ${methods}` : ""}`;
         case "recovery.complete": return "Recovery успішно завершено";
-        case "recovery.result": return `Результат: відновлено=${d.recovered}, пароль змінено=${d.passwordChanged}, збережено=${d.credentialsSaved}${d.code ? `; ${reason(d.code)}` : ""}`;
+        case "recovery.result": return `Результат: відновлено=${d.recovered}, пароль змінено=${d.passwordChanged}, збережено=${d.credentialsSaved}${d.code ? `; ${reason(d.code)}` : ""}${d.code === "NO_SUPPORTED_RECOVERY_METHOD" ? `; доступні методи: ${methods}` : ""}`;
         case "account.lock.login_error": return "Профіль позначено Login Error";
+        case "account.lock.banned": return `Профіль позначено BAN: email недоступний; доступні методи: ${methods}`;
         default: {
             const values = Object.entries(d).filter(([key]) => !["sequence", "timestamp", "elapsedMs", "event"].includes(key));
             return `${event}${values.length ? ` ${JSON.stringify(Object.fromEntries(values))}` : ""}`;

@@ -73,7 +73,10 @@ invalid.start();
 await assert.rejects(invalid.waitForCode(), { code: "FIRSTMAIL_UIDVALIDITY_CHANGED" });
 invalid.dispose();
 
-const missing = await recover({ evaluate: () => assert.fail("Не повинно бути DOM-кліків") }, {
+const missing = await recover({
+    evaluate: async () => ({ step: "CHOOSE_EMAIL", availableMethods: ["email"] }),
+    evaluateHandle: async () => assert.fail("Не повинно бути DOM-кліків без облікових даних пошти"),
+}, {
     adsPower: { getProfileById: async () => ({ platform_account: [] }) },
     profile: { profile_id: "mock" }, newPassword: "mock-new", onStep: () => {},
 });
