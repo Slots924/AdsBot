@@ -659,26 +659,6 @@ export default function CampaignCreationWizard({
                                 </button>
                             )}
                         </div>
-                        <div className="campaign-launch-statuses" aria-label="Статуси об'єктів після створення">
-                            {[
-                                ["campaign", "Кампанія"],
-                                ["adSet", "Ad set"],
-                                ["ad", "Оголошення"],
-                            ].map(([key, label]) => (
-                                <label key={key} className={`campaign-launch-switch ${launchStatuses[key] ? "active" : ""}`}>
-                                    <span>{label}</span>
-                                    <input
-                                        type="checkbox"
-                                        role="switch"
-                                        checked={launchStatuses[key]}
-                                        disabled={creating}
-                                        onChange={(event) => setLaunchStatuses((current) => ({ ...current, [key]: event.target.checked }))}
-                                        aria-label={`Увімкнути ${label.toLowerCase()} після створення`}
-                                    />
-                                    <i aria-hidden="true" />
-                                </label>
-                            ))}
-                        </div>
                     </header>
 
                     <div className="creative-launch-scroll">
@@ -771,6 +751,26 @@ export default function CampaignCreationWizard({
                                 <span>Старт <b>{timezone}</b></span>
                                 <input type="datetime-local" step="60" value={form.startTime} onChange={(event) => change("startTime", event.target.value)} />
                             </label>
+                            <div className="campaign-launch-statuses" aria-label="Статуси об'єктів після створення">
+                                {[
+                                    ["campaign", "Кампанія"],
+                                    ["adSet", "Ad set"],
+                                    ["ad", "Оголошення"],
+                                ].map(([key, label]) => (
+                                    <label key={key} className={`campaign-launch-switch ${launchStatuses[key] ? "active" : ""}`}>
+                                        <span>{label}</span>
+                                        <input
+                                            type="checkbox"
+                                            role="switch"
+                                            checked={launchStatuses[key]}
+                                            disabled={creating}
+                                            onChange={(event) => setLaunchStatuses((current) => ({ ...current, [key]: event.target.checked }))}
+                                            aria-label={`Увімкнути ${label.toLowerCase()} після створення`}
+                                        />
+                                        <i aria-hidden="true" />
+                                    </label>
+                                ))}
+                            </div>
                             <div className="launch-budget-grid">
                                 <label className="field"><span>Ad sets</span><input type="number" min="1" max="100" value={form.adSetCount} onChange={(event) => change("adSetCount", event.target.value)} /></label>
                                 <label className="field"><span>Бюджет / ad set, {adAccount.currency}</span><input type="number" min="0.01" step="0.01" value={form.dailyBudget} onChange={(event) => change("dailyBudget", event.target.value)} /></label>
