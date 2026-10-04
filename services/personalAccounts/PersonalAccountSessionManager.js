@@ -32,6 +32,7 @@ import acceptAdAccountAccessRequest from "../../facebook/api-actions/ads-manager
 import rejectAdAccountAccessRequest from "../../facebook/api-actions/ads-manager/rejectAdAccountAccessRequest.js";
 import getAdPixels from "../../facebook/api-actions/ads-manager/getAdPixels.js";
 import createAdPixel from "../../facebook/api-actions/ads-manager/createAdPixel.js";
+import checkPhoneVerification from "../../facebook/api-actions/phone-verification/checkPhoneVerification.js";
 import requestPhoneVerificationCode
     from "../../facebook/api-actions/phone-verification/requestPhoneVerificationCode.js";
 import submitPhoneVerificationCode
@@ -958,6 +959,22 @@ export default class PersonalAccountSessionManager {
     }
 
 
+    checkPhoneVerification(sessionId, input) {
+        return this.#perform(sessionId, "ads.phone_check", async (session) => {
+            if (new URL(session.page.url()).hostname !== "adsmanager.facebook.com") {
+                await this.#capture(session,
+                    `${adsManagerUrl}?act=${encodeURIComponent(input.adAccountId)}`, "ADS_MANAGER");
+            }
+            await this.#ensureAdsManager(session, input.adAccountId, { requireAccessToken: false });
+            return checkPhoneVerification({
+                page: session.page,
+                adAccountId: input.adAccountId,
+                timeout: 60000,
+            });
+        });
+    }
+
+
     requestPhoneCode(sessionId, input) {
         return this.#perform(sessionId, "ads.phone_code_request", async (session) => {
             await this.#ensureAdsManager(session, input.adAccountId);
@@ -1338,7 +1355,7 @@ export default class PersonalAccountSessionManager {
     }
 
 
-    async #ensureAdsManager(session, adAccountId = "") {
+    async #ensureAdsManager(session, adAccountId = "", { requireAccessToken = true } = {}) {
         const normalizedAdAccountId = String(adAccountId ?? "").replace(/^act_/, "").trim();
         const url = normalizedAdAccountId
             ? `${adsManagerUrl}?act=${normalizedAdAccountId}`
@@ -1355,7 +1372,7 @@ export default class PersonalAccountSessionManager {
             }), "Не вдалося перемкнути Facebook actor для Ads Manager");
             await this.#capture(session, url, "ADS_MANAGER");
         }
-        await this.#readAccessToken(session);
+        if (requireAccessToken) await this.#readAccessToken(session);
     }
 
 

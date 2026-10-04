@@ -1916,7 +1916,7 @@ button:focus-visible, input:focus-visible {
 .personal-create-row > .field { min-width: 260px; flex: 1; }
 .compact-field { max-width: 190px; }
 .selected-card-summary { display: grid; gap: 5px; padding: 14px 16px; }
-.phone-verification-row { display: grid; grid-template-columns: 76px minmax(150px,1fr) auto minmax(100px,.6fr) auto; align-items: end; gap: 10px; }
+.phone-verification-row { display: grid; grid-template-columns: 36px 76px minmax(150px,1fr) auto minmax(100px,.6fr) auto; align-items: end; gap: 10px; }
 .phone-verification-methods { display: flex; align-items: center; gap: 9px; }
 .phone-verification-method { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 7px 11px; border: 1px solid #343b4c; border-radius: 9px; color: #9ea7bb; background: #181c28; cursor: pointer; font: inherit; font-size: 13px; }
 .phone-verification-method::before { width: 8px; height: 8px; border-radius: 50%; background: #5e6678; content: ""; transition: background .15s, box-shadow .15s; }
@@ -2031,3 +2031,11 @@ button:focus-visible, input:focus-visible {
     .personal-profile-number > div { flex-wrap: wrap; }
     .personal-launch-panel .personal-status-grid, .personal-launch-panel .personal-status-grid.business { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
+
+.phone-verification-refresh { width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.phone-verification-notice-slot { min-height: 40px; }
+.phone-verification-notice { padding: 9px 12px; border: 1px solid; border-radius: 8px; font-size: 13px; }
+.phone-verification-notice.green { color: #8ee6af; border-color: #397853; background: #183125; }
+.phone-verification-notice.red { color: #ffabab; border-color: #884646; background: #361f25; }
+.phone-verification-notice.yellow { color: #f0d47d; border-color: #82703c; background: #332e1e; }
+@media (max-width: 1000px) { .phone-verification-row { grid-template-columns: 36px 76px minmax(0,1fr); } }

@@ -1426,6 +1426,12 @@ export default function registerIpcHandlers({
         ))
     );
     ipcMain.handle(
+        "personal-account:phone-check",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.checkPhoneVerification(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
         "personal-account:phone-request",
         safeHandler(({ sessionId, ...payload }) => (
             personalAccountSessionManager.requestPhoneCode(sessionId, payload)

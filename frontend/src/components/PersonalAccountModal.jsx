@@ -25,6 +25,7 @@ import SearchSelect from "./SearchSelect.jsx";
 import SmsPoolPanel from "./SmsPoolPanel.jsx";
 import PersonalBusinessInfoForm from "./PersonalBusinessInfoForm.jsx";
 import PersonalPaymentSources from "./PersonalPaymentSources.jsx";
+import PhoneVerificationNotice from "./PhoneVerificationNotice.jsx";
 import { addCardAndRefreshSources } from "../lib/personalPaymentSources.js";
 
 
@@ -157,6 +158,7 @@ export default function PersonalAccountModal({
     const [phoneCode, setPhoneCode] = useState("");
     const [phoneSent, setPhoneSent] = useState(false);
     const [phoneMethod, setPhoneMethod] = useState("SMS");
+    const [phoneCheck, setPhoneCheck] = useState(null);
     const [smsPoolDashboard, setSmsPoolDashboard] = useState({
         service: "Facebook / Meta Viewpoints",
         balance: null,
@@ -287,6 +289,13 @@ export default function PersonalAccountModal({
     const checkPaymentSources = async () => {
         if (!requireSession()) return;
         await run("payment.sources", async () => ({ ok: true, data: await fetchPaymentSources(session.id, adAccountId) }), null, "payment.sources", "Не вдалося перевірити способи оплати");
+    };
+    const checkPhone = async () => {
+        if (!session || !adAccountId || busy) return;
+        setPhoneCheck(null);
+        const value = await run("phone.check", () => window.adsBot.checkPersonalPhoneVerification(session.id, { adAccountId }),
+            null, "phone.check", "Не вдалося перевірити телефон", () => true);
+        setPhoneCheck({ sessionId: session.id, adAccountId, phoneStatus: value?.phoneStatus ?? "UNKNOWN", expiresAt: Date.now() + 5000 });
     };
     const addPaymentCard = async () => {
         if (!requireSession()) return;
@@ -742,8 +751,9 @@ export default function PersonalAccountModal({
 
                     {section === "phone" && <section className="personal-section">
                         <div className="personal-section-heading"><div><span className="eyebrow">Verification</span><h3>Підтвердження номера телефону</h3><p>Код країни можна вводити як з плюсом, так і без нього; Facebook отримає нормалізований E.164 номер.</p></div><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw size={16} /> Оновити РК</button></div>
-                        <AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} />
-                        <div className="phone-verification-row"><label className="field country"><span>Код країни</span><input inputMode="numeric" placeholder="+1" value={phoneDialingCode} onChange={(event) => { setPhoneDialingCode(event.target.value); setPhoneSent(false); setPhoneCode(""); }} /></label><label className="field"><span>Номер телефону</span><input inputMode="numeric" placeholder="2025550123" value={phone} onChange={(event) => { setPhone(event.target.value.replace(/\D/g, "").slice(0, 14)); setPhoneSent(false); setPhoneCode(""); }} /></label><button type="button" className="secondary-button" disabled={!adAccountId || !hasValidPhone || Boolean(busy)} onClick={async () => { const value = await run("phone", () => window.adsBot.requestPersonalPhoneCode(session.id, { adAccountId, phoneE164, countryCode: phoneCountryCode, locale: "en_US", method: phoneMethod }), `Facebook прийняв запит і надіслав код через ${phoneVerificationMethods.find((item) => item.value === phoneMethod)?.label ?? phoneMethod}`, "phone.sent"); setPhoneSent(Boolean(value)); }}>Надіслати код</button><label className="field"><span>Код підтвердження</span><input disabled={!phoneSent} inputMode="numeric" value={phoneCode} onChange={(event) => setPhoneCode(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button" disabled={!phoneSent || !/^\d{4,8}$/.test(phoneCode) || Boolean(busy)} onClick={async () => { const value = await run("phone", () => window.adsBot.submitPersonalPhoneCode(session.id, { code: phoneCode }), "Код прийнято, номер телефону підтверджено", "phone.verified"); if (value) { setPhoneSent(false); setPhoneCode(""); } }}>Підтвердити</button></div>
+                        <AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} disabled={Boolean(busy)} />
+                        <PhoneVerificationNotice key={`${session?.id}:${adAccountId}`} result={phoneCheck?.sessionId === session?.id && phoneCheck?.adAccountId === adAccountId ? phoneCheck : null} />
+                        <div className="phone-verification-row"><button type="button" className="secondary-button phone-verification-refresh" title="?????????? ????????? ????????" aria-label="?????????? ????????? ????????" disabled={!session || !adAccountId || Boolean(busy)} onClick={checkPhone}><RefreshCw size={16} className={busy === "phone.check" ? "spin" : ""} /></button><label className="field country"><span>Код країни</span><input inputMode="numeric" placeholder="+1" value={phoneDialingCode} onChange={(event) => { setPhoneDialingCode(event.target.value); setPhoneSent(false); setPhoneCode(""); }} /></label><label className="field"><span>Номер телефону</span><input inputMode="numeric" placeholder="2025550123" value={phone} onChange={(event) => { setPhone(event.target.value.replace(/\D/g, "").slice(0, 14)); setPhoneSent(false); setPhoneCode(""); }} /></label><button type="button" className="secondary-button" disabled={!adAccountId || !hasValidPhone || Boolean(busy)} onClick={async () => { const value = await run("phone", () => window.adsBot.requestPersonalPhoneCode(session.id, { adAccountId, phoneE164, countryCode: phoneCountryCode, locale: "en_US", method: phoneMethod }), `Facebook прийняв запит і надіслав код через ${phoneVerificationMethods.find((item) => item.value === phoneMethod)?.label ?? phoneMethod}`, "phone.sent"); setPhoneSent(Boolean(value)); }}>Надіслати код</button><label className="field"><span>Код підтвердження</span><input disabled={!phoneSent} inputMode="numeric" value={phoneCode} onChange={(event) => setPhoneCode(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button" disabled={!phoneSent || !/^\d{4,8}$/.test(phoneCode) || Boolean(busy)} onClick={async () => { const value = await run("phone", () => window.adsBot.submitPersonalPhoneCode(session.id, { code: phoneCode }), "Код прийнято, номер телефону підтверджено", "phone.verified"); if (value) { setPhoneSent(false); setPhoneCode(""); } }}>Підтвердити</button></div>
                         <div className="phone-verification-methods" role="radiogroup" aria-label="Спосіб отримання коду">{phoneVerificationMethods.map((item) => <button key={item.value} type="button" role="radio" aria-checked={phoneMethod === item.value} className={`phone-verification-method${phoneMethod === item.value ? " selected" : ""}`} disabled={Boolean(busy)} onClick={() => { setPhoneMethod(item.value); setPhoneSent(false); setPhoneCode(""); }}>{item.label}</button>)}</div>
                         <p className="personal-note">{phoneCountryCode ? `Facebook отримає ${phoneE164} · країна ${phoneCountryCode}.` : "Для цього коду країни ще немає ISO-відповідника."}</p>{feedback["phone.sent"] && <SuccessNotice>{feedback["phone.sent"]}</SuccessNotice>}{feedback["phone.verified"] && <SuccessNotice>{feedback["phone.verified"]}</SuccessNotice>}
                         <SmsPoolPanel sessionId={session?.id ?? null} adAccountId={adAccountId} dashboard={smsPoolDashboard} onDashboard={setSmsPoolDashboard} onOrderChange={applySmsPoolOrder} onError={onError} showToast={showToast} />

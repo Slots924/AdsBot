@@ -229,6 +229,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("personal-account:card-add", { sessionId, ...payload }),
     checkPersonalPaymentSources: (sessionId, payload) =>
         ipcRenderer.invoke("personal-account:payment-sources-check", { sessionId, ...payload }),
+    checkPersonalPhoneVerification: (sessionId, payload) =>
+        ipcRenderer.invoke("personal-account:phone-check", { sessionId, ...payload }),
     requestPersonalPhoneCode: (sessionId, payload) =>
         ipcRenderer.invoke("personal-account:phone-request", { sessionId, ...payload }),
     submitPersonalPhoneCode: (sessionId, payload) =>
