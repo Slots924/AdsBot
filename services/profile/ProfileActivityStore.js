@@ -57,6 +57,8 @@ function toProfile(row) {
         profileNo: row.profile_no,
         isBanned: Boolean(row.is_banned),
         accountType: row.account_type,
+        adsPowerGroupId: row.adspower_group_id,
+        adsPowerGroupName: row.adspower_group_name,
         bannedAt: row.banned_at,
         commentAccountSetupUiCount: Number(row.comment_account_setup_ui_count),
         commentAccountSetupApiCount: Number(row.comment_account_setup_api_count),
@@ -74,6 +76,7 @@ export default class ProfileActivityStore {
         this.databaseFile = databaseFile;
         this.db = null;
         this.initializing = null;
+        this.profileGroups = new Map();
     }
 
 
@@ -112,6 +115,17 @@ export default class ProfileActivityStore {
                 CREATE INDEX IF NOT EXISTS profile_activity_events_profile
                     ON profile_activity_events(profile_no, occurred_at DESC);
             `);
+            const columns = new Set(this.db.prepare("PRAGMA table_info(profile_activity)").all().map((column) => column.name));
+            if (!columns.has("adspower_group_id")) this.db.exec("ALTER TABLE profile_activity ADD COLUMN adspower_group_id TEXT");
+            if (!columns.has("adspower_group_name")) this.db.exec("ALTER TABLE profile_activity ADD COLUMN adspower_group_name TEXT");
+            if (!columns.has("track_adspower_group")) {
+                // Старі записи залишаються без групи; нові отримують її з оновлених даних.
+                this.db.exec("ALTER TABLE profile_activity ADD COLUMN track_adspower_group INTEGER NOT NULL DEFAULT 1");
+                this.db.exec("UPDATE profile_activity SET track_adspower_group = 0");
+            }
+            this.db.exec(`UPDATE profile_activity
+                SET total_target_actions = comment_task_count + comment_reactions_task_count
+                WHERE total_target_actions != comment_task_count + comment_reactions_task_count`);
             return this;
         })();
         try {
@@ -122,22 +136,47 @@ export default class ProfileActivityStore {
     }
 
 
+    async syncProfileGroups(profiles = []) {
+        await this.initialize();
+        const update = this.db.prepare(`UPDATE profile_activity
+            SET adspower_group_id = ?, adspower_group_name = ?
+            WHERE profile_no = ? AND is_banned = 0 AND track_adspower_group = 1`);
+        this.db.exec("BEGIN IMMEDIATE");
+        try {
+            for (const profile of profiles) {
+                const profileNo = normalizeProfileNo(profile?.profile_no);
+                const groupId = String(profile?.group_id ?? "").trim();
+                if (!profileNo || !groupId) continue;
+                const group = { id: groupId, name: String(profile.group_name ?? "").trim() };
+                this.profileGroups.set(profileNo, group);
+                update.run(group.id, group.name, profileNo);
+            }
+            this.db.exec("COMMIT");
+        } catch (error) {
+            this.db.exec("ROLLBACK");
+            throw error;
+        }
+    }
+
+
     async recordSuccessfulAction({ profileNo, actionType, outcome = "success", occurredAt = new Date().toISOString() } = {}) {
         const normalizedProfileNo = normalizeProfileNo(profileNo);
         const column = counterColumns[actionType];
         if (!normalizedProfileNo || !column) return false;
         await this.initialize();
+        const group = this.profileGroups.get(normalizedProfileNo);
+        const taskIncrement = [profileActivityTypes.COMMENT_TASK, profileActivityTypes.COMMENT_REACTIONS_TASK].includes(actionType) ? 1 : 0;
         this.db.exec("BEGIN IMMEDIATE");
         try {
             this.db.prepare(`
-                INSERT INTO profile_activity (profile_no, created_at, updated_at)
-                VALUES (?, ?, ?)
+                INSERT INTO profile_activity (profile_no, created_at, updated_at, adspower_group_id, adspower_group_name)
+                VALUES (?, ?, ?, ?, ?)
                 ON CONFLICT(profile_no) DO NOTHING
-            `).run(normalizedProfileNo, occurredAt, occurredAt);
+            `).run(normalizedProfileNo, occurredAt, occurredAt, group?.id ?? null, group?.name ?? null);
             this.db.prepare(`
                 UPDATE profile_activity SET
                     ${column} = ${column} + 1,
-                    total_target_actions = total_target_actions + 1,
+                    total_target_actions = total_target_actions + ${taskIncrement},
                     last_target_action_at = ?,
                     updated_at = ?
                 WHERE profile_no = ?
@@ -159,14 +198,15 @@ export default class ProfileActivityStore {
         const normalizedProfileNo = normalizeProfileNo(profileNo);
         if (!normalizedProfileNo) return false;
         await this.initialize();
+        const group = this.profileGroups.get(normalizedProfileNo);
         this.db.prepare(`
-            INSERT INTO profile_activity (profile_no, is_banned, banned_at, created_at, updated_at)
-            VALUES (?, 1, ?, ?, ?)
+            INSERT INTO profile_activity (profile_no, is_banned, banned_at, created_at, updated_at, adspower_group_id, adspower_group_name)
+            VALUES (?, 1, ?, ?, ?, ?, ?)
             ON CONFLICT(profile_no) DO UPDATE SET
                 is_banned = 1,
                 banned_at = COALESCE(profile_activity.banned_at, excluded.banned_at),
                 updated_at = excluded.updated_at
-        `).run(normalizedProfileNo, bannedAt, bannedAt, bannedAt);
+        `).run(normalizedProfileNo, bannedAt, bannedAt, bannedAt, group?.id ?? null, group?.name ?? null);
         return true;
     }
 

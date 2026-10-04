@@ -878,6 +878,9 @@ button:focus-visible, input:focus-visible {
 .profile-stats-table th { color: #818a9e; font-size: var(--font-caption); user-select: none; }
 .profile-stats-table th[draggable="true"] { cursor: grab; }
 .profile-stats-table tbody tr:hover { background: rgba(255,255,255,.035); }
+.profile-stats-table tbody tr.profile-stat-banned { background: rgba(239,68,68,.06); }
+.profile-stats-table tbody tr.profile-stat-banned:hover { background: rgba(239,68,68,.1); }
+.profile-stat-ban-badge { display: inline-flex; align-items: center; padding: 3px 8px; border: 1px solid rgba(248,113,113,.4); border-radius: 6px; background: rgba(239,68,68,.16); color: #fca5a5; font-weight: 700; }
 .profile-stats-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 9px; padding: 10px; color: var(--muted); font-size: var(--font-caption); }
 .profile-stat-check { color: #39c979; vertical-align: middle; }
 .profile-stats-comparison { margin-top: 24px; }

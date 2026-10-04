@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "id": "b616d501-3c50-42f1-938c-2466fde91419",
+  "taskId": "7e52adee-65b4-4008-93a5-dcf5c9a62595",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 813912285138400",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-04T13:36:15.955Z",
+  "startedAt": "2026-10-04T13:35:19.997Z",
+  "finishedAt": "2026-10-04T13:36:15.954Z",
+  "durationMs": 55957,
+  "inputSummary": {
+    "accountKey": "account-031",
+    "pageId": "813912285138400"
+  },
+  "resultSummary": {
+    "pageId": "813912285138400",
+    "avatar": {
+      "file": "1.png",
+      "photoId": "122148569877067169"
+    },
+    "cover": {
+      "file": "2.jpg",
+      "photoId": "122148569973067169"
+    },
+    "cleanup": {
+      "deletedPostIds": [
+        "813912285138400_122123585265067169"
+      ],
+      "deletedPhotoIds": [
+        "122147169291067169"
+      ],
+      "hiddenPostIds": []
+    },
+    "publications": [
+      {
+        "file": "466006223_10226849372485612_9129697245628093132_n.jpg",
+        "photoId": "122148570063067169",
+        "postId": "813912285138400_122148570111067169",
+        "backdatedTime": "2025-12-03T00:00:00.000Z"
+      },
+      {
+        "file": "490786847_10213203525519335_4875314191378743876_n 1.png",
+        "photoId": "122148570165067169",
+        "postId": "813912285138400_122148570207067169",
+        "backdatedTime": "2026-01-19T00:00:00.000Z"
+      },
+      {
+        "file": "550397506_10214069377445092_1365431252098787525_n 1.png",
+        "photoId": "122148570279067169",
+        "postId": "813912285138400_122148570327067169",
+        "backdatedTime": "2026-07-20T00:00:00.000Z"
+      }
+    ],
+    "warnings": [
+      {
+        "stage": "delete-photo",
+        "objectId": "122123585217067169",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      },
+      {
+        "stage": "delete-photo",
+        "objectId": "122123584917067169",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      },
+      {
+        "stage": "delete-photo",
+        "objectId": "122123584773067169",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      },
+      {
+        "stage": "delete-post",
+        "objectId": "813912285138400_122147169393067169",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 100,
+        "message": "Unsupported delete request. Object with ID '813912285138400_122147169393067169' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api"
+      }
+    ],
+    "resumed": false
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-031",
+    "pageId": "813912285138400",
+    "uniqueKey": "page-rebuild:account-031:813912285138400"
+  }
+}

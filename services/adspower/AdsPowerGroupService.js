@@ -91,7 +91,7 @@ export default class AdsPowerGroupService {
      * Збирає групи з усіх Profile API V2 pages і атомарно оновлює JSON.
      * @returns {Promise<Array<{groupId: string, groupName: string}>>}
      */
-    async refreshGroups() {
+    async refreshGroups({ onProfiles } = {}) {
         const profiles = await this.adsPower.getProfiles();
         const groups = collectUniqueGroups(profiles);
 
@@ -101,6 +101,7 @@ export default class AdsPowerGroupService {
                 "ADSPOWER_GROUPS_EMPTY"
             );
         }
+        if (onProfiles) await onProfiles(profiles);
 
         const directory = path.dirname(this.groupsFile);
         const temporaryFile = path.join(

@@ -8,7 +8,7 @@ beforeEach(() => {
         getLogScopes: vi.fn().mockResolvedValue({ ok: true, data: [] }),
         getLogs: vi.fn().mockResolvedValue({ ok: true, data: { items: [], nextCursor: null } }),
         getProfileActivity: vi.fn().mockResolvedValue({ ok: true, data: {
-            items: [{ profileNo: "mock-profile", isBanned: true, accountType: "api", commentAccountSetupApiCount: 2, commentAccountSetupUiCount: 3 }],
+            items: [{ profileNo: "mock-profile", isBanned: true, accountType: "api", adsPowerGroupName: "Тестова група", commentAccountSetupApiCount: 2, commentAccountSetupUiCount: 3 }],
             total: 1, totalPages: 1,
             comparison: {
                 tasks: [{ key: "comment_task", label: "Комент-задачі, середнє" }],
@@ -24,6 +24,12 @@ it("показує тільки останній тип, фільтрує ака
     fireEvent.click(screen.getByRole("button", { name: "Статистика" }));
     await screen.findByText("mock-profile");
     const row = screen.getByText("mock-profile").closest("tr");
+    expect(row).toHaveClass("profile-stat-banned");
+    expect(within(row).getByText("Забанено")).not.toHaveAttribute("title");
+    expect(within(row).getByText("Тестова група")).toBeInTheDocument();
+    const headers = within(row.closest("table")).getAllByRole("columnheader").map((item) => item.textContent);
+    expect(headers.indexOf("Група AdsPower")).toBe(headers.indexOf("Бан") - 1);
+    expect(headers).toContain("Всього задач");
     expect(within(row).getByLabelText("Оформлено через API")).toBeInTheDocument();
     expect(within(row).queryByLabelText("Оформлено через UI")).not.toBeInTheDocument();
     expect(screen.getByText("1,5")).toBeInTheDocument();

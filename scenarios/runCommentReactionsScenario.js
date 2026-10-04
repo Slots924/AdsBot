@@ -70,6 +70,7 @@ export default async function runCommentReactionsScenario({
             let result;
             try {
                 const profile = await adsPower.getProfileByNo(assignment.profileNo);
+                await profileActivityStore?.syncProfileGroups?.([profile]);
                 result = await reactWithProfile({
                     adsPower,
                     profile,

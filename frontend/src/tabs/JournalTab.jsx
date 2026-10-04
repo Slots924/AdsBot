@@ -31,12 +31,13 @@ const workflowReportLabels = {
 
 const profileStatColumns = [
     ["profileNo", "№ профілю"],
-    ["isBanned", "BAN"],
+    ["adsPowerGroupName", "Група AdsPower"],
+    ["isBanned", "Бан"],
     ["commentAccountSetupApiCount", "API акаунти"],
     ["commentAccountSetupUiCount", "UI акаунти"],
     ["commentTaskCount", "Комент-задачі"],
     ["commentReactionsTaskCount", "Лайк-задачі"],
-    ["totalTargetActions", "Всього"],
+    ["totalTargetActions", "Всього задач"],
     ["lastTargetActionAt", "Остання дія"],
     ["updatedAt", "Остання зміна"],
 ];
@@ -66,7 +67,13 @@ function readProfileStatColumns() {
         const valid = saved.filter((item) => known.has(item.key));
         const missing = profileStatColumns.filter(([key]) => !valid.some((item) => item.key === key))
             .map(([key]) => ({ key, visible: true }));
-        return [...valid, ...missing];
+        const result = [...valid];
+        for (const column of missing) {
+            const banIndex = result.findIndex((item) => item.key === "isBanned");
+            if (column.key === "adsPowerGroupName" && banIndex >= 0) result.splice(banIndex, 0, column);
+            else result.push(column);
+        }
+        return result;
     } catch {
         return profileStatColumns.map(([key]) => ({ key, visible: true }));
     }
@@ -398,10 +405,12 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
                     <thead><tr><th><input type="checkbox" aria-label="Вибрати всі профілі сторінки" checked={profileStats.length > 0 && selectedProfileNos.length === profileStats.length} onChange={(event) => setSelectedProfileNos(event.target.checked ? profileStats.map((item) => item.profileNo) : [])} /></th>
                         {visibleProfileStatColumns.map((column) => <th key={column.key} draggable onDragStart={() => setDraggedColumnKey(column.key)} onDragOver={(event) => event.preventDefault()} onDrop={() => { moveProfileStatColumn(draggedColumnKey, column.key); setDraggedColumnKey(null); }} title="Перетягніть, щоб змінити порядок">{profileStatLabel(column.key)}</th>)}
                     </tr></thead>
-                    <tbody>{profileStats.map((item) => <tr key={item.profileNo}><td><input type="checkbox" checked={selectedProfileNos.includes(item.profileNo)} onChange={(event) => setSelectedProfileNos((current) => event.target.checked ? [...new Set([...current, item.profileNo])] : current.filter((profileNo) => profileNo !== item.profileNo))} /></td>
+                    <tbody>{profileStats.map((item) => <tr key={item.profileNo} className={item.isBanned ? "profile-stat-banned" : undefined}><td><input type="checkbox" checked={selectedProfileNos.includes(item.profileNo)} onChange={(event) => setSelectedProfileNos((current) => event.target.checked ? [...new Set([...current, item.profileNo])] : current.filter((profileNo) => profileNo !== item.profileNo))} /></td>
                         {visibleProfileStatColumns.map((column) => <td key={column.key}>{["commentAccountSetupApiCount", "commentAccountSetupUiCount"].includes(column.key)
                             ? (item.accountType === (column.key === "commentAccountSetupApiCount" ? "api" : "ui") ? <Check className="profile-stat-check" size={18} aria-label={`Оформлено через ${accountTypeLabels[item.accountType]}`} /> : "—")
-                            : column.key === "isBanned" ? (item.isBanned ? "BAN" : "—") : column.key.endsWith("At") ? formatStatDate(item[column.key]) : item[column.key]}</td>)}
+                            : column.key === "isBanned" ? (item.isBanned ? <span className="profile-stat-ban-badge">Забанено</span> : "—")
+                                : column.key === "adsPowerGroupName" ? (item.adsPowerGroupName || item.adsPowerGroupId || "—")
+                                    : column.key.endsWith("At") ? formatStatDate(item[column.key]) : item[column.key]}</td>)}
                     </tr>)}</tbody>
                 </table>
                 {!loading && !profileStats.length && <div className="journal-empty">Статистики за цими фільтрами поки немає.</div>}

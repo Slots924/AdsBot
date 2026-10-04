@@ -579,7 +579,9 @@ export default class AdsBotGuiService {
 
     async refreshAdsPowerGroups() {
         this.logger.info("Отримуємо всі профілі через AdsPower Profile API V2…");
-        const groups = await this.adsPowerGroupService.refreshGroups();
+        const groups = await this.adsPowerGroupService.refreshGroups({
+            onProfiles: (profiles) => this.#profileActivityStore.syncProfileGroups(profiles),
+        });
         this.logger.info(`Оновлено груп AdsPower: ${groups.length}`);
         return groups;
     }
@@ -603,6 +605,7 @@ export default class AdsBotGuiService {
         const profiles = await this.adsPower.getProfilesByGroupId(
             normalizedGroupId
         );
+        await this.#profileActivityStore.syncProfileGroups(profiles);
         return profiles.map((profile) => ({
             profileId: String(profile.profile_id ?? ""),
             profileNo: String(profile.profile_no ?? ""),

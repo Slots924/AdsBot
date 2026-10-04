@@ -296,6 +296,7 @@ export default async function runParallelCommentAccountSetupScenario({
                     let profile;
                     try {
                         profile = await adsPower.getProfileByNo(profileNo);
+                        await profileActivityStore?.syncProfileGroups?.([profile]);
                     } catch (error) {
                         addReportItem({
                             profileNo,

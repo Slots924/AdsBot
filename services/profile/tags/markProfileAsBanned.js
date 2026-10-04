@@ -43,6 +43,7 @@ export default async function markProfileAsBanned(
         "2"
     );
     try {
+        await defaultProfileActivityStore.syncProfileGroups([profile]);
         await defaultProfileActivityStore.markBanned(profile.profile_no);
     } catch (error) {
         console.error("Не вдалося записати BAN у статистику профілю:", error.message);

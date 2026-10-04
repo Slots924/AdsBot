@@ -192,6 +192,7 @@ export default async function runParallelCommentingScenario({
         const profilesFromGroups = await Promise.all(
             normalizedGroupIds.map((groupId) => adsPower.getProfilesByGroupId(groupId))
         );
+        await profileActivityStore?.syncProfileGroups?.(profilesFromGroups.flat());
         assertNotAborted();
 
         const uniqueProfiles = [];
