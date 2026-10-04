@@ -24,6 +24,8 @@ import { errorDetails, unwrap } from "../lib/api.js";
 import SearchSelect from "./SearchSelect.jsx";
 import SmsPoolPanel from "./SmsPoolPanel.jsx";
 import PersonalBusinessInfoForm from "./PersonalBusinessInfoForm.jsx";
+import PersonalPaymentSources from "./PersonalPaymentSources.jsx";
+import { addCardAndRefreshSources } from "../lib/personalPaymentSources.js";
 
 
 const defaultTargetUserId = "61594188892743";
@@ -144,6 +146,12 @@ export default function PersonalAccountModal({
     const [businessRefreshError, setBusinessRefreshError] = useState("");
     const [cardId, setCardId] = useState("");
     const [securityCode, setSecurityCode] = useState("");
+    const [paymentSources, setPaymentSources] = useState(null);
+    const [paymentSourcesError, setPaymentSourcesError] = useState("");
+    const [paymentSourcesLoading, setPaymentSourcesLoading] = useState(false);
+    const paymentScope = `${session?.id ?? ""}:${adAccountId}`;
+    const paymentScopeRef = useRef(paymentScope);
+    paymentScopeRef.current = paymentScope;
     const [phoneDialingCode, setPhoneDialingCode] = useState("+1");
     const [phone, setPhone] = useState("");
     const [phoneCode, setPhoneCode] = useState("");
@@ -199,6 +207,13 @@ export default function PersonalAccountModal({
     }, [adAccountId]);
 
     useEffect(() => {
+        setPaymentSources(null);
+        setPaymentSourcesError("");
+        setPaymentSourcesLoading(false);
+        setFeedback((current) => ({ ...current, "payment.add": "" }));
+    }, [adAccountId, session?.id]);
+
+    useEffect(() => {
         setAccessRequest(null);
         setAccessState("");
     }, [selectedBusinessId, adAccountId]);
@@ -251,6 +266,42 @@ export default function PersonalAccountModal({
         } finally {
             setBusy("");
         }
+    };
+    const fetchPaymentSources = async (sessionId, accountId) => {
+        const scope = `${sessionId}:${accountId}`;
+        if (paymentScopeRef.current === scope) {
+            setPaymentSourcesLoading(true);
+            setPaymentSourcesError("");
+        }
+        try {
+            const result = await unwrap(window.adsBot.checkPersonalPaymentSources(sessionId, { adAccountId: accountId }));
+            if (paymentScopeRef.current === scope) setPaymentSources(result);
+            return result;
+        } catch (error) {
+            if (paymentScopeRef.current === scope) setPaymentSourcesError(error.message || "Помилка перевірки");
+            throw error;
+        } finally {
+            if (paymentScopeRef.current === scope) setPaymentSourcesLoading(false);
+        }
+    };
+    const checkPaymentSources = async () => {
+        if (!requireSession()) return;
+        await run("payment.sources", async () => ({ ok: true, data: await fetchPaymentSources(session.id, adAccountId) }), null, "payment.sources", "Не вдалося перевірити способи оплати");
+    };
+    const addPaymentCard = async () => {
+        if (!requireSession()) return;
+        const value = await run("payment", async () => ({
+            ok: true,
+            data: await addCardAndRefreshSources({
+                addCard: async () => {
+                    const result = await unwrap(window.adsBot.addPersonalCreditCard(session.id, { adAccountId, cardId, securityCode }));
+                    setSecurityCode("");
+                    return result;
+                },
+                refreshSources: () => fetchPaymentSources(session.id, adAccountId),
+            }),
+        }), "Спосіб оплати успішно додано", "payment.add", "Не вдалося додати карту");
+        return value;
     };
     const saveProfileName = async () => {
         const name = profileName.trim();
@@ -675,7 +726,19 @@ export default function PersonalAccountModal({
 
                     </section>}
 
-                    {section === "payment" && <section className="personal-section"><div className="personal-section-heading"><div><span className="eyebrow">Billing</span><h3>Додати спосіб оплати</h3><p>Карта читається із зашифрованого локального сховища; CVC не зберігається.</p></div><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw size={16} /> Оновити РК</button></div><AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} /><label className="field"><span>Кредитна картка</span><select value={cardId} onChange={(event) => setCardId(event.target.value)}><option value="">Оберіть картку</option>{cards.map((card) => <option key={card.id} value={card.id}>{card.nickname.toUpperCase()} · {card.cardholderName} · {card.network} {card.last4} · {card.expiration}</option>)}</select></label>{activeCard && <div className="selected-card-summary"><strong>{activeCard.nickname.toUpperCase()}</strong><small>{activeCard.cardholderName} · {activeCard.network} •••• {activeCard.last4} · EXP {activeCard.expiration}{activeCard.postalCode ? ` · ZIP ${activeCard.postalCode}` : ""}</small></div>}<label className="field compact-field"><span>CVC · не зберігається</span><input type="password" inputMode="numeric" maxLength="4" value={securityCode} onChange={(event) => setSecurityCode(event.target.value.replace(/\D/g, ""))} /></label><button type="button" className="primary-button personal-main-action" disabled={!adAccountId || !cardId || !/^\d{3,4}$/.test(securityCode) || Boolean(busy)} onClick={async () => { const value = await run("payment", () => window.adsBot.addPersonalCreditCard(session.id, { adAccountId, cardId, securityCode }), "Спосіб оплати успішно додано", "payment.add", "Не вдалося додати карту"); if (value) setSecurityCode(""); }}><BadgeDollarSign size={16} /> Додати карту</button>{feedback["payment.add"] && <SuccessNotice>{feedback["payment.add"]}</SuccessNotice>}</section>}
+                    {section === "payment" && <section className="personal-section">
+                        <div className="personal-section-heading"><div><span className="eyebrow">Billing</span><h3>Додати спосіб оплати</h3><p>Карта читається із зашифрованого локального сховища; CVC не зберігається.</p></div><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw size={16} /> Оновити РК</button></div>
+                        <AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} disabled={Boolean(busy)} />
+                        <PersonalPaymentSources result={paymentSources} loading={paymentSourcesLoading} error={paymentSourcesError} />
+                        <label className="field"><span>Кредитна картка</span><select value={cardId} onChange={(event) => setCardId(event.target.value)}><option value="">Оберіть картку</option>{cards.map((card) => <option key={card.id} value={card.id}>{card.nickname.toUpperCase()} · {card.cardholderName} · {card.network} {card.last4} · {card.expiration}</option>)}</select></label>
+                        {activeCard && <div className="selected-card-summary"><strong>{activeCard.nickname.toUpperCase()}</strong><small>{activeCard.cardholderName} · {activeCard.network} •••• {activeCard.last4} · EXP {activeCard.expiration}{activeCard.postalCode ? ` · ZIP ${activeCard.postalCode}` : ""}</small></div>}
+                        <label className="field compact-field"><span>CVC · не зберігається</span><input type="password" inputMode="numeric" maxLength="4" value={securityCode} onChange={(event) => setSecurityCode(event.target.value.replace(/\D/g, ""))} /></label>
+                        <div className="personal-inline-actions">
+                            <button type="button" className="primary-button personal-main-action" disabled={!session || !adAccountId || !cardId || !/^\d{3,4}$/.test(securityCode) || Boolean(busy)} onClick={addPaymentCard}><BadgeDollarSign size={16} /> Додати карту</button>
+                            <button type="button" className="secondary-button" disabled={!session || !adAccountId || Boolean(busy)} onClick={checkPaymentSources}><RefreshCw className={paymentSourcesLoading ? "spin" : ""} size={16} /> Перевірити способи оплати</button>
+                        </div>
+                        {feedback["payment.add"] && <SuccessNotice>{feedback["payment.add"]}</SuccessNotice>}
+                    </section>}
 
                     {section === "phone" && <section className="personal-section">
                         <div className="personal-section-heading"><div><span className="eyebrow">Verification</span><h3>Підтвердження номера телефону</h3><p>Код країни можна вводити як з плюсом, так і без нього; Facebook отримає нормалізований E.164 номер.</p></div><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw size={16} /> Оновити РК</button></div>

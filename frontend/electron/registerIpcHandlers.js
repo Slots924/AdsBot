@@ -1414,6 +1414,12 @@ export default function registerIpcHandlers({
         ))
     );
     ipcMain.handle(
+        "personal-account:payment-sources-check",
+        safeHandler(({ sessionId, ...payload }) => (
+            personalAccountSessionManager.checkPaymentSources(sessionId, payload)
+        ))
+    );
+    ipcMain.handle(
         "personal-account:card-add",
         safeHandler(({ sessionId, ...payload }) => (
             personalAccountSessionManager.addCreditCard(sessionId, payload)

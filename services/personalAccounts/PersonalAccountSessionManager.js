@@ -23,6 +23,7 @@ import addCreditCardPaymentMethod
     from "../../facebook/api-actions/ads-manager/addCreditCardPaymentMethod.js";
 import getBrowserAdAccounts from "../../facebook/api-actions/ads-manager/getAdAccounts.js";
 import getAdAccountBusinessInfo from "../../facebook/api-actions/ads-manager/getAdAccountBusinessInfo.js";
+import getAdAccountPaymentSources from "../../facebook/api-actions/ads-manager/getAdAccountPaymentSources.js";
 import getBrowserBusinessManagers from "../../facebook/api-actions/ads-manager/getBrowserBusinessManagers.js";
 import requestAdAccountAccess from "../../facebook/api-actions/ads-manager/requestAdAccountAccess.js";
 import getAdAccountAccessRequest from "../../facebook/api-actions/ads-manager/getAdAccountAccessRequest.js";
@@ -910,6 +911,21 @@ export default class PersonalAccountSessionManager {
                 ...current,
                 refreshError: refreshed.error ?? "Повторна перевірка не вдалася",
             };
+        });
+    }
+
+
+    checkPaymentSources(sessionId, input) {
+        return this.#perform(sessionId, "ads.payment_sources_check", async (session) => {
+            await this.#ensureAdsManager(session, input.adAccountId);
+            await this.#ensureAccessToken(session);
+            const result = assertAction(await getAdAccountPaymentSources({
+                page: session.page,
+                accessToken: session.accessToken,
+                adAccountId: input.adAccountId,
+                timeout: 60000,
+            }), "Не вдалося перевірити способи оплати");
+            return result.data;
         });
     }
 

@@ -1991,6 +1991,22 @@ button:focus-visible, input:focus-visible {
 .credit-card-meta { display: flex; gap: 18px; margin-top: 10px; color: #777e92; font-size: 12px; }
 .credit-card-meta strong { color: #c2c7d7; }
 .credit-card-actions { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 5px; }
+.personal-payment-sources { display: grid; min-width: 0; gap: 12px; }
+.personal-payment-sources-heading { display: grid; gap: 5px; }
+.personal-payment-sources-heading h4 { margin: 0; font-size: 16px; }
+.personal-payment-sources-heading > span { display: flex; align-items: center; gap: 7px; color: #8b95a8; font-size: 13px; line-height: 1.5; }
+.personal-payment-source-list { display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; width: min(420px,100%); }
+.personal-payment-source.credit-card-tile { min-height: 218px; }
+.personal-payment-source.placeholder { border-style: dashed; background: linear-gradient(145deg,#1c2030,#181c28); box-shadow: none; }
+.personal-payment-source .credit-card-top { gap: 12px; font-size: 13px; }
+.personal-payment-source .credit-card-top strong { color: #c9c2ed; overflow-wrap: anywhere; }
+.personal-payment-source .credit-card-number { font-size: 21px; overflow-wrap: anywhere; }
+.personal-payment-source-id { display: grid; gap: 3px; margin-top: 12px; font-size: 13px; }
+.personal-payment-source-id span { color: #8792a7; }
+.personal-payment-source-id strong { color: #c2c7d7; font-weight: 500; overflow-wrap: anywhere; }
+.personal-payment-sources-warning, .personal-payment-sources-note { margin: 0; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.personal-payment-sources-warning { color: #e5b879; }
+.personal-payment-sources-note { color: #8b95a8; }
 .credit-card-editor { display: grid; gap: 16px; padding: 20px; border: 1px solid #393f50; border-radius: 14px; background: #181c28; }
 .credit-card-editor-head { display: flex; align-items: center; justify-content: space-between; }
 .credit-card-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
