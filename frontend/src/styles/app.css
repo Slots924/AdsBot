@@ -384,14 +384,17 @@ button:focus-visible, input:focus-visible {
 .chip button { display: grid; place-items: center; padding: 0; color: inherit; background: transparent; }
 .clear-selection { color: #9298aa; border-color: var(--stroke); background: transparent; }
 
-.dropzone { display: flex; align-items: center; gap: 14px; min-height: 88px; padding: 16px; border: 1px dashed rgba(132,114,255,.3); border-radius: 15px; color: #8e84f5; background: rgba(132,114,255,.035); transition: .2s; }
+.image-list-dropzone { width: 100%; min-width: 0; max-width: 100%; }
+.dropzone { display: flex; align-items: center; gap: 14px; width: 100%; min-width: 0; max-width: 100%; min-height: 88px; padding: 16px; border: 1px dashed rgba(132,114,255,.3); border-radius: 15px; color: #8e84f5; background: rgba(132,114,255,.035); transition: .2s; }
+.dropzone > svg, .dropzone > button { flex-shrink: 0; }
 .dropzone.dragging { transform: scale(1.01); border-color: var(--accent); background: rgba(132,114,255,.1); }
 .dropzone-copy { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .dropzone-copy strong, .dropzone-copy span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dropzone-copy strong { color: #d8d9e5; font-size: var(--font-control); }
 .dropzone-copy span { color: var(--muted); font-size: var(--font-meta); }
-.post-image-list { display: grid; gap: 8px; margin-top: 10px; }
-.post-image-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid rgba(132,114,255,.2); border-radius: 10px; background: #1b1b2b; }
+.post-image-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; width: 100%; min-width: 0; max-width: 100%; margin-top: 10px; }
+.post-image-item { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; min-width: 0; max-width: 100%; padding: 8px; border: 1px solid rgba(132,114,255,.2); border-radius: 10px; background: #1b1b2b; }
+.post-image-item > :not(strong) { flex-shrink: 0; }
 .post-image-item img { width: 52px; height: 52px; object-fit: cover; border-radius: 7px; background: rgba(255,255,255,.06); }
 .post-image-item strong { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .post-image-drag-handle { display: grid; place-items: center; align-self: stretch; width: 25px; padding: 0; border: 0; border-radius: 6px; color: #9c92d5; background: rgba(132,114,255,.08); cursor: grab; touch-action: none; }

@@ -32,7 +32,7 @@ export default function ImageListDropzone({ value = [], onChange, disabled }) {
         const response = await window.adsBot.selectImages();
         if (response.ok && Array.isArray(response.data)) addPaths(response.data);
     };
-    return <div>
+    return <div className="image-list-dropzone">
         <div className="dropzone" onDragOver={(event) => event.preventDefault()} onDrop={(event) => {
             event.preventDefault();
             if (disabled) return;

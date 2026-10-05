@@ -35,7 +35,7 @@ export default function ImageDropzone({ value, onChange, disabled }) {
             <ImagePlus size={25} />
             {value ? (
                 <div className="dropzone-copy">
-                    <strong>{value.split(/[\\/]/).pop()}</strong>
+                    <strong title={value}>{value.split(/[\\/]/).pop()}</strong>
                     <span title={value}>{value}</span>
                 </div>
             ) : (

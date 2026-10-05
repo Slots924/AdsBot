@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "id": "dd80ab97-67aa-45eb-bedc-6f81f45b5332",
+  "taskId": "55a6c915-fe00-4a1f-97a8-8d92799164a4",
+  "type": "campaign",
+  "title": "DE | Creo_138 | 40+ 04/10 21:46",
+  "status": "failed",
+  "createdAt": "2026-10-04T18:47:30.712Z",
+  "startedAt": "2026-10-04T18:46:39.042Z",
+  "finishedAt": "2026-10-04T18:47:30.711Z",
+  "durationMs": 51669,
+  "inputSummary": {
+    "campaignJobId": "35e0f5c7-ef1f-46fe-ba5d-5eea2f7d7fb7",
+    "accountKey": "account-031",
+    "adAccountId": "act_2074233386554956",
+    "campaignName": "DE | Creo_138 | 40+ 04/10 21:46",
+    "templateId": 26,
+    "pageId": "1251747324697859",
+    "postId": "1251747324697859_122120424087467973",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-10-04T18:46:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "52683855090424",
+      "creativeId": "4502734280053519",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "52683855099024",
+          "name": "DE | Creo_138 | 40+ 04/10 21:46 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "52683855128024",
+          "name": "DE | Creo_138 | 40+ 04/10 21:46 | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "52683855145024",
+          "name": "DE | Creo_138 | 40+ 04/10 21:46 | AS 03"
+        },
+        {
+          "index": 3,
+          "id": "52683855161624",
+          "name": "DE | Creo_138 | 40+ 04/10 21:46 | AS 04"
+        },
+        {
+          "index": 4,
+          "id": "52683855181624",
+          "name": "DE | Creo_138 | 40+ 04/10 21:46 | AS 05"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "52683855115624",
+          "name": "DE | Creo_138 | 40+ 04/10 21:46 | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "52683855141024",
+          "name": "DE | Creo_138 | 40+ 04/10 21:46 | AD 02"
+        },
+        {
+          "index": 2,
+          "id": "52683855157624",
+          "name": "DE | Creo_138 | 40+ 04/10 21:46 | AD 03"
+        },
+        {
+          "index": 3,
+          "id": "52683855168424",
+          "name": "DE | Creo_138 | 40+ 04/10 21:46 | AD 04"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Ad account status is ineligible to manage ads. To create or edit ads, resolve the account status issue: https://www.facebook.com/business/help/422289316306981",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 200,
+      "graphSubcode": 2490592,
+      "graphUserTitle": "Ad account not writable",
+      "graphUserMessage": "Ad account status is ineligible to manage ads. To create or edit ads, resolve the account status issue: https://www.facebook.com/business/help/422289316306981",
+      "stage": "ad",
+      "itemIndex": 4,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "35e0f5c7-ef1f-46fe-ba5d-5eea2f7d7fb7",
+    "accountKey": "account-031",
+    "adAccountId": "act_2074233386554956",
+    "uniqueKey": "campaign-job:35e0f5c7-ef1f-46fe-ba5d-5eea2f7d7fb7"
+  }
+}

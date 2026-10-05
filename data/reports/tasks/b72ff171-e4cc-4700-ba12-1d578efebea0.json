@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "id": "b72ff171-e4cc-4700-ba12-1d578efebea0",
+  "taskId": "556cb232-001e-4900-a201-55720e859bae",
+  "type": "campaign",
+  "title": "DE | Creo_138 | 40+ 04/10 21:41",
+  "status": "failed",
+  "createdAt": "2026-10-04T18:42:21.382Z",
+  "startedAt": "2026-10-04T18:41:41.377Z",
+  "finishedAt": "2026-10-04T18:42:21.381Z",
+  "durationMs": 40004,
+  "inputSummary": {
+    "campaignJobId": "b55c3353-a510-44d6-a435-0b048cd876f3",
+    "accountKey": "account-031",
+    "adAccountId": "act_1116293474181839",
+    "campaignName": "DE | Creo_138 | 40+ 04/10 21:41",
+    "templateId": 26,
+    "pageId": "1251747324697859",
+    "postId": "1251747324697859_122120424087467973",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-10-04T18:41:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "52555135044165",
+      "creativeId": "1456248983072926",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "52555135061765",
+          "name": "DE | Creo_138 | 40+ 04/10 21:41 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "52555135078965",
+          "name": "DE | Creo_138 | 40+ 04/10 21:41 | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "52555135089965",
+          "name": "DE | Creo_138 | 40+ 04/10 21:41 | AS 03"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "52555135073565",
+          "name": "DE | Creo_138 | 40+ 04/10 21:41 | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "52555135086365",
+          "name": "DE | Creo_138 | 40+ 04/10 21:41 | AD 02"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "You can't perform the requested action because your account is disabled.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 200,
+      "graphSubcode": 1359005,
+      "graphUserTitle": "Your Account Is Disabled",
+      "graphUserMessage": "You can't perform the requested action because your account is disabled.",
+      "stage": "ad",
+      "itemIndex": 2,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "b55c3353-a510-44d6-a435-0b048cd876f3",
+    "accountKey": "account-031",
+    "adAccountId": "act_1116293474181839",
+    "uniqueKey": "campaign-job:b55c3353-a510-44d6-a435-0b048cd876f3"
+  }
+}

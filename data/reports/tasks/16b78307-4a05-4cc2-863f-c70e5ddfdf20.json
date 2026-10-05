@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "id": "16b78307-4a05-4cc2-863f-c70e5ddfdf20",
+  "taskId": "62b1fa68-f46c-4e59-ac9f-45401f3ccdec",
+  "type": "campaign",
+  "title": "AT | Creo_138 | 40+ 04/10 22:36",
+  "status": "failed",
+  "createdAt": "2026-10-04T19:38:20.213Z",
+  "startedAt": "2026-10-04T19:37:41.998Z",
+  "finishedAt": "2026-10-04T19:38:20.213Z",
+  "durationMs": 38215,
+  "inputSummary": {
+    "campaignJobId": "4724e1f2-f7c2-4f4b-97f6-6c1ea17225c2",
+    "accountKey": "account-031",
+    "adAccountId": "act_802684762259089",
+    "campaignName": "AT | Creo_138 | 40+ 04/10 22:36",
+    "templateId": 23,
+    "pageId": "1437866019399969",
+    "postId": "1437866019399969_122094974973499318",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-04T19:36:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120253369427960750",
+      "creativeId": "1051634481212507",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120253369428630750",
+          "name": "AT | Creo_138 | 40+ 04/10 22:36 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120253369429540750",
+          "name": "AT | Creo_138 | 40+ 04/10 22:36 | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120253369430120750",
+          "name": "AT | Creo_138 | 40+ 04/10 22:36 | AS 03"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120253369429170750",
+          "name": "AT | Creo_138 | 40+ 04/10 22:36 | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "120253369429990750",
+          "name": "AT | Creo_138 | 40+ 04/10 22:36 | AD 02"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Ad account status is ineligible to manage ads. To create or edit ads, resolve the account status issue: https://www.facebook.com/business/help/422289316306981",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 200,
+      "graphSubcode": 2490592,
+      "graphUserTitle": "Ad account not writable",
+      "graphUserMessage": "Ad account status is ineligible to manage ads. To create or edit ads, resolve the account status issue: https://www.facebook.com/business/help/422289316306981",
+      "stage": "ad",
+      "itemIndex": 2,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "4724e1f2-f7c2-4f4b-97f6-6c1ea17225c2",
+    "accountKey": "account-031",
+    "adAccountId": "act_802684762259089",
+    "uniqueKey": "campaign-job:4724e1f2-f7c2-4f4b-97f6-6c1ea17225c2"
+  }
+}
