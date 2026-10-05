@@ -55,6 +55,8 @@ try {
     const frozen = (await store.list()).items.find((item) => item.profileNo === "live");
     assert.equal(frozen.adsPowerGroupId, "2");
     assert.equal(frozen.adsPowerGroupName, "Друга група");
+    await setup("live", types.COMMENT_TASK, "2026-04-01T10:00:00Z");
+    assert.equal((await store.list()).items.find((item) => item.profileNo === "live").adsPowerGroupName, "Друга група");
     const before = (await store.list({ bannedOnly: false })).total;
     await store.syncProfileGroups([{ profile_no: "new", group_id: "4", group_name: "Нова група" }]);
     assert.equal((await store.list({ bannedOnly: false })).total, before);
@@ -74,6 +76,8 @@ try {
     legacy = new ProfileActivityStore({ databaseFile });
     await legacy.recordSuccessfulAction({ profileNo: "old", actionType: types.COMMENT_ACCOUNT_SETUP_API });
     await legacy.recordSuccessfulAction({ profileNo: "old", actionType: types.COMMENT_TASK });
+    await legacy.recordSuccessfulAction({ profileNo: "idle", actionType: types.COMMENT_TASK });
+    await legacy.markBanned("banned-old");
     // Відтворюємо попередню схему та загальний лічильник з оформленням акаунта.
     legacy.db.exec(`ALTER TABLE profile_activity DROP COLUMN adspower_group_id;
         ALTER TABLE profile_activity DROP COLUMN adspower_group_name;
@@ -83,20 +87,37 @@ try {
     legacy = null;
     migrated = new ProfileActivityStore({ databaseFile });
     await migrated.syncProfileGroups([
-        { profile_no: "old", group_id: "1", group_name: "Не заповнювати" },
+        { profile_no: "old", group_id: "1", group_name: "Поточна" },
+        { profile_no: "idle", group_id: "1", group_name: "Поточна" },
+        { profile_no: "banned-old", group_id: "1", group_name: "Поточна" },
         { profile_no: "fresh", group_id: "2", group_name: "Нова" },
     ]);
+    assert.equal((await migrated.list({ bannedOnly: false })).items.find((item) => item.profileNo === "old").adsPowerGroupName, null);
+    await migrated.recordSuccessfulAction({ profileNo: "old", actionType: types.COMMENT_TASK });
+    assert.equal((await migrated.list({ bannedOnly: false })).items.find((item) => item.profileNo === "old").adsPowerGroupName, "Поточна");
+    await migrated.syncProfileGroups([{ profile_no: "old", group_id: "3", group_name: "Оновлена" }]);
+    await migrated.recordSuccessfulAction({ profileNo: "old", actionType: types.COMMENT_REACTIONS_TASK });
+    const updated = (await migrated.list({ bannedOnly: false })).items.find((item) => item.profileNo === "old");
+    assert.equal(updated.adsPowerGroupId, "3");
+    assert.equal(updated.adsPowerGroupName, "Оновлена");
+    await migrated.recordSuccessfulAction({ profileNo: "banned-old", actionType: types.COMMENT_TASK });
+    const untouched = (await migrated.list({ bannedOnly: false })).items;
+    assert.equal(untouched.find((item) => item.profileNo === "idle").adsPowerGroupName, null);
+    assert.equal(untouched.find((item) => item.profileNo === "banned-old").adsPowerGroupName, null);
     await migrated.recordSuccessfulAction({ profileNo: "old", actionType: types.COMMENT_ACCOUNT_SETUP_UI });
     await migrated.markBanned("old");
     await migrated.markBanned("fresh");
     const result = await migrated.list();
-    assert.equal(result.items.find((item) => item.profileNo === "old").totalTargetActions, 1);
-    assert.equal(result.items.find((item) => item.profileNo === "old").adsPowerGroupName, null);
+    assert.equal(result.items.find((item) => item.profileNo === "old").totalTargetActions, 3);
+    assert.equal(result.items.find((item) => item.profileNo === "old").adsPowerGroupName, "Оновлена");
     assert.equal(result.items.find((item) => item.profileNo === "fresh").adsPowerGroupName, "Нова");
     migrated.db.close();
     migrated = new ProfileActivityStore({ databaseFile });
     await migrated.syncProfileGroups([{ profile_no: "fresh", group_id: "3", group_name: "Архів" }]);
     assert.equal((await migrated.list()).items.find((item) => item.profileNo === "fresh").adsPowerGroupName, "Нова");
+    await migrated.syncProfileGroups([{ profile_no: "old", group_id: "4", group_name: "Архів" }]);
+    await migrated.recordSuccessfulAction({ profileNo: "old", actionType: types.COMMENT_TASK });
+    assert.equal((await migrated.list()).items.find((item) => item.profileNo === "old").adsPowerGroupName, "Оновлена");
     console.log("Міграція статистики та фіксація групи після бану: перевірки пройшли");
 } finally {
     legacy?.db?.close();

@@ -119,7 +119,7 @@ export default class ProfileActivityStore {
             if (!columns.has("adspower_group_id")) this.db.exec("ALTER TABLE profile_activity ADD COLUMN adspower_group_id TEXT");
             if (!columns.has("adspower_group_name")) this.db.exec("ALTER TABLE profile_activity ADD COLUMN adspower_group_name TEXT");
             if (!columns.has("track_adspower_group")) {
-                // Старі записи залишаються без групи; нові отримують її з оновлених даних.
+                // Старі записи починають оновлювати групу після наступної виконаної задачі.
                 this.db.exec("ALTER TABLE profile_activity ADD COLUMN track_adspower_group INTEGER NOT NULL DEFAULT 1");
                 this.db.exec("UPDATE profile_activity SET track_adspower_group = 0");
             }
@@ -173,6 +173,14 @@ export default class ProfileActivityStore {
                 VALUES (?, ?, ?, ?, ?)
                 ON CONFLICT(profile_no) DO NOTHING
             `).run(normalizedProfileNo, occurredAt, occurredAt, group?.id ?? null, group?.name ?? null);
+            // Виконана задача дозволяє оновлювати групу і для старого незабаненого профілю.
+            this.db.prepare(`
+                UPDATE profile_activity SET
+                    track_adspower_group = 1,
+                    adspower_group_id = COALESCE(?, adspower_group_id),
+                    adspower_group_name = COALESCE(?, adspower_group_name)
+                WHERE profile_no = ? AND is_banned = 0
+            `).run(group?.id ?? null, group?.name ?? null, normalizedProfileNo);
             this.db.prepare(`
                 UPDATE profile_activity SET
                     ${column} = ${column} + 1,
