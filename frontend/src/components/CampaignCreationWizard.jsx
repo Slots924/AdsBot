@@ -121,6 +121,8 @@ export default function CampaignCreationWizard({
     lastPublishedPost = null,
     sourcePage = null,
     sourcePost = null,
+    batch = null,
+    onRetryBatch,
     onClose,
     onSuccess,
 }) {
@@ -145,6 +147,8 @@ export default function CampaignCreationWizard({
     const [postMenuOpen, setPostMenuOpen] = useState(false);
     const [selectedPost, setSelectedPost] = useState(null);
     const [manualName, setManualName] = useState(false);
+    const [excludedPosts, setExcludedPosts] = useState([]);
+    const selectedBatchPosts = batch?.items.filter((post) => !excludedPosts.includes(post.key)) ?? [];
     const [overrideTracking, setOverrideTracking] = useState(false);
     const [pixels, setPixels] = useState([]);
     const [pixelsLoading, setPixelsLoading] = useState(false);
@@ -161,6 +165,8 @@ export default function CampaignCreationWizard({
         postId: String(initialPostId || ""),
         adSetCount: 5,
         dailyBudget: 5,
+        budgetMode: "adset",
+        campaignBudget: 25,
         startTime: localValueInZone(new Date(), timezone),
         pixelId: defaultPixelId,
         utm: defaultUtm,
@@ -239,8 +245,9 @@ export default function CampaignCreationWizard({
     }, [accountKey]);
 
     useEffect(() => {
-        refreshPages();
-    }, [refreshPages]);
+        if (!batch) refreshPages();
+        else setPagesLoading(false);
+    }, [refreshPages, Boolean(batch)]);
 
     const loadPosts = useCallback(async (pageId, force = false) => {
         if (!pageId) return;
@@ -279,7 +286,7 @@ export default function CampaignCreationWizard({
                 ? String(initialPostId || "")
                 : "",
         }));
-        if (form.pageId) loadPosts(form.pageId);
+        if (form.pageId && !batch) loadPosts(form.pageId);
     }, [form.pageId, loadPosts, initialPageId, initialPostId]);
 
     useEffect(() => {
@@ -343,8 +350,9 @@ export default function CampaignCreationWizard({
         const operatingSystem = selectedTemplate?.operatingSystems?.length
             ? ` ${selectedTemplate.operatingSystems.map((value) => value === "iOS" ? "IOS" : value).join("/")}`
             : "";
-        return `${geo} | Creo_${sourcePage.creativeName || "?"} | ${selectedTemplate?.ageMin ?? 18}+${operatingSystem} ${campaignNameTimestamp(date, timezone)}`;
-    }, [languages, selectedTemplate, sourcePage, timezone]);
+        const source = batch ? `${[...new Set(selectedBatchPosts.map((post) => post.page.geo || "GEO"))].join("/") || sourcePage.geo || "GEO"} | ${form.budgetMode === "campaign" ? "CBO" : "ABO"} | ${selectedBatchPosts.length} креативів` : `${geo} | Creo_${sourcePage.creativeName || "?"}`;
+        return `${source} | ${selectedTemplate?.ageMin ?? 18}+${operatingSystem} ${campaignNameTimestamp(date, timezone)}`;
+    }, [languages, selectedTemplate, sourcePage, timezone, batch, excludedPosts, form.budgetMode]);
     const automaticName = buildAutomaticName(openedAt.current);
 
     useEffect(() => {
@@ -394,6 +402,11 @@ export default function CampaignCreationWizard({
         postId: form.postId.trim(),
         adSetCount: Number(form.adSetCount),
         dailyBudget: Number(form.dailyBudget),
+        ...(batch ? {
+            budgetMode: form.budgetMode,
+            campaignBudget: Number(form.campaignBudget),
+            posts: selectedBatchPosts.map((post) => ({ pageId: String(post.page.id), postId: String(post.id) })),
+        } : {}),
         startTime: zonedValueToIso(form.startTime, timezone),
         createPaused: !launchStatuses.campaign,
         createAdSetsPaused: !launchStatuses.adSet,
@@ -502,11 +515,11 @@ export default function CampaignCreationWizard({
 
     const canCheck = form.campaignName.trim()
         && form.templateId
-        && form.pageId
-        && form.postId.trim()
-        && Number(form.adSetCount) > 0
-        && Number(form.dailyBudget) > 0
+        && (batch ? !batch.loading && !batch.errors.length && selectedBatchPosts.length > 0 : form.pageId && form.postId.trim())
+        && Number.isInteger(Number(form.adSetCount)) && Number(form.adSetCount) > 0 && Number(form.adSetCount) <= 100
+        && Number(batch && form.budgetMode === "campaign" ? form.campaignBudget : form.dailyBudget) > 0
         && form.startTime;
+    const creationTotal = 2 + (batch ? selectedBatchPosts.length : 1) + Number(form.adSetCount) * (1 + (batch ? selectedBatchPosts.length : 1));
 
     const check = async (event) => {
         event.preventDefault();
@@ -532,7 +545,7 @@ export default function CampaignCreationWizard({
     const create = async () => {
         setCreating(true);
         setFailure(null);
-        setProgress({ stage: "preflight", completed: 0, total: 3 + Number(form.adSetCount) * 2 });
+        setProgress({ stage: "preflight", completed: 0, total: creationTotal });
         try {
             const response = await unwrap(window.adsBot.startCampaignCreation(payload()));
             setWarnings([]);
@@ -540,7 +553,7 @@ export default function CampaignCreationWizard({
             setProgress({
                 stage: "queued",
                 completed: 0,
-                total: 3 + Number(form.adSetCount) * 2,
+                total: creationTotal,
                 message: response.task.waitingReason || "Кампанію додано в чергу",
             });
             onSuccess?.(response);
@@ -559,7 +572,8 @@ export default function CampaignCreationWizard({
         setChecking(true);
         setFailure(null);
         try {
-            const result = await unwrap(window.adsBot.preflightCampaignCreation(payload()));
+            const draft = payload();
+            const result = await unwrap(window.adsBot.preflightCampaignCreation(draft));
             setVerified(result);
             const verifiedPostId = result.postId || form.postId.trim();
             if (result.postId) {
@@ -568,14 +582,14 @@ export default function CampaignCreationWizard({
             }
             setCreating(true);
             const response = await unwrap(window.adsBot.startCampaignCreation({
-                ...payload(),
+                ...draft,
                 postId: verifiedPostId,
             }));
             setJobId(response.jobId);
             setProgress({
                 stage: "queued",
                 completed: 0,
-                total: 3 + Number(form.adSetCount) * 2,
+                total: creationTotal,
                 message: response.task.waitingReason || "Кампанію додано в чергу",
             });
             onSuccess?.(response);
@@ -604,14 +618,14 @@ export default function CampaignCreationWizard({
         ? Math.min(100, Math.round((progress.completed ?? 0) / progress.total * 100))
         : 0;
 
-    if (sourcePage && sourcePost) {
+    if (sourcePage && (sourcePost || batch)) {
         return (
-            <div className="overlay creative-launch-overlay" onMouseDown={() => !creating && onClose()}>
+            <div className="overlay creative-launch-overlay" onMouseDown={() => !checking && !creating && onClose()}>
                 <div
-                    className="modal creative-launch-modal post-campaign-launch-modal"
+                    className={`modal creative-launch-modal post-campaign-launch-modal ${batch ? "batch-campaign-modal" : ""}`}
                     onMouseDown={(event) => event.stopPropagation()}
                 >
-                    <button type="button" className="modal-close" aria-label="??????? ?????" disabled={creating} onClick={onClose}>
+                    <button type="button" className="modal-close" aria-label="Закрити вікно" disabled={checking || creating} onClick={onClose}>
                         <X size={18} />
                     </button>
                     <header className="creative-launch-header">
@@ -621,18 +635,20 @@ export default function CampaignCreationWizard({
                                 <input
                                     autoFocus
                                     aria-label="Назва кампанії"
+                                    disabled={checking || creating}
                                     value={form.campaignName}
                                     onChange={(event) => change("campaignName", event.target.value)}
                                 />
                             ) : <h2>{form.campaignName || automaticName}</h2>}
                             {!manualName ? (
-                                <button type="button" title="Змінити назву" onClick={() => setManualName(true)}>
+                                <button type="button" title="Змінити назву" disabled={checking || creating} onClick={() => setManualName(true)}>
                                     <Pencil size={17} />
                                 </button>
                             ) : (
                                 <button
                                     type="button"
                                     title="Повернути автоматичну назву"
+                                    disabled={checking || creating}
                                     onClick={() => {
                                         setManualName(false);
                                         change("campaignName", automaticName);
@@ -644,14 +660,32 @@ export default function CampaignCreationWizard({
                         </div>
                     </header>
 
-                    <div className="creative-launch-scroll">
+                    <fieldset className="creative-launch-scroll" disabled={checking || creating}>
+                        {batch && <section className="launch-section batch-budget-section">
+                            <div className="batch-budget-mode" role="radiogroup" aria-label="Рівень бюджету">
+                                <label><input type="radio" name="budgetMode" checked={form.budgetMode === "adset"} onChange={() => change("budgetMode", "adset")} /> Бюджет на адсет · ABO</label>
+                                <label><input type="radio" name="budgetMode" checked={form.budgetMode === "campaign"} onChange={() => change("budgetMode", "campaign")} /> Бюджет на кампанію · CBO</label>
+                            </div>
+                            <label className="field"><span>Бюджет кампанії / день, {adAccount.currency}</span><input type="number" min="0.01" step="0.01" disabled={form.budgetMode !== "campaign"} value={form.campaignBudget} onChange={(event) => change("campaignBudget", event.target.value)} /></label>
+                        </section>}
                         <section className="launch-section campaign-source-section">
-                            <header><strong>Джерело реклами</strong></header>
+                            <header><strong>{batch ? `Креативи · вибрано ${selectedBatchPosts.length} з ${batch.items.length}` : "Джерело реклами"}</strong>{batch && <button type="button" className="secondary-button" disabled={batch.loading || checking || creating} onClick={onRetryBatch}><RefreshCw size={14} /> Оновити</button>}</header>
+                            {batch ? <div className="batch-creative-list" aria-label="Креативи для запуску" aria-busy={batch.loading}>
+                                {batch.loading && <div className="batch-list-message"><LoaderCircle className="spin" size={20} /> Оновлюємо URL-пости вибраних фанок…</div>}
+                                {batch.errors.map((error) => <div className="resource-inline-error" key={error.page.id}>{error.page.name}: {error.message}. Оновіть список перед запуском.</div>)}
+                                {!batch.loading && !batch.items.length && <div className="batch-list-message">Серед останніх 10 постів вибраних фанок немає постів з URL.</div>}
+                                {batch.items.map((post) => <button type="button" key={post.key} aria-pressed={!excludedPosts.includes(post.key)} disabled={checking || creating} className={`batch-creative-row ${excludedPosts.includes(post.key) ? "dimmed" : "selected"}`} onClick={() => { setExcludedPosts((current) => current.includes(post.key) ? current.filter((key) => key !== post.key) : [...current, post.key]); setVerified(null); }}>
+                                    <strong>{post.page.geo || "—"}{post.page.language ? ` (${post.page.language.toLowerCase()})` : ""}</strong>
+                                    <span className="batch-creative-image">{post.thumbnailUrl ? <img src={post.thumbnailUrl} alt="" /> : <ImageIcon size={22} />}</span>
+                                    <span className="batch-creative-copy"><small>{post.page.name} · {post.id}</small><span>{post.message || "Пост без тексту"}</span></span>
+                                    <b>{post.page.creativeName ? `Creo_${String(post.page.creativeName).replace(/^Creo_/i, "")}` : "—"}</b>
+                                </button>)}
+                            </div> :
                             <div className="campaign-source-grid">
                                 <div><span>Фанпейджа</span><strong>{sourcePage.name}</strong><small>{sourcePage.id}</small></div>
                                 <div><span>Пост</span><strong>{sourcePost.id}</strong><small>{sourcePost.message || "Пост без тексту"}</small></div>
                                 {sourcePost.thumbnailUrl && <img src={sourcePost.thumbnailUrl} alt="Прев’ю поста" />}
-                            </div>
+                            </div>}
                         </section>
 
                         <section className="launch-section campaign-launch-section">
@@ -736,8 +770,9 @@ export default function CampaignCreationWizard({
                             </label>
                             <div className="launch-budget-grid">
                                 <label className="field"><span>Ad sets</span><input type="number" min="1" max="100" value={form.adSetCount} onChange={(event) => change("adSetCount", event.target.value)} /></label>
-                                <label className="field"><span>Бюджет / ad set, {adAccount.currency}</span><input type="number" min="0.01" step="0.01" value={form.dailyBudget} onChange={(event) => change("dailyBudget", event.target.value)} /></label>
+                                <label className="field"><span>Бюджет / ad set, {adAccount.currency}</span><input type="number" min="0.01" step="0.01" disabled={Boolean(batch) && form.budgetMode === "campaign"} value={form.dailyBudget} onChange={(event) => change("dailyBudget", event.target.value)} /></label>
                             </div>
+                            {batch && <p className="batch-launch-summary">{form.adSetCount || 0} адсетів × {selectedBatchPosts.length} креативів = {Number(form.adSetCount || 0) * selectedBatchPosts.length} оголошень. Денний бюджет: {form.budgetMode === "campaign" ? Number(form.campaignBudget || 0) : Number(form.adSetCount || 0) * Number(form.dailyBudget || 0)} {adAccount.currency}. Географія та мова показів — із вибраного шаблону.{form.budgetMode === "campaign" ? " Спільний бюджет адсетів із шаблону ігнорується." : ""}</p>}
                             <div className="campaign-launch-statuses" aria-label="Статуси об'єктів після створення">
                                 {[
                                     ["campaign", "Кампанія"],
@@ -761,9 +796,9 @@ export default function CampaignCreationWizard({
                         </section>
 
                         {failure && <div className="creation-error"><CircleAlert size={19} /><div><strong>{failure.message}</strong></div></div>}
-                    </div>
+                    </fieldset>
                     <div className="form-actions creative-launch-actions">
-                        <button type="button" className="secondary-button" disabled={creating} onClick={onClose}>Скасувати</button>
+                        <button type="button" className="secondary-button" disabled={checking || creating} onClick={onClose}>Скасувати</button>
                         <button type="button" className="primary-button" disabled={!canCheck || checking || creating} onClick={checkAndCreate}>
                             {(checking || creating) && <LoaderCircle className="spin" size={16} />}
                             Поставити в чергу

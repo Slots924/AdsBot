@@ -19,9 +19,16 @@ export function budgetToMinorUnits(value, currency) {
     return String(Math.round(amount * multiplier));
 }
 
-export function buildCampaignBudgetSettings(shareAdSetBudget) {
+export function buildCampaignBudgetSettings(shareAdSetBudget, { budgetMode = "adset", dailyBudgetMinor } = {}) {
     const sharingEnabled = Boolean(shareAdSetBudget);
     const bidStrategy = { bid_strategy: "LOWEST_COST_WITHOUT_CAP" };
+    // CBO задає бюджет та стратегію кампанії, незалежно від шерингу в шаблоні.
+    if (budgetMode === "campaign") {
+        return {
+            campaign: { daily_budget: dailyBudgetMinor, ...bidStrategy, is_adset_budget_sharing_enabled: false },
+            adSet: {},
+        };
+    }
 
     // За спільного розподілу ставки задає кампанія, інакше — кожен адсет.
     return {

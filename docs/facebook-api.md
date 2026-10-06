@@ -346,6 +346,17 @@ PAUSED. Після успішного створення активуються 
 для відомих creative enhancements. Для image ad значення `NO_BUTTON` не додає
 `call_to_action`; системне згортання тексту з написом `See more` API Facebook
 не контролює.
+
+Масовий запуск приймає `posts: [{ pageId, postId }]` замість одного джерела.
+Усі пости перевіряються до першого створення об’єкта; спільні ресурси preflight
+кешуються в межах однієї перевірки. Для кожного поста створюється окремий
+creative із відповідним Instagram actor, а кожен ad set містить усі creatives.
+`budgetMode=adset` зберігає звичайну поведінку ABO;
+`budgetMode=campaign` використовує `campaignBudget` у валюті РК, передає
+`daily_budget` і стратегію ставок лише на campaign та вимикає
+`is_adset_budget_sharing_enabled` незалежно від шаблону.
+Журнал зберігає всі ID у `objects.creatives`, а `creativeId` залишається першим
+ID для сумісності. Контрольне читання й очищення охоплюють усі креативи.
 За наявності обмежень шаблону targeting також отримує `device_platforms` і
 `user_os`; порожні масиви означають усі пристрої та всі мобільні ОС.
 

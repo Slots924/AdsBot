@@ -8,17 +8,48 @@ import {
     buildCampaignFields,
 } from "../services/campaigns/CampaignSettings.js";
 
-export default async function preflightLeadCampaign({
-    adAccountId,
-    pageId,
-    postId,
-    template,
-    pixelId,
-    dailyBudget,
-    startTime,
-    creativeMode = "post",
-    siteUrl = "",
-}, operations) {
+export default async function preflightLeadCampaign(options, operations) {
+    if (options.posts !== undefined) {
+        if (!Array.isArray(options.posts) || !options.posts.length || options.posts.length > 1000) {
+            throw createValidationError("Оберіть від 1 до 1000 креативів", "CAMPAIGN_POSTS_INVALID");
+        }
+        const seen = new Set();
+        const results = [];
+        // Спільні ресурси перевіряємо один раз, а доступність — для кожного поста.
+        const cachedOperations = { ...operations };
+        for (const method of ["getPermissions", "getAccount", "getPage", "getPixels", "getInstagramAccount", "validateCampaign"]) {
+            const cache = new Map();
+            cachedOperations[method] = (...args) => {
+                const key = JSON.stringify(args);
+                if (!cache.has(key)) cache.set(key, Promise.resolve().then(() => operations[method](...args)));
+                return cache.get(key);
+            };
+        }
+        for (const post of options.posts) {
+            if (!post?.pageId || !post?.postId) throw createValidationError("Вкажіть фанпейджу й пост кожного креативу", "CAMPAIGN_POSTS_INVALID");
+            const key = `${post.pageId}:${post.postId}`;
+            if (seen.has(key)) throw createValidationError("Креативи не повинні повторюватися", "CAMPAIGN_POSTS_DUPLICATE");
+            seen.add(key);
+            results.push(await preflightLeadCampaign({ ...options, pageId: post.pageId, postId: post.postId, posts: undefined, creativeMode: "post" }, cachedOperations));
+        }
+        return { ...results[0], posts: results };
+    }
+    const {
+        adAccountId,
+        pageId,
+        postId,
+        template,
+        pixelId,
+        dailyBudget,
+        startTime,
+        creativeMode = "post",
+        siteUrl = "",
+        budgetMode = "adset",
+        campaignBudget,
+    } = options;
+    if (!["adset", "campaign"].includes(budgetMode)) {
+        throw createValidationError("Невідомий режим бюджету", "CAMPAIGN_BUDGET_MODE_INVALID");
+    }
     const { accountId, normalizedPageId, imageCreative, storyId, normalizedStart }
         = prepareLeadCampaignInput({
             adAccountId, pageId, postId, template, pixelId,
@@ -84,9 +115,9 @@ export default async function preflightLeadCampaign({
         }
     }
 
-    const budgetMinor = budgetToMinorUnits(dailyBudget, account.currency);
+    const budgetMinor = budgetToMinorUnits(budgetMode === "campaign" ? campaignBudget : dailyBudget, account.currency);
     const dsa = resolveDsaSettings(template, account);
-    await operations.validateCampaign(accountId, buildCampaignFields("AdsBot preflight", template));
+    await operations.validateCampaign(accountId, buildCampaignFields("AdsBot preflight", template, { budgetMode, dailyBudgetMinor: budgetMinor }));
 
     return {
         adAccountId: accountId,
@@ -99,6 +130,7 @@ export default async function preflightLeadCampaign({
         pixel: { id: pixel.id, name: pixel.name ?? "" },
         instagramActorId,
         dailyBudgetMinor: budgetMinor,
+        budgetMode,
         startTime: normalizedStart.toISOString(),
         targeting: buildTargeting(template),
         dsa,

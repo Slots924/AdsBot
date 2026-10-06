@@ -85,7 +85,7 @@ function StableImage({ src, alt = "", fallback = null }) {
 }
 
 
-function PageCard({ page, selected, onSelect, onFavorite }) {
+function PageCard({ page, selected, onSelect, onFavorite, checked, onCheck }) {
     return (
         <div
             className={`page-card ${selected ? "selected" : ""}`}
@@ -96,6 +96,7 @@ function PageCard({ page, selected, onSelect, onFavorite }) {
                 if (event.key === "Enter" || event.key === " ") onSelect(page.id);
             }}
         >
+            <input type="checkbox" className="page-batch-checkbox" aria-label={`Вибрати фанпейджу ${page.name}`} checked={checked} onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()} onChange={() => onCheck(page.id)} />
             <span className="page-avatar">
                 <StableImage
                     src={page.pictureUrl}
@@ -748,12 +749,39 @@ export default function PagesTab({
     const [selectedRefreshing, setSelectedRefreshing] = useState(false);
     const [postsChanged, setPostsChanged] = useState(false);
     const [action, setAction] = useState(null);
+    const [checkedPageIds, setCheckedPageIds] = useState([]);
+    const [batch, setBatch] = useState({ items: [], loading: false, errors: [] });
+    const batchRequest = useRef(0);
     const [countries, setCountries] = useState([]);
     const postsByPage = useRef({});
     const postsRequestId = useRef(0);
     const signatureRequestId = useRef(0);
     const accountKey = selectedAccount?.accountKey || "";
     const selected = pages.find((page) => String(page.id) === String(selectedPageId));
+    const checkedPages = pages.filter((page) => checkedPageIds.includes(String(page.id)));
+    const togglePage = (id) => setCheckedPageIds((current) => current.includes(String(id)) ? current.filter((value) => value !== String(id)) : [...current, String(id)]);
+    useEffect(() => {
+        setCheckedPageIds([]);
+        setAction(null);
+        batchRequest.current += 1;
+        return () => { batchRequest.current += 1; };
+    }, [accountKey]);
+    const startBatch = async (retry = false) => {
+        const requestId = ++batchRequest.current;
+        const sourcePages = retry ? action.sourcePages : checkedPages.slice();
+        setBatch({ items: [], loading: true, errors: [] });
+        if (!retry) setAction({ type: "batch-select", sourcePages });
+        const results = await Promise.allSettled(sourcePages.map(async (page) => {
+            const posts = await unwrap(window.adsBot.getPagePostsWithLinks(accountKey, page.id, true));
+            return posts.map((post) => ({ ...post, page, key: `${page.id}:${post.id}` }));
+        }));
+        if (requestId !== batchRequest.current) return;
+        setBatch({
+            items: results.flatMap((result) => result.status === "fulfilled" ? result.value : []),
+            errors: results.flatMap((result, index) => result.status === "rejected" ? [{ page: sourcePages[index], message: errorDetails(result.reason).message }] : []),
+            loading: false,
+        });
+    };
     const favorites = useMemo(() => pages
         .filter((page) => page.isFavorite)
         .sort((left, right) => (
@@ -942,6 +970,7 @@ export default function PagesTab({
                                 <RefreshCw className={listRefreshing ? "spin" : ""} size={17} />
                             </button>
                         </div>
+                        <button type="button" className="primary-button page-batch-launch" disabled={!checkedPages.length} onClick={() => startBatch()}><Megaphone size={16} /> Запустити креативи{checkedPages.length ? ` · ${checkedPages.length} фанок` : ""}</button>
                         <div className="ad-account-scroll">
                             <div className="ad-section-title">
                                 <strong>Обрані</strong><span>{favorites.length}</span>
@@ -957,6 +986,8 @@ export default function PagesTab({
                                             selected={String(page.id) === String(selectedPageId)}
                                             onSelect={setSelectedPageId}
                                             onFavorite={favorite}
+                                            checked={checkedPageIds.includes(String(page.id))}
+                                            onCheck={togglePage}
                                         />
                                     </div>
                                 );
@@ -971,6 +1002,8 @@ export default function PagesTab({
                                     selected={String(page.id) === String(selectedPageId)}
                                     onSelect={setSelectedPageId}
                                     onFavorite={favorite}
+                                    checked={checkedPageIds.includes(String(page.id))}
+                                    onCheck={togglePage}
                                 />
                             ))}
                         </div>
@@ -1267,7 +1300,7 @@ export default function PagesTab({
                     onError={onError}
                 />
             )}
-            {action?.type === "campaign-select" && (
+            {["campaign-select", "batch-select"].includes(action?.type) && (
                 <CampaignAccountModal
                     accountKey={accountKey}
                     initialAccounts={adAccounts}
@@ -1275,9 +1308,25 @@ export default function PagesTab({
                     onError={onError}
                     onSelect={(adAccount) => setAction({
                         ...action,
-                        type: "campaign",
+                        type: action.type === "batch-select" ? "batch-campaign" : "campaign",
                         adAccount,
                     })}
+                />
+            )}
+            {action?.type === "batch-campaign" && (
+                <CampaignCreationWizard
+                    accountKey={accountKey}
+                    adAccount={action.adAccount}
+                    createPaused={settings.createCampaignsPaused}
+                    createAdSetsPaused={settings.createAdSetsPaused}
+                    createAdsPaused={settings.createAdsPaused}
+                    defaultPixelId={settings.defaultPixelId}
+                    defaultUtm={settings.defaultUtm}
+                    sourcePage={action.sourcePages[0]}
+                    batch={batch}
+                    onRetryBatch={() => startBatch(true)}
+                    onClose={() => setAction(null)}
+                    onSuccess={() => queued("Кампанію з креативами поставлено в чергу")}
                 />
             )}
             {action?.type === "campaign" && (

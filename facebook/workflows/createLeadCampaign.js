@@ -34,6 +34,7 @@ export default async function createLeadCampaign(options, onProgress = () => {},
     const objects = {
         campaignId: null,
         creativeId: null,
+        creatives: [],
         adSets: [],
         ads: [],
     };
@@ -51,7 +52,7 @@ export default async function createLeadCampaign(options, onProgress = () => {},
         await emit("preflight-complete", { preflight });
 
         currentStage = "campaign";
-        const campaign = await operations.createCampaign(preflight.adAccountId, buildCampaignFields(name, template));
+        const campaign = await operations.createCampaign(preflight.adAccountId, buildCampaignFields(name, template, preflight));
         objects.campaignId = campaign.id;
         await emit("campaign", { message: "Campaign створено" });
 
@@ -66,18 +67,20 @@ export default async function createLeadCampaign(options, onProgress = () => {},
             }
             imageHash = await operations.uploadImage(preflight.adAccountId, adCreative.image);
         }
-        const creativeFields = buildCampaignCreativeFields({ options, name, preflight, imageHash });
-        await operations.createCreative(
-            preflight.adAccountId,
-            creativeFields,
-            { validateOnly: true }
-        );
-        const creative = await operations.createCreative(
-            preflight.adAccountId,
-            creativeFields
-        );
-        objects.creativeId = creative.id;
-        await emit("creative", { message: "Creative створено" });
+        const postPreflights = preflight.posts ?? [preflight];
+        for (const postPreflight of postPreflights) {
+            const creativeFields = buildCampaignCreativeFields({
+                options,
+                name: postPreflights.length > 1 ? `${name} | ${postPreflight.postId}` : name,
+                preflight: postPreflight,
+                imageHash,
+            });
+            await operations.createCreative(preflight.adAccountId, creativeFields, { validateOnly: true });
+            const creative = await operations.createCreative(preflight.adAccountId, creativeFields);
+            objects.creativeId ??= creative.id;
+            objects.creatives.push({ id: creative.id, pageId: postPreflight.pageId, postId: postPreflight.postId });
+            await emit("creative", { message: `Креатив ${objects.creatives.length}/${postPreflights.length} створено` });
+        }
 
         for (let index = 0; index < count; index += 1) {
             currentIndex = index;
@@ -101,21 +104,22 @@ export default async function createLeadCampaign(options, onProgress = () => {},
             });
 
             currentStage = "ad";
-            const adFields = buildAdFields({ name, ordinal, adSetId: adSet.id, creativeId: objects.creativeId });
-            await operations.createAd(
-                preflight.adAccountId,
-                adFields,
-                { validateOnly: true }
-            );
-            const ad = await operations.createAd(
-                preflight.adAccountId,
-                adFields
-            );
-            objects.ads.push({ index, id: ad.id, name: adFields.name });
-            await emit("ad", {
-                index,
-                message: `Ad ${index + 1}/${count} створено`,
-            });
+            for (const [creativeIndex, creative] of objects.creatives.entries()) {
+                const adFields = buildAdFields({
+                    name,
+                    ordinal: objects.creatives.length > 1 ? `${ordinal} | ${creative.postId}` : ordinal,
+                    adSetId: adSet.id,
+                    creativeId: creative.id,
+                });
+                await operations.createAd(preflight.adAccountId, adFields, { validateOnly: true });
+                const ad = await operations.createAd(preflight.adAccountId, adFields);
+                objects.ads.push({ index, creativeIndex, id: ad.id, name: adFields.name });
+                await emit("ad", {
+                    index,
+                    creativeIndex,
+                    message: `Оголошення ${objects.ads.length}/${count * objects.creatives.length} створено`,
+                });
+            }
         }
 
         if (!createAdsPaused || !createAdSetsPaused || !createPaused) {
@@ -139,7 +143,7 @@ export default async function createLeadCampaign(options, onProgress = () => {},
         currentStage = "readback";
         await emit("readback", { message: "Перевіряємо створені об’єкти" });
         const readback = await operations.readback(objects);
-        readback.warnings = verifyCampaignReadback({ readback, preflight, template });
+        readback.warnings = [...new Set((readback.creatives ?? [readback.creative]).flatMap((creative) => verifyCampaignReadback({ readback: { ...readback, creative }, preflight, template })))];
 
         await emit("complete", { message: "Створення завершено" });
         return { objects, preflight, readback, createPaused };

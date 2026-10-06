@@ -15,6 +15,12 @@ function cleanInput(input = {}) {
         postId: String(input.postId ?? ""),
         adSetCount: Number(input.adSetCount),
         dailyBudget: Number(input.dailyBudget),
+        budgetMode: String(input.budgetMode ?? "adset"),
+        campaignBudget: Number(input.campaignBudget ?? 0),
+        ...(input.posts !== undefined ? { posts: input.posts.map((post) => ({
+            pageId: String(post.pageId ?? ""),
+            postId: String(post.postId ?? ""),
+        })) } : {}),
         startTime: String(input.startTime ?? ""),
         createPaused: input.createPaused !== false,
         createAdSetsPaused: input.createAdSetsPaused !== false,
@@ -50,7 +56,7 @@ export default class CampaignCreationJournal {
                 status: "queued",
                 stage: "preflight",
                 completed: 0,
-                total: 3 + Number(input.adSetCount || 0) * 2,
+                total: 2 + (input.posts?.length ?? 1) + Number(input.adSetCount || 0) * (1 + (input.posts?.length ?? 1)),
                 objects: {
                     campaignId: null,
                     creativeId: null,

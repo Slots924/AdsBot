@@ -2,6 +2,63 @@
   "version": 1,
   "tasks": [
     {
+      "id": "9eb764cc-d7e9-44ff-8a9d-d6f052085e0b",
+      "type": "campaign",
+      "name": "AT | Creo_4 | 30+ 06/10 09:49",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "d7d68ee1-e3eb-46ad-a0d3-310d5cae1580"
+      },
+      "metadata": {
+        "campaignJobId": "d7d68ee1-e3eb-46ad-a0d3-310d5cae1580",
+        "accountKey": "account-031",
+        "adAccountId": "act_1304779850966250",
+        "uniqueKey": "campaign-job:d7d68ee1-e3eb-46ad-a0d3-310d5cae1580",
+        "reportId": "abad00bc-90b6-4a19-b11e-37ce78845c34"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120246577496840424",
+          "creativeId": "2033237763992726",
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120246577498170424",
+              "name": "AT | Creo_4 | 30+ 06/10 09:49 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "id": "120246577498830424",
+              "name": "AT | Creo_4 | 30+ 06/10 09:49 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "d7d68ee1-e3eb-46ad-a0d3-310d5cae1580",
+        "campaignId": "120246577496840424",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-06T06:50:15.121Z",
+      "startedAt": "2026-10-06T06:50:15.122Z",
+      "finishedAt": "2026-10-06T06:50:32.878Z",
+      "updatedAt": "2026-10-06T06:50:32.881Z"
+    },
+    {
       "id": "02dda242-9066-4bf0-8f92-6dbf10c3fdf6",
       "type": "campaign",
       "name": "AT | Creo_4 | 30+ 06/10 09:34",

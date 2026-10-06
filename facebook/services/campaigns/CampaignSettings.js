@@ -215,13 +215,13 @@ export function prepareLeadCampaignInput({
 }
 
 
-export function buildCampaignFields(name, template) {
+export function buildCampaignFields(name, template, preflight = {}) {
     return {
         name,
         objective: "OUTCOME_LEADS",
         status: "PAUSED",
         special_ad_categories: [],
-        ...buildCampaignBudgetSettings(template.shareAdSetBudget).campaign,
+        ...buildCampaignBudgetSettings(template.shareAdSetBudget, preflight).campaign,
     };
 }
 
@@ -230,8 +230,10 @@ export function buildAdSetFields({ name, ordinal, campaignId, template, prefligh
     return {
         name: `${name} | AS ${ordinal}`,
         campaign_id: campaignId,
-        daily_budget: preflight.dailyBudgetMinor,
-        ...buildCampaignBudgetSettings(template.shareAdSetBudget).adSet,
+        ...(preflight.budgetMode === "campaign" ? {} : {
+            daily_budget: preflight.dailyBudgetMinor,
+            ...buildCampaignBudgetSettings(template.shareAdSetBudget).adSet,
+        }),
         billing_event: "IMPRESSIONS",
         optimization_goal: "OFFSITE_CONVERSIONS",
         promoted_object: {

@@ -38,6 +38,15 @@ try {
     const restored = await new CampaignCreationJournal({ jobsFile }).get(job.id);
     assert.equal(restored.objects.campaignId, "campaign-1");
     assert.equal(restored.input.utm, "must-not-be-copied-to-job");
+    const batch = await journal.create({
+        campaignName: "Batch", adSetCount: 2, budgetMode: "campaign", campaignBudget: 45,
+        posts: [{ pageId: "10", postId: "10_20", accessToken: "discard-me" }, { pageId: "11", postId: "11_21" }],
+    });
+    const restoredBatch = await new CampaignCreationJournal({ jobsFile }).get(batch.id);
+    assert.equal(restoredBatch.total, 10);
+    assert.equal(restoredBatch.input.budgetMode, "campaign");
+    assert.equal(restoredBatch.input.campaignBudget, 45);
+    assert.deepEqual(restoredBatch.input.posts, [{ pageId: "10", postId: "10_20" }, { pageId: "11", postId: "11_21" }]);
     const raw = await readFile(jobsFile, "utf8");
     assert(!raw.includes("access-token-must-not-be-saved"));
     assert(!raw.includes("cookie-must-not-be-saved"));

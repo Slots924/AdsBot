@@ -741,7 +741,9 @@ export default function registerIpcHandlers({
         const template = await templateManager.get(job.input.templateId);
         const onProgress = async (progress) => {
             assertNotAborted();
-            const completed = progressValue(progress, job.input.adSetCount);
+            const completed = job.input.posts?.length && progress.objects
+                ? 1 + Number(Boolean(progress.objects.campaignId)) + (progress.objects.creatives?.length ?? 0) + progress.objects.adSets.length + progress.objects.ads.length
+                : progressValue(progress, job.input.adSetCount);
             const updated = await campaignCreationJournal.update(job.id, {
                 stage: progress.stage,
                 ...(completed === undefined ? {} : { completed }),
@@ -2091,7 +2093,7 @@ export default function registerIpcHandlers({
                 runner: async ({ signal, progress: taskProgress }) => {
                     const cleanupTotal = (job.objects.ads?.length ?? 0)
                         + (job.objects.adSets?.length ?? 0)
-                        + Number(Boolean(job.objects.creativeId))
+                        + (job.objects.creatives?.length || Number(Boolean(job.objects.creativeId)))
                         + Number(Boolean(job.objects.campaignId));
                     let cleanupCompleted = 0;
                     const result = await guiService.deleteCampaignDraft({

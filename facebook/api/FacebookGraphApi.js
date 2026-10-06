@@ -2101,7 +2101,7 @@ export default class FacebookGraphApi {
         const [campaignReadback, creativeReadback, adSetsReadback, adsReadback] = await Promise.all([
             this.#readObject(
                 objects.campaignId,
-                ["id", "name", "status", "effective_status"]
+                ["id", "name", "status", "effective_status", "daily_budget"]
             ),
             this.#readObject(
                 objects.creativeId,
@@ -2124,7 +2124,15 @@ export default class FacebookGraphApi {
                 ["id", "name", "status", "effective_status", "creative"]
             ))),
         ]);
-        return { campaign: campaignReadback, creative: creativeReadback, adSets: adSetsReadback, ads: adsReadback };
+        const creatives = [creativeReadback];
+        for (const item of objects.creatives ?? []) {
+            if (item.id === objects.creativeId) continue;
+            creatives.push(await this.#readObject(item.id, [
+                "id", "name", "degrees_of_freedom_spec", "contextual_multi_ads",
+                "effective_object_story_id", "object_story_spec",
+            ]));
+        }
+        return { campaign: campaignReadback, creative: creativeReadback, creatives, adSets: adSetsReadback, ads: adsReadback };
     }
 
 
@@ -2157,7 +2165,9 @@ export default class FacebookGraphApi {
         for (const adSet of [...(objects.adSets ?? [])].reverse()) {
             if (adSet.id) await remove("adset", adSet.id);
         }
-        if (objects.creativeId) await remove("creative", objects.creativeId);
+        for (const id of new Set([objects.creativeId, ...(objects.creatives ?? []).map((item) => item.id)].filter(Boolean))) {
+            await remove("creative", id);
+        }
         if (objects.campaignId) await remove("campaign", objects.campaignId);
         return result;
     }
