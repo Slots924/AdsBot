@@ -153,8 +153,6 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("campaigns:create-start", options),
     getCampaignCreationJob: (jobId) =>
         ipcRenderer.invoke("campaigns:create-job", { jobId }),
-    retryCampaignCreation: (jobId) =>
-        ipcRenderer.invoke("campaigns:create-retry", { jobId }),
     cleanupCampaignCreation: (jobId) =>
         ipcRenderer.invoke("campaigns:create-cleanup", { jobId }),
     getAdsPowerGroups: () => ipcRenderer.invoke("groups:list"),

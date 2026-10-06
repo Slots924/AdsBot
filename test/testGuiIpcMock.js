@@ -546,17 +546,10 @@ await campaignCreationJournal.update("job-1", {
         ads: [],
     },
 });
-const retriedCampaign = await handlers.get("campaigns:create-retry")({}, {
-    jobId: "job-1",
-});
-assert.equal(retriedCampaign.ok, true);
-assert.equal(retriedCampaign.data.jobId, "job-1");
-assert.equal(retriedCampaign.data.task.name, "Test · повтор");
-assert.equal(retriedCampaign.data.task.metadata.campaignJobId, "job-1");
-assert.equal(storedJob.status, "queued");
-assert.deepEqual(storedJob.errors, []);
+assert.equal(handlers.has("campaigns:create-retry"), false);
+assert.equal(storedJob.status, "failed");
 assert.equal(storedJob.objects.campaignId, "campaign-1");
-assert.equal((await handlers.get("tasks:list")({}, {})).data.length, 2);
+assert.equal((await handlers.get("tasks:list")({}, {})).data.length, 1);
 const commentingTask = await handlers.get("comments:run")({}, {
     groupIds: ["7"],
     geo: "HU",

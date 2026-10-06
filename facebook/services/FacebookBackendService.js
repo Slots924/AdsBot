@@ -314,10 +314,7 @@ export default class FacebookBackendService {
 
     async createLeadCampaign(accountKey, options, onProgress) {
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
-        if (
-            options?.creativeMode !== "image"
-            || options?.resume?.creativeId
-        ) {
+        if (options?.creativeMode !== "image") {
             return facebookApiClient.createLeadCampaign(options, onProgress);
         }
 

@@ -769,7 +769,6 @@ export default function registerIpcHandlers({
             const result = await guiService.createLeadCampaign({
                 ...job.input,
                 template,
-                resume: job.objects,
             }, onProgress);
             await updateCacheSafely(
                 () => remoteDataCacheStore.invalidateCampaigns(
@@ -2068,25 +2067,6 @@ export default function registerIpcHandlers({
                 throw error;
             }
             return job;
-        })
-    );
-    ipcMain.handle(
-        "campaigns:create-retry",
-        safeHandler(async ({ jobId }) => {
-            const job = await campaignCreationJournal.get(jobId);
-            if (!job) {
-                const error = new Error("Спробу створення кампанії не знайдено");
-                error.code = "CAMPAIGN_JOB_NOT_FOUND";
-                throw error;
-            }
-            const queued = await campaignCreationJournal.update(job.id, {
-                status: "queued",
-                errors: [],
-            });
-            return enqueueCampaignJob(
-                queued,
-                `${queued.input.campaignName} · повтор`
-            );
         })
     );
     ipcMain.handle(

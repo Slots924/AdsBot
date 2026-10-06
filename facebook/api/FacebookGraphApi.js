@@ -1,9 +1,7 @@
+import { createValidationError, normalizeAdAccountId, normalizeObjectId } from "./validation.js";
+import preflightLeadCampaignWorkflow from "../workflows/preflightLeadCampaign.js";
+import createLeadCampaignWorkflow from "../workflows/createLeadCampaign.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
-import { buildCampaignBudgetSettings } from "./CampaignBudget.js";
-import {
-    buildCreativeEnhancementsOptOut,
-    verifyCreativeEnhancementsOptOut,
-} from "./CreativeEnhancements.js";
 import collectLatestPagePostsWithLinks
     from "../workflows/collectLatestPagePostsWithLinks.js";
 import deletePagePostsWorkflow
@@ -86,17 +84,6 @@ const campaignDatePresets = new Set([
     "maximum",
 ]);
 
-const europeanDsaCountries = new Set([
-    "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR",
-    "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL",
-    "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO",
-]);
-
-const zeroDecimalCurrencies = new Set([
-    "BIF", "CLP", "DJF", "GNF", "JPY", "KMF", "KRW", "MGA",
-    "PYG", "RWF", "UGX", "VND", "VUV", "XAF", "XOF", "XPF",
-]);
-
 const campaignPostFields = [
     "id",
     "message",
@@ -114,17 +101,6 @@ function hasPagePublishTask(tasks) {
         && tasks.some((task) =>
             pagePublishTasks.has(String(task ?? "").trim().toUpperCase())
         );
-}
-
-
-function normalizeAdAccountId(value) {
-    const id = String(value ?? "").trim();
-    if (!/^act_\d+$/.test(id)) {
-        const error = new Error("Некоректний Graph ID рекламного акаунта");
-        error.code = "FACEBOOK_AD_ACCOUNT_ID_INVALID";
-        throw error;
-    }
-    return id;
 }
 
 
@@ -146,13 +122,6 @@ async function mapWithConcurrency(items, worker, concurrency = 3) {
 }
 
 
-function createValidationError(message, code) {
-    const error = new Error(message);
-    error.code = code;
-    return error;
-}
-
-
 function toFormData(fields, validateOnly = false) {
     const body = new URLSearchParams();
     Object.entries(fields).forEach(([key, value]) => {
@@ -166,61 +135,6 @@ function toFormData(fields, validateOnly = false) {
         body.set("execution_options", JSON.stringify(["validate_only"]));
     }
     return body;
-}
-
-
-function normalizeObjectId(value, code, label) {
-    const id = String(value ?? "").trim();
-    if (!/^\d+$/.test(id)) {
-        throw createValidationError(`Некоректний ${label}`, code);
-    }
-    return id;
-}
-
-
-function isFacebookHost(hostname) {
-    const host = String(hostname ?? "").toLowerCase();
-    return host === "facebook.com" || host.endsWith(".facebook.com");
-}
-
-
-function isExternalWebsiteUrl(value) {
-    try {
-        let parsed = new URL(String(value ?? "").replace(/[),.;!?]+$/, ""));
-        if (isFacebookHost(parsed.hostname) && parsed.pathname === "/l.php") {
-            const target = parsed.searchParams.get("u");
-            if (!target) return false;
-            parsed = new URL(target);
-        }
-        const host = parsed.hostname.toLowerCase();
-        return !isFacebookHost(host)
-            && host !== "fb.com"
-            && !host.endsWith(".fb.com");
-    } catch {
-        return false;
-    }
-}
-
-
-function attachmentUrls(attachments = []) {
-    return (Array.isArray(attachments) ? attachments : []).flatMap(
-        (attachment) => [
-            attachment?.unshimmed_url,
-            attachment?.url,
-            attachment?.target?.url,
-            ...attachmentUrls(attachment?.subattachments?.data),
-        ]
-    ).filter(Boolean);
-}
-
-
-function hasExternalWebsiteUrl(post) {
-    const messageUrls = String(post?.message ?? "")
-        .match(/https?:\/\/[^\s]+/gi) ?? [];
-    return [
-        ...messageUrls,
-        ...attachmentUrls(post?.attachments?.data),
-    ].some(isExternalWebsiteUrl);
 }
 
 
@@ -253,106 +167,6 @@ function normalizePagePost(post) {
             attachment?.media?.image?.src ?? post?.full_picture
         ),
         type: post?.status_type ?? attachment?.media_type ?? null,
-    };
-}
-
-
-function budgetToMinorUnits(value, currency) {
-    const amount = Number(value);
-    if (!Number.isFinite(amount) || amount <= 0) {
-        throw createValidationError(
-            "Бюджет одного ad set має бути більшим за нуль",
-            "CAMPAIGN_BUDGET_INVALID"
-        );
-    }
-    const multiplier = zeroDecimalCurrencies.has(
-        String(currency ?? "").toUpperCase()
-    ) ? 1 : 100;
-    return String(Math.round(amount * multiplier));
-}
-
-
-function buildTargeting(template) {
-    const facebookPositions = (template.placements?.facebook ?? []).map(
-        (position) => position === "reels" ? "facebook_reels" : position
-    );
-    const instagramPositions = template.placements?.instagram ?? [];
-    const publisherPlatforms = [
-        ...(facebookPositions.length ? ["facebook"] : []),
-        ...(instagramPositions.length ? ["instagram"] : []),
-    ];
-    const gender = template.gender === "male"
-        ? [1]
-        : template.gender === "female" ? [2] : undefined;
-
-    return {
-        age_min: template.ageMin,
-        age_max: template.ageMax,
-        geo_locations: { countries: template.countryCodes },
-        ...(template.locales?.length ? { locales: template.locales } : {}),
-        publisher_platforms: publisherPlatforms,
-        ...(facebookPositions.length
-            ? { facebook_positions: facebookPositions }
-            : {}),
-        ...(instagramPositions.length
-            ? { instagram_positions: instagramPositions }
-            : {}),
-        ...(gender ? { genders: gender } : {}),
-        ...(template.devicePlatforms?.length
-            ? { device_platforms: template.devicePlatforms }
-            : {}),
-        ...(template.operatingSystems?.length
-            ? { user_os: template.operatingSystems }
-            : {}),
-        targeting_automation: { advantage_audience: 0 },
-    };
-}
-
-
-function resolveDsaSettings(template, account) {
-    const countries = Array.isArray(template.countryCodes)
-        ? template.countryCodes.map((code) => String(code).toUpperCase())
-        : [];
-    const requiredForEurope = countries.some((code) => (
-        europeanDsaCountries.has(code)
-    ));
-    const templateBeneficiary = String(
-        template.dsaBeneficiary ?? ""
-    ).trim();
-    const templatePayor = template.dsaPayorSameAsBeneficiary !== false
-        ? templateBeneficiary
-        : String(template.dsaPayor ?? "").trim();
-    const defaultBeneficiary = String(
-        account.default_dsa_beneficiary ?? ""
-    ).trim();
-    const defaultPayor = String(account.default_dsa_payor ?? "").trim();
-    const shouldResolve = requiredForEurope
-        || Boolean(templateBeneficiary)
-        || Boolean(templatePayor);
-
-    if (!shouldResolve) return null;
-
-    const beneficiary = templateBeneficiary || defaultBeneficiary;
-    const payor = templatePayor || defaultPayor;
-    if (!beneficiary) {
-        throw createValidationError(
-            "Для європейської аудиторії вкажіть бенефіціара у шаблоні або налаштуйте default DSA beneficiary у Meta",
-            "CAMPAIGN_DSA_BENEFICIARY_REQUIRED"
-        );
-    }
-    if (!payor) {
-        throw createValidationError(
-            "Для європейської аудиторії вкажіть платника у шаблоні або налаштуйте default DSA payor у Meta",
-            "CAMPAIGN_DSA_PAYOR_REQUIRED"
-        );
-    }
-
-    return {
-        beneficiary,
-        payor,
-        beneficiarySource: templateBeneficiary ? "template" : "meta-default",
-        payorSource: templatePayor ? "template" : "meta-default",
-        requiredForEurope,
     };
 }
 
@@ -2235,512 +2049,82 @@ export default class FacebookGraphApi {
     }
 
 
-    async preflightLeadCampaign({
-        adAccountId,
-        pageId,
-        postId,
-        template,
-        pixelId,
-        dailyBudget,
-        startTime,
-        creativeMode = "post",
-        siteUrl = "",
-    }) {
-        const accountId = normalizeAdAccountId(adAccountId);
-        const normalizedPageId = normalizeObjectId(
-            pageId,
-            "CAMPAIGN_PAGE_ID_INVALID",
-            "ID фанпейджі"
-        );
-        const imageCreative = creativeMode === "image";
-        let storyId = null;
-        if (imageCreative) {
-            let destination;
-            try {
-                destination = new URL(String(siteUrl ?? "").trim());
-            } catch {
-                throw createValidationError(
-                    "Вкажіть коректне посилання на офер",
-                    "CAMPAIGN_SITE_URL_INVALID"
-                );
-            }
-            if (!["http:", "https:"].includes(destination.protocol)) {
-                throw createValidationError(
-                    "Посилання на офер має починатися з http:// або https://",
-                    "CAMPAIGN_SITE_URL_INVALID"
-                );
-            }
-        } else {
-            const rawPostId = String(postId ?? "").trim();
-            storyId = rawPostId.includes("_")
-                ? rawPostId
-                : `${normalizedPageId}_${normalizeObjectId(
-                    rawPostId,
-                    "CAMPAIGN_POST_ID_INVALID",
-                    "Post ID"
-                )}`;
-            if (!storyId.startsWith(`${normalizedPageId}_`)) {
-                throw createValidationError(
-                    "Вказаний пост не належить вибраній фанпейджі",
-                    "CAMPAIGN_POST_PAGE_MISMATCH"
-                );
-            }
-        }
-        if (!pixelId) {
-            throw createValidationError(
-                "Не вказано Pixel ID",
-                "CAMPAIGN_PIXEL_REQUIRED"
-            );
-        }
-        if (!Array.isArray(template.countryCodes) || !template.countryCodes.length) {
-            throw createValidationError(
-                "У шаблоні потрібно вибрати хоча б одну країну",
-                "CAMPAIGN_COUNTRY_REQUIRED"
-            );
-        }
-
-        const normalizedStart = new Date(startTime);
-        if (Number.isNaN(normalizedStart.getTime())) {
-            throw createValidationError(
-                "Некоректний час початку показів",
-                "CAMPAIGN_START_TIME_INVALID"
-            );
-        }
-
-        const permissions = await this.getPermissions();
-        if (!permissions.granted.includes("ads_management")) {
-            throw createValidationError(
-                "Access token не має дозволу ads_management",
-                "CAMPAIGN_ADS_MANAGEMENT_REQUIRED"
-            );
-        }
-
-        const account = await this.#request(`/${accountId}`, {
-            fields: [
-                "id",
-                "name",
-                "account_status",
-                "currency",
-                "timezone_name",
-                "default_dsa_beneficiary",
-                "default_dsa_payor",
-            ].join(","),
-        });
-        if (Number(account.account_status) !== 1) {
-            throw createValidationError(
-                `Рекламний акаунт неактивний (status ${account.account_status})`,
-                "CAMPAIGN_AD_ACCOUNT_INACTIVE"
-            );
-        }
-
-        const page = await this.#getCampaignPage(normalizedPageId);
-        if (!imageCreative) {
-            const post = await this.#request(`/${storyId}`, {
-                fields: campaignPostFields,
-            }, { accessToken: page.pageAccessToken });
-            if (post.is_published === false) {
-                throw createValidationError(
-                    "Пост не опублікований",
-                    "CAMPAIGN_POST_NOT_PUBLISHED"
-                );
-            }
-            if (!hasExternalWebsiteUrl(post)) {
-                throw createValidationError(
-                    "У пості не знайдено посилання на зовнішній сайт",
-                    "CAMPAIGN_POST_WEBSITE_URL_REQUIRED"
-                );
-            }
-        }
-
-        const pixels = await this.#getAll(`/${accountId}/adspixels`, {
-            fields: "id,name",
-            limit: 100,
-        });
-        const normalizedPixelId = normalizeObjectId(
-            pixelId,
-            "CAMPAIGN_PIXEL_ID_INVALID",
-            "Pixel ID"
-        );
-        const pixel = pixels.find((item) => String(item.id) === normalizedPixelId);
-        if (!pixel) {
-            throw createValidationError(
-                "Вибраний Pixel недоступний цьому рекламному акаунту",
-                "CAMPAIGN_PIXEL_ACCESS_DENIED"
-            );
-        }
-
-        let instagramActorId = null;
-        if (template.placements?.instagram?.length) {
-            const pageDetails = await this.#request(`/${normalizedPageId}`, {
+    async preflightLeadCampaign(options) {
+        return preflightLeadCampaignWorkflow(options, {
+            getPermissions: () => this.getPermissions(),
+            getAccount: (id) => this.#request(`/${id}`, {
+                fields: [
+                    "id", "name", "account_status", "currency", "timezone_name",
+                    "default_dsa_beneficiary", "default_dsa_payor",
+                ].join(","),
+            }),
+            getPage: (id) => this.#getCampaignPage(id),
+            getPost: (id, accessToken) => this.#request(
+                `/${id}`, { fields: campaignPostFields }, { accessToken }
+            ),
+            getPixels: (id) => this.#getAll(
+                `/${id}/adspixels`, { fields: "id,name", limit: 100 }
+            ),
+            getInstagramAccount: (id, accessToken) => this.#request(`/${id}`, {
                 fields: "instagram_business_account{id,username}",
-            }, { accessToken: page.pageAccessToken });
-            instagramActorId = pageDetails.instagram_business_account?.id ?? null;
-            if (!instagramActorId) {
-                throw createValidationError(
-                    "Для Instagram placements до фанпейджі має бути прив’язаний Instagram business account",
-                    "CAMPAIGN_INSTAGRAM_ACTOR_REQUIRED"
-                );
-            }
-        }
-
-        const budgetMinor = budgetToMinorUnits(dailyBudget, account.currency);
-        const dsa = resolveDsaSettings(template, account);
-        const campaignFields = {
-            name: "AdsBot preflight",
-            objective: "OUTCOME_LEADS",
-            status: "PAUSED",
-            special_ad_categories: [],
-            ...buildCampaignBudgetSettings(template.shareAdSetBudget).campaign,
-        };
-        await this.#writeObject(`/${accountId}/campaigns`, campaignFields, {
-            validateOnly: true,
+            }, { accessToken }),
+            validateCampaign: (id, fields) => this.#writeObject(
+                `/${id}/campaigns`, fields, { validateOnly: true }
+            ),
         });
-
-        return {
-            adAccountId: accountId,
-            accountName: account.name ?? "",
-            currency: account.currency,
-            timezoneName: account.timezone_name,
-            pageId: normalizedPageId,
-            pageName: page.name,
-            postId: storyId,
-            pixel: { id: pixel.id, name: pixel.name ?? "" },
-            instagramActorId,
-            dailyBudgetMinor: budgetMinor,
-            startTime: normalizedStart.toISOString(),
-            targeting: buildTargeting(template),
-            dsa,
-        };
     }
 
 
     async createLeadCampaign(options, onProgress = () => {}) {
-        const {
-            campaignName,
-            template,
-            adSetCount,
-            createPaused = true,
-            createAdSetsPaused = true,
-            createAdsPaused = true,
-            adCreative = null,
-            utm = "",
-            resume = {},
-        } = options;
-        const count = Number(adSetCount);
-        if (!Number.isInteger(count) || count < 1 || count > 100) {
-            throw createValidationError(
-                "Кількість ad sets має бути від 1 до 100",
-                "CAMPAIGN_ADSET_COUNT_INVALID"
-            );
-        }
-        const name = String(campaignName ?? "").trim();
-        if (!name) {
-            throw createValidationError(
-                "Вкажіть назву кампанії",
-                "CAMPAIGN_NAME_REQUIRED"
-            );
-        }
-        const creativeEnhancements = buildCreativeEnhancementsOptOut(
-            template.disableCreativeEnhancements
-        );
-        const disableMultiAdvertiserAds = template.disableMultiAdvertiserAds
-            !== false;
-        const objects = {
-            campaignId: resume.campaignId ?? null,
-            creativeId: resume.creativeId ?? null,
-            adSets: Array.isArray(resume.adSets) ? [...resume.adSets] : [],
-            ads: Array.isArray(resume.ads) ? [...resume.ads] : [],
-        };
-        const emit = async (stage, detail = {}) => onProgress({
-            stage,
-            objects: structuredClone(objects),
-            ...detail,
+        return createLeadCampaignWorkflow(options, onProgress, {
+            preflight: (input) => this.preflightLeadCampaign(input),
+            createCampaign: (id, fields) => this.#writeObject(
+                `/${id}/campaigns`, fields
+            ),
+            createCreative: (id, fields, settings) => this.#writeObject(
+                `/${id}/adcreatives`, fields, settings
+            ),
+            createAdSet: (id, fields, settings) => this.#writeObject(
+                `/${id}/adsets`, fields, settings
+            ),
+            createAd: (id, fields, settings) => this.#writeObject(
+                `/${id}/ads`, fields, settings
+            ),
+            uploadImage: (id, image) => this.#uploadAdImage(id, image),
+            activate: (id) => this.#writeObject(`/${id}`, { status: "ACTIVE" }),
+            readback: (objects) => this.#readCampaignObjects(objects),
         });
-        let currentStage = "preflight";
-        let currentIndex = null;
+    }
 
-        try {
-            await emit("preflight", { message: "Перевіряємо доступи та ресурси" });
-            const preflight = await this.preflightLeadCampaign(options);
-            await emit("preflight-complete", { preflight });
 
-            currentStage = "campaign";
-            if (!objects.campaignId) {
-                const created = await this.#writeObject(
-                    `/${preflight.adAccountId}/campaigns`,
-                    {
-                        name,
-                        objective: "OUTCOME_LEADS",
-                        status: "PAUSED",
-                        special_ad_categories: [],
-                        ...buildCampaignBudgetSettings(template.shareAdSetBudget).campaign,
-                    }
-                );
-                objects.campaignId = created.id;
-                await emit("campaign", { message: "Campaign створено" });
-            }
-
-            currentStage = "creative";
-            if (!objects.creativeId) {
-                let creativeFields;
-                if (options.creativeMode === "image") {
-                    if (!adCreative?.image) {
-                        throw createValidationError(
-                            "Не передано зображення рекламного оголошення",
-                            "CAMPAIGN_AD_IMAGE_REQUIRED"
-                        );
-                    }
-                    const imageHash = await this.#uploadAdImage(
-                        preflight.adAccountId,
-                        adCreative.image
-                    );
-                    const callToActionType = String(
-                        adCreative.callToActionType ?? "NO_BUTTON"
-                    ).trim().toUpperCase();
-                    if (!new Set([
-                        "NO_BUTTON",
-                        "LEARN_MORE",
-                        "SHOP_NOW",
-                        "SIGN_UP",
-                    ]).has(callToActionType)) {
-                        throw createValidationError(
-                            "Непідтримуваний тип кнопки рекламного оголошення",
-                            "CAMPAIGN_AD_CALL_TO_ACTION_INVALID"
-                        );
-                    }
-                    creativeFields = {
-                        name: `${name} | Creative`,
-                        object_story_spec: {
-                            page_id: preflight.pageId,
-                            link_data: {
-                                image_hash: imageHash,
-                                link: String(adCreative.siteUrl ?? "").trim(),
-                                name: String(adCreative.headline ?? "").trim(),
-                                message: String(adCreative.primaryText ?? "").trim(),
-                                ...(callToActionType !== "NO_BUTTON" ? {
-                                    call_to_action: {
-                                        type: callToActionType,
-                                        value: {
-                                            link: String(adCreative.siteUrl ?? "").trim(),
-                                        },
-                                    },
-                                } : {}),
-                            },
-                        },
-                        url_tags: String(utm ?? "").trim(),
-                        ...(creativeEnhancements ? {
-                            degrees_of_freedom_spec: creativeEnhancements,
-                        } : {}),
-                        ...(disableMultiAdvertiserAds ? {
-                            contextual_multi_ads: { enroll_status: "OPT_OUT" },
-                        } : {}),
-                        ...(preflight.instagramActorId
-                            ? { instagram_actor_id: preflight.instagramActorId }
-                            : {}),
-                    };
-                } else {
-                    creativeFields = {
-                        name: `${name} | Creative`,
-                        object_story_id: preflight.postId,
-                        url_tags: String(utm ?? "").trim(),
-                        ...(creativeEnhancements ? {
-                            degrees_of_freedom_spec: creativeEnhancements,
-                        } : {}),
-                        ...(disableMultiAdvertiserAds ? {
-                            contextual_multi_ads: { enroll_status: "OPT_OUT" },
-                        } : {}),
-                        ...(preflight.instagramActorId
-                            ? { instagram_actor_id: preflight.instagramActorId }
-                            : {}),
-                    };
-                }
-                await this.#writeObject(
-                    `/${preflight.adAccountId}/adcreatives`,
-                    creativeFields,
-                    { validateOnly: true }
-                );
-                const created = await this.#writeObject(
-                    `/${preflight.adAccountId}/adcreatives`,
-                    creativeFields
-                );
-                objects.creativeId = created.id;
-                await emit("creative", { message: "Creative створено" });
-            }
-
-            for (let index = 0; index < count; index += 1) {
-                currentIndex = index;
-                const ordinal = String(index + 1).padStart(2, "0");
-                let adSet = objects.adSets.find((item) => item.index === index);
-                currentStage = "adset";
-                if (!adSet?.id) {
-                    const fields = {
-                        name: `${name} | AS ${ordinal}`,
-                        campaign_id: objects.campaignId,
-                        daily_budget: preflight.dailyBudgetMinor,
-                        ...buildCampaignBudgetSettings(template.shareAdSetBudget).adSet,
-                        billing_event: "IMPRESSIONS",
-                        optimization_goal: "OFFSITE_CONVERSIONS",
-                        promoted_object: {
-                            pixel_id: preflight.pixel.id,
-                            custom_event_type: "LEAD",
-                        },
-                        targeting: preflight.targeting,
-                        start_time: preflight.startTime,
-                        status: "PAUSED",
-                        ...(preflight.dsa ? {
-                            dsa_beneficiary: preflight.dsa.beneficiary,
-                            dsa_payor: preflight.dsa.payor,
-                        } : {}),
-                    };
-                    await this.#writeObject(
-                        `/${preflight.adAccountId}/adsets`,
-                        fields,
-                        { validateOnly: true }
-                    );
-                    const created = await this.#writeObject(
-                        `/${preflight.adAccountId}/adsets`,
-                        fields
-                    );
-                    adSet = { index, id: created.id, name: fields.name };
-                    objects.adSets.push(adSet);
-                    await emit("adset", {
-                        index,
-                        message: `Ad set ${index + 1}/${count} створено`,
-                    });
-                }
-
-                currentStage = "ad";
-                if (!objects.ads.some((item) => item.index === index && item.id)) {
-                    const fields = {
-                        name: `${name} | AD ${ordinal}`,
-                        adset_id: adSet.id,
-                        creative: { creative_id: objects.creativeId },
-                        status: "PAUSED",
-                    };
-                    await this.#writeObject(
-                        `/${preflight.adAccountId}/ads`,
-                        fields,
-                        { validateOnly: true }
-                    );
-                    const created = await this.#writeObject(
-                        `/${preflight.adAccountId}/ads`,
-                        fields
-                    );
-                    objects.ads.push({ index, id: created.id, name: fields.name });
-                    await emit("ad", {
-                        index,
-                        message: `Ad ${index + 1}/${count} створено`,
-                    });
-                }
-            }
-
-            if (!createAdsPaused || !createAdSetsPaused || !createPaused) {
-                currentStage = "activation";
-                if (!createAdsPaused) {
-                    for (const ad of objects.ads) {
-                        await this.#writeObject(`/${ad.id}`, { status: "ACTIVE" });
-                    }
-                }
-                if (!createAdSetsPaused) {
-                    for (const adSet of objects.adSets) {
-                        await this.#writeObject(`/${adSet.id}`, { status: "ACTIVE" });
-                    }
-                }
-                if (!createPaused) {
-                    await this.#writeObject(`/${objects.campaignId}`, {
-                        status: "ACTIVE",
-                    });
-                }
-                await emit("activation", { message: "Вибрані об’єкти активовано" });
-            }
-
-            currentStage = "readback";
-            await emit("readback", { message: "Перевіряємо створені об’єкти" });
-            const [campaignReadback, creativeReadback, adSetsReadback, adsReadback] = await Promise.all([
-                this.#readObject(
-                    objects.campaignId,
-                    ["id", "name", "status", "effective_status"]
-                ),
-                this.#readObject(
-                    objects.creativeId,
-                    [
-                        "id", "name", "degrees_of_freedom_spec",
-                        "contextual_multi_ads",
-                        "effective_object_story_id", "object_story_spec",
-                    ]
-                ),
-                Promise.all(objects.adSets.map((item) => this.#readObject(
-                    item.id,
-                    [
-                        "id", "name", "status", "effective_status",
-                        "start_time", "daily_budget", "targeting",
-                        "promoted_object", "dsa_beneficiary", "dsa_payor",
-                    ]
-                ))),
-                Promise.all(objects.ads.map((item) => this.#readObject(
-                    item.id,
-                    ["id", "name", "status", "effective_status", "creative"]
-                ))),
-            ]);
-            const returnedFeatures = creativeReadback
-                ?.degrees_of_freedom_spec
-                ?.creative_features_spec;
-            const warnings = [];
-            if (creativeEnhancements && !returnedFeatures) {
-                warnings.push(
-                    "Meta не повернула creative_features_spec для контрольної перевірки"
-                );
-            } else if (creativeEnhancements) {
-                const verification = verifyCreativeEnhancementsOptOut(
-                    returnedFeatures
-                );
-                if (verification.enabled.length) {
-                    warnings.push(
-                        `Meta не підтвердила OPT_OUT: ${verification.enabled.join(", ")}`
-                    );
-                }
-                if (verification.missing.length) {
-                    warnings.push(
-                        `Meta не підтвердила стан покращень: ${verification.missing.join(", ")}`
-                    );
-                }
-            }
-            if (
-                disableMultiAdvertiserAds
-                && creativeReadback?.contextual_multi_ads?.enroll_status !== "OPT_OUT"
-            ) {
-                warnings.push(
-                    "Meta не підтвердила вимкнення Multi-advertiser ads"
-                );
-            }
-            if (preflight.dsa) {
-                adSetsReadback.forEach((adSet, index) => {
-                    if (
-                        adSet.dsa_beneficiary !== preflight.dsa.beneficiary
-                        || adSet.dsa_payor !== preflight.dsa.payor
-                    ) {
-                        warnings.push(
-                            `Ad set ${index + 1}: Meta не підтвердила очікувані DSA beneficiary/payor`
-                        );
-                    }
-                });
-            }
-            const readback = {
-                campaign: campaignReadback,
-                creative: creativeReadback,
-                adSets: adSetsReadback,
-                ads: adsReadback,
-                warnings,
-            };
-
-            await emit("complete", { message: "Створення завершено" });
-            return { objects, preflight, readback, createPaused };
-        } catch (error) {
-            error.stage = currentStage;
-            error.itemIndex = currentIndex;
-            error.createdObjects = structuredClone(objects);
-            throw error;
-        }
+    async #readCampaignObjects(objects) {
+        const [campaignReadback, creativeReadback, adSetsReadback, adsReadback] = await Promise.all([
+            this.#readObject(
+                objects.campaignId,
+                ["id", "name", "status", "effective_status"]
+            ),
+            this.#readObject(
+                objects.creativeId,
+                [
+                    "id", "name", "degrees_of_freedom_spec",
+                    "contextual_multi_ads",
+                    "effective_object_story_id", "object_story_spec",
+                ]
+            ),
+            Promise.all(objects.adSets.map((item) => this.#readObject(
+                item.id,
+                [
+                    "id", "name", "status", "effective_status",
+                    "start_time", "daily_budget", "targeting",
+                    "promoted_object", "dsa_beneficiary", "dsa_payor",
+                ]
+            ))),
+            Promise.all(objects.ads.map((item) => this.#readObject(
+                item.id,
+                ["id", "name", "status", "effective_status", "creative"]
+            ))),
+        ]);
+        return { campaign: campaignReadback, creative: creativeReadback, adSets: adSetsReadback, ads: adsReadback };
     }
 
 

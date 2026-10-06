@@ -349,7 +349,7 @@ PAUSED. Після успішного створення активуються 
 За наявності обмежень шаблону targeting також отримує `device_platforms` і
 `user_os`; порожні масиви означають усі пристрої та всі мобільні ОС.
 
-Правила бюджету зосереджені у `facebook/api/CampaignBudget.js` і спільні для
+Правила бюджету зосереджені у `facebook/services/campaigns/CampaignBudget.js` і спільні для
 preflight та створення. `shareAdSetBudget` явно передається у campaign як
 `is_adset_budget_sharing_enabled`. Якщо розподіл увімкнений, campaign отримує
 `bid_strategy=LOWEST_COST_WITHOUT_CAP`, а ad sets успадковують її. Якщо вимкнений,
@@ -384,9 +384,20 @@ event `LEAD`; payload не надсилає WhatsApp або messaging-поля. 
 або скриншот. Це не вмикає автоматичний WhatsApp fallback у програмі.
 
 При частковій помилці Error містить безпечні поля `stage`, `itemIndex` і
-`createdObjects`. Повторна спроба приймає ці ID та створює лише відсутні
-елементи. API-записи не повторюються автоматично після невизначеної мережевої
+`createdObjects`. Ці ID потрібні для журналу та видалення відомих об’єктів.
+Продовження часткової кампанії не підтримується; новий запуск створює нову
+кампанію. API-записи не повторюються автоматично після невизначеної мережевої
 помилки.
+
+Послідовності перевірки й створення знаходяться у
+`facebook/workflows/preflightLeadCampaign.js` та `createLeadCampaign.js`.
+`facebook/services/campaigns/CampaignSettings.js` готує вхідні дані, targeting,
+DSA та параметри campaign/ad set/ad і перевіряє контрольні відповіді.
+`CampaignCreative.js` формує параметри креативу для поста або зображення.
+Ці модулі не виконують HTTP-запитів. Методи `FacebookGraphApi` зберігають
+поточний зовнішній інтерфейс і передають workflow операції запитів через
+приватні методи API-класу. `FacebookBackendService` готує текст і зображення,
+а GUI показує прогрес та результат.
 
 ## Публікація поста
 

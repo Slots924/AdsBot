@@ -9,7 +9,6 @@ import {
     Play,
     Plus,
     RefreshCw,
-    RotateCcw,
     Search,
     ShieldCheck,
     Trash2,
@@ -588,22 +587,6 @@ export default function CampaignCreationWizard({
         }
     };
 
-    const retry = async () => {
-        if (!jobId) return;
-        setCreating(true);
-        setFailure(null);
-        try {
-            const response = await unwrap(window.adsBot.retryCampaignCreation(jobId));
-            setWarnings([]);
-            setProgress({ stage: "queued", completed: 0, total: response.task.progress?.total || 0, message: "Повтор додано в чергу" });
-            onSuccess?.(response);
-        } catch (error) {
-            setFailure(errorDetails(error));
-        } finally {
-            setCreating(false);
-        }
-    };
-
     const cleanup = async () => {
         if (!jobId || !window.confirm("Видалити всі об’єкти, створені цією спробою?")) return;
         setCreating(true);
@@ -952,7 +935,7 @@ export default function CampaignCreationWizard({
                         ))}
 
                         <div className="form-actions campaign-wizard-actions">
-                            {failure && jobId && <>{failure.code !== "FACEBOOK_WRITE_OUTCOME_UNKNOWN" && <button type="button" className="secondary-button" disabled={creating} onClick={retry}><RotateCcw size={15} /> Повторити</button>}<button type="button" className="secondary-button danger" disabled={creating} onClick={cleanup}><Trash2 size={15} /> Видалити відомі об’єкти</button></>}
+                            {failure && jobId && <button type="button" className="secondary-button danger" disabled={creating} onClick={cleanup}><Trash2 size={15} /> Видалити відомі об’єкти</button>}
                             <span className="action-spacer" />
                             <button type="button" className="secondary-button" disabled={creating} onClick={onClose}>Закрити</button>
                             {!verified && <button className="primary-button" type="submit" disabled={!canCheck || checking || creating}>{checking ? <LoaderCircle className="spin" size={16} /> : <ShieldCheck size={16} />} Перевірити дані</button>}
