@@ -96,6 +96,7 @@ const frontendSuites = {
     campaign: ["src/test/campaign.test.jsx"],
     all: [
         "src/test/campaign.test.jsx",
+        "src/test/facebook-selectors.test.js",
         "src/test/gui.test.jsx",
         "src/test/journal-stats.test.jsx",
         "src/test/business-manager.test.jsx",

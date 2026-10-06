@@ -62,11 +62,24 @@ const page = createPage({
         },
     }),
 });
-const result = await updateBusinessInfo({
+const validInput = {
     page,
     commonPayload,
     billableAccountPaymentLegacyAccountId: "payment-account-id",
-});
+    currency: " usd ",
+    timezone: " Europe/Kiev ",
+    tax: {
+        businessAddress: {
+            city: "Washington",
+            countryCode: " us ",
+            state: "DC",
+            street1: "1600 Pennsylvania Avenue NW",
+            street2: "",
+            zip: "20500",
+        },
+    },
+};
+const result = await updateBusinessInfo(validInput);
 
 assert.equal(result.success, true);
 assert.equal(result.status, updateBusinessInfoStatuses.UPDATED);
@@ -85,6 +98,7 @@ assert.equal(parameters.get("__crn"), null);
 
 const variables = JSON.parse(parameters.get("variables"));
 assert.equal(variables.input.currency, "USD");
+assert.equal(variables.input.timezone, "Europe/Kiev");
 assert.deepEqual(variables.input.tax.business_address, {
     city: "Washington",
     country_code: "US",
@@ -97,6 +111,7 @@ assert.equal(variables.input.upl_logging_data.context, "billingaccountinfo");
 assert.equal(variables.input.upl_logging_data.target_name, parameters.get("fb_api_req_friendly_name"));
 
 const invalidResult = await updateBusinessInfo({
+    ...validInput,
     page: createPage({ ok: true, statusCode: 200, body: "{}" }),
     commonPayload,
     billableAccountPaymentLegacyAccountId: "",
@@ -104,5 +119,28 @@ const invalidResult = await updateBusinessInfo({
 
 assert.equal(invalidResult.success, false);
 assert.equal(invalidResult.status, updateBusinessInfoStatuses.INVALID_INPUT);
+
+const invalidInputs = [
+    { timezone: "" },
+    { tax: {} },
+    { currency: "US" },
+    ...["street1", "city", "state", "zip", "countryCode"].map((field) => ({
+        tax: { businessAddress: { ...validInput.tax.businessAddress, [field]: "" } },
+    })),
+];
+for (const patch of invalidInputs) {
+    const invalidPage = createPage({ ok: true, statusCode: 200, body: "{}" });
+    const rejected = await updateBusinessInfo({ ...validInput, ...patch, page: invalidPage });
+    assert.equal(rejected.success, false);
+    assert.equal(rejected.status, updateBusinessInfoStatuses.INVALID_INPUT);
+    assert.equal(invalidPage.calls.length, 0);
+}
+
+const missingResult = await updateBusinessInfo({
+    ...validInput,
+    page: createPage({ ok: true, statusCode: 200, body: '{"data":{}}' }),
+});
+assert.equal(missingResult.success, false);
+assert.equal(missingResult.status, updateBusinessInfoStatuses.UPDATE_RESULT_NOT_FOUND);
 
 console.log("Перевірка Facebook action оновлення business info пройшла успішно");

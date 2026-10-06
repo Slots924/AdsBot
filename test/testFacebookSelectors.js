@@ -105,7 +105,7 @@ assert.equal(
 );
 assert.equal(
     postLikeAreaSelector,
-    `${postDialogSelector} div[data-visualcompletion="ignore-dynamic"]`
+    reactionButtonSelector
 );
 assert.equal(
     topLevelCommentSelector,
@@ -154,11 +154,6 @@ assert.equal(
 );
 assert.equal(commentOrderingMenuItemSelector, '[role="menuitem"]');
 
-assert.equal(
-    reactionButtonSelector,
-    'div[role="dialog"][aria-modal="true"][aria-labelledby] '
-    + 'div[data-visualcompletion="ignore-dynamic"] [aria-label]'
-);
 assert.equal(
     reactionsToolbarSelector,
     'div[data-visualcompletion="ignore-dynamic"]'
