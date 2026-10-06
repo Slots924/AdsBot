@@ -1,0 +1,549 @@
+{
+  "version": 1,
+  "id": "3500ee16-1182-4a66-881b-3651c99d26a2",
+  "taskId": "9e8d642e-034a-47ae-829c-99b0f3f93e72",
+  "type": "campaign",
+  "title": "HU | Creo_1 | 30+ 06/10 08:21",
+  "status": "completed",
+  "createdAt": "2026-10-06T05:22:50.318Z",
+  "startedAt": "2026-10-06T05:21:45.362Z",
+  "finishedAt": "2026-10-06T05:22:50.317Z",
+  "durationMs": 64955,
+  "inputSummary": {
+    "campaignJobId": "871f9621-a6b9-4ab6-90a2-7a1e1c441625",
+    "accountKey": "account-031",
+    "adAccountId": "act_1304779850966250",
+    "campaignName": "HU | Creo_1 | 30+ 06/10 08:21",
+    "templateId": 13,
+    "pageId": "842986062231301",
+    "postId": "842986062231301_122164984419069632",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-10-06T05:21:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "campaignJobId": "871f9621-a6b9-4ab6-90a2-7a1e1c441625",
+    "objects": {
+      "campaignId": "120246576308150424",
+      "creativeId": "2649949305408238",
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120246576311470424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120246576314180424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120246576316060424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AS 03"
+        },
+        {
+          "index": 3,
+          "id": "120246576317510424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AS 04"
+        },
+        {
+          "index": 4,
+          "id": "120246576319520424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AS 05"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "id": "120246576313680424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AD 01"
+        },
+        {
+          "index": 1,
+          "id": "120246576314980424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AD 02"
+        },
+        {
+          "index": 2,
+          "id": "120246576316750424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AD 03"
+        },
+        {
+          "index": 3,
+          "id": "120246576318780424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AD 04"
+        },
+        {
+          "index": 4,
+          "id": "120246576320900424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AD 05"
+        }
+      ]
+    },
+    "readback": {
+      "campaign": {
+        "id": "120246576308150424",
+        "name": "HU | Creo_1 | 30+ 06/10 08:21",
+        "status": "ACTIVE",
+        "effective_status": "ACTIVE"
+      },
+      "creative": {
+        "id": "2649949305408238",
+        "name": "HU | Creo_1 | 30+ 06/10 08:21 | Creative 2026-10-05-892dc9566d606eb87b6064aa5373ab8a",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "add_text_overlay": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "audio": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "carousel_to_video": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "cv_transformation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "description_automation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "dha_optimization": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "enhance_cta": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "generate_cta": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_animation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_auto_crop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_background_gen": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_enhancement": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_templates": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_text_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_touchups": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_uncrop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "media_order": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "media_type_automation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "music_generation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "pac_recomposition": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "pac_relaxation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "product_browsing": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "product_extensions": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "product_tags": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "site_extensions": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "standard_enhancements": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_generation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_optimizations": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "translate_voiceover": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_auto_crop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_filtering": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_highlight": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_highlights": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_to_image": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_uncrop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_voiceover": {
+              "enroll_status": "[MAX_DEPTH]"
+            }
+          }
+        },
+        "contextual_multi_ads": {
+          "enroll_status": "OPT_OUT"
+        },
+        "effective_object_story_id": "842986062231301_122164984419069632"
+      },
+      "adSets": [
+        {
+          "id": "120246576311470424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AS 01",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-10-06T08:21:56+0300",
+          "daily_budget": "2000",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 30,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "2220116245583694",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "dsa_beneficiary": "Onion Grock",
+          "dsa_payor": "Onion Grock",
+          "__fb_trace_id__": "Hzr2/lO1iPF",
+          "__www_request_id__": "AhjDXJP88IniIWMhHJ2uorg"
+        },
+        {
+          "id": "120246576314180424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AS 02",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-10-06T08:22:04+0300",
+          "daily_budget": "2000",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 30,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "2220116245583694",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "dsa_beneficiary": "Onion Grock",
+          "dsa_payor": "Onion Grock",
+          "__fb_trace_id__": "GwnHq7zG2k4",
+          "__www_request_id__": "ARRjuQ82bF1g7pVJ2NLmb1M"
+        },
+        {
+          "id": "120246576316060424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AS 03",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-10-06T08:22:12+0300",
+          "daily_budget": "2000",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 30,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "2220116245583694",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "dsa_beneficiary": "Onion Grock",
+          "dsa_payor": "Onion Grock",
+          "__fb_trace_id__": "D3g00W39XUp",
+          "__www_request_id__": "APwfZRFN4yGreeEfQ-v0WZL"
+        },
+        {
+          "id": "120246576317510424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AS 04",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-10-06T08:22:19+0300",
+          "daily_budget": "2000",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 30,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "2220116245583694",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "dsa_beneficiary": "Onion Grock",
+          "dsa_payor": "Onion Grock",
+          "__fb_trace_id__": "DzEk25/JzLT",
+          "__www_request_id__": "AIBb-L2xzl3sqQutW44YBAS"
+        },
+        {
+          "id": "120246576319520424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AS 05",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-10-06T08:22:26+0300",
+          "daily_budget": "2000",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 30,
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "2220116245583694",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "dsa_beneficiary": "Onion Grock",
+          "dsa_payor": "Onion Grock",
+          "__fb_trace_id__": "HlpE2IQxT/G",
+          "__www_request_id__": "Awwj63vjyB9hXJa7-1VgS0V"
+        }
+      ],
+      "ads": [
+        {
+          "id": "120246576313680424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AD 01",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "2649949305408238"
+          },
+          "__fb_trace_id__": "HAInh4+12lT",
+          "__www_request_id__": "A0JoIXz8k8wiQzuGDazFT2K"
+        },
+        {
+          "id": "120246576314980424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AD 02",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "2649949305408238"
+          },
+          "__fb_trace_id__": "DB9hbu+JteD",
+          "__www_request_id__": "ARno7vN4-kQHuER2IdwiMyv"
+        },
+        {
+          "id": "120246576316750424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AD 03",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "2649949305408238"
+          },
+          "__fb_trace_id__": "BUiCyLMgg8g",
+          "__www_request_id__": "Aei-OXsvLLEiL9BHErDpS1x"
+        },
+        {
+          "id": "120246576318780424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AD 04",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "2649949305408238"
+          },
+          "__fb_trace_id__": "Ep8sBGsRwrL",
+          "__www_request_id__": "AR3_Hv9iG_b2e7u8aMDccsg"
+        },
+        {
+          "id": "120246576320900424",
+          "name": "HU | Creo_1 | 30+ 06/10 08:21 | AD 05",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "2649949305408238"
+          },
+          "__fb_trace_id__": "BtTNlzgZGn1",
+          "__www_request_id__": "A9yefhgZrDZkhCeM_jSmtE4"
+        }
+      ],
+      "warnings": []
+    }
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "871f9621-a6b9-4ab6-90a2-7a1e1c441625",
+    "accountKey": "account-031",
+    "adAccountId": "act_1304779850966250",
+    "uniqueKey": "campaign-job:871f9621-a6b9-4ab6-90a2-7a1e1c441625"
+  }
+}

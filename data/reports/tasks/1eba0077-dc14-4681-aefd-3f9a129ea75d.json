@@ -1,0 +1,273 @@
+{
+  "version": 1,
+  "id": "1eba0077-dc14-4681-aefd-3f9a129ea75d",
+  "taskId": "2b204134-a59f-4937-be43-0ea82932ad01",
+  "type": "comment-account-health",
+  "title": "Перевірка акаунтів під коментарі · 20",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-05T13:01:24.452Z",
+  "startedAt": "2026-10-05T12:57:13.004Z",
+  "finishedAt": "2026-10-05T13:01:24.451Z",
+  "durationMs": 251447,
+  "inputSummary": {
+    "profileNos": [
+      "112",
+      "254",
+      "256",
+      "348",
+      "629",
+      "1119",
+      "1218",
+      "1378",
+      "1385",
+      "1390",
+      "1418",
+      "1434",
+      "1439",
+      "1585",
+      "1866",
+      "1880",
+      "1882",
+      "2034",
+      "2049",
+      "2069"
+    ]
+  },
+  "resultSummary": {
+    "startedAt": "2026-10-05T12:57:13.006Z",
+    "finishedAt": "2026-10-05T13:01:24.450Z",
+    "profileNos": [
+      "112",
+      "254",
+      "256",
+      "348",
+      "629",
+      "1119",
+      "1218",
+      "1378",
+      "1385",
+      "1390",
+      "1418",
+      "1434",
+      "1439",
+      "1585",
+      "1866",
+      "1880",
+      "1882",
+      "2034",
+      "2049",
+      "2069"
+    ],
+    "profiles": [
+      {
+        "profileNo": "112",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "254",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "256",
+        "outcome": "banned",
+        "login": "—",
+        "active": "BAN TAG",
+        "english": "—",
+        "error": null,
+        "duration": "0 с"
+      },
+      {
+        "profileNo": "348",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "14 с"
+      },
+      {
+        "profileNo": "629",
+        "outcome": "inactive",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: READY",
+        "duration": "16 с"
+      },
+      {
+        "profileNo": "1119",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "1218",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "1378",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "1385",
+        "outcome": "error",
+        "login": "—",
+        "active": "—",
+        "english": "—",
+        "error": "Protocol error (Browser.getWindowForTarget): Browser window not found",
+        "duration": "5 с"
+      },
+      {
+        "profileNo": "1390",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "12 с"
+      },
+      {
+        "profileNo": "1418",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "1434",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "12 с"
+      },
+      {
+        "profileNo": "1439",
+        "outcome": "banned",
+        "login": "—",
+        "active": "BAN TAG",
+        "english": "—",
+        "error": null,
+        "duration": "0 с"
+      },
+      {
+        "profileNo": "1585",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "1866",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "14 с"
+      },
+      {
+        "profileNo": "1880",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "14 с"
+      },
+      {
+        "profileNo": "1882",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "14 с"
+      },
+      {
+        "profileNo": "2034",
+        "outcome": "inactive",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: ACCOUNT_LOCK",
+        "duration": "22 с"
+      },
+      {
+        "profileNo": "2049",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "15 с"
+      },
+      {
+        "profileNo": "2069",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "duration": "13 с"
+      }
+    ],
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-health-report_2026-10-05T13-01-24-450Z.md"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "112",
+      "254",
+      "256",
+      "348",
+      "629",
+      "1119",
+      "1218",
+      "1378",
+      "1385",
+      "1390",
+      "1418",
+      "1434",
+      "1439",
+      "1585",
+      "1866",
+      "1880",
+      "1882",
+      "2034",
+      "2049",
+      "2069"
+    ]
+  }
+}

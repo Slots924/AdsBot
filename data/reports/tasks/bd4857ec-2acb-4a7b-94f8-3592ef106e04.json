@@ -1,0 +1,317 @@
+{
+  "version": 1,
+  "id": "bd4857ec-2acb-4a7b-94f8-3592ef106e04",
+  "taskId": "5cea7e16-0733-4c6c-bc14-ca2ab677ec8e",
+  "type": "comment-reactions",
+  "title": "Реакції під коментарями · 12",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-05T12:49:10.578Z",
+  "startedAt": "2026-10-05T12:38:30.457Z",
+  "finishedAt": "2026-10-05T12:49:10.577Z",
+  "durationMs": 640120,
+  "inputSummary": {
+    "profileNos": [
+      "112",
+      "254",
+      "256",
+      "348",
+      "629",
+      "1385",
+      "1390",
+      "1418",
+      "1434",
+      "1439",
+      "1882",
+      "2069"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/1DUhyuvPgG/",
+    "reactions": {
+      "like": 1,
+      "love": 3,
+      "care": 3
+    },
+    "includeReplies": false,
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "startedAt": "2026-10-05T12:38:30.459Z",
+    "finishedAt": "2026-10-05T12:49:10.576Z",
+    "postUrl": "https://www.facebook.com/share/p/1DUhyuvPgG/",
+    "reactions": {
+      "like": 1,
+      "love": 3,
+      "care": 3
+    },
+    "includeReplies": false,
+    "concurrency": 1,
+    "profiles": [
+      {
+        "profileNo": "112",
+        "reaction": "like",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 7,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 7,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-05T12:38:30.459Z",
+        "finishedAt": "2026-10-05T12:39:37.857Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "254",
+        "reaction": "love",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 7,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 7,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-05T12:39:37.860Z",
+        "finishedAt": "2026-10-05T12:40:52.843Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "256",
+        "reaction": "love",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-05T12:40:52.845Z",
+        "finishedAt": "2026-10-05T12:41:14.942Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "348",
+        "reaction": "love",
+        "outcome": "completed_with_warnings",
+        "stage": "SET_REACTION",
+        "applied": 5,
+        "alreadyReacted": 0,
+        "failed": 2,
+        "commentsFound": 7,
+        "errors": [
+          {
+            "commentId": "2170435906841133",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1905540594188510",
+            "reason": "VERIFICATION_FAILED"
+          }
+        ],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-05T12:41:14.943Z",
+        "finishedAt": "2026-10-05T12:42:26.949Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "629",
+        "reaction": "love",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-05T12:42:26.951Z",
+        "finishedAt": "2026-10-05T12:42:47.056Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1385",
+        "reaction": "love",
+        "outcome": "failed",
+        "stage": "OPEN_PROFILE",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Protocol error (Browser.getWindowForTarget): Browser window not found",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-05T12:42:47.057Z",
+        "finishedAt": "2026-10-05T12:42:57.638Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1390",
+        "reaction": "love",
+        "outcome": "completed_with_warnings",
+        "stage": "SET_REACTION",
+        "applied": 5,
+        "alreadyReacted": 0,
+        "failed": 2,
+        "commentsFound": 7,
+        "errors": [
+          {
+            "commentId": "4090266994606919",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "2170435906841133",
+            "reason": "VERIFICATION_FAILED"
+          }
+        ],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-05T12:42:57.639Z",
+        "finishedAt": "2026-10-05T12:44:06.379Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1418",
+        "reaction": "care",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 7,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 7,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-05T12:44:06.381Z",
+        "finishedAt": "2026-10-05T12:45:17.840Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1434",
+        "reaction": "care",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-05T12:45:17.842Z",
+        "finishedAt": "2026-10-05T12:46:01.502Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1439",
+        "reaction": "care",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-05T12:46:01.503Z",
+        "finishedAt": "2026-10-05T12:46:24.588Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1882",
+        "reaction": "care",
+        "outcome": "completed_with_warnings",
+        "stage": "SET_REACTION",
+        "applied": 5,
+        "alreadyReacted": 0,
+        "failed": 2,
+        "commentsFound": 7,
+        "errors": [
+          {
+            "commentId": "1794846421645274",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "2867763333599379",
+            "reason": "VERIFICATION_FAILED"
+          }
+        ],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-05T12:46:24.590Z",
+        "finishedAt": "2026-10-05T12:47:45.434Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "2069",
+        "reaction": "care",
+        "outcome": "completed_with_warnings",
+        "stage": "SET_REACTION",
+        "applied": 5,
+        "alreadyReacted": 0,
+        "failed": 2,
+        "commentsFound": 7,
+        "errors": [
+          {
+            "commentId": "2170435906841133",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "1905540594188510",
+            "reason": "ERROR"
+          }
+        ],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-05T12:47:45.436Z",
+        "finishedAt": "2026-10-05T12:49:10.574Z",
+        "workerId": 1
+      }
+    ],
+    "unusedProfiles": [],
+    "unfulfilledReactions": {
+      "like": 0,
+      "love": 0,
+      "care": 0
+    },
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-reaction-report_2026-10-05T12-49-10-576Z.md"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "112",
+      "254",
+      "256",
+      "348",
+      "629",
+      "1385",
+      "1390",
+      "1418",
+      "1434",
+      "1439",
+      "1882",
+      "2069"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/1DUhyuvPgG/",
+    "reactions": {
+      "like": 1,
+      "love": 3,
+      "care": 3
+    }
+  }
+}

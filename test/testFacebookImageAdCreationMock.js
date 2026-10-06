@@ -85,6 +85,11 @@ const api = new FacebookGraphApi({
             if (pathname === "/act_1/adspixels") {
                 return { data: { data: [{ id: "30", name: "Pixel" }] } };
             }
+            if (pathname === "/act_1/campaigns" && config.method === "post"
+                && config.data.get("is_adset_budget_sharing_enabled") === "false"
+                && config.data.has("bid_strategy")) {
+                throw new Error("This campaign doesn't have a budget. Add a budget to edit the bid strategy.");
+            }
             if (validateOnly) return { data: { success: true } };
             if (pathname === "/act_1/campaigns" && config.method === "post") {
                 return { data: { id: "campaign-image" } };
@@ -172,6 +177,23 @@ const result = await api.createLeadCampaign({
 });
 
 assert.equal(result.objects.campaignId, "campaign-image");
+const campaignRequests = requests.filter((request) => (
+    request.method === "post" && request.url.endsWith("/act_1/campaigns")
+));
+assert.equal(campaignRequests.length, 2);
+for (const request of campaignRequests) {
+    assert.equal(request.data.get("is_adset_budget_sharing_enabled"), "false");
+    assert.equal(request.data.has("bid_strategy"), false);
+    assert.equal(request.data.has("daily_budget"), false);
+}
+const adSetRequests = requests.filter((request) => (
+    request.method === "post" && request.url.endsWith("/act_1/adsets")
+));
+assert.equal(adSetRequests.length, 2);
+for (const request of adSetRequests) {
+    assert.equal(request.data.get("bid_strategy"), "LOWEST_COST_WITHOUT_CAP");
+    assert.equal(request.data.get("daily_budget"), "500");
+}
 const creativeRequest = requests.find((request) => (
     request.method === "post"
     && request.url.endsWith("/act_1/adcreatives")

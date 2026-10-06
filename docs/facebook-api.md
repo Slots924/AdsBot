@@ -349,6 +349,13 @@ PAUSED. Після успішного створення активуються 
 За наявності обмежень шаблону targeting також отримує `device_platforms` і
 `user_os`; порожні масиви означають усі пристрої та всі мобільні ОС.
 
+Правила бюджету зосереджені у `facebook/api/CampaignBudget.js` і спільні для
+preflight та створення. `shareAdSetBudget` явно передається у campaign як
+`is_adset_budget_sharing_enabled`. Якщо розподіл увімкнений, campaign отримує
+`bid_strategy=LOWEST_COST_WITHOUT_CAP`, а ad sets успадковують її. Якщо вимкнений,
+campaign не отримує `bid_strategy`, а кожний ad set отримує її разом зі своїм
+`daily_budget`. Бюджет в обох режимах задається лише на рівні ad set.
+
 Мовний фільтр шаблону передається в Meta як `targeting.locales` — масив
 числових ID мов Meta. Порожній список мов не додає `locales` до targeting,
 тобто для старих шаблонів без вибраної мови поведінка залишається без

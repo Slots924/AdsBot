@@ -1,4 +1,5 @@
 import { getLogger } from "../../services/logging/runtimeLogger.js";
+import { buildCampaignBudgetSettings } from "./CampaignBudget.js";
 import {
     buildCreativeEnhancementsOptOut,
     verifyCreativeEnhancementsOptOut,
@@ -2389,8 +2390,7 @@ export default class FacebookGraphApi {
             objective: "OUTCOME_LEADS",
             status: "PAUSED",
             special_ad_categories: [],
-            bid_strategy: "LOWEST_COST_WITHOUT_CAP",
-            is_adset_budget_sharing_enabled: template.shareAdSetBudget,
+            ...buildCampaignBudgetSettings(template.shareAdSetBudget).campaign,
         };
         await this.#writeObject(`/${accountId}/campaigns`, campaignFields, {
             validateOnly: true,
@@ -2473,9 +2473,7 @@ export default class FacebookGraphApi {
                         objective: "OUTCOME_LEADS",
                         status: "PAUSED",
                         special_ad_categories: [],
-                        bid_strategy: "LOWEST_COST_WITHOUT_CAP",
-                        is_adset_budget_sharing_enabled:
-                            template.shareAdSetBudget,
+                        ...buildCampaignBudgetSettings(template.shareAdSetBudget).campaign,
                     }
                 );
                 objects.campaignId = created.id;
@@ -2579,6 +2577,7 @@ export default class FacebookGraphApi {
                         name: `${name} | AS ${ordinal}`,
                         campaign_id: objects.campaignId,
                         daily_budget: preflight.dailyBudgetMinor,
+                        ...buildCampaignBudgetSettings(template.shareAdSetBudget).adSet,
                         billing_event: "IMPRESSIONS",
                         optimization_goal: "OFFSITE_CONVERSIONS",
                         promoted_object: {

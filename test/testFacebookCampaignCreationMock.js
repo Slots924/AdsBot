@@ -184,6 +184,18 @@ const actualCampaign = requests.find((request) => (
 assert.equal(actualCampaign.data.get("objective"), "OUTCOME_LEADS");
 assert.equal(actualCampaign.data.get("status"), "PAUSED");
 assert.equal(actualCampaign.data.get("is_adset_budget_sharing_enabled"), "true");
+for (const request of requests.filter((item) => (
+    item.method === "post" && item.url.endsWith("/act_1/campaigns")
+))) {
+    assert.equal(request.data.get("is_adset_budget_sharing_enabled"), "true");
+    assert.equal(request.data.get("bid_strategy"), "LOWEST_COST_WITHOUT_CAP");
+    assert.equal(request.data.has("daily_budget"), false);
+}
+for (const request of requests.filter((item) => (
+    item.method === "post" && item.url.endsWith("/act_1/adsets")
+))) {
+    assert.equal(request.data.has("bid_strategy"), false);
+}
 
 const actualAdSet = requests.find((request) => (
     request.method === "post"

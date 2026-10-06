@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "adb10cdc-7235-455f-a4ed-3551317c34d7",
+  "taskId": "f7abc490-d4ff-445b-8e72-361abfea02e3",
+  "type": "facebook-api-client-sync",
+  "title": "Синхронізація API-клієнта account-031",
+  "status": "failed",
+  "createdAt": "2026-10-05T20:03:07.236Z",
+  "startedAt": "2026-10-05T20:02:33.393Z",
+  "finishedAt": "2026-10-05T20:03:07.235Z",
+  "durationMs": 33842,
+  "inputSummary": {
+    "accountKey": "account-031",
+    "adsPowerProfileNo": "1422"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Не знайдено access token у DOM Ads Manager",
+      "code": null,
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-031",
+    "uniqueKey": "facebook-api-client-sync:account-031"
+  }
+}
