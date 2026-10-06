@@ -251,9 +251,16 @@ export function buildAdSetFields({ name, ordinal, campaignId, template, prefligh
 }
 
 
-export function buildAdFields({ name, ordinal, adSetId, creativeId }) {
+export function buildAdFields({ name, ordinal, adSetId, creativeId, creativeName }) {
+    const number = String(creativeName ?? "").trim().replace(/^Creo_/i, "");
+    const countPattern = /\|\s*\d+\s+креативів(?=\s*\||$)/u;
+    const adName = number
+        ? countPattern.test(name)
+            ? name.replace(countPattern, () => `| Creo_${number}`)
+            : `${name} | Creo_${number}`
+        : name;
     return {
-        name: `${name} | AD ${ordinal}`,
+        name: `${adName} | AD ${ordinal}`,
         adset_id: adSetId,
         creative: { creative_id: creativeId },
         status: "PAUSED",

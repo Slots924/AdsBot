@@ -2,6 +2,453 @@
   "version": 1,
   "tasks": [
     {
+      "id": "8e893adb-bc2b-4c33-b14a-0fbedf3c013f",
+      "type": "campaign",
+      "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "b36d76c5-717d-4aeb-9f97-b7b15cc727d2"
+      },
+      "metadata": {
+        "campaignJobId": "b36d76c5-717d-4aeb-9f97-b7b15cc727d2",
+        "accountKey": "account-034",
+        "adAccountId": "act_1829339134612159",
+        "uniqueKey": "campaign-job:b36d76c5-717d-4aeb-9f97-b7b15cc727d2",
+        "reportId": "9681f008-9106-406d-8855-3e37c41a3979"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "failed",
+        "message": "An unexpected error has occurred. Please retry your request later.",
+        "objects": {
+          "campaignId": "120252526302680758",
+          "creativeId": "1347602440656035",
+          "creatives": [
+            {
+              "id": "1347602440656035",
+              "pageId": "1272886725918152",
+              "postId": "1272886725918152_122099100357503197"
+            },
+            {
+              "id": "1620764092823043",
+              "pageId": "1251747324697859",
+              "postId": "1251747324697859_122120424087467973"
+            },
+            {
+              "id": "1539488561318212",
+              "pageId": "813912285138400",
+              "postId": "813912285138400_122148758895067169"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120252526306750758",
+              "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120252526308960758",
+              "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AS 02"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120252526307460758",
+              "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 01 | 1272886725918152_122099100357503197"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 1,
+              "id": "120252526308060758",
+              "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 01 | 1251747324697859_122120424087467973"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 2,
+              "id": "120252526308610758",
+              "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 01 | 813912285138400_122148758895067169"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120252526309590758",
+              "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 02 | 1272886725918152_122099100357503197"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 1,
+              "id": "120252526309830758",
+              "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 02 | 1251747324697859_122120424087467973"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 2,
+              "id": "120252526311570758",
+              "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 02 | 813912285138400_122148758895067169"
+            }
+          ]
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "An unexpected error has occurred. Please retry your request later.",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": "activation",
+        "graphCode": 2,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-10-06T08:04:09.138Z",
+      "startedAt": "2026-10-06T08:04:09.140Z",
+      "finishedAt": "2026-10-06T08:05:37.926Z",
+      "updatedAt": "2026-10-06T08:05:37.928Z"
+    },
+    {
+      "id": "1860800b-e326-4c26-9b7a-b9d7d2ccb36e",
+      "type": "publication",
+      "name": "Публікація · DE · 28",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-034",
+        "pageId": "813912285138400",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "28",
+        "siteUrl": "https://show-me.click/DJ28E",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\028\\freepik__35mm-film-photography-generate-a-highly-photoreali__80878 1_19ba9476c81.png"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-034",
+        "pageId": "813912285138400",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "28",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "463d04f8-afe8-4afd-a807-5c2d698f6fc0"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-034",
+        "pageId": "813912285138400",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "28",
+        "siteUrl": "https://show-me.click/DJ28E",
+        "postId": "813912285138400_122148758895067169",
+        "permalinkUrl": "https://www.facebook.com/61582015070055/posts/pfbid02eBmK2czyzRHA4mjiHx8yZVqeC7uaLcNqKqyokAYpr4ALW93y1tyPbjyFUwkgTPgzl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-06T08:03:19.201Z",
+      "startedAt": "2026-10-06T08:03:19.203Z",
+      "finishedAt": "2026-10-06T08:03:29.411Z",
+      "updatedAt": "2026-10-06T08:03:29.413Z"
+    },
+    {
+      "id": "cd225592-312b-4a3e-b05e-be71bea5ab61",
+      "type": "publication",
+      "name": "Публікація · DE · 4",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-034",
+        "pageId": "1272886725918152",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "4",
+        "siteUrl": "https://daters.click/D4J",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558674094_17876948694410212_5685162515973610647_n.png",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558967207_17876948703410212_8701678181365780701_n.png"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-034",
+        "pageId": "1272886725918152",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "4",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "fbf704a9-7bf5-4f5f-bf24-3d23a295aa90"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-034",
+        "pageId": "1272886725918152",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "4",
+        "siteUrl": "https://daters.click/D4J",
+        "postId": "1272886725918152_122099100357503197",
+        "permalinkUrl": "https://www.facebook.com/61595095912229/posts/pfbid02Qy7Kjtm6qV4Jdkis3uAe5dVzMK67E88KHTUuBn63XD82qcwnUYHyjtBRGAxmMkgbl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-06T08:02:51.570Z",
+      "startedAt": "2026-10-06T08:02:51.572Z",
+      "finishedAt": "2026-10-06T08:03:02.620Z",
+      "updatedAt": "2026-10-06T08:03:02.622Z"
+    },
+    {
+      "id": "10ab99f1-249f-41a6-851f-a2dca5d063e6",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 813912285138400_122148640845067169",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-034",
+        "pageId": "813912285138400",
+        "postId": "813912285138400_122148640845067169"
+      },
+      "metadata": {
+        "accountKey": "account-034",
+        "pageId": "813912285138400",
+        "reportId": "f897e449-60c5-455e-aa7f-b355343d3655"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "813912285138400_122148640845067169"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-06T08:01:52.960Z",
+      "startedAt": "2026-10-06T08:01:52.962Z",
+      "finishedAt": "2026-10-06T08:02:01.285Z",
+      "updatedAt": "2026-10-06T08:02:01.287Z"
+    },
+    {
+      "id": "38a53d57-f018-4095-b228-572550889d1a",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1272886725918152_122098242609503197",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-034",
+        "pageId": "1272886725918152",
+        "postId": "1272886725918152_122098242609503197"
+      },
+      "metadata": {
+        "accountKey": "account-034",
+        "pageId": "1272886725918152",
+        "reportId": "f36014ad-a0b2-4b3c-b5cb-12fe78fa7e1c"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1272886725918152_122098242609503197"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-06T08:01:41.238Z",
+      "startedAt": "2026-10-06T08:01:41.241Z",
+      "finishedAt": "2026-10-06T08:01:47.926Z",
+      "updatedAt": "2026-10-06T08:01:47.929Z"
+    },
+    {
+      "id": "005ac9c5-59cf-473b-a7e3-5217e0406a1c",
+      "type": "campaign",
+      "name": "AT | CBO | 2 креативів | 30+ 06/10 10:37",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "f42c1c5d-33b7-4efd-97f2-bdc542a8d5bb"
+      },
+      "metadata": {
+        "campaignJobId": "f42c1c5d-33b7-4efd-97f2-bdc542a8d5bb",
+        "accountKey": "account-031",
+        "adAccountId": "act_1304779850966250",
+        "uniqueKey": "campaign-job:f42c1c5d-33b7-4efd-97f2-bdc542a8d5bb",
+        "reportId": "afaf6116-79bb-45e8-a806-a6fc28b0fd31"
+      },
+      "progress": {
+        "completed": 7,
+        "total": 7,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120246578543380424",
+          "creativeId": "1576527177001785",
+          "creatives": [
+            {
+              "id": "1576527177001785",
+              "pageId": "1437866019399969",
+              "postId": "1437866019399969_122094974973499318"
+            },
+            {
+              "id": "2033237763992726",
+              "pageId": "837142986147508",
+              "postId": "837142986147508_122145998775081663"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120246578549950424",
+              "name": "AT | CBO | 2 креативів | 30+ 06/10 10:37 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120246578552330424",
+              "name": "AT | CBO | 2 креативів | 30+ 06/10 10:37 | AD 01 | 1437866019399969_122094974973499318"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 1,
+              "id": "120246578553790424",
+              "name": "AT | CBO | 2 креативів | 30+ 06/10 10:37 | AD 01 | 837142986147508_122145998775081663"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "f42c1c5d-33b7-4efd-97f2-bdc542a8d5bb",
+        "campaignId": "120246578543380424",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-06T07:38:06.195Z",
+      "startedAt": "2026-10-06T07:38:06.196Z",
+      "finishedAt": "2026-10-06T07:38:39.981Z",
+      "updatedAt": "2026-10-06T07:38:39.985Z"
+    },
+    {
+      "id": "49d5675b-1644-43fb-bf54-31dd6950e774",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-033",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:488",
+          "label": "AdsPower №488"
+        }
+      ],
+      "input": {
+        "accountKey": "account-033",
+        "adsPowerProfileNo": "488"
+      },
+      "metadata": {
+        "accountKey": "account-033",
+        "uniqueKey": "facebook-api-client-sync:account-033",
+        "reportId": "40ecdd2b-8c88-4ee5-8588-e15b913aa77e"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-033",
+        "adsPowerProfileNo": "488",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-06T07:34:52.391Z",
+      "startedAt": "2026-10-06T07:34:52.393Z",
+      "finishedAt": "2026-10-06T07:35:08.810Z",
+      "updatedAt": "2026-10-06T07:35:08.812Z"
+    },
+    {
       "id": "9eb764cc-d7e9-44ff-8a9d-d6f052085e0b",
       "type": "campaign",
       "name": "AT | Creo_4 | 30+ 06/10 09:49",

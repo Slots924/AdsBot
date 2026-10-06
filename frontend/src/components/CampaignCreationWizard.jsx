@@ -405,7 +405,11 @@ export default function CampaignCreationWizard({
         ...(batch ? {
             budgetMode: form.budgetMode,
             campaignBudget: Number(form.campaignBudget),
-            posts: selectedBatchPosts.map((post) => ({ pageId: String(post.page.id), postId: String(post.id) })),
+            posts: selectedBatchPosts.map((post) => ({
+                pageId: String(post.page.id),
+                postId: String(post.id),
+                creativeName: String(post.page.creativeName || ""),
+            })),
         } : {}),
         startTime: zonedValueToIso(form.startTime, timezone),
         createPaused: !launchStatuses.campaign,

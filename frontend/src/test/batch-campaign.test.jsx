@@ -58,7 +58,7 @@ it("оновлює всі вибрані фанки під час вибору �
     fireEvent.click(screen.getByRole("button", { name: "Поставити в чергу" }));
     await waitFor(() => expect(window.adsBot.startCampaignCreation).toHaveBeenCalledWith(expect.objectContaining({
         budgetMode: "campaign", campaignBudget: 45, adSetCount: 5,
-        posts: [{ pageId: "10", postId: "10_20" }, { pageId: "11", postId: "11_20" }],
+        posts: [{ pageId: "10", postId: "10_20", creativeName: "138" }, { pageId: "11", postId: "11_20", creativeName: "4" }],
         pixelId: "30", templateId: 1, createPaused: true,
     })));
 });

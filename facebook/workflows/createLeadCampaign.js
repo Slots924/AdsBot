@@ -68,7 +68,7 @@ export default async function createLeadCampaign(options, onProgress = () => {},
             imageHash = await operations.uploadImage(preflight.adAccountId, adCreative.image);
         }
         const postPreflights = preflight.posts ?? [preflight];
-        for (const postPreflight of postPreflights) {
+        for (const [creativeIndex, postPreflight] of postPreflights.entries()) {
             const creativeFields = buildCampaignCreativeFields({
                 options,
                 name: postPreflights.length > 1 ? `${name} | ${postPreflight.postId}` : name,
@@ -78,7 +78,12 @@ export default async function createLeadCampaign(options, onProgress = () => {},
             await operations.createCreative(preflight.adAccountId, creativeFields, { validateOnly: true });
             const creative = await operations.createCreative(preflight.adAccountId, creativeFields);
             objects.creativeId ??= creative.id;
-            objects.creatives.push({ id: creative.id, pageId: postPreflight.pageId, postId: postPreflight.postId });
+            objects.creatives.push({
+                id: creative.id,
+                pageId: postPreflight.pageId,
+                postId: postPreflight.postId,
+                creativeName: options.posts?.[creativeIndex]?.creativeName,
+            });
             await emit("creative", { message: `Креатив ${objects.creatives.length}/${postPreflights.length} створено` });
         }
 
@@ -110,6 +115,7 @@ export default async function createLeadCampaign(options, onProgress = () => {},
                     ordinal: objects.creatives.length > 1 ? `${ordinal} | ${creative.postId}` : ordinal,
                     adSetId: adSet.id,
                     creativeId: creative.id,
+                    creativeName: creative.creativeName,
                 });
                 await operations.createAd(preflight.adAccountId, adFields, { validateOnly: true });
                 const ad = await operations.createAd(preflight.adAccountId, adFields);

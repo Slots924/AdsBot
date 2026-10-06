@@ -4,8 +4,8 @@ import createLeadCampaign from "../facebook/workflows/createLeadCampaign.js";
 import FacebookGraphApi from "../facebook/api/FacebookGraphApi.js";
 
 const input = {
-    adAccountId: "act_1", campaignName: "DE CBO", pixelId: "30",
-    posts: [{ pageId: "10", postId: "10_20" }, { pageId: "11", postId: "11_21" }],
+    adAccountId: "act_1", campaignName: "DE | CBO | 2 креативів | 18+ 07/10 12:00", pixelId: "30",
+    posts: [{ pageId: "10", postId: "10_20", creativeName: "125" }, { pageId: "11", postId: "11_21", creativeName: "Creo_4" }],
     adSetCount: 2, dailyBudget: 5, campaignBudget: 27.5,
     budgetMode: "campaign", startTime: "2026-10-07T10:00:00Z",
     template: { countryCodes: ["US"], ageMin: 18, ageMax: 65, placements: { facebook: ["feed"], instagram: ["stream"] }, shareAdSetBudget: true },
@@ -45,6 +45,8 @@ for (const budgetMode of ["adset", "campaign"]) {
     });
     assert.equal(result.objects.creatives.length, 2);
     assert.equal(result.objects.ads.length, 4);
+    assert.ok(writes.ad.every((fields) => !fields.name.includes("2 креативів")));
+    assert.deepEqual(writes.ad.map((fields) => fields.name.match(/Creo_\d+/)?.[0]), ["Creo_125", "Creo_4", "Creo_125", "Creo_4"]);
     assert.deepEqual(writes.creative.map((fields) => fields.object_story_id), ["10_20", "11_21"]);
     assert.deepEqual(writes.creative.map((fields) => fields.instagram_actor_id), ["ig-10", "ig-11"]);
     assert.deepEqual(writes.ad.map((fields) => [fields.adset_id, fields.creative.creative_id]), [

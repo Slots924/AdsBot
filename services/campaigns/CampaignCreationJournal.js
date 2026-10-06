@@ -20,6 +20,7 @@ function cleanInput(input = {}) {
         ...(input.posts !== undefined ? { posts: input.posts.map((post) => ({
             pageId: String(post.pageId ?? ""),
             postId: String(post.postId ?? ""),
+            creativeName: String(post.creativeName ?? "").trim().replace(/^Creo_/i, ""),
         })) } : {}),
         startTime: String(input.startTime ?? ""),
         createPaused: input.createPaused !== false,

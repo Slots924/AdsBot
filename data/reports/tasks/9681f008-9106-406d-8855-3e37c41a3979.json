@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "id": "9681f008-9106-406d-8855-3e37c41a3979",
+  "taskId": "8e893adb-bc2b-4c33-b14a-0fbedf3c013f",
+  "type": "campaign",
+  "title": "DE | CBO | 3 креативів | 40+ 06/10 11:03",
+  "status": "failed",
+  "createdAt": "2026-10-06T08:05:37.927Z",
+  "startedAt": "2026-10-06T08:04:09.140Z",
+  "finishedAt": "2026-10-06T08:05:37.926Z",
+  "durationMs": 88786,
+  "inputSummary": {
+    "campaignJobId": "b36d76c5-717d-4aeb-9f97-b7b15cc727d2",
+    "accountKey": "account-034",
+    "adAccountId": "act_1829339134612159",
+    "campaignName": "DE | CBO | 3 креативів | 40+ 06/10 11:03",
+    "templateId": 26,
+    "pageId": "",
+    "postId": "1272886725918152_122099100357503197",
+    "adSetCount": 2,
+    "dailyBudget": 5,
+    "startTime": "2026-10-06T08:03:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120252526302680758",
+      "creativeId": "1347602440656035",
+      "creatives": [
+        {
+          "id": "1347602440656035",
+          "pageId": "1272886725918152",
+          "postId": "1272886725918152_122099100357503197"
+        },
+        {
+          "id": "1620764092823043",
+          "pageId": "1251747324697859",
+          "postId": "1251747324697859_122120424087467973"
+        },
+        {
+          "id": "1539488561318212",
+          "pageId": "813912285138400",
+          "postId": "813912285138400_122148758895067169"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120252526306750758",
+          "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120252526308960758",
+          "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "creativeIndex": 0,
+          "id": "120252526307460758",
+          "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 01 | 1272886725918152_122099100357503197"
+        },
+        {
+          "index": 0,
+          "creativeIndex": 1,
+          "id": "120252526308060758",
+          "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 01 | 1251747324697859_122120424087467973"
+        },
+        {
+          "index": 0,
+          "creativeIndex": 2,
+          "id": "120252526308610758",
+          "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 01 | 813912285138400_122148758895067169"
+        },
+        {
+          "index": 1,
+          "creativeIndex": 0,
+          "id": "120252526309590758",
+          "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 02 | 1272886725918152_122099100357503197"
+        },
+        {
+          "index": 1,
+          "creativeIndex": 1,
+          "id": "120252526309830758",
+          "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 02 | 1251747324697859_122120424087467973"
+        },
+        {
+          "index": 1,
+          "creativeIndex": 2,
+          "id": "120252526311570758",
+          "name": "DE | CBO | 3 креативів | 40+ 06/10 11:03 | AD 02 | 813912285138400_122148758895067169"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "An unexpected error has occurred. Please retry your request later.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 2,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "activation",
+      "itemIndex": 1,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "b36d76c5-717d-4aeb-9f97-b7b15cc727d2",
+    "accountKey": "account-034",
+    "adAccountId": "act_1829339134612159",
+    "uniqueKey": "campaign-job:b36d76c5-717d-4aeb-9f97-b7b15cc727d2"
+  }
+}
