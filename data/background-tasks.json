@@ -1,4 +1,423 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "19740aab-63b4-4b5a-aa02-ee01a80d7463",
+      "type": "comments",
+      "name": "Коментарі поста · DE · 4",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
+        },
+        {
+          "key": "adspower-group:7887373",
+          "label": "[AT] Austria"
+        },
+        {
+          "key": "adspower-group:7887378",
+          "label": "[CH] Switherland"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "creativeGeo": "DE",
+        "language": "",
+        "creativeName": "4",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61594453966810/posts/pfbid02v9ya2gYhLPtyotA2Jjq8L73Sm41oFJJ7bhGoLPmw4gFhSatQ5WMVzYfotsS98YoEl",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "ad061dc4-b333-426d-9abb-f6ebd0f1c866"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 17,
+        "stage": "comments",
+        "message": "Worker 1 · коментар 11",
+        "published": 10,
+        "skipped": 3,
+        "failedComments": 0,
+        "failedProfiles": 2,
+        "activeWorkers": 1,
+        "concurrency": 1,
+        "currentCommentId": "11",
+        "currentProfileNo": "549",
+        "workerId": 1
+      },
+      "result": null,
+      "error": {
+        "code": "TASK_INTERRUPTED_BY_RESTART",
+        "message": "Задачу перервано через завершення попереднього сеансу програми"
+      },
+      "waitingReason": null,
+      "createdAt": "2026-10-07T06:39:44.998Z",
+      "startedAt": "2026-10-07T06:39:45.000Z",
+      "finishedAt": "2026-10-07T07:04:11.861Z",
+      "updatedAt": "2026-10-07T07:04:11.868Z"
+    },
+    {
+      "id": "ba2771a5-734e-4df1-b46c-7a8298322dd3",
+      "type": "campaign",
+      "name": "DE | Creo_4 | 40+ 07/10 09:35",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "34670a81-00d7-4c3a-b50f-285988b85d47"
+      },
+      "metadata": {
+        "campaignJobId": "34670a81-00d7-4c3a-b50f-285988b85d47",
+        "accountKey": "account-036",
+        "adAccountId": "act_1346987820501692",
+        "uniqueKey": "campaign-job:34670a81-00d7-4c3a-b50f-285988b85d47",
+        "reportId": "8d092ce3-8a2d-42e7-b388-3fe7f3ba6e43"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120250110112490086",
+          "creativeId": "1619886106188829",
+          "creatives": [
+            {
+              "id": "1619886106188829",
+              "pageId": "1404079649451323",
+              "postId": "1404079649451323_122107985547481798"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120250110113530086",
+              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120250110116650086",
+              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120250110119120086",
+              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120250110121660086",
+              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120250110125610086",
+              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120250110115530086",
+              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120250110118050086",
+              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "120250110121050086",
+              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AD 03"
+            },
+            {
+              "index": 3,
+              "creativeIndex": 0,
+              "id": "120250110123790086",
+              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AD 04"
+            },
+            {
+              "index": 4,
+              "creativeIndex": 0,
+              "id": "120250110127340086",
+              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "34670a81-00d7-4c3a-b50f-285988b85d47",
+        "campaignId": "120250110112490086",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-07T06:35:51.872Z",
+      "startedAt": "2026-10-07T06:35:51.873Z",
+      "finishedAt": "2026-10-07T06:37:15.807Z",
+      "updatedAt": "2026-10-07T06:37:15.811Z"
+    },
+    {
+      "id": "e7000666-798a-46be-8eaf-2bca4bbf1761",
+      "type": "publication",
+      "name": "Публікація · DE · 4",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-036",
+        "pageId": "1404079649451323",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "4",
+        "siteUrl": "https://daters.click/D4J",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558674094_17876948694410212_5685162515973610647_n.png",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558967207_17876948703410212_8701678181365780701_n.png"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-036",
+        "pageId": "1404079649451323",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "4",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "7e990c99-bcfa-465c-91ce-ee640b7c7850"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-036",
+        "pageId": "1404079649451323",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "4",
+        "siteUrl": "https://daters.click/D4J",
+        "postId": "1404079649451323_122107985547481798",
+        "permalinkUrl": "https://www.facebook.com/61594453966810/posts/pfbid02v9ya2gYhLPtyotA2Jjq8L73Sm41oFJJ7bhGoLPmw4gFhSatQ5WMVzYfotsS98YoEl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-07T06:35:13.213Z",
+      "startedAt": "2026-10-07T06:35:13.214Z",
+      "finishedAt": "2026-10-07T06:35:25.563Z",
+      "updatedAt": "2026-10-07T06:35:25.564Z"
+    },
+    {
+      "id": "c451bcc9-08dd-4d14-8ccc-13cccc13b6ac",
+      "type": "page-rebuild",
+      "name": "Пересетаплення фанпейджа · 1404079649451323",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page:account-036:1404079649451323",
+          "label": "фанпейджа 1404079649451323"
+        }
+      ],
+      "input": {
+        "accountKey": "account-036",
+        "pageId": "1404079649451323",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\1.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\53391189_2063771670408906_8675736695565451264_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\56691443_2110415712411168_4039558119326482432_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\58379457_2136964209756318_6353499645859069952_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\82007438_2612470585539009_3721411126999646208_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\116192793_3087263774726352_5827369268983751255_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\119119427_3233583900094338_6847209099135745048_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\121275360_3328031837316210_514591003711860036_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\483923552_9350332458419421_5767992291779489826_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\484051494_9350341651751835_4956537846467190547_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\488263377_9457834314335901_1688734689271697348_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\491353358_9607290942723570_7960769317113536560_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\491354600_9545203045599027_752914004819610749_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\497496803_9746636845455645_4998793639594500699_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\497696787_9753317148120948_5430693756520226105_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\523937313_24098856716473752_8005555762009844008_n.jpg"
+        ],
+        "pageCreatedAt": null,
+        "preserveDates": true
+      },
+      "metadata": {
+        "accountKey": "account-036",
+        "pageId": "1404079649451323",
+        "uniqueKey": "page-rebuild:account-036:1404079649451323",
+        "reportId": "6a59f1b3-43f6-4626-a33c-db9b9dc35157"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "current": 14,
+        "count": 14
+      },
+      "result": {
+        "pageId": "1404079649451323",
+        "avatar": {
+          "file": "1.jpg",
+          "photoId": "122107981641481798"
+        },
+        "cover": {
+          "file": "491354600_9545203045599027_752914004819610749_n.jpg",
+          "photoId": "122107981815481798"
+        },
+        "cleanup": {
+          "deletedPostIds": [],
+          "deletedPhotoIds": [],
+          "hiddenPostIds": []
+        },
+        "publications": [
+          {
+            "file": "53391189_2063771670408906_8675736695565451264_n.jpg",
+            "photoId": "122107982001481798",
+            "postId": "1404079649451323_122107982055481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "56691443_2110415712411168_4039558119326482432_n.jpg",
+            "photoId": "122107982187481798",
+            "postId": "1404079649451323_122107982247481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "58379457_2136964209756318_6353499645859069952_n.jpg",
+            "photoId": "122107982361481798",
+            "postId": "1404079649451323_122107982433481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "82007438_2612470585539009_3721411126999646208_n.jpg",
+            "photoId": "122107982493481798",
+            "postId": "1404079649451323_122107982583481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "116192793_3087263774726352_5827369268983751255_n.jpg",
+            "photoId": "122107982679481798",
+            "postId": "1404079649451323_122107982727481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "119119427_3233583900094338_6847209099135745048_n.jpg",
+            "photoId": "122107982829481798",
+            "postId": "1404079649451323_122107982907481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "121275360_3328031837316210_514591003711860036_n.jpg",
+            "photoId": "122107983015481798",
+            "postId": "1404079649451323_122107983075481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "483923552_9350332458419421_5767992291779489826_n.jpg",
+            "photoId": "122107983129481798",
+            "postId": "1404079649451323_122107983213481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "484051494_9350341651751835_4956537846467190547_n.jpg",
+            "photoId": "122107983297481798",
+            "postId": "1404079649451323_122107983351481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "488263377_9457834314335901_1688734689271697348_n.jpg",
+            "photoId": "122107983489481798",
+            "postId": "1404079649451323_122107983537481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "491353358_9607290942723570_7960769317113536560_n.jpg",
+            "photoId": "122107983609481798",
+            "postId": "1404079649451323_122107983669481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "497496803_9746636845455645_4998793639594500699_n.jpg",
+            "photoId": "122107983717481798",
+            "postId": "1404079649451323_122107983771481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "497696787_9753317148120948_5430693756520226105_n.jpg",
+            "photoId": "122107983867481798",
+            "postId": "1404079649451323_122107983969481798",
+            "backdatedTime": null
+          },
+          {
+            "file": "523937313_24098856716473752_8005555762009844008_n.jpg",
+            "photoId": "122107984059481798",
+            "postId": "1404079649451323_122107984203481798",
+            "backdatedTime": null
+          }
+        ],
+        "warnings": [],
+        "resumed": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-07T06:29:40.299Z",
+      "startedAt": "2026-10-07T06:29:40.301Z",
+      "finishedAt": "2026-10-07T06:32:04.764Z",
+      "updatedAt": "2026-10-07T06:32:04.767Z"
+    }
+  ]
 }

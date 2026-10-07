@@ -2,7 +2,8 @@ import { accountRecovery } from "../selectors/accountRecovery.js";
 
 // Функція виконується в браузері; значення полів та довільні тексти не повертаються.
 export function inspectRecoveryInPage(config, action = null) {
-    const normalize = (value) => String(value ?? "").replace(/\s+/g, " ").trim().toLocaleLowerCase();
+    const normalize = (value) => String(value ?? "").replace(/\s+/g, " ").trim()
+        .normalize("NFC").toLocaleLowerCase().replace(/i\u0307/g, "i").replace(/ı/g, "i");
     const visible = (element) => {
         if (!element?.isConnected || element.closest('[data-adsbot-recovery-prompt]')) return false;
         const rect = element.getBoundingClientRect();
@@ -20,7 +21,8 @@ export function inspectRecoveryInPage(config, action = null) {
         normalize(element.getAttribute("aria-label")) === normalize(label)
         || normalize(element.innerText || element.textContent || element.value) === normalize(label));
     const dialogs = all(config.dialog).filter(visible);
-    const protection = dialogs.find((element) => normalize(element.innerText).includes(normalize(config.protectionText)));
+    const protection = dialogs.find((element) => config.protectionTexts.some((text) =>
+        normalize(element.innerText).includes(normalize(text))));
     const root = protection ?? document;
     const controls = all(config.controls, root);
     const findControl = (name) => controls.find((element) => enabled(element) && textMatches(element, config.labels[name]));
@@ -45,9 +47,10 @@ export function inspectRecoveryInPage(config, action = null) {
     const radios = all('input[type="radio"]').filter((element) => enabled(element) && String(element.value).includes("@"));
     const codeInputs = all('input[type="text"], input[type="tel"], input[type="number"]').filter(enabled);
     const blockedPath = /^\/(checkpoint|login|recover|confirmemail|two_step_verification|auth_platform|accounts\/login)(\/|\.|$)/i.test(url.pathname);
-    const hasLogin = all(config.login).some(visible);
+    const hasLogin = all(config.login).some(visible)
+        || all(config.loginLink).some((element) => visible(element) && textMatches(element, config.loginLabels));
     const authenticated = validHost && !blockedPath && !hasLogin && passwords.length === 0
-        && all(config.authenticated).some(visible)
+        && all(config.authenticated).some((element) => visible(element) && textMatches(element, config.authenticatedLabels))
         && all('[role="main"], [role="navigation"]').some(visible);
     let step = "UNKNOWN";
     if (!validHost) step = "OFFSITE";
@@ -56,8 +59,8 @@ export function inspectRecoveryInPage(config, action = null) {
     else if (heading("currentPassword") && passwords.length) step = "CURRENT_PASSWORD";
     else if (heading("code") && codeInputs.length) step = "CONFIRMATION_CODE";
     else if (recoveryContext && availableMethods.length) step = "CHOOSE_RECOVERY_METHOD";
-    else if (findControl("start")) step = "GET_STARTED";
-    else if (findControl("email")) step = "CHOOSE_EMAIL";
+    else if (recoveryPath && findControl("start")) step = "GET_STARTED";
+    else if (recoveryPath && findControl("email")) step = "CHOOSE_EMAIL";
     else if (radios.length && findControl("next")) step = "EMAIL_CONTACT";
     else if (radios.length) step = "EMAIL_CONTACT";
     else if (authenticated) step = "AUTHENTICATED";

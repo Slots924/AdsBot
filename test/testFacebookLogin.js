@@ -96,7 +96,7 @@ function createLoginPage({ hasUseAnotherProfile }) {
     return {
         events,
         evaluate: async (fn, ...args) => {
-            if (args.length === 1) {
+            if (args.length >= 1) {
                 const selector = args[0];
                 if (selector === createNewAccountSelector) {
                     return !submitted;

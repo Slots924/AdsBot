@@ -1,46 +1,14 @@
-function ariaLabelSelector(base, labels) {
-    return labels
-        .map((label) => `${base}[aria-label="${label}" i]`)
-        .join(", ");
-}
+import { getFacebookTexts } from "../i18n/index.js";
+import ariaLabelSelector from "./ariaLabel.js";
 
 
-export const createNewAccountLabels = [
-    "Create new account",
-    "Neues Konto erstellen",
-    "Créer un nouveau compte",
-    "Crear cuenta nueva",
-    "Crear una cuenta nueva",
-    "Створити новий обліковий запис",
-    "Создать новый аккаунт",
-    "नया अकाउंट बनाएँ",
-    "नया खाता बनाएँ",
-    "Yeni hesap oluştur",
-];
+export const createNewAccountLabels = getFacebookTexts("login.createAccount");
 
 
-export const useAnotherProfileLabels = [
-    "Use another profile",
-    "Anderes Profil verwenden",
-    "Utiliser un autre profil",
-    "Usar otro perfil",
-    "Використати інший профіль",
-    "Использовать другой профиль",
-    "किसी अन्य प्रोफ़ाइल का उपयोग करें",
-    "Başka bir profil kullan",
-];
+export const useAnotherProfileLabels = getFacebookTexts("login.useAnotherProfile");
 
 
-export const logInLabels = [
-    "Log In",
-    "Anmelden",
-    "Se connecter",
-    "Iniciar sesión",
-    "Увійти",
-    "Войти",
-    "लॉग इन करें",
-    "Giriş yap",
-];
+export const logInLabels = getFacebookTexts("login.logIn");
 
 
 /** Посилання «створити новий акаунт» на сторінці входу. */

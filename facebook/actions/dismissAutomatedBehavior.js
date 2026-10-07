@@ -4,27 +4,10 @@ import {
 } from "../browser/pointer.js";
 import { wait, waitHuman } from "../browser/timing.js";
 import { dismissPopupButtonSelector } from "../selectors/overlays.js";
+import { getFacebookTexts } from "../i18n/index.js";
 
 
-export const dismissButtonLabels = [
-    "Dismiss",
-    "Close",
-    "Schließen",
-    "Verwerfen",
-    "Fermer",
-    "Ignorer",
-    "Cerrar",
-    "Descartar",
-    "Закрити",
-    "Відхилити",
-    "Закрыть",
-    "Отклонить",
-    "बंद करें",
-    "खारिज करें",
-    "Kapat",
-    "Tutup",
-    "Reddet",
-];
+export const dismissButtonLabels = getFacebookTexts("automatedBehavior.dismiss");
 
 
 export default async function dismissAutomatedBehavior(page) {
