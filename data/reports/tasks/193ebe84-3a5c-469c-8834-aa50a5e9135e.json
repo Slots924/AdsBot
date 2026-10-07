@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "id": "193ebe84-3a5c-469c-8834-aa50a5e9135e",
+  "taskId": "8a99deef-37f4-416b-b937-6948bbe071f3",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 1352003897997099",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-06T11:14:17.141Z",
+  "startedAt": "2026-10-06T11:13:05.494Z",
+  "finishedAt": "2026-10-06T11:14:17.140Z",
+  "durationMs": 71646,
+  "inputSummary": {
+    "accountKey": "account-035",
+    "pageId": "1352003897997099"
+  },
+  "resultSummary": {
+    "pageId": "1352003897997099",
+    "avatar": {
+      "file": "1.jpg",
+      "photoId": "122096097309506960"
+    },
+    "cover": {
+      "file": "2.jpg",
+      "photoId": "122096097705506960"
+    },
+    "cleanup": {
+      "deletedPostIds": [],
+      "deletedPhotoIds": [],
+      "hiddenPostIds": []
+    },
+    "publications": [
+      {
+        "file": "90066272_3490748050995404_2106624284083355648_n.jpg",
+        "photoId": "122096098095506960",
+        "postId": "1352003897997099_122096098155506960",
+        "backdatedTime": null
+      },
+      {
+        "file": "488071644_28774573872186140_192841504682249846_n.jpg",
+        "photoId": "122096098323506960",
+        "postId": "1352003897997099_122096098407506960",
+        "backdatedTime": null
+      },
+      {
+        "file": "494709708_29143429325300591_6173247530446849099_n.jpg",
+        "photoId": "122096098641506960",
+        "postId": "1352003897997099_122096098707506960",
+        "backdatedTime": null
+      },
+      {
+        "file": "723101065_36111753135134807_7151711464122411722_n.jpg",
+        "photoId": "122096098785506960",
+        "postId": "1352003897997099_122096098881506960",
+        "backdatedTime": null
+      }
+    ],
+    "warnings": [
+      {
+        "stage": "delete-photo",
+        "objectId": "122096085819506960",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      }
+    ],
+    "resumed": false
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-035",
+    "pageId": "1352003897997099",
+    "uniqueKey": "page-rebuild:account-035:1352003897997099"
+  }
+}

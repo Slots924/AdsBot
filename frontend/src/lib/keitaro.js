@@ -29,6 +29,9 @@ export const keitaroColumns = [
     { id: "roi", label: "ROI", type: "percent", width: 90 },
     { id: "epc", label: "EPC", type: "money", width: 90 },
     { id: "cpc", label: "CPC", type: "money", width: 90 },
+    { id: "fullRevenue", label: "Дохід(повний)", type: "money", width: 160, custom: true, formula: "(Дохід / Ліди) × Конверсії" },
+    { id: "fullProfit", label: "Прибуток повний", type: "money", width: 170, custom: true, formula: "Дохід(повний) − Витрати" },
+    { id: "rawCost", label: "Витрати(сирі)", type: "money", width: 150, custom: true, formula: "Витрати × 0,909" },
 ];
 
 
@@ -38,7 +41,7 @@ export const keitaroOfferColumns = [
     { id: "affiliateNetworkName", label: "Мережа", type: "text", width: 170 },
     { id: "group", label: "Група", type: "text", width: 160 },
     { id: "state", label: "Статус", type: "state", width: 104 },
-    ...keitaroColumns.filter((column) => !["id", "name", "group", "state"].includes(column.id)),
+    ...keitaroColumns.filter((column) => !column.custom && !["id", "name", "group", "state"].includes(column.id)),
 ];
 
 
@@ -78,7 +81,20 @@ export function visibleColumnsFrom(sourceColumns, order, visible) {
 export function campaignField(campaign, columnId) {
     if (columnId === "group") return campaign.groupName || "";
     if (columnId === "state") return campaign.state === "active" ? "Увімкнено" : "Пауза";
+    if (keitaroColumns.some((column) => column.id === columnId && column.custom)) {
+        return customKeitaroMetrics(campaign)[columnId];
+    }
     return campaign[columnId];
+}
+
+
+export function customKeitaroMetrics(row = {}) {
+    const revenue = Number(row.revenue) || 0;
+    const leads = Number(row.leads) || 0;
+    const conversions = Number(row.conversions) || 0;
+    const cost = Number(row.cost) || 0;
+    const fullRevenue = leads > 0 ? (revenue / leads) * conversions : 0;
+    return { fullRevenue, fullProfit: fullRevenue - cost, rawCost: cost * 0.909 };
 }
 
 
@@ -126,8 +142,10 @@ export function formatKeitaroValue(column, value) {
 
 export function summarizeKeitaroRows(rows = []) {
     const total = Object.fromEntries(keitaroMetricIds.map((id) => [id, 0]));
+    Object.assign(total, customKeitaroMetrics());
     for (const row of rows) {
         for (const id of keitaroMetricIds) total[id] += Number(row?.[id]) || 0;
+        for (const [id, value] of Object.entries(customKeitaroMetrics(row))) total[id] += value;
     }
     total.cr = total.clicks > 0 ? (total.conversions / total.clicks) * 100 : 0;
     total.roi = total.cost > 0 ? (total.profit / total.cost) * 100 : 0;

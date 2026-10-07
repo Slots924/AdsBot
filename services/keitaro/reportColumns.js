@@ -35,6 +35,9 @@ const keitaroColumnIds = [
     "roi",
     "epc",
     "cpc",
+    "fullRevenue",
+    "fullProfit",
+    "rawCost",
 ];
 
 
@@ -66,6 +69,9 @@ const defaultKeitaroColumnWidths = {
     roi: 90,
     epc: 90,
     cpc: 90,
+    fullRevenue: 160,
+    fullProfit: 170,
+    rawCost: 150,
 };
 
 

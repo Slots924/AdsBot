@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "7cd236d7-d81a-487e-86c0-d80e1c79bb1f",
+  "taskId": "bcfa336b-fe7c-49c6-9629-9245cdf9034c",
+  "type": "facebook-api-client-sync",
+  "title": "Синхронізація API-клієнта bm-001",
+  "status": "failed",
+  "createdAt": "2026-10-06T10:44:59.656Z",
+  "startedAt": "2026-10-06T10:44:58.333Z",
+  "finishedAt": "2026-10-06T10:44:59.656Z",
+  "durationMs": 1323,
+  "inputSummary": {
+    "accountKey": "bm-001",
+    "adsPowerProfileNo": "1441"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "AdsPower-профіль не готовий до роботи",
+      "code": null,
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "bm-001",
+    "uniqueKey": "facebook-api-client-sync:bm-001"
+  }
+}

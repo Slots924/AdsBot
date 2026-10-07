@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, Clipboard, Globe2, GripVertical, LoaderCircle, MoveRight, Plus, RefreshCw, Replace, Settings2 } from "lucide-react";
 
@@ -7,7 +7,7 @@ import KeitaroDateRangePicker from "../components/KeitaroDateRangePicker.jsx";
 import KeitaroMoveDialog from "../components/KeitaroMoveDialog.jsx";
 import { GrayButton, GrayModal, GraySearch, GraySelect } from "../components/gray-ui/index.js";
 import { errorDetails, unwrap } from "../lib/api.js";
-import { formatKeitaroValue, keitaroColumns, keitaroPageSizes, sortKeitaroCampaigns, summarizeKeitaroRows, visibleKeitaroColumns } from "../lib/keitaro.js";
+import { campaignField, formatKeitaroValue, keitaroColumns, keitaroPageSizes, sortKeitaroCampaigns, summarizeKeitaroRows, visibleKeitaroColumns } from "../lib/keitaro.js";
 
 
 const emptyCampaignStats = {
@@ -19,12 +19,6 @@ const emptyCampaignStats = {
 function matchesSearch(campaign, query) {
     const needle = query.trim().toLocaleLowerCase();
     return !needle || `${campaign.id} ${campaign.name} ${campaign.groupName}`.toLocaleLowerCase().includes(needle);
-}
-
-
-function campaignFieldValue(campaign, columnId) {
-    if (columnId === "group") return campaign.groupName || "";
-    return campaign[columnId];
 }
 
 
@@ -178,7 +172,16 @@ export default function KeitaroTab({
             <GraySelect items={groupOptions} value={selectedGroupId} onChange={onSelectedGroupIdChange} placeholder="Оберіть групу" searchPlaceholder="Пошук групи…" ariaLabel="Група кампаній Keitaro" />
             <KeitaroDateRangePicker preset={datePreset} range={dateRange} onPresetChange={onDatePresetChange} onRangeChange={setDateRange} />
             <GrayButton disabled={loading || statsLoading || availableGroupIds.length === 0} onClick={() => loadCampaigns(true)}><RefreshCw className={loading || statsLoading ? "spin" : ""} size={16} /> Оновити</GrayButton>
-            <div className="kg-columns-menu" ref={columnsRef}><GrayButton iconOnly aria-label="Колонки таблиці" onClick={() => setColumnsOpen((current) => !current)}><Settings2 size={17} /></GrayButton>{columnsOpen && <div className="kg-columns-popover"><strong>Параметри звіту</strong>{keitaroColumns.map((column) => <label key={column.id}><input type="checkbox" checked={visibleColumns.includes(column.id)} onChange={() => toggleColumn(column.id)} />{column.label}</label>)}</div>}</div>
+            <div className="kg-columns-menu" ref={columnsRef}>
+                <GrayButton iconOnly aria-label="Колонки таблиці" onClick={() => setColumnsOpen((current) => !current)}><Settings2 size={17} /></GrayButton>
+                {columnsOpen && <div className="kg-columns-popover">
+                    <strong>Параметри звіту</strong>
+                    {keitaroColumns.map((column) => <Fragment key={column.id}>
+                        {column.id === "fullRevenue" && <strong>Кастомні показники</strong>}
+                        <label title={column.formula}><input type="checkbox" checked={visibleColumns.includes(column.id)} onChange={() => toggleColumn(column.id)} />{column.label}</label>
+                    </Fragment>)}
+                </div>}
+            </div>
         </div>
         <div className="kg-bulk-bar"><span>{`Вибрано: ${selectedIds.length}`}</span><GrayButton disabled={selectedIds.length === 0} onClick={() => setMoveModalOpen(true)}><MoveRight size={15} /> Перенести</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setTemplateModalOpen(true)}><Plus size={15} /> Застосувати шаблон</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setPixelModalOpen(true)}><Replace size={15} /> Змінити піксель</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setDomainModalOpen(true)}><Globe2 size={15} /> Змінити домен</GrayButton><small className={statsError ? "error" : ""}>{statsLoading ? "Статистика оновлюється…" : statsError}</small></div>
         {availableGroupIds.length === 0 && <div className="kg-report-notice">У налаштуваннях оберіть групи кампаній, з якими можна працювати.</div>}
@@ -188,7 +191,7 @@ export default function KeitaroTab({
                 {loading && campaigns.length === 0 && <div className="kg-report-state"><LoaderCircle className="spin" size={21} /> Завантажуємо кампанії…</div>}
                 {!loading && error && campaigns.length === 0 && <div className="kg-report-state error"><AlertCircle size={22} /><strong>Не вдалося завантажити дані</strong><span>{error}</span></div>}
                 {!loading && !error && availableGroupIds.length > 0 && filtered.length === 0 && <div className="kg-report-state">Кампаній за цим фільтром немає.</div>}
-                {!loading && paged.map((campaign) => { const checked = selectedSet.has(String(campaign.id)); return <div key={campaign.id} className={`kg-report-grid kg-report-row ${checked ? "selected" : ""}`} style={{ gridTemplateColumns: gridTemplate }}><label><input type="checkbox" checked={checked} onChange={() => toggleRow(campaign.id)} aria-label={`Вибрати кампанію ${campaign.name}`} /></label>{columns.map((column) => <div key={column.id} className={`kg-report-cell ${["number", "money", "percent"].includes(column.type) ? "numeric" : ""}`}>{column.id === "name" ? <span className="kg-campaign-name"><strong title={campaign.name}>{campaign.name}</strong><button type="button" aria-label={`Копіювати URL кампанії ${campaign.name}`} title={campaign.url ? `Копіювати ${campaign.url}` : "URL недоступний"} onClick={() => copyCampaignUrl(campaign)}><Clipboard size={14} /></button></span> : column.id === "state" ? <i className={`kg-status ${campaign.state === "active" ? "active" : "paused"}`}>{formatKeitaroValue(column, campaign.state)}</i> : formatKeitaroValue(column, campaignFieldValue(campaign, column.id))}</div>)}</div>; })}
+                {!loading && paged.map((campaign) => { const checked = selectedSet.has(String(campaign.id)); return <div key={campaign.id} className={`kg-report-grid kg-report-row ${checked ? "selected" : ""}`} style={{ gridTemplateColumns: gridTemplate }}><label><input type="checkbox" checked={checked} onChange={() => toggleRow(campaign.id)} aria-label={`Вибрати кампанію ${campaign.name}`} /></label>{columns.map((column) => <div key={column.id} className={`kg-report-cell ${["number", "money", "percent"].includes(column.type) ? "numeric" : ""}`}>{column.id === "name" ? <span className="kg-campaign-name"><strong title={campaign.name}>{campaign.name}</strong><button type="button" aria-label={`Копіювати URL кампанії ${campaign.name}`} title={campaign.url ? `Копіювати ${campaign.url}` : "URL недоступний"} onClick={() => copyCampaignUrl(campaign)}><Clipboard size={14} /></button></span> : column.id === "state" ? <i className={`kg-status ${campaign.state === "active" ? "active" : "paused"}`}>{formatKeitaroValue(column, campaign.state)}</i> : formatKeitaroValue(column, campaignField(campaign, column.id))}</div>)}</div>; })}
             </div>
             <div className="kg-report-grid kg-summary-row" style={{ gridTemplateColumns: gridTemplate }}><span />{columns.map((column) => <strong key={column.id} className={["number", "money", "percent"].includes(column.type) ? "numeric" : ""}>{summaryValue(column, summary, summaryRows.length)}</strong>)}</div>
             <footer className="kg-report-pager"><span>{selectedIds.length > 0 ? `Сума вибраних: ${selectedIds.length}` : `Сума на сторінці: ${paged.length}`}</span><div><GrayButton disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>Назад</GrayButton><span>Сторінка {currentPage} з {pageCount}</span><GrayButton disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)}>Далі</GrayButton></div><label>На сторінці <select aria-label="Кампаній на сторінці" value={pageSize} onChange={(event) => onPageSizeChange(Number(event.target.value))}>{keitaroPageSizes.map((size) => <option key={size} value={size}>{size}</option>)}</select></label></footer>
