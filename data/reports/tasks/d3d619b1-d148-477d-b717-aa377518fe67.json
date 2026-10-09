@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "id": "d3d619b1-d148-477d-b717-aa377518fe67",
+  "taskId": "939518a9-2373-4c4b-b2c5-07cbb5ae4f51",
+  "type": "campaign-cleanup",
+  "title": "DE | Creo_28 | 40+ 08/10 13:34 · очищення",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-08T10:34:38.156Z",
+  "startedAt": "2026-10-08T10:34:34.968Z",
+  "finishedAt": "2026-10-08T10:34:38.154Z",
+  "durationMs": 3186,
+  "inputSummary": {
+    "campaignJobId": "c852443e-2ac6-4f79-b96f-b83b727819e5",
+    "accountKey": "account-031",
+    "knownObjects": {
+      "campaignId": "120257586444320771",
+      "creativeId": "1092028113746845",
+      "creatives": [
+        {
+          "id": "1092028113746845",
+          "pageId": "813912285138400",
+          "postId": "813912285138400_122148758895067169"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120257586446520771",
+          "name": "DE | Creo_28 | 40+ 08/10 13:34 | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "resultSummary": {
+    "deleted": [
+      {
+        "type": "adset",
+        "id": "120257586446520771"
+      },
+      {
+        "type": "campaign",
+        "id": "120257586444320771"
+      }
+    ],
+    "failed": [
+      {
+        "type": "creative",
+        "id": "1092028113746845",
+        "message": "You cannot delete this creative because it is currently in use for existing advert groups.",
+        "code": "FACEBOOK_API_ERROR"
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "c852443e-2ac6-4f79-b96f-b83b727819e5",
+    "uniqueKey": "campaign-job:c852443e-2ac6-4f79-b96f-b83b727819e5"
+  }
+}

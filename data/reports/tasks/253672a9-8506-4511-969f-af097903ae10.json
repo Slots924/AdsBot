@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "id": "253672a9-8506-4511-969f-af097903ae10",
+  "taskId": "0c6081f2-2fea-4feb-902a-550b306ba49e",
+  "type": "campaign",
+  "title": "DE | Creo_28 | 40+ 08/10 10:15",
+  "status": "failed",
+  "createdAt": "2026-10-08T07:16:01.581Z",
+  "startedAt": "2026-10-08T07:15:47.129Z",
+  "finishedAt": "2026-10-08T07:16:01.580Z",
+  "durationMs": 14451,
+  "inputSummary": {
+    "campaignJobId": "a7d7539d-a5a9-4092-a8c2-aec18d791418",
+    "accountKey": "account-031",
+    "adAccountId": "act_1519236909298838",
+    "campaignName": "DE | Creo_28 | 40+ 08/10 10:15",
+    "templateId": 26,
+    "pageId": "813912285138400",
+    "postId": "813912285138400_122148758895067169",
+    "adSetCount": 5,
+    "dailyBudget": 5,
+    "startTime": "2026-10-08T07:15:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120257583846640771",
+      "creativeId": "1092028113746845",
+      "creatives": [
+        {
+          "id": "1092028113746845",
+          "pageId": "813912285138400",
+          "postId": "813912285138400_122148758895067169"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120257583850830771",
+          "name": "DE | Creo_28 | 40+ 08/10 10:15 | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Update payment method: Visit the billing and payment centre to add a valid payment method.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 100,
+      "graphSubcode": 1359188,
+      "graphUserTitle": "No payment method",
+      "graphUserMessage": "Update payment method: Visit the billing and payment centre to add a valid payment method.",
+      "stage": "ad",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "a7d7539d-a5a9-4092-a8c2-aec18d791418",
+    "accountKey": "account-031",
+    "adAccountId": "act_1519236909298838",
+    "uniqueKey": "campaign-job:a7d7539d-a5a9-4092-a8c2-aec18d791418"
+  }
+}

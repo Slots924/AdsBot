@@ -2,10 +2,199 @@
   "version": 1,
   "tasks": [
     {
-      "id": "19740aab-63b4-4b5a-aa02-ee01a80d7463",
+      "id": "2facac4e-5f33-4616-b9f0-b82ad21ce149",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-031",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2280",
+          "label": "AdsPower №2280"
+        }
+      ],
+      "input": {
+        "accountKey": "account-031",
+        "adsPowerProfileNo": "2280"
+      },
+      "metadata": {
+        "accountKey": "account-031",
+        "uniqueKey": "facebook-api-client-sync:account-031",
+        "reportId": "6728d4d7-37c8-41ea-9a22-1cf61355e866"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-031",
+        "adsPowerProfileNo": "2280",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-09T04:54:05.370Z",
+      "startedAt": "2026-10-09T04:54:05.376Z",
+      "finishedAt": "2026-10-09T04:54:22.505Z",
+      "updatedAt": "2026-10-09T04:54:22.508Z"
+    },
+    {
+      "id": "19d41d81-2ffd-4d77-9366-e8df492cdd07",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-039",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2361",
+          "label": "AdsPower №2361"
+        }
+      ],
+      "input": {
+        "accountKey": "account-039",
+        "adsPowerProfileNo": "2361"
+      },
+      "metadata": {
+        "accountKey": "account-039",
+        "uniqueKey": "facebook-api-client-sync:account-039",
+        "reportId": "c7ca5618-7174-42a3-b94b-62d08939c5b4"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-039",
+        "adsPowerProfileNo": "2361",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-08T20:03:51.990Z",
+      "startedAt": "2026-10-08T20:03:51.991Z",
+      "finishedAt": "2026-10-08T20:04:11.081Z",
+      "updatedAt": "2026-10-08T20:04:11.084Z"
+    },
+    {
+      "id": "f886ed85-7afb-4e85-bcdf-b7e42f536857",
+      "type": "campaign",
+      "name": "DE | Creo_138 | 40+ 08/10 15:26",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "3b4e700a-4529-457f-b944-b2b8f18605f6"
+      },
+      "metadata": {
+        "campaignJobId": "3b4e700a-4529-457f-b944-b2b8f18605f6",
+        "accountKey": "account-031",
+        "adAccountId": "act_2204745047051496",
+        "uniqueKey": "campaign-job:3b4e700a-4529-457f-b944-b2b8f18605f6",
+        "reportId": "feea7d56-4a08-4f93-80d5-b41062404184"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120255293017600230",
+          "creativeId": "1792364362085656",
+          "creatives": [
+            {
+              "id": "1792364362085656",
+              "pageId": "1404079649451323",
+              "postId": "1404079649451323_122109125763481798"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120255293019930230",
+              "name": "DE | Creo_138 | 40+ 08/10 15:26 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120255293022880230",
+              "name": "DE | Creo_138 | 40+ 08/10 15:26 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120255293025510230",
+              "name": "DE | Creo_138 | 40+ 08/10 15:26 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120255293027110230",
+              "name": "DE | Creo_138 | 40+ 08/10 15:26 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120255293029370230",
+              "name": "DE | Creo_138 | 40+ 08/10 15:26 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120255293021550230",
+              "name": "DE | Creo_138 | 40+ 08/10 15:26 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120255293024580230",
+              "name": "DE | Creo_138 | 40+ 08/10 15:26 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "120255293026240230",
+              "name": "DE | Creo_138 | 40+ 08/10 15:26 | AD 03"
+            },
+            {
+              "index": 3,
+              "creativeIndex": 0,
+              "id": "120255293028220230",
+              "name": "DE | Creo_138 | 40+ 08/10 15:26 | AD 04"
+            },
+            {
+              "index": 4,
+              "creativeIndex": 0,
+              "id": "120255293030630230",
+              "name": "DE | Creo_138 | 40+ 08/10 15:26 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "3b4e700a-4529-457f-b944-b2b8f18605f6",
+        "campaignId": "120255293017600230",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-08T12:26:52.691Z",
+      "startedAt": "2026-10-08T12:26:52.692Z",
+      "finishedAt": "2026-10-08T12:28:12.807Z",
+      "updatedAt": "2026-10-08T12:28:12.811Z"
+    },
+    {
+      "id": "1dea1ed5-bb75-49a6-a333-7eff1bcb1114",
       "type": "comments",
-      "name": "Коментарі поста · DE · 4",
-      "status": "interrupted",
+      "name": "Коментарі поста · DE · 138",
+      "status": "completed_with_warnings",
       "resources": [
         {
           "key": "adspower-group:7887375",
@@ -29,9 +218,9 @@
         "geo": "DE",
         "creativeGeo": "DE",
         "language": "",
-        "creativeName": "4",
+        "creativeName": "138",
         "siteUrl": "",
-        "postUrl": "https://www.facebook.com/61594453966810/posts/pfbid02v9ya2gYhLPtyotA2Jjq8L73Sm41oFJJ7bhGoLPmw4gFhSatQ5WMVzYfotsS98YoEl",
+        "postUrl": "https://www.facebook.com/61594453966810/posts/pfbid02JN7QYqpnZejx8K1G7k26JyJsRdTAptyHxnrbfAoyLeAukE5wJ4RN8We88FphUi1Cl",
         "browserMode": "headless",
         "disableImages": true,
         "commentTarget": "post",
@@ -49,39 +238,45 @@
         "language": "",
         "browserMode": "headless",
         "disableImages": true,
-        "reportId": "ad061dc4-b333-426d-9abb-f6ebd0f1c866"
+        "reportId": "e5bfc3e7-3842-405c-85cf-a7231afb8a1f"
       },
       "progress": {
-        "completed": 13,
-        "total": 17,
-        "stage": "comments",
-        "message": "Worker 1 · коментар 11",
+        "completed": 10,
+        "total": 10,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
         "published": 10,
-        "skipped": 3,
+        "skipped": 0,
         "failedComments": 0,
         "failedProfiles": 2,
-        "activeWorkers": 1,
+        "activeWorkers": 0,
         "concurrency": 1,
-        "currentCommentId": "11",
-        "currentProfileNo": "549",
+        "currentCommentId": "2.2",
+        "currentProfileNo": "198",
         "workerId": 1
       },
-      "result": null,
-      "error": {
-        "code": "TASK_INTERRUPTED_BY_RESTART",
-        "message": "Задачу перервано через завершення попереднього сеансу програми"
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-08_14-25-43-959.md",
+        "published": 10,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 2,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
       },
+      "error": null,
       "waitingReason": null,
-      "createdAt": "2026-10-07T06:39:44.998Z",
-      "startedAt": "2026-10-07T06:39:45.000Z",
-      "finishedAt": "2026-10-07T07:04:11.861Z",
-      "updatedAt": "2026-10-07T07:04:11.868Z"
+      "createdAt": "2026-10-08T11:11:23.930Z",
+      "startedAt": "2026-10-08T11:11:23.931Z",
+      "finishedAt": "2026-10-08T11:25:43.966Z",
+      "updatedAt": "2026-10-08T11:25:43.968Z"
     },
     {
-      "id": "ba2771a5-734e-4df1-b46c-7a8298322dd3",
+      "id": "65b2d9af-64bb-4df1-ba4a-47188cd43ed2",
       "type": "campaign",
-      "name": "DE | Creo_4 | 40+ 07/10 09:35",
-      "status": "completed",
+      "name": "DE | Creo_138 | 40+ 08/10 14:05",
+      "status": "failed",
       "resources": [
         {
           "key": "facebook-campaign-write",
@@ -89,107 +284,109 @@
         }
       ],
       "input": {
-        "campaignJobId": "34670a81-00d7-4c3a-b50f-285988b85d47"
+        "campaignJobId": "53b6eb48-04f1-48d6-baac-5f7bce997755"
       },
       "metadata": {
-        "campaignJobId": "34670a81-00d7-4c3a-b50f-285988b85d47",
-        "accountKey": "account-036",
-        "adAccountId": "act_1346987820501692",
-        "uniqueKey": "campaign-job:34670a81-00d7-4c3a-b50f-285988b85d47",
-        "reportId": "8d092ce3-8a2d-42e7-b388-3fe7f3ba6e43"
+        "campaignJobId": "53b6eb48-04f1-48d6-baac-5f7bce997755",
+        "accountKey": "account-031",
+        "adAccountId": "act_1519236909298838",
+        "uniqueKey": "campaign-job:53b6eb48-04f1-48d6-baac-5f7bce997755",
+        "reportId": "29a9b683-7570-43ae-b225-ec27a16e518b"
       },
       "progress": {
         "completed": 13,
         "total": 13,
-        "stage": "completed",
-        "message": "Задачу завершено",
+        "stage": "failed",
+        "message": "An unexpected error has occurred. Please retry your request later.",
         "objects": {
-          "campaignId": "120250110112490086",
-          "creativeId": "1619886106188829",
+          "campaignId": "120257586793200771",
+          "creativeId": "1579239614243616",
           "creatives": [
             {
-              "id": "1619886106188829",
+              "id": "1579239614243616",
               "pageId": "1404079649451323",
-              "postId": "1404079649451323_122107985547481798"
+              "postId": "1404079649451323_122109125763481798"
             }
           ],
           "adSets": [
             {
               "index": 0,
-              "id": "120250110113530086",
-              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AS 01"
+              "id": "120257586794380771",
+              "name": "DE | Creo_138 | 40+ 08/10 14:05 | AS 01"
             },
             {
               "index": 1,
-              "id": "120250110116650086",
-              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AS 02"
+              "id": "120257586795410771",
+              "name": "DE | Creo_138 | 40+ 08/10 14:05 | AS 02"
             },
             {
               "index": 2,
-              "id": "120250110119120086",
-              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AS 03"
+              "id": "120257586796250771",
+              "name": "DE | Creo_138 | 40+ 08/10 14:05 | AS 03"
             },
             {
               "index": 3,
-              "id": "120250110121660086",
-              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AS 04"
+              "id": "120257586797020771",
+              "name": "DE | Creo_138 | 40+ 08/10 14:05 | AS 04"
             },
             {
               "index": 4,
-              "id": "120250110125610086",
-              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AS 05"
+              "id": "120257586798200771",
+              "name": "DE | Creo_138 | 40+ 08/10 14:05 | AS 05"
             }
           ],
           "ads": [
             {
               "index": 0,
               "creativeIndex": 0,
-              "id": "120250110115530086",
-              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AD 01"
+              "id": "120257586794990771",
+              "name": "DE | Creo_138 | 40+ 08/10 14:05 | AD 01"
             },
             {
               "index": 1,
               "creativeIndex": 0,
-              "id": "120250110118050086",
-              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AD 02"
+              "id": "120257586795830771",
+              "name": "DE | Creo_138 | 40+ 08/10 14:05 | AD 02"
             },
             {
               "index": 2,
               "creativeIndex": 0,
-              "id": "120250110121050086",
-              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AD 03"
+              "id": "120257586796640771",
+              "name": "DE | Creo_138 | 40+ 08/10 14:05 | AD 03"
             },
             {
               "index": 3,
               "creativeIndex": 0,
-              "id": "120250110123790086",
-              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AD 04"
+              "id": "120257586797740771",
+              "name": "DE | Creo_138 | 40+ 08/10 14:05 | AD 04"
             },
             {
               "index": 4,
               "creativeIndex": 0,
-              "id": "120250110127340086",
-              "name": "DE | Creo_4 | 40+ 07/10 09:35 | AD 05"
+              "id": "120257586798830771",
+              "name": "DE | Creo_138 | 40+ 08/10 14:05 | AD 05"
             }
           ]
         }
       },
-      "result": {
-        "campaignJobId": "34670a81-00d7-4c3a-b50f-285988b85d47",
-        "campaignId": "120250110112490086",
-        "warnings": []
+      "result": null,
+      "error": {
+        "message": "An unexpected error has occurred. Please retry your request later.",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": "activation",
+        "graphCode": 2,
+        "graphSubcode": null
       },
-      "error": null,
       "waitingReason": null,
-      "createdAt": "2026-10-07T06:35:51.872Z",
-      "startedAt": "2026-10-07T06:35:51.873Z",
-      "finishedAt": "2026-10-07T06:37:15.807Z",
-      "updatedAt": "2026-10-07T06:37:15.811Z"
+      "createdAt": "2026-10-08T11:06:07.008Z",
+      "startedAt": "2026-10-08T11:06:07.009Z",
+      "finishedAt": "2026-10-08T11:07:30.787Z",
+      "updatedAt": "2026-10-08T11:07:30.789Z"
     },
     {
-      "id": "e7000666-798a-46be-8eaf-2bca4bbf1761",
+      "id": "1cb78efa-2e3b-4097-b8c6-67af787cf7d3",
       "type": "publication",
-      "name": "Публікація · DE · 4",
+      "name": "Публікація · DE · 138",
       "status": "completed",
       "resources": [
         {
@@ -198,20 +395,19 @@
         }
       ],
       "input": {
-        "accountKey": "account-036",
+        "accountKey": "account-031",
         "pageId": "1404079649451323",
         "geo": "DE",
         "language": "",
         "creativeGeo": "DE",
-        "creativeName": "4",
-        "siteUrl": "https://daters.click/D4J",
+        "creativeName": "138",
+        "siteUrl": "https://show-me.click/DJ138E",
         "manualCreativeText": "",
         "useCreativeFont": true,
         "creativeFont": "blurry",
         "imagePath": "",
         "imagePaths": [
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558674094_17876948694410212_5685162515973610647_n.png",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558967207_17876948703410212_8701678181365780701_n.png"
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\14.jpeg"
         ],
         "disableComments": true,
         "commentGroupIds": [],
@@ -223,15 +419,15 @@
         }
       },
       "metadata": {
-        "accountKey": "account-036",
+        "accountKey": "account-031",
         "pageId": "1404079649451323",
         "geo": "DE",
         "language": "",
-        "creativeName": "4",
+        "creativeName": "138",
         "manualCreativeText": false,
         "useCreativeFont": true,
         "commentsEnabled": false,
-        "reportId": "7e990c99-bcfa-465c-91ce-ee640b7c7850"
+        "reportId": "0157ce32-cce3-4b5f-a3fc-9dd71c0c7ac0"
       },
       "progress": {
         "completed": 3,
@@ -240,184 +436,281 @@
         "message": "Задачу завершено"
       },
       "result": {
-        "accountKey": "account-036",
+        "accountKey": "account-031",
         "pageId": "1404079649451323",
         "geo": "DE",
         "language": "",
-        "creativeName": "4",
-        "siteUrl": "https://daters.click/D4J",
-        "postId": "1404079649451323_122107985547481798",
-        "permalinkUrl": "https://www.facebook.com/61594453966810/posts/pfbid02v9ya2gYhLPtyotA2Jjq8L73Sm41oFJJ7bhGoLPmw4gFhSatQ5WMVzYfotsS98YoEl",
+        "creativeName": "138",
+        "siteUrl": "https://show-me.click/DJ138E",
+        "postId": "1404079649451323_122109125763481798",
+        "permalinkUrl": "https://www.facebook.com/61594453966810/posts/pfbid02JN7QYqpnZejx8K1G7k26JyJsRdTAptyHxnrbfAoyLeAukE5wJ4RN8We88FphUi1Cl",
         "type": "photo",
         "verified": true,
         "comments": null
       },
       "error": null,
       "waitingReason": null,
-      "createdAt": "2026-10-07T06:35:13.213Z",
-      "startedAt": "2026-10-07T06:35:13.214Z",
-      "finishedAt": "2026-10-07T06:35:25.563Z",
-      "updatedAt": "2026-10-07T06:35:25.564Z"
+      "createdAt": "2026-10-08T11:05:33.944Z",
+      "startedAt": "2026-10-08T11:05:33.945Z",
+      "finishedAt": "2026-10-08T11:05:39.797Z",
+      "updatedAt": "2026-10-08T11:05:39.799Z"
     },
     {
-      "id": "c451bcc9-08dd-4d14-8ccc-13cccc13b6ac",
-      "type": "page-rebuild",
-      "name": "Пересетаплення фанпейджа · 1404079649451323",
+      "id": "03d114ae-a855-4911-bbe4-21d516dbc2de",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1404079649451323_122109118257481798",
       "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-page:account-036:1404079649451323",
-          "label": "фанпейджа 1404079649451323"
-        }
-      ],
+      "resources": [],
       "input": {
-        "accountKey": "account-036",
+        "accountKey": "account-031",
         "pageId": "1404079649451323",
-        "imagePaths": [
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\1.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\53391189_2063771670408906_8675736695565451264_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\56691443_2110415712411168_4039558119326482432_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\58379457_2136964209756318_6353499645859069952_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\82007438_2612470585539009_3721411126999646208_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\116192793_3087263774726352_5827369268983751255_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\119119427_3233583900094338_6847209099135745048_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\121275360_3328031837316210_514591003711860036_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\483923552_9350332458419421_5767992291779489826_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\484051494_9350341651751835_4956537846467190547_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\488263377_9457834314335901_1688734689271697348_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\491353358_9607290942723570_7960769317113536560_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\491354600_9545203045599027_752914004819610749_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\497496803_9746636845455645_4998793639594500699_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\497696787_9753317148120948_5430693756520226105_n.jpg",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\7\\523937313_24098856716473752_8005555762009844008_n.jpg"
-        ],
-        "pageCreatedAt": null,
-        "preserveDates": true
+        "postId": "1404079649451323_122109118257481798"
       },
       "metadata": {
-        "accountKey": "account-036",
+        "accountKey": "account-031",
         "pageId": "1404079649451323",
-        "uniqueKey": "page-rebuild:account-036:1404079649451323",
-        "reportId": "6a59f1b3-43f6-4626-a33c-db9b9dc35157"
+        "reportId": "abb072e4-5929-43d7-9804-6407c30cb3a4"
       },
       "progress": {
-        "completed": 5,
-        "total": 5,
+        "completed": 0,
+        "total": 1,
         "stage": "completed",
-        "message": "Задачу завершено",
-        "current": 14,
-        "count": 14
+        "message": "Задачу завершено"
       },
       "result": {
-        "pageId": "1404079649451323",
-        "avatar": {
-          "file": "1.jpg",
-          "photoId": "122107981641481798"
-        },
-        "cover": {
-          "file": "491354600_9545203045599027_752914004819610749_n.jpg",
-          "photoId": "122107981815481798"
-        },
-        "cleanup": {
-          "deletedPostIds": [],
-          "deletedPhotoIds": [],
-          "hiddenPostIds": []
-        },
-        "publications": [
+        "deleted": [
           {
-            "file": "53391189_2063771670408906_8675736695565451264_n.jpg",
-            "photoId": "122107982001481798",
-            "postId": "1404079649451323_122107982055481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "56691443_2110415712411168_4039558119326482432_n.jpg",
-            "photoId": "122107982187481798",
-            "postId": "1404079649451323_122107982247481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "58379457_2136964209756318_6353499645859069952_n.jpg",
-            "photoId": "122107982361481798",
-            "postId": "1404079649451323_122107982433481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "82007438_2612470585539009_3721411126999646208_n.jpg",
-            "photoId": "122107982493481798",
-            "postId": "1404079649451323_122107982583481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "116192793_3087263774726352_5827369268983751255_n.jpg",
-            "photoId": "122107982679481798",
-            "postId": "1404079649451323_122107982727481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "119119427_3233583900094338_6847209099135745048_n.jpg",
-            "photoId": "122107982829481798",
-            "postId": "1404079649451323_122107982907481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "121275360_3328031837316210_514591003711860036_n.jpg",
-            "photoId": "122107983015481798",
-            "postId": "1404079649451323_122107983075481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "483923552_9350332458419421_5767992291779489826_n.jpg",
-            "photoId": "122107983129481798",
-            "postId": "1404079649451323_122107983213481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "484051494_9350341651751835_4956537846467190547_n.jpg",
-            "photoId": "122107983297481798",
-            "postId": "1404079649451323_122107983351481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "488263377_9457834314335901_1688734689271697348_n.jpg",
-            "photoId": "122107983489481798",
-            "postId": "1404079649451323_122107983537481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "491353358_9607290942723570_7960769317113536560_n.jpg",
-            "photoId": "122107983609481798",
-            "postId": "1404079649451323_122107983669481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "497496803_9746636845455645_4998793639594500699_n.jpg",
-            "photoId": "122107983717481798",
-            "postId": "1404079649451323_122107983771481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "497696787_9753317148120948_5430693756520226105_n.jpg",
-            "photoId": "122107983867481798",
-            "postId": "1404079649451323_122107983969481798",
-            "backdatedTime": null
-          },
-          {
-            "file": "523937313_24098856716473752_8005555762009844008_n.jpg",
-            "photoId": "122107984059481798",
-            "postId": "1404079649451323_122107984203481798",
-            "backdatedTime": null
+            "id": "1404079649451323_122109118257481798"
           }
         ],
-        "warnings": [],
-        "resumed": false
+        "failed": []
       },
       "error": null,
       "waitingReason": null,
-      "createdAt": "2026-10-07T06:29:40.299Z",
-      "startedAt": "2026-10-07T06:29:40.301Z",
-      "finishedAt": "2026-10-07T06:32:04.764Z",
-      "updatedAt": "2026-10-07T06:32:04.767Z"
+      "createdAt": "2026-10-08T11:05:07.486Z",
+      "startedAt": "2026-10-08T11:05:07.487Z",
+      "finishedAt": "2026-10-08T11:05:14.490Z",
+      "updatedAt": "2026-10-08T11:05:14.491Z"
+    },
+    {
+      "id": "1bda6432-1616-4f84-b2e2-cddd9e13d512",
+      "type": "campaign",
+      "name": "DE | Creo_138 | 40+ 08/10 13:50",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "b8b0bf38-51eb-4a4e-9e66-ba512cfd6abb"
+      },
+      "metadata": {
+        "campaignJobId": "b8b0bf38-51eb-4a4e-9e66-ba512cfd6abb",
+        "accountKey": "account-031",
+        "adAccountId": "act_1519236909298838",
+        "uniqueKey": "campaign-job:b8b0bf38-51eb-4a4e-9e66-ba512cfd6abb",
+        "reportId": "e735a707-f78a-4485-8b43-f752ead58e83"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "failed",
+        "message": "An unexpected error has occurred. Please retry your request later.",
+        "objects": {
+          "campaignId": "120257586645030771",
+          "creativeId": "1718271056964693",
+          "creatives": [
+            {
+              "id": "1718271056964693",
+              "pageId": "1404079649451323",
+              "postId": "1404079649451323_122109118257481798"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120257586646670771",
+              "name": "DE | Creo_138 | 40+ 08/10 13:50 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120257586648890771",
+              "name": "DE | Creo_138 | 40+ 08/10 13:50 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120257586649640771",
+              "name": "DE | Creo_138 | 40+ 08/10 13:50 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120257586653770771",
+              "name": "DE | Creo_138 | 40+ 08/10 13:50 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120257586655500771",
+              "name": "DE | Creo_138 | 40+ 08/10 13:50 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120257586648400771",
+              "name": "DE | Creo_138 | 40+ 08/10 13:50 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120257586649300771",
+              "name": "DE | Creo_138 | 40+ 08/10 13:50 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "120257586651500771",
+              "name": "DE | Creo_138 | 40+ 08/10 13:50 | AD 03"
+            },
+            {
+              "index": 3,
+              "creativeIndex": 0,
+              "id": "120257586655040771",
+              "name": "DE | Creo_138 | 40+ 08/10 13:50 | AD 04"
+            },
+            {
+              "index": 4,
+              "creativeIndex": 0,
+              "id": "120257586657030771",
+              "name": "DE | Creo_138 | 40+ 08/10 13:50 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "An unexpected error has occurred. Please retry your request later.",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": "activation",
+        "graphCode": 2,
+        "graphSubcode": null
+      },
+      "waitingReason": null,
+      "createdAt": "2026-10-08T10:50:48.210Z",
+      "startedAt": "2026-10-08T10:50:48.211Z",
+      "finishedAt": "2026-10-08T10:52:00.110Z",
+      "updatedAt": "2026-10-08T10:52:00.112Z"
+    },
+    {
+      "id": "90533226-5af0-43fc-a926-68fee5e051a1",
+      "type": "publication",
+      "name": "Публікація · DE · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-031",
+        "pageId": "1404079649451323",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "138",
+        "siteUrl": "https://show-me.click/DJ138E",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\14.jpeg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-031",
+        "pageId": "1404079649451323",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "138",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "cc2b1d7a-7de5-4ea5-95c3-ed2ab1ef32e0"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-031",
+        "pageId": "1404079649451323",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "https://show-me.click/DJ138E",
+        "postId": "1404079649451323_122109118257481798",
+        "permalinkUrl": "https://www.facebook.com/61594453966810/posts/pfbid02TmWJqjLB11oZvAXKBGDLm3F82KtrzQa97tauzkqXShgTX8QSeiHQZFC9cMLDTAASl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-08T10:47:25.806Z",
+      "startedAt": "2026-10-08T10:47:25.807Z",
+      "finishedAt": "2026-10-08T10:47:32.583Z",
+      "updatedAt": "2026-10-08T10:47:32.584Z"
+    },
+    {
+      "id": "723ed97f-4b84-4b25-afce-3159356c56e3",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1404079649451323_122108056083481798",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-031",
+        "pageId": "1404079649451323",
+        "postId": "1404079649451323_122108056083481798"
+      },
+      "metadata": {
+        "accountKey": "account-031",
+        "pageId": "1404079649451323",
+        "reportId": "f70994a8-e18d-40a0-aae5-c3ed1542c796"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1404079649451323_122108056083481798"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-08T10:46:56.063Z",
+      "startedAt": "2026-10-08T10:46:56.064Z",
+      "finishedAt": "2026-10-08T10:47:03.157Z",
+      "updatedAt": "2026-10-08T10:47:03.160Z"
     }
   ]
 }

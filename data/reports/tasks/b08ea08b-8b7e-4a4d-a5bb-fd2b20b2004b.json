@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "b08ea08b-8b7e-4a4d-a5bb-fd2b20b2004b",
+  "taskId": "072c9fb4-b796-45c3-9aac-550fda4711e0",
+  "type": "campaign-cleanup",
+  "title": "DE | Creo_4 | 40+ 08/10 10:11 · очищення",
+  "status": "completed",
+  "createdAt": "2026-10-08T07:15:03.930Z",
+  "startedAt": "2026-10-08T07:15:01.100Z",
+  "finishedAt": "2026-10-08T07:15:03.929Z",
+  "durationMs": 2829,
+  "inputSummary": {
+    "campaignJobId": "2ad3f49d-0a05-44b1-9354-4136255fdd55",
+    "accountKey": "account-031",
+    "knownObjects": {
+      "campaignId": "120257583810500771",
+      "creativeId": "27940505985624034",
+      "creatives": [
+        {
+          "id": "27940505985624034",
+          "pageId": "1272886725918152",
+          "postId": "1272886725918152_122099100357503197"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120257583812510771",
+          "name": "DE | Creo_4 | 40+ 08/10 10:11 | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "resultSummary": {
+    "deleted": [
+      {
+        "type": "adset",
+        "id": "120257583812510771"
+      },
+      {
+        "type": "creative",
+        "id": "27940505985624034"
+      },
+      {
+        "type": "campaign",
+        "id": "120257583810500771"
+      }
+    ],
+    "failed": []
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "2ad3f49d-0a05-44b1-9354-4136255fdd55",
+    "uniqueKey": "campaign-job:2ad3f49d-0a05-44b1-9354-4136255fdd55"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "id": "fe006bf8-6766-4c3a-9c16-3597a6bdea04",
+  "taskId": "a1f14e78-beef-47c3-aa40-eb9eeef36589",
+  "type": "campaign",
+  "title": "DE | Creo_28 | 40+ 08/10 13:34",
+  "status": "interrupted",
+  "createdAt": "2026-10-08T10:34:31.488Z",
+  "startedAt": "2026-10-08T10:34:17.668Z",
+  "finishedAt": "2026-10-08T10:34:31.487Z",
+  "durationMs": 13819,
+  "inputSummary": {
+    "campaignJobId": "c852443e-2ac6-4f79-b96f-b83b727819e5",
+    "accountKey": "account-031",
+    "adAccountId": "act_1519236909298838",
+    "campaignName": "DE | Creo_28 | 40+ 08/10 13:34",
+    "templateId": 26,
+    "pageId": "813912285138400",
+    "postId": "813912285138400_122148758895067169",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-10-08T10:34:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120257586444320771",
+      "creativeId": "1092028113746845",
+      "creatives": [
+        {
+          "id": "1092028113746845",
+          "pageId": "813912285138400",
+          "postId": "813912285138400_122148758895067169"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120257586446520771",
+          "name": "DE | Creo_28 | 40+ 08/10 13:34 | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Створення кампанії перервано",
+      "code": "CAMPAIGN_CREATION_INTERRUPTED",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "adset",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "c852443e-2ac6-4f79-b96f-b83b727819e5",
+    "accountKey": "account-031",
+    "adAccountId": "act_1519236909298838",
+    "uniqueKey": "campaign-job:c852443e-2ac6-4f79-b96f-b83b727819e5"
+  }
+}

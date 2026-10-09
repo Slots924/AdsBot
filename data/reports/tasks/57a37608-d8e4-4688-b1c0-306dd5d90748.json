@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "id": "57a37608-d8e4-4688-b1c0-306dd5d90748",
+  "taskId": "3059c64a-d53b-4af5-a98b-9c30d8eda3c9",
+  "type": "campaign",
+  "title": "DE | Creo_138 | 40+ 08/10 13:34",
+  "status": "failed",
+  "createdAt": "2026-10-08T10:35:18.260Z",
+  "startedAt": "2026-10-08T10:35:02.397Z",
+  "finishedAt": "2026-10-08T10:35:18.259Z",
+  "durationMs": 15862,
+  "inputSummary": {
+    "campaignJobId": "c6963988-87f4-4f83-910a-84f3a0a0ca46",
+    "accountKey": "account-031",
+    "adAccountId": "act_1519236909298838",
+    "campaignName": "DE | Creo_138 | 40+ 08/10 13:34",
+    "templateId": 26,
+    "pageId": "1251747324697859",
+    "postId": "1251747324697859_122122446927467973",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-10-08T10:34:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120257586452880771",
+      "creativeId": "1396388636889441",
+      "creatives": [
+        {
+          "id": "1396388636889441",
+          "pageId": "1251747324697859",
+          "postId": "1251747324697859_122122446927467973"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120257586453800771",
+          "name": "DE | Creo_138 | 40+ 08/10 13:34 | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "You can't create ads for this Page because it's restricted from advertising.\nSee https://fb.me/PageAdRestricted for details.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 368,
+      "graphSubcode": 1404155,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "ad",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "c6963988-87f4-4f83-910a-84f3a0a0ca46",
+    "accountKey": "account-031",
+    "adAccountId": "act_1519236909298838",
+    "uniqueKey": "campaign-job:c6963988-87f4-4f83-910a-84f3a0a0ca46"
+  }
+}

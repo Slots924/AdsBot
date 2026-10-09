@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "2ceb6d0e-1349-42b2-98f2-25c2d65fa4b8",
+  "taskId": "258ad99d-7b67-4bee-897c-455a1af6a6e8",
+  "type": "facebook-api-client-sync",
+  "title": "Синхронізація API-клієнта account-031",
+  "status": "failed",
+  "createdAt": "2026-10-08T08:14:27.442Z",
+  "startedAt": "2026-10-08T08:14:14.405Z",
+  "finishedAt": "2026-10-08T08:14:27.441Z",
+  "durationMs": 13036,
+  "inputSummary": {
+    "accountKey": "account-031",
+    "adsPowerProfileNo": "2280"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Facebook-акаунт не активний",
+      "code": null,
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-031",
+    "uniqueKey": "facebook-api-client-sync:account-031"
+  }
+}
