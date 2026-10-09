@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "id": "5464448e-e612-46fc-a866-d7ac1bcb9662",
+  "taskId": "f4cbaa10-33b3-449c-ac84-2229131ba7fa",
+  "type": "campaign",
+  "title": "HU | Creo_138 | 30+ 09/10 10:14",
+  "status": "failed",
+  "createdAt": "2026-10-09T07:16:05.268Z",
+  "startedAt": "2026-10-09T07:15:05.340Z",
+  "finishedAt": "2026-10-09T07:16:05.266Z",
+  "durationMs": 59926,
+  "inputSummary": {
+    "campaignJobId": "8a9c78fc-381e-4672-a200-ae954c3cd8dd",
+    "accountKey": "account-039",
+    "adAccountId": "act_2353955945190981",
+    "campaignName": "HU | Creo_138 | 30+ 09/10 10:14",
+    "templateId": 13,
+    "pageId": "1364248796763986",
+    "postId": "1364248796763986_122103197331497525",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-09T07:14:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120252055266470070",
+      "creativeId": "1874831620150710",
+      "creatives": [
+        {
+          "id": "1874831620150710",
+          "pageId": "1364248796763986",
+          "postId": "1364248796763986_122103197331497525"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120252055270100070",
+          "name": "HU | Creo_138 | 30+ 09/10 10:14 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120252055279490070",
+          "name": "HU | Creo_138 | 30+ 09/10 10:14 | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "creativeIndex": 0,
+          "id": "120252055276000070",
+          "name": "HU | Creo_138 | 30+ 09/10 10:14 | AD 01"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Ad account status is ineligible to manage ads. To create or edit ads, resolve the account status issue: https://www.facebook.com/business/help/422289316306981",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 200,
+      "graphSubcode": 2490592,
+      "graphUserTitle": "Ad account not writable",
+      "graphUserMessage": "Ad account status is ineligible to manage ads. To create or edit ads, resolve the account status issue: https://www.facebook.com/business/help/422289316306981",
+      "stage": "ad",
+      "itemIndex": 1,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "8a9c78fc-381e-4672-a200-ae954c3cd8dd",
+    "accountKey": "account-039",
+    "adAccountId": "act_2353955945190981",
+    "uniqueKey": "campaign-job:8a9c78fc-381e-4672-a200-ae954c3cd8dd"
+  }
+}

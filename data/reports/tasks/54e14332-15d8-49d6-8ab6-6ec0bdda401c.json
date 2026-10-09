@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "id": "54e14332-15d8-49d6-8ab6-6ec0bdda401c",
+  "taskId": "98decf2c-2a4f-40b3-a76a-a5d15caba2f6",
+  "type": "campaign",
+  "title": "HU | Creo_138 | 30+ 09/10 10:02",
+  "status": "failed",
+  "createdAt": "2026-10-09T07:07:31.149Z",
+  "startedAt": "2026-10-09T07:07:26.982Z",
+  "finishedAt": "2026-10-09T07:07:31.147Z",
+  "durationMs": 4165,
+  "inputSummary": {
+    "campaignJobId": "7e5de6f8-948d-4ed9-98ff-74f717783335",
+    "accountKey": "account-039",
+    "adAccountId": "act_1148718907556840",
+    "campaignName": "HU | Creo_138 | 30+ 09/10 10:02",
+    "templateId": 13,
+    "pageId": "1364248796763986",
+    "postId": "1364248796763986_122103197331497525",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-09T07:02:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": null,
+      "creativeId": null,
+      "creatives": [],
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Рекламний акаунт неактивний (status 2)",
+      "code": "CAMPAIGN_AD_ACCOUNT_INACTIVE",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "preflight",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "7e5de6f8-948d-4ed9-98ff-74f717783335",
+    "accountKey": "account-039",
+    "adAccountId": "act_1148718907556840",
+    "uniqueKey": "campaign-job:7e5de6f8-948d-4ed9-98ff-74f717783335"
+  }
+}
