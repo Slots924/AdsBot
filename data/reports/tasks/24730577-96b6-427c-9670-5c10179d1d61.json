@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "id": "24730577-96b6-427c-9670-5c10179d1d61",
+  "taskId": "7a41c352-8beb-4105-9945-e9ce26da8b11",
+  "type": "campaign",
+  "title": "HU | Creo_17 | 30+ 09/10 12:19",
+  "status": "failed",
+  "createdAt": "2026-10-09T09:21:38.145Z",
+  "startedAt": "2026-10-09T09:20:24.600Z",
+  "finishedAt": "2026-10-09T09:21:38.144Z",
+  "durationMs": 73544,
+  "inputSummary": {
+    "campaignJobId": "e48f4639-a66e-4ba3-845d-2d1a0c0c703a",
+    "accountKey": "account-033",
+    "adAccountId": "act_1829339134612159",
+    "campaignName": "HU | Creo_17 | 30+ 09/10 12:19",
+    "templateId": 13,
+    "pageId": "1369212719603682",
+    "postId": "1369212719603682_122101441341499153",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-09T09:19:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120252577625190758",
+      "creativeId": "1471082104924701",
+      "creatives": [
+        {
+          "id": "1471082104924701",
+          "pageId": "1369212719603682",
+          "postId": "1369212719603682_122101441341499153"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120252577631720758",
+          "name": "HU | Creo_17 | 30+ 09/10 12:19 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120252577640220758",
+          "name": "HU | Creo_17 | 30+ 09/10 12:19 | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120252577649330758",
+          "name": "HU | Creo_17 | 30+ 09/10 12:19 | AS 03"
+        },
+        {
+          "index": 3,
+          "id": "120252577657860758",
+          "name": "HU | Creo_17 | 30+ 09/10 12:19 | AS 04"
+        },
+        {
+          "index": 4,
+          "id": "120252577664670758",
+          "name": "HU | Creo_17 | 30+ 09/10 12:19 | AS 05"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "creativeIndex": 0,
+          "id": "120252577636350758",
+          "name": "HU | Creo_17 | 30+ 09/10 12:19 | AD 01"
+        },
+        {
+          "index": 1,
+          "creativeIndex": 0,
+          "id": "120252577645400758",
+          "name": "HU | Creo_17 | 30+ 09/10 12:19 | AD 02"
+        },
+        {
+          "index": 2,
+          "creativeIndex": 0,
+          "id": "120252577652680758",
+          "name": "HU | Creo_17 | 30+ 09/10 12:19 | AD 03"
+        },
+        {
+          "index": 3,
+          "creativeIndex": 0,
+          "id": "120252577661260758",
+          "name": "HU | Creo_17 | 30+ 09/10 12:19 | AD 04"
+        },
+        {
+          "index": 4,
+          "creativeIndex": 0,
+          "id": "120252577669380758",
+          "name": "HU | Creo_17 | 30+ 09/10 12:19 | AD 05"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "The ad account status is not eligible for write operations. To create or edit ads, resolve the account status issue: https://www.facebook.com/business/help/422289316306981",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 200,
+      "graphSubcode": 4841021,
+      "graphUserTitle": "Ad account can't be edited",
+      "graphUserMessage": "The ad account status is not eligible for write operations. To create or edit ads, resolve the account status issue: https://www.facebook.com/business/help/422289316306981",
+      "stage": "activation",
+      "itemIndex": 4,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "e48f4639-a66e-4ba3-845d-2d1a0c0c703a",
+    "accountKey": "account-033",
+    "adAccountId": "act_1829339134612159",
+    "uniqueKey": "campaign-job:e48f4639-a66e-4ba3-845d-2d1a0c0c703a"
+  }
+}
