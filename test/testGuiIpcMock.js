@@ -792,6 +792,42 @@ assert.deepEqual(
     await handlers.get("state:save")({}, { activeTab: "comments" }),
     { ok: true, data: { activeTab: "comments" } }
 );
+const originalSetInterval = globalThis.setInterval;
+const originalClearInterval = globalThis.clearInterval;
+const originalCheckActiveAccounts = guiService.checkActiveAccounts;
+const statusTimers = [];
+const clearedStatusTimers = [];
+let activeStatusChecks = 0;
+try {
+    globalThis.setInterval = (callback, delay) => {
+        const timer = { callback, delay, unref() {} };
+        statusTimers.push(timer);
+        return timer;
+    };
+    globalThis.clearInterval = (timer) => clearedStatusTimers.push(timer);
+    guiService.checkActiveAccounts = async () => {
+        activeStatusChecks += 1;
+        return [];
+    };
+    await handlers.get("state:load")({}, {});
+    assert.equal(statusTimers.length, 0);
+    await handlers.get("state:save")({}, { apiClientsAutoRefresh: true });
+    assert.equal(statusTimers.length, 1);
+    assert.equal(statusTimers[0].delay, 5 * 60_000);
+    statusTimers[0].callback();
+    assert.equal(activeStatusChecks, 1);
+    await handlers.get("state:save")({}, { apiClientsAutoRefresh: true });
+    assert.equal(statusTimers.length, 1);
+    await handlers.get("state:save")({}, { apiClientsAutoRefresh: false });
+    assert.ok(clearedStatusTimers.includes(statusTimers[0]));
+    await handlers.get("state:save")({}, { apiClientsAutoRefresh: true });
+    assert.equal(statusTimers.length, 2);
+    await handlers.get("state:save")({}, { apiClientsAutoRefresh: false });
+} finally {
+    globalThis.setInterval = originalSetInterval;
+    globalThis.clearInterval = originalClearInterval;
+    guiService.checkActiveAccounts = originalCheckActiveAccounts;
+}
 assert.deepEqual(
     await handlers.get("app:set-zoom")({}, { scale: 1.3 }),
     { ok: true, data: 1.3 }

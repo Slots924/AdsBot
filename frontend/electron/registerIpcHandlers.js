@@ -213,11 +213,19 @@ export default function registerIpcHandlers({
             );
         }
     };
-    const activeAccountStatusRefreshTimer = setInterval(
-        () => void refreshActiveAccountStatuses(),
-        activeAccountStatusRefreshIntervalMs
-    );
-    activeAccountStatusRefreshTimer.unref?.();
+    let activeAccountStatusRefreshTimer = null;
+    const configureActiveAccountStatusRefresh = (enabled) => {
+        if (enabled !== true) {
+            clearInterval(activeAccountStatusRefreshTimer);
+            activeAccountStatusRefreshTimer = null;
+        } else if (activeAccountStatusRefreshTimer === null) {
+            activeAccountStatusRefreshTimer = setInterval(
+                () => void refreshActiveAccountStatuses(),
+                activeAccountStatusRefreshIntervalMs
+            );
+            activeAccountStatusRefreshTimer.unref?.();
+        }
+    };
     const updateCacheSafely = async (operation, event = null) => {
         try {
             await operation();
@@ -3040,12 +3048,17 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "state:load",
-        safeHandler(() => appStateStore.load())
+        safeHandler(async () => {
+            const state = await appStateStore.load();
+            configureActiveAccountStatusRefresh(state.apiClientsAutoRefresh);
+            return state;
+        })
     );
     ipcMain.handle(
         "state:save",
         safeHandler(async (payload) => {
             const saved = await appStateStore.save(payload);
+            configureActiveAccountStatusRefresh(saved.apiClientsAutoRefresh);
             keitaroGuiService?.setConcurrency(saved.keitaroConcurrency);
             return saved;
         })

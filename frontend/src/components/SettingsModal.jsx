@@ -68,6 +68,8 @@ export default function SettingsModal({
     onApiClientsBrowserModeChange = () => {},
     apiClientsDisableImages = false,
     onApiClientsDisableImagesChange = () => {},
+    apiClientsAutoRefresh = false,
+    onApiClientsAutoRefreshChange = () => {},
     logLevel,
     onLogLevelChange,
     proxies = [],
@@ -628,6 +630,20 @@ export default function SettingsModal({
 
                         {tab === "api-clients" && (
                             <>
+                                <section className="scale-setting">
+                                    <div className="scale-setting-heading"><span>Автооновлення Facebook-профілів</span></div>
+                                    <label className="checkbox-line">
+                                        <input
+                                            type="checkbox"
+                                            checked={apiClientsAutoRefresh}
+                                            onChange={(event) => onApiClientsAutoRefreshChange(event.target.checked)}
+                                        />
+                                        <span>
+                                            <strong>Оновлювати статуси Facebook-профілів кожні 5 хвилин</strong>
+                                            <small>Автоматично перевіряє активні API-клієнти. За замовчуванням вимкнено.</small>
+                                        </span>
+                                    </label>
+                                </section>
                                 <p>Синхронізація запускається окремою задачею в загальній черзі. Розмір браузера завжди встановлюється для половини 2K-монітора.</p>
                                 <section className="scale-setting comment-browser-setting">
                                     <div className="scale-setting-heading"><span>Браузер для API-клієнтів</span></div>

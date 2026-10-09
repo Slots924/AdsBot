@@ -1030,6 +1030,24 @@ describe("GUI helpers", () => {
         );
     });
 
+    it("дозволяє увімкнути автооновлення Facebook-профілів у налаштуваннях API-клієнтів", () => {
+        const onApiClientsAutoRefreshChange = vi.fn();
+        const { rerender } = render(
+            <SettingsModal onApiClientsAutoRefreshChange={onApiClientsAutoRefreshChange} />
+        );
+        fireEvent.click(screen.getByRole("button", { name: /API-клієнти/ }));
+        const toggle = screen.getByRole("checkbox", { name: /Оновлювати статуси Facebook-профілів/ });
+        expect(toggle).not.toBeChecked();
+        fireEvent.click(toggle);
+        expect(onApiClientsAutoRefreshChange).toHaveBeenLastCalledWith(true);
+        rerender(
+            <SettingsModal apiClientsAutoRefresh onApiClientsAutoRefreshChange={onApiClientsAutoRefreshChange} />
+        );
+        expect(toggle).toBeChecked();
+        fireEvent.click(toggle);
+        expect(onApiClientsAutoRefreshChange).toHaveBeenLastCalledWith(false);
+    });
+
     it("змінює масштаб у налаштуваннях", () => {
         const onScaleChange = vi.fn();
         const onCommentBrowserModeChange = vi.fn();

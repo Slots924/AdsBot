@@ -34,6 +34,7 @@ const defaultState = {
     reactionDisableImages: false,
     apiClientsBrowserMode: "visible",
     apiClientsDisableImages: false,
+    apiClientsAutoRefresh: false,
     accountSetupPhotosDirectory: "",
     logLevel: "info",
     defaultPixelId: "",
@@ -208,6 +209,7 @@ function normalizeState(state = {}) {
             state.apiClientsBrowserMode
         ) ? state.apiClientsBrowserMode : defaultState.apiClientsBrowserMode,
         apiClientsDisableImages: state.apiClientsDisableImages === true,
+        apiClientsAutoRefresh: state.apiClientsAutoRefresh === true,
         logLevel: state.logLevel === "debug" ? "debug" : "info",
         defaultPixelId: String(state.defaultPixelId ?? "").trim(),
         defaultUtm: String(state.defaultUtm ?? ""),
