@@ -83,8 +83,8 @@ assert.equal(requests[1].params.after, "page-2");
 assert.equal(requests[2].params.date_preset, "last_7d");
 assert.equal(requests[2].params.level, "campaign");
 assert.match(requests[0].params.filtering, /ACTIVE/);
-assert.match(requests[0].params.filtering, /DELETED/);
-assert.match(requests[0].params.filtering, /ARCHIVED/);
+assert.doesNotMatch(requests[0].params.filtering, /DELETED/);
+assert.doesNotMatch(requests[0].params.filtering, /ARCHIVED/);
 assert.match(requests[3].params.fields, /timezone_offset_hours_utc/);
 assert.doesNotMatch(requests[3].params.fields, /adtrust_dsl/);
 assert.doesNotMatch(requests[3].params.fields, /insights\.date_preset\(today\)/);
@@ -198,5 +198,31 @@ assert.equal((await guiService.getAdCampaignSpend("active", "act_1", {
     since: "2026-09-01",
     until: "2026-09-03",
 }))[0].spend, "5.25");
+
+await graphApi.getAdCampaigns("act_1", { includeDeleted: true });
+assert.deepEqual(JSON.parse(requests.at(-1).params.filtering)[0].value,
+    ["ACTIVE", "PAUSED", "DELETED", "ARCHIVED"]);
+await graphApi.getAdCampaignInsights("act_1", "today", ["1", "2"]);
+assert.deepEqual(JSON.parse(requests.at(-1).params.filtering), [
+    { field: "campaign.id", operator: "IN", value: ["1", "2"] },
+]);
+const callsBeforeEmpty = requests.length;
+assert.deepEqual(await graphApi.getAdCampaignInsights("act_1", "today", []), []);
+assert.equal(requests.length, callsBeforeEmpty);
+let statisticsIds;
+facebookBackend.getAdCampaignInsights = async (_key, _id, _preset, ids) => {
+    statisticsIds = ids;
+    return [{ campaignId: "5", spend: "100", actions: [{ action_type: "lead", value: "50" }] }];
+};
+const filteredStats = await guiService.getAdCampaignStatistics("active", "act_1", "today", normalized.campaigns);
+assert.deepEqual(statisticsIds, ["3", "2", "1"]);
+for (const campaign of filteredStats.campaigns.slice(3)) {
+    for (const field of ["leads", "spend", "costPerLead", "impressions", "clicks", "cpm", "ctr"]) {
+        assert.equal(campaign[field], null);
+    }
+}
+statisticsIds = null;
+await guiService.getAdCampaignStatistics("active", "act_1", "today", normalized.campaigns.slice(3));
+assert.equal(statisticsIds, null);
 
 console.log("Mock-перевірка кампаній Facebook пройшла успішно");

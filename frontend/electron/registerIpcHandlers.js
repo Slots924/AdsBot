@@ -1,3 +1,4 @@
+import { isUnavailableCampaign, clearUnavailableCampaignStatistics, visibleCampaigns } from "../../services/campaigns/campaignVisibility.js";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
@@ -286,6 +287,7 @@ export default function registerIpcHandlers({
         ]));
         return campaigns.map((campaign) => {
             const cached = cachedById.get(String(campaign.id));
+            if (isUnavailableCampaign(campaign)) return clearUnavailableCampaignStatistics(campaign);
             if (!cached) return campaign;
             const {
                 leads,
@@ -326,20 +328,23 @@ export default function registerIpcHandlers({
         adAccountId,
         datePreset,
         refreshKeitaro = true,
+        includeDeleted = false,
     }) => {
         const cached = await remoteDataCacheStore.getCampaigns(
             accountKey,
             adAccountId,
             datePreset
         );
-        const campaignList = await guiService.getAdCampaignList(
+        const campaignList = visibleCampaigns(await guiService.getAdCampaignList(
             accountKey,
-            adAccountId
-        );
+            adAccountId,
+            { includeDeleted }
+        ), includeDeleted);
         const previous = cached?.value;
         const data = {
             adAccountId,
             datePreset,
+            includeDeleted,
             campaigns: mergeCampaignStatistics(
                 campaignList,
                 previous?.campaigns
@@ -357,14 +362,16 @@ export default function registerIpcHandlers({
             cacheHit: true,
         };
         if (keitaroLeadSyncEnabled && datePreset === "today") {
-            enriched.campaigns = enriched.campaigns.map((campaign) => ({
-                ...campaign,
-                metaLeads: campaign.leads,
-                leads: null,
-                costPerLead: null,
-                leadSource: "keitaro",
-                leadSyncStatus: "loading",
-            }));
+            enriched.campaigns = enriched.campaigns.map((campaign) => (
+                isUnavailableCampaign(campaign) ? clearUnavailableCampaignStatistics(campaign) : {
+                    ...campaign,
+                    metaLeads: campaign.leads,
+                    leads: null,
+                    costPerLead: null,
+                    leadSource: "keitaro",
+                    leadSyncStatus: "loading",
+                }
+            ));
         }
         await remoteDataCacheStore.setCampaigns(
             accountKey,
@@ -372,7 +379,8 @@ export default function registerIpcHandlers({
             datePreset,
             enriched
         );
-        if (refreshKeitaro && keitaroLeadSyncEnabled && datePreset === "today") {
+        if (refreshKeitaro && keitaroLeadSyncEnabled && datePreset === "today"
+            && enriched.campaigns.some((campaign) => !isUnavailableCampaign(campaign))) {
             refreshKeitaroCampaignLeadsOnce({
                 accountKey,
                 adAccountId,
@@ -390,7 +398,8 @@ export default function registerIpcHandlers({
         datePreset,
         data,
     }) => {
-        const key = [accountKey, adAccountId, datePreset].join("::");
+        const key = [accountKey, adAccountId, datePreset, Boolean(data.includeDeleted)].join("::");
+        if (!data.campaigns.some((campaign) => !isUnavailableCampaign(campaign))) return Promise.resolve(data);
         if (keitaroLeadRefreshes.has(key)) return keitaroLeadRefreshes.get(key);
         const refresh = (async () => {
             try {
@@ -406,6 +415,7 @@ export default function registerIpcHandlers({
                 const updated = {
                     ...data,
                     campaigns: data.campaigns.map((campaign) => {
+                        if (isUnavailableCampaign(campaign)) return clearUnavailableCampaignStatistics(campaign);
                         const leads = leadsByMetaCampaignId.get(String(campaign.id)) ?? 0;
                         return {
                             ...campaign,
@@ -436,6 +446,7 @@ export default function registerIpcHandlers({
                     accountKey,
                     adAccountId,
                     datePreset,
+                    includeDeleted: Boolean(data.includeDeleted),
                     error: serializeError(error),
                 });
                 return null;
@@ -453,6 +464,7 @@ export default function registerIpcHandlers({
             campaign,
         ]));
         return campaigns.map((campaign) => {
+            if (isUnavailableCampaign(campaign)) return clearUnavailableCampaignStatistics(campaign);
             const stats = statsById.get(String(campaign.id));
             if (!stats) return campaign;
             const keepKeitaro = campaign.leadSource === "keitaro";
@@ -484,6 +496,7 @@ export default function registerIpcHandlers({
         accountKey,
         adAccountId,
         datePreset,
+        includeDeleted = false,
     }) => {
         const cached = await remoteDataCacheStore.getCampaigns(
             accountKey,
@@ -494,6 +507,7 @@ export default function registerIpcHandlers({
             return {
                 adAccountId,
                 datePreset,
+                includeDeleted,
                 campaigns: [],
                 statisticsUpdatedAt: null,
                 cacheHit: false,
@@ -501,9 +515,10 @@ export default function registerIpcHandlers({
         }
         return {
             ...cached.value,
+            includeDeleted,
             campaigns: await adAccountPreferencesStore.enrichCampaigns(
                 adAccountId,
-                cached.value.campaigns ?? []
+                visibleCampaigns(cached.value.campaigns, includeDeleted)
             ),
             cacheHit: true,
         };
@@ -513,6 +528,7 @@ export default function registerIpcHandlers({
         accountKey,
         adAccountId,
         datePreset,
+        includeDeleted = false,
     }) => {
         const cached = await remoteDataCacheStore.getCampaigns(
             accountKey,
@@ -525,12 +541,14 @@ export default function registerIpcHandlers({
                 { code: "CAMPAIGN_LIST_REQUIRED" }
             );
         }
-        if (!shouldRefreshCampaignStatistics(cached.value.statisticsUpdatedAt)) {
+        if (!cached.value.campaigns.some((campaign) => !isUnavailableCampaign(campaign))
+            || !shouldRefreshCampaignStatistics(cached.value.statisticsUpdatedAt)) {
             return {
                 ...cached.value,
+                includeDeleted,
                 campaigns: await adAccountPreferencesStore.enrichCampaigns(
                     adAccountId,
-                    cached.value.campaigns
+                    visibleCampaigns(cached.value.campaigns, includeDeleted)
                 ),
                 cacheHit: true,
                 statisticsSkipped: true,
@@ -562,32 +580,36 @@ export default function registerIpcHandlers({
             accountKey,
             adAccountId,
             datePreset,
-            data: updated,
+            data: { ...updated, includeDeleted, campaigns: visibleCampaigns(updated.campaigns, includeDeleted) },
         });
-        return updated;
+        return { ...updated, includeDeleted, campaigns: visibleCampaigns(updated.campaigns, includeDeleted) };
     };
 
     const refreshCampaignData = async ({
         accountKey,
         adAccountId,
         datePreset,
+        includeDeleted = false,
     }) => {
         const data = await loadRemoteCampaigns({
             accountKey,
             adAccountId,
             datePreset,
             refreshKeitaro: false,
+            includeDeleted,
         });
         const statistics = data.campaigns.length > 0
             ? await loadRemoteCampaignStatistics({
                 accountKey,
                 adAccountId,
                 datePreset,
+                includeDeleted,
             })
             : data;
         const keitaroLeadSyncEnabled = await adAccountPreferencesStore
             .isKeitaroLeadSyncEnabled(adAccountId);
-        if (keitaroLeadSyncEnabled && datePreset === "today") {
+        if (keitaroLeadSyncEnabled && datePreset === "today"
+            && (statistics ?? data).campaigns.some((campaign) => !isUnavailableCampaign(campaign))) {
             refreshKeitaroCampaignLeadsOnce({
                 accountKey,
                 adAccountId,
@@ -1918,10 +1940,13 @@ export default function registerIpcHandlers({
             accountKey,
             adAccountId,
             datePreset = "today",
+            includeDeleted = false,
             force = false,
         }) => {
-            const payload = { accountKey, adAccountId, datePreset };
+            const payload = { accountKey, adAccountId, datePreset, includeDeleted };
             if (force) return loadRemoteCampaigns(payload);
+            const cached = await remoteDataCacheStore.getCampaigns(accountKey, adAccountId, datePreset);
+            if (includeDeleted && cached?.value?.includeDeleted !== true) return loadRemoteCampaigns(payload);
             return readCachedCampaigns(payload);
         })
     );
@@ -1931,10 +1956,12 @@ export default function registerIpcHandlers({
             accountKey,
             adAccountId,
             datePreset = "today",
+            includeDeleted = false,
         }) => loadRemoteCampaignStatistics({
             accountKey,
             adAccountId,
             datePreset,
+            includeDeleted,
         }))
     );
     ipcMain.handle(
@@ -1943,9 +1970,10 @@ export default function registerIpcHandlers({
             accountKey,
             adAccountId,
             datePreset = "today",
+            includeDeleted = false,
         }) => {
-            const payload = { accountKey, adAccountId, datePreset };
-            const key = [accountKey, adAccountId, datePreset].join("::");
+            const payload = { accountKey, adAccountId, datePreset, includeDeleted };
+            const key = [accountKey, adAccountId, datePreset, includeDeleted].join("::");
             const now = Date.now();
             const lastRefresh = campaignRefreshTimes.get(key) ?? 0;
             if (now - lastRefresh < manualRefreshIntervalMs) {
@@ -1957,7 +1985,7 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle(
         "ads:keitaro-lead-sync-set",
-        safeHandler(async ({ accountKey, adAccountId, enabled }) => {
+        safeHandler(async ({ accountKey, adAccountId, enabled, includeDeleted = false }) => {
             const result = await adAccountPreferencesStore.setKeitaroLeadSync(
                 adAccountId,
                 enabled
@@ -1967,6 +1995,7 @@ export default function registerIpcHandlers({
                 accountKey,
                 adAccountId,
                 datePreset: "today",
+                includeDeleted,
             });
             refreshKeitaroCampaignLeadsOnce({
                 accountKey,

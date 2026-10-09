@@ -93,30 +93,34 @@ contextBridge.exposeInMainWorld("adsBot", {
             accountKey,
             orderedIds,
         }),
-    setKeitaroLeadSync: (accountKey, adAccountId, enabled) =>
+    setKeitaroLeadSync: (accountKey, adAccountId, enabled, includeDeleted = false) =>
         ipcRenderer.invoke("ads:keitaro-lead-sync-set", {
             accountKey,
             adAccountId,
             enabled,
+            includeDeleted,
         }),
-    getAdCampaigns: (accountKey, adAccountId, datePreset, force = false) =>
+    getAdCampaigns: (accountKey, adAccountId, datePreset, force = false, includeDeleted = false) =>
         ipcRenderer.invoke("campaigns:list", {
             accountKey,
             adAccountId,
             datePreset,
             force,
+            includeDeleted,
         }),
-    refreshAdCampaignStatistics: (accountKey, adAccountId, datePreset) =>
+    refreshAdCampaignStatistics: (accountKey, adAccountId, datePreset, includeDeleted = false) =>
         ipcRenderer.invoke("campaigns:statistics-refresh", {
             accountKey,
             adAccountId,
             datePreset,
+            includeDeleted,
         }),
-    refreshAdCampaignData: (accountKey, adAccountId, datePreset) =>
+    refreshAdCampaignData: (accountKey, adAccountId, datePreset, includeDeleted = false) =>
         ipcRenderer.invoke("campaigns:refresh", {
             accountKey,
             adAccountId,
             datePreset,
+            includeDeleted,
         }),
     reorderAdCampaigns: (adAccountId, orderedIds) =>
         ipcRenderer.invoke("campaigns:reorder", { adAccountId, orderedIds }),

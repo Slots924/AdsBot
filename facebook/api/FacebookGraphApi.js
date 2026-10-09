@@ -828,18 +828,20 @@ export default class FacebookGraphApi {
 
 
     /**
-     * Повертає активні, призупинені, видалені та остаточно видалені кампанії рекламного акаунта.
+     * Повертає активні й призупинені кампанії; видалені додає лише за includeDeleted.
      * @param {string} adAccountId Graph ID у форматі act_123.
      * @returns {Promise<object[]>}
      */
-    async getAdCampaigns(adAccountId) {
+    async getAdCampaigns(adAccountId, { includeDeleted = false } = {}) {
         const id = normalizeAdAccountId(adAccountId);
         const campaigns = await this.#getAll(`/${id}/campaigns`, {
             fields: "id,name,status,effective_status",
             filtering: JSON.stringify([{
                 field: "effective_status",
                 operator: "IN",
-                value: ["ACTIVE", "PAUSED", "DELETED", "ARCHIVED"],
+                value: includeDeleted
+                    ? ["ACTIVE", "PAUSED", "DELETED", "ARCHIVED"]
+                    : ["ACTIVE", "PAUSED"],
             }]),
             limit: 100,
         });
@@ -857,9 +859,10 @@ export default class FacebookGraphApi {
      * Повертає campaign-level статистику рекламного акаунта.
      * @param {string} adAccountId Graph ID у форматі act_123.
      * @param {string} datePreset Підтримуваний Meta date preset.
+     * @param {string[]} [campaignIds] ID кампаній для вибірки; порожній масив пропускає запит.
      * @returns {Promise<object[]>}
      */
-    async getAdCampaignInsights(adAccountId, datePreset = "today") {
+    async getAdCampaignInsights(adAccountId, datePreset = "today", campaignIds) {
         const id = normalizeAdAccountId(adAccountId);
         const normalizedPreset = String(datePreset ?? "").trim();
 
@@ -869,10 +872,19 @@ export default class FacebookGraphApi {
             throw error;
         }
 
+        if (Array.isArray(campaignIds) && campaignIds.length === 0) return [];
+
         const insights = await this.#getAll(`/${id}/insights`, {
             fields: "campaign_id,campaign_name,spend,impressions,clicks,ctr,actions",
             level: "campaign",
             date_preset: normalizedPreset,
+            ...(Array.isArray(campaignIds) ? {
+                filtering: JSON.stringify([{
+                    field: "campaign.id",
+                    operator: "IN",
+                    value: [...new Set(campaignIds.map(String))],
+                }]),
+            } : {}),
             limit: 100,
         });
 

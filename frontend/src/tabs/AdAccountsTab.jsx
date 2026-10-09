@@ -269,11 +269,11 @@ function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, o
                 <small>{campaign.id}</small>
             </span>
             <span><i className={`campaign-status ${campaign.effectiveStatus === "ACTIVE" ? "active" : unavailable ? "deleted" : "paused"}`}>{campaign.effectiveStatus === "ACTIVE" ? "Увімкнено" : permanentlyDeleted ? "Остаточно видалено" : deleted ? "Видалено" : "Пауза"}</i></span>
-            <strong>{value(campaign.leads)}</strong>
-            <strong>{formatMoney(campaign.spend, currency)}</strong>
-            <strong>{formatMoney(campaign.costPerLead, currency)}</strong>
-            <strong>{formatMoney(campaign.cpm, currency)}</strong>
-            <strong>{formatPercent(campaign.ctr)}</strong>
+            <strong>{unavailable ? "—" : value(campaign.leads)}</strong>
+            <strong>{unavailable ? "—" : formatMoney(campaign.spend, currency)}</strong>
+            <strong>{unavailable ? "—" : formatMoney(campaign.costPerLead, currency)}</strong>
+            <strong>{unavailable ? "—" : formatMoney(campaign.cpm, currency)}</strong>
+            <strong>{unavailable ? "—" : formatPercent(campaign.ctr)}</strong>
             <span className="campaign-actions">
                 {!unavailable && <button type="button" className="campaign-delete-button" aria-label={`Видалити кампанію ${campaign.name}`} title="Видалити кампанію" disabled={pending} onClick={() => onDelete(campaign)}>{pending ? <LoaderCircle className="spin" size={15} /> : <Trash2 size={15} />}</button>}
             </span>
@@ -448,8 +448,8 @@ export default function AdAccountsTab({
         })));
     };
 
-    const campaignKey = (adAccountId, preset = datePreset) => (
-        `${accountKey}::${adAccountId}::${preset}`
+    const campaignKey = (adAccountId, preset = datePreset, includeDeleted = showDeletedCampaigns) => (
+        `${accountKey}::${adAccountId}::${preset}::${includeDeleted}`
     );
 
     const loadCampaigns = async (
@@ -477,7 +477,8 @@ export default function AdAccountsTab({
                 accountKey,
                 adAccountId,
                 preset,
-                force
+                force,
+                showDeletedCampaigns
             ));
             const entry = { status: "ready", data, error: null };
             if (
@@ -556,12 +557,12 @@ export default function AdAccountsTab({
         if (selected) {
             loadCampaigns(selected.id, datePreset, { force: false });
         }
-    }, [selected?.id, datePreset, accountKey]);
+    }, [selected?.id, datePreset, accountKey, showDeletedCampaigns]);
 
     useEffect(() => {
         const offRefreshed = window.adsBot.onCampaignsRefreshed?.((event) => {
             if (event?.accountKey !== accountKey || !event?.data) return;
-            const key = campaignKey(event.adAccountId, event.datePreset);
+            const key = campaignKey(event.adAccountId, event.datePreset, Boolean(event.data?.includeDeleted ?? event.includeDeleted));
             updateCampaignCache((cache) => ({
                 ...cache,
                 [key]: { status: "ready", data: event.data, error: null },
@@ -580,7 +581,7 @@ export default function AdAccountsTab({
         }) ?? (() => {});
         const offKeitaroLeads = window.adsBot.onKeitaroCampaignLeadsRefreshed?.((event) => {
             if (event?.accountKey !== accountKey) return;
-            const key = campaignKey(event.adAccountId, event.datePreset);
+            const key = campaignKey(event.adAccountId, event.datePreset, Boolean(event.data?.includeDeleted ?? event.includeDeleted));
             if (event.data) {
                 updateCampaignCache((cache) => ({
                     ...cache,
@@ -611,7 +612,7 @@ export default function AdAccountsTab({
             offInvalidated();
             offKeitaroLeads();
         };
-    }, [accountKey, selected?.id, datePreset]);
+    }, [accountKey, selected?.id, datePreset, showDeletedCampaigns]);
 
     const updateFavoritePositions = (orderedIds) => {
         const positions = new Map(orderedIds.map((id, index) => [id, index]));
@@ -763,7 +764,8 @@ export default function AdAccountsTab({
             const result = await unwrap(window.adsBot.setKeitaroLeadSync(
                 accountKey,
                 selected.id,
-                enabled
+                enabled,
+                showDeletedCampaigns
             ));
             setAccounts((current) => {
                 const next = current.map((account) => (
@@ -790,7 +792,8 @@ export default function AdAccountsTab({
             const data = await unwrap(window.adsBot.refreshAdCampaignData(
                 accountKey,
                 selected.id,
-                datePreset
+                datePreset,
+                showDeletedCampaigns
             ));
             updateCampaignCache((cache) => ({
                 ...cache,

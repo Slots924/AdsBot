@@ -225,7 +225,7 @@ if (!selectedFacebookApiClient) {
 | `getMe()` | `{ id, name }` | Повертає користувача, якому належить token. |
 | `getPermissions()` | `{ granted, declined, expired, other }` | Групує permissions за статусом. |
 | `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти, включно з UTC offset і DSA defaults. Денний spend та `adtrust_dsl` тут навмисно не запитуються. |
-| `getAdCampaigns(adAccountId)` | `Array` | Повертає ACTIVE, PAUSED, DELETED та ARCHIVED кампанії РК. |
+| `getAdCampaigns(adAccountId, { includeDeleted = false })` | `Array` | Повертає ACTIVE та PAUSED; з `includeDeleted: true` також DELETED та ARCHIVED. |
 | `setAdCampaignStatus(campaignId, status)` | `{ id, status }` | Змінює стан кампанії на `ACTIVE`, `PAUSED` або `DELETED`. |
 | `renameAdCampaign(campaignId, name)` | `{ id, name }` | Змінює назву кампанії через Graph API. |
 | `deleteAdCampaign(campaignId)` | `{ id, status: "DELETED", effectiveStatus: "DELETED" }` | Встановлює кампанії статус `DELETED` без незворотного HTTP DELETE. |
@@ -308,8 +308,12 @@ attachments не враховуються.
 через cursor `after`. Insights запитуються з `level=campaign`; GUI використовує
 лише агрегований action type `lead`, не сумуючи його з Pixel або form-підтипами.
 Підтримувані періоди: `today`, `yesterday`, `last_7d`, `last_30d`, `maximum`.
-Список кампаній завжди містить також `DELETED` і `ARCHIVED`: GUI може показати їх окремо від
-робочих кампаній без додаткового Graph-запиту.
+За замовчуванням список кампаній містить лише `ACTIVE` та `PAUSED`.
+`includeDeleted: true` додає `DELETED` і `ARCHIVED`, для яких GUI показує лише
+ID, назву та статуси. `getAdCampaignInsights(adAccountId, datePreset, campaignIds)`
+приймає необов’язковий список ID для фільтра `campaign.id IN`; порожній список
+повертає `[]` без запиту. GUI передає лише ID доступних кампаній, очищає старі
+метрики видалених із кешу та не підставляє їм ліди Keitaro.
 
 ## Створення website lead-кампаній
 

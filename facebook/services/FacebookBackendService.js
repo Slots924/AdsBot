@@ -241,15 +241,15 @@ export default class FacebookBackendService {
     }
 
 
-    async getAdCampaignList(accountKey, adAccountId) {
+    async getAdCampaignList(accountKey, adAccountId, options) {
         return this.#getFacebookApiClient(accountKey)
-            .getAdCampaigns(adAccountId);
+            .getAdCampaigns(adAccountId, options);
     }
 
 
-    async getAdCampaignInsights(accountKey, adAccountId, datePreset = "today") {
+    async getAdCampaignInsights(accountKey, adAccountId, datePreset = "today", campaignIds) {
         return this.#getFacebookApiClient(accountKey)
-            .getAdCampaignInsights(adAccountId, datePreset);
+            .getAdCampaignInsights(adAccountId, datePreset, campaignIds);
     }
 
 

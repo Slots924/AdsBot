@@ -1,3 +1,4 @@
+import { isUnavailableCampaign, clearUnavailableCampaignStatistics } from "../campaigns/campaignVisibility.js";
 import AdsPower from "../../classes/AdsPower.js";
 import FacebookBackendService
     from "../../facebook/services/FacebookBackendService.js";
@@ -143,6 +144,7 @@ function formatCampaigns({ campaigns = [], insights = [] }) {
                 ctr: impressions > 0 ? clicks / impressions * 100 : null,
             };
         })
+        .map(clearUnavailableCampaignStatistics)
         .sort((left, right) => {
             const statusOrder = { ACTIVE: 0, PAUSED: 1, DELETED: 2, ARCHIVED: 3 };
             const deletedDifference = (statusOrder[left.effectiveStatus] ?? 4)
@@ -437,11 +439,12 @@ export default class AdsBotGuiService {
     }
 
 
-    async getAdCampaignList(accountKey, adAccountId) {
+    async getAdCampaignList(accountKey, adAccountId, options) {
         await this.#assertActiveAccount(accountKey);
         const sourceCampaigns = await this.#facebookBackend.getAdCampaignList(
             accountKey,
-            adAccountId
+            adAccountId,
+            options
         );
         const campaigns = formatCampaigns({ campaigns: sourceCampaigns });
         this.logger.info(`Знайдено кампаній: ${campaigns.length}`);
@@ -456,11 +459,13 @@ export default class AdsBotGuiService {
         campaigns = []
     ) {
         await this.#assertActiveAccount(accountKey);
-        const insights = await this.#facebookBackend.getAdCampaignInsights(
-            accountKey,
-            adAccountId,
-            datePreset
-        );
+        const campaignIds = campaigns.filter((campaign) => !isUnavailableCampaign(campaign))
+            .map((campaign) => String(campaign.id));
+        const insights = campaignIds.length > 0
+            ? await this.#facebookBackend.getAdCampaignInsights(
+                accountKey, adAccountId, datePreset, campaignIds
+            )
+            : [];
         return {
             adAccountId,
             datePreset,

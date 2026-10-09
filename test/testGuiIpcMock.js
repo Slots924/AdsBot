@@ -9,6 +9,7 @@ const openedUrls = [];
 const openedDialogs = [];
 const zoomFactors = [];
 const rendererEvents = [];
+let keitaroReportCalls = 0;
 const logger = {
     list: async () => ({ items: [], nextCursor: null }),
     scopes: async () => ["gui"],
@@ -391,6 +392,13 @@ registerIpcHandlers({
         },
     },
     guiService,
+    keitaroGuiService: {
+        setConcurrency() {},
+        async getTodayLeadsByMetaCampaignId() {
+            keitaroReportCalls += 1;
+            return [{ metaCampaignId: "active-1", leads: 3 }, { metaCampaignId: "deleted-1", leads: 100 }];
+        },
+    },
     templateManager,
     appStateStore,
     adAccountPreferencesStore,
@@ -646,6 +654,7 @@ assert.deepEqual(
         data: {
             adAccountId: "act_1",
             datePreset: "today",
+            includeDeleted: false,
             campaigns: [],
             statisticsUpdatedAt: null,
             cacheHit: false,
@@ -798,5 +807,62 @@ assert.equal(
     })).error.code,
     "EXTERNAL_URL_NOT_ALLOWED"
 );
+
+const deletedCampaign = {
+    id: "deleted-1", name: "Deleted", status: "DELETED", effectiveStatus: "DELETED",
+    spend: 999, leads: 100, costPerLead: 9.99, impressions: 1000, clicks: 100, cpm: 999, ctr: 10,
+};
+const activeCampaign = { id: "active-1", name: "Active", status: "PAUSED", effectiveStatus: "PAUSED" };
+const listModes = [];
+guiService.getAdCampaignList = async (_accountKey, _adAccountId, options) => {
+    listModes.push(options.includeDeleted);
+    return options.includeDeleted ? [activeCampaign, deletedCampaign] : [activeCampaign];
+};
+await remoteDataCacheStore.setCampaigns("fp_hub", "act_visibility", "today", {
+    campaigns: [activeCampaign, deletedCampaign], statisticsUpdatedAt: null,
+});
+const legacyHidden = await handlers.get("campaigns:list")({}, {
+    accountKey: "fp_hub", adAccountId: "act_visibility",
+});
+assert.deepEqual(legacyHidden.data.campaigns.map((campaign) => campaign.id), ["active-1"]);
+assert.equal(listModes.length, 0);
+const visibleDeleted = await handlers.get("campaigns:list")({}, {
+    accountKey: "fp_hub", adAccountId: "act_visibility", includeDeleted: true,
+});
+assert.deepEqual(listModes, [true]);
+assert.equal(visibleDeleted.data.campaigns.length, 2);
+assert.equal(visibleDeleted.data.campaigns[1].spend, null);
+assert.equal(visibleDeleted.data.campaigns[1].leads, null);
+const hiddenRefresh = await handlers.get("campaigns:refresh")({}, {
+    accountKey: "fp_hub", adAccountId: "act_visibility", includeDeleted: false,
+});
+assert.equal(listModes.at(-1), false);
+assert.equal(hiddenRefresh.data.campaigns.length, 1);
+const shownRefresh = await handlers.get("campaigns:refresh")({}, {
+    accountKey: "fp_hub", adAccountId: "act_visibility", includeDeleted: true,
+});
+assert.equal(listModes.at(-1), true);
+assert.equal(shownRefresh.data.campaigns.length, 2);
+assert.equal(shownRefresh.data.campaigns[1].spend, null);
+guiService.getAdCampaignList = async () => [deletedCampaign];
+adAccountPreferencesStore.isKeitaroLeadSyncEnabled = async () => true;
+const statisticsCallsBeforeDeleted = adCampaignStatisticsCalls;
+const onlyDeleted = await handlers.get("campaigns:refresh")({}, {
+    accountKey: "fp_hub", adAccountId: "act_deleted_only", includeDeleted: true,
+});
+assert.equal(onlyDeleted.ok, true);
+assert.equal(onlyDeleted.data.campaigns[0].spend, null);
+assert.equal(adCampaignStatisticsCalls, statisticsCallsBeforeDeleted);
+assert.equal(keitaroReportCalls, 0);
+guiService.getAdCampaignList = async () => [activeCampaign, deletedCampaign];
+await handlers.get("campaigns:list")({}, {
+    accountKey: "fp_hub", adAccountId: "act_keitaro_visibility", includeDeleted: true, force: true,
+});
+await new Promise((resolve) => setImmediate(resolve));
+assert.equal(keitaroReportCalls, 1);
+const keitaroData = (await remoteDataCacheStore.getCampaigns("fp_hub", "act_keitaro_visibility", "today")).value;
+assert.equal(keitaroData.campaigns[0].leads, 3);
+assert.equal(keitaroData.campaigns[1].leads, null);
+assert.equal(keitaroData.campaigns[1].leadSource, null);
 
 console.log("Mock-перевірка GUI IPC пройшла успішно");

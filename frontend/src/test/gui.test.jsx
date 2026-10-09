@@ -981,16 +981,17 @@ describe("GUI helpers", () => {
             "fp_hub",
             "act_1",
             "today",
+            false,
             false
         );
 
         fireEvent.click(screen.getByText("7 днів"));
         await waitFor(() => expect(window.adsBot.getAdCampaigns)
-            .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d", false));
+            .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d", false, false));
 
         fireEvent.click(screen.getByRole("button", { name: "Оновити" }));
         await waitFor(() => expect(window.adsBot.refreshAdCampaignData)
-            .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d"));
+            .toHaveBeenCalledWith("fp_hub", "act_1", "last_7d", false));
 
         const accountCallsBeforeRkRefresh = window.adsBot.getAdAccounts.mock.calls.length;
         const campaignCallsBeforeRkRefresh = window.adsBot.getAdCampaigns.mock.calls.length;
@@ -999,6 +1000,27 @@ describe("GUI helpers", () => {
             .toBe(accountCallsBeforeRkRefresh);
         expect(window.adsBot.getAdCampaigns.mock.calls.length)
             .toBe(campaignCallsBeforeRkRefresh);
+
+        window.adsBot.getAdCampaigns.mockResolvedValueOnce({
+            ok: true,
+            data: {
+                includeDeleted: true,
+                campaigns: [
+                    { id: "campaign-1", name: "A Campaign", effectiveStatus: "ACTIVE", leads: 2, spend: 10 },
+                    { id: "deleted-1", name: "Deleted Campaign", effectiveStatus: "DELETED", leads: 999, spend: 999, costPerLead: 999, cpm: 999, ctr: 999 },
+                ],
+            },
+        });
+        fireEvent.click(screen.getByRole("checkbox", { name: "Показувати видалені" }));
+        expect(await screen.findByText("Deleted Campaign")).toBeInTheDocument();
+        expect(window.adsBot.getAdCampaigns).toHaveBeenLastCalledWith("fp_hub", "act_1", "last_7d", false, true);
+        expect(screen.getByText("Deleted Campaign").closest(".campaign-row").textContent).not.toContain("999");
+        expect(screen.getByText("Deleted Campaign").closest(".campaign-row").querySelectorAll("strong").length).toBe(6);
+        expect([...screen.getByText("Deleted Campaign").closest(".campaign-row").querySelectorAll("strong")].slice(1).map((cell) => cell.textContent)).toEqual(["—", "—", "—", "—", "—"]);
+        fireEvent.click(screen.getByRole("button", { name: "Оновити" }));
+        await waitFor(() => expect(window.adsBot.refreshAdCampaignData).toHaveBeenLastCalledWith("fp_hub", "act_1", "last_7d", true));
+        fireEvent.click(screen.getByRole("checkbox", { name: "Показувати видалені" }));
+        await waitFor(() => expect(screen.queryByText("Deleted Campaign")).not.toBeInTheDocument());
 
         fireEvent.click(screen.getByTitle("Додати до обраних"));
         expect(window.adsBot.setAdAccountFavorite).toHaveBeenCalledWith(
