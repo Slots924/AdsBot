@@ -362,6 +362,25 @@ export default class FacebookGraphApi {
     }
 
 
+    /** Повертає метадані поточного токена через Graph API. */
+    async debugAccessToken() {
+        const response = await this.#request("/debug_token", {
+            input_token: this.#accessToken,
+        });
+        return response.data;
+    }
+
+
+    /** Читає ID користувача за явним Facebook ID. */
+    async getUserById(userId = this.facebookUserId) {
+        const id = String(userId ?? "").trim();
+        if (!/^\d+$/.test(id)) {
+            throw new Error("Не вказано коректний Facebook ID користувача");
+        }
+        return this.#readObject(id, ["id"]);
+    }
+
+
     /**
      * Повертає permissions, згруповані за їхнім статусом.
      * @returns {Promise<{granted: string[], declined: string[], expired: string[], other: object[]}>}
@@ -431,7 +450,7 @@ export default class FacebookGraphApi {
         };
         const fromCache = await verify();
         if (fromCache) return fromCache;
-        const metadata = (await attempt("token-metadata", () => this.#request("/debug_token", { input_token: this.#accessToken })))?.data;
+        const metadata = await attempt("token-metadata", () => this.debugAccessToken());
         addCandidate(metadata?.business_id);
         for (const scope of metadata?.granular_scopes ?? []) {
             if (scope.scope === "business_management") (scope.target_ids ?? []).forEach(addCandidate);

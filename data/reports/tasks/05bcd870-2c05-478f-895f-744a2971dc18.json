@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "id": "05bcd870-2c05-478f-895f-744a2971dc18",
+  "taskId": "fff45822-ab5b-4ca7-a8b9-7a220858ff9e",
+  "type": "campaign",
+  "title": "DE | Creo_28 | 30+ 10/10 11:44",
+  "status": "interrupted",
+  "createdAt": "2026-10-10T08:44:59.086Z",
+  "startedAt": "2026-10-10T08:44:37.655Z",
+  "finishedAt": "2026-10-10T08:44:59.085Z",
+  "durationMs": 21430,
+  "inputSummary": {
+    "campaignJobId": "d862b0ee-651d-4bf5-8ffe-00d69f1c69b7",
+    "accountKey": "account-031",
+    "adAccountId": "act_2204745047051496",
+    "campaignName": "DE | Creo_28 | 30+ 10/10 11:44",
+    "templateId": 13,
+    "pageId": "813912285138400",
+    "postId": "813912285138400_122148758895067169",
+    "adSetCount": 5,
+    "dailyBudget": 5,
+    "startTime": "2026-10-10T08:44:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120255322643620230",
+      "creativeId": "1860105841812559",
+      "creatives": [
+        {
+          "id": "1860105841812559",
+          "pageId": "813912285138400",
+          "postId": "813912285138400_122148758895067169"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120255322644450230",
+          "name": "DE | Creo_28 | 30+ 10/10 11:44 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120255322645940230",
+          "name": "DE | Creo_28 | 30+ 10/10 11:44 | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "creativeIndex": 0,
+          "id": "120255322645580230",
+          "name": "DE | Creo_28 | 30+ 10/10 11:44 | AD 01"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Створення кампанії перервано",
+      "code": "CAMPAIGN_CREATION_INTERRUPTED",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "adset",
+      "itemIndex": 1,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "d862b0ee-651d-4bf5-8ffe-00d69f1c69b7",
+    "accountKey": "account-031",
+    "adAccountId": "act_2204745047051496",
+    "uniqueKey": "campaign-job:d862b0ee-651d-4bf5-8ffe-00d69f1c69b7"
+  }
+}

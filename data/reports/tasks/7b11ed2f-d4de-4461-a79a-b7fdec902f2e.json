@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "id": "7b11ed2f-d4de-4461-a79a-b7fdec902f2e",
+  "taskId": "fee32494-6750-4696-8d88-f71d48fac664",
+  "type": "campaign-cleanup",
+  "title": "DE | Creo_28 | 30+ 10/10 11:44 · очищення",
+  "status": "completed",
+  "createdAt": "2026-10-10T08:45:07.352Z",
+  "startedAt": "2026-10-10T08:45:02.658Z",
+  "finishedAt": "2026-10-10T08:45:07.351Z",
+  "durationMs": 4693,
+  "inputSummary": {
+    "campaignJobId": "d862b0ee-651d-4bf5-8ffe-00d69f1c69b7",
+    "accountKey": "account-031",
+    "knownObjects": {
+      "campaignId": "120255322643620230",
+      "creativeId": "1860105841812559",
+      "creatives": [
+        {
+          "id": "1860105841812559",
+          "pageId": "813912285138400",
+          "postId": "813912285138400_122148758895067169"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120255322644450230",
+          "name": "DE | Creo_28 | 30+ 10/10 11:44 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120255322645940230",
+          "name": "DE | Creo_28 | 30+ 10/10 11:44 | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "creativeIndex": 0,
+          "id": "120255322645580230",
+          "name": "DE | Creo_28 | 30+ 10/10 11:44 | AD 01"
+        }
+      ]
+    }
+  },
+  "resultSummary": {
+    "deleted": [
+      {
+        "type": "ad",
+        "id": "120255322645580230"
+      },
+      {
+        "type": "adset",
+        "id": "120255322645940230"
+      },
+      {
+        "type": "adset",
+        "id": "120255322644450230"
+      },
+      {
+        "type": "creative",
+        "id": "1860105841812559"
+      },
+      {
+        "type": "campaign",
+        "id": "120255322643620230"
+      }
+    ],
+    "failed": []
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "d862b0ee-651d-4bf5-8ffe-00d69f1c69b7",
+    "uniqueKey": "campaign-job:d862b0ee-651d-4bf5-8ffe-00d69f1c69b7"
+  }
+}

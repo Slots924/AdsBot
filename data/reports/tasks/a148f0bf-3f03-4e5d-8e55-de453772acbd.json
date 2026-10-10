@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "id": "a148f0bf-3f03-4e5d-8e55-de453772acbd",
+  "taskId": "b6f45e0b-1b0b-4702-b435-acd1d603aef9",
+  "type": "campaign",
+  "title": "HU | Creo_17 | 40+ 10/10 15:18",
+  "status": "failed",
+  "createdAt": "2026-10-10T12:19:39.423Z",
+  "startedAt": "2026-10-10T12:19:13.751Z",
+  "finishedAt": "2026-10-10T12:19:39.422Z",
+  "durationMs": 25671,
+  "inputSummary": {
+    "campaignJobId": "0ec0c667-9ec5-4996-ba01-e28dbc15a98e",
+    "accountKey": "account-031",
+    "adAccountId": "act_2204745047051496",
+    "campaignName": "HU | Creo_17 | 40+ 10/10 15:18",
+    "templateId": 28,
+    "pageId": "1369212719603682",
+    "postId": "1369212719603682_122101441341499153",
+    "adSetCount": 5,
+    "dailyBudget": 40,
+    "startTime": "2026-10-10T12:18:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120255327917790230",
+      "creativeId": "2570791173441598",
+      "creatives": [
+        {
+          "id": "2570791173441598",
+          "pageId": "1369212719603682",
+          "postId": "1369212719603682_122101441341499153"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120255327919160230",
+          "name": "HU | Creo_17 | 40+ 10/10 15:18 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120255327919780230",
+          "name": "HU | Creo_17 | 40+ 10/10 15:18 | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "creativeIndex": 0,
+          "id": "120255327919660230",
+          "name": "HU | Creo_17 | 40+ 10/10 15:18 | AD 01"
+        },
+        {
+          "index": 1,
+          "creativeIndex": 0,
+          "id": "120255327920270230",
+          "name": "HU | Creo_17 | 40+ 10/10 15:18 | AD 02"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Error validating access token: The session has been invalidated because the user changed their password or Facebook has changed the session for security reasons.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 401,
+      "graphCode": 190,
+      "graphSubcode": 452,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "stage": "adset",
+      "itemIndex": 2,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "0ec0c667-9ec5-4996-ba01-e28dbc15a98e",
+    "accountKey": "account-031",
+    "adAccountId": "act_2204745047051496",
+    "uniqueKey": "campaign-job:0ec0c667-9ec5-4996-ba01-e28dbc15a98e"
+  }
+}
