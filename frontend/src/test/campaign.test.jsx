@@ -150,5 +150,13 @@ describe("Створення рекламної кампанії", () => {
             });
         expect(await screen.findByText(/Кампанію додано в чергу/))
             .toBeInTheDocument();
+        const progressListener = window.adsBot.onCampaignCreationProgress.mock.calls[0][0];
+        progressListener({ jobId: "job-1", stage: "failed", error: {
+            message: "Підтвердіть акаунт в Ads Manager", code: "FACEBOOK_ACCOUNT_AUTH_REQUIRED",
+            graphCode: 31, graphSubcode: 3858385, requestId: "request-auth-mock",
+            actionRequired: "authenticate_account", stage: "ad",
+        } });
+        expect(await screen.findByText(/пройдіть запропоновану перевірку/)).toBeInTheDocument();
+        expect(screen.getByText(/request-auth-mock/)).toBeInTheDocument();
     });
 });

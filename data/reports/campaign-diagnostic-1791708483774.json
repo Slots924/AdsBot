@@ -1,0 +1,466 @@
+{
+  "jobId": "10a64aea-9c38-4818-aa2e-f8fc004b344b",
+  "startedAt": "2026-10-11T08:48:03.774Z",
+  "requests": [
+    {
+      "method": "get",
+      "endpoint": "/v26.0/me/permissions",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": false,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "GDCAKWYGCFV",
+        "requestId": "AsqEjNoS_zH5JX3eHzmKCHO",
+        "bodyType": "object",
+        "keys": [
+          "data",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": null,
+        "adId": null,
+        "success": null,
+        "dataType": "array",
+        "dataKeys": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16"
+        ],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/act_1657864638434462",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": false,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "E40jDntbao3",
+        "requestId": "ArGE-Ue74JiQOBmr81pvgBp",
+        "bodyType": "object",
+        "keys": [
+          "id",
+          "name",
+          "account_status",
+          "currency",
+          "timezone_name",
+          "default_dsa_beneficiary",
+          "default_dsa_payor",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": "act_1657864638434462",
+        "adId": null,
+        "success": null,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/me/accounts",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": false,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "G4yJQO/xHo9",
+        "requestId": "AZIoA7uJlcefXVmD7EZ2LiQ",
+        "bodyType": "object",
+        "keys": [
+          "data",
+          "paging",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": null,
+        "adId": null,
+        "success": null,
+        "dataType": "array",
+        "dataKeys": [
+          "0",
+          "1",
+          "2"
+        ],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/153387844516718",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": false,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "FWogjYPvMC+",
+        "requestId": "ACm4Ryk25NdqndkL2Lq90vZ",
+        "bodyType": "object",
+        "keys": [
+          "id",
+          "name",
+          "is_published",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": "153387844516718",
+        "adId": null,
+        "success": null,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/153387844516718_122339931242072514",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": false,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "FG5qObfB5vp",
+        "requestId": "AbygiJCAFEcKYVgOirU6ObD",
+        "bodyType": "object",
+        "keys": [
+          "id",
+          "message",
+          "created_time",
+          "permalink_url",
+          "is_published",
+          "status_type",
+          "full_picture",
+          "attachments",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": "153387844516718_122339931242072514",
+        "adId": null,
+        "success": null,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/act_1657864638434462/adspixels",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": false,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "C+eIsLFRfjU",
+        "requestId": "A5d3F8eKldKqtyjzB76Tk7u",
+        "bodyType": "object",
+        "keys": [
+          "data",
+          "paging",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": null,
+        "adId": null,
+        "success": null,
+        "dataType": "array",
+        "dataKeys": [
+          "0",
+          "1"
+        ],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1657864638434462/campaigns",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": true,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "GfvVma6oBUw",
+        "requestId": "AbulUtLO_NHvvJggRsElby5",
+        "bodyType": "object",
+        "keys": [
+          "success",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": null,
+        "adId": null,
+        "success": true,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1657864638434462/campaigns",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": false,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "C90KJdXWVQv",
+        "requestId": "As3HEc8G7x7s35M7AAxj_fD",
+        "bodyType": "object",
+        "keys": [
+          "id",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": "120246459289980187",
+        "adId": null,
+        "success": null,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1657864638434462/adcreatives",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": true,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "ECIxCV6A/OC",
+        "requestId": "Ac_jhy2wGQ_pKiwtJ_F48TJ",
+        "bodyType": "object",
+        "keys": [
+          "success",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": null,
+        "adId": null,
+        "success": true,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1657864638434462/adcreatives",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": false,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "C7rLc+kLeBv",
+        "requestId": "AM6JwF6dDcAWKw_ehgGgGje",
+        "bodyType": "object",
+        "keys": [
+          "id",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": "1104631129205438",
+        "adId": null,
+        "success": null,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1657864638434462/adsets",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": true,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "BGATAhT7/87",
+        "requestId": "ACRBorZLcCl4opbn_jt1Y4i",
+        "bodyType": "object",
+        "keys": [
+          "success",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": null,
+        "adId": null,
+        "success": true,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1657864638434462/adsets",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": false,
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "AtotjaqfrNI",
+        "requestId": "ADbpS-C-sR5lMXurP-eOzaH",
+        "bodyType": "object",
+        "keys": [
+          "id",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": "120246459290380187",
+        "adId": null,
+        "success": null,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": null
+      }
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1657864638434462/ads",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": true,
+      "adRequest": {
+        "name": "DE | Creo_138 | 40+ 11/10 16:37 | AD 01",
+        "adset_id": "120246459290380187",
+        "creative": "{\"creative_id\":\"1104631129205438\"}",
+        "status": "PAUSED",
+        "execution_options": "[\"validate_only\"]"
+      },
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "BSWSs/kSsMY",
+        "requestId": "ASs7Nh5RI3n4ZYVogSeyoXl",
+        "bodyType": "object",
+        "keys": [
+          "error",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": null,
+        "adId": null,
+        "success": null,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": {
+          "message": "This request requires the user to take a pending action",
+          "type": "FacebookApiException",
+          "code": 31,
+          "error_subcode": 3858385,
+          "is_transient": false,
+          "error_user_title": "Please authenticate your account",
+          "error_user_msg": "We think someone may have tried to access your account without permission. For your protection, you won't be able to create or modify ads until you authenticate your account in Ads Manager. Your existing ads will continue to run normally.",
+          "fbtrace_id": "ASs7Nh5RI3n4ZYVogSeyoXl"
+        }
+      }
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1657864638434462/ads",
+      "throughProxy": "[REDACTED]",
+      "validateOnly": false,
+      "adRequest": {
+        "name": "DE | Creo_138 | 40+ 11/10 16:37 | AD 01",
+        "adset_id": "120246459290380187",
+        "creative": "{\"creative_id\":\"1104631129205438\"}",
+        "status": "PAUSED",
+        "execution_options": null
+      },
+      "response": {
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "traceId": "D+K6zRckxcm",
+        "requestId": "AhZmgEcxo1CHze0fveIAtEU",
+        "bodyType": "object",
+        "keys": [
+          "error",
+          "__fb_trace_id__",
+          "__www_request_id__"
+        ],
+        "id": null,
+        "adId": null,
+        "success": null,
+        "dataType": "undefined",
+        "dataKeys": [],
+        "textLength": null,
+        "error": {
+          "message": "This request requires the user to take a pending action",
+          "type": "FacebookApiException",
+          "code": 31,
+          "error_subcode": 3858385,
+          "is_transient": false,
+          "error_user_title": "Please authenticate your account",
+          "error_user_msg": "We think someone may have tried to access your account without permission. For your protection, you won't be able to create or modify ads until you authenticate your account in Ads Manager. Your existing ads will continue to run normally.",
+          "fbtrace_id": "AhZmgEcxo1CHze0fveIAtEU"
+        }
+      }
+    }
+  ],
+  "objects": {
+    "campaignId": "120246459289980187",
+    "creativeId": "1104631129205438",
+    "creatives": [
+      {
+        "id": "1104631129205438",
+        "pageId": "153387844516718",
+        "postId": "153387844516718_122339931242072514"
+      }
+    ],
+    "adSets": [
+      {
+        "index": 0,
+        "id": "120246459290380187",
+        "name": "DE | Creo_138 | 40+ 11/10 16:37 | AS 01"
+      }
+    ],
+    "ads": [
+      {
+        "index": 0,
+        "creativeIndex": 0,
+        "name": "DE | Creo_138 | 40+ 11/10 16:37 | AD 01"
+      }
+    ]
+  },
+  "stage": "ad",
+  "status": "failed",
+  "error": {
+    "message": "Створення повернуло відповідь без ID; діагностику зупинено",
+    "code": "CAMPAIGN_DIAGNOSTIC_ID_MISSING",
+    "stage": "ad",
+    "itemIndex": 0,
+    "graphCode": null,
+    "graphSubcode": null
+  },
+  "finishedAt": "2026-10-11T08:48:17.957Z"
+}

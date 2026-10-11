@@ -1,0 +1,1951 @@
+{
+  "jobId": "2eebe964-9c3a-4ed4-aae3-319d71871388",
+  "cases": [
+    {
+      "jobId": "2eebe964-9c3a-4ed4-aae3-319d71871388",
+      "case": "US",
+      "countries": [
+        "US"
+      ],
+      "omitDsa": true,
+      "startedAt": "2026-10-11T09:00:04.320Z",
+      "requests": [
+        {
+          "method": "get",
+          "endpoint": "/v26.0/me/permissions",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "Bf45ThbvpEz",
+            "requestId": "AyF9f2byefvSkzjUPH1V23q",
+            "bodyType": "object",
+            "keys": [
+              "data",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": null,
+            "dataType": "array",
+            "dataKeys": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15",
+              "16"
+            ],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/act_1529700178179374",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "FkqdtqdYu/+",
+            "requestId": "AChtjy9bsAqw-FELIObQsCs",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "account_status",
+              "currency",
+              "timezone_name",
+              "default_dsa_beneficiary",
+              "default_dsa_payor",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "act_1529700178179374",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/me/accounts",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "HJVWQ5QsfQw",
+            "requestId": "ASfvirZHjo6UzaVfWLJ8fam",
+            "bodyType": "object",
+            "keys": [
+              "data",
+              "paging",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": null,
+            "dataType": "array",
+            "dataKeys": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10"
+            ],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/837142986147508",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "C4IEtZLXpGZ",
+            "requestId": "AUjn86Pdn0KodiIT8Brg66h",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "is_published",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "837142986147508",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/837142986147508_122145998775081663",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "AF5QqBFLHB5",
+            "requestId": "AwPzVF37acgZXkdzKt1bi7C",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "message",
+              "created_time",
+              "permalink_url",
+              "is_published",
+              "status_type",
+              "full_picture",
+              "attachments",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "837142986147508_122145998775081663",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/act_1529700178179374/adspixels",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "ExHqOJmfMhZ",
+            "requestId": "A9C2VgAU4PG4AXHZIoo1nIH",
+            "bodyType": "object",
+            "keys": [
+              "data",
+              "paging",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": null,
+            "dataType": "array",
+            "dataKeys": [
+              "0",
+              "1"
+            ],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/campaigns",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "C3DDpwjXy3y",
+            "requestId": "AqGLFakUzzML4oORc_YOctR",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/campaigns",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "F15ogr80vsA",
+            "requestId": "AuawdOveF75L0a2EWrI2TuT",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395861980122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adcreatives",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "GtHz0jTNLLw",
+            "requestId": "AIsWSySWrG2MnmyCvezJne2",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adcreatives",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "DTiVbv/a8gg",
+            "requestId": "AnVhclTqypegAt976jGFHvN",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "1046910805040182",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adsets",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "adSetRequest": {
+            "status": "PAUSED",
+            "hasBeneficiary": false,
+            "hasPayor": false
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "Bg2Hv3zH90P",
+            "requestId": "AXYix4W-s-mY3WuffLZDIEa",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adsets",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "adSetRequest": {
+            "status": "PAUSED",
+            "hasBeneficiary": false,
+            "hasPayor": false
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "Hdg4lVgLgp7",
+            "requestId": "Ays2TvI2FGk1hmWY2f7xCTF",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395862410122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/ads",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "adRequest": {
+            "name": "DSA TEST US 2026-10-11T09:00:04.320Z | AD 01",
+            "adset_id": "120251395862410122",
+            "creative": "{\"creative_id\":\"1046910805040182\"}",
+            "status": "PAUSED",
+            "execution_options": "[\"validate_only\"]"
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "AB+ftMnLXM3",
+            "requestId": "ALbum4ZCAS-v251_gROds_8",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/ads",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "adRequest": {
+            "name": "DSA TEST US 2026-10-11T09:00:04.320Z | AD 01",
+            "adset_id": "120251395862410122",
+            "creative": "{\"creative_id\":\"1046910805040182\"}",
+            "status": "PAUSED",
+            "execution_options": null
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "AXBIP9eB0wp",
+            "requestId": "A2QZeRVvUub4-eAtKRzZNWD",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395862910122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/120251395861980122",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json; charset=utf-8",
+            "traceId": "A/5F296g/7r",
+            "requestId": "ATAJZWKYoa4SU1fDL1qNo1Y",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "status",
+              "effective_status"
+            ],
+            "id": "120251395861980122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": "PAUSED",
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/1046910805040182",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json; charset=utf-8",
+            "traceId": "DBbiFAiS++i",
+            "requestId": "AXh3KBwesNQbJHa2gFgH6Zp",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "degrees_of_freedom_spec",
+              "contextual_multi_ads",
+              "effective_object_story_id"
+            ],
+            "id": "1046910805040182",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/120251395862410122",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "CTroh+z53f/",
+            "requestId": "Ag5ux-m20OwSACVnCD8XJAZ",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "status",
+              "effective_status",
+              "start_time",
+              "daily_budget",
+              "targeting",
+              "promoted_object",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395862410122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": "PAUSED",
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/120251395862910122",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "EAxMuIR6CFn",
+            "requestId": "AR4NlyeRRWaPm97qRAq2Dsw",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "status",
+              "effective_status",
+              "creative",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395862910122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": "PAUSED",
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        }
+      ],
+      "objects": {
+        "campaignId": "120251395861980122",
+        "creativeId": "1046910805040182",
+        "creatives": [
+          {
+            "id": "1046910805040182",
+            "pageId": "837142986147508",
+            "postId": "837142986147508_122145998775081663"
+          }
+        ],
+        "adSets": [
+          {
+            "index": 0,
+            "id": "120251395862410122",
+            "name": "DSA TEST US 2026-10-11T09:00:04.320Z | AS 01"
+          }
+        ],
+        "ads": [
+          {
+            "index": 0,
+            "creativeIndex": 0,
+            "id": "120251395862910122",
+            "name": "DSA TEST US 2026-10-11T09:00:04.320Z | AD 01"
+          }
+        ]
+      },
+      "stage": "complete",
+      "status": "complete",
+      "dsa": {
+        "required": false,
+        "resolved": false,
+        "sent": false,
+        "readback": [
+          {
+            "id": "120251395862410122",
+            "status": "PAUSED",
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "beneficiaryMatches": null,
+            "payorMatches": null
+          }
+        ]
+      },
+      "warnings": [],
+      "statuses": {
+        "campaign": "PAUSED",
+        "adSets": [
+          "PAUSED"
+        ],
+        "ads": [
+          "PAUSED"
+        ]
+      },
+      "finishedAt": "2026-10-11T09:00:23.437Z"
+    },
+    {
+      "jobId": "2eebe964-9c3a-4ed4-aae3-319d71871388",
+      "case": "DE",
+      "countries": [
+        "DE"
+      ],
+      "omitDsa": false,
+      "startedAt": "2026-10-11T09:00:23.439Z",
+      "requests": [
+        {
+          "method": "get",
+          "endpoint": "/v26.0/me/permissions",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "FPTEOsTRZws",
+            "requestId": "AIaMbTqh7iq0H4I-biob7mj",
+            "bodyType": "object",
+            "keys": [
+              "data",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": null,
+            "dataType": "array",
+            "dataKeys": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15",
+              "16"
+            ],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/act_1529700178179374",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "DEVHv5O0XIr",
+            "requestId": "AkJW8uepxN2MefvbBYKF0A5",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "account_status",
+              "currency",
+              "timezone_name",
+              "default_dsa_beneficiary",
+              "default_dsa_payor",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "act_1529700178179374",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/837142986147508",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "EYPCS3b0dXG",
+            "requestId": "Ajg__zUhWWVQ6T8AlRQDYhn",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "is_published",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "837142986147508",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/837142986147508_122145998775081663",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "CbXMQCOqqQ9",
+            "requestId": "AbzOObJkVIwMaQ6JfGeuiYM",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "message",
+              "created_time",
+              "permalink_url",
+              "is_published",
+              "status_type",
+              "full_picture",
+              "attachments",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "837142986147508_122145998775081663",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/act_1529700178179374/adspixels",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "DZhldG7qvtK",
+            "requestId": "AS3KjXjKb8MnbJuJIcEdN7A",
+            "bodyType": "object",
+            "keys": [
+              "data",
+              "paging",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": null,
+            "dataType": "array",
+            "dataKeys": [
+              "0",
+              "1"
+            ],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/campaigns",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "BVS2eYMIkGB",
+            "requestId": "AZEeRkiaiyTbk4PWzJLAERk",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/campaigns",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "GL0DN4Lsbm1",
+            "requestId": "AFCZJ2V5lgCrczq0aGicG53",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395863360122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adcreatives",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "DxYbz3ZU2FT",
+            "requestId": "AUZQyrINMaWP_DryeKDGcOb",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adcreatives",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "DqNzVL50clE",
+            "requestId": "AziqgwRH6VVdcuZdQcu5tp0",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "1046910805040182",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adsets",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "adSetRequest": {
+            "status": "PAUSED",
+            "hasBeneficiary": true,
+            "hasPayor": true
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "DIz+ms+yLOo",
+            "requestId": "AJ6ug5UWY0FuyFf3um--nG0",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adsets",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "adSetRequest": {
+            "status": "PAUSED",
+            "hasBeneficiary": true,
+            "hasPayor": true
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "ByZxa2o2TMG",
+            "requestId": "AlrdSEm-hb1VjtavO_ENwoD",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395863670122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/ads",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "adRequest": {
+            "name": "DSA TEST DE 2026-10-11T09:00:23.439Z | AD 01",
+            "adset_id": "120251395863670122",
+            "creative": "{\"creative_id\":\"1046910805040182\"}",
+            "status": "PAUSED",
+            "execution_options": "[\"validate_only\"]"
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "Ev0U7D8pG15",
+            "requestId": "AwWMZtatQ_i_o9_9Y2hxI1G",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/ads",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "adRequest": {
+            "name": "DSA TEST DE 2026-10-11T09:00:23.439Z | AD 01",
+            "adset_id": "120251395863670122",
+            "creative": "{\"creative_id\":\"1046910805040182\"}",
+            "status": "PAUSED",
+            "execution_options": null
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "Hl68Y0lSaq+",
+            "requestId": "A4pMnWeg8sontQ8QeEPq6nt",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395864100122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/120251395863360122",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json; charset=utf-8",
+            "traceId": "CWDoMqmkS+R",
+            "requestId": "Ahly1J-LU7yRR5NwSOJHBPm",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "status",
+              "effective_status"
+            ],
+            "id": "120251395863360122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": "PAUSED",
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/1046910805040182",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json; charset=utf-8",
+            "traceId": "AqJgGlifcf/",
+            "requestId": "AU-CqjVtqRm6xsn3H2sfcVq",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "degrees_of_freedom_spec",
+              "contextual_multi_ads",
+              "effective_object_story_id"
+            ],
+            "id": "1046910805040182",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/120251395863670122",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "AkSIY8DR99g",
+            "requestId": "Ax6IHy4oEfcQP6aOBOefeLK",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "status",
+              "effective_status",
+              "start_time",
+              "daily_budget",
+              "targeting",
+              "promoted_object",
+              "dsa_beneficiary",
+              "dsa_payor",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395863670122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": "PAUSED",
+            "hasBeneficiary": true,
+            "hasPayor": true,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/120251395864100122",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "AkqA4uoUnny",
+            "requestId": "AMC0S9S9e3Hvw4fX6M-5qry",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "status",
+              "effective_status",
+              "creative",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395864100122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": "PAUSED",
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        }
+      ],
+      "objects": {
+        "campaignId": "120251395863360122",
+        "creativeId": "1046910805040182",
+        "creatives": [
+          {
+            "id": "1046910805040182",
+            "pageId": "837142986147508",
+            "postId": "837142986147508_122145998775081663"
+          }
+        ],
+        "adSets": [
+          {
+            "index": 0,
+            "id": "120251395863670122",
+            "name": "DSA TEST DE 2026-10-11T09:00:23.439Z | AS 01"
+          }
+        ],
+        "ads": [
+          {
+            "index": 0,
+            "creativeIndex": 0,
+            "id": "120251395864100122",
+            "name": "DSA TEST DE 2026-10-11T09:00:23.439Z | AD 01"
+          }
+        ]
+      },
+      "stage": "complete",
+      "status": "complete",
+      "dsa": {
+        "required": true,
+        "resolved": true,
+        "sent": true,
+        "readback": [
+          {
+            "id": "120251395863670122",
+            "status": "PAUSED",
+            "hasBeneficiary": true,
+            "hasPayor": true,
+            "beneficiaryMatches": true,
+            "payorMatches": true
+          }
+        ]
+      },
+      "warnings": [],
+      "statuses": {
+        "campaign": "PAUSED",
+        "adSets": [
+          "PAUSED"
+        ],
+        "ads": [
+          "PAUSED"
+        ]
+      },
+      "finishedAt": "2026-10-11T09:00:38.831Z"
+    },
+    {
+      "jobId": "2eebe964-9c3a-4ed4-aae3-319d71871388",
+      "case": "US+DE",
+      "countries": [
+        "US",
+        "DE"
+      ],
+      "omitDsa": false,
+      "startedAt": "2026-10-11T09:00:38.832Z",
+      "requests": [
+        {
+          "method": "get",
+          "endpoint": "/v26.0/me/permissions",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "Cw+QUWCFS0M",
+            "requestId": "AeSLcousXvd3I0peiOK8hMp",
+            "bodyType": "object",
+            "keys": [
+              "data",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": null,
+            "dataType": "array",
+            "dataKeys": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15",
+              "16"
+            ],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/act_1529700178179374",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "EW+VDWnLzE4",
+            "requestId": "AFdoR0RJp7vUEdN6ewrZA33",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "account_status",
+              "currency",
+              "timezone_name",
+              "default_dsa_beneficiary",
+              "default_dsa_payor",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "act_1529700178179374",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/837142986147508",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "HOLDQSFbJGV",
+            "requestId": "AfXSq_QBrNbFhGeIpQ4xDH9",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "is_published",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "837142986147508",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/837142986147508_122145998775081663",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "Ee+u3ElEnXf",
+            "requestId": "AjS2Bm93tM_Y_M82t_cqZZP",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "message",
+              "created_time",
+              "permalink_url",
+              "is_published",
+              "status_type",
+              "full_picture",
+              "attachments",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "837142986147508_122145998775081663",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/act_1529700178179374/adspixels",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "GRpAQ5scl2a",
+            "requestId": "AwemUvXoluOFa-0y_VNsf7z",
+            "bodyType": "object",
+            "keys": [
+              "data",
+              "paging",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": null,
+            "dataType": "array",
+            "dataKeys": [
+              "0",
+              "1"
+            ],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/campaigns",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "EZZErkhj2pj",
+            "requestId": "AbKc1kbQPg9GIToii6vC5GZ",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/campaigns",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "H+y+Wu8M7Gw",
+            "requestId": "ANhdo4laK12ZhjQEHqgPX-g",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395864260122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adcreatives",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "Dmq3EVfpyYG",
+            "requestId": "AjlsdInbwoG7vkZqihXVwZu",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adcreatives",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "H1tds0SlCa8",
+            "requestId": "AbSJ56VwMj06icQhSJkOH0Q",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "1046910805040182",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adsets",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "adSetRequest": {
+            "status": "PAUSED",
+            "hasBeneficiary": true,
+            "hasPayor": true
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "BD0alkzcpA5",
+            "requestId": "AohTdDycSQxpj9Cv11foDNu",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/adsets",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "adSetRequest": {
+            "status": "PAUSED",
+            "hasBeneficiary": true,
+            "hasPayor": true
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "Dik6aJ1/cua",
+            "requestId": "ARtMyPyjhzv_jBmBaMp1nVZ",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395864590122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/ads",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": true,
+          "adRequest": {
+            "name": "DSA TEST US+DE 2026-10-11T09:00:38.832Z | AD 01",
+            "adset_id": "120251395864590122",
+            "creative": "{\"creative_id\":\"1046910805040182\"}",
+            "status": "PAUSED",
+            "execution_options": "[\"validate_only\"]"
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "H5D4orBM6G/",
+            "requestId": "An4HdPadRHmlEyfg-XUSIbv",
+            "bodyType": "object",
+            "keys": [
+              "success",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": null,
+            "adId": null,
+            "success": true,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "post",
+          "endpoint": "/v26.0/act_1529700178179374/ads",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "adRequest": {
+            "name": "DSA TEST US+DE 2026-10-11T09:00:38.832Z | AD 01",
+            "adset_id": "120251395864590122",
+            "creative": "{\"creative_id\":\"1046910805040182\"}",
+            "status": "PAUSED",
+            "execution_options": null
+          },
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "H487n4w4rSj",
+            "requestId": "ANOKpll9u3gbxlb5y53PDrY",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395865010122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/120251395864260122",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json; charset=utf-8",
+            "traceId": "HBxu9eJM7kT",
+            "requestId": "AoIVn4diXD5hqBCNvCplAs2",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "status",
+              "effective_status"
+            ],
+            "id": "120251395864260122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": "PAUSED",
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/1046910805040182",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json; charset=utf-8",
+            "traceId": "E9tiln4kAUY",
+            "requestId": "Ax28UC8GRKYMZjDKj9IZUKv",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "degrees_of_freedom_spec",
+              "contextual_multi_ads",
+              "effective_object_story_id"
+            ],
+            "id": "1046910805040182",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": null,
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/120251395864590122",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "E489LH71muU",
+            "requestId": "AkmMlV_aXJmHK-HJwmvJSP8",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "status",
+              "effective_status",
+              "start_time",
+              "daily_budget",
+              "targeting",
+              "promoted_object",
+              "dsa_beneficiary",
+              "dsa_payor",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395864590122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": "PAUSED",
+            "hasBeneficiary": true,
+            "hasPayor": true,
+            "warnings": null
+          }
+        },
+        {
+          "method": "get",
+          "endpoint": "/v26.0/120251395865010122",
+          "throughProxy": "[REDACTED]",
+          "validateOnly": false,
+          "response": {
+            "httpStatus": 200,
+            "contentType": "application/json",
+            "traceId": "BimAx94Mxgc",
+            "requestId": "AGoKEYk-sxVCUbICsl-rkjR",
+            "bodyType": "object",
+            "keys": [
+              "id",
+              "name",
+              "status",
+              "effective_status",
+              "creative",
+              "__fb_trace_id__",
+              "__www_request_id__"
+            ],
+            "id": "120251395865010122",
+            "adId": null,
+            "success": null,
+            "dataType": "undefined",
+            "dataKeys": [],
+            "textLength": null,
+            "error": null,
+            "configuredStatus": "PAUSED",
+            "hasBeneficiary": false,
+            "hasPayor": false,
+            "warnings": null
+          }
+        }
+      ],
+      "objects": {
+        "campaignId": "120251395864260122",
+        "creativeId": "1046910805040182",
+        "creatives": [
+          {
+            "id": "1046910805040182",
+            "pageId": "837142986147508",
+            "postId": "837142986147508_122145998775081663"
+          }
+        ],
+        "adSets": [
+          {
+            "index": 0,
+            "id": "120251395864590122",
+            "name": "DSA TEST US+DE 2026-10-11T09:00:38.832Z | AS 01"
+          }
+        ],
+        "ads": [
+          {
+            "index": 0,
+            "creativeIndex": 0,
+            "id": "120251395865010122",
+            "name": "DSA TEST US+DE 2026-10-11T09:00:38.832Z | AD 01"
+          }
+        ]
+      },
+      "stage": "complete",
+      "status": "complete",
+      "dsa": {
+        "required": true,
+        "resolved": true,
+        "sent": true,
+        "readback": [
+          {
+            "id": "120251395864590122",
+            "status": "PAUSED",
+            "hasBeneficiary": true,
+            "hasPayor": true,
+            "beneficiaryMatches": true,
+            "payorMatches": true
+          }
+        ]
+      },
+      "warnings": [],
+      "statuses": {
+        "campaign": "PAUSED",
+        "adSets": [
+          "PAUSED"
+        ],
+        "ads": [
+          "PAUSED"
+        ]
+      },
+      "finishedAt": "2026-10-11T09:00:54.095Z"
+    }
+  ]
+}

@@ -2,6 +2,323 @@
   "version": 1,
   "tasks": [
     {
+      "id": "6723cc97-a441-4cfd-9489-d040041279ea",
+      "type": "campaign",
+      "name": "test",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "2eebe964-9c3a-4ed4-aae3-319d71871388"
+      },
+      "metadata": {
+        "campaignJobId": "2eebe964-9c3a-4ed4-aae3-319d71871388",
+        "accountKey": "account-033",
+        "adAccountId": "act_1529700178179374",
+        "uniqueKey": "campaign-job:2eebe964-9c3a-4ed4-aae3-319d71871388",
+        "reportId": "6a34dc48-6b17-4cfc-b1eb-8811eb6b22a5"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120251395807430122",
+          "creativeId": "1046910805040182",
+          "creatives": [
+            {
+              "id": "1046910805040182",
+              "pageId": "837142986147508",
+              "postId": "837142986147508_122145998775081663"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120251395807810122",
+              "name": "test | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120251395808460122",
+              "name": "test | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "2eebe964-9c3a-4ed4-aae3-319d71871388",
+        "campaignId": "120251395807430122",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-11T08:46:05.673Z",
+      "startedAt": "2026-10-11T08:46:05.675Z",
+      "finishedAt": "2026-10-11T08:46:24.823Z",
+      "updatedAt": "2026-10-11T08:46:24.825Z"
+    },
+    {
+      "id": "59a6e01c-530c-4848-be9f-7091b0c86f7f",
+      "type": "campaign",
+      "name": "DE | Creo_138 | 40+ 11/10 16:37",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "10a64aea-9c38-4818-aa2e-f8fc004b344b"
+      },
+      "metadata": {
+        "campaignJobId": "10a64aea-9c38-4818-aa2e-f8fc004b344b",
+        "accountKey": "account-041",
+        "adAccountId": "act_1657864638434462",
+        "uniqueKey": "campaign-job:10a64aea-9c38-4818-aa2e-f8fc004b344b",
+        "reportId": "987f57d1-4245-40a3-868f-cbf3d5885772"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "failed",
+        "message": "Unsupported post request. Object with ID 'undefined' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+        "objects": {
+          "campaignId": "120246459235760187",
+          "creativeId": "1104631129205438",
+          "creatives": [
+            {
+              "id": "1104631129205438",
+              "pageId": "153387844516718",
+              "postId": "153387844516718_122339931242072514"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120246459235990187",
+              "name": "DE | Creo_138 | 40+ 11/10 16:37 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120246459236660187",
+              "name": "DE | Creo_138 | 40+ 11/10 16:37 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120246459237240187",
+              "name": "DE | Creo_138 | 40+ 11/10 16:37 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120246459237840187",
+              "name": "DE | Creo_138 | 40+ 11/10 16:37 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120246459238330187",
+              "name": "DE | Creo_138 | 40+ 11/10 16:37 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "name": "DE | Creo_138 | 40+ 11/10 16:37 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "name": "DE | Creo_138 | 40+ 11/10 16:37 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "name": "DE | Creo_138 | 40+ 11/10 16:37 | AD 03"
+            },
+            {
+              "index": 3,
+              "creativeIndex": 0,
+              "name": "DE | Creo_138 | 40+ 11/10 16:37 | AD 04"
+            },
+            {
+              "index": 4,
+              "creativeIndex": 0,
+              "name": "DE | Creo_138 | 40+ 11/10 16:37 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "Unsupported post request. Object with ID 'undefined' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": "activation",
+        "graphCode": 100,
+        "graphSubcode": 33
+      },
+      "waitingReason": null,
+      "createdAt": "2026-10-11T08:37:21.500Z",
+      "startedAt": "2026-10-11T08:37:21.501Z",
+      "finishedAt": "2026-10-11T08:38:05.256Z",
+      "updatedAt": "2026-10-11T08:38:05.258Z"
+    },
+    {
+      "id": "8793f92b-4f38-4c43-8152-b329a00c020c",
+      "type": "campaign",
+      "name": "DE | Creo_138 | 40+ 11/10 16:34",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "34ffa525-10b2-4e59-9e36-eeabd6f7b287"
+      },
+      "metadata": {
+        "campaignJobId": "34ffa525-10b2-4e59-9e36-eeabd6f7b287",
+        "accountKey": "account-041",
+        "adAccountId": "act_1657864638434462",
+        "uniqueKey": "campaign-job:34ffa525-10b2-4e59-9e36-eeabd6f7b287",
+        "reportId": "d7684225-ceca-40d8-ba25-c2df909fc593"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "failed",
+        "message": "Unsupported post request. Object with ID 'undefined' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+        "objects": {
+          "campaignId": "120246459218540187",
+          "creativeId": "1104631129205438",
+          "creatives": [
+            {
+              "id": "1104631129205438",
+              "pageId": "153387844516718",
+              "postId": "153387844516718_122339931242072514"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120246459219120187",
+              "name": "DE | Creo_138 | 40+ 11/10 16:34 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120246459220860187",
+              "name": "DE | Creo_138 | 40+ 11/10 16:34 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120246459222550187",
+              "name": "DE | Creo_138 | 40+ 11/10 16:34 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120246459223530187",
+              "name": "DE | Creo_138 | 40+ 11/10 16:34 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120246459224250187",
+              "name": "DE | Creo_138 | 40+ 11/10 16:34 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "name": "DE | Creo_138 | 40+ 11/10 16:34 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "name": "DE | Creo_138 | 40+ 11/10 16:34 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "name": "DE | Creo_138 | 40+ 11/10 16:34 | AD 03"
+            },
+            {
+              "index": 3,
+              "creativeIndex": 0,
+              "name": "DE | Creo_138 | 40+ 11/10 16:34 | AD 04"
+            },
+            {
+              "index": 4,
+              "creativeIndex": 0,
+              "name": "DE | Creo_138 | 40+ 11/10 16:34 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "Unsupported post request. Object with ID 'undefined' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": "activation",
+        "graphCode": 100,
+        "graphSubcode": 33
+      },
+      "waitingReason": null,
+      "createdAt": "2026-10-11T08:35:30.538Z",
+      "startedAt": "2026-10-11T08:35:30.539Z",
+      "finishedAt": "2026-10-11T08:36:19.904Z",
+      "updatedAt": "2026-10-11T08:36:19.907Z"
+    },
+    {
+      "id": "fcf9264f-5fea-40e7-86c5-99ef7c3447fb",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-041",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2364",
+          "label": "AdsPower №2364"
+        }
+      ],
+      "input": {
+        "accountKey": "account-041",
+        "adsPowerProfileNo": "2364"
+      },
+      "metadata": {
+        "accountKey": "account-041",
+        "uniqueKey": "facebook-api-client-sync:account-041",
+        "reportId": "f0296a84-7c49-41ee-9686-2d7a9c630355"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-041",
+        "adsPowerProfileNo": "2364",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-11T08:31:48.173Z",
+      "startedAt": "2026-10-11T08:31:48.174Z",
+      "finishedAt": "2026-10-11T08:32:03.919Z",
+      "updatedAt": "2026-10-11T08:32:03.923Z"
+    },
+    {
       "id": "ef94195a-ebc0-480c-9213-994acaf45969",
       "type": "facebook-api-client-sync",
       "name": "Синхронізація API-клієнта account-041",

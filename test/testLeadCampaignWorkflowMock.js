@@ -90,4 +90,26 @@ await assert.rejects(
 assert.deepEqual(failedOperations.activations, []);
 assert.deepEqual(failedOperations.writes, ["campaign", "creative", "adset", "ad", "adset", "ad"]);
 
+for (const method of ["createCampaign", "createCreative", "createAdSet", "createAd"]) {
+    const broken = createOperations();
+    broken[method] = async () => ({ success: true });
+    await assert.rejects(createLeadCampaign(options, undefined, broken), { code: "FACEBOOK_WRITE_OUTCOME_UNKNOWN" });
+    assert.deepEqual(broken.activations, []);
+}
+const activationFailure = createOperations();
+activationFailure.activate = async () => { throw new Error("Активацію відхилено"); };
+await assert.rejects(createLeadCampaign(options, undefined, activationFailure), (error) => {
+    assert.equal(error.stage, "activation");
+    assert.equal(error.itemIndex, 0);
+    return true;
+});
+const dsaWarnings = createOperations();
+const dsaPreflight = dsaWarnings.preflight;
+dsaWarnings.preflight = async () => ({ ...(await dsaPreflight()), dsa: { beneficiary: "Expected beneficiary", payor: "Expected payor" } });
+const dsaResult = await createLeadCampaign(options, undefined, dsaWarnings);
+assert.ok(dsaResult.readback.warnings.some((warning) => warning.includes("DSA beneficiary/payor")));
+assert.equal(dsaResult.readback.dsaChecks[0].matches, false);
+assert.equal(dsaResult.readback.dsaChecks[0].actualBeneficiary, null);
+assert.equal(dsaResult.readback.dsaChecks[0].expectedBeneficiary, "Expected beneficiary");
+
 console.log("Перевірка workflow кампанії, активації та часткових помилок пройшла");

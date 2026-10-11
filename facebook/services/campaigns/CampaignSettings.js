@@ -99,6 +99,7 @@ export function resolveDsaSettings(template, account) {
     const requiredForEurope = countries.some((code) => (
         europeanDsaCountries.has(code)
     ));
+    if (!requiredForEurope) return null;
     const templateBeneficiary = String(
         template.dsaBeneficiary ?? ""
     ).trim();
@@ -109,12 +110,6 @@ export function resolveDsaSettings(template, account) {
         account.default_dsa_beneficiary ?? ""
     ).trim();
     const defaultPayor = String(account.default_dsa_payor ?? "").trim();
-    const shouldResolve = requiredForEurope
-        || Boolean(templateBeneficiary)
-        || Boolean(templatePayor);
-
-    if (!shouldResolve) return null;
-
     const beneficiary = templateBeneficiary || defaultBeneficiary;
     const payor = templatePayor || defaultPayor;
     if (!beneficiary) {

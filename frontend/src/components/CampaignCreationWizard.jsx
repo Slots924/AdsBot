@@ -969,6 +969,12 @@ export default function CampaignCreationWizard({
                         {failure && (
                             <div className="creation-error"><CircleAlert size={19} /><div><strong>{failure.message}</strong><span>{failure.stage ? `Етап: ${stageLabel(failure.stage)}. ` : ""}{failure.code ? `Код: ${failure.code}` : ""}{failure.graphCode ? ` · Meta ${failure.graphCode}/${failure.graphSubcode || "—"}` : ""}</span></div></div>
                         )}
+                        {failure?.actionRequired === "authenticate_account" && (
+                            <div className="notice info">Відкрийте Ads Manager у профілі цього акаунта й пройдіть запропоновану перевірку. Після підтвердження можна повторити запуск.</div>
+                        )}
+                        {failure?.requestId && (
+                            <div className="notice info">ID запиту для пошуку в журналі: {failure.requestId}</div>
+                        )}
                         {warnings.map((warning) => (
                             <div className="notice info" key={warning}>{warning}</div>
                         ))}

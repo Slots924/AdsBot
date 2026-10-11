@@ -1,4 +1,6 @@
-import { createValidationError } from "../api/validation.js";
+import { createValidationError, requireCreatedObjectId } from "../api/validation.js";
+import { getLogger } from "../../services/logging/runtimeLogger.js";
+import { summarizeGraphResponse } from "../api/graphDiagnostics.js";
 import {
     buildCampaignFields,
     buildAdSetFields,
@@ -45,6 +47,13 @@ export default async function createLeadCampaign(options, onProgress = () => {},
     });
     let currentStage = "preflight";
     let currentIndex = null;
+    const metaWarnings = [];
+    const collectWarnings = (response) => {
+        for (const warning of summarizeGraphResponse({ data: response }).warnings) {
+            metaWarnings.push(`Meta: ${typeof warning === "string" ? warning : warning?.message || warning?.error_user_msg || `попередження ${warning?.code ?? "без коду"}`}`);
+        }
+        return response;
+    };
 
     try {
         await emit("preflight", { message: "Перевіряємо доступи та ресурси" });
@@ -53,7 +62,8 @@ export default async function createLeadCampaign(options, onProgress = () => {},
 
         currentStage = "campaign";
         const campaign = await operations.createCampaign(preflight.adAccountId, buildCampaignFields(name, template, preflight));
-        objects.campaignId = campaign.id;
+        collectWarnings(campaign);
+        objects.campaignId = requireCreatedObjectId(campaign);
         await emit("campaign", { message: "Campaign створено" });
 
         currentStage = "creative";
@@ -75,11 +85,13 @@ export default async function createLeadCampaign(options, onProgress = () => {},
                 preflight: postPreflight,
                 imageHash,
             });
-            await operations.createCreative(preflight.adAccountId, creativeFields, { validateOnly: true });
+            collectWarnings(await operations.createCreative(preflight.adAccountId, creativeFields, { validateOnly: true }));
             const creative = await operations.createCreative(preflight.adAccountId, creativeFields);
-            objects.creativeId ??= creative.id;
+            collectWarnings(creative);
+            const creativeId = requireCreatedObjectId(creative);
+            objects.creativeId ??= creativeId;
             objects.creatives.push({
-                id: creative.id,
+                id: creativeId,
                 pageId: postPreflight.pageId,
                 postId: postPreflight.postId,
                 creativeName: options.posts?.[creativeIndex]?.creativeName,
@@ -92,16 +104,17 @@ export default async function createLeadCampaign(options, onProgress = () => {},
             const ordinal = String(index + 1).padStart(2, "0");
             currentStage = "adset";
             const adSetFields = buildAdSetFields({ name, ordinal, campaignId: objects.campaignId, template, preflight });
-            await operations.createAdSet(
+            collectWarnings(await operations.createAdSet(
                 preflight.adAccountId,
                 adSetFields,
                 { validateOnly: true }
-            );
+            ));
             const createdAdSet = await operations.createAdSet(
                 preflight.adAccountId,
                 adSetFields
             );
-            const adSet = { index, id: createdAdSet.id, name: adSetFields.name };
+            collectWarnings(createdAdSet);
+            const adSet = { index, id: requireCreatedObjectId(createdAdSet), name: adSetFields.name };
             objects.adSets.push(adSet);
             await emit("adset", {
                 index,
@@ -117,9 +130,10 @@ export default async function createLeadCampaign(options, onProgress = () => {},
                     creativeId: creative.id,
                     creativeName: creative.creativeName,
                 });
-                await operations.createAd(preflight.adAccountId, adFields, { validateOnly: true });
+                collectWarnings(await operations.createAd(preflight.adAccountId, adFields, { validateOnly: true }));
                 const ad = await operations.createAd(preflight.adAccountId, adFields);
-                objects.ads.push({ index, creativeIndex, id: ad.id, name: adFields.name });
+                collectWarnings(ad);
+                objects.ads.push({ index, creativeIndex, id: requireCreatedObjectId(ad), name: adFields.name });
                 await emit("ad", {
                     index,
                     creativeIndex,
@@ -132,24 +146,44 @@ export default async function createLeadCampaign(options, onProgress = () => {},
             currentStage = "activation";
             if (!createAdsPaused) {
                 for (const ad of objects.ads) {
-                    await operations.activate(ad.id);
+                    currentIndex = ad.index;
+                    collectWarnings(await operations.activate(ad.id));
                 }
             }
             if (!createAdSetsPaused) {
                 for (const adSet of objects.adSets) {
-                    await operations.activate(adSet.id);
+                    currentIndex = adSet.index;
+                    collectWarnings(await operations.activate(adSet.id));
                 }
             }
             if (!createPaused) {
-                await operations.activate(objects.campaignId);
+                currentIndex = null;
+                collectWarnings(await operations.activate(objects.campaignId));
             }
             await emit("activation", { message: "Вибрані об’єкти активовано" });
         }
 
         currentStage = "readback";
+        currentIndex = null;
         await emit("readback", { message: "Перевіряємо створені об’єкти" });
         const readback = await operations.readback(objects);
-        readback.warnings = [...new Set((readback.creatives ?? [readback.creative]).flatMap((creative) => verifyCampaignReadback({ readback: { ...readback, creative }, preflight, template })))];
+        readback.warnings = [...new Set([...metaWarnings, ...(readback.creatives ?? [readback.creative]).flatMap((creative) => verifyCampaignReadback({ readback: { ...readback, creative }, preflight, template }))])];
+        readback.dsaChecks = preflight.dsa ? readback.adSets.map((adSet) => ({
+            adSetId: adSet.id,
+            expectedBeneficiary: preflight.dsa.beneficiary,
+            expectedPayor: preflight.dsa.payor,
+            actualBeneficiary: adSet.dsa_beneficiary ?? null,
+            actualPayor: adSet.dsa_payor ?? null,
+            matches: adSet.dsa_beneficiary === preflight.dsa.beneficiary
+                && adSet.dsa_payor === preflight.dsa.payor,
+        })) : [];
+        if (readback.warnings.length) {
+            getLogger("facebook.campaign").warn("campaign.readback.warnings", "Контрольна перевірка кампанії має попередження", {
+                campaignId: objects.campaignId,
+                warnings: readback.warnings,
+                dsaChecks: readback.dsaChecks,
+            });
+        }
 
         await emit("complete", { message: "Створення завершено" });
         return { objects, preflight, readback, createPaused };

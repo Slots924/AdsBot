@@ -9,6 +9,19 @@ function safeError(error) {
         stage: error?.stage ?? null,
         graphCode: error?.graphCode ?? null,
         graphSubcode: error?.graphSubcode ?? null,
+        httpStatus: error?.httpStatus ?? null,
+        requestId: error?.requestId ?? null,
+        traceId: error?.traceId ?? null,
+        metaRequestId: error?.metaRequestId ?? null,
+        endpoint: error?.endpoint ?? null,
+        actionRequired: error?.actionRequired ?? null,
+        retryable: error?.retryable ?? false,
+        outcomeUnknown: error?.outcomeUnknown ?? false,
+        reason: error?.reason ?? null,
+        graphUserTitle: error?.graphUserTitle ?? null,
+        graphUserMessage: error?.graphUserMessage ?? null,
+        graphType: error?.graphType ?? null,
+        isTransient: error?.isTransient ?? false,
     }, { forRenderer: true });
 }
 

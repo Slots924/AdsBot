@@ -79,12 +79,12 @@ const api = new FacebookGraphApi({
                 counters.ad += 1;
                 return { data: { id: `ad-${counters.ad}` } };
             }
-            if (path === "/campaign-1") {
-                return { data: { id: "campaign-1", name: "Test", status: "PAUSED", effective_status: "PAUSED" } };
+            if (path.startsWith("/campaign-")) {
+                return { data: { id: path.slice(1), name: "Test", status: "PAUSED", effective_status: "PAUSED" } };
             }
-            if (path === "/creative-1") {
+            if (path.startsWith("/creative-")) {
                 return { data: {
-                    id: "creative-1",
+                    id: path.slice(1),
                     name: "Creative",
                     degrees_of_freedom_spec: {
                         creative_features_spec: Object.fromEntries(
@@ -289,9 +289,23 @@ assert.equal(separatePayor.dsa.payorSource, "template");
 
 const nonEuropean = await api.preflightLeadCampaign({
     ...commonPreflightInput,
-    template: { ...template, countryCodes: ["US"] },
+    template: { ...template, countryCodes: ["US"], dsaBeneficiary: "Template Beneficiary LLC", dsaPayorSameAsBeneficiary: false, dsaPayor: "Template Payor LLC" },
 });
 assert.equal(nonEuropean.dsa, null);
+
+const usRequestStart = requests.length;
+await api.createLeadCampaign({
+    ...commonPreflightInput, adSetCount: 1,
+    template: { ...template, countryCodes: ["US"], dsaBeneficiary: "Filled beneficiary", dsaPayor: "Filled payor" },
+});
+for (const request of requests.slice(usRequestStart).filter((item) => item.method === "post" && item.url.endsWith("/adsets"))) {
+    assert.equal(request.data.has("dsa_beneficiary"), false);
+    assert.equal(request.data.has("dsa_payor"), false);
+}
+const mixed = await api.preflightLeadCampaign({ ...commonPreflightInput, template: { ...template, countryCodes: ["US", "DE"] } });
+assert.equal(mixed.dsa.requiredForEurope, true);
+const german = await api.preflightLeadCampaign({ ...commonPreflightInput, template: { ...template, countryCodes: ["DE"] } });
+assert.equal(german.dsa.requiredForEurope, true);
 
 accountDsaDefaults = { default_dsa_beneficiary: "Meta Beneficiary LLC" };
 await assert.rejects(

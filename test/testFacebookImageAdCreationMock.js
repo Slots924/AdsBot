@@ -104,7 +104,7 @@ const api = new FacebookGraphApi({
                 return { data: { id: "creative-image" } };
             }
             if (pathname === "/act_1/adsets" && config.method === "post") {
-                return { data: { id: "adset-image" } };
+                return { data: { id: "300" } };
             }
             if (pathname === "/act_1/ads" && config.method === "post") {
                 return { data: { id: "ad-image" } };
@@ -125,8 +125,8 @@ const api = new FacebookGraphApi({
                     contextual_multi_ads: { enroll_status: "OPT_OUT" },
                 } };
             }
-            if (pathname === "/adset-image") {
-                return { data: { id: "adset-image", status: "PAUSED" } };
+            if (pathname === "/300") {
+                return { data: { id: "300", status: "PAUSED" } };
             }
             if (pathname === "/ad-image") {
                 return { data: { id: "ad-image", status: "PAUSED" } };
@@ -211,11 +211,11 @@ assert.equal(creativeRequest.data.get("url_tags"), "utm_source=facebook");
 const activationPaths = requests
     .filter((request) => (
         request.method === "post"
-        && ["/campaign-image", "/adset-image", "/ad-image"].includes(
+        && ["/campaign-image", "/300", "/ad-image"].includes(
             new URL(request.url).pathname.replace("/v26.0", "")
         )
     ))
     .map((request) => new URL(request.url).pathname.replace("/v26.0", ""));
-assert.deepEqual(activationPaths, ["/adset-image"]);
+assert.deepEqual(activationPaths, ["/300"]);
 
 console.log("Mock-перевірка рекламного оголошення із зображенням пройшла успішно");

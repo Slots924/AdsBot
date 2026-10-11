@@ -1,7 +1,20 @@
 import assert from "node:assert/strict";
 
-import registerIpcHandlers
+import registerIpcHandlers, { serializeError }
     from "../frontend/electron/registerIpcHandlers.js";
+
+const graphError = Object.assign(new Error("Підтвердіть акаунт"), {
+    code: "FACEBOOK_ACCOUNT_AUTH_REQUIRED", httpStatus: 200,
+    graphCode: 31, graphSubcode: 3858385, actionRequired: "authenticate_account",
+    requestId: "request-mock", traceId: "trace-mock", metaRequestId: "meta-mock",
+    retryable: false, secret: "MUST_NOT_LEAK",
+});
+const serializedGraphError = serializeError(graphError);
+assert.equal(serializedGraphError.requestId, "request-mock");
+assert.equal(serializedGraphError.traceId, "trace-mock");
+assert.equal(serializedGraphError.actionRequired, "authenticate_account");
+assert.equal(serializedGraphError.graphSubcode, 3858385);
+assert.equal(JSON.stringify(serializedGraphError).includes("MUST_NOT_LEAK"), false);
 
 
 const handlers = new Map();

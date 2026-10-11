@@ -1,4 +1,7 @@
-import { createValidationError, normalizeAdAccountId, normalizeObjectId } from "./validation.js";
+import { randomUUID } from "node:crypto";
+import { createValidationError, normalizeAdAccountId, normalizeObjectId, requireCreatedObjectId } from "./validation.js";
+import { summarizeGraphRequest, summarizeGraphResponse } from "./graphDiagnostics.js";
+import { redactString } from "../../services/logging/AppLogger.js";
 import preflightLeadCampaignWorkflow from "../workflows/preflightLeadCampaign.js";
 import createLeadCampaignWorkflow from "../workflows/createLeadCampaign.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
@@ -9,9 +12,7 @@ import deletePagePostsWorkflow
 
 
 function redactSensitiveText(value) {
-    return String(value ?? "")
-        .replace(/EAA[A-Za-z0-9]+/g, "[REDACTED]")
-        .replace(/((?:access_)?token|cookie)=([^&\s]+)/gi, "$1=[REDACTED]");
+    return redactString(String(value ?? ""));
 }
 
 
@@ -26,8 +27,12 @@ function createFacebookApiError(error, {
     if (error?.code === "PROXY_REQUEST_OUTCOME_UNKNOWN") {
         const outcomeError = new Error(outcomeUnknownMessage);
         outcomeError.code = outcomeUnknownCode;
+        outcomeError.outcomeUnknown = true;
+        outcomeError.retryable = false;
         return outcomeError;
     }
+
+    if (["FACEBOOK_WRITE_OUTCOME_UNKNOWN", "FACEBOOK_RESPONSE_INVALID"].includes(error?.code)) return error;
 
     const graphError = error?.response?.data?.error;
     const graphUserTitle = redactSensitiveText(
@@ -42,8 +47,10 @@ function createFacebookApiError(error, {
         || "Не вдалося виконати запит Facebook API"
     ));
 
+    const authenticationRequired = Number(graphError?.code) === 31
+        && Number(graphError?.error_subcode) === 3858385;
     const message = facebookError.message.toLowerCase();
-    facebookError.code = message.includes("beneficiar")
+    facebookError.code = authenticationRequired ? "FACEBOOK_ACCOUNT_AUTH_REQUIRED" : message.includes("beneficiar")
         ? "CAMPAIGN_DSA_BENEFICIARY_REJECTED"
         : /(payor|payer)/.test(message)
             ? "CAMPAIGN_DSA_PAYOR_REJECTED"
@@ -56,6 +63,13 @@ function createFacebookApiError(error, {
     facebookError.graphType = graphError?.type ?? null;
     facebookError.graphUserTitle = graphUserTitle || null;
     facebookError.graphUserMessage = graphUserMessage || null;
+    facebookError.traceId = graphError?.fbtrace_id ?? null;
+    facebookError.isTransient = graphError?.is_transient === true;
+    facebookError.retryable = false;
+    if (authenticationRequired) {
+        facebookError.message = "Підтвердіть акаунт в Ads Manager, щоб створювати та редагувати оголошення.";
+        facebookError.actionRequired = "authenticate_account";
+    }
 
     return facebookError;
 }
@@ -213,17 +227,27 @@ export default class FacebookGraphApi {
         retryOnConnectionError = true,
         outcomeUnknownCode,
         outcomeUnknownMessage,
+        expectCreatedId = false,
+        stage = null,
     } = {}) {
         const normalizedPathname = String(pathname).startsWith("/")
             ? pathname
             : `/${pathname}`;
         const startedAt = Date.now();
+        const requestId = randomUUID();
+        const validateOnly = data instanceof URLSearchParams
+            && (data.get("execution_options") ?? "").includes("validate_only");
+        const requestContext = {
+            requestId, method, endpoint: normalizedPathname, stage,
+            operation: validateOnly ? "validate" : expectCreatedId ? "create" : method === "get" ? "read" : "write",
+        };
+        let responseSummary = null;
         const logger = getLogger("facebook.graph", {
             accountKey: this.accountKey,
         });
         logger.debug("graph.request", "Надсилаємо Graph API-запит", {
-            method,
-            endpoint: normalizedPathname,
+            ...requestContext,
+            parameters: summarizeGraphRequest(params, data),
         });
 
         try {
@@ -244,11 +268,24 @@ export default class FacebookGraphApi {
                 retryOnConnectionError,
             });
 
-            logger.debug("graph.response", "Graph API відповів", {
-                method,
-                endpoint: normalizedPathname,
-                status: response.status,
+            responseSummary = summarizeGraphResponse(response);
+            if (response.data?.error) {
+                throw Object.assign(new Error("Graph API повернув помилку"), { response });
+            }
+            if (typeof response.data === "string" || response.data == null) {
+                const formatError = createValidationError("Meta повернула неочікуваний формат відповіді", "FACEBOOK_RESPONSE_INVALID");
+                formatError.retryable = false;
+                formatError.outcomeUnknown = method !== "get";
+                if (formatError.outcomeUnknown) formatError.message += ". Результат запису невідомий; перевірте Ads Manager перед повтором.";
+                throw formatError;
+            }
+            if (expectCreatedId) requireCreatedObjectId(response.data);
+            const hasWarnings = responseSummary.warnings.length > 0;
+            logger[hasWarnings ? "warn" : "info"]("graph.response", "Graph API відповів", {
+                ...requestContext,
+                result: hasWarnings ? "success_with_warnings" : "success",
                 durationMs: Date.now() - startedAt,
+                response: responseSummary,
             });
             return response.data;
         } catch (error) {
@@ -256,12 +293,23 @@ export default class FacebookGraphApi {
                 outcomeUnknownCode,
                 outcomeUnknownMessage,
             });
+            responseSummary ??= error.response ? summarizeGraphResponse(error.response) : null;
+            normalizedError.requestId = requestId;
+            normalizedError.stage ??= stage;
+            normalizedError.endpoint = normalizedPathname;
+            normalizedError.httpStatus ??= responseSummary?.httpStatus ?? null;
+            normalizedError.traceId ??= responseSummary?.traceId ?? null;
+            normalizedError.metaRequestId = responseSummary?.metaRequestId ?? null;
             logger.error("graph.request.failed", "Graph API-запит завершився помилкою", {
-                method,
-                endpoint: normalizedPathname,
+                ...requestContext,
+                result: normalizedError.outcomeUnknown ? "outcome_unknown" : "error",
                 durationMs: Date.now() - startedAt,
+                response: responseSummary,
                 graphCode: normalizedError.graphCode,
                 graphSubcode: normalizedError.graphSubcode,
+                traceId: normalizedError.traceId,
+                actionRequired: normalizedError.actionRequired ?? null,
+                reason: normalizedError.reason ?? null,
                 error: normalizedError,
             });
             throw normalizedError;
@@ -2038,7 +2086,7 @@ export default class FacebookGraphApi {
     }
 
 
-    async #writeObject(pathname, fields, { validateOnly = false } = {}) {
+    async #writeObject(pathname, fields, { validateOnly = false, expectCreatedId = false, stage = null } = {}) {
         return this.#request(pathname, {}, {
             method: "post",
             data: toFormData(fields, validateOnly),
@@ -2046,6 +2094,8 @@ export default class FacebookGraphApi {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
             retryOnConnectionError: false,
+            expectCreatedId: expectCreatedId && !validateOnly,
+            stage,
             outcomeUnknownCode: "FACEBOOK_WRITE_OUTCOME_UNKNOWN",
             outcomeUnknownMessage: "Не вдалося визначити, чи Meta застосувала зміну. Не повторюйте операцію до ручної перевірки Ads Manager.",
         });
@@ -2076,7 +2126,7 @@ export default class FacebookGraphApi {
 
 
     async #readObject(id, fields) {
-        return this.#request(`/${id}`, { fields: fields.join(",") });
+        return this.#request(`/${id}`, { fields: fields.join(",") }, { stage: "readback" });
     }
 
 
@@ -2100,7 +2150,7 @@ export default class FacebookGraphApi {
                 fields: "instagram_business_account{id,username}",
             }, { accessToken }),
             validateCampaign: (id, fields) => this.#writeObject(
-                `/${id}/campaigns`, fields, { validateOnly: true }
+                `/${id}/campaigns`, fields, { validateOnly: true, stage: "preflight" }
             ),
         });
     }
@@ -2110,19 +2160,19 @@ export default class FacebookGraphApi {
         return createLeadCampaignWorkflow(options, onProgress, {
             preflight: (input) => this.preflightLeadCampaign(input),
             createCampaign: (id, fields) => this.#writeObject(
-                `/${id}/campaigns`, fields
+                `/${id}/campaigns`, fields, { expectCreatedId: true, stage: "campaign" }
             ),
             createCreative: (id, fields, settings) => this.#writeObject(
-                `/${id}/adcreatives`, fields, settings
+                `/${id}/adcreatives`, fields, { ...settings, expectCreatedId: true, stage: "creative" }
             ),
             createAdSet: (id, fields, settings) => this.#writeObject(
-                `/${id}/adsets`, fields, settings
+                `/${id}/adsets`, fields, { ...settings, expectCreatedId: true, stage: "adset" }
             ),
             createAd: (id, fields, settings) => this.#writeObject(
-                `/${id}/ads`, fields, settings
+                `/${id}/ads`, fields, { ...settings, expectCreatedId: true, stage: "ad" }
             ),
             uploadImage: (id, image) => this.#uploadAdImage(id, image),
-            activate: (id) => this.#writeObject(`/${id}`, { status: "ACTIVE" }),
+            activate: (id) => this.#writeObject(`/${normalizeObjectId(id, "FACEBOOK_OBJECT_ID_INVALID", "ID для активації")}`, { status: "ACTIVE" }, { stage: "activation" }),
             readback: (objects) => this.#readCampaignObjects(objects),
         });
     }

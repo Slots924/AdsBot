@@ -29,6 +29,16 @@ function serializeError(error) {
         graphSubcode: error?.graphSubcode ?? null,
         graphUserTitle: error?.graphUserTitle ?? null,
         graphUserMessage: error?.graphUserMessage ?? null,
+        graphType: error?.graphType ?? null,
+        isTransient: error?.isTransient ?? false,
+        requestId: error?.requestId ?? null,
+        traceId: error?.traceId ?? null,
+        metaRequestId: error?.metaRequestId ?? null,
+        endpoint: error?.endpoint ?? null,
+        actionRequired: error?.actionRequired ?? null,
+        retryable: error?.retryable ?? false,
+        outcomeUnknown: error?.outcomeUnknown ?? false,
+        reason: error?.reason ?? null,
         stage: error?.stage ?? null,
         itemIndex: error?.itemIndex ?? null,
         createdObjects: error?.createdObjects ?? null,
@@ -841,6 +851,12 @@ export default function registerIpcHandlers({
             return { job: updated, result };
         } catch (error) {
             const safeError = serializeError(error);
+            if (error.createdObjects?.campaignId) {
+                await updateCacheSafely(
+                    () => remoteDataCacheStore.invalidateCampaigns(job.input.accountKey, job.input.adAccountId),
+                    { channel: "campaigns:invalidated", payload: { accountKey: job.input.accountKey, adAccountId: job.input.adAccountId } }
+                );
+            }
             await campaignCreationJournal.update(job.id, {
                 status: signal?.aborted ? "interrupted" : "failed",
                 stage: error.stage ?? "unknown",
