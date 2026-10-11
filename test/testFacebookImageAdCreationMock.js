@@ -126,7 +126,7 @@ const api = new FacebookGraphApi({
                 } };
             }
             if (pathname === "/300") {
-                return { data: { id: "300", status: "PAUSED" } };
+                return { data: { id: "300", status: "ACTIVE" } };
             }
             if (pathname === "/ad-image") {
                 return { data: { id: "ad-image", status: "PAUSED" } };
@@ -216,6 +216,6 @@ const activationPaths = requests
         )
     ))
     .map((request) => new URL(request.url).pathname.replace("/v26.0", ""));
-assert.deepEqual(activationPaths, ["/300"]);
+assert.deepEqual(activationPaths, []);
 
 console.log("Mock-перевірка рекламного оголошення із зображенням пройшла успішно");

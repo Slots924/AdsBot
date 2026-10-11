@@ -53,7 +53,7 @@ for (const budgetMode of ["adset", "campaign"]) {
         ["adset-1", "creative-1"], ["adset-1", "creative-2"],
         ["adset-2", "creative-1"], ["adset-2", "creative-2"],
     ]);
-    assert.deepEqual(activations, ["ad-1", "ad-2", "ad-3", "ad-4", "adset-1", "adset-2", "campaign-1"]);
+    assert.deepEqual(activations, ["campaign-1"]);
     if (budgetMode === "campaign") {
         assert.equal(writes.campaign[0].daily_budget, "2750");
         assert.equal(writes.campaign[0].is_adset_budget_sharing_enabled, false);

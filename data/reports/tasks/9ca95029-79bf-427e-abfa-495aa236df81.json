@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "id": "9ca95029-79bf-427e-abfa-495aa236df81",
+  "taskId": "505f136d-0afc-42f1-ac0f-0c2a6f477ea1",
+  "type": "campaign",
+  "title": "AT | Creo_17 | 40+ 11/10 13:52",
+  "status": "failed",
+  "createdAt": "2026-10-11T10:53:27.058Z",
+  "startedAt": "2026-10-11T10:53:26.500Z",
+  "finishedAt": "2026-10-11T10:53:27.056Z",
+  "durationMs": 556,
+  "inputSummary": {
+    "campaignJobId": "0cf0848a-1def-493d-ad6d-8d0830ddb5d7",
+    "accountKey": "account-033",
+    "adAccountId": "act_1529700178179374",
+    "campaignName": "AT | Creo_17 | 40+ 11/10 13:52",
+    "templateId": 23,
+    "pageId": "1437866019399969",
+    "postId": "1437866019399969_122105510355499318",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-11T10:52:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": null,
+      "creativeId": null,
+      "creatives": [],
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Error validating access token: The session has been invalidated because the user changed their password or Facebook has changed the session for security reasons.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 401,
+      "graphCode": 190,
+      "graphSubcode": 452,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": "OAuthException",
+      "isTransient": false,
+      "requestId": "ca629fc4-d572-47e3-a1e0-8e531b71018d",
+      "traceId": "A4s5__UaHMIfgiYmv3xedND",
+      "metaRequestId": "A4s5__UaHMIfgiYmv3xedND",
+      "endpoint": "/me/permissions",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "stage": "preflight",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "0cf0848a-1def-493d-ad6d-8d0830ddb5d7",
+    "accountKey": "account-033",
+    "adAccountId": "act_1529700178179374",
+    "uniqueKey": "campaign-job:0cf0848a-1def-493d-ad6d-8d0830ddb5d7"
+  }
+}

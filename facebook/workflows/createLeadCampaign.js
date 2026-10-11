@@ -103,7 +103,10 @@ export default async function createLeadCampaign(options, onProgress = () => {},
             currentIndex = index;
             const ordinal = String(index + 1).padStart(2, "0");
             currentStage = "adset";
-            const adSetFields = buildAdSetFields({ name, ordinal, campaignId: objects.campaignId, template, preflight });
+            const adSetFields = buildAdSetFields({
+                name, ordinal, campaignId: objects.campaignId, template, preflight,
+                createPaused: createAdSetsPaused,
+            });
             collectWarnings(await operations.createAdSet(
                 preflight.adAccountId,
                 adSetFields,
@@ -129,6 +132,7 @@ export default async function createLeadCampaign(options, onProgress = () => {},
                     adSetId: adSet.id,
                     creativeId: creative.id,
                     creativeName: creative.creativeName,
+                    createPaused: createAdsPaused,
                 });
                 collectWarnings(await operations.createAd(preflight.adAccountId, adFields, { validateOnly: true }));
                 const ad = await operations.createAd(preflight.adAccountId, adFields);
@@ -142,25 +146,12 @@ export default async function createLeadCampaign(options, onProgress = () => {},
             }
         }
 
-        if (!createAdsPaused || !createAdSetsPaused || !createPaused) {
+        // Дочірні об'єкти вже мають потрібний статус; кампанію вмикаємо останньою.
+        if (!createPaused) {
             currentStage = "activation";
-            if (!createAdsPaused) {
-                for (const ad of objects.ads) {
-                    currentIndex = ad.index;
-                    collectWarnings(await operations.activate(ad.id));
-                }
-            }
-            if (!createAdSetsPaused) {
-                for (const adSet of objects.adSets) {
-                    currentIndex = adSet.index;
-                    collectWarnings(await operations.activate(adSet.id));
-                }
-            }
-            if (!createPaused) {
-                currentIndex = null;
-                collectWarnings(await operations.activate(objects.campaignId));
-            }
-            await emit("activation", { message: "Вибрані об’єкти активовано" });
+            currentIndex = null;
+            collectWarnings(await operations.activate(objects.campaignId));
+            await emit("activation", { message: "Кампанію активовано" });
         }
 
         currentStage = "readback";

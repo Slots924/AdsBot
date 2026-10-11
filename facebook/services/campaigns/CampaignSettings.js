@@ -221,7 +221,7 @@ export function buildCampaignFields(name, template, preflight = {}) {
 }
 
 
-export function buildAdSetFields({ name, ordinal, campaignId, template, preflight }) {
+export function buildAdSetFields({ name, ordinal, campaignId, template, preflight, createPaused = true }) {
     return {
         name: `${name} | AS ${ordinal}`,
         campaign_id: campaignId,
@@ -237,7 +237,7 @@ export function buildAdSetFields({ name, ordinal, campaignId, template, prefligh
         },
         targeting: preflight.targeting,
         start_time: preflight.startTime,
-        status: "PAUSED",
+        status: createPaused ? "PAUSED" : "ACTIVE",
         ...(preflight.dsa ? {
             dsa_beneficiary: preflight.dsa.beneficiary,
             dsa_payor: preflight.dsa.payor,
@@ -246,7 +246,7 @@ export function buildAdSetFields({ name, ordinal, campaignId, template, prefligh
 }
 
 
-export function buildAdFields({ name, ordinal, adSetId, creativeId, creativeName }) {
+export function buildAdFields({ name, ordinal, adSetId, creativeId, creativeName, createPaused = true }) {
     const number = String(creativeName ?? "").trim().replace(/^Creo_/i, "");
     const countPattern = /\|\s*\d+\s+креативів(?=\s*\||$)/u;
     const adName = number
@@ -258,7 +258,7 @@ export function buildAdFields({ name, ordinal, adSetId, creativeId, creativeName
         name: `${adName} | AD ${ordinal}`,
         adset_id: adSetId,
         creative: { creative_id: creativeId },
-        status: "PAUSED",
+        status: createPaused ? "PAUSED" : "ACTIVE",
     };
 }
 

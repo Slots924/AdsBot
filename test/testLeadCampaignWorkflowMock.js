@@ -68,7 +68,7 @@ const result = await createLeadCampaign(options, (event) => progress.push(event)
 assert.equal(result.objects.adSets.length, 2);
 assert.equal(result.objects.ads.length, 2);
 assert.deepEqual(operations.activations, [
-    "ad-1", "ad-2", "adset-1", "adset-2", "campaign-new",
+    "campaign-new",
 ]);
 assert.equal(progress[0].objects.campaignId, null);
 assert.equal(progress[0].objects.adSets.length, 0);
@@ -100,7 +100,7 @@ const activationFailure = createOperations();
 activationFailure.activate = async () => { throw new Error("Активацію відхилено"); };
 await assert.rejects(createLeadCampaign(options, undefined, activationFailure), (error) => {
     assert.equal(error.stage, "activation");
-    assert.equal(error.itemIndex, 0);
+    assert.equal(error.itemIndex, null);
     return true;
 });
 const dsaWarnings = createOperations();
