@@ -184,6 +184,8 @@ function safeAccount(account, primaryAccountKey = "") {
         adsPowerProfileNo: String(account.adsPowerProfileNo ?? "").trim(),
         proxyId: String(account.proxyId ?? "").trim(),
         proxyMode: getAccountProxyMode(account),
+        hasAdsPowerProxy: Boolean(account.adsPowerProxy?.proxy && account.adsPowerProxy.profileNo === String(account.adsPowerProfileNo ?? "").trim()),
+        adsPowerProxyUpdatedAt: account.adsPowerProxy?.updatedAt ?? null,
         kind: String(account.kind ?? "api"),
         isPrimary: Boolean(primaryAccountKey && account.accountKey === primaryAccountKey),
     };
@@ -306,6 +308,7 @@ export default class FacebookAccountManager {
                 account.cookie = normalizeFacebookCookie(cookie);
             }
             if (String(input.adsPowerProfileNo ?? "").trim()) {
+                if (String(input.adsPowerProfileNo).trim() !== account.adsPowerProfileNo) delete account.adsPowerProxy;
                 account.adsPowerProfileNo = normalizeAdsPowerProfileNo(
                     input.adsPowerProfileNo
                 );
@@ -321,6 +324,31 @@ export default class FacebookAccountManager {
         });
     }
 
+
+    async getAdsPowerProxyState(accountKey) {
+        return this.#enqueue(async () => {
+            const store = await this.#read();
+            const key = normalizeAccountKey(accountKey).toLowerCase();
+            const account = store.accounts.find((item) => String(item.accountKey).toLowerCase() === key);
+            if (!account) throw new Error("API-клієнт не знайдено");
+            // Дані для backend-транспорту; не передавати цей результат у GUI.
+            return { adsPowerProfileNo: account.adsPowerProfileNo, adsPowerProxy: account.adsPowerProxy };
+        });
+    }
+
+    async setAdsPowerProxy(accountKey, snapshot) {
+        return this.#enqueue(async () => {
+            const store = await this.#read();
+            const account = store.accounts.find((item) => item.accountKey === normalizeAccountKey(accountKey));
+            if (!account) throw new Error("API-клієнт не знайдено");
+            if (String(account.adsPowerProfileNo ?? "").trim() !== snapshot.profileNo) {
+                throw new Error("AdsPower-профіль клієнта змінився під час отримання проксі. Повторіть запит");
+            }
+            account.adsPowerProxy = snapshot;
+            await this.#write(store);
+            return safeAccount(account, store.primaryAccountKey);
+        });
+    }
 
     async get(accountKey) {
         return this.#enqueue(async () => {

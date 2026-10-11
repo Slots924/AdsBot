@@ -199,6 +199,7 @@ async function createWindow() {
                 accountsFilePath: appPaths.accounts,
                 bmFilePath: appPaths.businessManagers,
                 proxiesFilePath: appPaths.proxies,
+                accountManagers: { api: facebookAccountManager, bm: bmAccountManager, system: systemUserManager },
             },
             creativeManagerFactory: createCreativeManager,
             pageRebuildJournal: new PageRebuildJournal({

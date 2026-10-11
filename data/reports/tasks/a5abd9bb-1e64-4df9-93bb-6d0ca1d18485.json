@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "id": "a5abd9bb-1e64-4df9-93bb-6d0ca1d18485",
+  "taskId": "71f74367-1b5b-42fb-96bd-81a5c4b2ea22",
+  "type": "comment-reactions",
+  "title": "Реакції під коментарями · 5",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-11T07:54:20.242Z",
+  "startedAt": "2026-10-11T07:50:09.309Z",
+  "finishedAt": "2026-10-11T07:54:20.241Z",
+  "durationMs": 250932,
+  "inputSummary": {
+    "profileNos": [
+      "1705",
+      "1706",
+      "1760",
+      "1859",
+      "1860"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/1BCLUeGpF8/",
+    "reactions": {
+      "like": 5,
+      "love": 0,
+      "care": 0
+    },
+    "includeReplies": false,
+    "browserMode": "headless",
+    "disableImages": true
+  },
+  "resultSummary": {
+    "startedAt": "2026-10-11T07:50:09.311Z",
+    "finishedAt": "2026-10-11T07:54:20.240Z",
+    "postUrl": "https://www.facebook.com/share/p/1BCLUeGpF8/",
+    "reactions": {
+      "like": 5,
+      "love": 0,
+      "care": 0
+    },
+    "includeReplies": false,
+    "concurrency": 1,
+    "profiles": [
+      {
+        "profileNo": "1705",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-11T07:50:09.311Z",
+        "finishedAt": "2026-10-11T07:51:05.449Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1706",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-11T07:51:05.451Z",
+        "finishedAt": "2026-10-11T07:51:52.705Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1760",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-11T07:51:52.707Z",
+        "finishedAt": "2026-10-11T07:52:45.626Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1859",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-11T07:52:45.627Z",
+        "finishedAt": "2026-10-11T07:53:27.791Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1860",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-11T07:53:27.793Z",
+        "finishedAt": "2026-10-11T07:54:20.238Z",
+        "workerId": 1
+      }
+    ],
+    "unusedProfiles": [],
+    "unfulfilledReactions": {
+      "like": 5,
+      "love": 0,
+      "care": 0
+    },
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-reaction-report_2026-10-11T07-54-20-240Z.md"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "1705",
+      "1706",
+      "1760",
+      "1859",
+      "1860"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/1BCLUeGpF8/",
+    "reactions": {
+      "like": 5,
+      "love": 0,
+      "care": 0
+    }
+  }
+}

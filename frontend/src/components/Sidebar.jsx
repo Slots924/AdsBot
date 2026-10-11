@@ -123,7 +123,10 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
                                 <span>{mode.label}</span>
                             </label>)}
                         </div>
-                        <small className="field-hint">{draft.proxyMode === "profile" ? "Відкриваємо AdsPower-профіль із його поточною проксі." : draft.proxyMode === "auto" ? "Автоматично вибираємо робочу загальнодоступну проксі." : "Використовуємо лише вибрану проксі."}</small>
+                        <small className="field-hint">{draft.proxyMode === "profile" ? "Браузер і API-запити використовують проксі AdsPower-профілю." : draft.proxyMode === "auto" ? "Автоматично вибираємо робочу загальнодоступну проксі." : "Використовуємо лише вибрану проксі."}</small>
+                        {draft.proxyMode === "profile" && <small className="field-hint">{editor.hasAdsPowerProxy && String(draft.adsPowerProfileNo).trim() === String(editor.adsPowerProfileNo).trim()
+                            ? `Проксі отримана · оновлено ${new Date(editor.adsPowerProxyUpdatedAt).toLocaleString("uk-UA")}`
+                            : "Проксі буде отримана перед першим запитом"}</small>}
                         {draft.proxyMode === "bound" && <div className="field"><span>Прив’язана проксі</span><ProxyPicker proxies={proxies.filter((proxy) => proxy.type !== "no_proxy")} value={draft.proxyId} onChange={(proxyId) => setDraft((current) => ({ ...current, proxyId }))} /></div>}
                     </div>
                 </div>
@@ -292,7 +295,7 @@ export default function Sidebar({
                     <span><i className="status-dot error" /> Помилка перевірки</span>
                 </div>
             )}
-            {editor && <AccountEditor editor={editor} proxies={proxies} onClose={() => setEditor(null)} onSave={saveAccount} onError={onError} />}
+            {editor && <AccountEditor editor={{ ...editor, ...(editor.mode === "edit" ? accounts.find((account) => account.accountKey === editor.accountKey) : {}) }} proxies={proxies} onClose={() => setEditor(null)} onSave={saveAccount} onError={onError} />}
         </aside>
     );
 }

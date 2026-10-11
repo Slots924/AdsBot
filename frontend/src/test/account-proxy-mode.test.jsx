@@ -43,6 +43,15 @@ describe("Режим проксі клієнта", () => {
         expect(normalizeAccountProxySettings({})).toEqual({ proxyMode: "profile", proxyId: "" });
         expect(() => normalizeAccountProxySettings({ proxyMode: "bound" })).toThrow();
     });
+
+    it("показує стан проксі профілю без її реквізитів", () => {
+        show([{ accountKey: "account-001", kind: "api", name: "Клієнт", adsPowerProfileNo: "123",
+            proxyMode: "profile", hasAdsPowerProxy: true, adsPowerProxyUpdatedAt: "2026-10-11T00:00:00Z" }]);
+        fireEvent.click(screen.getByTitle("Редагувати"));
+        expect(screen.getByText(/Проксі отримана · оновлено/)).toBeInTheDocument();
+        fireEvent.change(screen.getByLabelText(/AdsPower №/), { target: { value: "456" } });
+        expect(screen.getByText("Проксі буде отримана перед першим запитом")).toBeInTheDocument();
+    });
 });
 
 describe("Проксі під час запуску профілю", () => {

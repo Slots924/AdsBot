@@ -216,6 +216,10 @@ export default class AdsBotGuiService {
         groupsFile,
         ...options
     } = {}) {
+        facebookBackendOptions = {
+            ...facebookBackendOptions,
+            facebookApiClientsOptions: { ...facebookBackendOptions.facebookApiClientsOptions, adsPower },
+        };
         const facebookBackend = await facebookBackendFactory(
             facebookBackendOptions
         );

@@ -3,6 +3,9 @@ import path from "node:path";
 
 import ProxyHttpClient from "../../services/proxy/ProxyHttpClient.js";
 import FacebookGraphApi from "./FacebookGraphApi.js";
+import ProfileProxyHttpClient from "../../services/proxy/ProfileProxyHttpClient.js";
+import { getProfileProxyService } from "../../services/proxy/AdsPowerProfileProxy.js";
+import { getAccountProxyMode } from "../../services/proxy/accountProxyMode.js";
 
 
 async function readJson(filePath, label, optional = false) {
@@ -97,6 +100,7 @@ function normalizeAccounts(accounts) {
             metadata: account?.metadata ?? {},
             proxyId: String(account?.proxyId ?? "").trim(),
             kind: String(account?.kind ?? "api"),
+            proxyMode: getAccountProxyMode(account),
         };
     }).filter(Boolean);
 }
@@ -116,6 +120,8 @@ export default async function createFacebookApiClients({
     onlyAccountKey,
     httpClient,
     checkProxyFn,
+    adsPower,
+    accountManagers = {},
 } = {}) {
     const [accountsConfig, bmConfig, proxiesConfig] = await Promise.all([
         readJson(accountsFilePath, "конфіг Facebook-акаунтів"),
@@ -134,13 +140,14 @@ export default async function createFacebookApiClients({
     const facebookApiClients = new Map();
 
     accounts.forEach((account) => {
-        const selectedProxy = account.proxyId
+        const profileMode = account.proxyMode === "profile";
+        const selectedProxy = !profileMode && account.proxyId
             ? (proxiesConfig?.proxies ?? []).find((proxy) => proxy.id === account.proxyId && proxy.type !== "no_proxy")
             : null;
-        if (account.proxyId && !selectedProxy) {
+        if (!profileMode && account.proxyId && !selectedProxy) {
             throw new Error(`Проксі "${account.proxyId}" для клієнта "${account.accountKey}" не знайдено`);
         }
-        if (!selectedProxy && !proxyHttpClient) {
+        if (!profileMode && !selectedProxy && !proxyHttpClient) {
             if (!publicProxies.length) {
                 const rejectUnavailablePool = async () => {
                     throw Object.assign(new Error("Немає загальнодоступних проксі. Прив’яжіть проксі або зробіть одну загальнодоступною"), {
@@ -166,7 +173,14 @@ export default async function createFacebookApiClients({
                 accessToken: account.accessToken,
                 cookie: account.cookie,
                 userAgent: account.userAgent,
-                proxyHttpClient: selectedProxy
+                proxyHttpClient: profileMode ? new ProfileProxyHttpClient({
+                    accountKey: account.accountKey,
+                    profileProxyService: getProfileProxyService({
+                        accountsFile: account.kind === "bm" ? bmFilePath : account.kind === "system" ? systemUsersFilePath : accountsFilePath,
+                        kind: account.kind, adsPower, accountManager: accountManagers[account.kind],
+                    }),
+                    httpClient, checkProxyFn,
+                }) : selectedProxy
                     ? new ProxyHttpClient({ proxies: [selectedProxy], ...(httpClient ? { httpClient } : {}), ...(checkProxyFn ? { checkProxyFn } : {}) })
                     : proxyHttpClient,
             })

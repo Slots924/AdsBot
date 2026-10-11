@@ -6,7 +6,8 @@ import { appPaths } from "./paths.js";
 import checkProxy from "../../services/proxy/checkProxy.js";
 import refreshProxyIp from "../../services/proxy/refreshProxyIp.js";
 import prepareAccountProfileProxy from "../../services/proxy/prepareAccountProfileProxy.js";
-import { normalizeAccountProxySettings } from "../../services/proxy/accountProxyMode.js";
+import { getAccountProxyMode, normalizeAccountProxySettings } from "../../services/proxy/accountProxyMode.js";
+import { getProfileProxyService } from "../../services/proxy/AdsPowerProfileProxy.js";
 import BusinessManagerService from "../../services/gui/BusinessManagerService.js";
 import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
 
@@ -706,6 +707,13 @@ export default function registerIpcHandlers({
     const managerForAccount = (accountKey) => String(accountKey ?? "").startsWith("bm-")
         ? bmAccountManager
         : String(accountKey ?? "").startsWith("system-") ? systemUserManager : facebookAccountManager;
+    const profileProxyServices = {
+        api: getProfileProxyService({ accountsFile: appPaths.accounts, accountManager: facebookAccountManager, adsPower: guiService.adsPower }),
+        bm: getProfileProxyService({ accountsFile: appPaths.businessManagers, kind: "bm", accountManager: bmAccountManager, adsPower: guiService.adsPower }),
+    };
+    for (const service of Object.values(profileProxyServices)) {
+        service.onUpdated = (accountKey, accountStatus) => sendRendererEvent("accounts:facebook-status", { accountKey, accountStatus });
+    }
     const bmService = new BusinessManagerService({
         cache: remoteDataCacheStore,
         listAccounts: async () => (await Promise.all([bmAccountManager.list(), systemUserManager.list()])).flat(),
@@ -714,6 +722,8 @@ export default function registerIpcHandlers({
                 accountsFilePath: appPaths.accounts, bmFilePath: appPaths.businessManagers,
                 systemUsersFilePath: appPaths.systemUsers, proxiesFilePath: appPaths.proxies,
                 businessOnly: true, onlyAccountKey: accountKey,
+                adsPower: guiService.adsPower,
+                accountManagers: { api: facebookAccountManager, bm: bmAccountManager, system: systemUserManager },
             });
             const client = clients.get(accountKey);
             if (!client) throw new Error("Для клієнта БМ потрібно налаштувати токен і User-Agent");
@@ -1187,6 +1197,10 @@ export default function registerIpcHandlers({
                 input: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo },
                 metadata: { accountKey: account.accountKey },
                 runner: async ({ signal, progress }) => {
+                    if (getAccountProxyMode(account) === "profile") {
+                        await progress({ stage: "proxy", message: "Оновлюємо проксі AdsPower-профілю" });
+                        await profileProxyServices[account.kind ?? "api"].refresh(account.accountKey);
+                    }
                     await prepareClientProxy(account, signal);
                     const credentials = await guiService.syncFacebookApiClientFromAdsPowerProfile({
                         profileNo: account.adsPowerProfileNo,
