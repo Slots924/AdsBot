@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 
 import { errorDetails } from "../lib/api.js";
+import { GraySelect } from "./gray-ui/GrayUi.jsx";
+import { getAccountProxyMode } from "../../../services/proxy/accountProxyMode.js";
 
 const kinds = [
     { id: "api", label: "API-клієнти" },
@@ -40,21 +42,17 @@ function KindPicker({ value, onChange, disabled = false }) {
 }
 
 function ProxyPicker({ proxies, value, onChange }) {
-    const [open, setOpen] = useState(false);
-    const selected = proxies.find((proxy) => proxy.id === value);
-    return <div className="account-proxy-picker">
-        <button type="button" className="account-proxy-choice" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
-            <strong>{selected?.name || " "}</strong><small>{selected?.id || "Оберіть проксі"}</small>
-        </button>
-        {open && <div className="account-proxy-options" role="listbox" aria-label="Проксі">
-            {proxies.map((proxy) => <button type="button" role="option" aria-selected={proxy.id === value} key={proxy.id} onClick={() => { onChange(proxy.id); setOpen(false); }}><strong>{proxy.name || " "}</strong><small>{proxy.id}</small></button>)}
-        </div>}
-    </div>;
+    return <GraySelect items={proxies.map((proxy) => ({
+        id: proxy.id,
+        name: `${proxy.name || "Без назви"} · ${proxy.adsPowerId ?? proxy.id}`,
+    }))} value={value} onChange={onChange} ariaLabel="Прив’язана проксі"
+        placeholder="Оберіть проксі" searchPlaceholder="Пошук проксі…"
+        emptyText="Немає доступних проксі." portal />;
 }
 
 
 function emptyAccountDraft() {
-    return { kind: "api", name: "", adsPowerProfileNo: "", userAgent: "", accessToken: "", cookie: "", proxyId: "" };
+    return { kind: "api", name: "", adsPowerProfileNo: "", userAgent: "", accessToken: "", cookie: "", proxyId: "", proxyMode: "profile" };
 }
 
 
@@ -65,6 +63,7 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
         adsPowerProfileNo: editor.adsPowerProfileNo ?? "",
         kind: editor.kind ?? "api",
         proxyId: editor.proxyId ?? "",
+        proxyMode: editor.mode === "create" ? (editor.kind === "system" ? "auto" : "profile") : getAccountProxyMode(editor),
     }));
     const [saving, setSaving] = useState(false);
     const update = (field) => (event) => setDraft((current) => ({
@@ -73,11 +72,11 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
     }));
     const creating = editor.mode === "create";
     const system = draft.kind === "system";
-    const canSave = creating
+    const canSave = (draft.proxyMode !== "bound" || proxies.some((proxy) => proxy.id === draft.proxyId && proxy.type !== "no_proxy")) && (creating
         ? draft.name.trim() && (system ? draft.userAgent.trim() && draft.accessToken.trim() : draft.adsPowerProfileNo.trim() || (
             draft.userAgent.trim() && draft.accessToken.trim() && draft.cookie.trim()
         ))
-        : draft.name.trim();
+        : draft.name.trim());
 
     const submit = async (event) => {
         event.preventDefault();
@@ -104,7 +103,7 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
                 <button className="modal-close" type="button" disabled={saving} onClick={onClose}><X size={17} /></button>
                 <div className="modal-icon"><Bot /></div>
                 <h2>{creating ? "Новий клієнт" : "Редагувати клієнта"}</h2>
-                <KindPicker value={draft.kind} disabled={!creating} onChange={(kind) => setDraft((current) => ({ ...current, kind, userAgent: "" }))} />
+                <KindPicker value={draft.kind} disabled={!creating} onChange={(kind) => setDraft((current) => ({ ...current, kind, userAgent: "", proxyMode: current.proxyMode === "bound" ? "bound" : kind === "system" ? "auto" : "profile" }))} />
                 {!creating && <p>Порожні поля залишаться без змін. Поточні секрети з міркувань безпеки не показуються.</p>}
                 <div className="template-editor-fields">
                     <label className="field"><span>{system ? "Назва системного юзера" : draft.kind === "bm" ? "Назва BM" : "Назва API-клієнта"}</span><input autoFocus value={draft.name} onChange={update("name")} placeholder="Наприклад, Польща 1" /></label>
@@ -117,8 +116,15 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
                         <small className="field-hint">Із масиву автоматично беруться лише потрібні cookies домену facebook.com.</small>
                     </label>}
                     <div className="account-proxy-binding">
-                        <label className="checkbox-line"><input type="checkbox" disabled={!proxies.some((proxy) => proxy.type !== "no_proxy")} checked={Boolean(draft.proxyId)} onChange={(event) => setDraft((current) => ({ ...current, proxyId: event.target.checked ? proxies.find((proxy) => proxy.type !== "no_proxy")?.id || "" : "" }))} />Прив’язати проксі</label>
-                        {draft.proxyId && <div className="field"><span>Використовувати лише цю проксі</span><ProxyPicker proxies={proxies.filter((proxy) => proxy.type !== "no_proxy")} value={draft.proxyId} onChange={(proxyId) => setDraft((current) => ({ ...current, proxyId }))} /></div>}
+                        <span className="account-proxy-label">Проксі</span>
+                        <div className="account-proxy-modes" role="radiogroup" aria-label="Режим проксі">
+                            {[...(!system ? [{ id: "profile", label: "Проксі профілю" }] : []), { id: "auto", label: "Автоматично" }, { id: "bound", label: "Прив’язати проксі" }].map((mode) => <label key={mode.id} className={draft.proxyMode === mode.id ? "active" : ""}>
+                                <input type="radio" name="account-proxy-mode" value={mode.id} checked={draft.proxyMode === mode.id} disabled={saving} onChange={() => setDraft((current) => ({ ...current, proxyMode: mode.id, proxyId: mode.id === "bound" ? current.proxyId : "" }))} />
+                                <span>{mode.label}</span>
+                            </label>)}
+                        </div>
+                        <small className="field-hint">{draft.proxyMode === "profile" ? "Відкриваємо AdsPower-профіль із його поточною проксі." : draft.proxyMode === "auto" ? "Автоматично вибираємо робочу загальнодоступну проксі." : "Використовуємо лише вибрану проксі."}</small>
+                        {draft.proxyMode === "bound" && <div className="field"><span>Прив’язана проксі</span><ProxyPicker proxies={proxies.filter((proxy) => proxy.type !== "no_proxy")} value={draft.proxyId} onChange={(proxyId) => setDraft((current) => ({ ...current, proxyId }))} /></div>}
                     </div>
                 </div>
                 <div className="form-actions">

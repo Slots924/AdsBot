@@ -305,6 +305,7 @@ describe("GUI helpers", () => {
             accessToken: "token",
             cookie: "c_user=1; xs=2",
             proxyId: "",
+            proxyMode: "profile",
         }));
 
         fireEvent.click(screen.getByTitle("Видалити API-клієнта"));
@@ -396,7 +397,8 @@ describe("GUI helpers", () => {
         fireEvent.change(screen.getByLabelText("User-Agent"), { target: { value: screen.getByLabelText("User-Agent").options[1].value } });
         fireEvent.change(screen.getByLabelText("accessToken"), { target: { value: "token" } });
         fireEvent.click(screen.getByLabelText("Прив’язати проксі"));
-        expect(screen.getByText("Main proxy")).toBeInTheDocument();
+        fireEvent.focus(screen.getByRole("combobox", { name: "Прив’язана проксі" }));
+        fireEvent.click(screen.getByRole("option", { name: "Main proxy · proxy-001" }));
         fireEvent.click(screen.getByText("Створити"));
         await waitFor(() => expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ kind: "system", name: "Sys 1", proxyId: "proxy-001", accessToken: "token" })));
     });

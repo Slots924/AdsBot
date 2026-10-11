@@ -64,11 +64,18 @@ export function GraySelect({
         const updatePosition = () => {
             const rect = root.current?.getBoundingClientRect();
             if (!rect) return;
+            const below = window.innerHeight - rect.bottom - 12;
+            const above = rect.top - 12;
+            const upwards = below < 180 && above > below;
+            const height = Math.max(40, Math.min(250, upwards ? above : below));
             setMenuStyle({
                 position: "fixed",
-                top: `${rect.bottom + 6}px`,
+                top: upwards ? "auto" : `${rect.bottom + 6}px`,
+                bottom: upwards ? `${window.innerHeight - rect.top + 6}px` : "auto",
+                right: "auto",
                 left: `${rect.left}px`,
                 width: `${rect.width}px`,
+                maxHeight: `${height}px`,
             });
         };
         updatePosition();
@@ -80,7 +87,7 @@ export function GraySelect({
         };
     }, [open, portal]);
 
-    const options = open && !disabled && <div ref={menu} id={listboxId} className={`kg-select-menu ${portal ? "portal" : ""}`} style={portal ? menuStyle : undefined} role="listbox">
+    const options = open && !disabled && <div ref={menu} id={listboxId} className={`kg-select-menu ${portal ? "portal" : ""}`} style={portal ? menuStyle : undefined} role="listbox" onMouseDown={(event) => event.stopPropagation()}>
         {visible.length === 0 && <div className="kg-select-empty">{emptyText}</div>}
         {visible.map((item) => <button type="button" role="option" aria-selected={String(item.id) === String(value)} key={item.id} className={`kg-select-option ${String(item.id) === String(value) ? "selected" : ""}`} onClick={() => { onChange(item.id); setQuery(""); setOpen(false); }}>{item.name}</button>)}
     </div>;

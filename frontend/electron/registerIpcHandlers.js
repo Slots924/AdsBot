@@ -5,6 +5,8 @@ import path from "node:path";
 import { appPaths } from "./paths.js";
 import checkProxy from "../../services/proxy/checkProxy.js";
 import refreshProxyIp from "../../services/proxy/refreshProxyIp.js";
+import prepareAccountProfileProxy from "../../services/proxy/prepareAccountProfileProxy.js";
+import { normalizeAccountProxySettings } from "../../services/proxy/accountProxyMode.js";
 import BusinessManagerService from "../../services/gui/BusinessManagerService.js";
 import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
 
@@ -722,6 +724,7 @@ export default function registerIpcHandlers({
     });
     ipcMain.handle("bm:request", safeHandler((payload) => bmService.execute(payload)));
     const validateAccountProxy = async (payload) => {
+        if (Object.hasOwn(payload, "proxyMode")) normalizeAccountProxySettings(payload);
         if (!payload.proxyId) return;
         const proxy = await proxyManager.getById(payload.proxyId);
         if (proxy.type === "no_proxy") throw new Error("Оберіть мережеву проксі");
@@ -738,6 +741,9 @@ export default function registerIpcHandlers({
         }
     };
     const listProxies = async () => proxyManager.list();
+    const prepareClientProxy = (account, signal) => prepareAccountProfileProxy(account, {
+        adsPower: guiService.adsPower, proxyManager, checkProxyFn, signal,
+    });
     const sendCampaignProgress = (payload) => {
         const window = getWindow();
         if (window && !window.isDestroyed?.()) {
@@ -1181,6 +1187,7 @@ export default function registerIpcHandlers({
                 input: { accountKey: account.accountKey, adsPowerProfileNo: account.adsPowerProfileNo },
                 metadata: { accountKey: account.accountKey },
                 runner: async ({ signal, progress }) => {
+                    await prepareClientProxy(account, signal);
                     const credentials = await guiService.syncFacebookApiClientFromAdsPowerProfile({
                         profileNo: account.adsPowerProfileNo,
                         browserMode: browserMode === "headless" ? "headless" : "visible",
@@ -1262,6 +1269,7 @@ export default function registerIpcHandlers({
                 item.accountKey === String(accountKey ?? "").trim()
             ));
             if (!account?.adsPowerProfileNo) throw Object.assign(new Error("Додайте номер профілю AdsPower"), { code: "ADSPOWER_PROFILE_NO_REQUIRED" });
+            await prepareClientProxy(account);
             await guiService.openAdsPowerProfile(account.adsPowerProfileNo);
             return { accountKey: account.accountKey, adsPowerOpen: true };
         })
@@ -1361,6 +1369,9 @@ export default function registerIpcHandlers({
                     if (previous && String(previous.profileNo) !== profileNo) {
                         await businessManagerSessionManager.closeProfile(previousSessionId);
                     }
+                }
+                if (!businessManagerSessionManager.hasActiveProfile(profileNo)) {
+                    await prepareClientProxy(account);
                 }
                 return businessManagerSessionManager.start({ profileNo });
             });

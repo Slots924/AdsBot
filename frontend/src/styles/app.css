@@ -234,15 +234,12 @@ button:focus-visible, input:focus-visible {
 .account-kind-option input:disabled + span { cursor: default; }
 .account-empty-state { padding: 22px 12px; color: var(--muted); font-size: var(--font-control); text-align: center; }
 .account-proxy-binding { display: grid; gap: 10px; margin-top: 10px; padding: 13px; border: 1px solid var(--stroke); border-radius: 11px; background: rgba(255,255,255,.025); }
-.account-proxy-binding .checkbox-line { margin: 0; }
+.account-proxy-label { font-size: var(--font-control); font-weight: 650; }
+.account-proxy-modes { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.account-proxy-modes label { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); cursor: pointer; font-size: var(--font-control); }
+.account-proxy-modes label.active { color: var(--text); }
+.account-proxy-modes input { width: 14px; height: 14px; margin: 0; accent-color: #a5a5a5; }
 .account-proxy-binding .field { margin: 0; }
-.account-proxy-picker { position: relative; }
-.account-proxy-choice, .account-proxy-options button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 8px 11px; border: 1px solid var(--stroke); border-radius: 9px; color: #edf0f7; background: #10131f; cursor: pointer; text-align: left; }
-.account-proxy-choice strong, .account-proxy-options strong { min-height: 16px; font-size: var(--font-control); font-weight: 650; }
-.account-proxy-choice small, .account-proxy-options small { color: #858da3; font-size: 11px; font-weight: 400; }
-.account-proxy-options { position: absolute; z-index: 3; top: calc(100% + 4px); right: 0; left: 0; max-height: 180px; overflow-y: auto; padding: 4px; border: 1px solid var(--stroke-bright); border-radius: 10px; background: #111523; box-shadow: var(--shadow); }
-.account-proxy-options button { border: 0; background: transparent; }
-.account-proxy-options button:hover, .account-proxy-options button[aria-selected="true"] { background: rgba(132,114,255,.13); }
 .kind-bm .account-card { border-color: rgba(66,190,204,.24); background: linear-gradient(135deg, rgba(66,190,204,.085), rgba(255,255,255,.02)); }
 .kind-bm .account-card { min-height: 172px; }
 .kind-bm .account-card-tools { top: 48px; gap: 6px; }

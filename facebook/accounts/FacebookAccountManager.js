@@ -1,5 +1,6 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { getAccountProxyMode, normalizeAccountProxySettings } from "../../services/proxy/accountProxyMode.js";
 
 
 const facebookCookieNames = new Set([
@@ -182,6 +183,7 @@ function safeAccount(account, primaryAccountKey = "") {
         hasCookie: Boolean(String(account.cookie ?? "").trim()),
         adsPowerProfileNo: String(account.adsPowerProfileNo ?? "").trim(),
         proxyId: String(account.proxyId ?? "").trim(),
+        proxyMode: getAccountProxyMode(account),
         kind: String(account.kind ?? "api"),
         isPrimary: Boolean(primaryAccountKey && account.accountKey === primaryAccountKey),
     };
@@ -255,7 +257,7 @@ export default class FacebookAccountManager {
                 accessToken,
                 cookie: this.kind === "system" ? "" : input.cookie ? normalizeFacebookCookie(input.cookie) : "",
                 adsPowerProfileNo,
-                proxyId: String(input.proxyId ?? "").trim(),
+                ...normalizeAccountProxySettings(input, { defaultMode: this.kind === "system" ? "auto" : "profile" }),
                 kind: this.kind,
                 metadata: {},
                 archived: false,
@@ -308,8 +310,11 @@ export default class FacebookAccountManager {
                     input.adsPowerProfileNo
                 );
             }
-            if (Object.hasOwn(input, "proxyId")) {
-                account.proxyId = String(input.proxyId ?? "").trim();
+            if (Object.hasOwn(input, "proxyId") || Object.hasOwn(input, "proxyMode")) {
+                Object.assign(account, normalizeAccountProxySettings({
+                    proxyId: account.proxyId,
+                    ...input,
+                }, { defaultMode: Object.hasOwn(input, "proxyId") ? "auto" : getAccountProxyMode(account) }));
             }
             await this.#write(store);
             return safeAccount(account, store.primaryAccountKey);
