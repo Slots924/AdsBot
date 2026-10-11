@@ -370,6 +370,9 @@ contextBridge.exposeInMainWorld("adsBot", {
         subscribe("tasks:updated", callback),
     onWorkspaceRefreshed: (callback) =>
         subscribe("workspace:refreshed", callback),
+    onRemoteCacheUpdated: (callback) => subscribe("remote-cache:updated", callback),
+    onCacheWriteFailed: (callback) => subscribe("cache:write-failed", callback),
+    onCacheRecovered: (callback) => subscribe("cache:recovered", callback),
     onAdsPowerStatesUpdated: (callback) =>
         subscribe("accounts:adspower-states", callback),
     onFacebookAccountStatusUpdated: (callback) =>

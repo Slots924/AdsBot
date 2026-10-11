@@ -195,7 +195,6 @@ export default function registerIpcHandlers({
         startingProfiles.add(key);
         try { return await action(); } finally { startingProfiles.delete(key); }
     };
-    const workspaceRefreshes = new Map();
     const campaignStatisticsRefreshIntervalMs = 10 * 60_000;
     const activeAccountStatusRefreshIntervalMs = 5 * 60_000;
     const manualRefreshIntervalMs = 5_000;
@@ -209,6 +208,9 @@ export default function registerIpcHandlers({
             window.webContents.send(channel, payload);
         }
     };
+    remoteDataCacheStore.subscribe?.((event) => sendRendererEvent(
+        event.kind === "write-failed" ? "cache:write-failed" : event.kind === "recovered" ? "cache:recovered" : "remote-cache:updated", event
+    ));
     const refreshActiveAccountStatuses = async () => {
         try {
             const accountStatuses = await guiService.checkActiveAccounts();
@@ -244,6 +246,7 @@ export default function registerIpcHandlers({
             await operation();
             if (event) sendRendererEvent(event.channel, event.payload);
         } catch (error) {
+            if (!remoteDataCacheStore.subscribe) sendRendererEvent("cache:write-failed", { message: "Не вдалося зберегти останні зміни на диск", error: serializeError(error) });
             logger?.warn(
                 "cache.update-failed",
                 "Не вдалося оновити локальний кеш",
@@ -252,7 +255,44 @@ export default function registerIpcHandlers({
         }
     };
 
+    const cachePublishedPost = async (accountKey, pageId, post, removedPosts = []) => {
+        await updateCacheSafely(async () => {
+            await remoteDataCacheStore.prependPost(accountKey, pageId, {
+                id: post.postId, postId: post.postId, message: post.message,
+                permalinkUrl: post.permalinkUrl, createdTime: post.createdTime,
+                thumbnailUrl: post.thumbnailUrl ?? null,
+            }, { removedPostIds: removedPosts });
+            const cached = await remoteDataCacheStore.getPosts(accountKey, pageId, "campaign");
+            const stable = cached?.value?.find((item) => String(item.id) === String(post.postId));
+            if (stable) post.thumbnailUrl = stable.thumbnailUrl;
+        });
+        sendRendererEvent("pages:posts-cache-updated", {
+            type: removedPosts.length ? "replace-after-publication" : "prepend",
+            accountKey, pageId, removedPostIds: removedPosts.map((item) => String(item.id ?? item)),
+            post: { ...post, id: post.postId },
+        });
+    };
+
+    const cacheCampaignChange = async (input, campaign, { refresh = false } = {}) => {
+        await updateCacheSafely(() => remoteDataCacheStore.patchCampaign(input.accountKey, input.adAccountId, campaign));
+        if (!refresh) return;
+        try {
+            const before = await remoteDataCacheStore.getCampaigns(input.accountKey, input.adAccountId, "today");
+            const details = await guiService.getAdCampaign(input.accountKey, campaign.id);
+            const applied = await remoteDataCacheStore.patchCampaign(input.accountKey, input.adAccountId, details, { expectedRevision: before?.value?.revision });
+            if (applied === false) return;
+            const current = await remoteDataCacheStore.getCampaigns(input.accountKey, input.adAccountId, "today");
+            const statistics = await guiService.getAdCampaignStatistics(input.accountKey, input.adAccountId, "today", [details], current.value.context);
+            await remoteDataCacheStore.setCampaigns(input.accountKey, input.adAccountId, "today", {
+                campaigns: statistics.campaigns, statisticsUpdatedAt: new Date().toISOString(),
+            }, { mode: "statistics", expectedRevision: current.value.revision, context: current.value.context, partial: true });
+        } catch (error) {
+            logger?.warn("campaign.cache.readback-failed", "Кампанію збережено; не вдалося уточнити її дані", { error });
+        }
+    };
+
     const loadRemoteWorkspace = async (accountKey) => {
+        const revision = await remoteDataCacheStore.getWorkspaceRevision();
         const [accounts, pages] = await Promise.all([
             guiService.getAdAccounts(accountKey),
             guiService.getFanPages(accountKey, { force: true }),
@@ -264,79 +304,19 @@ export default function registerIpcHandlers({
             ),
             pages: await pagePreferencesStore.enrich(pages),
         };
-        await remoteDataCacheStore.setWorkspace(accountKey, workspace);
+        await remoteDataCacheStore.setWorkspace(accountKey, workspace, { expectedRevision: revision });
         const cached = await remoteDataCacheStore.getWorkspace(accountKey);
         return enrichCachedWorkspace(accountKey, cached?.value ?? workspace);
     };
 
     const enrichCachedWorkspace = async (accountKey, workspace) => ({
+        cacheRevision: workspace?.cacheRevision ?? 0,
         adAccounts: await adAccountPreferencesStore.enrichAccounts(
             accountKey,
             workspace?.adAccounts ?? []
         ),
         pages: await pagePreferencesStore.enrich(workspace?.pages ?? []),
     });
-
-    const refreshWorkspaceOnce = (accountKey) => {
-        if (workspaceRefreshes.has(accountKey)) {
-            return workspaceRefreshes.get(accountKey);
-        }
-        const refresh = loadRemoteWorkspace(accountKey)
-            .then((workspace) => {
-                sendRendererEvent("workspace:refreshed", {
-                    accountKey,
-                    workspace,
-                });
-                return workspace;
-            })
-            .catch((error) => {
-                logger?.warn(
-                    "cache.workspace.refresh-failed",
-                    `Не вдалося фоново оновити дані ${accountKey}`,
-                    { error }
-                );
-                return null;
-            });
-        workspaceRefreshes.set(accountKey, refresh);
-        return refresh;
-    };
-
-    const mergeCampaignStatistics = (campaigns, cachedCampaigns = []) => {
-        const cachedById = new Map(cachedCampaigns.map((campaign) => [
-            String(campaign.id),
-            campaign,
-        ]));
-        return campaigns.map((campaign) => {
-            const cached = cachedById.get(String(campaign.id));
-            if (isUnavailableCampaign(campaign)) return clearUnavailableCampaignStatistics(campaign);
-            if (!cached) return campaign;
-            const {
-                leads,
-                spend,
-                costPerLead,
-                impressions,
-                clicks,
-                cpm,
-                ctr,
-                metaLeads,
-                leadSource,
-                leadSyncStatus,
-            } = cached;
-            return {
-                ...campaign,
-                leads,
-                spend,
-                costPerLead,
-                impressions,
-                clicks,
-                cpm,
-                ctr,
-                metaLeads,
-                leadSource,
-                leadSyncStatus,
-            };
-        });
-    };
 
     const shouldRefreshCampaignStatistics = (updatedAt) => {
         const timestamp = Date.parse(updatedAt ?? "");
@@ -361,17 +341,10 @@ export default function registerIpcHandlers({
             adAccountId,
             { includeDeleted }
         ), includeDeleted);
-        const previous = cached?.value;
-        const data = {
-            adAccountId,
-            datePreset,
-            includeDeleted,
-            campaigns: mergeCampaignStatistics(
-                campaignList,
-                previous?.campaigns
-            ),
-            statisticsUpdatedAt: previous?.statisticsUpdatedAt ?? null,
-        };
+        await remoteDataCacheStore.setCampaigns(accountKey, adAccountId, datePreset, {
+            includeDeleted, campaigns: campaignList,
+        }, { mode: "list", expectedRevision: cached?.value?.revision ?? 0 });
+        const data = await readCachedCampaigns({ accountKey, adAccountId, datePreset, includeDeleted });
         const keitaroLeadSyncEnabled = await adAccountPreferencesStore
             .isKeitaroLeadSyncEnabled(adAccountId);
         const enriched = {
@@ -382,24 +355,6 @@ export default function registerIpcHandlers({
             ),
             cacheHit: true,
         };
-        if (keitaroLeadSyncEnabled && datePreset === "today") {
-            enriched.campaigns = enriched.campaigns.map((campaign) => (
-                isUnavailableCampaign(campaign) ? clearUnavailableCampaignStatistics(campaign) : {
-                    ...campaign,
-                    metaLeads: campaign.leads,
-                    leads: null,
-                    costPerLead: null,
-                    leadSource: "keitaro",
-                    leadSyncStatus: "loading",
-                }
-            ));
-        }
-        await remoteDataCacheStore.setCampaigns(
-            accountKey,
-            adAccountId,
-            datePreset,
-            enriched
-        );
         if (refreshKeitaro && keitaroLeadSyncEnabled && datePreset === "today"
             && enriched.campaigns.some((campaign) => !isUnavailableCampaign(campaign))) {
             refreshKeitaroCampaignLeadsOnce({
@@ -419,7 +374,7 @@ export default function registerIpcHandlers({
         datePreset,
         data,
     }) => {
-        const key = [accountKey, adAccountId, datePreset, Boolean(data.includeDeleted)].join("::");
+        const key = [adAccountId, data.context?.rangeKey ?? datePreset].join("::");
         if (!data.campaigns.some((campaign) => !isUnavailableCampaign(campaign))) return Promise.resolve(data);
         if (keitaroLeadRefreshes.has(key)) return keitaroLeadRefreshes.get(key);
         const refresh = (async () => {
@@ -429,19 +384,21 @@ export default function registerIpcHandlers({
                     { code: "KEITARO_UNAVAILABLE" }
                 );
                 const rows = await keitaroGuiService.getTodayLeadsByMetaCampaignId();
+                const current = await readCachedCampaigns({ accountKey, adAccountId, datePreset, includeDeleted: Boolean(data.includeDeleted) });
+                if (data.context?.rangeKey !== current.context?.rangeKey) return current;
                 const leadsByMetaCampaignId = new Map(rows.map((row) => [
                     String(row.metaCampaignId),
                     Number(row.leads) || 0,
                 ]));
                 const updated = {
-                    ...data,
-                    campaigns: data.campaigns.map((campaign) => {
+                    ...current,
+                    campaigns: current.campaigns.map((campaign) => {
                         if (isUnavailableCampaign(campaign)) return clearUnavailableCampaignStatistics(campaign);
                         const leads = leadsByMetaCampaignId.get(String(campaign.id)) ?? 0;
                         return {
                             ...campaign,
                             leads,
-                            costPerLead: leads > 0
+                            costPerLead: leads > 0 && campaign.spend !== null && Number.isFinite(Number(campaign.spend))
                                 ? Number(campaign.spend) / leads
                                 : null,
                             leadSource: "keitaro",
@@ -453,15 +410,18 @@ export default function registerIpcHandlers({
                     accountKey,
                     adAccountId,
                     datePreset,
-                    updated
+                    { ...updated, statisticsUpdatedAt: updated.statisticsUpdatedAt ?? new Date().toISOString() },
+                    { mode: "statistics", expectedRevision: current.revision, context: current.context,
+                        fields: ["leads", "costPerLead", "leadSource", "leadSyncStatus"] }
                 );
+                const latest = await readCachedCampaigns({ accountKey, adAccountId, datePreset, includeDeleted: Boolean(data.includeDeleted) });
                 sendRendererEvent("campaigns:keitaro-leads-refreshed", {
                     accountKey,
                     adAccountId,
                     datePreset,
-                    data: updated,
+                    data: latest,
                 });
-                return updated;
+                return latest;
             } catch (error) {
                 sendRendererEvent("campaigns:keitaro-leads-refreshed", {
                     accountKey,
@@ -536,6 +496,7 @@ export default function registerIpcHandlers({
         }
         return {
             ...cached.value,
+            cacheUpdatedAt: cached.updatedAt,
             includeDeleted,
             campaigns: await adAccountPreferencesStore.enrichCampaigns(
                 adAccountId,
@@ -543,6 +504,15 @@ export default function registerIpcHandlers({
             ),
             cacheHit: true,
         };
+    };
+
+    const withCampaignFallback = async (payload, operation) => {
+        try { return await operation(); }
+        catch (error) {
+            const cached = await readCachedCampaigns(payload);
+            if (!cached.cacheHit) throw error;
+            return { ...cached, refreshError: serializeError(error) };
+        }
     };
 
     const loadRemoteCampaignStatistics = async ({
@@ -563,7 +533,7 @@ export default function registerIpcHandlers({
             );
         }
         if (!cached.value.campaigns.some((campaign) => !isUnavailableCampaign(campaign))
-            || !shouldRefreshCampaignStatistics(cached.value.statisticsUpdatedAt)) {
+            || (!cached.value.statisticsStale && !shouldRefreshCampaignStatistics(cached.value.statisticsUpdatedAt))) {
             return {
                 ...cached.value,
                 includeDeleted,
@@ -579,7 +549,8 @@ export default function registerIpcHandlers({
             accountKey,
             adAccountId,
             datePreset,
-            cached.value.campaigns
+            cached.value.campaigns,
+            cached.value.context
         );
         const updated = {
             ...cached.value,
@@ -595,15 +566,18 @@ export default function registerIpcHandlers({
             accountKey,
             adAccountId,
             datePreset,
-            updated
+            updated,
+            { mode: "statistics", expectedRevision: cached.value.revision, context: cached.value.context,
+                fields: ["spend", "impressions", "clicks", "cpm", "ctr", "metaLeads", "leads", "costPerLead"] }
         );
+        const latest = await readCachedCampaigns({ accountKey, adAccountId, datePreset, includeDeleted });
         sendRendererEvent("campaigns:refreshed", {
             accountKey,
             adAccountId,
             datePreset,
-            data: { ...updated, includeDeleted, campaigns: visibleCampaigns(updated.campaigns, includeDeleted) },
+            data: latest,
         });
-        return { ...updated, includeDeleted, campaigns: visibleCampaigns(updated.campaigns, includeDeleted) };
+        return latest;
     };
 
     const refreshCampaignData = async ({
@@ -795,6 +769,7 @@ export default function registerIpcHandlers({
             errors: [],
         });
         const template = await templateManager.get(job.input.templateId);
+        let cachedCreatedCampaignId = null;
         const onProgress = async (progress) => {
             assertNotAborted();
             const completed = job.input.posts?.length && progress.objects
@@ -805,6 +780,16 @@ export default function registerIpcHandlers({
                 ...(completed === undefined ? {} : { completed }),
                 ...(progress.objects ? { objects: progress.objects } : {}),
             });
+            if (progress.objects?.campaignId && progress.objects.campaignId !== cachedCreatedCampaignId) {
+                cachedCreatedCampaignId = progress.objects.campaignId;
+                await cacheCampaignChange(job.input, {
+                    id: cachedCreatedCampaignId, name: job.input.campaignName,
+                    status: "PAUSED", effectiveStatus: "PAUSED", creationIncomplete: true,
+                });
+            }
+            if (progress.stage === "activation" && cachedCreatedCampaignId) {
+                await cacheCampaignChange(job.input, { id: cachedCreatedCampaignId, status: "ACTIVE", effectiveStatus: "ACTIVE" });
+            }
             sendCampaignProgress({
                 jobId: job.id,
                 ...progress,
@@ -828,19 +813,14 @@ export default function registerIpcHandlers({
                 ...job.input,
                 template,
             }, onProgress);
-            await updateCacheSafely(
-                () => remoteDataCacheStore.invalidateCampaigns(
-                    job.input.accountKey,
-                    job.input.adAccountId
-                ),
-                {
-                    channel: "campaigns:invalidated",
-                    payload: {
-                        accountKey: job.input.accountKey,
-                        adAccountId: job.input.adAccountId,
-                    },
-                }
-            );
+            const created = result.readback?.campaign;
+            await cacheCampaignChange(job.input, {
+                id: result.objects.campaignId,
+                name: created?.name ?? job.input.campaignName,
+                status: created?.status ?? (result.createPaused === false ? "ACTIVE" : "PAUSED"),
+                effectiveStatus: created?.effective_status ?? created?.effectiveStatus ?? created?.status ?? (result.createPaused === false ? "ACTIVE" : "PAUSED"),
+                creationIncomplete: false,
+            }, { refresh: true });
             const updated = await campaignCreationJournal.update(job.id, {
                 status: "complete",
                 stage: "complete",
@@ -852,10 +832,10 @@ export default function registerIpcHandlers({
         } catch (error) {
             const safeError = serializeError(error);
             if (error.createdObjects?.campaignId) {
-                await updateCacheSafely(
-                    () => remoteDataCacheStore.invalidateCampaigns(job.input.accountKey, job.input.adAccountId),
-                    { channel: "campaigns:invalidated", payload: { accountKey: job.input.accountKey, adAccountId: job.input.adAccountId } }
-                );
+                await cacheCampaignChange(job.input, {
+                    id: error.createdObjects.campaignId, name: job.input.campaignName,
+                    creationIncomplete: true,
+                }, { refresh: true });
             }
             await campaignCreationJournal.update(job.id, {
                 status: signal?.aborted ? "interrupted" : "failed",
@@ -1013,46 +993,13 @@ export default function registerIpcHandlers({
                         accountKey: draft.accountKey, pageId: draft.pageId,
                         message: prepared.creative, imagePath: draft.imagePath, imagePaths: draft.imagePaths,
                     }, async (item) => setSubtask("publication", { status: "running", message: item.message, progress: item }));
-                    await updateCacheSafely(async () => {
-                        await remoteDataCacheStore.removePosts(
-                            draft.accountKey,
-                            draft.pageId,
-                            cleanup.deleted
-                        );
-                        await remoteDataCacheStore.prependPost(
-                            draft.accountKey,
-                            draft.pageId,
-                            {
-                                id: post.postId,
-                                postId: post.postId,
-                                message: post.message,
-                                permalinkUrl: post.permalinkUrl,
-                                createdTime: post.createdTime,
-                                thumbnailUrl: null,
-                            }
-                        );
-                    }, {
-                        channel: "pages:posts-cache-updated",
-                        payload: {
-                            type: "replace-after-publication",
-                            accountKey: draft.accountKey,
-                            pageId: draft.pageId,
-                            removedPostIds: cleanup.deleted.map((item) => item.id),
-                            post: {
-                                id: post.postId,
-                                postId: post.postId,
-                                message: post.message,
-                                permalinkUrl: post.permalinkUrl,
-                                createdTime: post.createdTime,
-                                thumbnailUrl: null,
-                            },
-                        },
-                    });
+                    await cachePublishedPost(draft.accountKey, draft.pageId, post, cleanup.deleted);
                     await pagePreferencesStore.updateMetadata(draft.pageId, {
                         geo: draft.geo,
                         language: draft.language,
                         creativeName: draft.creativeName,
                     });
+                    sendRendererEvent("remote-cache:updated", { kind: "workspace" });
                     job = await creativeLaunchJournal.update(job.id, { post, cleanup });
                     await setSubtask("publication", {
                         status: cleanup.failed.length ? "completed_with_warnings" : "completed",
@@ -1700,10 +1647,10 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "pages:list",
         safeHandler(async ({ accountKey, force = false }) => {
+            const revision = await remoteDataCacheStore.getWorkspaceRevision();
             const cached = await remoteDataCacheStore.getWorkspace(accountKey);
             if (!force) {
                 if (cached) {
-                    refreshWorkspaceOnce(accountKey);
                     return pagePreferencesStore.enrich(cached.value.pages ?? []);
                 }
             }
@@ -1723,7 +1670,7 @@ export default function registerIpcHandlers({
                     ?? page.pictureUrl
                     ?? null,
             })));
-            await remoteDataCacheStore.setWorkspacePart(accountKey, { pages });
+            await remoteDataCacheStore.setWorkspacePart(accountKey, { pages }, { expectedRevision: revision });
             const updated = await remoteDataCacheStore.getWorkspace(accountKey);
             return pagePreferencesStore.enrich(updated?.value?.pages ?? pages);
         })
@@ -1737,8 +1684,16 @@ export default function registerIpcHandlers({
             return enrichCachedWorkspace(accountKey, cached.value);
         })
     );
-    ipcMain.handle("pages:favorite-set", safeHandler(({ pageId, isFavorite }) => pagePreferencesStore.setFavorite(pageId, Boolean(isFavorite))));
-    ipcMain.handle("pages:metadata-update", safeHandler(({ pageId, ...patch }) => pagePreferencesStore.updateMetadata(pageId, patch)));
+    ipcMain.handle("pages:favorite-set", safeHandler(async ({ pageId, isFavorite }) => {
+        const result = await pagePreferencesStore.setFavorite(pageId, Boolean(isFavorite));
+        sendRendererEvent("remote-cache:updated", { kind: "workspace" });
+        return result;
+    }));
+    ipcMain.handle("pages:metadata-update", safeHandler(async ({ pageId, ...patch }) => {
+        const result = await pagePreferencesStore.updateMetadata(pageId, patch);
+        sendRendererEvent("remote-cache:updated", { kind: "workspace" });
+        return result;
+    }));
     ipcMain.handle("pages:posts-with-links", safeHandler(async (payload) => {
         if (!payload.force) {
             const cached = await remoteDataCacheStore.getPosts(
@@ -1747,11 +1702,12 @@ export default function registerIpcHandlers({
             );
             if (cached) return cached.value;
         }
-        const posts = await guiService.getPagePostsWithLinks(payload);
+        const revision = await remoteDataCacheStore.getPostRevision(payload.pageId);
+        const posts = await guiService.getPagePostsWithLinks({ ...payload, includeAll: true });
         await remoteDataCacheStore.setPosts(
             payload.accountKey,
             payload.pageId,
-            posts
+            posts, "campaign", { expectedRevision: revision }
         );
         const cached = await remoteDataCacheStore.getPosts(
             payload.accountKey,
@@ -1764,9 +1720,11 @@ export default function registerIpcHandlers({
         safeHandler((payload) => guiService.getPagePostsSignature(payload))
     );
     ipcMain.handle("pages:selected-refresh", safeHandler(async (payload) => {
+        const revision = await remoteDataCacheStore.getPostRevision(payload.pageId);
+        const workspaceRevision = await remoteDataCacheStore.getWorkspaceRevision();
         const [details, posts] = await Promise.all([
             guiService.getFanPageDetails(payload),
-            guiService.getPagePostsWithLinks({ ...payload, limit: 10 }),
+            guiService.getPagePostsWithLinks({ ...payload, limit: 10, includeAll: true }),
         ]);
         const [page] = await pagePreferencesStore.enrich([details]);
         const cached = await remoteDataCacheStore.getWorkspace(payload.accountKey);
@@ -1777,11 +1735,11 @@ export default function registerIpcHandlers({
                 String(item.id) === String(page.id) ? { ...item, ...page } : item
             )) : [...currentPages, page];
         await Promise.all([
-            remoteDataCacheStore.setWorkspacePart(payload.accountKey, { pages }),
+            remoteDataCacheStore.setWorkspacePart(payload.accountKey, { pages }, { expectedRevision: workspaceRevision }),
             remoteDataCacheStore.setPosts(
                 payload.accountKey,
                 payload.pageId,
-                posts
+                posts, "campaign", { expectedRevision: revision }
             ),
         ]);
         const [updatedWorkspace, updatedPosts] = await Promise.all([
@@ -1792,6 +1750,7 @@ export default function registerIpcHandlers({
             (item) => String(item.id) === String(payload.pageId)
         ) ?? page;
         const stablePosts = updatedPosts?.value ?? posts;
+        sendRendererEvent("pages:posts-cache-updated", { type: "snapshot", pageId: payload.pageId, accountKey: payload.accountKey, posts: stablePosts });
         return {
             page: updatedPage,
             posts: stablePosts,
@@ -1932,6 +1891,7 @@ export default function registerIpcHandlers({
         "ads:list",
         safeHandler(async ({ accountKey }) => {
             const now = Date.now();
+            const revision = await remoteDataCacheStore.getWorkspaceRevision();
             const lastRefresh = adAccountRefreshTimes.get(accountKey) ?? 0;
             if (now - lastRefresh < manualRefreshIntervalMs) {
                 if (adAccountRefreshResults.has(accountKey)) {
@@ -1952,10 +1912,12 @@ export default function registerIpcHandlers({
             );
             await remoteDataCacheStore.setWorkspacePart(accountKey, {
                 adAccounts: enriched,
-            });
+            }, { expectedRevision: revision });
+            const stableWorkspace = await remoteDataCacheStore.getWorkspace(accountKey);
+            const stable = await adAccountPreferencesStore.enrichAccounts(accountKey, stableWorkspace?.value?.adAccounts ?? enriched);
             adAccountRefreshTimes.set(accountKey, now);
-            adAccountRefreshResults.set(accountKey, enriched);
-            return enriched;
+            adAccountRefreshResults.set(accountKey, stable);
+            return stable;
         })
     );
     ipcMain.handle(
@@ -1993,9 +1955,7 @@ export default function registerIpcHandlers({
             force = false,
         }) => {
             const payload = { accountKey, adAccountId, datePreset, includeDeleted };
-            if (force) return loadRemoteCampaigns(payload);
-            const cached = await remoteDataCacheStore.getCampaigns(accountKey, adAccountId, datePreset);
-            if (includeDeleted && cached?.value?.includeDeleted !== true) return loadRemoteCampaigns(payload);
+            if (force) return withCampaignFallback(payload, () => loadRemoteCampaigns(payload));
             return readCachedCampaigns(payload);
         })
     );
@@ -2006,12 +1966,10 @@ export default function registerIpcHandlers({
             adAccountId,
             datePreset = "today",
             includeDeleted = false,
-        }) => loadRemoteCampaignStatistics({
-            accountKey,
-            adAccountId,
-            datePreset,
-            includeDeleted,
-        }))
+        }) => {
+            const payload = { accountKey, adAccountId, datePreset, includeDeleted };
+            return withCampaignFallback(payload, () => loadRemoteCampaignStatistics(payload));
+        })
     );
     ipcMain.handle(
         "campaigns:refresh",
@@ -2022,14 +1980,14 @@ export default function registerIpcHandlers({
             includeDeleted = false,
         }) => {
             const payload = { accountKey, adAccountId, datePreset, includeDeleted };
-            const key = [accountKey, adAccountId, datePreset, includeDeleted].join("::");
+            const key = [adAccountId, datePreset, includeDeleted].join("::");
             const now = Date.now();
             const lastRefresh = campaignRefreshTimes.get(key) ?? 0;
             if (now - lastRefresh < manualRefreshIntervalMs) {
                 return readCachedCampaigns(payload);
             }
             campaignRefreshTimes.set(key, now);
-            return refreshCampaignData(payload);
+            return withCampaignFallback(payload, () => refreshCampaignData(payload));
         })
     );
     ipcMain.handle(
@@ -2069,7 +2027,7 @@ export default function registerIpcHandlers({
                 campaignId,
                 status
             );
-            await remoteDataCacheStore.invalidateCampaigns(accountKey, adAccountId);
+            await cacheCampaignChange({ accountKey, adAccountId }, { id: campaignId, status: result.status ?? status, effectiveStatus: result.status ?? status });
             return result;
         })
     );
@@ -2081,7 +2039,7 @@ export default function registerIpcHandlers({
                 campaignId,
                 name
             );
-            await remoteDataCacheStore.invalidateCampaigns(accountKey, adAccountId);
+            await cacheCampaignChange({ accountKey, adAccountId }, { id: campaignId, name: result.name ?? name });
             return result;
         })
     );
@@ -2089,7 +2047,7 @@ export default function registerIpcHandlers({
         "campaigns:delete",
         safeHandler(async ({ accountKey, adAccountId, campaignId }) => {
             const result = await guiService.deleteAdCampaign(accountKey, campaignId);
-            await remoteDataCacheStore.invalidateCampaigns(accountKey, adAccountId);
+            await cacheCampaignChange({ accountKey, adAccountId }, { id: campaignId, status: "DELETED", effectiveStatus: "DELETED" });
             return result;
         })
     );
@@ -2104,12 +2062,13 @@ export default function registerIpcHandlers({
                 );
                 if (cached) return cached.value;
             }
+            const revision = await remoteDataCacheStore.getPostRevision(payload.pageId);
             const posts = await guiService.getPagePosts(payload);
             await remoteDataCacheStore.setPosts(
                 payload.accountKey,
                 payload.pageId,
                 posts,
-                "campaign"
+                "campaign", { expectedRevision: revision }
             );
             const cached = await remoteDataCacheStore.getPosts(
                 payload.accountKey,
@@ -2187,6 +2146,9 @@ export default function registerIpcHandlers({
                             stage: "cleanup",
                             ...item,
                         });
+                        if (item.deleted === true && String(item.id) === String(job.objects.campaignId) && item.type === "campaign") {
+                            await cacheCampaignChange(job.input, { id: item.id, status: "DELETED", effectiveStatus: "DELETED" });
+                        }
                         cleanupCompleted += 1;
                         await taskProgress({
                             stage: "cleanup",
@@ -2324,41 +2286,13 @@ export default function registerIpcHandlers({
                     };
                     await taskProgress({ stage: "starting", completed: 0, total: input.imagePath ? 4 : 3, message: "Починаємо публікацію" });
                     const post = await guiService.publishCreativePost(input, taskProgress);
-                    await updateCacheSafely(
-                        () => remoteDataCacheStore.prependPost(
-                            input.accountKey,
-                            input.pageId,
-                            {
-                                id: post.postId,
-                                postId: post.postId,
-                                message: post.message,
-                                permalinkUrl: post.permalinkUrl,
-                                createdTime: post.createdTime,
-                                thumbnailUrl: null,
-                            }
-                        ),
-                        {
-                            channel: "pages:posts-cache-updated",
-                            payload: {
-                                type: "prepend",
-                                accountKey: input.accountKey,
-                                pageId: input.pageId,
-                                post: {
-                                    id: post.postId,
-                                    postId: post.postId,
-                                    message: post.message,
-                                    permalinkUrl: post.permalinkUrl,
-                                    createdTime: post.createdTime,
-                                    thumbnailUrl: null,
-                                },
-                            },
-                        }
-                    );
+                    await cachePublishedPost(input.accountKey, input.pageId, post);
                     await pagePreferencesStore.updateMetadata(input.pageId, {
                         geo: input.geo,
                         language: input.language,
                         creativeName: input.creativeName,
                     });
+                    sendRendererEvent("remote-cache:updated", { kind: "workspace" });
                     let commentSummary = null;
                     if (!input.disableComments) {
                         if (!post.permalinkUrl) throw Object.assign(

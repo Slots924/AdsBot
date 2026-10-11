@@ -9,11 +9,13 @@ function hasLinkInPostText(post) {
 /**
  * Серед заданої кількості найновіших опублікованих постів залишає тільки ті,
  * що містять посилання саме в тексті.
+ * includeAll залишає повну вибірку для спільного кешу без додаткового запиту.
  */
 export default async function collectLatestPagePostsWithLinks({
     fetchPosts,
     normalizePost = (post) => post,
     limit = 10,
+    includeAll = false,
 } = {}) {
     if (typeof fetchPosts !== "function") {
         throw new TypeError("Не передано fetchPosts для завантаження постів");
@@ -27,7 +29,7 @@ export default async function collectLatestPagePostsWithLinks({
             - new Date(left?.created_time ?? 0)
         ))
         .slice(0, limit)
-        .filter(hasLinkInPostText)
+        .filter((post) => includeAll || hasLinkInPostText(post))
         .map(normalizePost);
 }
 

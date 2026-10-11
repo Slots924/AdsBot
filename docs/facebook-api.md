@@ -226,10 +226,11 @@ if (!selectedFacebookApiClient) {
 | `getPermissions()` | `{ granted, declined, expired, other }` | Групує permissions за статусом. |
 | `getAdAccounts()` | `Array` | Повертає всі доступні рекламні акаунти, включно з UTC offset і DSA defaults. Денний spend та `adtrust_dsl` тут навмисно не запитуються. |
 | `getAdCampaigns(adAccountId, { includeDeleted = false })` | `Array` | Повертає ACTIVE та PAUSED; з `includeDeleted: true` також DELETED та ARCHIVED. |
+| `getAdCampaign(campaignId)` | `object` | Читає ID, назву й статуси однієї кампанії для точкового оновлення кешу. |
 | `setAdCampaignStatus(campaignId, status)` | `{ id, status }` | Змінює стан кампанії на `ACTIVE`, `PAUSED` або `DELETED`. |
 | `renameAdCampaign(campaignId, name)` | `{ id, name }` | Змінює назву кампанії через Graph API. |
 | `deleteAdCampaign(campaignId)` | `{ id, status: "DELETED", effectiveStatus: "DELETED" }` | Встановлює кампанії статус `DELETED` без незворотного HTTP DELETE. |
-| `getAdCampaignInsights(adAccountId, datePreset)` | `Array` | Повертає campaign-level spend, покази, кліки, CTR та actions за Meta date preset. |
+| `getAdCampaignInsights(adAccountId, datePreset, campaignIds, context)` | `Array` | Повертає campaign-level spend, покази, кліки, CTR та actions. `campaignIds` обмежує вибірку; `context.timeRange` фіксує дати замість Meta date preset. |
 | `getAdCampaignSpend(adAccountId, { since, until })` | `Array` | Повертає денний campaign-level spend за точний діапазон дат для локальної бази спенду. |
 | `getPages()` | `Array` | Повертає всі fan pages, tasks і `pageAccessToken`. |
 | `getAvailablePages()` | `Array<{id, name, pictureUrl}>` | Перевіряє доступність, publish tasks і статус фанпейджів та повертає список з avatar URL, але без токенів. |
@@ -245,7 +246,7 @@ if (!selectedFacebookApiClient) {
 | `hidePagePostLinkPreview(options)` | `{ success, post, attachments }` | Приховує Open Graph-прев'ю посилання через `og_hide_object_attachment=true` і повторно читає вкладення поста для перевірки перед рекламою. |
 | `getAdCreativeDetails(options)` | `object` | Повторно читає destination, effective post ID та creative enhancements для контрольної перевірки. |
 | `getAdCreativePreviews(options)` | `object[]` | Генерує HTML-прев'ю Creative у форматі Meta, за замовчуванням desktop feed. |
-| `getPagePost(options)` | `object` | Отримує пост за ID для підтвердження публікації. |
+| `getPagePost(options)` | `object` | Отримує пост за ID для підтвердження публікації, включно з `thumbnailUrl` через `full_picture`/`attachments`. Завантажує локальні байти доступної картинки. |
 | `preflightLeadCampaign(options)` | `object` | Перевіряє `ads_management`, РК, сторінку, пост, Pixel, targeting і campaign payload через `validate_only`. |
 | `createLeadCampaign(options, onProgress)` | `object` | Поетапно створює website lead campaign, creative, ad sets та ads із готового поста або локального зображення. Статуси campaign, Ad Set та ad задаються незалежно. |
 
@@ -298,6 +299,10 @@ Thumbnail URL дозволяється лише з HTTPS-доменів `fbcdn.n
 `https://` у тексті. Тому результат може містити менше ніж 10 постів. Старіші
 публікації для доповнення результату не завантажуються, а посилання лише в
 attachments не враховуються.
+
+Внутрішній параметр `includeAll: true` повертає повну вибірку цих самих останніх
+публікацій. GUI використовує її для одночасного запису спільного snapshot і
+відфільтрованого списку URL-постів, без другого Graph-запиту.
 
 `deletePagePosts()` приймає масив рядків або об'єктів із `id`/`postId`, прибирає
 дублікати та видаляє записи послідовно. Дозволені лише canonical ID формату

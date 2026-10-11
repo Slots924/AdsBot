@@ -253,6 +253,9 @@ export default async function publishPagePost({
         message: post.message || normalizedMessage,
         permalinkUrl: post.permalinkUrl,
         createdTime: post.createdTime,
+        thumbnailUrl: normalizedImage
+            ? `data:${normalizedImage.contentType};base64,${normalizedImage.buffer.toString("base64")}`
+            : post.thumbnailUrl ?? null,
         verified: true,
     };
 }

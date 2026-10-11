@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BadgeDollarSign, BarChart3, Bot, BookOpen, CircleDollarSign, MessageSquare, PanelsTopLeft, Settings } from "lucide-react";
 import BackgroundTaskPanel from "./components/BackgroundTaskPanel.jsx";
@@ -40,6 +40,11 @@ export default function App() {
     const [selectedPageId, setSelectedPageId] = useState("");
     const [workspaceCache, setWorkspaceCache] = useState({});
     const [workspaceLoading, setWorkspaceLoading] = useState(false);
+    const workspaceRequestVersions = useRef({});
+    const workspaceCacheRef = useRef({});
+    const selectedAccountKeyRef = useRef("");
+    workspaceCacheRef.current = workspaceCache;
+    selectedAccountKeyRef.current = selectedAccountKey;
     const [groups, setGroups] = useState([]);
     const [favoriteGroupIds, setFavoriteGroupIds] = useState([]);
     const [commentLeftGroupId, setCommentLeftGroupId] = useState("");
@@ -118,18 +123,24 @@ export default function App() {
         catch (error) { setModal({ ...errorDetails(error), title: "Не вдалося завантажити проксі" }); }
         finally { setProxiesLoading(false); }
     };
-    const loadWorkspace = async (accountKey, force = false) => {
-        if (!accountKey || (!force && workspaceCache[accountKey])) return;
-        setWorkspaceLoading(true);
+    const loadWorkspace = async (accountKey, force = false, { readCache = false, background = false } = {}) => {
+        if (!accountKey || (!force && !readCache && workspaceCacheRef.current[accountKey])) return;
+        const requestVersion = (workspaceRequestVersions.current[accountKey] ?? 0) + 1;
+        workspaceRequestVersions.current[accountKey] = requestVersion;
+        if (!background) setWorkspaceLoading(true);
         try {
             const value = await unwrap(
                 window.adsBot.loadClientWorkspace(accountKey, force)
             );
+            if (workspaceRequestVersions.current[accountKey] !== requestVersion) return;
+            if ((workspaceCacheRef.current[accountKey]?.cacheRevision ?? 0) > (value.cacheRevision ?? 0)) return;
             setWorkspaceCache((current) => ({ ...current, [accountKey]: value }));
-            setSelectedAdAccountId((current) => value.adAccounts.some((item) => item.id === current) ? current : "");
-            setSelectedPageId((current) => value.pages.some((item) => item.id === current) ? current : "");
-        } catch (error) { setModal({ ...errorDetails(error), title: `Не вдалося завантажити workspace ${accountKey}` }); }
-        finally { setWorkspaceLoading(false); }
+            if (selectedAccountKeyRef.current === accountKey) {
+                setSelectedAdAccountId((current) => value.adAccounts.some((item) => item.id === current) ? current : "");
+                setSelectedPageId((current) => value.pages.some((item) => item.id === current) ? current : "");
+            }
+        } catch (error) { if (!background) setModal({ ...errorDetails(error), title: `Не вдалося завантажити workspace ${accountKey}` }); }
+        finally { if (!background) setWorkspaceLoading(false); }
     };
     const refreshTasks = async () => setTasks(await unwrap(window.adsBot.getBackgroundTasks()));
 
@@ -158,7 +169,7 @@ export default function App() {
                     });
                 }
                 if (event.task.type === "creative-launch" && event.task.metadata?.accountKey) {
-                    window.adsBot.loadClientWorkspace(event.task.metadata.accountKey).then(unwrap).then((value) => setWorkspaceCache((current) => ({ ...current, [event.task.metadata.accountKey]: value }))).catch(() => {});
+                    loadWorkspace(event.task.metadata.accountKey, false, { readCache: true, background: true });
                 }
             }
         });
@@ -245,7 +256,17 @@ export default function App() {
         return () => { offLog(); offTasks(); offWorkspace(); offAdsPowerStates(); offFacebookAccountStatus(); offApiClientCreated(); };
     }, []);
 
-    useEffect(() => { if (selectedAccount?.status === "active" && !["bm", "system"].includes(selectedAccount.kind)) loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status, selectedAccount?.kind]);
+    useEffect(() => { if (selectedAccount && !["bm", "system"].includes(selectedAccount.kind)) loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status, selectedAccount?.kind]);
+    useEffect(() => window.adsBot.onRemoteCacheUpdated?.((event) => {
+        if (event.kind !== "workspace") return;
+        for (const key of Object.keys(workspaceCacheRef.current)) {
+            loadWorkspace(key, false, { readCache: true, background: true });
+        }
+    }), []);
+    useEffect(() => window.adsBot.onCacheWriteFailed?.((event) => {
+        showToast(event.message || "Не вдалося зберегти останні зміни на диск", "error");
+    }), []);
+    useEffect(() => window.adsBot.onCacheRecovered?.((event) => showToast(event.message, "info")), []);
     useEffect(() => {
         if (!hydrated) return undefined;
         const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, reactionWorkerConcurrency, reactionWorkerProxyIds, reactionBrowserMode, reactionDisableImages, apiClientsBrowserMode, apiClientsDisableImages, apiClientsAutoRefresh, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped }).catch(() => {}), 250);

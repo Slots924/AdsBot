@@ -921,15 +921,26 @@ export default class FacebookGraphApi {
         }));
     }
 
+    /** Отримує одну кампанію після створення або зміни без оновлення всього РК. */
+    async getAdCampaign(campaignId) {
+        const id = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");
+        const campaign = await this.#request(`/${id}`, { fields: "id,name,status,effective_status" });
+        return {
+            id: campaign.id, name: campaign.name ?? "Без назви",
+            status: campaign.status ?? null, effectiveStatus: campaign.effective_status ?? null,
+        };
+    }
+
 
     /**
      * Повертає campaign-level статистику рекламного акаунта.
      * @param {string} adAccountId Graph ID у форматі act_123.
      * @param {string} datePreset Підтримуваний Meta date preset.
      * @param {string[]} [campaignIds] ID кампаній для вибірки; порожній масив пропускає запит.
+     * @param {object} [context] Зафіксовані дати timeRange у часовому поясі РК.
      * @returns {Promise<object[]>}
      */
-    async getAdCampaignInsights(adAccountId, datePreset = "today", campaignIds) {
+    async getAdCampaignInsights(adAccountId, datePreset = "today", campaignIds, context = null) {
         const id = normalizeAdAccountId(adAccountId);
         const normalizedPreset = String(datePreset ?? "").trim();
 
@@ -944,7 +955,7 @@ export default class FacebookGraphApi {
         const insights = await this.#getAll(`/${id}/insights`, {
             fields: "campaign_id,campaign_name,spend,impressions,clicks,ctr,actions",
             level: "campaign",
-            date_preset: normalizedPreset,
+            ...(context?.timeRange ? { time_range: JSON.stringify(context.timeRange) } : { date_preset: normalizedPreset }),
             ...(Array.isArray(campaignIds) ? {
                 filtering: JSON.stringify([{
                     field: "campaign.id",
@@ -1708,7 +1719,7 @@ export default class FacebookGraphApi {
      * Повертає найновіші опубліковані пости з HTTP(S)-посиланням у тексті.
      * Спочатку бере limit найновіших постів, а потім фільтрує цю вибірку.
      */
-    async getLatestPagePostsWithLinks({ pageId, limit = 10 } = {}) {
+    async getLatestPagePostsWithLinks({ pageId, limit = 10, includeAll = false } = {}) {
         const normalizedPageId = normalizeObjectId(
             pageId,
             "PAGE_POSTS_PAGE_ID_INVALID",
@@ -1731,6 +1742,7 @@ export default class FacebookGraphApi {
 
         const posts = await collectLatestPagePostsWithLinks({
             limit: normalizedLimit,
+            includeAll,
             normalizePost: normalizePagePost,
             fetchPosts: async ({ limit: requestLimit }) => {
                 const data = await this.#request(`/${page.id}/published_posts`, {
@@ -2070,19 +2082,23 @@ export default class FacebookGraphApi {
                 "permalink_url",
                 "is_published",
                 "status_type",
+                "full_picture",
+                "attachments{media_type,media{image{src}}}",
             ].join(","),
         }, {
             accessToken: pageAccessToken,
         });
 
-        return {
+        const post = {
             id: data.id,
             message: data.message ?? "",
             createdTime: data.created_time ?? null,
             permalinkUrl: data.permalink_url ?? null,
             isPublished: data.is_published ?? null,
             statusType: data.status_type ?? null,
+            thumbnailUrl: safeThumbnailUrl(data.attachments?.data?.[0]?.media?.image?.src ?? data.full_picture),
         };
+        return (await this.#cachePostPictures([post]))[0];
     }
 
 

@@ -1,4 +1,45 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "ed9867f7-58d3-48cd-ab8e-ebc585713c10",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-031",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1849",
+          "label": "AdsPower №1849"
+        }
+      ],
+      "input": {
+        "accountKey": "account-031",
+        "adsPowerProfileNo": "1849"
+      },
+      "metadata": {
+        "accountKey": "account-031",
+        "uniqueKey": "facebook-api-client-sync:account-031",
+        "reportId": "2bae91fe-ed70-4ece-9210-98969d1852dd"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-031",
+        "adsPowerProfileNo": "1849",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-11T15:05:20.472Z",
+      "startedAt": "2026-10-11T15:05:20.474Z",
+      "finishedAt": "2026-10-11T15:05:39.537Z",
+      "updatedAt": "2026-10-11T15:05:39.539Z"
+    }
+  ]
 }

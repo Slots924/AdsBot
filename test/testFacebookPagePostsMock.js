@@ -65,5 +65,9 @@ assert.match(posts[0].thumbnailUrl, /fbcdn\.net/);
 assert.equal(posts.every((item) => !item.pageAccessToken), true);
 assert.equal(JSON.stringify(posts).includes("page-secret"), false);
 assert.equal(requests.some((request) => String(request.url).includes("access_token")), false);
+const countBeforeSnapshot = requests.filter((request) => request.url.endsWith("/10/published_posts")).length;
+const fullSnapshot = await api.getLatestPagePostsWithLinks({ pageId: "10", limit: 10, includeAll: true });
+assert.deepEqual(fullSnapshot.map((item) => item.id), ["10_21", "10_20"]);
+assert.equal(requests.filter((request) => request.url.endsWith("/10/published_posts")).length, countBeforeSnapshot + 1);
 
 console.log("Mock-перевірка 10 останніх постів пройшла успішно");

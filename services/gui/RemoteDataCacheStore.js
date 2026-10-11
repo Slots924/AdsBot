@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile, open } from "node:fs/promises";
 import path from "node:path";
 
 import readImageDimensions from "../images/readImageDimensions.js";
+import campaignDateRange from "../campaigns/campaignDateRange.js";
 
 
 const sensitiveKeyPattern = /(?:access.?token|cookie|authorization|password|secret|credential|proxy)/i;
@@ -10,13 +11,33 @@ const sensitiveKeyPattern = /(?:access.?token|cookie|authorization|password|secr
 
 function emptyStore() {
     return {
-        version: 1,
+        version: 2,
         workspaces: {},
         posts: {},
         campaigns: {},
+        statistics: {},
+        lastStatistics: {},
+        pages: {},
+        adAccounts: {},
+        postRevisions: {},
+        revisions: { workspace: 0 },
         businessManagers: {},
     };
 }
+
+const metricFields = ["leads", "spend", "costPerLead", "impressions", "clicks", "cpm", "ctr", "metaLeads", "leadSource", "leadSyncStatus"];
+const accessFields = new Set(["tasks", "permissions", "isFavorite", "favoritePosition", "accessUnavailable"]);
+const pickMetrics = (campaign, fields = metricFields) => Object.fromEntries(fields
+    .filter((field) => campaign[field] !== undefined).map((field) => [field, campaign[field]]));
+const campaignDetails = (campaign) => Object.fromEntries(Object.entries(campaign)
+    .filter(([field]) => !metricFields.includes(field)));
+const sharedDetails = (entity) => Object.fromEntries(Object.entries(entity)
+    .filter(([field, value]) => !accessFields.has(field) && value !== null && value !== undefined));
+const mergeById = (previous = [], next = []) => {
+    const items = new Map(previous.map((item) => [String(item.id), item]));
+    for (const item of next) items.set(String(item.id), { ...items.get(String(item.id)), ...item });
+    return [...items.values()];
+};
 
 
 function normalizedPart(value, code) {
@@ -82,22 +103,42 @@ function mergeEntityImages(nextItems, previousItems, imageField) {
 export default class RemoteDataCacheStore {
     #operation = Promise.resolve();
     #loaded = null;
+    #loading = null;
+    #listeners = new Set();
 
 
     constructor({
         cacheFile = "./data/gui-remote-cache.json",
         imagesDirectory = path.join(path.dirname(cacheFile), "gui-cache-images"),
+        now = () => new Date(),
     } = {}) {
         this.cacheFile = cacheFile;
         this.imagesDirectory = imagesDirectory;
+        this.now = now;
+    }
+
+    subscribe(listener) {
+        this.#listeners.add(listener);
+        return () => this.#listeners.delete(listener);
     }
 
 
     async getWorkspace(accountKey) {
         const store = await this.#read();
-        return safeClone(store.workspaces[
+        const entry = store.workspaces[
             normalizedPart(accountKey, "CACHE_ACCOUNT_KEY_REQUIRED")
-        ] ?? null);
+        ];
+        if (!entry) return null;
+        const value = { ...entry.value };
+        value.cacheRevision = store.revisions.workspace;
+        for (const kind of ["pages", "adAccounts"]) {
+            value[kind] = (value[kind] ?? []).map((item) => ({
+                ...item, ...store[kind][String(item.id)]?.value,
+                ...Object.fromEntries(Object.entries(item).filter(([field]) => accessFields.has(field))),
+                ...(kind === "pages" ? { cachedAt: store[kind][String(item.id)]?.updatedAt ?? entry.updatedAt } : {}),
+            }));
+        }
+        return safeClone({ ...entry, value });
     }
 
     async getBusinessData(key) {
@@ -111,21 +152,16 @@ export default class RemoteDataCacheStore {
     }
 
 
-    setWorkspace(accountKey, workspace) {
-        return this.#update(async (store) => {
-            const key = normalizedPart(accountKey, "CACHE_ACCOUNT_KEY_REQUIRED");
-            const prepared = await this.#externalizeImages(safeClone(workspace));
-            prepared.pages = mergeEntityImages(
-                prepared.pages,
-                store.workspaces[key]?.value?.pages,
-                "pictureUrl"
-            );
-            store.workspaces[key] = cacheEntry(prepared);
-        });
+    async getWorkspaceRevision() {
+        return (await this.#read()).revisions.workspace;
+    }
+
+    setWorkspace(accountKey, workspace, options = {}) {
+        return this.setWorkspacePart(accountKey, workspace, options);
     }
 
 
-    setWorkspacePart(accountKey, patch) {
+    setWorkspacePart(accountKey, patch, { expectedRevision } = {}) {
         return this.#update(async (store) => {
             const key = normalizedPart(
                 accountKey,
@@ -136,18 +172,37 @@ export default class RemoteDataCacheStore {
                 pages: [],
             };
             const prepared = await this.#externalizeImages(safeClone(patch));
-            if (Array.isArray(prepared.pages)) {
-                prepared.pages = mergeEntityImages(
-                    prepared.pages,
-                    current.pages,
-                    "pictureUrl"
-                );
+            const stale = expectedRevision !== undefined && expectedRevision !== store.revisions.workspace;
+            for (const kind of ["pages", "adAccounts"]) {
+                if (!Array.isArray(prepared[kind])) continue;
+                for (const item of prepared[kind]) {
+                    const id = String(item.id);
+                    const previous = store[kind][id]?.value;
+                    if (stale && previous) continue;
+                    const [merged] = mergeEntityImages([
+                        { ...previous, ...sharedDetails(item) },
+                    ], previous ? [previous] : [], "pictureUrl");
+                    store[kind][id] = cacheEntry(merged);
+                }
+                if (stale) prepared[kind] = mergeById(prepared[kind], current[kind]);
+                else {
+                    const ids = new Set(prepared[kind].map((item) => String(item.id)));
+                    prepared[kind] = [
+                        ...prepared[kind].map((item) => ({
+                            ...item,
+                            ...((current[kind] ?? []).some((old) => String(old.id) === String(item.id) && old.accessUnavailable)
+                                ? { accessUnavailable: false } : {}),
+                        })),
+                        ...(current[kind] ?? []).filter((item) => !ids.has(String(item.id))).map((item) => ({ ...item, accessUnavailable: true })),
+                    ];
+                }
             }
             store.workspaces[key] = cacheEntry({
                 ...current,
                 ...prepared,
             });
-        });
+            store.revisions.workspace += 1;
+        }, { kind: "workspace", accountKey });
     }
 
 
@@ -159,8 +214,9 @@ export default class RemoteDataCacheStore {
     }
 
 
-    setPosts(accountKey, pageId, posts, kind = "links") {
+    setPosts(accountKey, pageId, posts, kind = "links", { expectedRevision } = {}) {
         return this.#update(async (store) => {
+            if (expectedRevision !== undefined && (store.postRevisions[pageId] ?? 0) !== expectedRevision) return false;
             const key = this.#postsKey(accountKey, pageId, kind);
             const prepared = await this.#externalizeImages(
                 Array.isArray(posts) ? posts : []
@@ -170,7 +226,15 @@ export default class RemoteDataCacheStore {
                 store.posts[key]?.value,
                 "thumbnailUrl"
             ));
-        });
+            if (kind === "campaign") {
+                store.posts[this.#postsKey(accountKey, pageId, "links")] = cacheEntry(store.posts[key].value.filter((post) => /https?:\/\//i.test(String(post.message ?? ""))));
+            }
+            store.postRevisions[pageId] = (store.postRevisions[pageId] ?? 0) + 1;
+        }, { kind: "posts", pageId });
+    }
+
+    async getPostRevision(pageId) {
+        return (await this.#read()).postRevisions[pageId] ?? 0;
     }
 
 
@@ -179,7 +243,8 @@ export default class RemoteDataCacheStore {
             for (const kind of ["links", "campaign"]) {
                 store.posts[this.#postsKey(accountKey, pageId, kind)] = cacheEntry([]);
             }
-        });
+            store.postRevisions[pageId] = (store.postRevisions[pageId] ?? 0) + 1;
+        }, { kind: "posts", pageId });
     }
 
 
@@ -195,118 +260,279 @@ export default class RemoteDataCacheStore {
                     .filter((post) => !removed.has(String(post?.id ?? post?.postId)));
                 entry.updatedAt = new Date().toISOString();
             }
-        });
+            store.postRevisions[pageId] = (store.postRevisions[pageId] ?? 0) + 1;
+        }, { kind: "posts", pageId });
     }
 
 
-    prependPost(accountKey, pageId, post) {
+    prependPost(accountKey, pageId, post, { removedPostIds = [] } = {}) {
         return this.#update(async (store) => {
             const postId = String(post?.id ?? post?.postId ?? "");
             const prepared = await this.#externalizeImages(safeClone(post));
-            for (const kind of ["links", "campaign"]) {
-                const key = this.#postsKey(accountKey, pageId, kind);
-                const previous = store.posts[key]?.value;
-                const posts = (Array.isArray(previous) ? previous : [])
-                    .filter((item) => String(item?.id ?? item?.postId) !== postId);
-                store.posts[key] = cacheEntry(
-                    [prepared, ...posts].slice(0, 10)
-                );
-            }
-        });
+            const removed = new Set(removedPostIds.map((item) => String(item?.id ?? item)));
+            const key = this.#postsKey(accountKey, pageId, "campaign");
+            const previous = store.posts[key]?.value ?? store.posts[this.#postsKey(accountKey, pageId, "links")]?.value ?? [];
+            const posts = previous.filter((item) => String(item?.id ?? item?.postId) !== postId && !removed.has(String(item?.id ?? item?.postId)));
+            const existing = previous.find((item) => String(item.id ?? item.postId) === postId);
+            const [merged] = mergeEntityImages([{ ...existing, ...prepared }], existing ? [existing] : [], "thumbnailUrl");
+            store.posts[key] = cacheEntry([merged, ...posts].slice(0, 10));
+            store.posts[this.#postsKey(accountKey, pageId, "links")] = cacheEntry(store.posts[key].value.filter((item) => /https?:\/\//i.test(String(item.message ?? ""))));
+            store.postRevisions[pageId] = (store.postRevisions[pageId] ?? 0) + 1;
+        }, { kind: "posts", pageId });
     }
 
 
-    async getCampaigns(accountKey, adAccountId, datePreset) {
+    async getCampaignContext(adAccountId, datePreset = "today") {
         const store = await this.#read();
-        return safeClone(store.campaigns[
-            this.#campaignsKey(accountKey, adAccountId, datePreset)
-        ] ?? null);
+        return this.#campaignContext(store, adAccountId, datePreset);
+    }
+
+    #campaignContext(store, adAccountId, datePreset) {
+        return campaignDateRange(datePreset, store.adAccounts[adAccountId]?.value?.timezoneName || "Europe/Kyiv", this.now());
+    }
+
+    async getCampaigns(accountKey, adAccountId, datePreset = "today") {
+        const store = await this.#read();
+        normalizedPart(accountKey, "CACHE_ACCOUNT_KEY_REQUIRED");
+        const entry = store.campaigns[normalizedPart(adAccountId, "CACHE_AD_ACCOUNT_ID_REQUIRED")];
+        if (!entry) return null;
+        const context = this.#campaignContext(store, adAccountId, datePreset);
+        const statisticsKey = `${adAccountId}::${context.rangeKey}`;
+        const current = store.statistics[statisticsKey];
+        const fallback = store.lastStatistics[`${adAccountId}::${datePreset}`];
+        const statistics = current?.value.complete ? current : fallback ?? current;
+        const metrics = { ...statistics?.value?.metrics, ...current?.value?.metrics };
+        return safeClone({
+            ...entry,
+            value: {
+                ...entry.value,
+                adAccountId, datePreset, context,
+                campaigns: entry.value.campaigns.map((campaign) => ({
+                    ...Object.fromEntries(metricFields.map((field) => [field, null])),
+                    ...campaign, ...metrics[String(campaign.id)],
+                })),
+                statisticsUpdatedAt: statistics?.value?.statisticsUpdatedAt ?? null,
+                statisticsRange: statistics?.value?.context ?? null,
+                statisticsStale: Boolean(statistics && !current?.value.complete),
+                statisticsMissing: !statistics,
+                listUpdatedAt: entry.updatedAt,
+                revision: entry.revision ?? 0,
+            },
+        });
     }
 
 
-    setCampaigns(accountKey, adAccountId, datePreset, campaigns) {
+    setCampaigns(accountKey, adAccountId, datePreset, data, {
+        mode = "all", expectedRevision, context, fields = metricFields, partial = false,
+    } = {}) {
         return this.#update((store) => {
-            store.campaigns[
-                this.#campaignsKey(accountKey, adAccountId, datePreset)
-            ] = cacheEntry(campaigns);
-        });
+            normalizedPart(accountKey, "CACHE_ACCOUNT_KEY_REQUIRED");
+            normalizedPart(adAccountId, "CACHE_AD_ACCOUNT_ID_REQUIRED");
+            const previous = store.campaigns[adAccountId];
+            if (expectedRevision !== undefined && (previous?.revision ?? 0) !== expectedRevision) return false;
+            const campaigns = Array.isArray(data.campaigns) ? data.campaigns : [];
+            if (mode !== "statistics") {
+                store.campaigns[adAccountId] = {
+                    ...cacheEntry({
+                        ...previous?.value,
+                        includeDeleted: Boolean(previous?.value?.includeDeleted || data.includeDeleted),
+                        campaigns: mergeById(
+                            (previous?.value?.campaigns ?? []).map((item) => ({ ...item, missingFromLatestRead: true })),
+                            campaigns.map((item) => ({ ...campaignDetails(item), missingFromLatestRead: false }))
+                        ),
+                    }),
+                    revision: (previous?.revision ?? 0) + 1,
+                };
+            } else if (previous) {
+                previous.revision = (previous.revision ?? 0) + 1;
+            }
+            if (mode !== "list" && data.statisticsUpdatedAt) {
+                const range = context ?? this.#campaignContext(store, adAccountId, datePreset);
+                const key = `${adAccountId}::${range.rangeKey}`;
+                const old = store.statistics[key]?.value;
+                const metrics = { ...old?.metrics };
+                for (const campaign of campaigns) {
+                    metrics[campaign.id] = { ...metrics[campaign.id], ...pickMetrics(campaign, fields) };
+                }
+                const entry = cacheEntry({
+                    metrics, context: range,
+                    complete: !partial && fields.includes("spend") ? true : old?.complete ?? false,
+                    statisticsUpdatedAt: !partial && fields.includes("spend") ? data.statisticsUpdatedAt : old?.statisticsUpdatedAt ?? null,
+                });
+                store.statistics[key] = entry;
+                if (entry.value.complete) store.lastStatistics[`${adAccountId}::${datePreset}`] = entry;
+            }
+        }, { kind: "campaigns", adAccountId });
     }
 
 
     invalidateCampaigns(accountKey, adAccountId) {
         return this.#update((store) => {
-            const prefix = [
-                normalizedPart(accountKey, "CACHE_ACCOUNT_KEY_REQUIRED"),
-                normalizedPart(adAccountId, "CACHE_AD_ACCOUNT_ID_REQUIRED"),
-            ].join("::") + "::";
-            for (const key of Object.keys(store.campaigns)) {
-                if (key.startsWith(prefix)) delete store.campaigns[key];
+            const entry = store.campaigns[adAccountId];
+            if (entry) {
+                entry.value.needsRefresh = true;
+                entry.revision = (entry.revision ?? 0) + 1;
             }
-        });
+        }, { kind: "campaigns", adAccountId });
+    }
+
+    patchCampaign(accountKey, adAccountId, campaign, { expectedRevision } = {}) {
+        return this.#update((store) => {
+            normalizedPart(accountKey, "CACHE_ACCOUNT_KEY_REQUIRED");
+            normalizedPart(adAccountId, "CACHE_AD_ACCOUNT_ID_REQUIRED");
+            normalizedPart(campaign?.id, "CACHE_CAMPAIGN_ID_REQUIRED");
+            const previous = store.campaigns[adAccountId];
+            if (expectedRevision !== undefined && (previous?.revision ?? 0) !== expectedRevision) return false;
+            store.campaigns[adAccountId] = {
+                ...cacheEntry({
+                    ...previous?.value,
+                    campaigns: mergeById(previous?.value?.campaigns, [{ ...campaignDetails(campaign), missingFromLatestRead: false }]),
+                }),
+                revision: (previous?.revision ?? 0) + 1,
+            };
+        }, { kind: "campaigns", adAccountId });
     }
 
 
     #postsKey(accountKey, pageId, kind = "links") {
         return [
-            normalizedPart(accountKey, "CACHE_ACCOUNT_KEY_REQUIRED"),
             normalizedPart(pageId, "CACHE_PAGE_ID_REQUIRED"),
             normalizedPart(kind, "CACHE_POST_KIND_REQUIRED"),
         ].join("::");
     }
 
 
-    #campaignsKey(accountKey, adAccountId, datePreset) {
-        return [
-            normalizedPart(accountKey, "CACHE_ACCOUNT_KEY_REQUIRED"),
-            normalizedPart(adAccountId, "CACHE_AD_ACCOUNT_ID_REQUIRED"),
-            normalizedPart(datePreset || "today", "CACHE_DATE_PRESET_REQUIRED"),
-        ].join("::");
-    }
-
-
-    #update(mutator) {
+    #update(mutator, event = null) {
         const operation = this.#operation.then(async () => {
-            const store = await this.#read();
-            await mutator(store);
+            const store = structuredClone(await this.#read());
+            if (await mutator(store) === false) return false;
             await this.#write(store);
+            this.#loaded = store;
+            if (event) for (const listener of this.#listeners) {
+                try { listener(event); } catch { /* Помилка підписника не скасовує запис кешу. */ }
+            }
+            return true;
         });
-        this.#operation = operation.catch(() => {});
+        this.#operation = operation.catch((error) => {
+            for (const listener of this.#listeners) {
+                try { listener({ kind: "write-failed", message: "Не вдалося зберегти останні зміни на диск", code: error.code }); } catch { /* Зберігаємо початкову помилку запису. */ }
+            }
+        });
         return operation;
     }
 
 
     async #read() {
         if (this.#loaded) return this.#loaded;
+        if (!this.#loading) this.#loading = this.#load().finally(() => { this.#loading = null; });
+        return this.#loading;
+    }
+
+    async #load() {
+        let parsed;
+        let recovered = false;
         try {
-            const parsed = JSON.parse(await readFile(this.cacheFile, "utf8"));
-            this.#loaded = {
-                ...emptyStore(),
-                ...(parsed?.version === 1 ? parsed : {}),
-            };
-            const beforeMigration = JSON.stringify(this.#loaded);
-            this.#loaded = await this.#externalizeImages(this.#loaded);
-            if (JSON.stringify(this.#loaded) !== beforeMigration) {
-                await this.#write(this.#loaded);
-            }
+            parsed = await this.#readValidated(this.cacheFile);
         } catch (error) {
-            if (error.code !== "ENOENT" && !(error instanceof SyntaxError)) {
-                throw error;
+            try {
+                parsed = await this.#readValidated(`${this.cacheFile}.bak`);
+                recovered = true;
+            } catch (backupError) {
+                if (error.code === "ENOENT" && backupError.code === "ENOENT") {
+                    this.#loaded = emptyStore();
+                    return this.#loaded;
+                }
+                throw Object.assign(new Error("Не вдалося прочитати кеш і резервну копію. Збережені файли залишено для відновлення."), {
+                    code: "REMOTE_CACHE_READ_FAILED", cause: error,
+                });
             }
-            this.#loaded = emptyStore();
+        }
+        const store = parsed.version === 1 ? this.#migrate(parsed) : { ...emptyStore(), ...safeClone(parsed) };
+        this.#loaded = await this.#externalizeImages(store);
+        if (recovered) for (const listener of this.#listeners) {
+            try { listener({ kind: "recovered", message: "Кеш відновлено з резервної копії" }); } catch { /* Дані вже відновлено. */ }
         }
         return this.#loaded;
+    }
+
+    async #readValidated(file) {
+        const parsed = JSON.parse(await readFile(file, "utf8"));
+        if (![1, 2].includes(parsed?.version)) throw new SyntaxError("Невідома версія кешу");
+        const object = (value) => value && typeof value === "object" && !Array.isArray(value);
+        for (const key of Object.keys(emptyStore()).filter((key) => key !== "version")) {
+            if (parsed[key] !== undefined && !object(parsed[key])) throw new SyntaxError("Пошкоджена структура кешу");
+        }
+        for (const key of ["workspaces", "posts", "campaigns", "statistics", "lastStatistics", "pages", "adAccounts"]) {
+            for (const entry of Object.values(parsed[key] ?? {})) {
+                if (!object(entry) || (key === "posts" ? !Array.isArray(entry.value) : !object(entry.value))) throw new SyntaxError("Пошкоджений запис кешу");
+                if (key === "campaigns" && !Array.isArray(entry.value.campaigns)) throw new SyntaxError("Пошкоджений список кампаній");
+                if (["statistics", "lastStatistics"].includes(key) && !object(entry.value.metrics)) throw new SyntaxError("Пошкоджена статистика");
+                if (key === "workspaces") for (const part of ["pages", "adAccounts"]) {
+                    if (entry.value[part] !== undefined && !Array.isArray(entry.value[part])) throw new SyntaxError("Пошкоджений список об'єктів");
+                }
+            }
+        }
+        return parsed;
+    }
+
+    #migrate(parsed) {
+        const store = { ...emptyStore(), workspaces: safeClone(parsed.workspaces ?? {}), businessManagers: safeClone(parsed.businessManagers ?? {}) };
+        const sorted = (items) => Object.entries(items ?? {}).sort(([, a], [, b]) => String(a.updatedAt ?? "").localeCompare(String(b.updatedAt ?? "")));
+        for (const [, entry] of sorted(store.workspaces)) {
+            for (const kind of ["pages", "adAccounts"]) for (const item of entry.value?.[kind] ?? []) {
+                const previous = store[kind][item.id]?.value;
+                const [merged] = mergeEntityImages([{ ...previous, ...sharedDetails(item) }], previous ? [previous] : [], "pictureUrl");
+                store[kind][item.id] = { value: merged, updatedAt: entry.updatedAt };
+            }
+        }
+        for (const [key, entry] of sorted(parsed.posts)) {
+            const [, pageId, kind] = key.split("::");
+            const target = `${pageId}::${kind}`;
+            const posts = mergeById(store.posts[target]?.value, mergeEntityImages(safeClone(entry.value ?? []), store.posts[target]?.value, "thumbnailUrl"))
+                .sort((a, b) => String(b.createdTime ?? "").localeCompare(String(a.createdTime ?? ""))).slice(0, 10);
+            store.posts[target] = { value: posts, updatedAt: entry.updatedAt };
+        }
+        for (const [key, entry] of sorted(parsed.campaigns)) {
+            const [, adAccountId, preset = "today"] = key.split("::");
+            const data = safeClone(entry.value ?? {});
+            store.campaigns[adAccountId] = {
+                value: {
+                    includeDeleted: Boolean(store.campaigns[adAccountId]?.value.includeDeleted || data.includeDeleted),
+                    campaigns: mergeById(store.campaigns[adAccountId]?.value.campaigns, (data.campaigns ?? []).map(campaignDetails)),
+                }, updatedAt: entry.updatedAt, revision: 0,
+            };
+            if (data.statisticsUpdatedAt) {
+                const context = campaignDateRange(preset, store.adAccounts[adAccountId]?.value?.timezoneName || "Europe/Kyiv", new Date(data.statisticsUpdatedAt));
+                const statisticsKey = `${adAccountId}::${context.rangeKey}`;
+                const previousMetrics = store.statistics[statisticsKey]?.value.metrics ?? {};
+                const metrics = { ...previousMetrics };
+                for (const campaign of data.campaigns ?? []) metrics[campaign.id] = { ...metrics[campaign.id], ...pickMetrics(campaign) };
+                const statistics = { value: { metrics, context, complete: true, statisticsUpdatedAt: data.statisticsUpdatedAt }, updatedAt: entry.updatedAt };
+                store.statistics[statisticsKey] = statistics;
+                store.lastStatistics[`${adAccountId}::${preset}`] = statistics;
+            }
+        }
+        return store;
     }
 
 
     async #write(store) {
         await mkdir(path.dirname(this.cacheFile), { recursive: true });
         const temporaryFile = `${this.cacheFile}.tmp`;
-        await writeFile(
-            temporaryFile,
-            `${JSON.stringify(store, null, 2)}\n`,
-            "utf8"
-        );
+        await this.#writeSynced(temporaryFile, store);
+        // Резервна копія містить останній успішний стан, а не пошкоджений файл.
+        const backupFile = `${this.cacheFile}.bak`;
+        await this.#writeSynced(`${backupFile}.tmp`, this.#loaded ?? store);
+        await rename(`${backupFile}.tmp`, backupFile);
         await rename(temporaryFile, this.cacheFile);
+    }
+
+    async #writeSynced(file, store) {
+        const handle = await open(file, "w");
+        try {
+            await handle.writeFile(`${JSON.stringify(store)}\n`, "utf8");
+            await handle.sync();
+        } finally { await handle.close(); }
     }
 
 

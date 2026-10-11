@@ -252,6 +252,10 @@ const photoResult = await publishPagePost({
 
 assert.equal(photoResult.postId, "page-1_photo-post");
 assert.equal(photoResult.verified, true);
+assert.equal(photoResult.thumbnailUrl, `data:image/jpeg;base64,${Buffer.from("fake-image").toString("base64")}`);
+const verificationRequest = requests.find(({ config }) => config.url.endsWith("/page-1_text-post") && config.method === "get");
+assert.match(verificationRequest.config.params.fields, /full_picture/);
+assert.match(verificationRequest.config.params.fields, /attachments/);
 
 let multiPhotoRequest = null;
 const multiPhotoResult = await publishPagePost({

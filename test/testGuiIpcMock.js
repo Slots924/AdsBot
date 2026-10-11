@@ -1,8 +1,14 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import RemoteDataCacheStore from "../services/gui/RemoteDataCacheStore.js";
 
 import registerIpcHandlers, { serializeError }
     from "../frontend/electron/registerIpcHandlers.js";
 
+const cacheDirectory = await mkdtemp(path.join(os.tmpdir(), "adsbot-ipc-cache-"));
+try {
 const graphError = Object.assign(new Error("Підтвердіть акаунт"), {
     code: "FACEBOOK_ACCOUNT_AUTH_REQUIRED", httpStatus: 200,
     graphCode: 31, graphSubcode: 3858385, actionRequired: "authenticate_account",
@@ -27,6 +33,7 @@ const logger = {
     list: async () => ({ items: [], nextCursor: null }),
     scopes: async () => ["gui"],
     setLevel: (level) => level === "debug" ? "debug" : "info",
+    warn() {},
     child: () => ({ info: () => ({ id: "log-1" }), warn() {}, error() {}, debug() {} }),
 };
 const reportManager = {
@@ -115,30 +122,7 @@ const pagePreferencesStore = {
     async setFavorite(pageId, isFavorite) { return { pageId, isFavorite }; },
     async updateMetadata(pageId, patch) { return { pageId, ...patch }; },
 };
-const campaignCache = new Map();
-const remoteDataCacheStore = {
-    async getWorkspace() { return null; },
-    async setWorkspace() {},
-    async setWorkspacePart() {},
-    async getPosts() { return null; },
-    async setPosts() {},
-    async clearPosts() {},
-    async removePosts() {},
-    async prependPost() {},
-    async getCampaigns(accountKey, adAccountId, datePreset) {
-        const value = campaignCache.get(
-            `${accountKey}::${adAccountId}::${datePreset}`
-        );
-        return value ? { value } : null;
-    },
-    async setCampaigns(accountKey, adAccountId, datePreset, value) {
-        campaignCache.set(
-            `${accountKey}::${adAccountId}::${datePreset}`,
-            value
-        );
-    },
-    async invalidateCampaigns() {},
-};
+const remoteDataCacheStore = new RemoteDataCacheStore({ cacheFile: path.join(cacheDirectory, "cache.json") });
 const creativeLaunchJournal = {
     async create(draft) { return { id: "workflow-1", draft, subtasks: [] }; },
     async get() { return null; },
@@ -740,6 +724,7 @@ const listedPosts = await handlers.get("campaigns:posts-list")({}, {
     accountKey: "fp_hub",
     pageId: "10",
     limit: 10,
+    force: true,
 });
 assert.equal(listedPosts.ok, true);
 assert.equal(listedPosts.data[0].id, "10_20");
@@ -878,7 +863,7 @@ assert.equal(listModes.length, 0);
 const visibleDeleted = await handlers.get("campaigns:list")({}, {
     accountKey: "fp_hub", adAccountId: "act_visibility", includeDeleted: true,
 });
-assert.deepEqual(listModes, [true]);
+assert.deepEqual(listModes, []);
 assert.equal(visibleDeleted.data.campaigns.length, 2);
 assert.equal(visibleDeleted.data.campaigns[1].spend, null);
 assert.equal(visibleDeleted.data.campaigns[1].leads, null);
@@ -904,14 +889,67 @@ assert.equal(onlyDeleted.data.campaigns[0].spend, null);
 assert.equal(adCampaignStatisticsCalls, statisticsCallsBeforeDeleted);
 assert.equal(keitaroReportCalls, 0);
 guiService.getAdCampaignList = async () => [activeCampaign, deletedCampaign];
+const keitaroUpdated = new Promise((resolve, reject) => {
+    const timer = setTimeout(() => { off(); reject(new Error("Не завершилося оновлення Keitaro")); }, 5000);
+    const off = remoteDataCacheStore.subscribe(async (event) => {
+        if (event.kind !== "campaigns" || event.adAccountId !== "act_keitaro_visibility") return;
+        const cached = await remoteDataCacheStore.getCampaigns("fp_hub", event.adAccountId, "today");
+        if (cached.value.campaigns[0].leads === 3) { clearTimeout(timer); off(); resolve(); }
+    });
+});
 await handlers.get("campaigns:list")({}, {
     accountKey: "fp_hub", adAccountId: "act_keitaro_visibility", includeDeleted: true, force: true,
 });
-await new Promise((resolve) => setImmediate(resolve));
+await keitaroUpdated;
 assert.equal(keitaroReportCalls, 1);
 const keitaroData = (await remoteDataCacheStore.getCampaigns("fp_hub", "act_keitaro_visibility", "today")).value;
 assert.equal(keitaroData.campaigns[0].leads, 3);
 assert.equal(keitaroData.campaigns[1].leads, null);
 assert.equal(keitaroData.campaigns[1].leadSource, null);
 
+// Помилка токена під час оновлення залишає останні дані, доступні іншому клієнту.
+await remoteDataCacheStore.setCampaigns("fp_hub", "act_offline", "today", {
+    campaigns: [{ id: "offline-1", name: "Saved", effectiveStatus: "ACTIVE", spend: 42 }],
+    statisticsUpdatedAt: new Date().toISOString(),
+});
+guiService.getAdCampaignList = async () => { throw Object.assign(new Error("Токен недійсний"), { code: "FACEBOOK_API_ERROR" }); };
+const offline = await handlers.get("campaigns:refresh")({}, { accountKey: "fp_hub", adAccountId: "act_offline" });
+assert.equal(offline.ok, true);
+assert.equal(offline.data.campaigns[0].spend, 42);
+assert.equal(offline.data.refreshError.message, "Токен недійсний");
+const sharedOffline = await handlers.get("campaigns:list")({}, { accountKey: "other-client", adAccountId: "act_offline", datePreset: "yesterday" });
+assert.equal(sharedOffline.data.campaigns[0].name, "Saved");
+assert.equal(sharedOffline.data.campaigns[0].spend, null);
+
+// Створення уточнює тільки нову кампанію, зберігаючи попередні кампанії та статистику.
+adAccountPreferencesStore.isKeitaroLeadSyncEnabled = async () => false;
+const unrelated = (await remoteDataCacheStore.getCampaigns("fp_hub", "act_1", "today")).value.campaigns.find((item) => item.id === "campaign-1");
+guiService.createLeadCampaign = async (_input, onProgress) => {
+    const objects = { campaignId: "new-campaign", adSets: [], ads: [] };
+    await onProgress({ stage: "campaign", objects });
+    assert.equal((await remoteDataCacheStore.getCampaigns("fp_hub", "act_1", "today")).value.campaigns.some((item) => item.id === "new-campaign"), true);
+    return { objects, createPaused: true };
+};
+guiService.getAdCampaign = async (_accountKey, campaignId) => ({ id: campaignId, name: "Created", status: "PAUSED", effectiveStatus: "PAUSED" });
+guiService.getAdCampaignStatistics = async (_accountKey, _adAccountId, _preset, campaigns) => {
+    assert.deepEqual(campaigns.map((item) => item.id), ["new-campaign"]);
+    return { campaigns: [{ ...campaigns[0], spend: 3, leads: 1 }] };
+};
+await handlers.get("campaigns:create-start")({}, { accountKey: "fp_hub", adAccountId: "act_1", templateId: 1, campaignName: "Created", adSetCount: 1 });
+await enqueuedOptions.filter((item) => item.type === "campaign").at(-1).runner({ signal: new AbortController().signal, progress: async () => {} });
+const afterCreation = (await remoteDataCacheStore.getCampaigns("other-client", "act_1", "today")).value.campaigns;
+assert.equal(afterCreation.find((item) => item.id === "campaign-1").spend, unrelated.spend);
+assert.equal(afterCreation.find((item) => item.id === "new-campaign").spend, 3);
+
+// Публікація зберігає зображення на диск і надсилає GUI локальний URL.
+const png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+guiService.publishCreativePost = async () => ({ postId: "10_new", pageId: "10", message: "Photo https://example.test", thumbnailUrl: png, createdTime: new Date().toISOString() });
+await handlers.get("post:publish")({}, { accountKey: "fp_hub", pageId: "10", geo: "HU", creativeName: "138", siteUrl: "https://example.test", disableComments: true });
+await enqueuedOptions.filter((item) => item.type === "publication").at(-1).runner({ signal: new AbortController().signal, progress: async () => {} });
+const sharedPosts = (await remoteDataCacheStore.getPosts("other-client", "10")).value;
+assert.match(sharedPosts[0].thumbnailUrl, /^adsbot-cache:\/\/image\//);
+assert.equal(rendererEvents.filter((item) => item.channel === "pages:posts-cache-updated").at(-1).payload.post.thumbnailUrl, sharedPosts[0].thumbnailUrl);
+
 console.log("Mock-перевірка GUI IPC пройшла успішно");
+
+} finally { await rm(cacheDirectory, { recursive: true, force: true }); }

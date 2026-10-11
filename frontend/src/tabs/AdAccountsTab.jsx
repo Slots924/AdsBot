@@ -267,6 +267,8 @@ function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, o
                     {!unavailable && <button type="button" className="campaign-rename-button" aria-label={`Перейменувати кампанію ${campaign.name}`} title="Перейменувати кампанію" disabled={pending} onClick={() => onRename(campaign)}><Pencil size={14} /></button>}
                 </span>
                 <small>{campaign.id}</small>
+                {campaign.missingFromLatestRead && <small title="Кампанія відсутня в останній відповіді API. Показано збережені дані.">Збережена копія</small>}
+                {campaign.creationIncomplete && <small>Створення ще не підтверджено</small>}
             </span>
             <span><i className={`campaign-status ${campaign.effectiveStatus === "ACTIVE" ? "active" : unavailable ? "deleted" : "paused"}`}>{campaign.effectiveStatus === "ACTIVE" ? "Увімкнено" : permanentlyDeleted ? "Остаточно видалено" : deleted ? "Видалено" : "Пауза"}</i></span>
             <strong>{unavailable ? "—" : value(campaign.leads)}</strong>
@@ -306,7 +308,7 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
         );
     }
 
-    if (entry.status === "error") {
+    if (entry.status === "error" && !entry.data) {
         return (
             <div className="campaign-error">
                 <AlertCircle size={24} />
@@ -325,6 +327,8 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
     const visibleCount = activeCampaigns.length + (showDeleted ? deletedCampaigns.length : 0);
     return (
         <div className="campaign-table-card">
+            {(entry.error || entry.data.refreshError) && <div className="notice danger">Не вдалося оновити: {entry.error || entry.data.refreshError.message}. Показано останні збережені дані.</div>}
+            {entry.data.listUpdatedAt && <div className="notice">Список збережено: {new Date(entry.data.listUpdatedAt).toLocaleString("uk-UA", { timeZone: "Europe/Kyiv" })}{entry.data.statisticsUpdatedAt ? ` · Статистика: ${new Date(entry.data.statisticsUpdatedAt).toLocaleString("uk-UA", { timeZone: "Europe/Kyiv" })}` : " · Статистика ще не завантажена"}{entry.data.statisticsStale ? " · Статистика за попередній або неповний період" : ""}</div>}
             <div className="campaign-table-head campaign-grid">
                 <span />
                 <span>№</span>
@@ -341,7 +345,7 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
                 <div className="campaign-empty">
                     {entry.data?.cacheHit === false
                         ? "Немає збережених кампаній. Натисніть Оновити."
-                        : "За цей період активних або призупинених кампаній немає."}
+                        : "Збережений список кампаній порожній."}
                 </div>
             )}
             <Reorder.Group as="div" axis="y" className="campaign-list" values={activeCampaigns.map((campaign) => String(campaign.id))} onReorder={onReorder}>
@@ -433,7 +437,7 @@ export default function AdAccountsTab({
     const patchCampaignInCache = (adAccountId, campaignId, patch) => {
         const id = String(campaignId);
         updateCampaignCache((cache) => Object.fromEntries(Object.entries(cache).map(([key, entry]) => {
-            if (!key.startsWith(`${accountKey}::${adAccountId}::`) || !entry?.data?.campaigns) {
+            if (!key.startsWith(`${adAccountId}::`) || !entry?.data?.campaigns) {
                 return [key, entry];
             }
             return [key, {
@@ -449,18 +453,18 @@ export default function AdAccountsTab({
     };
 
     const campaignKey = (adAccountId, preset = datePreset, includeDeleted = showDeletedCampaigns) => (
-        `${accountKey}::${adAccountId}::${preset}::${includeDeleted}`
+        `${adAccountId}::${preset}::${includeDeleted}`
     );
 
     const loadCampaigns = async (
         adAccountId,
         preset = datePreset,
-        { force = false, background = false } = {}
+        { force = false, background = false, readCache = false } = {}
     ) => {
         if (!accountKey || !adAccountId) return null;
         const key = campaignKey(adAccountId, preset);
         const current = campaignCacheRef.current[key];
-        if (!force && ["loading", "ready"].includes(current?.status)) {
+        if (!force && !readCache && ["loading", "ready"].includes(current?.status)) {
             return current;
         }
 
@@ -487,12 +491,14 @@ export default function AdAccountsTab({
             ) {
                 return null;
             }
+            if ((campaignCacheRef.current[key]?.data?.revision ?? 0) > (data.revision ?? 0)) return null;
             updateCampaignCache((cache) => ({ ...cache, [key]: entry }));
             return entry;
         } catch (error) {
+            if ((campaignCacheRef.current[key]?.data?.revision ?? 0) > (current?.data?.revision ?? 0)) return null;
             const entry = {
                 status: "error",
-                data: null,
+                data: current?.data ?? null,
                 error: error.message,
             };
             if (
@@ -555,34 +561,30 @@ export default function AdAccountsTab({
 
     useEffect(() => {
         if (selected) {
-            loadCampaigns(selected.id, datePreset, { force: false });
+            loadCampaigns(selected.id, datePreset, { readCache: true });
         }
     }, [selected?.id, datePreset, accountKey, showDeletedCampaigns]);
 
     useEffect(() => {
         const offRefreshed = window.adsBot.onCampaignsRefreshed?.((event) => {
-            if (event?.accountKey !== accountKey || !event?.data) return;
+            if (!event?.data) return;
             const key = campaignKey(event.adAccountId, event.datePreset, Boolean(event.data?.includeDeleted ?? event.includeDeleted));
+            if ((campaignCacheRef.current[key]?.data?.revision ?? 0) > (event.data.revision ?? 0)) return;
             updateCampaignCache((cache) => ({
                 ...cache,
                 [key]: { status: "ready", data: event.data, error: null },
             }));
         }) ?? (() => {});
         const offInvalidated = window.adsBot.onCampaignsInvalidated?.((event) => {
-            if (event?.accountKey !== accountKey) return;
-            updateCampaignCache((cache) => Object.fromEntries(
-                Object.entries(cache).filter(([key]) => !key.startsWith(
-                    `${accountKey}::${event.adAccountId}::`
-                ))
-            ));
             if (String(selected?.id) === String(event.adAccountId)) {
-                loadCampaigns(event.adAccountId, datePreset, { force: true });
+                loadCampaigns(event.adAccountId, datePreset, { readCache: true });
             }
         }) ?? (() => {});
         const offKeitaroLeads = window.adsBot.onKeitaroCampaignLeadsRefreshed?.((event) => {
-            if (event?.accountKey !== accountKey) return;
+            if (!event?.adAccountId) return;
             const key = campaignKey(event.adAccountId, event.datePreset, Boolean(event.data?.includeDeleted ?? event.includeDeleted));
             if (event.data) {
+                if ((campaignCacheRef.current[key]?.data?.revision ?? 0) > (event.data.revision ?? 0)) return;
                 updateCampaignCache((cache) => ({
                     ...cache,
                     [key]: { status: "ready", data: event.data, error: null },
@@ -607,11 +609,27 @@ export default function AdAccountsTab({
                 };
             });
         }) ?? (() => {});
+        const offCache = window.adsBot.onRemoteCacheUpdated?.((event) => {
+            if (event.kind !== "campaigns") return;
+            updateCampaignCache((cache) => Object.fromEntries(Object.entries(cache).map(([key, entry]) => [
+                key, key.startsWith(`${event.adAccountId}::`) ? { ...entry, status: "stale" } : entry,
+            ])));
+            if (String(selected?.id) === String(event.adAccountId)) {
+                loadCampaigns(event.adAccountId, datePreset, { readCache: true, background: true });
+            }
+        }) ?? (() => {});
         return () => {
             offRefreshed();
             offInvalidated();
             offKeitaroLeads();
+            offCache();
         };
+    }, [accountKey, selected?.id, datePreset, showDeletedCampaigns]);
+
+    useEffect(() => {
+        const read = () => { if (selected) loadCampaigns(selected.id, datePreset, { readCache: true }); };
+        window.addEventListener("focus", read);
+        return () => window.removeEventListener("focus", read);
     }, [accountKey, selected?.id, datePreset, showDeletedCampaigns]);
 
     const updateFavoritePositions = (orderedIds) => {
@@ -698,7 +716,7 @@ export default function AdAccountsTab({
         if (!selected) return;
         const positions = new Map(orderedIds.map((id, index) => [String(id), index]));
         updateCampaignCache((cache) => Object.fromEntries(Object.entries(cache).map(([key, entry]) => {
-            if (!key.startsWith(`${accountKey}::${selected.id}::`) || !entry?.data?.campaigns) {
+            if (!key.startsWith(`${selected.id}::`) || !entry?.data?.campaigns) {
                 return [key, entry];
             }
             const campaigns = [...entry.data.campaigns].sort((left, right) => {
@@ -795,6 +813,7 @@ export default function AdAccountsTab({
                 datePreset,
                 showDeletedCampaigns
             ));
+            if ((campaignCacheRef.current[key]?.data?.revision ?? 0) > (data.revision ?? 0)) return;
             updateCampaignCache((cache) => ({
                 ...cache,
                 [key]: { status: "ready", data, error: null },
@@ -847,7 +866,7 @@ export default function AdAccountsTab({
 
             {!accountActive && (
                 <div className="notice danger ad-account-notice">
-                    <ShieldAlert size={17} /> Оберіть активний Facebook-акаунт.
+                    <ShieldAlert size={17} /> {selectedAccount ? "API-клієнт неактивний. Доступні останні збережені дані." : "Оберіть Facebook API-клієнт."}
                 </div>
             )}
 
@@ -1018,6 +1037,7 @@ export default function AdAccountsTab({
                                     </div>
                                 </div>
                             </div>
+                            {selected.accessUnavailable && <div className="notice">Цей РК відсутній в останньому списку доступу API-клієнта. Показано збережені дані.</div>}
 
                             <CampaignTable
                                 entry={currentCampaignEntry}

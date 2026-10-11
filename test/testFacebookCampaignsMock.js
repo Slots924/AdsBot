@@ -5,6 +5,24 @@ import AdsBotGuiService from "../services/gui/AdsBotGuiService.js";
 
 
 const requests = [];
+const singleRequests = [];
+const singleApi = new FacebookGraphApi({
+    accountKey: "active", accessToken: "mock", userAgent: "mock", cookie: "mock",
+    proxyHttpClient: {
+        async request(config) {
+            singleRequests.push(config);
+            return { data: config.url.endsWith("/123")
+                ? { id: "123", name: "Single", status: "PAUSED", effective_status: "PAUSED" }
+                : { data: [] } };
+        },
+    },
+});
+assert.equal((await singleApi.getAdCampaign("123")).name, "Single");
+const fixedRange = { since: "2026-10-10", until: "2026-10-10" };
+await singleApi.getAdCampaignInsights("act_1", "today", ["123"], { timeRange: fixedRange });
+assert.deepEqual(JSON.parse(singleRequests[1].params.time_range), fixedRange);
+assert.equal(singleRequests[1].params.date_preset, undefined);
+assert.deepEqual(JSON.parse(singleRequests[1].params.filtering)[0].value, ["123"]);
 const graphApi = new FacebookGraphApi({
     accountKey: "active",
     accessToken: "secret",

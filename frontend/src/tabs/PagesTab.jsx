@@ -803,7 +803,8 @@ export default function PagesTab({
                 pageId,
                 force
             ));
-            postsByPage.current[`${accountKey}::${pageId}`] = next;
+            if (requestId !== postsRequestId.current) return null;
+            postsByPage.current[pageId] = next;
             if (requestId === postsRequestId.current) setPosts(next);
             return next;
         } catch (error) {
@@ -846,37 +847,48 @@ export default function PagesTab({
         postsRequestId.current += 1;
         signatureRequestId.current += 1;
         setPostsChanged(false);
-        const key = `${accountKey}::${selected?.id ?? ""}`;
+        const key = String(selected?.id ?? "");
         setPosts(postsByPage.current[key] ?? []);
         if (selected) {
             const pageId = String(selected.id);
             loadPosts().then((knownPosts) => {
-                if (knownPosts) checkPostChanges(pageId, knownPosts);
+                if (knownPosts && selectedAccount?.status === "active" && !selected.accessUnavailable) checkPostChanges(pageId, knownPosts);
             });
         }
     }, [selected?.id, accountKey]);
     useEffect(() => {
         const unsubscribe = window.adsBot.onPagePostsCacheUpdated?.((event) => {
-            if (!event?.accountKey || !event?.pageId) return;
-            const key = `${event.accountKey}::${event.pageId}`;
+            if (!event?.pageId) return;
+            const key = String(event.pageId);
             const current = postsByPage.current[key] ?? [];
             const removed = new Set((
                 event.postIds ?? event.removedPostIds ?? []
             ).map(String));
             let next = current.filter((post) => !removed.has(String(post.id)));
+            if (event.type === "snapshot") next = event.posts ?? [];
             if (event.type === "clear") next = [];
-            if (event.post) {
+            if (event.post && /https?:\/\//i.test(String(event.post.message ?? ""))) {
                 next = [event.post, ...next.filter((post) => (
                     String(post.id) !== String(event.post.id)
                 ))].slice(0, 10);
             }
             postsByPage.current[key] = next;
             if (
-                event.accountKey === accountKey
-                && String(event.pageId) === String(selectedPageId)
-            ) setPosts(next);
+                String(event.pageId) === String(selectedPageId)
+            ) {
+                setPosts(next);
+                if (event.type === "snapshot") setPostsChanged(false);
+            }
         }) ?? (() => {});
-        return unsubscribe;
+        const offCache = window.adsBot.onRemoteCacheUpdated?.((event) => {
+            if (event.kind !== "posts") return;
+            if (String(event.pageId) === String(selectedPageId)) {
+                signatureRequestId.current += 1;
+                setPostsChanged(false);
+                loadPosts();
+            }
+        }) ?? (() => {});
+        return () => { unsubscribe(); offCache(); };
     }, [accountKey, selectedPageId]);
 
     const refreshFanpageList = async () => {
@@ -896,13 +908,15 @@ export default function PagesTab({
     const refreshSelectedFanpage = async () => {
         if (!selected || selectedRefreshing) return;
         const pageId = String(selected.id);
+        const requestId = ++postsRequestId.current;
         setSelectedRefreshing(true);
         try {
             const result = await unwrap(window.adsBot.refreshSelectedFanPage(
                 accountKey,
                 pageId
             ));
-            const key = `${accountKey}::${pageId}`;
+            if (requestId !== postsRequestId.current) return;
+            const key = pageId;
             postsByPage.current[key] = result.posts;
             setPosts(result.posts);
             setPostsChanged(false);
@@ -1022,6 +1036,7 @@ export default function PagesTab({
                                             <span>URL-постів серед останніх 10: {posts.length}</span>
                                             {postsChanged && <strong>У Facebook є зміни</strong>}
                                         </div>
+                                        {selected.cachedAt && <small>Збережено: {new Date(selected.cachedAt).toLocaleString("uk-UA", { timeZone: "Europe/Kyiv" })}</small>}
                                     </div>
                                     <div className="page-details-header-actions">
                                         <button
@@ -1041,6 +1056,7 @@ export default function PagesTab({
                                         </button>
                                     </div>
                                 </header>
+                                {selected.accessUnavailable && <div className="notice">Фанка відсутня в останньому списку доступу цього API-клієнта. Показано збережені дані.</div>}
 
                                 <div className="page-metadata-grid">
                                     <label className="field">

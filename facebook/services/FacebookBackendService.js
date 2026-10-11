@@ -247,9 +247,13 @@ export default class FacebookBackendService {
     }
 
 
-    async getAdCampaignInsights(accountKey, adAccountId, datePreset = "today", campaignIds) {
+    async getAdCampaign(accountKey, campaignId) {
+        return this.#getFacebookApiClient(accountKey).getAdCampaign(campaignId);
+    }
+
+    async getAdCampaignInsights(accountKey, adAccountId, datePreset = "today", campaignIds, context = null) {
         return this.#getFacebookApiClient(accountKey)
-            .getAdCampaignInsights(adAccountId, datePreset, campaignIds);
+            .getAdCampaignInsights(adAccountId, datePreset, campaignIds, context);
     }
 
 

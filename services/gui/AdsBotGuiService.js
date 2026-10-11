@@ -455,19 +455,25 @@ export default class AdsBotGuiService {
         return campaigns;
     }
 
+    async getAdCampaign(accountKey, campaignId) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getAdCampaign(accountKey, campaignId);
+    }
+
 
     async getAdCampaignStatistics(
         accountKey,
         adAccountId,
         datePreset = "today",
-        campaigns = []
+        campaigns = [],
+        context = null
     ) {
         await this.#assertActiveAccount(accountKey);
         const campaignIds = campaigns.filter((campaign) => !isUnavailableCampaign(campaign))
             .map((campaign) => String(campaign.id));
         const insights = campaignIds.length > 0
             ? await this.#facebookBackend.getAdCampaignInsights(
-                accountKey, adAccountId, datePreset, campaignIds
+                accountKey, adAccountId, datePreset, campaignIds, context
             )
             : [];
         return {
@@ -520,9 +526,9 @@ export default class AdsBotGuiService {
     }
 
 
-    async getPagePostsWithLinks({ accountKey, pageId, limit = 10 } = {}) {
+    async getPagePostsWithLinks({ accountKey, pageId, limit = 10, includeAll = false } = {}) {
         await this.#assertActiveAccount(accountKey);
-        return this.#facebookBackend.getLatestPagePostsWithLinks(accountKey, { pageId, limit });
+        return this.#facebookBackend.getLatestPagePostsWithLinks(accountKey, { pageId, limit, ...(includeAll ? { includeAll } : {}) });
     }
 
 
