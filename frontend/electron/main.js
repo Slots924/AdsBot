@@ -155,7 +155,9 @@ async function createWindow() {
         logsDirectory: appPaths.logs,
         level: restoredState.logLevel,
     });
-    appLogger.subscribe((event) => sendRendererEvent("log:event", event));
+    appLogger.subscribe((event) => {
+        if (event.userVisible !== false) sendRendererEvent("log:event", event);
+    });
     await appLogger.initialize();
     configureRuntimeLogger(appLogger);
     appLogger.installConsoleBridge("legacy");

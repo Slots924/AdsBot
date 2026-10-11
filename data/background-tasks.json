@@ -2,6 +2,311 @@
   "version": 1,
   "tasks": [
     {
+      "id": "581925b5-8277-4424-b0c7-b9d18fc80aa3",
+      "type": "campaign",
+      "name": "HU | Creo_138 | 40+ 11/10 13:38",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "a1e81ade-5389-426d-95d0-8112def4c330"
+      },
+      "metadata": {
+        "campaignJobId": "a1e81ade-5389-426d-95d0-8112def4c330",
+        "accountKey": "account-033",
+        "adAccountId": "act_1604825897992155",
+        "uniqueKey": "campaign-job:a1e81ade-5389-426d-95d0-8112def4c330",
+        "reportId": "0935daea-d098-42f6-95a2-39ca01290ae4"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120250077808440008",
+          "creativeId": "1416257800685205",
+          "creatives": [
+            {
+              "id": "1416257800685205",
+              "pageId": "1364248796763986",
+              "postId": "1364248796763986_122105928819497525"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120250077808890008",
+              "name": "HU | Creo_138 | 40+ 11/10 13:38 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120250077809670008",
+              "name": "HU | Creo_138 | 40+ 11/10 13:38 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "a1e81ade-5389-426d-95d0-8112def4c330",
+        "campaignId": "120250077808440008",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-11T10:39:10.430Z",
+      "startedAt": "2026-10-11T10:39:10.432Z",
+      "finishedAt": "2026-10-11T10:39:33.407Z",
+      "updatedAt": "2026-10-11T10:39:33.412Z"
+    },
+    {
+      "id": "b731d6e5-d5ce-49a1-9464-4604efff3310",
+      "type": "comments",
+      "name": "Коментарі поста · DE · 138",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
+        },
+        {
+          "key": "adspower-group:7887373",
+          "label": "[AT] Austria"
+        },
+        {
+          "key": "adspower-group:7887378",
+          "label": "[CH] Switherland"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "creativeGeo": "DE",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61552175434124/posts/pfbid0RfQr5JzhshUVR2bRdXmqBbJDpRWziQ5LTy4n3DH3tzWQzaDduGdEdwsbkHG4seXnl",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "d48b2deb-55f1-431e-801b-9ce8e260fdb9"
+      },
+      "progress": {
+        "completed": 10,
+        "total": 10,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 10,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 5,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "2.2",
+        "currentProfileNo": "200",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-11_13-21-07-156.md",
+        "published": 10,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 5,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-11T10:06:45.740Z",
+      "startedAt": "2026-10-11T10:06:45.742Z",
+      "finishedAt": "2026-10-11T10:21:07.189Z",
+      "updatedAt": "2026-10-11T10:21:07.192Z"
+    },
+    {
+      "id": "5c98ffd9-409b-4a5f-8e8d-8cf7c179958b",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-033",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:488",
+          "label": "AdsPower №488"
+        }
+      ],
+      "input": {
+        "accountKey": "account-033",
+        "adsPowerProfileNo": "488"
+      },
+      "metadata": {
+        "accountKey": "account-033",
+        "uniqueKey": "facebook-api-client-sync:account-033",
+        "reportId": "1d339344-a291-4cc1-8214-e52d52e096a3"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-033",
+        "adsPowerProfileNo": "488",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-11T10:04:39.585Z",
+      "startedAt": "2026-10-11T10:04:39.588Z",
+      "finishedAt": "2026-10-11T10:04:59.111Z",
+      "updatedAt": "2026-10-11T10:04:59.115Z"
+    },
+    {
+      "id": "a54ec73d-5fb3-49c3-8953-4c2d32d233ea",
+      "type": "campaign",
+      "name": "DE | Creo_138 | 40+ 11/10 17:21",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "6c75684d-ec9e-490a-8a9e-22c925d0f1ad"
+      },
+      "metadata": {
+        "campaignJobId": "6c75684d-ec9e-490a-8a9e-22c925d0f1ad",
+        "accountKey": "account-041",
+        "adAccountId": "act_949029224783419",
+        "uniqueKey": "campaign-job:6c75684d-ec9e-490a-8a9e-22c925d0f1ad",
+        "reportId": "b5cd991d-e41c-439a-a3b6-1dfbcc13768b"
+      },
+      "progress": {
+        "completed": 8,
+        "total": 13,
+        "stage": "failed",
+        "message": "Не вдалося визначити, чи Meta застосувала зміну. Не повторюйте операцію до ручної перевірки Ads Manager.",
+        "objects": {
+          "campaignId": "120252785042000017",
+          "creativeId": "4520916018185090",
+          "creatives": [
+            {
+              "id": "4520916018185090",
+              "pageId": "153387844516718",
+              "postId": "153387844516718_122339931242072514"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120252785042800017",
+              "name": "DE | Creo_138 | 40+ 11/10 17:21 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120252785044710017",
+              "name": "DE | Creo_138 | 40+ 11/10 17:21 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120252785045890017",
+              "name": "DE | Creo_138 | 40+ 11/10 17:21 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120252785046570017",
+              "name": "DE | Creo_138 | 40+ 11/10 17:21 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120252785047150017",
+              "name": "DE | Creo_138 | 40+ 11/10 17:21 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120252785044140017",
+              "name": "DE | Creo_138 | 40+ 11/10 17:21 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120252785045180017",
+              "name": "DE | Creo_138 | 40+ 11/10 17:21 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "120252785046350017",
+              "name": "DE | Creo_138 | 40+ 11/10 17:21 | AD 03"
+            },
+            {
+              "index": 3,
+              "creativeIndex": 0,
+              "id": "120252785046910017",
+              "name": "DE | Creo_138 | 40+ 11/10 17:21 | AD 04"
+            }
+          ]
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "Не вдалося визначити, чи Meta застосувала зміну. Не повторюйте операцію до ручної перевірки Ads Manager.",
+        "code": "FACEBOOK_WRITE_OUTCOME_UNKNOWN",
+        "stage": "ad",
+        "graphCode": null,
+        "graphSubcode": null,
+        "httpStatus": null,
+        "requestId": "f4f69fd2-d80e-44c6-aaa9-e5b84524b9c5",
+        "traceId": null,
+        "metaRequestId": null,
+        "endpoint": "/act_949029224783419/ads",
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": true,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": null,
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-10-11T09:22:06.793Z",
+      "startedAt": "2026-10-11T09:22:06.795Z",
+      "finishedAt": "2026-10-11T09:23:30.641Z",
+      "updatedAt": "2026-10-11T09:23:30.644Z"
+    },
+    {
       "id": "6723cc97-a441-4cfd-9489-d040041279ea",
       "type": "campaign",
       "name": "test",

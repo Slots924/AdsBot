@@ -158,13 +158,13 @@ export default class AppLogger {
     }
 
 
-    debug(event, message, fields) { return this.#log("debug", event, message, fields); }
-    info(event, message, fields) { return this.#log("info", event, message, fields); }
-    warn(event, message, fields) { return this.#log("warn", event, message, fields); }
-    error(event, message, fields) { return this.#log("error", event, message, fields); }
+    debug(event, message, fields, options) { return this.#log("debug", event, message, fields, options); }
+    info(event, message, fields, options) { return this.#log("info", event, message, fields, options); }
+    warn(event, message, fields, options) { return this.#log("warn", event, message, fields, options); }
+    error(event, message, fields, options) { return this.#log("error", event, message, fields, options); }
 
 
-    #log(level, event, message, fields = {}) {
+    #log(level, event, message, fields = {}, { userVisible = level !== "debug" } = {}) {
         if (levels[level] < levels[this.root.level]) return null;
         // Підтримуємо старий контракт logger.info(message).
         if (message === undefined) {
@@ -175,6 +175,7 @@ export default class AppLogger {
             id: randomUUID(),
             timestamp: new Date().toISOString(),
             level,
+            userVisible: Boolean(userVisible),
             scope: this.scope,
             event: String(event || "message"),
             message: String(message ?? ""),
@@ -370,13 +371,17 @@ export default class AppLogger {
                     ? item
                     : JSON.stringify(sanitize(item))
         )).join(" ");
-        console.log = (...items) => target.info("console.log", format(items));
-        console.info = (...items) => target.info("console.info", format(items));
-        console.warn = (...items) => target.warn("console.warn", format(items));
-        console.error = (...items) => target.error("console.error", format(items), {
-            error: items.find((item) => item instanceof Error),
+        // Об'єкти з консолі зберігаємо у файлі без показу в журналі подій.
+        const write = (level, event, items) => target[level](event, format(items), {
+            ...(level === "error" ? { error: items.find((item) => item instanceof Error) } : {}),
+        }, {
+            userVisible: level !== "debug" && !items.some((item) => item !== null && typeof item === "object"),
         });
-        console.debug = (...items) => target.debug("console.debug", format(items));
+        console.log = (...items) => write("info", "console.log", items);
+        console.info = (...items) => write("info", "console.info", items);
+        console.warn = (...items) => write("warn", "console.warn", items);
+        console.error = (...items) => write("error", "console.error", items);
+        console.debug = (...items) => write("debug", "console.debug", items);
         return () => Object.assign(console, original);
     }
 }

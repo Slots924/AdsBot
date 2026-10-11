@@ -248,7 +248,7 @@ export default class FacebookGraphApi {
         logger.debug("graph.request", "Надсилаємо Graph API-запит", {
             ...requestContext,
             parameters: summarizeGraphRequest(params, data),
-        });
+        }, { userVisible: false });
 
         try {
             const response = await this.#proxyHttpClient.request({
@@ -286,7 +286,7 @@ export default class FacebookGraphApi {
                 result: hasWarnings ? "success_with_warnings" : "success",
                 durationMs: Date.now() - startedAt,
                 response: responseSummary,
-            });
+            }, { userVisible: false });
             return response.data;
         } catch (error) {
             const normalizedError = createFacebookApiError(error, {
@@ -300,7 +300,7 @@ export default class FacebookGraphApi {
             normalizedError.httpStatus ??= responseSummary?.httpStatus ?? null;
             normalizedError.traceId ??= responseSummary?.traceId ?? null;
             normalizedError.metaRequestId = responseSummary?.metaRequestId ?? null;
-            logger.error("graph.request.failed", "Graph API-запит завершився помилкою", {
+            logger.error("graph.request.failed", `Помилка Facebook: ${normalizedError.message}`, {
                 ...requestContext,
                 result: normalizedError.outcomeUnknown ? "outcome_unknown" : "error",
                 durationMs: Date.now() - startedAt,
