@@ -516,7 +516,7 @@ export default class AdsBotGuiService {
     }
 
 
-    async getPagePosts({ accountKey, pageId, limit = 10 } = {}) {
+    async getPagePosts({ accountKey, pageId, limit = 5 } = {}) {
         await this.#assertActiveAccount(accountKey);
         this.logger.info(`Завантажуємо нові пости фанпейджі ${pageId}…`);
         return this.#facebookBackend.getPagePosts(accountKey, {
@@ -526,13 +526,13 @@ export default class AdsBotGuiService {
     }
 
 
-    async getPagePostsWithLinks({ accountKey, pageId, limit = 10, includeAll = false } = {}) {
+    async getPagePostsWithLinks({ accountKey, pageId, limit = 5, includeAll = false } = {}) {
         await this.#assertActiveAccount(accountKey);
         return this.#facebookBackend.getLatestPagePostsWithLinks(accountKey, { pageId, limit, ...(includeAll ? { includeAll } : {}) });
     }
 
 
-    async getPagePostsSignature({ accountKey, pageId, limit = 10 } = {}) {
+    async getPagePostsSignature({ accountKey, pageId, limit = 5 } = {}) {
         await this.#assertActiveAccount(accountKey);
         return this.#facebookBackend.getPagePostsSignature(accountKey, {
             pageId,

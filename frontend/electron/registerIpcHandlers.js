@@ -984,7 +984,7 @@ export default function registerIpcHandlers({
                     let cleanup = { deleted: [], failed: [] };
                     if (draft.deleteOldPosts) {
                         await setSubtask("publication", { status: "running", message: "Видаляємо старі URL-пости" });
-                        const oldPosts = await guiService.getPagePostsWithLinks({ accountKey: draft.accountKey, pageId: draft.pageId, limit: 10 });
+                        const oldPosts = await guiService.getPagePostsWithLinks({ accountKey: draft.accountKey, pageId: draft.pageId, limit: 5 });
                         cleanup = await guiService.deletePagePosts({ accountKey: draft.accountKey, pageId: draft.pageId, posts: oldPosts });
                         job = await creativeLaunchJournal.update(job.id, { cleanup });
                     }
@@ -1724,7 +1724,7 @@ export default function registerIpcHandlers({
         const workspaceRevision = await remoteDataCacheStore.getWorkspaceRevision();
         const [details, posts] = await Promise.all([
             guiService.getFanPageDetails(payload),
-            guiService.getPagePostsWithLinks({ ...payload, limit: 10, includeAll: true }),
+            guiService.getPagePostsWithLinks({ ...payload, limit: 5, includeAll: true }),
         ]);
         const [page] = await pagePreferencesStore.enrich([details]);
         const cached = await remoteDataCacheStore.getWorkspace(payload.accountKey);
@@ -1818,8 +1818,8 @@ export default function registerIpcHandlers({
             type: "page-cleanup", name: `Видалення URL-постів · ${payload.pageId}`,
             input: { accountKey: payload.accountKey, pageId: payload.pageId }, metadata: { accountKey: payload.accountKey, pageId: payload.pageId },
             runner: async ({ signal, progress }) => {
-                await progress({ stage: "load", completed: 0, total: 2, message: "Шукаємо URL-пости серед 10 найновіших" });
-                const posts = await guiService.getPagePostsWithLinks({ ...payload, limit: 10 });
+                await progress({ stage: "load", completed: 0, total: 2, message: "Шукаємо URL-пости серед 5 найновіших" });
+                const posts = await guiService.getPagePostsWithLinks({ ...payload, limit: 5 });
                 if (signal.aborted) throw Object.assign(new Error("Видалення перервано"), { name: "AbortError" });
                 const result = await guiService.deletePagePosts({ ...payload, posts });
                 await updateCacheSafely(

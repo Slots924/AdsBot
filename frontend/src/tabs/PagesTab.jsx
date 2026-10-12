@@ -870,7 +870,7 @@ export default function PagesTab({
             if (event.post && /https?:\/\//i.test(String(event.post.message ?? ""))) {
                 next = [event.post, ...next.filter((post) => (
                     String(post.id) !== String(event.post.id)
-                ))].slice(0, 10);
+                ))].slice(0, 5);
             }
             postsByPage.current[key] = next;
             if (
@@ -1033,7 +1033,7 @@ export default function PagesTab({
                                         <span className="eyebrow">Fanpage workspace</span>
                                         <h1>{selected.name}</h1>
                                         <div className="page-post-status">
-                                            <span>URL-постів серед останніх 10: {posts.length}</span>
+                                            <span>URL-постів серед останніх 5: {posts.length}</span>
                                             {postsChanged && <strong>У Facebook є зміни</strong>}
                                         </div>
                                         {selected.cachedAt && <small>Збережено: {new Date(selected.cachedAt).toLocaleString("uk-UA", { timeZone: "Europe/Kyiv" })}</small>}
@@ -1165,7 +1165,7 @@ export default function PagesTab({
                                     <button
                                         className="danger-button"
                                         onClick={async () => {
-                                            if (!window.confirm("Видалити URL-пости серед 10 найновіших?")) return;
+                                            if (!window.confirm("Видалити URL-пости серед 5 найновіших?")) return;
                                             await unwrap(window.adsBot.deletePagePosts({
                                                 accountKey,
                                                 pageId: selected.id,
@@ -1191,7 +1191,7 @@ export default function PagesTab({
                                     {loading && <LoaderCircle className="spin" />}
                                     {!loading && !posts.length && (
                                         <div className="empty-state compact">
-                                            Серед 10 найновіших немає постів із посиланням.
+                                            Серед 5 найновіших немає постів із посиланням.
                                         </div>
                                     )}
                                     {posts.map((post) => (

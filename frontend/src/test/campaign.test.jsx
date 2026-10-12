@@ -109,7 +109,7 @@ describe("Створення рекламної кампанії", () => {
             target: { value: "1" },
         });
         await waitFor(() => expect(window.adsBot.getCampaignPagePosts)
-            .toHaveBeenCalledWith("client", "10", 10, false));
+            .toHaveBeenCalledWith("client", "10", 5, false));
         const usePublishedButtons = screen.getAllByRole("button", {
             name: "Взяти з публікації",
         });

@@ -174,7 +174,7 @@ function normalizePagePost(post) {
     const attachment = post?.attachments?.data?.[0];
     return {
         id: String(post?.id ?? ""),
-        message: message.length > 500 ? `${message.slice(0, 497)}…` : message,
+        message,
         createdTime: post?.created_time ?? null,
         permalinkUrl: post?.permalink_url ?? null,
         thumbnailUrl: safeThumbnailUrl(
@@ -1690,8 +1690,8 @@ export default class FacebookGraphApi {
     }
 
 
-    /** Повертає 10 найновіших опублікованих постів сторінки. */
-    async getPagePosts({ pageId, limit = 10 } = {}) {
+    /** Повертає 5 найновіших опублікованих постів сторінки за замовчуванням. */
+    async getPagePosts({ pageId, limit = 5 } = {}) {
         const page = await this.#getCampaignPage(pageId);
         const pageSize = Number(limit);
         if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 25) {
@@ -1719,7 +1719,7 @@ export default class FacebookGraphApi {
      * Повертає найновіші опубліковані пости з HTTP(S)-посиланням у тексті.
      * Спочатку бере limit найновіших постів, а потім фільтрує цю вибірку.
      */
-    async getLatestPagePostsWithLinks({ pageId, limit = 10, includeAll = false } = {}) {
+    async getLatestPagePostsWithLinks({ pageId, limit = 5, includeAll = false } = {}) {
         const normalizedPageId = normalizeObjectId(
             pageId,
             "PAGE_POSTS_PAGE_ID_INVALID",
@@ -1756,7 +1756,7 @@ export default class FacebookGraphApi {
     }
 
 
-    async getPagePostsSignature({ pageId, limit = 10 } = {}) {
+    async getPagePostsSignature({ pageId, limit = 5 } = {}) {
         const page = await this.getFanPageById(pageId);
         if (!page) {
             throw createValidationError(

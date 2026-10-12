@@ -237,8 +237,8 @@ if (!selectedFacebookApiClient) {
 | `getPageList({force})` | `Array<{id, name, pictureUrl}>` | Легко оновлює список через `id,name,tasks,access_token` без перевірки деталей кожної Page та без завантаження avatar. Токени назовні не повертає. |
 | `getPageDetails({pageId})` | `{id, name, pictureUrl}` | За прямою ручною дією оновлює дані та локальну копію avatar однієї Page. |
 | `getFanPageById(pageId)` | `object \| null` | Перевіряє фанпейджу й повертає її Page token лише для внутрішньої публікації. |
-| `getPagePosts({pageId, limit})` | `Array` | Повертає 10 найновіших опублікованих постів із безпечними даними для прев’ю. |
-| `getLatestPagePostsWithLinks({pageId, limit})` | `Array` | Серед 10 найновіших опублікованих постів повертає ті, що містять HTTP(S)-посилання саме в тексті. |
+| `getPagePosts({pageId, limit})` | `Array` | Повертає 5 найновіших опублікованих постів із безпечними даними для прев’ю. |
+| `getLatestPagePostsWithLinks({pageId, limit})` | `Array` | Серед 5 найновіших опублікованих постів повертає ті, що містять HTTP(S)-посилання саме в тексті. |
 | `getPagePostsSignature({pageId, limit})` | `{count, postIds}` | Легко читає лише `id,message,is_published`, щоб порівняти URL-пости без завантаження фотографій і заміни кешу. |
 | `deletePagePosts({pageId, posts})` | `{ deleted, failed }` | Послідовно видаляє передані canonical post ID цієї фанпейджі та повертає частковий результат. |
 | `createPageTextPost(options)` | `{ postId }` | Публікує текстовий пост через `/feed`. |
@@ -288,17 +288,20 @@ const pages = await selectedFacebookApiClient.getPages();
 `insights.date_preset(today){spend}` і не запитує `adtrust_dsl`. Spend кампаній
 надалі завантажується окремим `getAdCampaignInsights()` лише для вибраної РК.
 
-`getPagePosts()` одним read-only запитом читає перші 10 записів
+`getPagePosts()` одним read-only запитом читає перші 5 записів
 `/{page-id}/published_posts` і сортує їх від найновішого до найстарішого.
 Thumbnail URL дозволяється лише з HTTPS-доменів `fbcdn.net`; Page access token у
 результат не потрапляє.
 
 `getLatestPagePostsWithLinks()` не змінює контракт `getPagePosts()`. Метод
-запитує рівно 10 найновіших публікацій за стандартного `limit`, сортує цю
+запитує рівно 5 найновіших публікацій за стандартного `limit`, сортує цю
 вибірку від нової до старої й лише після цього відкидає записи без `http://` або
-`https://` у тексті. Тому результат може містити менше ніж 10 постів. Старіші
+`https://` у тексті. Тому результат може містити менше ніж 5 постів. Старіші
 публікації для доповнення результату не завантажуються, а посилання лише в
 attachments не враховуються.
+
+Нормалізація зберігає повний `message` без обрізання: HTTP(S)-посилання після
+500-го символу також враховується під час фільтрації кешу та GUI.
 
 Внутрішній параметр `includeAll: true` повертає повну вибірку цих самих останніх
 публікацій. GUI використовує її для одночасного запису спільного snapshot і

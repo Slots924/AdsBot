@@ -259,7 +259,7 @@ export default function CampaignCreationWizard({
                 window.adsBot.getCampaignPagePosts(
                     accountKey,
                     pageId,
-                    10,
+                    5,
                     force
                 )
             );

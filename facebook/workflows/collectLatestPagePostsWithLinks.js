@@ -14,7 +14,7 @@ function hasLinkInPostText(post) {
 export default async function collectLatestPagePostsWithLinks({
     fetchPosts,
     normalizePost = (post) => post,
-    limit = 10,
+    limit = 5,
     includeAll = false,
 } = {}) {
     if (typeof fetchPosts !== "function") {

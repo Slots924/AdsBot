@@ -144,7 +144,7 @@ contextBridge.exposeInMainWorld("adsBot", {
             campaignId,
             name,
         }),
-    getCampaignPagePosts: (accountKey, pageId, limit = 10, force = false) =>
+    getCampaignPagePosts: (accountKey, pageId, limit = 5, force = false) =>
         ipcRenderer.invoke("campaigns:posts-list", {
             accountKey,
             pageId,

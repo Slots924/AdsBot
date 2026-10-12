@@ -208,9 +208,11 @@ export default class RemoteDataCacheStore {
 
     async getPosts(accountKey, pageId, kind = "links") {
         const store = await this.#read();
-        return safeClone(store.posts[
-            this.#postsKey(accountKey, pageId, kind)
-        ] ?? null);
+        const campaign = store.posts[this.#postsKey(accountKey, pageId, "campaign")];
+        const entry = kind === "links" && campaign
+            ? { ...campaign, value: campaign.value.slice(0, 5).filter((post) => /https?:\/\//i.test(String(post.message ?? ""))) }
+            : store.posts[this.#postsKey(accountKey, pageId, kind)];
+        return entry ? safeClone({ ...entry, value: entry.value.slice(0, 5) }) : null;
     }
 
 
@@ -219,7 +221,7 @@ export default class RemoteDataCacheStore {
             if (expectedRevision !== undefined && (store.postRevisions[pageId] ?? 0) !== expectedRevision) return false;
             const key = this.#postsKey(accountKey, pageId, kind);
             const prepared = await this.#externalizeImages(
-                Array.isArray(posts) ? posts : []
+                Array.isArray(posts) ? posts.slice(0, 5) : []
             );
             store.posts[key] = cacheEntry(mergeEntityImages(
                 prepared,
@@ -275,7 +277,7 @@ export default class RemoteDataCacheStore {
             const posts = previous.filter((item) => String(item?.id ?? item?.postId) !== postId && !removed.has(String(item?.id ?? item?.postId)));
             const existing = previous.find((item) => String(item.id ?? item.postId) === postId);
             const [merged] = mergeEntityImages([{ ...existing, ...prepared }], existing ? [existing] : [], "thumbnailUrl");
-            store.posts[key] = cacheEntry([merged, ...posts].slice(0, 10));
+            store.posts[key] = cacheEntry([merged, ...posts].slice(0, 5));
             store.posts[this.#postsKey(accountKey, pageId, "links")] = cacheEntry(store.posts[key].value.filter((item) => /https?:\/\//i.test(String(item.message ?? ""))));
             store.postRevisions[pageId] = (store.postRevisions[pageId] ?? 0) + 1;
         }, { kind: "posts", pageId });
@@ -489,7 +491,7 @@ export default class RemoteDataCacheStore {
             const [, pageId, kind] = key.split("::");
             const target = `${pageId}::${kind}`;
             const posts = mergeById(store.posts[target]?.value, mergeEntityImages(safeClone(entry.value ?? []), store.posts[target]?.value, "thumbnailUrl"))
-                .sort((a, b) => String(b.createdTime ?? "").localeCompare(String(a.createdTime ?? ""))).slice(0, 10);
+                .sort((a, b) => String(b.createdTime ?? "").localeCompare(String(a.createdTime ?? ""))).slice(0, 5);
             store.posts[target] = { value: posts, updatedAt: entry.updatedAt };
         }
         for (const [key, entry] of sorted(parsed.campaigns)) {

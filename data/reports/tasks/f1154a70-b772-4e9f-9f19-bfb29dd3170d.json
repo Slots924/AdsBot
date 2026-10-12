@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "id": "f1154a70-b772-4e9f-9f19-bfb29dd3170d",
+  "taskId": "fb243ce2-d56f-47da-b42b-fc3eadbc291f",
+  "type": "publication",
+  "title": "Публікація · IE · 4",
+  "status": "failed",
+  "createdAt": "2026-10-12T08:55:21.686Z",
+  "startedAt": "2026-10-12T08:55:21.260Z",
+  "finishedAt": "2026-10-12T08:55:21.684Z",
+  "durationMs": 424,
+  "inputSummary": {
+    "accountKey": "account-033",
+    "pageId": "1300509883149425",
+    "geo": "IE",
+    "language": "",
+    "creativeGeo": "IE",
+    "creativeName": "4",
+    "siteUrl": "https://firenols.cyou/IJ004E",
+    "manualCreativeText": "",
+    "useCreativeFont": true,
+    "creativeFont": "blurry",
+    "imagePaths": [
+      "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558674094_17876948694410212_5685162515973610647_n.png",
+      "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558967207_17876948703410212_8701678181365780701_n.png"
+    ],
+    "disableComments": true,
+    "commentGroupIds": [],
+    "commentBrowserMode": "headless",
+    "commentDisableImages": true,
+    "commentWorkerConcurrency": 1,
+    "commentWorkerProxyIds": "[REDACTED]",
+    "hasImage": false
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Error validating access token: The session has been invalidated because the user changed their password or Facebook has changed the session for security reasons.",
+      "code": "FACEBOOK_API_ERROR",
+      "stage": null,
+      "graphCode": 190,
+      "graphSubcode": 452,
+      "httpStatus": 401,
+      "requestId": "2edf0293-f33b-44de-b0b4-c57f9ea65ebf",
+      "traceId": "A3hHcPIvjNTTIn2I8mBRsgK",
+      "metaRequestId": "A3hHcPIvjNTTIn2I8mBRsgK",
+      "endpoint": "/1300509883149425",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": "OAuthException",
+      "isTransient": false
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-033",
+    "pageId": "1300509883149425",
+    "geo": "IE",
+    "language": "",
+    "creativeName": "4",
+    "manualCreativeText": false,
+    "useCreativeFont": true,
+    "commentsEnabled": false
+  }
+}

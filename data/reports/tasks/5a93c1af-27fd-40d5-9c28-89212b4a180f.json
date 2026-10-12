@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "id": "5a93c1af-27fd-40d5-9c28-89212b4a180f",
+  "taskId": "4a9abd84-f7ad-4f03-ad05-2663759b89eb",
+  "type": "campaign",
+  "title": "HU | Creo_17 | 40+ 11/10 20:10",
+  "status": "failed",
+  "createdAt": "2026-10-11T17:11:16.637Z",
+  "startedAt": "2026-10-11T17:11:01.093Z",
+  "finishedAt": "2026-10-11T17:11:16.636Z",
+  "durationMs": 15543,
+  "inputSummary": {
+    "campaignJobId": "ab23a87b-80d0-4f4a-b3c2-759256aeae7d",
+    "accountKey": "account-031",
+    "adAccountId": "act_1546723463766019",
+    "campaignName": "HU | Creo_17 | 40+ 11/10 20:10",
+    "templateId": 28,
+    "pageId": "1369212719603682",
+    "postId": "1369212719603682_122105921727499153",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-11T17:10:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120249065442940280",
+      "creativeId": "2633433367096959",
+      "creatives": [
+        {
+          "id": "2633433367096959",
+          "pageId": "1369212719603682",
+          "postId": "1369212719603682_122105921727499153"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120249065443930280",
+          "name": "HU | Creo_17 | 40+ 11/10 20:10 | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Update payment method: Visit the Billing and payment center to add a valid payment method.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 100,
+      "graphSubcode": 1359188,
+      "graphUserTitle": "No Payment Method",
+      "graphUserMessage": "Update payment method: Visit the Billing and payment center to add a valid payment method.",
+      "graphType": "FacebookApiException",
+      "isTransient": false,
+      "requestId": "af847810-b23c-448c-a644-69f98af17941",
+      "traceId": "AWbJYRPSnN8jXaEI4nypKt_",
+      "metaRequestId": "AWbJYRPSnN8jXaEI4nypKt_",
+      "endpoint": "/act_1546723463766019/ads",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "stage": "ad",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "ab23a87b-80d0-4f4a-b3c2-759256aeae7d",
+    "accountKey": "account-031",
+    "adAccountId": "act_1546723463766019",
+    "uniqueKey": "campaign-job:ab23a87b-80d0-4f4a-b3c2-759256aeae7d"
+  }
+}

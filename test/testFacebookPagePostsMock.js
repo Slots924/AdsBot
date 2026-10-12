@@ -41,12 +41,14 @@ const api = new FacebookGraphApi({
                 return { data: { id: "10", name: "Page", is_published: true } };
             }
             if (path === "/10/published_posts") {
-                assert.equal(config.params.limit, 10);
+                assert.equal(config.params.limit, 5);
                 assert.equal("after" in config.params, false);
                 return { data: { data: [
-                    post("20", "2026-08-20T10:00:00+0000"),
+                    post("20", "2026-08-20T10:00:00+0000", {
+                        attachments: { data: [{ url: "https://example.test/attachment" }] },
+                    }),
                     post("21", "2026-08-21T10:00:00+0000", {
-                        message: "Newest post without website URL",
+                        message: "x".repeat(600) + " https://example.test/late",
                     }),
                     post("22", "2026-08-22T10:00:00+0000", {
                         is_published: false,
@@ -58,16 +60,21 @@ const api = new FacebookGraphApi({
     },
 });
 
-const posts = await api.getPagePosts({ pageId: "10", limit: 10 });
+const posts = await api.getPagePosts({ pageId: "10" });
 assert.deepEqual(posts.map((item) => item.id), ["10_21", "10_20"]);
-assert.equal(posts[0].message, "Newest post without website URL");
+assert.equal(posts[0].message, "x".repeat(600) + " https://example.test/late");
 assert.match(posts[0].thumbnailUrl, /fbcdn\.net/);
 assert.equal(posts.every((item) => !item.pageAccessToken), true);
 assert.equal(JSON.stringify(posts).includes("page-secret"), false);
 assert.equal(requests.some((request) => String(request.url).includes("access_token")), false);
 const countBeforeSnapshot = requests.filter((request) => request.url.endsWith("/10/published_posts")).length;
-const fullSnapshot = await api.getLatestPagePostsWithLinks({ pageId: "10", limit: 10, includeAll: true });
+const fullSnapshot = await api.getLatestPagePostsWithLinks({ pageId: "10", includeAll: true });
 assert.deepEqual(fullSnapshot.map((item) => item.id), ["10_21", "10_20"]);
 assert.equal(requests.filter((request) => request.url.endsWith("/10/published_posts")).length, countBeforeSnapshot + 1);
 
-console.log("Mock-перевірка 10 останніх постів пройшла успішно");
+const linkedPosts = await api.getLatestPagePostsWithLinks({ pageId: "10" });
+assert.deepEqual(linkedPosts.map((item) => item.id), ["10_21"]);
+const signature = await api.getPagePostsSignature({ pageId: "10" });
+assert.deepEqual(signature.postIds, ["10_21"]);
+
+console.log("Mock-перевірка 5 останніх постів і повного тексту пройшла успішно");

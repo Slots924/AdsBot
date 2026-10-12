@@ -14,6 +14,16 @@ const png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCA
 
 try {
     const store = new RemoteDataCacheStore({ cacheFile, imagesDirectory });
+    const longMessage = "x".repeat(600) + " https://example.test/late";
+    await store.setPosts("client", "text-links", [
+        { id: "late-url", message: longMessage },
+        { id: "attachment-only", message: "Photo", attachments: { data: [{ url: "https://example.test" }] } },
+        ...Array.from({ length: 4 }, (_, index) => ({ id: `other-${index}`, message: "https://example.test" })),
+    ], "campaign");
+    assert.equal((await store.getPosts("client", "text-links", "campaign")).value.length, 5);
+    const textLinks = (await store.getPosts("client", "text-links")).value;
+    assert.deepEqual(textLinks.map((post) => post.id), ["late-url", "other-0", "other-1", "other-2"]);
+    assert.equal(textLinks[0].message, longMessage);
     await store.setWorkspace("client", {
         pages: [{
             id: "page-1",
