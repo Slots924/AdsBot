@@ -243,4 +243,23 @@ statisticsIds = null;
 await guiService.getAdCampaignStatistics("active", "act_1", "today", normalized.campaigns.slice(3));
 assert.equal(statisticsIds, null);
 
+// Некоректна або незавершена відповідь не може замінити актуальний список.
+for (const [pages, expectedCode] of [
+    [[{}], "FACEBOOK_CAMPAIGN_LIST_INVALID"],
+    [[{ data: [null] }], "FACEBOOK_CAMPAIGN_LIST_INVALID"],
+    [[{ data: [{ name: "No ID" }] }], "FACEBOOK_CAMPAIGN_LIST_INVALID"],
+    [[{ data: [], paging: { next: "next" } }], "FACEBOOK_CAMPAIGN_LIST_INCOMPLETE"],
+    [[{ data: [], paging: { next: "next", cursors: { after: "same" } } },
+        { data: [], paging: { next: "next", cursors: { after: "same" } } }], "FACEBOOK_CAMPAIGN_LIST_INCOMPLETE"],
+    [[{ data: [{ id: "first" }], paging: { next: "next", cursors: { after: "second" } } },
+        { error: { message: "Token expired", code: 190 } }], "FACEBOOK_API_ERROR"],
+]) {
+    let pageIndex = 0;
+    const api = new FacebookGraphApi({
+        accountKey: "mock", accessToken: "mock", cookie: "mock", userAgent: "mock",
+        proxyHttpClient: { async request() { return { data: pages[pageIndex++] }; } },
+    });
+    await assert.rejects(api.getAdCampaigns("act_1"), { code: expectedCode });
+}
+
 console.log("Mock-перевірка кампаній Facebook пройшла успішно");

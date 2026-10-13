@@ -23,6 +23,9 @@ export function clearUnavailableCampaignStatistics(campaign) {
 
 export function visibleCampaigns(campaigns = [], includeDeleted = false) {
     return campaigns
+        // Збережені копії залишаються в кеші, але успішний список визначає видимість.
+        .filter((campaign) => !campaign.missingFromFullList
+            && (!campaign.missingFromActiveList || (includeDeleted && isUnavailableCampaign(campaign))))
         .filter((campaign) => includeDeleted || !isUnavailableCampaign(campaign))
         .map(clearUnavailableCampaignStatistics);
 }

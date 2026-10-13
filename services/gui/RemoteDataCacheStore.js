@@ -332,15 +332,24 @@ export default class RemoteDataCacheStore {
             normalizedPart(adAccountId, "CACHE_AD_ACCOUNT_ID_REQUIRED");
             const previous = store.campaigns[adAccountId];
             if (expectedRevision !== undefined && (previous?.revision ?? 0) !== expectedRevision) return false;
-            const campaigns = Array.isArray(data.campaigns) ? data.campaigns : [];
+            if (!Array.isArray(data.campaigns)) {
+                throw Object.assign(new Error("Некоректний список кампаній; попередній кеш збережено"), { code: "CAMPAIGN_LIST_INVALID" });
+            }
+            const campaigns = data.campaigns;
             if (mode !== "statistics") {
                 store.campaigns[adAccountId] = {
                     ...cacheEntry({
                         ...previous?.value,
                         includeDeleted: Boolean(previous?.value?.includeDeleted || data.includeDeleted),
                         campaigns: mergeById(
-                            (previous?.value?.campaigns ?? []).map((item) => ({ ...item, missingFromLatestRead: true })),
-                            campaigns.map((item) => ({ ...campaignDetails(item), missingFromLatestRead: false }))
+                            (previous?.value?.campaigns ?? []).map((item) => ({
+                                ...item, missingFromLatestRead: true,
+                                ...(data.includeDeleted ? { missingFromFullList: true } : { missingFromActiveList: true }),
+                            })),
+                            campaigns.map((item) => ({
+                                ...campaignDetails(item), missingFromLatestRead: false,
+                                missingFromActiveList: false, missingFromFullList: false,
+                            }))
                         ),
                     }),
                     revision: (previous?.revision ?? 0) + 1,
@@ -388,7 +397,10 @@ export default class RemoteDataCacheStore {
             store.campaigns[adAccountId] = {
                 ...cacheEntry({
                     ...previous?.value,
-                    campaigns: mergeById(previous?.value?.campaigns, [{ ...campaignDetails(campaign), missingFromLatestRead: false }]),
+                    campaigns: mergeById(previous?.value?.campaigns, [{
+                        ...campaignDetails(campaign), missingFromLatestRead: false,
+                        missingFromActiveList: false, missingFromFullList: false,
+                    }]),
                 }),
                 revision: (previous?.revision ?? 0) + 1,
             };

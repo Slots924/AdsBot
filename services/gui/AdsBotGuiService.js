@@ -469,7 +469,8 @@ export default class AdsBotGuiService {
         context = null
     ) {
         await this.#assertActiveAccount(accountKey);
-        const campaignIds = campaigns.filter((campaign) => !isUnavailableCampaign(campaign))
+        const campaignIds = campaigns.filter((campaign) => !isUnavailableCampaign(campaign)
+            && !campaign.missingFromActiveList && !campaign.missingFromFullList)
             .map((campaign) => String(campaign.id));
         const insights = campaignIds.length > 0
             ? await this.#facebookBackend.getAdCampaignInsights(

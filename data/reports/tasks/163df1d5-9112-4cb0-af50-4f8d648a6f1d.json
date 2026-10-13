@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "id": "163df1d5-9112-4cb0-af50-4f8d648a6f1d",
+  "taskId": "446e5356-f9b2-4e0f-a9c9-567994d34fe3",
+  "type": "facebook-api-client-sync",
+  "title": "Синхронізація API-клієнта account-033",
+  "status": "failed",
+  "createdAt": "2026-10-12T10:41:01.539Z",
+  "startedAt": "2026-10-12T10:40:57.968Z",
+  "finishedAt": "2026-10-12T10:41:01.538Z",
+  "durationMs": 3570,
+  "inputSummary": {
+    "accountKey": "account-033",
+    "adsPowerProfileNo": "488"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "AdsPower-профіль не готовий до роботи",
+      "code": null,
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "httpStatus": null,
+      "requestId": null,
+      "traceId": null,
+      "metaRequestId": null,
+      "endpoint": null,
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": null,
+      "isTransient": false
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-033",
+    "uniqueKey": "facebook-api-client-sync:account-033"
+  }
+}

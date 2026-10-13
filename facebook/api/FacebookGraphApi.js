@@ -317,9 +317,10 @@ export default class FacebookGraphApi {
     }
 
 
-    async #getAll(pathname, params = {}) {
+    async #getAll(pathname, params = {}, { requireComplete = false } = {}) {
         const items = [];
         let after = null;
+        const seenCursors = new Set();
 
         do {
             const data = await this.#request(pathname, {
@@ -327,6 +328,10 @@ export default class FacebookGraphApi {
                 ...(after ? { after } : {}),
             });
 
+            if (requireComplete && (!Array.isArray(data?.data)
+                || data.data.some((item) => !item || typeof item !== "object" || !String(item.id ?? "").trim()))) {
+                throw Object.assign(new Error("Facebook повернув некоректний список кампаній"), { code: "FACEBOOK_CAMPAIGN_LIST_INVALID" });
+            }
             if (Array.isArray(data?.data)) {
                 items.push(...data.data);
             }
@@ -334,6 +339,10 @@ export default class FacebookGraphApi {
             after = data?.paging?.next
                 ? data?.paging?.cursors?.after ?? null
                 : null;
+            if (requireComplete && data?.paging?.next && (!after || seenCursors.has(after))) {
+                throw Object.assign(new Error("Не вдалося повністю завантажити список кампаній Facebook"), { code: "FACEBOOK_CAMPAIGN_LIST_INCOMPLETE" });
+            }
+            if (after) seenCursors.add(after);
         } while (after);
 
         return items;
@@ -911,7 +920,7 @@ export default class FacebookGraphApi {
                     : ["ACTIVE", "PAUSED"],
             }]),
             limit: 100,
-        });
+        }, { requireComplete: true });
 
         return campaigns.map((campaign) => ({
             id: campaign.id,

@@ -532,7 +532,7 @@ export default function registerIpcHandlers({
                 { code: "CAMPAIGN_LIST_REQUIRED" }
             );
         }
-        if (!cached.value.campaigns.some((campaign) => !isUnavailableCampaign(campaign))
+        if (!visibleCampaigns(cached.value.campaigns, includeDeleted).some((campaign) => !isUnavailableCampaign(campaign))
             || (!cached.value.statisticsStale && !shouldRefreshCampaignStatistics(cached.value.statisticsUpdatedAt))) {
             return {
                 ...cached.value,
@@ -549,14 +549,14 @@ export default function registerIpcHandlers({
             accountKey,
             adAccountId,
             datePreset,
-            cached.value.campaigns,
+            visibleCampaigns(cached.value.campaigns, includeDeleted),
             cached.value.context
         );
         const updated = {
             ...cached.value,
             campaigns: await adAccountPreferencesStore.enrichCampaigns(
                 adAccountId,
-                applyInsightMetrics(cached.value.campaigns, statistics.campaigns)
+                applyInsightMetrics(visibleCampaigns(cached.value.campaigns, includeDeleted), statistics.campaigns)
             ),
             statisticsUpdatedAt: new Date().toISOString(),
             cacheHit: true,

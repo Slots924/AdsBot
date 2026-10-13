@@ -5,6 +5,7 @@ import path from "node:path";
 
 import RemoteDataCacheStore
     from "../services/gui/RemoteDataCacheStore.js";
+import { visibleCampaigns } from "../services/campaigns/campaignVisibility.js";
 
 
 const directory = await mkdtemp(path.join(os.tmpdir(), "adsbot-cache-test-"));
@@ -123,6 +124,27 @@ try {
     await restored.patchCampaign("client", "act_1", { id: "campaign-1", name: "Changed", status: "DELETED" });
     assert.equal((await restored.getCampaigns("another-client", "act_1", "yesterday")).value.campaigns.length, 2);
     assert.equal((await restored.getCampaigns("client", "act_1", "today")).value.campaigns[0].spend, 10);
+
+    // Після перезапуску відсутні кампанії приховані, але їхні метрики збережені.
+    const snapshotFile = path.join(directory, "snapshot.json");
+    const snapshot = new RemoteDataCacheStore({ cacheFile: snapshotFile });
+    await snapshot.setCampaigns("client", "act_snapshot", "today", {
+        campaigns: [{ id: "gone", status: "PAUSED", spend: 17 }, { id: "keep", status: "PAUSED", spend: 2 }],
+        statisticsUpdatedAt: new Date().toISOString(),
+    });
+    await snapshot.setCampaigns("client", "act_snapshot", "today", {
+        campaigns: [{ id: "keep", status: "PAUSED" }],
+    }, { mode: "list" });
+    const restarted = new RemoteDataCacheStore({ cacheFile: snapshotFile });
+    const afterRestart = (await restarted.getCampaigns("another-client", "act_snapshot")).value;
+    assert.deepEqual(visibleCampaigns(afterRestart.campaigns).map((item) => item.id), ["keep"]);
+    assert.equal(afterRestart.campaigns.find((item) => item.id === "gone").spend, 17);
+    await restarted.setCampaigns("client", "act_snapshot", "today", {
+        campaigns: [{ id: "keep", spend: 3 }], statisticsUpdatedAt: new Date().toISOString(),
+    }, { mode: "statistics" });
+    const afterStatistics = (await restarted.getCampaigns("client", "act_snapshot")).value;
+    assert.deepEqual(visibleCampaigns(afterStatistics.campaigns).map((item) => item.id), ["keep"]);
+    assert.equal(afterStatistics.campaigns.find((item) => item.id === "gone").spend, 17);
 
     const oldPostsRevision = await restored.getPostRevision("page-1");
     await restored.prependPost("another-client", "page-1", { id: "page-1_post-3", message: "https://example.test", thumbnailUrl: png });

@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "id": "737d4255-311c-488b-be12-954e607783c5",
+  "taskId": "80f18514-906f-43c4-8fe5-9464487f963d",
+  "type": "comment-reactions",
+  "title": "Реакції під коментарями · 5",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-12T19:09:30.388Z",
+  "startedAt": "2026-10-12T19:01:40.944Z",
+  "finishedAt": "2026-10-12T19:09:30.387Z",
+  "durationMs": 469443,
+  "inputSummary": {
+    "profileNos": [
+      "1843",
+      "1844",
+      "1845",
+      "1846",
+      "1848"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/1cvFWxNaxX/",
+    "reactions": {
+      "like": 0,
+      "love": 3,
+      "care": 2
+    },
+    "includeReplies": false,
+    "browserMode": "headless",
+    "disableImages": true
+  },
+  "resultSummary": {
+    "startedAt": "2026-10-12T19:01:40.946Z",
+    "finishedAt": "2026-10-12T19:09:30.386Z",
+    "postUrl": "https://www.facebook.com/share/p/1cvFWxNaxX/",
+    "reactions": {
+      "like": 0,
+      "love": 3,
+      "care": 2
+    },
+    "includeReplies": false,
+    "concurrency": 1,
+    "profiles": [
+      {
+        "profileNo": "1843",
+        "reaction": "love",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T19:01:40.946Z",
+        "finishedAt": "2026-10-12T19:03:34.932Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1844",
+        "reaction": "love",
+        "outcome": "completed_with_warnings",
+        "stage": "SET_REACTION",
+        "applied": 6,
+        "alreadyReacted": 0,
+        "failed": 2,
+        "commentsFound": 8,
+        "errors": [
+          {
+            "commentId": "2587928321647912",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "905972405787191",
+            "reason": "VERIFICATION_FAILED"
+          }
+        ],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T19:03:34.936Z",
+        "finishedAt": "2026-10-12T19:05:30.847Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1845",
+        "reaction": "love",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Не вдалося підтвердити вхід у Facebook",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-12T19:05:30.850Z",
+        "finishedAt": "2026-10-12T19:06:24.098Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1846",
+        "reaction": "love",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T19:06:24.099Z",
+        "finishedAt": "2026-10-12T19:07:45.506Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1848",
+        "reaction": "care",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T19:07:45.509Z",
+        "finishedAt": "2026-10-12T19:09:30.384Z",
+        "workerId": 1
+      }
+    ],
+    "unusedProfiles": [],
+    "unfulfilledReactions": {
+      "like": 0,
+      "love": 0,
+      "care": 1
+    },
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-reaction-report_2026-10-12T19-09-30-386Z.md"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "1843",
+      "1844",
+      "1845",
+      "1846",
+      "1848"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/1cvFWxNaxX/",
+    "reactions": {
+      "like": 0,
+      "love": 3,
+      "care": 2
+    }
+  }
+}

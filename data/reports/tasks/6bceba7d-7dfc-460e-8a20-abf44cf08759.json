@@ -1,0 +1,457 @@
+{
+  "version": 1,
+  "id": "6bceba7d-7dfc-460e-8a20-abf44cf08759",
+  "taskId": "98aa291d-8b9d-4a70-b1cd-66cb92439f0a",
+  "type": "comment-reactions",
+  "title": "Реакції під коментарями · 16",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-12T18:59:16.536Z",
+  "startedAt": "2026-10-12T18:32:49.039Z",
+  "finishedAt": "2026-10-12T18:59:16.535Z",
+  "durationMs": 1587496,
+  "inputSummary": {
+    "profileNos": [
+      "112",
+      "254",
+      "348",
+      "629",
+      "1218",
+      "1378",
+      "1385",
+      "1390",
+      "1418",
+      "1969",
+      "1970",
+      "1971",
+      "1972",
+      "1973",
+      "1974",
+      "1975"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/1cvFWxNaxX/",
+    "reactions": {
+      "like": 7,
+      "love": 6,
+      "care": 3
+    },
+    "includeReplies": false,
+    "browserMode": "headless",
+    "disableImages": true
+  },
+  "resultSummary": {
+    "startedAt": "2026-10-12T18:32:49.042Z",
+    "finishedAt": "2026-10-12T18:59:16.533Z",
+    "postUrl": "https://www.facebook.com/share/p/1cvFWxNaxX/",
+    "reactions": {
+      "like": 7,
+      "love": 6,
+      "care": 3
+    },
+    "includeReplies": false,
+    "concurrency": 1,
+    "profiles": [
+      {
+        "profileNo": "112",
+        "reaction": "like",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:32:49.042Z",
+        "finishedAt": "2026-10-12T18:33:56.525Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "254",
+        "reaction": "like",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:33:56.528Z",
+        "finishedAt": "2026-10-12T18:35:08.710Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "348",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "SET_REACTION",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 8,
+        "commentsFound": 8,
+        "errors": [
+          {
+            "commentId": "2458209048038264",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "1578517714385554",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "2587928321647912",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "1426817902150902",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "2857017634673634",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "1830511428087200",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "949822364407477",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "905972405787191",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          }
+        ],
+        "error": "Жодної реакції не поставлено",
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:35:08.712Z",
+        "finishedAt": "2026-10-12T18:36:33.350Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "629",
+        "reaction": "like",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:36:33.352Z",
+        "finishedAt": "2026-10-12T18:37:44.082Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1218",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "OPEN_FACEBOOK",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 0,
+        "errors": [],
+        "error": "Facebook-акаунт неактивний",
+        "cleanupErrors": [],
+        "aborted": false,
+        "startedAt": "2026-10-12T18:37:44.085Z",
+        "finishedAt": "2026-10-12T18:38:08.084Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1378",
+        "reaction": "like",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:38:08.086Z",
+        "finishedAt": "2026-10-12T18:39:09.136Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1385",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "SET_REACTION",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 8,
+        "commentsFound": 8,
+        "errors": [
+          {
+            "commentId": "2458209048038264",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "1578517714385554",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "1426817902150902",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "2587928321647912",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "2857017634673634",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "1830511428087200",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "949822364407477",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "905972405787191",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          }
+        ],
+        "error": "Жодної реакції не поставлено",
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:39:09.138Z",
+        "finishedAt": "2026-10-12T18:48:04.646Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1390",
+        "reaction": "like",
+        "outcome": "failed",
+        "stage": "SET_REACTION",
+        "applied": 0,
+        "alreadyReacted": 0,
+        "failed": 8,
+        "commentsFound": 8,
+        "errors": [
+          {
+            "commentId": "2458209048038264",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "1578517714385554",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "1426817902150902",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "2587928321647912",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "2857017634673634",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "1830511428087200",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "949822364407477",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          },
+          {
+            "commentId": "905972405787191",
+            "reason": "POPUP_OBSTRUCTING_REACTION_BUTTON"
+          }
+        ],
+        "error": "Жодної реакції не поставлено",
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:48:04.648Z",
+        "finishedAt": "2026-10-12T18:49:11.813Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1418",
+        "reaction": "like",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:49:11.815Z",
+        "finishedAt": "2026-10-12T18:50:19.228Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1969",
+        "reaction": "like",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:50:19.231Z",
+        "finishedAt": "2026-10-12T18:51:24.789Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1970",
+        "reaction": "like",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:51:24.792Z",
+        "finishedAt": "2026-10-12T18:52:28.954Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1971",
+        "reaction": "love",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:52:28.957Z",
+        "finishedAt": "2026-10-12T18:53:48.891Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1972",
+        "reaction": "love",
+        "outcome": "completed_with_warnings",
+        "stage": "SET_REACTION",
+        "applied": 6,
+        "alreadyReacted": 0,
+        "failed": 2,
+        "commentsFound": 8,
+        "errors": [
+          {
+            "commentId": "2587928321647912",
+            "reason": "VERIFICATION_FAILED"
+          },
+          {
+            "commentId": "905972405787191",
+            "reason": "VERIFICATION_FAILED"
+          }
+        ],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:53:48.899Z",
+        "finishedAt": "2026-10-12T18:55:14.489Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1973",
+        "reaction": "love",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:55:14.491Z",
+        "finishedAt": "2026-10-12T18:56:33.058Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1974",
+        "reaction": "love",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:56:33.060Z",
+        "finishedAt": "2026-10-12T18:57:55.232Z",
+        "workerId": 1
+      },
+      {
+        "profileNo": "1975",
+        "reaction": "love",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 8,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 8,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-12T18:57:55.235Z",
+        "finishedAt": "2026-10-12T18:59:16.531Z",
+        "workerId": 1
+      }
+    ],
+    "unusedProfiles": [],
+    "unfulfilledReactions": {
+      "like": 0,
+      "love": 1,
+      "care": 3
+    },
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-reaction-report_2026-10-12T18-59-16-533Z.md"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "112",
+      "254",
+      "348",
+      "629",
+      "1218",
+      "1378",
+      "1385",
+      "1390",
+      "1418",
+      "1969",
+      "1970",
+      "1971",
+      "1972",
+      "1973",
+      "1974",
+      "1975"
+    ],
+    "postUrl": "https://www.facebook.com/share/p/1cvFWxNaxX/",
+    "reactions": {
+      "like": 7,
+      "love": 6,
+      "care": 3
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "id": "8762c0cc-640e-4e9f-a1b2-650455d0b9fd",
+  "taskId": "9ddd6a26-ddfc-409a-b559-67c23b78bde7",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 825647717291655",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-12T17:10:41.542Z",
+  "startedAt": "2026-10-12T17:09:37.173Z",
+  "finishedAt": "2026-10-12T17:10:41.541Z",
+  "durationMs": 64368,
+  "inputSummary": {
+    "accountKey": "account-042",
+    "pageId": "825647717291655"
+  },
+  "resultSummary": {
+    "pageId": "825647717291655",
+    "avatar": {
+      "file": "1.jpg",
+      "photoId": "122148754473031876"
+    },
+    "cover": {
+      "file": "611146558_122303646632218434_4009124088993164703_n.jpg",
+      "photoId": "122148754581031876"
+    },
+    "cleanup": {
+      "deletedPostIds": [],
+      "deletedPhotoIds": [],
+      "hiddenPostIds": []
+    },
+    "publications": [
+      {
+        "file": "491401163_122243719022218434_521417264765945619_n.jpg",
+        "photoId": "122148754719031876",
+        "postId": "825647717291655_122148754761031876",
+        "backdatedTime": null
+      },
+      {
+        "file": "561365932_122286114638218434_7215111708807147462_n.jpg",
+        "photoId": "122148754845031876",
+        "postId": "825647717291655_122148754893031876",
+        "backdatedTime": null
+      },
+      {
+        "file": "594743745_122296776632218434_1284837695415395863_n.jpg",
+        "photoId": "122148754953031876",
+        "postId": "825647717291655_122148754995031876",
+        "backdatedTime": null
+      },
+      {
+        "file": "640929000_122313247976218434_3371178519056197825_n.jpg",
+        "photoId": "122148755043031876",
+        "postId": "825647717291655_122148755085031876",
+        "backdatedTime": null
+      }
+    ],
+    "warnings": [
+      {
+        "stage": "delete-photo",
+        "objectId": "122099129649031876",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      }
+    ],
+    "resumed": false
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-042",
+    "pageId": "825647717291655",
+    "uniqueKey": "page-rebuild:account-042:825647717291655"
+  }
+}

@@ -921,6 +921,50 @@ const sharedOffline = await handlers.get("campaigns:list")({}, { accountKey: "ot
 assert.equal(sharedOffline.data.campaigns[0].name, "Saved");
 assert.equal(sharedOffline.data.campaigns[0].spend, null);
 
+// Успішний список прибирає відсутні кампанії з GUI, зберігаючи їхні дані.
+adAccountPreferencesStore.isKeitaroLeadSyncEnabled = async () => false;
+const reconcilePayload = { accountKey: "fp_hub", adAccountId: "act_reconcile", force: true };
+await remoteDataCacheStore.setCampaigns("fp_hub", "act_reconcile", "today", {
+    campaigns: [{ id: "removed", name: "Saved", status: "PAUSED", spend: 42 }, activeCampaign, deletedCampaign],
+    statisticsUpdatedAt: new Date().toISOString(),
+});
+guiService.getAdCampaignList = async () => [activeCampaign];
+const reconciled = await handlers.get("campaigns:list")({}, reconcilePayload);
+assert.deepEqual(reconciled.data.campaigns.map((item) => item.id), [activeCampaign.id]);
+const retained = (await remoteDataCacheStore.getCampaigns("other-client", "act_reconcile")).value;
+assert.equal(retained.campaigns.find((item) => item.id === "removed").spend, 42);
+const withDeletedCopy = await handlers.get("campaigns:list")({}, { ...reconcilePayload, force: false, includeDeleted: true });
+assert.deepEqual(withDeletedCopy.data.campaigns.map((item) => item.id), [activeCampaign.id, deletedCampaign.id]);
+guiService.getAdCampaignList = async () => [];
+const emptyList = await handlers.get("campaigns:list")({}, { ...reconcilePayload, includeDeleted: true });
+assert.deepEqual(emptyList.data.campaigns, []);
+assert.equal((await remoteDataCacheStore.getCampaigns("other-client", "act_reconcile")).value.campaigns.length, 3);
+guiService.getAdCampaignList = async () => { throw new Error("Список недоступний"); };
+const failedAfterEmpty = await handlers.get("campaigns:list")({}, { ...reconcilePayload, includeDeleted: true });
+assert.deepEqual(failedAfterEmpty.data.campaigns, []);
+assert.equal(failedAfterEmpty.data.refreshError.message, "Список недоступний");
+guiService.getAdCampaignList = async () => [activeCampaign, deletedCampaign];
+const returnedList = await handlers.get("campaigns:list")({}, { ...reconcilePayload, includeDeleted: true });
+assert.deepEqual(returnedList.data.campaigns.map((item) => item.id), [activeCampaign.id, deletedCampaign.id]);
+await assert.rejects(remoteDataCacheStore.setCampaigns("fp_hub", "act_reconcile", "today", {}), { code: "CAMPAIGN_LIST_INVALID" });
+await remoteDataCacheStore.patchCampaign("fp_hub", "act_reconcile", { id: "removed", status: "PAUSED" });
+const restoredCopy = await handlers.get("campaigns:list")({}, { ...reconcilePayload, force: false });
+assert.equal(restoredCopy.data.campaigns.find((item) => item.id === "removed").spend, 42);
+
+// Помилка статистики після успішного списку зберігає новий склад і старі цифри.
+await remoteDataCacheStore.setCampaigns("fp_hub", "act_stats_failure", "today", {
+    campaigns: [{ id: "gone", status: "PAUSED" }, { ...activeCampaign, spend: 9 }],
+    statisticsUpdatedAt: "2000-01-01T00:00:00Z",
+});
+const originalStatistics = guiService.getAdCampaignStatistics;
+guiService.getAdCampaignList = async () => [activeCampaign];
+guiService.getAdCampaignStatistics = async () => { throw new Error("Статистика недоступна"); };
+const statsFailure = await handlers.get("campaigns:refresh")({}, { accountKey: "fp_hub", adAccountId: "act_stats_failure" });
+assert.deepEqual(statsFailure.data.campaigns.map((item) => item.id), [activeCampaign.id]);
+assert.equal(statsFailure.data.campaigns[0].spend, 9);
+assert.equal(statsFailure.data.refreshError.message, "Статистика недоступна");
+guiService.getAdCampaignStatistics = originalStatistics;
+
 // Створення уточнює тільки нову кампанію, зберігаючи попередні кампанії та статистику.
 adAccountPreferencesStore.isKeitaroLeadSyncEnabled = async () => false;
 const unrelated = (await remoteDataCacheStore.getCampaigns("fp_hub", "act_1", "today")).value.campaigns.find((item) => item.id === "campaign-1");
