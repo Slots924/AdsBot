@@ -493,11 +493,7 @@ export default function TemplatesTab({
                             </div>
 
                             <section className="template-form-section">
-                                <header><strong>Аудиторія</strong><label className={`campaign-launch-switch ${draft.advantageAudience ? "active" : ""}`}><span>Advantage+</span><input type="checkbox" role="switch" aria-label="Увімкнути Advantage+" checked={draft.advantageAudience} onChange={(event) => setDraft((current) => {
-                                    const advantageAudience = event.target.checked;
-                                    const ageMin = advantageAudience ? Math.max(current.ageMin, current.minimumAge) : current.ageMin;
-                                    return { ...current, advantageAudience, ageMin, ageMax: Math.max(ageMin, current.ageMax) };
-                                })} /><i aria-hidden="true" /></label></header>
+                                <header><strong>Аудиторія</strong></header>
                                 <label className="field country-picker"><span>Додати країну</span><GeoSelect countries={countries} value={countryToAdd} onChange={addCountry} layout="list" placeholder="Оберіть країну" ariaLabel="Додати країну" /></label>
                                 <div className="selected-template-codes">
                                     <strong>Вибрані країни</strong>
@@ -512,6 +508,11 @@ export default function TemplatesTab({
                                     })}
                                 </div>
                                 <small className="field-hint">Можна вибрати одну або кілька мов. Порожній список означає, що фільтр мов не застосовується.</small>
+                                <label className={`campaign-launch-switch template-advantage-switch ${draft.advantageAudience ? "active" : ""}`}><span>Advantage+</span><input type="checkbox" role="switch" aria-label="Увімкнути Advantage+" checked={draft.advantageAudience} onChange={(event) => setDraft((current) => {
+                                    const advantageAudience = event.target.checked;
+                                    const ageMin = advantageAudience ? Math.max(current.ageMin, current.minimumAge) : current.ageMin;
+                                    return { ...current, advantageAudience, ageMin, ageMax: Math.max(ageMin, current.ageMax) };
+                                })} /><i aria-hidden="true" /></label>
                                 <label className={`field template-minimum-age ${draft.advantageAudience ? "" : "disabled"}`}><span>Мінімальний вік Advantage+</span><select aria-label="Мінімальний вік Advantage+" disabled={!draft.advantageAudience} value={draft.minimumAge} onChange={(event) => setDraft((current) => {
                                     const minimumAge = Number(event.target.value);
                                     const ageMin = Math.max(current.ageMin, minimumAge);

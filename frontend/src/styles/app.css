@@ -622,6 +622,7 @@ button:focus-visible, input:focus-visible {
 .template-minimum-age.disabled { opacity: .45; }
 .template-minimum-age select:disabled { cursor: not-allowed; }
 .template-placement-switch { width: fit-content; margin-bottom: 8px; }
+.template-advantage-switch { width: fit-content; margin-top: 12px; }
 .template-age-options { position: absolute; z-index: 8; top: calc(100% + 4px); right: 0; left: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); max-height: 170px; overflow-y: auto; padding: 6px; border: 1px solid rgba(132,114,255,.45); border-radius: 10px; background: #111521; box-shadow: 0 16px 35px rgba(0,0,0,.48); }
 .template-age-options button, .template-age-options span { min-height: 33px; padding: 6px; border: 0; border-radius: 6px; color: #c5cada; background: transparent; cursor: pointer; font-size: 13px; text-align: center; }
 .template-age-options button:hover, .template-age-options button.selected { color: #fff; background: rgba(132,114,255,.22); }
