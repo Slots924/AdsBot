@@ -229,6 +229,8 @@ function assertAction(result, fallback) {
         result?.status || "PERSONAL_ACCOUNT_ACTION_FAILED",
         {
             stage: result?.stage ?? null,
+            expectedScreenType: result?.expectedScreenType ?? null,
+            actualScreenType: result?.actualScreenType ?? null,
             httpStatus: result?.httpStatus ?? null,
             graphCode: result?.graphCode ?? null,
             graphSubcode: result?.graphSubcode ?? null,
@@ -1213,6 +1215,8 @@ export default class PersonalAccountSessionManager {
                         message: String(error?.message ?? error),
                         code: error?.code ?? null,
                         stage: error?.stage ?? null,
+                        expectedScreenType: error?.expectedScreenType ?? null,
+                        actualScreenType: error?.actualScreenType ?? null,
                         httpStatus: error?.httpStatus ?? null,
                         facebookError: error?.facebookError ?? null,
                         ...(error?.result ? { result: error.result } : {}),
@@ -1223,6 +1227,10 @@ export default class PersonalAccountSessionManager {
                 this.logger?.error(`${action}.failed`, "Дія персонального акаунта завершилася помилкою", {
                     sessionId: session.id,
                     profileNo: session.profileNo,
+                    ...(error?.expectedScreenType ? {
+                        expectedScreenType: error.expectedScreenType,
+                        actualScreenType: error.actualScreenType ?? null,
+                    } : {}),
                     error,
                 });
                 throw error;

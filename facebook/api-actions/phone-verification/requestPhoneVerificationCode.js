@@ -12,13 +12,14 @@ import {
 
 
 const triggerFriendlyName = "CometIXTFacebookXfacBvTriggerRootQuery";
-const triggerDocId = "28631875969757608";
+const triggerDocId = "29392639113662669";
 const nextFriendlyName = "CometFacebookIXTNextMutation";
-const nextDocId = "29061690550105326";
+const nextDocId = "29322112374040538";
 const smsMethod = "SMS";
 const whatsappMethod = "WHATSAPP_MESSAGE";
 
 const enterPhoneScreenType = "BVWizardAdvertiserVerificationEnterPhoneIXTScreenViewModel";
+const sharingSelectionScreenType = "BVWizardVerificationSharingSelectionIXTScreenViewModel";
 const selectMethodScreenType = "ChallengeSelectIXTScreenViewModel";
 const confirmSmsScreenType = "ChallengeSMSConfirmIXTScreenViewModel";
 const enterSmsCodeScreenType = "ChallengeSMSEnterCodeIXTScreenViewModel";
@@ -202,8 +203,7 @@ function createFlow({
 }
 
 
-// Запускає verification flow, вводить номер, обирає SMS і надсилає код.
-// Для WHATSAPP_MESSAGE та ROBOCALL зараз повертається METHOD_NOT_IMPLEMENTED без mutation.
+// Запускає verification flow, за потреби обирає інший номер і надсилає код через SMS або WhatsApp.
 export default async function requestPhoneVerificationCode({
     page,
     commonPayload,
@@ -275,13 +275,62 @@ export default async function requestPhoneVerificationCode({
             return createResult(false, rootResult.errorStatus, rootResult.data ?? null, rootResult);
         }
 
-        const enterPhoneScreen = parseRootScreen(rootResult.data);
+        let enterPhoneResultSource = rootResult;
+        let enterPhoneScreen = parseRootScreen(rootResult.data);
+        let clientMutationId = 0;
+        let entryStage = "START_FLOW";
+
+        if (enterPhoneScreen.screenType === sharingSelectionScreenType) {
+            const options = enterPhoneScreen.viewModel
+                ?.bv_wizard_option_selection_screen_content_renderer?.options;
+            const alternativeOption = Array.isArray(options)
+                ? options.find((option) => option?.is_alternative_option === true
+                    && typeof option.option === "string" && option.option.trim())
+                : null;
+            if (!enterPhoneScreen.serializedState || !alternativeOption) {
+                return createResult(false, requestPhoneVerificationCodeStatuses.UNEXPECTED_SCREEN, rootResult.data, {
+                    stage: "SELECT_DIFFERENT_PHONE",
+                    expectedScreenType: sharingSelectionScreenType,
+                    actualScreenType: enterPhoneScreen.screenType,
+                    error: "Екран вибору номера не містить стану або варіанта підтвердження іншого номера",
+                    httpStatus: rootResult.httpStatus,
+                });
+            }
+
+            entryStage = "SELECT_DIFFERENT_PHONE";
+            enterPhoneResultSource = await executeStep({
+                page,
+                commonPayload,
+                adAccountId: normalizedAdAccountId,
+                friendlyName: nextFriendlyName,
+                docId: nextDocId,
+                variables: {
+                    input: {
+                        bv_wizard_verification_sharing_selection: {
+                            option: alternativeOption.option,
+                            serialized_state: enterPhoneScreen.serializedState,
+                        },
+                        actor_id: String(commonPayload.__user),
+                        client_mutation_id: String(++clientMutationId),
+                    },
+                    scale: 1,
+                },
+                timeout: normalizedTimeout,
+                stage: entryStage,
+            });
+            if (enterPhoneResultSource.errorStatus) {
+                return createResult(false, enterPhoneResultSource.errorStatus,
+                    enterPhoneResultSource.data ?? null, enterPhoneResultSource);
+            }
+            enterPhoneScreen = parseNextScreen(enterPhoneResultSource.data);
+        }
+
         if (enterPhoneScreen.screenType !== enterPhoneScreenType || !enterPhoneScreen.serializedState) {
-            return createResult(false, requestPhoneVerificationCodeStatuses.UNEXPECTED_SCREEN, rootResult.data, {
-                stage: "START_FLOW",
+            return createResult(false, requestPhoneVerificationCodeStatuses.UNEXPECTED_SCREEN, enterPhoneResultSource.data, {
+                stage: entryStage,
                 expectedScreenType: enterPhoneScreenType,
                 actualScreenType: enterPhoneScreen.screenType,
-                httpStatus: rootResult.httpStatus,
+                httpStatus: enterPhoneResultSource.httpStatus,
             });
         }
 
@@ -300,7 +349,7 @@ export default async function requestPhoneVerificationCode({
                         serialized_state: enterPhoneScreen.serializedState,
                     },
                     actor_id: String(commonPayload.__user),
-                    client_mutation_id: "1",
+                    client_mutation_id: String(++clientMutationId),
                 },
                 scale: 1,
             },
@@ -356,7 +405,7 @@ export default async function requestPhoneVerificationCode({
                         serialized_state: selectMethodScreen.serializedState,
                     },
                     actor_id: String(commonPayload.__user),
-                    client_mutation_id: "2",
+                    client_mutation_id: String(++clientMutationId),
                 },
                 scale: 1,
             },
@@ -392,7 +441,7 @@ export default async function requestPhoneVerificationCode({
                         serialized_state: confirmScreen.serializedState,
                     },
                     actor_id: String(commonPayload.__user),
-                    client_mutation_id: "3",
+                    client_mutation_id: String(++clientMutationId),
                 },
                 scale: 1,
             },
