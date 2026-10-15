@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import preflightLeadCampaign from "../facebook/workflows/preflightLeadCampaign.js";
 import createLeadCampaign from "../facebook/workflows/createLeadCampaign.js";
 import FacebookGraphApi from "../facebook/api/FacebookGraphApi.js";
+import { buildCampaignCreativeFields } from "../facebook/services/campaigns/CampaignCreative.js";
 
 const input = {
     adAccountId: "act_1", campaignName: "DE | CBO | 2 креативів | 18+ 07/10 12:00", pixelId: "30",
@@ -27,6 +28,22 @@ assert.equal(validatedCampaigns.length, 1);
 assert.equal(validatedCampaigns[0].daily_budget, "2750");
 assert.equal(validatedCampaigns[0].is_adset_budget_sharing_enabled, false);
 assert.equal(preflight.posts[1].instagramActorId, "ig-11");
+assert.equal(preflight.posts[1].instagramIdentityMode, "business");
+for (const details of [{}, { connected_page_backed_instagram_account: { id: "17841" } }]) {
+    const pageBacked = await preflightLeadCampaign({ ...input, posts: undefined, pageId: "10", postId: "10_20" }, {
+        ...operations, getInstagramAccount: async () => details,
+    });
+    assert.equal(pageBacked.instagramActorId, null);
+    assert.equal(pageBacked.instagramIdentityMode, "facebook-page");
+    assert.equal(pageBacked.pageBackedInstagramId, details.connected_page_backed_instagram_account?.id ?? null);
+    const creative = buildCampaignCreativeFields({ options: input, name: "Test", preflight: pageBacked });
+    assert.equal(creative.object_story_id, "10_20");
+    assert.ok(!("instagram_user_id" in creative));
+    assert.ok(!("instagram_actor_id" in creative));
+}
+await assert.rejects(preflightLeadCampaign({ ...input, posts: undefined, pageId: "10", postId: "10_20" }, {
+    ...operations, getInstagramAccount: async () => { throw new Error("Доступ заборонено"); },
+}), /Не вдалося перевірити Instagram для фанпейджі 10/);
 
 for (const budgetMode of ["adset", "campaign"]) {
     const writes = { campaign: [], creative: [], adset: [], ad: [] };
@@ -48,7 +65,7 @@ for (const budgetMode of ["adset", "campaign"]) {
     assert.ok(writes.ad.every((fields) => !fields.name.includes("2 креативів")));
     assert.deepEqual(writes.ad.map((fields) => fields.name.match(/Creo_\d+/)?.[0]), ["Creo_125", "Creo_4", "Creo_125", "Creo_4"]);
     assert.deepEqual(writes.creative.map((fields) => fields.object_story_id), ["10_20", "11_21"]);
-    assert.deepEqual(writes.creative.map((fields) => fields.instagram_actor_id), ["ig-10", "ig-11"]);
+    assert.deepEqual(writes.creative.map((fields) => fields.instagram_user_id), ["ig-10", "ig-11"]);
     assert.deepEqual(writes.ad.map((fields) => [fields.adset_id, fields.creative.creative_id]), [
         ["adset-1", "creative-1"], ["adset-1", "creative-2"],
         ["adset-2", "creative-1"], ["adset-2", "creative-2"],

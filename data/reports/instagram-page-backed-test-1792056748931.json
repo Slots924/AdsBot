@@ -1,0 +1,440 @@
+{
+  "startedAt": "2026-10-15T09:32:28.931Z",
+  "requests": [
+    {
+      "method": "get",
+      "endpoint": "/v26.0/me/accounts",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1313316905201651",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1313316905201651",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/act_1424102882601557/adspixels",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/me/permissions",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/act_1424102882601557",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1313316905201651",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1313316905201651_122100961911498013",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/act_1424102882601557/adspixels",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/campaigns",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/campaigns",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/adcreatives",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/adcreatives",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/adsets",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/adsets",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/ads",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/ads",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/120256075364820348",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/29278871768364628",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/120256075366790348",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/120256075369870348",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/29278871768364628",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1313316905201651",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1313316905201651",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/29278871768364628/previews",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    }
+  ],
+  "objects": {
+    "campaignId": "120256075364820348",
+    "creativeId": "29278871768364628",
+    "creatives": [
+      {
+        "id": "29278871768364628",
+        "pageId": "1313316905201651",
+        "postId": "1313316905201651_122100961911498013"
+      }
+    ],
+    "adSets": [
+      {
+        "index": 0,
+        "id": "120256075366790348",
+        "name": "TEST Use Facebook Page Instagram 2026-10-15T09:32:40.318Z | AS 01"
+      }
+    ],
+    "ads": [
+      {
+        "index": 0,
+        "creativeIndex": 0,
+        "id": "120256075369870348",
+        "name": "TEST Use Facebook Page Instagram 2026-10-15T09:32:40.318Z | AD 01"
+      }
+    ]
+  },
+  "identityBefore": {
+    "id": "1313316905201651",
+    "connected_page_backed_instagram_account": {
+      "id": "17841416376977396"
+    },
+    "__fb_trace_id__": "DmyEiUH4AbD",
+    "__www_request_id__": "AmuKBgbh4oE7746vowk8wNX"
+  },
+  "input": {
+    "adAccountId": "act_1424102882601557",
+    "pageId": "1313316905201651",
+    "postId": "1313316905201651_122100961911498013",
+    "templateId": 27,
+    "dailyBudget": 5,
+    "adSetCount": 1,
+    "placements": {
+      "facebook": [
+        "feed"
+      ],
+      "instagram": [
+        "stream"
+      ]
+    }
+  },
+  "stage": "complete",
+  "statuses": {
+    "campaign": "PAUSED",
+    "adSets": [
+      "PAUSED"
+    ],
+    "ads": [
+      "PAUSED"
+    ]
+  },
+  "creativeIdentity": {
+    "id": "29278871768364628",
+    "name": "TEST Use Facebook Page Instagram 2026-10-15T09:32:40.318Z | Creative 2026-10-15-da36f9944fbe086ffd7615a2b1daac3e",
+    "degrees_of_freedom_spec": {
+      "creative_features_spec": {
+        "adapt_to_placement": {
+          "enroll_status": "OPT_OUT"
+        },
+        "add_text_overlay": {
+          "enroll_status": "OPT_OUT"
+        },
+        "advantage_plus_creative": {
+          "enroll_status": "OPT_OUT"
+        },
+        "audio": {
+          "enroll_status": "OPT_OUT"
+        },
+        "auto_promotion_tag": {
+          "enroll_status": "OPT_OUT"
+        },
+        "carousel_to_video": {
+          "enroll_status": "OPT_OUT"
+        },
+        "catalog_feed_tag": {
+          "enroll_status": "OPT_OUT"
+        },
+        "customize_product_recommendation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "cv_transformation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "description_automation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "dha_optimization": {
+          "enroll_status": "OPT_OUT"
+        },
+        "dynamic_cta_text": {
+          "enroll_status": "OPT_OUT"
+        },
+        "enhance_cta": {
+          "enroll_status": "OPT_OUT"
+        },
+        "feed_caption_optimization": {
+          "enroll_status": "OPT_OUT"
+        },
+        "generate_cta": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_animation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_auto_crop": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_background_gen": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_brightness_and_contrast": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_enhancement": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_templates": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_text_translation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_touchups": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_uncrop": {
+          "enroll_status": "OPT_OUT"
+        },
+        "media_liquidity_animated_image": {
+          "enroll_status": "OPT_OUT"
+        },
+        "media_order": {
+          "enroll_status": "OPT_OUT"
+        },
+        "media_type_automation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "multi_creative_post_carousel": {
+          "enroll_status": "OPT_OUT"
+        },
+        "multi_photo_to_video": {
+          "enroll_status": "OPT_OUT"
+        },
+        "music_generation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "pac_genai_recomposition": {
+          "enroll_status": "OPT_OUT"
+        },
+        "pac_recomposition": {
+          "enroll_status": "OPT_OUT"
+        },
+        "pac_relaxation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "product_browsing": {
+          "enroll_status": "OPT_OUT"
+        },
+        "product_extensions": {
+          "enroll_status": "OPT_OUT"
+        },
+        "product_metadata_automation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "product_tags": {
+          "enroll_status": "OPT_OUT"
+        },
+        "site_extensions": {
+          "enroll_status": "OPT_OUT"
+        },
+        "standard_enhancements": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_extraction_for_headline": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_extraction_for_tap_target": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_formatting_optimization": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_generation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_optimizations": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_overlay_translation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_translation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "translate_voiceover": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_auto_crop": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_filtering": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_highlight": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_highlights": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_to_image": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_uncrop": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_uncrop_9x16_to_9x18": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_voiceover": {
+          "enroll_status": "OPT_OUT"
+        }
+      }
+    },
+    "effective_object_story_id": "1313316905201651_122100961911498013"
+  },
+  "identityAfter": {
+    "id": "1313316905201651",
+    "connected_page_backed_instagram_account": {
+      "id": "17841416376977396"
+    },
+    "__fb_trace_id__": "FOamKXy0nem",
+    "__www_request_id__": "AFou1r_SwDJFPBQxabt6a_5"
+  },
+  "targeting": [
+    {
+      "age_max": 65,
+      "age_min": 30,
+      "genders": [
+        1
+      ],
+      "geo_locations": {
+        "countries": [
+          "AT"
+        ],
+        "location_types": [
+          "frequently_in",
+          "home",
+          "recent"
+        ]
+      },
+      "targeting_relaxation_types": {
+        "lookalike": 0,
+        "custom_audience": 0
+      },
+      "targeting_automation": {
+        "advantage_audience": 0
+      },
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ],
+      "facebook_positions": [
+        "feed"
+      ],
+      "instagram_positions": [
+        "stream"
+      ]
+    }
+  ],
+  "instagramPreview": {
+    "count": 1,
+    "hasHtml": true
+  },
+  "warnings": [],
+  "status": "complete",
+  "finishedAt": "2026-10-15T09:33:48.428Z"
+}

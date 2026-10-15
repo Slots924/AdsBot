@@ -4,7 +4,7 @@ import path from "node:path";
 import { SUPPORTED_TEMPLATE_LANGUAGE_IDS } from "./LanguageCatalog.js";
 
 
-export const TEMPLATE_SCHEMA_VERSION = 7;
+export const TEMPLATE_SCHEMA_VERSION = 8;
 export const TEMPLATE_GENDERS = new Set(["any", "male", "female"]);
 export const TEMPLATE_DEVICE_PLATFORMS = new Set(["mobile", "desktop"]);
 export const TEMPLATE_OPERATING_SYSTEMS = new Set(["Android", "iOS"]);
@@ -82,8 +82,15 @@ export function normalizeTemplateInput(input = {}) {
     const gender = TEMPLATE_GENDERS.has(input.gender)
         ? input.gender
         : "any";
-    const ageMin = normalizeAge(input.ageMin, 18);
-    const ageMax = normalizeAge(input.ageMax, 65);
+    const advantageAudience = input.advantageAudience === true;
+    const minimumAge = normalizeAge(input.minimumAge, 18);
+    if (minimumAge < 18 || minimumAge > 25) {
+        throw createTemplateError("Мінімальний вік Advantage+ має бути від 18 до 25", "TEMPLATE_MINIMUM_AGE_INVALID");
+    }
+    const requestedAgeMin = normalizeAge(input.ageMin, 18);
+    const requestedAgeMax = normalizeAge(input.ageMax, 65);
+    const ageMin = advantageAudience ? Math.max(requestedAgeMin, minimumAge) : requestedAgeMin;
+    const ageMax = advantageAudience ? Math.max(requestedAgeMax, ageMin) : requestedAgeMax;
     const devicePlatforms = normalizeDevicePlatforms(input.devicePlatforms);
 
     if (!name) {
@@ -92,7 +99,7 @@ export function normalizeTemplateInput(input = {}) {
             "TEMPLATE_NAME_REQUIRED"
         );
     }
-    if (ageMin < 18 || ageMin > 65 || ageMax < 18 || ageMax > 65) {
+    if (requestedAgeMin < 18 || requestedAgeMin > 65 || requestedAgeMax < 18 || requestedAgeMax > 65) {
         throw createTemplateError(
             "Вік має бути в діапазоні від 18 до 65+",
             "TEMPLATE_AGE_INVALID"
@@ -115,12 +122,15 @@ export function normalizeTemplateInput(input = {}) {
         gender,
         ageMin,
         ageMax,
+        advantageAudience,
+        minimumAge,
         devicePlatforms,
         operatingSystems: normalizeOperatingSystems(
             input.operatingSystems,
             devicePlatforms
         ),
         placements: normalizePlacements(input.placements),
+        allowLimitedPlacementSpend: input.allowLimitedPlacementSpend !== false,
         shareAdSetBudget: Boolean(input.shareAdSetBudget),
         // Старі шаблони теж мігрують до безпечного вимкненого стану.
         disableCreativeEnhancements: input.disableCreativeEnhancements !== false,

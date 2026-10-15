@@ -1,0 +1,108 @@
+{
+  "startedAt": "2026-10-15T09:30:09.930Z",
+  "requests": [
+    {
+      "method": "get",
+      "endpoint": "/v26.0/me/accounts",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1313316905201651",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1313316905201651",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/act_1424102882601557/adspixels",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/me/permissions",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/act_1424102882601557",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1313316905201651",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1313316905201651_122107857831498013",
+      "throughProxy": "[REDACTED]",
+      "failure": {
+        "code": "ERR_BAD_REQUEST",
+        "httpStatus": 400,
+        "graphCode": 100
+      }
+    }
+  ],
+  "objects": {
+    "campaignId": null,
+    "creativeId": null,
+    "creatives": [],
+    "adSets": [],
+    "ads": []
+  },
+  "identityBefore": {
+    "id": "1313316905201651",
+    "connected_page_backed_instagram_account": {
+      "id": "17841416376977396"
+    },
+    "__fb_trace_id__": "ByYGgDAevpT",
+    "__www_request_id__": "ApyohMQlv0c-qWGzAuPF_Zn"
+  },
+  "input": {
+    "adAccountId": "act_1424102882601557",
+    "pageId": "1313316905201651",
+    "postId": "1313316905201651_122107857831498013",
+    "templateId": 27,
+    "dailyBudget": 5,
+    "adSetCount": 1,
+    "placements": {
+      "facebook": [
+        "feed"
+      ],
+      "instagram": [
+        "stream"
+      ]
+    }
+  },
+  "stage": "preflight",
+  "status": "failed",
+  "error": {
+    "message": "Unsupported get request. Object with ID '1313316905201651_122107857831498013' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+    "code": "FACEBOOK_API_ERROR",
+    "stage": "preflight",
+    "graphCode": 100,
+    "graphSubcode": 33
+  },
+  "finishedAt": "2026-10-15T09:30:34.561Z",
+  "postCheck": {
+    "visiblePostIds": [
+      "1313316905201651_122100961911498013",
+      "1313316905201651_122096682375498013",
+      "1313316905201651_122096682243498013",
+      "1313316905201651_122096682105498013",
+      "1313316905201651_122096681991498013"
+    ],
+    "targetFound": false
+  }
+}

@@ -104,15 +104,20 @@ export default async function preflightLeadCampaign(options, operations) {
     }
 
     let instagramActorId = null;
+    let instagramIdentityMode = null;
+    let pageBackedInstagramId = null;
     if (template.placements?.instagram?.length) {
-        const pageDetails = await operations.getInstagramAccount(normalizedPageId, page.pageAccessToken);
-        instagramActorId = pageDetails.instagram_business_account?.id ?? null;
-        if (!instagramActorId) {
-            throw createValidationError(
-                "Для Instagram placements до фанпейджі має бути прив’язаний Instagram business account",
-                "CAMPAIGN_INSTAGRAM_ACTOR_REQUIRED"
-            );
+        let pageDetails;
+        try {
+            pageDetails = await operations.getInstagramAccount(normalizedPageId, page.pageAccessToken);
+        } catch (error) {
+            error.message = `Не вдалося перевірити Instagram для фанпейджі ${normalizedPageId}: ${error.message}`;
+            throw error;
         }
+        instagramActorId = pageDetails.instagram_business_account?.id ?? null;
+        pageBackedInstagramId = pageDetails.connected_page_backed_instagram_account?.id ?? null;
+        // Без окремого Instagram-акаунта Meta використовує Facebook Page автоматично.
+        instagramIdentityMode = instagramActorId ? "business" : "facebook-page";
     }
 
     const budgetMinor = budgetToMinorUnits(budgetMode === "campaign" ? campaignBudget : dailyBudget, account.currency);
@@ -129,6 +134,8 @@ export default async function preflightLeadCampaign(options, operations) {
         postId: storyId,
         pixel: { id: pixel.id, name: pixel.name ?? "" },
         instagramActorId,
+        instagramIdentityMode,
+        pageBackedInstagramId,
         dailyBudgetMinor: budgetMinor,
         budgetMode,
         startTime: normalizedStart.toISOString(),

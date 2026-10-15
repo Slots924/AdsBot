@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "id": "3e6e643c-d59b-4afd-84b2-a40e5e73c90f",
+  "taskId": "62952cf3-e158-446f-9839-e6be5b5f6255",
+  "type": "campaign",
+  "title": "ES | Creo_1 | 40+ 13/10 12:08",
+  "status": "failed",
+  "createdAt": "2026-10-13T09:09:04.543Z",
+  "startedAt": "2026-10-13T09:08:19.044Z",
+  "finishedAt": "2026-10-13T09:09:04.542Z",
+  "durationMs": 45498,
+  "inputSummary": {
+    "campaignJobId": "fa749885-3d9d-4c53-b2e0-f0e66fa25874",
+    "accountKey": "account-031",
+    "adAccountId": "act_1529700178179374",
+    "campaignName": "ES | Creo_1 | 40+ 13/10 12:08",
+    "templateId": 19,
+    "pageId": "825647717291655",
+    "postId": "825647717291655_122148755403031876",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-10-13T09:08:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120251427745240122",
+      "creativeId": "1968754357153953",
+      "creatives": [
+        {
+          "id": "1968754357153953",
+          "pageId": "825647717291655",
+          "postId": "825647717291655_122148755403031876"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120251427746820122",
+          "name": "ES | Creo_1 | 40+ 13/10 12:08 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120251427747980122",
+          "name": "ES | Creo_1 | 40+ 13/10 12:08 | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120251427749460122",
+          "name": "ES | Creo_1 | 40+ 13/10 12:08 | AS 03"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "creativeIndex": 0,
+          "id": "120251427747500122",
+          "name": "ES | Creo_1 | 40+ 13/10 12:08 | AD 01"
+        },
+        {
+          "index": 1,
+          "creativeIndex": 0,
+          "id": "120251427748590122",
+          "name": "ES | Creo_1 | 40+ 13/10 12:08 | AD 02"
+        },
+        {
+          "index": 2,
+          "creativeIndex": 0,
+          "id": "120251427750490122",
+          "name": "ES | Creo_1 | 40+ 13/10 12:08 | AD 03"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Only active accounts can create or edit ads.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 100,
+      "graphSubcode": 1885316,
+      "graphUserTitle": "Disabled accounts can't create or edit ads",
+      "graphUserMessage": "Only active accounts can create or edit ads.",
+      "graphType": "OAuthException",
+      "isTransient": false,
+      "requestId": "348867c2-6e2b-425c-b0ad-d7abac65eae7",
+      "traceId": "At0gOpJ8vjo4w2dhwV37z06",
+      "metaRequestId": "At0gOpJ8vjo4w2dhwV37z06",
+      "endpoint": "/act_1529700178179374/adsets",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "stage": "adset",
+      "itemIndex": 3,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "fa749885-3d9d-4c53-b2e0-f0e66fa25874",
+    "accountKey": "account-031",
+    "adAccountId": "act_1529700178179374",
+    "uniqueKey": "campaign-job:fa749885-3d9d-4c53-b2e0-f0e66fa25874"
+  }
+}

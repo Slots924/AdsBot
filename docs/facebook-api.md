@@ -371,8 +371,21 @@ Ad Set та ad одразу створюються з потрібним ста�
 `PROFILE_PLUS_ADVERTISE`; preflight приймає його нарівні з класичним `ADVERTISE`.
 
 `createLeadCampaign()` використовує `OUTCOME_LEADS`,
-`OFFSITE_CONVERSIONS`, Pixel event `LEAD`, бюджети ad set і ручний targeting з
-`advantage_audience=0`. Creative посилається на готовий `object_story_id` або
+`OFFSITE_CONVERSIONS`, Pixel event `LEAD`, бюджети ad set і targeting із шаблону.
+За замовчуванням `advantageAudience=false` (`advantage_audience=0`). Коли
+Advantage+ увімкнено, `minimumAge` (18–25, типово 18) передається як `age_min`,
+`age_max=65`, а бажаний діапазон `ageMin`–`ageMax` — як `age_range`.
+Нормалізація піднімає бажаний діапазон до `minimumAge`, якщо потрібно.
+Поле мінімального віку завжди показане в редакторі, але доступне лише з Advantage+.
+
+`allowLimitedPlacementSpend=true` за замовчуванням, включно зі старими шаблонами.
+Ad set отримує `placement_soft_opt_out` зі списками виключених плейсментів
+Facebook/Instagram із каталогу редактора; вибрані плейсменти залишаються
+у `targeting`. У вимкненому стані передаються явні порожні списки.
+Meta може витрачати близько 5% на кожен частково виключений плейсмент.
+Формат об'єкта: [офіційний SDK Meta](https://github.com/facebook/facebook-python-business-sdk/blob/main/facebook_business/adobjects/placementsoftoptout.py).
+
+Creative посилається на готовий `object_story_id` або
 містить `object_story_spec.link_data`, отримує `url_tags` та явні `OPT_OUT`
 для відомих creative enhancements. Для image ad значення `NO_BUTTON` не додає
 `call_to_action`; системне згортання тексту з написом `See more` API Facebook
@@ -381,7 +394,16 @@ Ad Set та ad одразу створюються з потрібним ста�
 Масовий запуск приймає `posts: [{ pageId, postId }]` замість одного джерела.
 Усі пости перевіряються до першого створення об’єкта; спільні ресурси preflight
 кешуються в межах однієї перевірки. Для кожного поста створюється окремий
-creative із відповідним Instagram actor, а кожен ad set містить усі creatives.
+creative, а кожен ad set містить усі creatives. Якщо вибрано Instagram,
+preflight читає `instagram_business_account` та `connected_page_backed_instagram_account`.
+Окремий Instagram-акаунт передається як `instagram_user_id`. Якщо його немає,
+поле не передається: Meta використовує Facebook Page, як у перевіреному живому
+сценарії. Відсутність окремого business account більше не блокує запуск.
+Preflight повертає `instagramIdentityMode` (`business` або `facebook-page`)
+і `pageBackedInstagramId` для діагностики. Помилки Instagram під час створення
+отримують зрозуміле пояснення для користувача, збережені `issues_info` оголошень
+також перевіряються та потрапляють у попередження GUI. Коди Meta та ID частково
+створених об'єктів зберігаються для штатного очищення.
 `budgetMode=adset` зберігає звичайну поведінку ABO;
 `budgetMode=campaign` використовує `campaignBudget` у валюті РК, передає
 `daily_budget` і стратегію ставок лише на campaign та вимикає

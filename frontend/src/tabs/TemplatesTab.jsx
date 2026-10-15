@@ -38,9 +38,12 @@ function emptyDraft() {
         gender: "any",
         ageMin: 18,
         ageMax: 65,
+        advantageAudience: false,
+        minimumAge: 18,
         devicePlatforms: [],
         operatingSystems: [],
         placements: { facebook: ["feed"], instagram: [] },
+        allowLimitedPlacementSpend: true,
         shareAdSetBudget: false,
         disableCreativeEnhancements: true,
         disableMultiAdvertiserAds: true,
@@ -133,7 +136,15 @@ function AgePicker({ value, options, onChange, ariaLabel }) {
         return () => document.removeEventListener("mousedown", close);
     }, []);
 
-    return <div ref={root} className="template-age-picker">
+    return <div ref={root} className="template-age-picker" onBlur={(event) => {
+        if (root.current?.contains(event.relatedTarget)) return;
+        const typed = Number(query.replace(/\D/g, ""));
+        const age = query.trim() && Number.isInteger(typed)
+            ? Math.min(options.at(-1), Math.max(options[0], typed)) : value;
+        onChange(age);
+        setQuery(ageLabel(age));
+        setOpen(false);
+    }}>
         <input
             aria-label={ariaLabel}
             inputMode="numeric"
@@ -482,7 +493,11 @@ export default function TemplatesTab({
                             </div>
 
                             <section className="template-form-section">
-                                <header><strong>Аудиторія</strong><small>Advantage audience вимкнено</small></header>
+                                <header><strong>Аудиторія</strong><label className={`campaign-launch-switch ${draft.advantageAudience ? "active" : ""}`}><span>Advantage+</span><input type="checkbox" role="switch" aria-label="Увімкнути Advantage+" checked={draft.advantageAudience} onChange={(event) => setDraft((current) => {
+                                    const advantageAudience = event.target.checked;
+                                    const ageMin = advantageAudience ? Math.max(current.ageMin, current.minimumAge) : current.ageMin;
+                                    return { ...current, advantageAudience, ageMin, ageMax: Math.max(ageMin, current.ageMax) };
+                                })} /><i aria-hidden="true" /></label></header>
                                 <label className="field country-picker"><span>Додати країну</span><GeoSelect countries={countries} value={countryToAdd} onChange={addCountry} layout="list" placeholder="Оберіть країну" ariaLabel="Додати країну" /></label>
                                 <div className="selected-template-codes">
                                     <strong>Вибрані країни</strong>
@@ -497,16 +512,23 @@ export default function TemplatesTab({
                                     })}
                                 </div>
                                 <small className="field-hint">Можна вибрати одну або кілька мов. Порожній список означає, що фільтр мов не застосовується.</small>
+                                <label className={`field template-minimum-age ${draft.advantageAudience ? "" : "disabled"}`}><span>Мінімальний вік Advantage+</span><select aria-label="Мінімальний вік Advantage+" disabled={!draft.advantageAudience} value={draft.minimumAge} onChange={(event) => setDraft((current) => {
+                                    const minimumAge = Number(event.target.value);
+                                    const ageMin = Math.max(current.ageMin, minimumAge);
+                                    return { ...current, minimumAge, ageMin, ageMax: Math.max(current.ageMax, ageMin) };
+                                })}>{ageOptions.filter((age) => age <= 25).map((age) => <option key={age} value={age}>{age}</option>)}</select></label>
                                 <div className="template-editor-fields three-columns">
                                     <label className="field"><span>Стать</span><select value={draft.gender} onChange={(event) => setDraft((current) => ({ ...current, gender: event.target.value }))}><option value="any">Будь-яка</option><option value="male">Чоловіча</option><option value="female">Жіноча</option></select></label>
-                                    <label className="field"><span>Вік від</span><AgePicker value={draft.ageMin} options={ageOptions} ariaLabel="Вік від" onChange={(ageMin) => setDraft((current) => ({ ...current, ageMin, ageMax: Math.max(ageMin, current.ageMax) }))} /></label>
+                                    <label className="field"><span>Вік від</span><AgePicker value={draft.ageMin} options={ageOptions.filter((age) => !draft.advantageAudience || age >= draft.minimumAge)} ariaLabel="Вік від" onChange={(ageMin) => setDraft((current) => ({ ...current, ageMin, ageMax: Math.max(ageMin, current.ageMax) }))} /></label>
                                     <label className="field"><span>Вік до</span><AgePicker value={draft.ageMax} options={ageOptions.filter((age) => age >= draft.ageMin)} ariaLabel="Вік до" onChange={(ageMax) => setDraft((current) => ({ ...current, ageMax }))} /></label>
                                 </div>
-                                <small className="field-hint">65+ означає, що люди старше 65 років не відсікаються.</small>
+                                <small className="field-hint">{draft.advantageAudience ? "Віковий діапазон — побажання. Meta може розширити його, але не нижче мінімального віку Advantage+." : "65+ означає, що люди старше 65 років не відсікаються."}</small>
                             </section>
 
                             <section className="template-form-section">
                                 <header><strong>Ручні placements</strong><small>За замовчуванням Facebook Feed</small></header>
+                                <label className={`campaign-launch-switch template-placement-switch ${draft.allowLimitedPlacementSpend ? "active" : ""}`}><span>До 5% на виключені</span><input type="checkbox" role="switch" aria-label="Обмежені витрати на виключені плейсменти" checked={draft.allowLimitedPlacementSpend} onChange={(event) => setDraft((current) => ({ ...current, allowLimitedPlacementSpend: event.target.checked }))} /><i aria-hidden="true" /></label>
+                                <small className="field-hint">Meta може витратити близько 5% бюджету на кожен виключений плейсмент, якщо це покращить результат.</small>
                                 <div className="placement-grid">
                                     {placementOptions.map((option) => <label key={`${option.platform}-${option.value}`} className="checkbox-line compact"><input type="checkbox" checked={draft.placements[option.platform]?.includes(option.value)} onChange={() => togglePlacement(option.platform, option.value)} /><span>{option.label}</span></label>)}
                                 </div>

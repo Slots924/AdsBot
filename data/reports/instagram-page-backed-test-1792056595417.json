@@ -1,0 +1,20 @@
+{
+  "startedAt": "2026-10-15T09:29:55.417Z",
+  "requests": [
+    {
+      "method": "get",
+      "endpoint": "/v26.0/me/accounts",
+      "throughProxy": "[REDACTED]"
+    }
+  ],
+  "objects": null,
+  "status": "failed",
+  "error": {
+    "message": "Не вдалося виконати запит Facebook API",
+    "code": "FACEBOOK_API_ERROR",
+    "stage": null,
+    "graphCode": null,
+    "graphSubcode": null
+  },
+  "finishedAt": "2026-10-15T09:30:00.487Z"
+}

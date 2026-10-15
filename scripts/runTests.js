@@ -98,10 +98,11 @@ const backendSuites = {
     ],
 };
 const frontendSuites = {
-    campaign: ["src/test/campaign.test.jsx", "src/test/batch-campaign.test.jsx"],
+    campaign: ["src/test/campaign.test.jsx", "src/test/batch-campaign.test.jsx", "src/test/templates.test.jsx"],
     all: [
         "src/test/campaign.test.jsx",
         "src/test/batch-campaign.test.jsx",
+        "src/test/templates.test.jsx",
         "src/test/facebook-selectors.test.js",
         "src/test/gui.test.jsx",
         "src/test/journal-stats.test.jsx",

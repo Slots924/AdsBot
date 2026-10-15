@@ -1809,7 +1809,7 @@ export default class FacebookGraphApi {
 
 
     /** Повертає безпечні для перевірки поля рекламного Creative. */
-    async getAdCreativeDetails({ creativeId } = {}) {
+    async getAdCreativeDetails({ creativeId, includeInstagramIdentity = false } = {}) {
         const id = normalizeObjectId(
             creativeId,
             "CAMPAIGN_CREATIVE_ID_INVALID",
@@ -1818,7 +1818,17 @@ export default class FacebookGraphApi {
         return this.#readObject(id, [
             "id", "name", "effective_object_story_id", "object_story_spec",
             "degrees_of_freedom_spec",
+            ...(includeInstagramIdentity ? ["instagram_user_id"] : []),
         ]);
+    }
+
+    /** Читає Instagram-ідентичності сторінки через її токен і спільний проксі. */
+    async getPageInstagramIdentity({ pageId } = {}) {
+        const id = normalizeObjectId(pageId, "CAMPAIGN_PAGE_ID_INVALID", "Page ID");
+        const page = await this.#getCampaignPage(id);
+        return this.#request(`/${id}`, {
+            fields: "id,instagram_business_account{id},connected_page_backed_instagram_account{id}",
+        }, { accessToken: page.pageAccessToken });
     }
 
 
@@ -2172,7 +2182,7 @@ export default class FacebookGraphApi {
                 `/${id}/adspixels`, { fields: "id,name", limit: 100 }
             ),
             getInstagramAccount: (id, accessToken) => this.#request(`/${id}`, {
-                fields: "instagram_business_account{id,username}",
+                fields: "instagram_business_account{id,username},connected_page_backed_instagram_account{id}",
             }, { accessToken }),
             validateCampaign: (id, fields) => this.#writeObject(
                 `/${id}/campaigns`, fields, { validateOnly: true, stage: "preflight" }
@@ -2222,12 +2232,12 @@ export default class FacebookGraphApi {
                 [
                     "id", "name", "status", "effective_status",
                     "start_time", "daily_budget", "targeting",
-                    "promoted_object", "dsa_beneficiary", "dsa_payor",
+                    "promoted_object", "dsa_beneficiary", "dsa_payor", "placement_soft_opt_out",
                 ]
             ))),
             Promise.all(objects.ads.map((item) => this.#readObject(
                 item.id,
-                ["id", "name", "status", "effective_status", "creative"]
+                ["id", "name", "status", "effective_status", "creative", "issues_info"]
             ))),
         ]);
         const creatives = [creativeReadback];

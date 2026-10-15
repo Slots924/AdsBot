@@ -800,6 +800,9 @@ describe("GUI helpers", () => {
             ageMin: 18,
             ageMax: 65,
             devicePlatforms: ["mobile"],
+            advantageAudience: false,
+            minimumAge: 18,
+            allowLimitedPlacementSpend: true,
             operatingSystems: ["iOS"],
             placements: {
                 facebook: ["feed"],

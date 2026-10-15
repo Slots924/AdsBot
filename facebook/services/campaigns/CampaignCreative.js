@@ -56,7 +56,7 @@ export function buildCampaignCreativeFields({ options, name, preflight, imageHas
             contextual_multi_ads: { enroll_status: "OPT_OUT" },
         } : {}),
         ...(preflight.instagramActorId
-            ? { instagram_actor_id: preflight.instagramActorId }
+            ? { instagram_user_id: preflight.instagramActorId }
             : {}),
     };
 }

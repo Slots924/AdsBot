@@ -31,6 +31,9 @@ try {
     assert.equal(first.gender, "any");
     assert.equal(first.ageMin, 18);
     assert.equal(first.ageMax, 65);
+    assert.equal(first.advantageAudience, false);
+    assert.equal(first.minimumAge, 18);
+    assert.equal(first.allowLimitedPlacementSpend, true);
     assert.deepEqual(first.devicePlatforms, []);
     assert.deepEqual(first.operatingSystems, []);
     assert.equal(first.dsaBeneficiary, "");
@@ -57,7 +60,7 @@ try {
     const saved = JSON.parse(await readFile(templatesFile, "utf8"));
     assert.equal(saved.nextId, 4);
     assert.equal(saved.templates.length, 2);
-    assert.equal(saved.version, 7);
+    assert.equal(saved.version, 8);
     assert(!("pixel" in saved.templates[0]));
     assert(!("utm" in saved.templates[0]));
 
@@ -71,7 +74,7 @@ try {
         templatesFile: legacyFile,
     });
     const [legacy] = await legacyManager.list();
-    assert.equal(legacy.schemaVersion, 7);
+    assert.equal(legacy.schemaVersion, 8);
     assert.deepEqual(legacy.locales, []);
     assert.deepEqual(legacy.placements.facebook, ["feed"]);
     assert.deepEqual(legacy.devicePlatforms, []);
@@ -81,8 +84,21 @@ try {
     assert.equal(legacy.dsaPayor, "");
     assert.equal(legacy.disableCreativeEnhancements, true);
     assert.equal(legacy.disableMultiAdvertiserAds, true);
-    assert.equal(JSON.parse(await readFile(legacyFile, "utf8")).version, 7);
+    assert.equal(legacy.advantageAudience, false);
+    assert.equal(legacy.minimumAge, 18);
+    assert.equal(legacy.allowLimitedPlacementSpend, true);
+    assert.equal(JSON.parse(await readFile(legacyFile, "utf8")).version, 8);
     assert.equal(legacy.pixel, undefined);
+    const advantage = await manager.create({ name: "Advantage", advantageAudience: true,
+        minimumAge: 25, ageMin: 18, ageMax: 21, allowLimitedPlacementSpend: false });
+    assert.equal(advantage.ageMin, 25);
+    assert.equal(advantage.ageMax, 25);
+    assert.equal(advantage.allowLimitedPlacementSpend, false);
+    const copiedAdvantage = await manager.duplicate(advantage.id);
+    assert.equal(copiedAdvantage.minimumAge, 25);
+    assert.equal(copiedAdvantage.advantageAudience, true);
+    assert.equal(copiedAdvantage.allowLimitedPlacementSpend, false);
+    await assert.rejects(manager.create({ name: "Invalid", minimumAge: 26 }), { code: "TEMPLATE_MINIMUM_AGE_INVALID" });
 
     const mobileTemplate = await manager.create({
         name: "Mobile iOS",

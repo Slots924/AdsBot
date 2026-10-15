@@ -1,6 +1,7 @@
 import { createValidationError, normalizeAdAccountId, normalizeObjectId } from "../../api/validation.js";
 import { buildCampaignBudgetSettings } from "./CampaignBudget.js";
 import { buildCreativeEnhancementsOptOut, verifyCreativeEnhancementsOptOut } from "../../api/CreativeEnhancements.js";
+import { TEMPLATE_PLACEMENTS } from "../../../services/templates/CampaignTemplateManager.js";
 
 const europeanDsaCountries = new Set([
     "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR",
@@ -69,8 +70,11 @@ export function buildTargeting(template) {
         : template.gender === "female" ? [2] : undefined;
 
     return {
-        age_min: template.ageMin,
-        age_max: template.ageMax,
+        age_min: template.advantageAudience ? (template.minimumAge ?? 18) : template.ageMin,
+        age_max: template.advantageAudience ? 65 : template.ageMax,
+        ...(template.advantageAudience ? {
+            age_range: [Math.max(template.ageMin, template.minimumAge ?? 18), Math.max(template.ageMax, template.ageMin, template.minimumAge ?? 18)],
+        } : {}),
         geo_locations: { countries: template.countryCodes },
         ...(template.locales?.length ? { locales: template.locales } : {}),
         publisher_platforms: publisherPlatforms,
@@ -87,7 +91,7 @@ export function buildTargeting(template) {
         ...(template.operatingSystems?.length
             ? { user_os: template.operatingSystems }
             : {}),
-        targeting_automation: { advantage_audience: 0 },
+        targeting_automation: { advantage_audience: template.advantageAudience ? 1 : 0 },
     };
 }
 
@@ -236,6 +240,7 @@ export function buildAdSetFields({ name, ordinal, campaignId, template, prefligh
             custom_event_type: "LEAD",
         },
         targeting: preflight.targeting,
+        placement_soft_opt_out: buildPlacementSoftOptOut(template),
         start_time: preflight.startTime,
         status: createPaused ? "PAUSED" : "ACTIVE",
         ...(preflight.dsa ? {
@@ -243,6 +248,16 @@ export function buildAdSetFields({ name, ordinal, campaignId, template, prefligh
             dsa_payor: preflight.dsa.payor,
         } : {}),
     };
+}
+
+// Часткове виключення стосується плейсментів, якими керує редактор шаблонів.
+export function buildPlacementSoftOptOut(template) {
+    return Object.fromEntries(Object.entries(TEMPLATE_PLACEMENTS).map(([platform, values]) => {
+        const positions = values.map((item) => platform === "facebook" && item === "reels" ? "facebook_reels" : item);
+        const selected = (template.placements?.[platform] ?? []).map((item) => platform === "facebook" && item === "reels" ? "facebook_reels" : item);
+        return [`${platform}_positions`, template.allowLimitedPlacementSpend !== false
+            ? positions.filter((item) => !selected.includes(item)) : []];
+    }));
 }
 
 
@@ -271,6 +286,29 @@ export function verifyCampaignReadback({ readback, preflight, template }) {
         ?.degrees_of_freedom_spec
         ?.creative_features_spec;
     const warnings = [];
+    const expectedSoftOptOut = buildPlacementSoftOptOut(template);
+    for (const [index, adSet] of adSetsReadback.entries()) {
+        const actual = adSet.placement_soft_opt_out;
+        if (!actual || Object.entries(expectedSoftOptOut).some(([key, values]) => {
+            const returned = actual[key] ?? [];
+            return values.length !== returned.length || values.some((value) => !returned.includes(value));
+        })) {
+            warnings.push(`Ad set ${index + 1}: Meta не підтвердила налаштування обмежених витрат на виключені плейсменти`);
+        }
+        if (template.advantageAudience && adSet.targeting
+            && (adSet.targeting.targeting_automation?.advantage_audience !== 1
+                || adSet.targeting.age_min !== (template.minimumAge ?? 18))) {
+            warnings.push(`Ad set ${index + 1}: Meta не підтвердила Advantage+ або мінімальний вік аудиторії`);
+        }
+    }
+    for (const [index, ad] of (readback.ads ?? []).entries()) {
+        for (const issue of ad.issues_info ?? []) {
+            const message = issue.error_message ?? issue.error_summary ?? "";
+            if (/instagram|page.backed/i.test(message)) {
+                warnings.push(`Оголошення ${index + 1}: проблема з Instagram — ${message}. Перевірте Use Facebook Page або підключений Instagram у Ads Manager.`);
+            }
+        }
+    }
     if (creativeEnhancements && !returnedFeatures) {
         warnings.push(
             "Meta не повернула creative_features_spec для контрольної перевірки"

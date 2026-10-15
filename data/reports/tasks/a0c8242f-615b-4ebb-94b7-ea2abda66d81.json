@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "id": "a0c8242f-615b-4ebb-94b7-ea2abda66d81",
+  "taskId": "3cf36c5e-4857-4839-956e-8c551877aae0",
+  "type": "campaign",
+  "title": "HU | Creo_17 | 30+ 13/10 13:03",
+  "status": "failed",
+  "createdAt": "2026-10-13T10:03:59.894Z",
+  "startedAt": "2026-10-13T10:03:23.132Z",
+  "finishedAt": "2026-10-13T10:03:59.893Z",
+  "durationMs": 36761,
+  "inputSummary": {
+    "campaignJobId": "0aaf2883-7258-4c1c-9476-86a03608ab58",
+    "accountKey": "account-031",
+    "adAccountId": "act_1346987820501692",
+    "campaignName": "HU | Creo_17 | 30+ 13/10 13:03",
+    "templateId": 13,
+    "pageId": "1369212719603682",
+    "postId": "1369212719603682_122105921727499153",
+    "adSetCount": 5,
+    "dailyBudget": 20,
+    "startTime": "2026-10-13T10:03:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120250218973630086",
+      "creativeId": "2942088249464642",
+      "creatives": [
+        {
+          "id": "2942088249464642",
+          "pageId": "1369212719603682",
+          "postId": "1369212719603682_122105921727499153"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120250218978710086",
+          "name": "HU | Creo_17 | 30+ 13/10 13:03 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120250218982390086",
+          "name": "HU | Creo_17 | 30+ 13/10 13:03 | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120250218983740086",
+          "name": "HU | Creo_17 | 30+ 13/10 13:03 | AS 03"
+        },
+        {
+          "index": 3,
+          "id": "120250218985170086",
+          "name": "HU | Creo_17 | 30+ 13/10 13:03 | AS 04"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "creativeIndex": 0,
+          "id": "120250218981650086",
+          "name": "HU | Creo_17 | 30+ 13/10 13:03 | AD 01"
+        },
+        {
+          "index": 1,
+          "creativeIndex": 0,
+          "id": "120250218983400086",
+          "name": "HU | Creo_17 | 30+ 13/10 13:03 | AD 02"
+        },
+        {
+          "index": 2,
+          "creativeIndex": 0,
+          "id": "120250218984560086",
+          "name": "HU | Creo_17 | 30+ 13/10 13:03 | AD 03"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "You can't perform the requested action because your account is disabled.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 200,
+      "graphSubcode": 1359005,
+      "graphUserTitle": "Your account is disabled",
+      "graphUserMessage": "You can't perform the requested action because your account is disabled.",
+      "graphType": "FacebookApiException",
+      "isTransient": false,
+      "requestId": "c6f6a4d5-a1a0-4d90-bce4-34b98cfb46a6",
+      "traceId": "AludAOQONFCoT2kVWL0Wf7Z",
+      "metaRequestId": "AludAOQONFCoT2kVWL0Wf7Z",
+      "endpoint": "/act_1346987820501692/ads",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "stage": "ad",
+      "itemIndex": 3,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "0aaf2883-7258-4c1c-9476-86a03608ab58",
+    "accountKey": "account-031",
+    "adAccountId": "act_1346987820501692",
+    "uniqueKey": "campaign-job:0aaf2883-7258-4c1c-9476-86a03608ab58"
+  }
+}

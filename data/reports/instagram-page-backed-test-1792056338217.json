@@ -1,0 +1,399 @@
+{
+  "startedAt": "2026-10-15T09:25:38.216Z",
+  "requests": [
+    {
+      "method": "get",
+      "endpoint": "/v26.0/me/accounts",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/734023826464284",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/734023826464284",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/act_1424102882601557/adspixels",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/me/permissions",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/act_1424102882601557",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/734023826464284",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/734023826464284_122183495126978547",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/act_1424102882601557/adspixels",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/campaigns",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/campaigns",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/adcreatives",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/adcreatives",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/adsets",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/adsets",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/ads",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "post",
+      "endpoint": "/v26.0/act_1424102882601557/ads",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/120256075262500348",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1715650006772842",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/120256075268650348",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/120256075272380348",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/1715650006772842",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/734023826464284",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    },
+    {
+      "method": "get",
+      "endpoint": "/v26.0/734023826464284",
+      "throughProxy": "[REDACTED]",
+      "httpStatus": 200
+    }
+  ],
+  "objects": {
+    "campaignId": "120256075262500348",
+    "creativeId": "1715650006772842",
+    "creatives": [
+      {
+        "id": "1715650006772842",
+        "pageId": "734023826464284",
+        "postId": "734023826464284_122183495126978547"
+      }
+    ],
+    "adSets": [
+      {
+        "index": 0,
+        "id": "120256075268650348",
+        "name": "TEST Use Facebook Page Instagram 2026-10-15T09:25:49.968Z | AS 01"
+      }
+    ],
+    "ads": [
+      {
+        "index": 0,
+        "creativeIndex": 0,
+        "id": "120256075272380348",
+        "name": "TEST Use Facebook Page Instagram 2026-10-15T09:25:49.968Z | AD 01"
+      }
+    ]
+  },
+  "identityBefore": {
+    "id": "734023826464284",
+    "connected_page_backed_instagram_account": {
+      "id": "17841426312167354"
+    },
+    "__fb_trace_id__": "Bq/XRjhB8Wm",
+    "__www_request_id__": "AZ5ueFjdvsPAlGc6gTdjtq3"
+  },
+  "input": {
+    "adAccountId": "act_1424102882601557",
+    "pageId": "734023826464284",
+    "postId": "734023826464284_122183495126978547",
+    "templateId": 27,
+    "dailyBudget": 5,
+    "adSetCount": 1,
+    "placements": {
+      "facebook": [
+        "feed"
+      ],
+      "instagram": [
+        "stream"
+      ]
+    }
+  },
+  "stage": "complete",
+  "statuses": {
+    "campaign": "PAUSED",
+    "adSets": [
+      "PAUSED"
+    ],
+    "ads": [
+      "PAUSED"
+    ]
+  },
+  "creativeIdentity": {
+    "id": "1715650006772842",
+    "name": "TEST Use Facebook Page Instagram 2026-10-15T09:25:49.968Z | Creative 2026-10-15-4a98afe3b85680e0dcc245fc4c15c0e4",
+    "degrees_of_freedom_spec": {
+      "creative_features_spec": {
+        "adapt_to_placement": {
+          "enroll_status": "OPT_OUT"
+        },
+        "add_text_overlay": {
+          "enroll_status": "OPT_OUT"
+        },
+        "advantage_plus_creative": {
+          "enroll_status": "OPT_OUT"
+        },
+        "audio": {
+          "enroll_status": "OPT_OUT"
+        },
+        "auto_promotion_tag": {
+          "enroll_status": "OPT_OUT"
+        },
+        "carousel_to_video": {
+          "enroll_status": "OPT_OUT"
+        },
+        "catalog_feed_tag": {
+          "enroll_status": "OPT_OUT"
+        },
+        "customize_product_recommendation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "cv_transformation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "description_automation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "dha_optimization": {
+          "enroll_status": "OPT_OUT"
+        },
+        "dynamic_cta_text": {
+          "enroll_status": "OPT_OUT"
+        },
+        "enhance_cta": {
+          "enroll_status": "OPT_OUT"
+        },
+        "feed_caption_optimization": {
+          "enroll_status": "OPT_OUT"
+        },
+        "generate_cta": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_animation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_auto_crop": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_background_gen": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_brightness_and_contrast": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_enhancement": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_templates": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_text_translation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_touchups": {
+          "enroll_status": "OPT_OUT"
+        },
+        "image_uncrop": {
+          "enroll_status": "OPT_OUT"
+        },
+        "media_liquidity_animated_image": {
+          "enroll_status": "OPT_OUT"
+        },
+        "media_order": {
+          "enroll_status": "OPT_OUT"
+        },
+        "media_type_automation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "multi_creative_post_carousel": {
+          "enroll_status": "OPT_OUT"
+        },
+        "multi_photo_to_video": {
+          "enroll_status": "OPT_OUT"
+        },
+        "music_generation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "pac_genai_recomposition": {
+          "enroll_status": "OPT_OUT"
+        },
+        "pac_recomposition": {
+          "enroll_status": "OPT_OUT"
+        },
+        "pac_relaxation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "product_browsing": {
+          "enroll_status": "OPT_OUT"
+        },
+        "product_extensions": {
+          "enroll_status": "OPT_OUT"
+        },
+        "product_metadata_automation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "product_tags": {
+          "enroll_status": "OPT_OUT"
+        },
+        "site_extensions": {
+          "enroll_status": "OPT_OUT"
+        },
+        "standard_enhancements": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_extraction_for_headline": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_extraction_for_tap_target": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_formatting_optimization": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_generation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_optimizations": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_overlay_translation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "text_translation": {
+          "enroll_status": "OPT_OUT"
+        },
+        "translate_voiceover": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_auto_crop": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_filtering": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_highlight": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_highlights": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_to_image": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_uncrop": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_uncrop_9x16_to_9x18": {
+          "enroll_status": "OPT_OUT"
+        },
+        "video_voiceover": {
+          "enroll_status": "OPT_OUT"
+        }
+      }
+    },
+    "effective_object_story_id": "734023826464284_122183495126978547"
+  },
+  "identityAfter": {
+    "id": "734023826464284",
+    "connected_page_backed_instagram_account": {
+      "id": "17841426312167354"
+    },
+    "__fb_trace_id__": "FV2OG2xZAWp",
+    "__www_request_id__": "AaS1aF_k4HbGFRN4HrKtcGb"
+  },
+  "warnings": [],
+  "status": "complete",
+  "finishedAt": "2026-10-15T09:26:54.215Z",
+  "instagramPreview": {
+    "count": 1,
+    "hasHtml": true,
+    "throughProxy": true
+  }
+}

@@ -179,6 +179,9 @@ export default async function createLeadCampaign(options, onProgress = () => {},
         await emit("complete", { message: "Створення завершено" });
         return { objects, preflight, readback, createPaused };
     } catch (error) {
+        if (/instagram|\binsta\b|\big account\b|page.backed/i.test(error.message ?? "")) {
+            error.message = `Проблема з Instagram: ${error.message}. Перевірте Instagram-ідентичність фанпейджі в Ads Manager (Use Facebook Page або підключений Instagram) і доступи рекламного акаунта.`;
+        }
         error.stage = currentStage;
         error.itemIndex = currentIndex;
         error.createdObjects = structuredClone(objects);
