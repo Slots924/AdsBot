@@ -60,8 +60,6 @@ export default async function executeCommentAccountApiSetupWithProfile(options =
     };
 
     const actions = {
-        // Для API-запитів мова інтерфейсу Facebook не має значення.
-        ensureEnglish: async () => true,
         changeName: async (page, { firstName, lastName }) => {
             const result = await changeFacebookNameWorkflow({
                 page,

@@ -3,12 +3,9 @@ import puppeteer from "puppeteer-core";
 import configureFacebookAutomationWindow
     from "../../facebook/browser/configureFacebookAutomationWindow.js";
 import detectFacebookState from "../../facebook/state/detectFacebookState.js";
-import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
 import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
-import ensureAdsPowerProfileReady from "./ensureAdsPowerProfileReady.js";
-import ensureFacebookAccountActive from "./ensureFacebookAccountActive.js";
-import ensureFacebookAccountLoggedIn from "./ensureFacebookAccountLoggedIn.js";
-import hasBanTag from "../../services/profile/tags/hasBanTag.js";
+import checkProfileBeforeLaunch from "./checkProfileBeforeLaunch.js";
+import checkFacebookAfterLaunch from "./checkFacebookAfterLaunch.js";
 
 
 export default async function checkFacebookCommentProfile({
@@ -34,12 +31,16 @@ export default async function checkFacebookCommentProfile({
     };
     try {
         assertNotAborted();
-        if (hasBanTag(profile)) {
+        const readiness = await checkProfileBeforeLaunch({
+            adsPower, profile,
+            checks: { adsPowerReady: true, blockedTags: ["BAN", "LOGIN_ERROR"] },
+        });
+        if (readiness.blockedTag === "BAN") {
             result.outcome = "banned";
             result.active = "BAN TAG";
             return result;
         }
-        if (!await ensureAdsPowerProfileReady(adsPower, profile)) {
+        if (!readiness.ok) {
             throw new Error("AdsPower-профіль не готовий до відкриття");
         }
         const browserData = await adsPower.openProfile(profileNo, {
@@ -58,24 +59,23 @@ export default async function checkFacebookCommentProfile({
         await openPageWithoutPopups(page, "https://www.facebook.com/");
         assertNotAborted();
 
-        const loggedIn = await ensureFacebookAccountLoggedIn(adsPower, profile, page);
-        result.login = loggedIn ? "OK" : "FAIL";
-        if (!loggedIn) {
+        const facebook = await checkFacebookAfterLaunch({
+            adsPower, profile, page, signal,
+            checks: { loggedIn: true, active: true, ensureEnglish: true },
+            onResult: (field, passed) => { result[field] = passed ? "OK" : "FAIL"; },
+        });
+        if (facebook.failedCheck === "loggedIn") {
             result.outcome = "not_logged_in";
             result.error = "Facebook-вхід не підтверджено";
             return result;
         }
-        const active = await ensureFacebookAccountActive(adsPower, profile, page, { signal });
-        result.active = active ? "OK" : "FAIL";
-        if (!active) {
+        if (facebook.failedCheck === "active") {
             const state = await detectFacebookState(page).catch(() => "UNKNOWN");
             result.outcome = state === "BANNED" ? "banned" : "inactive";
             result.error = `Facebook state: ${state}`;
             return result;
         }
-        const english = await ensureEnglish(page);
-        result.english = english ? "OK" : "FAIL";
-        if (!english) {
+        if (facebook.failedCheck === "ensureEnglish") {
             result.outcome = "failed";
             result.error = "Не вдалося завершити ensureEnglish";
             return result;

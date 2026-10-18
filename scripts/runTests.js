@@ -16,6 +16,7 @@ const backendSuites = {
         "test/testCampaignTemplateManager.js",
     ],
     all: [
+        "test/testProfileLaunchChecks.js",
         "test/testFacebookGraphDiagnosticsMock.js",
         "test/testBatchCampaignMock.js",
         "test/testLeadCampaignWorkflowMock.js",

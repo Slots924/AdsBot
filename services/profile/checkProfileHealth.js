@@ -1,20 +1,14 @@
 import normalizeProxy from "../proxy/normalizeProxy.js";
 import checkProxy from "../proxy/checkProxy.js";
-import hasBanTag from "./tags/hasBanTag.js";
-import hasLoginErrorTag from "./tags/hasLoginErrorTag.js";
+import getBlockedProfileTag from "./tags/getBlockedProfileTag.js";
 import isProfileOpen from "./isProfileOpen.js";
 
 
-export default async function checkProfileHealth(adsPower, profile) {
-    // Для забаненого профілю немає сенсу перевіряти проксі
-    if (hasBanTag(profile)) {
-        return "BANNED";
-    }
-
-    // Профіль із проблемою входу не потрібно перевіряти далі
-    if (hasLoginErrorTag(profile)) {
-        return "LOGIN_ERROR";
-    }
+export default async function checkProfileHealth(
+    adsPower, profile, { blockedTags = ["BAN", "LOGIN_ERROR"] } = {}
+) {
+    const blockedTag = getBlockedProfileTag(profile, blockedTags);
+    if (blockedTag) return blockedTag === "BAN" ? "BANNED" : blockedTag;
 
     // Приводимо налаштування проксі AdsPower до формату перевірки
     const proxy = normalizeProxy(profile?.user_proxy_config);

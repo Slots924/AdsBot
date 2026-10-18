@@ -1,7 +1,5 @@
 import getProfileGender from "../profile/getProfileGender.js";
-import hasBanTag from "../profile/tags/hasBanTag.js";
-import hasChangeNameErrorTag from "../profile/tags/hasChangeNameErrorTag.js";
-import hasLoginErrorTag from "../profile/tags/hasLoginErrorTag.js";
+import getBlockedProfileTag from "../profile/tags/getBlockedProfileTag.js";
 
 
 export const commentAccountSetupSkipReasons = Object.freeze({
@@ -13,17 +11,8 @@ export const commentAccountSetupSkipReasons = Object.freeze({
 
 
 export default function getCommentAccountSetupSkipReason(profile) {
-    if (hasBanTag(profile)) {
-        return commentAccountSetupSkipReasons.BANNED;
-    }
-
-    if (hasLoginErrorTag(profile)) {
-        return commentAccountSetupSkipReasons.LOGIN_ERROR;
-    }
-
-    if (hasChangeNameErrorTag(profile)) {
-        return commentAccountSetupSkipReasons.CHANGE_NAME_ERROR;
-    }
+    const blockedTag = getBlockedProfileTag(profile, ["BAN", "LOGIN_ERROR", "CHANGE_NAME_ERROR"]);
+    if (blockedTag) return blockedTag === "BAN" ? commentAccountSetupSkipReasons.BANNED : blockedTag;
 
     if (getProfileGender(profile)) {
         return commentAccountSetupSkipReasons.ALREADY_SETUP;

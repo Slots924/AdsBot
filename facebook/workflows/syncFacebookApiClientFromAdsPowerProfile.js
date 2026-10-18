@@ -3,12 +3,8 @@ import puppeteer from "puppeteer-core";
 import configureFacebookAutomationWindow
     from "../browser/configureFacebookAutomationWindow.js";
 import openPageWithoutPopups from "../actions/openPageWithoutPopups.js";
-import ensureAdsPowerProfileReady
-    from "../../workflows/profile/ensureAdsPowerProfileReady.js";
-import ensureFacebookAccountActive
-    from "../../workflows/profile/ensureFacebookAccountActive.js";
-import ensureFacebookAccountLoggedIn
-    from "../../workflows/profile/ensureFacebookAccountLoggedIn.js";
+import checkProfileBeforeLaunch from "../../workflows/profile/checkProfileBeforeLaunch.js";
+import checkFacebookAfterLaunch from "../../workflows/profile/checkFacebookAfterLaunch.js";
 
 
 const adsManagerUrl = "https://www.facebook.com/adsmanager/manage/campaigns";
@@ -54,8 +50,11 @@ export default async function syncFacebookApiClientFromAdsPowerProfile({
         await onProgress({ stage: "profile", message: "Перевіряємо AdsPower-профіль" });
         const profile = await adsPower.getProfileByNo(normalizedProfileNo);
         assertNotAborted();
-        const ready = await ensureAdsPowerProfileReady(adsPower, profile);
-        if (!ready) throw new Error("AdsPower-профіль не готовий до роботи");
+        const readiness = await checkProfileBeforeLaunch({
+            adsPower, profile,
+            checks: { adsPowerReady: true, blockedTags: ["BAN", "LOGIN_ERROR"] },
+        });
+        if (!readiness.ok) throw new Error("AdsPower-профіль не готовий до роботи");
 
         await onProgress({ stage: "browser", message: "Відкриваємо профіль AdsPower" });
         const browserData = await adsPower.openProfile(normalizedProfileNo, {
@@ -74,11 +73,14 @@ export default async function syncFacebookApiClientFromAdsPowerProfile({
 
         await onProgress({ stage: "facebook", message: "Перевіряємо Facebook" });
         await openPageWithoutPopups(page, "https://www.facebook.com/");
-        if (!await ensureFacebookAccountLoggedIn(adsPower, profile, page)) {
-            throw new Error("Не вдалося підтвердити вхід у Facebook");
-        }
-        if (!await ensureFacebookAccountActive(adsPower, profile, page)) {
-            throw new Error("Facebook-акаунт не активний");
+        const facebook = await checkFacebookAfterLaunch({
+            adsPower, profile, page, signal,
+            checks: { loggedIn: true, active: true, ensureEnglish: false },
+        });
+        if (!facebook.ok) {
+            throw new Error(facebook.failedCheck === "loggedIn"
+                ? "Не вдалося підтвердити вхід у Facebook"
+                : "Facebook-акаунт не активний");
         }
         assertNotAborted();
 

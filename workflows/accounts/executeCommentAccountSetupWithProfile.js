@@ -16,7 +16,6 @@ import changeFacebookProfilePicture, {
 import deleteAllFacebookPersonalProfilePosts, {
     facebookPersonalProfilePostDeletionStatuses,
 } from "../../facebook/actions/deleteAllFacebookPersonalProfilePosts.js";
-import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
 import fillFacebookPersonalProfileAbout from "../../facebook/actions/fillFacebookPersonalProfileAbout.js";
 import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
 import publishFacebookPersonalProfileMediaPostsWithDates from "../../facebook/actions/publishFacebookPersonalProfileMediaPostsWithDates.js";
@@ -36,9 +35,8 @@ import markProfileAsChangeNameError from "../../services/profile/tags/markProfil
 import ensureWorkerProxyReady from "../../services/proxy/ensureWorkerProxyReady.js";
 import toAdsPowerProxyConfig from "../../services/proxy/toAdsPowerProxyConfig.js";
 import { waitHuman } from "../../facebook/browser/timing.js";
-import ensureAdsPowerProfileReady from "../profile/ensureAdsPowerProfileReady.js";
-import ensureFacebookAccountActive from "../profile/ensureFacebookAccountActive.js";
-import ensureFacebookAccountLoggedIn from "../profile/ensureFacebookAccountLoggedIn.js";
+import checkProfileBeforeLaunch from "../profile/checkProfileBeforeLaunch.js";
+import checkFacebookAfterLaunch from "../profile/checkFacebookAfterLaunch.js";
 
 
 const FACEBOOK_ME_URL = "https://www.facebook.com/me";
@@ -239,12 +237,6 @@ export default async function executeCommentAccountSetupWithProfile({
         ?? publishFacebookPersonalProfileMediaPostsWithDates;
     const fillAbout = actions.fillAbout ?? fillFacebookPersonalProfileAbout;
     const openPage = actions.openPage ?? openPageWithoutPopups;
-    const ensureLanguage = actions.ensureEnglish ?? ensureEnglish;
-    const ensureLoggedIn = actions.ensureLoggedIn
-        ?? ensureFacebookAccountLoggedIn;
-    const ensureActive = actions.ensureActive ?? ensureFacebookAccountActive;
-    const ensureReady = actions.ensureAdsPowerReady
-        ?? ensureAdsPowerProfileReady;
     const configureBrowserWindow = actions.configureBrowserWindow
         ?? configureFacebookAutomationWindow;
     const connectBrowser = actions.connectBrowser
@@ -377,24 +369,19 @@ export default async function executeCommentAccountSetupWithProfile({
         result.stage = "OPEN_FACEBOOK";
         await openPage(page, "https://www.facebook.com/");
 
-        assertNotAborted();
-        result.stage = "FACEBOOK_LOGIN";
-        const loggedIn = await ensureLoggedIn(adsPower, profile, page);
-        if (!loggedIn) {
-            throw new Error("Не вдалося підтвердити вхід у Facebook");
-        }
-
-        assertNotAborted();
-        result.stage = "FACEBOOK_ACTIVE";
-        const active = await ensureActive(adsPower, profile, page, { signal });
-        if (!active) {
-            throw new Error("Facebook-акаунт не активний");
-        }
-
-        assertNotAborted();
-        if (!skipEnsureEnglish) {
-            result.stage = "ENSURE_ENGLISH";
-            await ensureLanguage(page);
+        const facebook = await checkFacebookAfterLaunch({
+            adsPower, profile, page, signal, actions,
+            checks: { loggedIn: true, active: true, ensureEnglish: !skipEnsureEnglish },
+            englishFailure: "continue",
+            onCheck: (check) => {
+                assertNotAborted();
+                result.stage = { loggedIn: "FACEBOOK_LOGIN", active: "FACEBOOK_ACTIVE", ensureEnglish: "ENSURE_ENGLISH" }[check];
+            },
+        });
+        if (!facebook.ok) {
+            throw new Error(facebook.failedCheck === "loggedIn"
+                ? "Не вдалося підтвердити вхід у Facebook"
+                : "Facebook-акаунт не активний");
         }
     };
     const handleAbort = () => {
@@ -518,8 +505,16 @@ export default async function executeCommentAccountSetupWithProfile({
         }
 
         result.stage = "ADSPOWER_READY";
-        const adsPowerReady = await ensureReady(adsPower, activeProfile);
-        if (!adsPowerReady) {
+        const readiness = await checkProfileBeforeLaunch({
+            adsPower, profile: activeProfile, actions,
+            checks: {
+                adsPowerReady: true,
+                blockedTags: ignoreSkipReasons
+                    ? ["BAN", "LOGIN_ERROR"]
+                    : ["BAN", "LOGIN_ERROR", "CHANGE_NAME_ERROR"],
+            },
+        });
+        if (!readiness.ok) {
             throw new Error("AdsPower-профіль не готовий до роботи");
         }
 

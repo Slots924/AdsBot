@@ -5,7 +5,6 @@ import puppeteer from "puppeteer-core";
 import configureFacebookAutomationWindow
     from "../../facebook/browser/configureFacebookAutomationWindow.js";
 import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
-import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
 import captureGraphqlPayload from "../../facebook/api-actions/captureGraphqlPayload.js";
 import createFanPage from "../../facebook/api-actions/pages/createFanPage.js";
 import getFanPages from "../../facebook/api-actions/pages/getFanPages.js";
@@ -40,9 +39,8 @@ import submitPhoneVerificationCode
 import {
     extractFacebookAccessTokenFromHtml,
 } from "../../facebook/workflows/syncFacebookApiClientFromAdsPowerProfile.js";
-import ensureAdsPowerProfileReady from "../../workflows/profile/ensureAdsPowerProfileReady.js";
-import ensureFacebookAccountActive from "../../workflows/profile/ensureFacebookAccountActive.js";
-import ensureFacebookAccountLoggedIn from "../../workflows/profile/ensureFacebookAccountLoggedIn.js";
+import checkProfileBeforeLaunch from "../../workflows/profile/checkProfileBeforeLaunch.js";
+import checkFacebookAfterLaunch from "../../workflows/profile/checkFacebookAfterLaunch.js";
 import PersonalAccountSessionReport from "./PersonalAccountSessionReport.js";
 
 
@@ -314,7 +312,11 @@ export default class PersonalAccountSessionManager {
         }
 
         const profile = await this.adsPower.getProfileByNo(normalizedProfileNo);
-        if (!await ensureAdsPowerProfileReady(this.adsPower, profile)) {
+        const readiness = await checkProfileBeforeLaunch({
+            adsPower: this.adsPower, profile,
+            checks: { adsPowerReady: true, blockedTags: ["BAN", "LOGIN_ERROR"] },
+        });
+        if (!readiness.ok) {
             throw sessionError("AdsPower-профіль не готовий до запуску", "PROFILE_NOT_READY");
         }
 
@@ -340,15 +342,7 @@ export default class PersonalAccountSessionManager {
             const page = await browser.newPage();
             await configureFacebookAutomationWindow(page, { browserMode: "visible" });
             await openPageWithoutPopups(page, facebookUrl, { timeout: 60000 });
-            if (!await ensureFacebookAccountLoggedIn(this.adsPower, profile, page)) {
-                throw sessionError("Facebook-вхід не підтверджено", "FACEBOOK_NOT_LOGGED_IN");
-            }
-            if (!await ensureFacebookAccountActive(this.adsPower, profile, page)) {
-                throw sessionError("Facebook-профіль неактивний", "FACEBOOK_NOT_ACTIVE");
-            }
-            if (!await ensureEnglish(page)) {
-                throw sessionError("Не вдалося перемкнути Facebook на English", "FACEBOOK_ENGLISH_FAILED");
-            }
+            await this.#checkFacebook(profile, page);
             const captured = assertAction(
                 await captureGraphqlPayload(page, { profileUrl, timeout: 60000 }),
                 "Не вдалося отримати Facebook payload"
@@ -423,15 +417,7 @@ export default class PersonalAccountSessionManager {
             session.overview = null;
             session.fanPages = [];
             await openPageWithoutPopups(session.page, facebookUrl, { timeout: 60000 });
-            if (!await ensureFacebookAccountLoggedIn(this.adsPower, session.profile, session.page)) {
-                throw sessionError("Facebook-вхід не підтверджено", "FACEBOOK_NOT_LOGGED_IN");
-            }
-            if (!await ensureFacebookAccountActive(this.adsPower, session.profile, session.page)) {
-                throw sessionError("Facebook-профіль неактивний", "FACEBOOK_NOT_ACTIVE");
-            }
-            if (!await ensureEnglish(session.page)) {
-                throw sessionError("Не вдалося перемкнути Facebook на English", "FACEBOOK_ENGLISH_FAILED");
-            }
+            await this.#checkFacebook(session.profile, session.page);
             await this.#capture(session, profileUrl, "FACEBOOK_MAIN");
             await this.#ensureAdsManager(session);
             await this.#refreshOverview(session);
@@ -1115,6 +1101,19 @@ export default class PersonalAccountSessionManager {
     }
 
 
+    async #checkFacebook(profile, page) {
+        const facebook = await checkFacebookAfterLaunch({
+            adsPower: this.adsPower, profile, page,
+            checks: { loggedIn: true, active: true, ensureEnglish: false },
+        });
+        if (!facebook.ok) {
+            throw facebook.failedCheck === "loggedIn"
+                ? sessionError("Facebook-вхід не підтверджено", "FACEBOOK_NOT_LOGGED_IN")
+                : sessionError("Facebook-профіль неактивний", "FACEBOOK_NOT_ACTIVE");
+        }
+    }
+
+
     async #reconnect(session) {
         await session.operation.catch(() => {});
         await session.report.append("session.reconnecting", {});
@@ -1150,15 +1149,7 @@ export default class PersonalAccountSessionManager {
             session.page = page;
             await configureFacebookAutomationWindow(page, { browserMode: "visible" });
             await openPageWithoutPopups(page, facebookUrl, { timeout: 60000 });
-            if (!await ensureFacebookAccountLoggedIn(this.adsPower, session.profile, page)) {
-                throw sessionError("Facebook-вхід не підтверджено", "FACEBOOK_NOT_LOGGED_IN");
-            }
-            if (!await ensureFacebookAccountActive(this.adsPower, session.profile, page)) {
-                throw sessionError("Facebook-профіль неактивний", "FACEBOOK_NOT_ACTIVE");
-            }
-            if (!await ensureEnglish(page)) {
-                throw sessionError("Не вдалося перемкнути Facebook на English", "FACEBOOK_ENGLISH_FAILED");
-            }
+            await this.#checkFacebook(session.profile, page);
             await this.#ensureFacebookContext(
                 session,
                 session.mainActorId,

@@ -3,7 +3,8 @@ import checkProfileHealth from "../../services/profile/checkProfileHealth.js";
 
 export default async function ensureAdsPowerProfileReady(
     adsPower,
-    profile
+    profile,
+    options = {}
 ) {
     const profileNo = profile?.profile_no ?? "невідомий";
 
@@ -14,7 +15,8 @@ export default async function ensureAdsPowerProfileReady(
     try {
         const profileHealth = await checkProfileHealth(
             adsPower,
-            profile
+            profile,
+            options
         );
 
         console.log(

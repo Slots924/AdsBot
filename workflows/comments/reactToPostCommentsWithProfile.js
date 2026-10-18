@@ -2,7 +2,6 @@ import puppeteer from "puppeteer-core";
 
 import configureFacebookAutomationWindow
     from "../../facebook/browser/configureFacebookAutomationWindow.js";
-import ensureEnglish from "../../facebook/actions/ensureEnglish.js";
 import inspectPostComments from "../../facebook/actions/inspectPostComments.js";
 import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
 import isPostAvailable from "../../facebook/post/checks/isPostAvailable.js";
@@ -13,9 +12,8 @@ import setCommentReaction, {
 import loadAllPostComments from "../../facebook/workflows/loadAllPostComments.js";
 import ensureWorkerProxyReady from "../../services/proxy/ensureWorkerProxyReady.js";
 import toAdsPowerProxyConfig from "../../services/proxy/toAdsPowerProxyConfig.js";
-import ensureAdsPowerProfileReady from "../profile/ensureAdsPowerProfileReady.js";
-import ensureFacebookAccountActive from "../profile/ensureFacebookAccountActive.js";
-import ensureFacebookAccountLoggedIn from "../profile/ensureFacebookAccountLoggedIn.js";
+import checkProfileBeforeLaunch from "../profile/checkProfileBeforeLaunch.js";
+import checkFacebookAfterLaunch from "../profile/checkFacebookAfterLaunch.js";
 
 
 export default async function reactToPostCommentsWithProfile({
@@ -109,7 +107,11 @@ export default async function reactToPostCommentsWithProfile({
         }
 
         result.stage = "ADSPOWER_READY";
-        if (!await ensureAdsPowerProfileReady(adsPower, activeProfile)) {
+        const readiness = await checkProfileBeforeLaunch({
+            adsPower, profile: activeProfile,
+            checks: { adsPowerReady: true, blockedTags: ["BAN", "LOGIN_ERROR"] },
+        });
+        if (!readiness.ok) {
             throw new Error("AdsPower-профіль не готовий до роботи");
         }
         assertNotAborted();
@@ -130,15 +132,19 @@ export default async function reactToPostCommentsWithProfile({
 
         result.stage = "OPEN_FACEBOOK";
         await openPageWithoutPopups(page, "https://www.facebook.com/");
-        if (!await ensureFacebookAccountLoggedIn(adsPower, activeProfile, page)) {
-            throw new Error("Не вдалося підтвердити вхід у Facebook");
-        }
-        if (!await ensureFacebookAccountActive(adsPower, activeProfile, page, { signal })) {
-            throw new Error("Facebook-акаунт неактивний");
-        }
-        result.stage = "ENSURE_ENGLISH";
-        if (!await ensureEnglish(page)) {
-            throw new Error("Не вдалося завершити ensureEnglish");
+        const facebook = await checkFacebookAfterLaunch({
+            adsPower, profile: activeProfile, page, signal,
+            checks: { loggedIn: true, active: true, ensureEnglish: true },
+            onCheck: (check) => {
+                if (check === "ensureEnglish") result.stage = "ENSURE_ENGLISH";
+            },
+        });
+        if (!facebook.ok) {
+            throw new Error({
+                loggedIn: "Не вдалося підтвердити вхід у Facebook",
+                active: "Facebook-акаунт неактивний",
+                ensureEnglish: "Не вдалося завершити ensureEnglish",
+            }[facebook.failedCheck]);
         }
 
         result.stage = "OPEN_POST";
