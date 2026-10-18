@@ -124,7 +124,7 @@ export default async function createPublicPhotoPost({
 
     try {
         const image = await loadImageFromPath(imagePath);
-        const profileId = String(runtimeContext.__user);
+        const profileId = String(runtimeContext.av);
         const normalizedTimeout = normalizeTimeout(timeout);
         const uploadId = createUploadId();
         const uploadResponse = await uploadProfilePhoto(page, {

@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 import GrokClient from "../llm/grok/GrokClient.js";
 import loadGrokSystemPrompt from "../llm/grok/loadGrokSystemPrompt.js";
+import { getSharedContacts } from "./sharedContacts.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -230,6 +231,8 @@ export default class CommentAccountProfileData {
             });
         }
 
+        for (const profile of profiles) Object.assign(profile, getSharedContacts());
+
         return {
             geo: geoCode,
             sources: {
@@ -242,6 +245,28 @@ export default class CommentAccountProfileData {
         };
     }
 
+
+    // Бере випадкові дані з локальної бази без генерації та ротації файлів.
+    async getLocalProfile({ geo, random = Math.random } = {}) {
+        const code = normalizeGeoCode(geo);
+        const pick = (items) => items[Math.floor(random() * items.length)] ?? "";
+        const names = [
+            ...await this.#loadNames(code, "male"),
+            ...await this.#loadNames(code, "female"),
+        ];
+        if (!names.length) throw createProfileDataError("Для вибраної країни немає локальних імен", "PROFILE_DATA_NOT_FOUND");
+        const readList = async (directory) => {
+            const value = await this.#readJsonSafe(path.join(directory, `${code}.json`));
+            return Array.isArray(value) ? value : [];
+        };
+        return {
+            ...pick(names),
+            company: pick(await readList(this.companiesDir)),
+            profession: pick(await readList(this.professionsDir)),
+            university: pick(await readList(this.universitiesDir)),
+            ...getSharedContacts(random),
+        };
+    }
 
     // ===== Внутрішні методи =====
 

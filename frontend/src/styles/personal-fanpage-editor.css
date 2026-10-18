@@ -1,0 +1,10 @@
+.fanpage-editor .personal-action-card { display: grid; gap: 12px; }
+.fanpage-editor .personal-inline-actions > .select { flex: 1; min-width: 180px; }
+.fanpage-editor .fanpage-edit-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.fanpage-editor textarea { min-height: 80px; resize: vertical; }
+.fanpage-edit-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 6px; font-size: 12px; overflow-wrap: anywhere; }
+.fanpage-edit-status.success { background: #e2f4e9; color: #216139; }
+.fanpage-edit-status.error { background: #fbe8e8; color: #a02d2d; }
+.fanpage-edit-status.running, .fanpage-edit-status.pending { background: #edf0f3; color: #536071; }
+.fanpage-photo-list { display: grid; gap: 4px; max-height: 150px; overflow: auto; }
+.personal-account-nav button.fanpage-edit-nav { padding-left: 30px; font-size: 12px; }

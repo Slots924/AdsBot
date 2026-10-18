@@ -126,7 +126,7 @@ export default async function getAboutSectionTokens({
         : defaultTimeoutMs;
 
     const routeUrls = sections.map(
-        (section) => `/profile.php?id=${runtimeContext.__user}&sk=${section}`
+        (section) => `/profile.php?id=${runtimeContext.av}&sk=${section}`
     );
 
     // Формуємо мінімальний перевірений form-urlencoded body.

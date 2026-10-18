@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import GrokClient from "../llm/grok/GrokClient.js";
+import { getSharedContacts } from "../profiles/sharedContacts.js";
 import loadGrokSystemPrompt
     from "../llm/grok/loadGrokSystemPrompt.js";
 
@@ -239,6 +240,7 @@ export function normalizeCommentAccountPersonas(value, {
             firstName: normalizePersonName(persona.firstName),
             lastName: normalizePersonName(persona.lastName),
             bio: String(persona.bio).trim(),
+            ...getSharedContacts(),
             education: String(persona.education).trim(),
             work: {
                 company: String(persona.work.company).trim(),

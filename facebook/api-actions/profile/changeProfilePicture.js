@@ -95,7 +95,7 @@ export default async function changeProfilePicture({
 
     try {
         const image = await loadImageFromPath(imagePath);
-        const profileId = String(runtimeContext.__user);
+        const profileId = String(runtimeContext.av);
         const normalizedTimeout = normalizeTimeout(timeout);
         const uploadResponse = await uploadProfilePhoto(page, {
             endpoint: uploadEndpoint,

@@ -243,7 +243,7 @@ export default async function getManagePosts({
             scale: 1,
             taggedInOnly: null,
             renderLocation: "timeline",
-            userID: String(runtimeContext.__user),
+            userID: String(runtimeContext.av),
             __relay_internal__pv__GHLShouldChangeSponsoredDataFieldNamerelayprovider: true,
         };
         const rootResult = await requestManagePostsPage({
@@ -289,7 +289,7 @@ export default async function getManagePosts({
                     renderLocation: "timeline",
                     scale: 1,
                     taggedInOnly: null,
-                    id: String(runtimeContext.__user),
+                    id: String(runtimeContext.av),
                     __relay_internal__pv__GHLShouldChangeSponsoredDataFieldNamerelayprovider: true,
                 },
                 timeout: normalizedTimeout,

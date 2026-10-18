@@ -23,6 +23,7 @@ export default async function clearProfilePosts({
     page,
     timeout,
     maxPasses = 3,
+    beforeAction = async () => {},
 } = {}) {
     const deletedStoryIds = new Set();
     const hiddenStoryIds = new Set();
@@ -30,6 +31,7 @@ export default async function clearProfilePosts({
 
     try {
         for (let pass = 1; pass <= maxPasses; pass += 1) {
+            await beforeAction();
             const postsResult = await getManagePosts({
                 page,
                 timeout,
@@ -74,6 +76,7 @@ export default async function clearProfilePosts({
             if (pending.length === 0) continue;
 
             for (const post of pending) {
+                await beforeAction();
                 const clientMutationId = String(
                     deletedStoryIds.size + hiddenStoryIds.size + failures.length + 1
                 );
@@ -93,6 +96,7 @@ export default async function clearProfilePosts({
                         continue;
                     }
 
+                    await beforeAction();
                     const hideResult = await hidePostFromTimeline({
                         page,
                         context: contextResult.data.context,

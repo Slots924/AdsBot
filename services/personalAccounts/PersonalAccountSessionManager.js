@@ -40,6 +40,16 @@ import submitPhoneVerificationCode
 import checkProfileBeforeLaunch from "../../workflows/profile/checkProfileBeforeLaunch.js";
 import checkFacebookAfterLaunch from "../../workflows/profile/checkFacebookAfterLaunch.js";
 import PersonalAccountSessionReport from "./PersonalAccountSessionReport.js";
+import changeFanPageName from "../../facebook/api-actions/pages/changeFanPageName.js";
+import getAboutSectionTokens from "../../facebook/api-actions/getAboutSectionTokens.js";
+import updateBio from "../../facebook/api-actions/updateBio.js";
+import changeProfilePicture from "../../facebook/api-actions/profile/changeProfilePicture.js";
+import changeCoverPhoto from "../../facebook/api-actions/profile/changeCoverPhoto.js";
+import clearProfilePosts from "../../facebook/api-workflows/profile/clearProfilePosts.js";
+import createPublicPhotoPost from "../../facebook/api-actions/posts/createPublicPhotoPost.js";
+import backdatePost from "../../facebook/api-actions/posts/backdatePost.js";
+import CommentAccountProfileData from "../profiles/CommentAccountProfileData.js";
+import prepareFanPagePhotos from "./prepareFanPagePhotos.js";
 
 
 const facebookUrl = "https://www.facebook.com/";
@@ -692,6 +702,73 @@ export default class PersonalAccountSessionManager {
         });
     }
 
+
+    generateFanPageData(input = {}) {
+        return new CommentAccountProfileData().getLocalProfile(input);
+    }
+
+    prepareFanPageEdit(sessionId, input = {}) {
+        return this.#perform(sessionId, "fanpage.edit_prepare", async (session) => {
+            await this.#prepareFacebookContext(session, profileUrl, "FACEBOOK_CURRENT");
+            if (!session.actorId || session.actorId === session.mainActorId) {
+                throw sessionError("Спочатку перемкніться на фанпейдж у Facebook", "FANPAGE_REQUIRED");
+            }
+            const photos = input.photos ? await prepareFanPagePhotos(input.photos) : [];
+            session.editActorId = session.actorId;
+            session.editStopped = false;
+            return { actorId: session.actorId, photos };
+        });
+    }
+
+    stopFanPageEdit(sessionId) {
+        this.#require(sessionId).editStopped = true;
+        return { stopped: true };
+    }
+
+    editFanPage(sessionId, input = {}) {
+        return this.#perform(sessionId, "fanpage.edit", async (session) => {
+            const guard = async () => {
+                if (session.editStopped) throw sessionError("Зупинено користувачем", "EDIT_STOPPED");
+                await this.#prepareFacebookContext(session, profileUrl, "FACEBOOK_CURRENT");
+                if (!input.actorId || input.actorId !== session.editActorId || session.actorId !== input.actorId
+                    || session.actorId === session.mainActorId) {
+                    throw sessionError("Поточна фанпейдж змінилася. Запустіть операцію знову", "FANPAGE_CHANGED");
+                }
+            };
+            await guard();
+            const page = session.page;
+            let result;
+            switch (input.action) {
+            case "name": {
+                const password = String(input.password ?? session.profile?.password ?? "");
+                if (!password) throw sessionError("У профілі AdsPower відсутній пароль Facebook", "FACEBOOK_PASSWORD_REQUIRED");
+                result = await changeFanPageName({ page, name: input.name, password, additionalProfileId: input.actorId });
+                break;
+            }
+            case "bio": {
+                const tokens = assertAction(await getAboutSectionTokens({ page, sections: ["directory_intro"] }), "Не вдалося отримати секцію біо");
+                await guard();
+                result = await updateBio({ page, ...tokens.data?.directory_intro, value: String(input.value ?? "") });
+                break;
+            }
+            case "avatar": result = await changeProfilePicture({ page, imagePath: input.imagePath }); break;
+            case "cover": result = await changeCoverPhoto({ page, imagePath: input.imagePath }); break;
+            case "clearPosts": result = await clearProfilePosts({ page, beforeAction: guard }); break;
+            case "post": {
+                result = assertAction(await createPublicPhotoPost({ page, imagePath: input.imagePath }), "Не вдалося створити фото-пост");
+                if (input.date) {
+                    await guard();
+                    const [year, month, day] = input.date.split("-").map(Number);
+                    result = await backdatePost({ page, storyId: result.data?.storyId, year, month, day, hour: 12, minute: 0 });
+                }
+                break;
+            }
+            default: return { success: false, status: "NOT_IMPLEMENTED", error: "Ще не реалізовано для фанпейджі" };
+            }
+            assertAction(result, "Facebook не виконав зміну");
+            return { success: true, status: result.status };
+        });
+    }
 
     listAdAccounts(sessionId) {
         return this.#perform(sessionId, "ads.accounts_list", async (session) => {

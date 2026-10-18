@@ -289,6 +289,10 @@ contextBridge.exposeInMainWorld("adsBot", {
     getMarkdownReport: (reportId) =>
         ipcRenderer.invoke("reports:markdown-get", { reportId }),
     getTemplates: () => ipcRenderer.invoke("templates:list"),
+    generatePersonalFanPageData: (payload) => ipcRenderer.invoke("personal-account:fanpage-edit-generate", payload),
+    preparePersonalFanPageEdit: (sessionId, payload) => ipcRenderer.invoke("personal-account:fanpage-edit-prepare", { sessionId, ...payload }),
+    editPersonalFanPage: (sessionId, payload) => ipcRenderer.invoke("personal-account:fanpage-edit", { sessionId, ...payload }),
+    stopPersonalFanPageEdit: (sessionId) => ipcRenderer.invoke("personal-account:fanpage-edit-stop", { sessionId }),
     getCountries: () => ipcRenderer.invoke("countries:list"),
     getLanguages: () => ipcRenderer.invoke("languages:list"),
     createTemplate: (template) =>

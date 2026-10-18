@@ -1407,6 +1407,22 @@ export default function registerIpcHandlers({
         ))
     );
     ipcMain.handle(
+        "personal-account:fanpage-edit-generate",
+        safeHandler((payload) => personalAccountSessionManager.generateFanPageData(payload))
+    );
+    ipcMain.handle(
+        "personal-account:fanpage-edit-prepare",
+        safeHandler(({ sessionId, ...payload }) => personalAccountSessionManager.prepareFanPageEdit(sessionId, payload))
+    );
+    ipcMain.handle(
+        "personal-account:fanpage-edit",
+        safeHandler(({ sessionId, ...payload }) => personalAccountSessionManager.editFanPage(sessionId, payload))
+    );
+    ipcMain.handle(
+        "personal-account:fanpage-edit-stop",
+        safeHandler(({ sessionId }) => personalAccountSessionManager.stopFanPageEdit(sessionId))
+    );
+    ipcMain.handle(
         "personal-account:ad-accounts-list",
         safeHandler(({ sessionId }) => personalAccountSessionManager.listAdAccounts(sessionId))
     );

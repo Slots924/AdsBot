@@ -109,7 +109,7 @@ export default async function updateBio({
         input: {
             bio: value,
             profile_field_section_type: bioSectionType,
-            actor_id: runtimeContext.__user,
+            actor_id: runtimeContext.av,
             client_mutation_id: "1",
         },
         scale: 1,

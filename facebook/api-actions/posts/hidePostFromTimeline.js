@@ -76,7 +76,7 @@ export default async function hidePostFromTimeline({
     }
 
     try {
-        const profileId = String(runtimeContext.__user);
+        const profileId = String(runtimeContext.av);
         const normalizedTimeout = normalizeTimeout(timeout);
         const body = buildMutationBody(runtimeContext, {
             friendlyName: hidePostFriendlyName,

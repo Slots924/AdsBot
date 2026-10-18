@@ -16,6 +16,7 @@ const backendSuites = {
         "test/testCampaignTemplateManager.js",
     ],
     all: [
+        "test/testFanPageEditorData.js",
         "test/testProfileLaunchChecks.js",
         "test/testFacebookGraphDiagnosticsMock.js",
         "test/testBatchCampaignMock.js",
@@ -105,6 +106,7 @@ const backendSuites = {
 const frontendSuites = {
     campaign: ["src/test/campaign.test.jsx", "src/test/batch-campaign.test.jsx", "src/test/templates.test.jsx"],
     all: [
+        "src/test/personal-fanpage-editor.test.jsx",
         "src/test/campaign.test.jsx",
         "src/test/batch-campaign.test.jsx",
         "src/test/templates.test.jsx",

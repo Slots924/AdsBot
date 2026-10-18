@@ -25,6 +25,7 @@ import SearchSelect from "./SearchSelect.jsx";
 import SmsPoolPanel from "./SmsPoolPanel.jsx";
 import PersonalBusinessInfoForm from "./PersonalBusinessInfoForm.jsx";
 import PersonalPaymentSources from "./PersonalPaymentSources.jsx";
+import PersonalFanPageEditor from "./PersonalFanPageEditor.jsx";
 import PhoneVerificationNotice from "./PhoneVerificationNotice.jsx";
 import { addCardAndRefreshSources } from "../lib/personalPaymentSources.js";
 
@@ -67,6 +68,7 @@ function normalizeDialingCode(value) {
 const sections = [
     ["launch", "Огляд", Play],
     ["fanpage", "Фанпейдж", PanelsTopLeft],
+    ["fanpage-edit", "Редагувати дані", Pencil],
     ["business", "Бізнес інфа", BriefcaseBusiness],
     ["payment", "Спосіб оплати", CreditCard],
     ["phone", "Телефон", Phone],
@@ -117,6 +119,7 @@ export default function PersonalAccountModal({
     const [selectedBmKey, setSelectedBmKey] = useState(initialBmKey ?? businessManagers.find((item) => item.isPrimary)?.accountKey ?? "");
     const [bmSelectionManual, setBmSelectionManual] = useState(Boolean(initialBmKey));
     const [section, setSection] = useState("launch");
+    const [fanPageEditorOpened, setFanPageEditorOpened] = useState(false);
     const [session, setSession] = useState(null);
     const [busy, setBusy] = useState("");
     const [completed, setCompleted] = useState(new Set());
@@ -646,7 +649,7 @@ export default function PersonalAccountModal({
                 <div className="personal-header-actions"><button type="button" className="icon-button" title="Згорнути" disabled={Boolean(busy)} onClick={() => setMinimized(true)}><Minus size={18} /></button><button type="button" className="icon-button" disabled={Boolean(busy)} onClick={() => void close(false)}><X size={18} /></button></div>
             </header>
             <div className="personal-account-layout">
-                <nav className="personal-account-nav">{sections.map(([key, title, Icon], index) => <button type="button" className={`${section === key ? "active" : ""} ${key === "bm" ? "nav-business-manager" : ""}`.trim()} key={key} onClick={() => setSection(key)}><span>{completed.has(key) ? <Check size={15} /> : index + 1}</span><Icon size={16} /> {title}</button>)}</nav>
+                <nav className="personal-account-nav">{sections.map(([key, title, Icon], index) => <button type="button" className={`${section === key ? "active" : ""} ${key === "bm" ? "nav-business-manager" : ""} ${key === "fanpage-edit" ? "fanpage-edit-nav" : ""}`.trim()} key={key} disabled={busy.startsWith("fanpage.edit")} onClick={() => { if (key === "fanpage-edit") setFanPageEditorOpened(true); setSection(key); }}><span>{key === "fanpage-edit" ? "↳" : completed.has(key) ? <Check size={15} /> : index + 1}</span><Icon size={16} /> {title}</button>)}</nav>
                 <main className="personal-account-body">
                     {section === "launch" && <section className="personal-section personal-overview">
                         <div className="personal-section-heading"><div><span className="eyebrow">{activeProfile.profileNo ? `AdsPower №${activeProfile.profileNo}` : "AdsPower профіль не вибрано"}</span><h3>Огляд профілю</h3><p>Підключення, фанпейджі, рекламні кабінети та пікселі в одному місці.</p></div>{session && <button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshOverview}><RefreshCw className={busy === "overview" ? "spin" : ""} size={16} /> Оновити інфу</button>}</div>
@@ -687,6 +690,9 @@ export default function PersonalAccountModal({
                         </div>
                     </section>}
 
+                    <div hidden={section !== "fanpage-edit"}>
+                        {fanPageEditorOpened && <PersonalFanPageEditor key={session?.id ?? "no-session"} session={session} busy={busy} setBusy={setBusy} />}
+                    </div>
                     {section === "fanpage" && <section className="personal-section personal-fanpage">
                         <div className="personal-section-heading"><div><span className="eyebrow">Facebook</span><h3>Фанпейдж</h3><p>Перед кожною дією програма перевіряє actor і читає актуальний runtime.</p></div></div>
                         <div className="personal-action-card"><div className="personal-card-heading"><h4>Вибрати фанпейдж</h4><button type="button" className="secondary-button" disabled={!session || Boolean(busy)} onClick={refreshSwitchableProfiles}><RefreshCw size={16} /> Оновити список</button></div><label className="field"><span>Пошук за назвою або Profile ID</span><input value={fanPageSearch} placeholder="Почніть вводити…" onChange={(event) => setFanPageSearch(event.target.value)} /></label><div className="fanpage-picker">{visibleFanPages.map((item) => <button type="button" key={item.id} className={selectedFanPageId === item.id ? "selected" : ""} onClick={() => setSelectedFanPageId(item.id)}><div className="fanpage-avatar">{item.photoUrl ? <img src={item.photoUrl} alt="" /> : <PanelsTopLeft size={16} />}</div><span><strong>{item.name || "Без назви"}</strong><small>Profile ID: {item.id}</small></span></button>)}{!visibleFanPages.length && <p className="personal-empty">Оновіть список, щоб отримати доступні фанпейджі.</p>}</div><button type="button" className="secondary-button" disabled={!selectedFanPage || Boolean(busy)} onClick={async () => { if (!requireSession()) return; const selectedName = selectedFanPage.name || "фанпейджу"; const value = await run("fanpage", () => window.adsBot.switchPersonalFanPage(session.id, { additionalProfileId: selectedFanPage.id }), `Перемкнено на: ${selectedName}`, "fanpage.switch"); if (value?.profiles) setSwitchableProfiles(value.profiles); if (value?.session) setSession(value.session); }}>Перемкнутися на вибрану фанпейджу</button></div>

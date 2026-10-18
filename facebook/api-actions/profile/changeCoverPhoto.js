@@ -98,7 +98,7 @@ export default async function changeCoverPhoto({
 
     try {
         const image = await loadImageFromPath(imagePath);
-        const profileId = String(runtimeContext.__user);
+        const profileId = String(runtimeContext.av);
         const normalizedTimeout = normalizeTimeout(timeout);
         const uploadResponse = await uploadProfilePhoto(page, {
             endpoint: uploadEndpoint,
