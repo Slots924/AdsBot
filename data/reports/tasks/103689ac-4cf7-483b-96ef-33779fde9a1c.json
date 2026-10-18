@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "id": "103689ac-4cf7-483b-96ef-33779fde9a1c",
+  "taskId": "6ed9a0cb-110c-4518-b137-90d48980d3bb",
+  "type": "page-rebuild",
+  "title": "Пересетаплення фанпейджа · 1284807618060555",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-16T12:14:47.566Z",
+  "startedAt": "2026-10-16T12:13:38.463Z",
+  "finishedAt": "2026-10-16T12:14:47.565Z",
+  "durationMs": 69102,
+  "inputSummary": {
+    "accountKey": "account-048",
+    "pageId": "1284807618060555"
+  },
+  "resultSummary": {
+    "pageId": "1284807618060555",
+    "avatar": {
+      "file": "1.jpg",
+      "photoId": "122102446221508803"
+    },
+    "cover": {
+      "file": "472711563_122133181676472181_9169336789852114398_n.jpg",
+      "photoId": "122102446419508803"
+    },
+    "cleanup": {
+      "deletedPostIds": [],
+      "deletedPhotoIds": [],
+      "hiddenPostIds": []
+    },
+    "publications": [
+      {
+        "file": "542753673_122166562646472181_6643658104928637937_n.jpg",
+        "photoId": "122102446701508803",
+        "postId": "1284807618060555_122102446863508803",
+        "backdatedTime": null
+      },
+      {
+        "file": "ChatGPT Image 7 лист. 2025 р., 16_17_16.png",
+        "photoId": "122102447031508803",
+        "postId": "1284807618060555_122102447109508803",
+        "backdatedTime": null
+      },
+      {
+        "file": "ChatGPT Image 7 лист. 2025 р., 16_21_59.png",
+        "photoId": "122102447247508803",
+        "postId": "1284807618060555_122102447313508803",
+        "backdatedTime": null
+      }
+    ],
+    "warnings": [
+      {
+        "stage": "delete-photo",
+        "objectId": "122102443671508803",
+        "code": "FACEBOOK_API_ERROR",
+        "graphCode": 200,
+        "message": "(#200) App can only delete photos created by the same app"
+      }
+    ],
+    "resumed": false
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-048",
+    "pageId": "1284807618060555",
+    "uniqueKey": "page-rebuild:account-048:1284807618060555"
+  }
+}

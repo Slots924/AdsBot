@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "id": "4c205691-053e-4d39-aebd-839e4dae6710",
+  "taskId": "037a74f4-72ab-4347-ba14-2abf746dba26",
+  "type": "campaign",
+  "title": "IE | Creo_1 | 25+ 15/10 23:35",
+  "status": "interrupted",
+  "createdAt": "2026-10-15T20:35:22.485Z",
+  "startedAt": "2026-10-15T20:35:16.740Z",
+  "finishedAt": "2026-10-15T20:35:22.484Z",
+  "durationMs": 5744,
+  "inputSummary": {
+    "campaignJobId": "603a19e6-1463-455f-bd06-c20bd2af67a7",
+    "accountKey": "account-031",
+    "adAccountId": "act_4117069945174376",
+    "campaignName": "IE | Creo_1 | 25+ 15/10 23:35",
+    "templateId": 32,
+    "pageId": "1313316905201651",
+    "postId": "1313316905201651_122109691383498013",
+    "adSetCount": 5,
+    "dailyBudget": 5,
+    "startTime": "2026-10-15T20:35:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120248507540630772",
+      "creativeId": null,
+      "creatives": [],
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Створення кампанії перервано",
+      "code": "CAMPAIGN_CREATION_INTERRUPTED",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": null,
+      "isTransient": false,
+      "requestId": null,
+      "traceId": null,
+      "metaRequestId": null,
+      "endpoint": null,
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "stage": "campaign",
+      "itemIndex": null,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "603a19e6-1463-455f-bd06-c20bd2af67a7",
+    "accountKey": "account-031",
+    "adAccountId": "act_4117069945174376",
+    "uniqueKey": "campaign-job:603a19e6-1463-455f-bd06-c20bd2af67a7"
+  }
+}

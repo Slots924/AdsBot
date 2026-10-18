@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "id": "07430413-6024-4e38-a36e-80fa1ba4422e",
+  "taskId": "fbcf8fac-7dd9-4d9e-9e3e-bc18eba320e9",
+  "type": "campaign",
+  "title": "HU | Creo_17 | 25+ 15/10 13:34",
+  "status": "failed",
+  "createdAt": "2026-10-15T10:34:55.580Z",
+  "startedAt": "2026-10-15T10:34:34.386Z",
+  "finishedAt": "2026-10-15T10:34:55.579Z",
+  "durationMs": 21193,
+  "inputSummary": {
+    "campaignJobId": "396a57e7-4f99-4fe5-85cb-6e457db37382",
+    "accountKey": "account-043",
+    "adAccountId": "act_1458501949501101",
+    "campaignName": "HU | Creo_17 | 25+ 15/10 13:34",
+    "templateId": 30,
+    "pageId": "1369212719603682",
+    "postId": "1369212719603682_122109499401499153",
+    "adSetCount": 5,
+    "dailyBudget": 10,
+    "startTime": "2026-10-15T10:34:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120253933434010572",
+      "creativeId": "1621631526077448",
+      "creatives": [
+        {
+          "id": "1621631526077448",
+          "pageId": "1369212719603682",
+          "postId": "1369212719603682_122109499401499153"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120253933435300572",
+          "name": "HU | Creo_17 | 25+ 15/10 13:34 | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "You can't create ads for this Page because it's restricted from advertising.\nSee https://fb.me/PageAdRestricted for details.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 368,
+      "graphSubcode": 1404155,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": "OAuthException",
+      "isTransient": false,
+      "requestId": "f1e6a2b6-312a-4cb2-a81a-540ad816f403",
+      "traceId": "A3oye0ma42ZxGnvTtTmSiov",
+      "metaRequestId": "A3oye0ma42ZxGnvTtTmSiov",
+      "endpoint": "/act_1458501949501101/ads",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "stage": "ad",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "396a57e7-4f99-4fe5-85cb-6e457db37382",
+    "accountKey": "account-043",
+    "adAccountId": "act_1458501949501101",
+    "uniqueKey": "campaign-job:396a57e7-4f99-4fe5-85cb-6e457db37382"
+  }
+}
