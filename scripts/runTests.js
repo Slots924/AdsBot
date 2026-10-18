@@ -54,6 +54,7 @@ const backendSuites = {
         "test/testFacebookRuntime.js",
         "test/testFacebookApiClientSyncExtraction.js",
         "test/testCreateFanPageAction.js",
+        "test/testChangeFanPageNameAction.js",
         "test/testSwitchToAdditionalProfileAction.js",
         "test/testPhoneVerificationActions.js",
         "test/testUpdateBusinessInfoAction.js",

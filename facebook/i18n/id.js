@@ -1,4 +1,6 @@
 export default {
+    // Англійський текст підтверджено відповіддю Facebook; інші варіанти потребують живої перевірки.
+    pageNameChange: { nameNotAllowed: ["Membuat konten dengan nama ini tidak diizinkan"] },
     login: {
         createAccount: ["Buat akun baru"],
         useAnotherProfile: ["Gunakan profil lain"],

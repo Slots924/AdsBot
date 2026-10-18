@@ -1,4 +1,6 @@
 export default {
+    // Англійський текст підтверджено відповіддю Facebook; інші варіанти потребують живої перевірки.
+    pageNameChange: { nameNotAllowed: ["Bu adla içerik oluşturulmasına izin verilmiyor"] },
     login: {
         createAccount: ["Yeni hesap oluştur"],
         useAnotherProfile: ["Başka bir profil kullan"],

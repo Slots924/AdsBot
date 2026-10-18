@@ -8,6 +8,55 @@ await updateBusinessInfo({ page, billableAccountPaymentLegacyAccountId, currency
 await getAdPixels({ page, adAccountId });
 ```
 
+## Зміна назви фанпейджа
+
+`facebook/api-actions/pages/changeFanPageName.js` експортує `changeFanPageName`
+за замовчуванням і `changeFanPageNameStatuses`. Контракт:
+
+```js
+const result = await changeFanPageName({
+    page,
+    name: "New Page Name",
+    password,
+    additionalProfileId,
+    timeout: 45000,
+});
+```
+
+Перед викликом потрібна вкладка `https://www.facebook.com` у профілі потрібної
+Page. Екшин не переходить до налаштувань і не перемикає профілі.
+Необов'язковий `additionalProfileId` звіряється з поточним `av`; це actor ID,
+а не обов'язково `page.id`. Без цього параметра використовується активний контекст.
+Пароль передається аргументом лише для цієї операції; вікно введення належить
+виклику/GUI, а не API action.
+
+Legacy AJAX flow: GET `/ajax/settings/account/name.php` → POST
+`/settings/name_change_preview/` → одноразовий POST початкового endpoint.
+Приховані поля беруться з актуальних форм. Перед фінальним POST перевіряються
+назва в preview та наявність поля `save_password`; POST використовує спільний
+transport з перевіркою незмінності actor.
+
+Результат має `{ success, status, data, stage, httpStatus?, message, error? }`.
+`REQUEST_SUBMITTED` означає `success: true`: немає явної помилки, є
+`payload === true` та команда `SettingsController.closeAndAnimateEdited`.
+Це прийняття заявки; остаточне схвалення назви окремо не перевіряється.
+`showError` завжди має пріоритет: його динамічні markup-посилання розв'язуються
+до очищеного тексту в `message`/`error`. Відоме повідомлення про недопустиме
+ім'я дає `NAME_NOT_ALLOWED`, інші — `FACEBOOK_VALIDATION_ERROR`.
+Для невідомого формату/результату успіх не повертається. Загальний текст
+про 60 днів у формах не використовується для висновку про cooldown.
+
+Пароль, CSRF та сирі відповіді не логуються і не включаються до результату;
+відомі секрети маскуються в тексті помилки. Немає повторних POST, зокрема
+після таймауту: на етапі `SUBMIT` він означає невідомий результат заявки.
+Текстова класифікація використовує спільний словник дев'яти мов; лише
+англійський варіант підтверджено наданим прикладом відповіді Facebook.
+Інші помилки будь-якою мовою все одно повертаються через `showError`.
+
+`node test/testChangeFanPageNameAction.js` перевіряє flow у mock-сесії та
+виконує справжній DOM-розбір через наявний frontend `jsdom` (потрібні встановлені
+frontend devDependencies). Тест не виконує запитів до Facebook.
+
 ## Спільні модулі
 
 - `facebook/api/runtime.js`: перевірка HTTPS і точного hostname, навігація лише за потреби, очікування runtime, читання актуальних `getAsyncParams`, DTSG, LSD, CurrentUserInitialData та SiteData. `jazoest` обчислюється з актуального DTSG. Параметри не кешуються між екшинами.

@@ -1,4 +1,6 @@
 export default {
+    // Англійський текст підтверджено відповіддю Facebook; інші варіанти потребують живої перевірки.
+    pageNameChange: { nameNotAllowed: ["No se permite crear contenido con este nombre"] },
     login: {
         createAccount: ["Crear cuenta nueva", "Crear una cuenta nueva"],
         useAnotherProfile: ["Usar otro perfil"],
