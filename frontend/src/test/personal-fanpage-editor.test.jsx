@@ -27,6 +27,20 @@ function setup(overrides = {}) {
 }
 
 describe("Редагування фанпейджі", () => {
+    it("передає роботу й освіту до API без позначки заглушки", async () => {
+        const api = setup();
+        fireEvent.change(screen.getByRole("textbox", { name: "Компанія" }), { target: { value: "Company" } });
+        fireEvent.change(screen.getByRole("textbox", { name: "Посада" }), { target: { value: "Designer" } });
+        fireEvent.change(screen.getByRole("textbox", { name: "Освіта" }), { target: { value: "College" } });
+        expect(screen.getAllByText("API для фанпейджі ще не підключено")).toHaveLength(5);
+        fireEvent.click(screen.getByRole("button", { name: "Застосувати вибрані зміни" }));
+        await screen.findByText("Усі вибрані зміни виконано");
+        expect(api.editPersonalFanPage).toHaveBeenCalledWith(session.id, expect.objectContaining({
+            action: "work", actorId: "200", fields: { company: "Company", position: "Designer" },
+        }));
+        expect(api.editPersonalFanPage).toHaveBeenCalledWith(session.id, expect.objectContaining({ action: "education", fields: { education: "College" } }));
+    });
+
     it("заповнює локальні дані для вибраного гео", async () => {
         const api = setup({ generatePersonalFanPageData: vi.fn().mockResolvedValue(ok({
             firstName: "Laura", lastName: "Hensley", company: "Studio", profession: "Designer", university: "College",

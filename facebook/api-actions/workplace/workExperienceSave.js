@@ -73,7 +73,7 @@ export function buildWorkExperienceSaveVariables({
     return {
         collectionToken,
         input: buildWorkExperienceInput({
-            actorId: runtimeContext.__user,
+            actorId: runtimeContext.av,
             companyId,
             companyName,
             jobTitleId,
@@ -82,7 +82,7 @@ export function buildWorkExperienceSaveVariables({
         }),
         scale: 1,
         sectionToken,
-        profileID: String(runtimeContext.__user),
+        profileID: String(runtimeContext.av),
         workExperienceID: null,
         isProfileDirectory: true,
         shouldFetchPostClick: false,

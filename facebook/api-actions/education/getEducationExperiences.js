@@ -141,7 +141,7 @@ export default async function getEducationExperiences({
         );
     }
 
-    const profileId = String(runtimeContext.__user);
+    const profileId = String(runtimeContext.av);
     const variables = {
         ...defaultRelayVariables,
         ...relayVariables,

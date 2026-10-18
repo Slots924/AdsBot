@@ -134,7 +134,7 @@ export default async function getWorkExperiences({
         );
     }
 
-    const profileId = String(runtimeContext.__user);
+    const profileId = String(runtimeContext.av);
     const variables = {
         ...defaultRelayVariables,
         ...relayVariables,

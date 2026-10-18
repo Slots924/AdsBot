@@ -54,14 +54,14 @@ export function buildEducationSaveVariables({
     return {
         collectionToken,
         input: buildEducationInput({
-            actorId: runtimeContext.__user,
+            actorId: runtimeContext.av,
             schoolId,
             schoolName,
             educationExperienceID,
         }),
         scale: 1,
         sectionToken,
-        profileID: String(runtimeContext.__user),
+        profileID: String(runtimeContext.av),
         educationExperienceID: educationExperienceID
             ? String(educationExperienceID)
             : null,

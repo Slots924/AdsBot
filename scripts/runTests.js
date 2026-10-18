@@ -107,6 +107,7 @@ const frontendSuites = {
     campaign: ["src/test/campaign.test.jsx", "src/test/batch-campaign.test.jsx", "src/test/templates.test.jsx"],
     all: [
         "src/test/personal-fanpage-editor.test.jsx",
+        "src/test/fanpage-about-actions.test.js",
         "src/test/campaign.test.jsx",
         "src/test/batch-campaign.test.jsx",
         "src/test/templates.test.jsx",

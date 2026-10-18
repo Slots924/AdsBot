@@ -103,6 +103,10 @@ export default function PersonalFanPageEditor({ session, busy, setBusy }) {
             }
             else status("photos", "pending", enabled.photos ? "Пропущено: фото не вибрано" : "Вимкнено");
             for (const [key, , inputs] of fields) {
+                if (key === "work" && enabled[key] && !inputs.every(([field]) => String(data[field] ?? "").trim())) {
+                    status(key, "pending", "Пропущено: заповніть компанію та посаду");
+                    continue;
+                }
                 if (!enabled[key] || (key !== "bio" && !inputs.some(([field]) => String(data[field] ?? "").trim()))) {
                     status(key, "pending", enabled[key] ? "Пропущено: порожнє поле" : "Вимкнено");
                     continue;
@@ -176,7 +180,7 @@ export default function PersonalFanPageEditor({ session, busy, setBusy }) {
         </div>
         <h4>Персональна інформація</h4>
         {fields.map(([key, label, inputs]) => <div className="personal-action-card" key={key}>
-            <div className="personal-card-heading">{toggle(key, label)}{key !== "bio" && <small>API для фанпейджі ще не підключено</small>}</div>
+            <div className="personal-card-heading">{toggle(key, label)}{!["bio", "work", "education"].includes(key) && <small>API для фанпейджі ще не підключено</small>}</div>
             <div className="fanpage-edit-fields">{inputs.map(([field, title]) => <label className="field" key={field}><span>{title}</span>
                 {key === "bio" ? <textarea aria-label={title} value={data[field] ?? ""} disabled={locked || !enabled[key]} onChange={(event) => update(field, event.target.value)} />
                     : <input aria-label={title} value={data[field] ?? ""} disabled={locked || !enabled[key]} onChange={(event) => update(field, event.target.value)} />}

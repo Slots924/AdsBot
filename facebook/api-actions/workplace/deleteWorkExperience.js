@@ -68,7 +68,7 @@ export default async function deleteWorkExperience({
         input: {
             entid: String(workExperienceID),
             field_type: "work",
-            actor_id: String(runtimeContext.__user),
+            actor_id: String(runtimeContext.av),
             client_mutation_id: "2",
         },
         scale: 1,

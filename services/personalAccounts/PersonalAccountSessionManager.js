@@ -50,6 +50,7 @@ import createPublicPhotoPost from "../../facebook/api-actions/posts/createPublic
 import backdatePost from "../../facebook/api-actions/posts/backdatePost.js";
 import CommentAccountProfileData from "../profiles/CommentAccountProfileData.js";
 import prepareFanPagePhotos from "./prepareFanPagePhotos.js";
+import { updateEducationField, updateWorkField } from "../../facebook/api-workflows/profile/fillProfileAbout.js";
 
 
 const facebookUrl = "https://www.facebook.com/";
@@ -752,6 +753,17 @@ export default class PersonalAccountSessionManager {
                 break;
             }
             case "avatar": result = await changeProfilePicture({ page, imagePath: input.imagePath }); break;
+            case "work":
+            case "education": {
+                const section = input.action === "work" ? "directory_work" : "directory_education";
+                const tokens = assertAction(await getAboutSectionTokens({ page, sections: [section] }), "Не вдалося отримати секцію персональної інформації");
+                const options = { page, tokens: tokens.data?.[section], replaceExisting: true,
+                    allowFallback: false, beforeAction: guard };
+                result = input.action === "work"
+                    ? await updateWorkField({ ...options, work: input.fields })
+                    : await updateEducationField({ ...options, schoolName: input.fields?.education ?? input.value });
+                break;
+            }
             case "cover": result = await changeCoverPhoto({ page, imagePath: input.imagePath }); break;
             case "clearPosts": result = await clearProfilePosts({ page, beforeAction: guard }); break;
             case "post": {
@@ -766,7 +778,7 @@ export default class PersonalAccountSessionManager {
             default: return { success: false, status: "NOT_IMPLEMENTED", error: "Ще не реалізовано для фанпейджі" };
             }
             assertAction(result, "Facebook не виконав зміну");
-            return { success: true, status: result.status };
+            return { success: true, status: result.status, ...(result.skipped ? { skipped: true } : {}) };
         });
     }
 
