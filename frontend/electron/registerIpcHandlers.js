@@ -2510,6 +2510,7 @@ export default function registerIpcHandlers({
             };
             const photosDirectory = String(payload.photosDirectory ?? "").trim();
             const useApiRequests = payload.useApiRequests === true;
+            const profileNameNote = String(payload.profileNameNote ?? "").replace(/\s+/g, " ").trim();
             const operations = {
                 changeName: payload.operations?.changeName !== false,
                 changeAvatar: payload.operations?.changeAvatar !== false,
@@ -2533,6 +2534,7 @@ export default function registerIpcHandlers({
                     ...profileDataSources,
                     photosDirectory,
                     useApiRequests,
+                    profileNameNote,
                     operations,
                     browserMode,
                     commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
@@ -2556,6 +2558,7 @@ export default function registerIpcHandlers({
                         ...profileDataSources,
                         photosDirectory,
                         useApiRequests,
+                        profileNameNote,
                         operations,
                         browserMode,
                         concurrency: payload.commentWorkerConcurrency,

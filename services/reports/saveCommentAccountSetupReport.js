@@ -176,6 +176,9 @@ function buildProfileSection(item) {
         ["Час виконання", formatDuration(item.durationMs)],
         ["Ім’я Facebook", facebookNameValue(item, fullName)],
         ["Назва AdsPower", ordinaryStepValue(steps.adsPowerRename)],
+        ...(steps.adsPowerNote
+            ? [["Помітка AdsPower", ordinaryStepValue(steps.adsPowerNote)]]
+            : []),
         ["Аватарка", photoValue(steps.avatar)],
         ["Обкладинка", photoValue(steps.cover)],
         ["Видалення постів", ordinaryStepValue(steps.deletePosts)],

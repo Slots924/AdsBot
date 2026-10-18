@@ -135,6 +135,7 @@ export default async function runParallelCommentAccountSetupScenario({
     onProgress,
     reportsDirectory = "./data/reports",
     executeSetup = executeCommentAccountSetupWithProfile,
+    profileNameNote = "",
     takePhotoSet = takeNextPhotoSet,
     skipNameChange = false,
     skipAvatarChange = false,
@@ -371,6 +372,7 @@ export default async function runParallelCommentAccountSetupScenario({
 
                     const result = await executeSetup({
                         adsPower,
+                        profileNameNote,
                         profile,
                         persona,
                         photoSet,

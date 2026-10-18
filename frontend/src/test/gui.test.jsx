@@ -224,6 +224,17 @@ describe("GUI helpers", () => {
             expect(screen.getByDisplayValue("C:/photos/CZ")).toBeInTheDocument();
         });
         expect(onPhotosDirectoryChange).toHaveBeenCalledWith("C:/photos/CZ");
+        window.adsBot.runCommentAccountSetup = vi.fn().mockResolvedValue({ ok: true, data: {} });
+        const note = screen.getByLabelText("Помітка до імені AdsPower (необов’язково)");
+        expect(note).toHaveValue("");
+        expect(note).not.toBeRequired();
+        fireEvent.change(note, { target: { value: "  моя група  " } });
+        fireEvent.click(screen.getByRole("button", { name: "Цільова країна" }));
+        fireEvent.click(within(document.querySelector(".geo-select-list .select-options")).getByRole("button", { name: "CZ" }));
+        fireEvent.click(screen.getByRole("button", { name: "У чергу" }));
+        await waitFor(() => expect(window.adsBot.runCommentAccountSetup).toHaveBeenCalledWith(
+            expect.objectContaining({ profileNameNote: "моя група" })
+        ));
     });
 
     it("показує безпечні дані й статуси Facebook-акаунтів", () => {

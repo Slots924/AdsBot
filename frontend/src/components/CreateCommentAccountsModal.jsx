@@ -24,6 +24,7 @@ export default function CreateCommentAccountsModal({
         maleCount: String(profiles.length),
         femaleCount: "0",
         photosDirectory: "",
+        profileNameNote: "",
         useApiRequests: false,
         operations: {
             changeName: true,
@@ -96,6 +97,7 @@ export default function CreateCommentAccountsModal({
                 maleCount,
                 femaleCount,
                 photosDirectory: draft.photosDirectory,
+                profileNameNote: draft.profileNameNote.trim(),
                 useApiRequests: draft.useApiRequests,
                 operations: draft.operations,
                 browserMode: settings.accountSetupBrowserMode,
@@ -234,6 +236,22 @@ export default function CreateCommentAccountsModal({
                     (JPG, JPEG, PNG, WEBP). Решта фото йдуть у пости. Після
                     успіху папка стає AdsPower_номер.
                 </small>
+                <label className="field">
+                    <span id="account-setup-note-label">Помітка до імені AdsPower (необов’язково)</span>
+                    <input
+                        aria-labelledby="account-setup-note-label"
+                        aria-describedby="account-setup-note-hint"
+                        value={draft.profileNameNote}
+                        placeholder="Коротка помітка, 1–2 слова"
+                        onChange={(event) => setDraft((current) => ({
+                            ...current,
+                            profileNameNote: event.target.value,
+                        }))}
+                    />
+                    <small id="account-setup-note-hint" className="settings-hint">
+                        Додається в кінці імені після успішного створення акаунта та перейменування AdsPower-профілю.
+                    </small>
+                </label>
                 <div className="form-actions">
                     <button type="button" className="secondary-button" onClick={onClose}>
                         Скасувати

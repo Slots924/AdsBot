@@ -289,6 +289,62 @@ assert.deepEqual(openedPages, [
     "https://www.facebook.com/me",
 ]);
 
+for (const scenario of [
+    { note: "  моя   група  ", expected: ["m_Holger Steinhof", "m_Holger Steinhof моя група"] },
+    { note: "   ", expected: ["m_Holger Steinhof"] },
+    { note: "тест", aboutFails: true, expected: ["m_Holger Steinhof"] },
+    { note: "тест", renameFails: true, expected: ["m_Holger Steinhof"] },
+    { note: "тест", noteFails: true, expected: ["m_Holger Steinhof", "m_Holger Steinhof тест"] },
+    { note: "тест", skipNameChange: true, expected: ["Попереднє ім’я тест"] },
+]) {
+    const updates = [];
+    const events = [];
+    const setup = await executeCommentAccountSetupWithProfile({
+        adsPower: {
+            openProfile: async () => ({ ws: { puppeteer: "ws://test" } }),
+            closeProfile: async () => { events.push("closed"); },
+        },
+        profile: { profile_no: "78", profile_id: "id-78", name: "Попереднє ім’я", profile_tags: [] },
+        persona: createPersonaForSkip(),
+        profileNameNote: scenario.note,
+        skipNameChange: scenario.skipNameChange === true,
+        skipAvatarChange: true,
+        skipCoverChange: true,
+        skipDeletePosts: true,
+        skipPublishPosts: true,
+        skipPageTransitions: true,
+        actions: {
+            ensureAdsPowerReady: async () => true,
+            connectBrowser: async () => ({ pages: async () => [{}], disconnect() {} }),
+            configureBrowserWindow: async () => ({}),
+            openPage: async () => {},
+            ensureLoggedIn: async () => true,
+            ensureActive: async () => true,
+            ensureEnglish: async () => {},
+            changeName: async () => ({ success: true }),
+            fillAbout: async () => ({ success: !scenario.aboutFails }),
+            updateProfileName: async (id, name) => {
+                assert.equal(id, "id-78");
+                updates.push(name);
+                events.push(name);
+                if (scenario.renameFails || (scenario.noteFails && updates.length === 2)) {
+                    throw new Error("Помилка перейменування");
+                }
+            },
+            markGender: async () => { events.push("gender"); },
+        },
+    });
+    assert.deepEqual(updates, scenario.expected);
+    const failed = scenario.aboutFails || scenario.renameFails || scenario.noteFails;
+    assert.equal(setup.outcome, failed ? "completed_with_error" : "success");
+    if (scenario.note.trim() && !failed) {
+        assert.equal(setup.adsPowerName, scenario.expected.at(-1));
+        assert.equal(events.at(-2), "gender");
+        assert.equal(events.at(-1), scenario.expected.at(-1));
+        assert.equal(setup.steps.adsPowerNote.ok, true);
+    }
+}
+
 console.log("Перевірка хелперів оформлення акаунтів пройшла успішно");
 
 

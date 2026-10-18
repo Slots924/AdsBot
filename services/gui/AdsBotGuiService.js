@@ -703,6 +703,7 @@ export default class AdsBotGuiService {
         professionsGeo,
         photosDirectory,
         useApiRequests = false,
+        profileNameNote = "",
         operations = {},
         concurrency = 5,
         workerProxies = null,
@@ -774,6 +775,7 @@ export default class AdsBotGuiService {
             executeSetup: useApiRequests
                 ? executeCommentAccountApiSetupWithProfile
                 : undefined,
+            profileNameNote,
             skipNameChange: !normalizedOperations.changeName,
             skipAvatarChange: !normalizedOperations.changeAvatar,
             skipCoverChange: !normalizedOperations.changeCover,

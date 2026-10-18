@@ -205,6 +205,7 @@ export default async function executeCommentAccountSetupWithProfile({
     profile,
     persona,
     photoSet = null,
+    profileNameNote = "",
     browserMode = "visible",
     disableImages = false,
     workerId = null,
@@ -880,6 +881,22 @@ export default async function executeCommentAccountSetupWithProfile({
         }
 
         finalizeOutcome();
+        const note = String(profileNameNote ?? "").replace(/\s+/g, " ").trim();
+        if (result.success && note && !signal?.aborted) {
+            try {
+                const currentName = skipNameChange ? profile.name : adsPowerName;
+                if (!String(currentName ?? "").trim()) {
+                    throw new Error("Не вдалося визначити поточне ім’я AdsPower-профілю");
+                }
+                const nameWithNote = `${String(currentName).trim()} ${note}`;
+                await updateName(profile.profile_id, nameWithNote);
+                result.adsPowerName = nameWithNote;
+                result.steps.adsPowerNote = createStep({ ok: true, detail: nameWithNote });
+            } catch (error) {
+                result.steps.adsPowerNote = createStep({ error: error.message });
+            }
+            finalizeOutcome();
+        }
     }
 
     return result;
