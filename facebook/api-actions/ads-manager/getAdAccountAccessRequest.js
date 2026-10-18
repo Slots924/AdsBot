@@ -1,4 +1,4 @@
-import { createResult } from "../education/common.js";
+import { createResult } from "../../api/browserRequest.js";
 import {
     getAgencyResponseError,
     parseAgencyDialog,

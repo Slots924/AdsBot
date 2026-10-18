@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -7,7 +8,7 @@ import {
     parseFacebookJsonChunks,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const managePostsFriendlyName = "ProfileCometManagePostsTimelineRootQuery";
@@ -135,27 +136,26 @@ function getPageInfo(responseChunks) {
 
 async function requestManagePostsPage({
     page,
-    commonPayload,
+    runtimeContext,
     friendlyName,
     docId,
     variables,
     timeout,
 }) {
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName,
         docId,
         variables,
         extraParameters: {
-            __spin_r: commonPayload.__spin_r,
-            __spin_b: commonPayload.__spin_b,
-            __spin_t: commonPayload.__spin_t,
-            __crn: commonPayload.__crn,
+            __spin_r: runtimeContext.__spin_r,
+            __spin_b: runtimeContext.__spin_b,
+            __spin_t: runtimeContext.__spin_t,
+            __crn: runtimeContext.__crn,
         },
     });
     const response = await postFacebookForm(page, {
         body,
         friendlyName,
-        lsd: commonPayload.lsd,
         timeout,
     });
 
@@ -214,17 +214,17 @@ async function requestManagePostsPage({
 // Отримує всі сторінки, доступні через підтверджені Manage Posts root і refetch queries.
 export default async function getManagePosts({
     page,
-    commonPayload,
     timeout,
     omitPinnedPost = true,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
 
     if (validationError || missingRequestField) {
         return createResult(false, getManagePostsStatuses.INVALID_INPUT, null, {
-            error: validationError ?? `У commonPayload відсутнє поле ${missingRequestField}`,
+            error: validationError ?? `У runtimeContext відсутнє поле ${missingRequestField}`,
         });
     }
 
@@ -243,12 +243,12 @@ export default async function getManagePosts({
             scale: 1,
             taggedInOnly: null,
             renderLocation: "timeline",
-            userID: String(commonPayload.__user),
+            userID: String(runtimeContext.__user),
             __relay_internal__pv__GHLShouldChangeSponsoredDataFieldNamerelayprovider: true,
         };
         const rootResult = await requestManagePostsPage({
             page,
-            commonPayload,
+            runtimeContext,
             friendlyName: managePostsFriendlyName,
             docId: managePostsDocId,
             variables: rootVariables,
@@ -271,7 +271,7 @@ export default async function getManagePosts({
 
             const refetchResult = await requestManagePostsPage({
                 page,
-                commonPayload,
+                runtimeContext,
                 friendlyName: managePostsRefetchFriendlyName,
                 docId: managePostsRefetchDocId,
                 variables: {
@@ -289,7 +289,7 @@ export default async function getManagePosts({
                     renderLocation: "timeline",
                     scale: 1,
                     taggedInOnly: null,
-                    id: String(commonPayload.__user),
+                    id: String(runtimeContext.__user),
                     __relay_internal__pv__GHLShouldChangeSponsoredDataFieldNamerelayprovider: true,
                 },
                 timeout: normalizedTimeout,

@@ -1,8 +1,11 @@
-import { createResult } from "../education/common.js";
+import { createResult } from "../../api/browserRequest.js";
+import { readFacebookRuntime } from "../../api/runtime.js";
 
 
 // Збирає ID pending-запрошень із поточної сторінки налаштувань РК.
 export default async function listAdAccountAccessRequests({ page, adAccountId }) {
+    const runtime = await readFacebookRuntime(page, { surface: "adsManager" });
+    if (runtime.runtimeError) return createResult(false, "RUNTIME_DATA_UNAVAILABLE");
     const accountId = String(adAccountId ?? "").replace(/^act_/, "");
     let hostname = "";
     try {

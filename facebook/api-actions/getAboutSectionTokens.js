@@ -1,3 +1,5 @@
+import { postFacebookForm } from "../api/browserRequest.js";
+import { readFacebookRuntime } from "../api/runtime.js";
 const endpoint = "/ajax/bulk-route-definitions/";
 const routingNamespace = "fb_comet";
 const routeName = "comet.fbweb.CometProfileAboutTabRoute";
@@ -27,14 +29,14 @@ function createResult(success, status, data = null, extra = {}) {
 }
 
 
-// Перевіряє, що action отримав сторінку, commonPayload і список секцій.
-function validateInput({ page, commonPayload, sections }) {
+// Перевіряє, що action отримав сторінку, runtimeContext і список секцій.
+function validateInput({ page, runtimeContext, sections }) {
     if (!page || typeof page.evaluate !== "function") {
         return "Не передано Puppeteer page";
     }
 
-    if (!commonPayload || typeof commonPayload !== "object") {
-        return "Не передано commonPayload";
+    if (!runtimeContext || typeof runtimeContext !== "object") {
+        return "Не передано runtimeContext";
     }
 
     const requiredPayloadFields = [
@@ -51,12 +53,12 @@ function validateInput({ page, commonPayload, sections }) {
     ];
 
     const missingField = requiredPayloadFields.find(
-        (field) => commonPayload[field] === undefined
-            || commonPayload[field] === null
+        (field) => runtimeContext[field] === undefined
+            || runtimeContext[field] === null
     );
 
     if (missingField) {
-        return `У commonPayload відсутнє поле ${missingField}`;
+        return `У runtimeContext відсутнє поле ${missingField}`;
     }
 
     if (!Array.isArray(sections) || sections.length === 0) {
@@ -100,13 +102,13 @@ function extractSectionTokens(responseData, routeUrl) {
 // Отримує токени для секцій вкладки About через bulk-route-definitions.
 export default async function getAboutSectionTokens({
     page,
-    commonPayload,
     sections,
     timeout = defaultTimeoutMs,
 }) {
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
     const validationError = validateInput({
         page,
-        commonPayload,
+        runtimeContext,
         sections,
     });
 
@@ -124,21 +126,21 @@ export default async function getAboutSectionTokens({
         : defaultTimeoutMs;
 
     const routeUrls = sections.map(
-        (section) => `/profile.php?id=${commonPayload.__user}&sk=${section}`
+        (section) => `/profile.php?id=${runtimeContext.__user}&sk=${section}`
     );
 
     // Формуємо мінімальний перевірений form-urlencoded body.
     const requestParams = new URLSearchParams({
-        __user: String(commonPayload.__user),
-        __a: String(commonPayload.__a),
-        __comet_req: String(commonPayload.__comet_req),
-        fb_dtsg: String(commonPayload.fb_dtsg),
-        jazoest: String(commonPayload.jazoest),
-        lsd: String(commonPayload.lsd),
-        __rev: String(commonPayload.__rev),
-        __spin_r: String(commonPayload.__spin_r),
-        __spin_b: String(commonPayload.__spin_b),
-        __spin_t: String(commonPayload.__spin_t),
+        __user: String(runtimeContext.__user),
+        __a: String(runtimeContext.__a),
+        __comet_req: String(runtimeContext.__comet_req),
+        fb_dtsg: String(runtimeContext.fb_dtsg),
+        jazoest: String(runtimeContext.jazoest),
+        lsd: String(runtimeContext.lsd),
+        __rev: String(runtimeContext.__rev),
+        __spin_r: String(runtimeContext.__spin_r),
+        __spin_b: String(runtimeContext.__spin_b),
+        __spin_t: String(runtimeContext.__spin_t),
         routing_namespace: routingNamespace,
         __crn: routeName,
     });
@@ -151,46 +153,9 @@ export default async function getAboutSectionTokens({
     try {
         // Запит виконується всередині Facebook-сторінки,
         // тому браузер використовує поточні cookies та авторизацію.
-        const response = await page.evaluate(
-            async ({ body, requestEndpoint, timeoutMs }) => {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(
-                    () => controller.abort(),
-                    timeoutMs
-                );
-
-                try {
-                    const fetchResponse = await fetch(requestEndpoint, {
-                        method: "POST",
-                        credentials: "include",
-                        headers: {
-                            "content-type": "application/x-www-form-urlencoded",
-                        },
-                        body,
-                        signal: controller.signal,
-                    });
-
-                    return {
-                        ok: fetchResponse.ok,
-                        statusCode: fetchResponse.status,
-                        body: await fetchResponse.text(),
-                    };
-                } catch (error) {
-                    return {
-                        requestError: error?.name === "AbortError"
-                            ? "TIMEOUT"
-                            : String(error?.message ?? error),
-                    };
-                } finally {
-                    clearTimeout(timeoutId);
-                }
-            },
-            {
-                body: requestParams.toString(),
-                requestEndpoint: endpoint,
-                timeoutMs: normalizedTimeout,
-            }
-        );
+        const response = await postFacebookForm(page, {
+            body: requestParams.toString(), endpoint, timeout: normalizedTimeout,
+        });
 
         if (response.requestError === "TIMEOUT") {
             return createResult(

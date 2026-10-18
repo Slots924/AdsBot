@@ -1,5 +1,3 @@
-import captureGraphqlPayload
-    from "../../facebook/api-actions/captureGraphqlPayload.js";
 import changeProfilePicture
     from "../../facebook/api-actions/profile/changeProfilePicture.js";
 import changeCoverPhoto
@@ -20,10 +18,6 @@ import executeCommentAccountSetupWithProfile
     from "./executeCommentAccountSetupWithProfile.js";
 
 
-const facebookProfileUrl = "https://www.facebook.com/me";
-const facebookGraphqlUrl = "https://www.facebook.com/api/graphql/";
-
-
 function emitInfo(logger, event, message, fields = {}) {
     if (typeof logger?.info !== "function") return;
     logger.info(event, message, fields);
@@ -39,26 +33,6 @@ function emitWarning(logger, event, message, fields = {}) {
 // Підміняє лише Facebook UI-дії API-реалізаціями, залишаючи спільний lifecycle профілю та звіт.
 export default async function executeCommentAccountApiSetupWithProfile(options = {}) {
     const logger = options.logger ?? console;
-    let cachedCommonPayload = null;
-
-    const getCommonPayload = async (page) => {
-        if (cachedCommonPayload) return cachedCommonPayload;
-
-        const captureResult = await captureGraphqlPayload(page, {
-            profileUrl: facebookProfileUrl,
-            graphqlUrl: facebookGraphqlUrl,
-        });
-        if (!captureResult.success) {
-            const error = new Error(
-                captureResult.error || `Не вдалося перехопити Facebook payload: ${captureResult.status}`
-            );
-            error.code = captureResult.status;
-            throw error;
-        }
-        cachedCommonPayload = captureResult.data;
-        return cachedCommonPayload;
-    };
-
     const actions = {
         changeName: async (page, { firstName, lastName }) => {
             const result = await changeFacebookNameWorkflow({
@@ -76,10 +50,8 @@ export default async function executeCommentAccountApiSetupWithProfile(options =
             return result;
         },
         changeAvatar: async (page, { imagePath }) => {
-            const commonPayload = await getCommonPayload(page);
             const result = await changeProfilePicture({
                 page,
-                commonPayload,
                 imagePath,
             });
             if (result.success) {
@@ -88,10 +60,8 @@ export default async function executeCommentAccountApiSetupWithProfile(options =
             return result;
         },
         changeCover: async (page, { imagePath }) => {
-            const commonPayload = await getCommonPayload(page);
             const result = await changeCoverPhoto({
                 page,
-                commonPayload,
                 imagePath,
             });
             if (result.success) {
@@ -100,8 +70,7 @@ export default async function executeCommentAccountApiSetupWithProfile(options =
             return result;
         },
         deletePosts: async (page) => {
-            const commonPayload = await getCommonPayload(page);
-            const result = await clearProfilePosts({ page, commonPayload });
+            const result = await clearProfilePosts({ page });
             if (result.success) {
                 emitInfo(
                     logger,
@@ -122,10 +91,8 @@ export default async function executeCommentAccountApiSetupWithProfile(options =
             };
         },
         publishPosts: async (page, { posts }) => {
-            const commonPayload = await getCommonPayload(page);
             const result = await publishProfilePostsWithDates({
                 page,
-                commonPayload,
                 posts,
             });
             emitInfo(
@@ -141,10 +108,8 @@ export default async function executeCommentAccountApiSetupWithProfile(options =
             };
         },
         fillAbout: async (page, { fields, skipBio }) => {
-            const commonPayload = await getCommonPayload(page);
             const result = await fillProfileAbout({
                 page,
-                commonPayload,
                 fields: {
                     ...fields,
                 },

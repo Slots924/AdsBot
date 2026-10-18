@@ -1,4 +1,5 @@
-import { normalizeTimeout } from "../education/common.js";
+import { readFacebookRuntime } from "../../api/runtime.js";
+import { normalizeTimeout } from "../../api/browserRequest.js";
 
 
 const dialogPath = "/adaccount/agency/accept_reject_dialog/";
@@ -9,16 +10,10 @@ export function validateAgencyRequestInput(page, adAccountId, agencyId, adMarket
     const accountId = String(adAccountId ?? "").trim().replace(/^act_/, "");
     const businessId = String(agencyId ?? "").trim();
     const requestId = String(adMarketId ?? "").trim();
-    let hostname = "";
-    try {
-        hostname = new URL(page?.url?.() ?? "").hostname;
-    } catch {
-        // Некоректну адресу вкладки повертаємо як помилку вхідних даних.
-    }
-    if (typeof page?.evaluate !== "function" || hostname !== "adsmanager.facebook.com"
+    if (typeof page?.evaluate !== "function"
         || !/^\d+$/.test(accountId) || !/^\d+$/.test(businessId)
         || !/^\d+$/.test(requestId)) {
-        return { error: "Потрібні Puppeteer page на adsmanager.facebook.com і числові adAccountId, agencyId, adMarketId" };
+        return { error: "Потрібні Puppeteer page і числові adAccountId, agencyId, adMarketId" };
     }
     return { adAccountId: accountId, agencyId: businessId, adMarketId: requestId };
 }
@@ -35,29 +30,10 @@ export async function performAgencyRequest(page, {
     hash,
     timeout,
 }) {
+    const runtime = await readFacebookRuntime(page, { surface: "adsManager", asyncDtsg: method === "GET", timeout });
+    if (runtime.runtimeError) return { runtimeUnavailable: true };
     return page.evaluate(async (request) => {
-        let actorId;
-        let fbDtsg;
-        let lsd;
-        let fbDtsgAg;
-        try {
-            actorId = String(require("CurrentUserInitialData").USER_ID ?? "");
-            if (request.method === "GET") {
-                const dtsgAsync = require("DTSG_ASYNC");
-                fbDtsgAg = String(dtsgAsync?.getCachedToken?.()
-                    || await dtsgAsync?.getToken?.() || "");
-            } else {
-                fbDtsg = String(require("DTSGInitialData").token ?? "");
-                lsd = String(require("LSD").token ?? "");
-            }
-        } catch {
-            return { runtimeUnavailable: true };
-        }
-        if (!/^\d+$/.test(actorId)
-            || (request.method === "GET" ? !fbDtsgAg : !fbDtsg || !lsd)) {
-            return { runtimeUnavailable: true };
-        }
-
+        const { __user: actorId, fb_dtsg: fbDtsg, lsd, fb_dtsg_ag: fbDtsgAg } = request.runtime;
         const jazoestToken = request.method === "GET" ? fbDtsgAg : fbDtsg;
         const jazoest = `2${[...jazoestToken].reduce((sum, character) =>
             sum + character.charCodeAt(0), 0)}`;
@@ -114,6 +90,7 @@ export async function performAgencyRequest(page, {
             clearTimeout(timer);
         }
     }, {
+        runtime,
         method,
         adAccountId,
         agencyId,

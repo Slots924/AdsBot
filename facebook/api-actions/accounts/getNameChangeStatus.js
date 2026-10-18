@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const accountsCenterGraphqlEndpoint = "https://accountscenter.facebook.com/api/graphql/";
@@ -37,8 +38,9 @@ function normalizeName(defaultValue) {
 
 
 // Перевіряє правила Accounts Center без жодної зміни імені профілю.
-export default async function getNameChangeStatus({ page, commonPayload, timeout }) {
-    const validationError = validateMutationInput(page, commonPayload);
+export default async function getNameChangeStatus({ page, timeout }) {
+    const runtimeContext = await readFacebookRuntime(page, { surface: "accountsCenter", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     if (validationError) {
         return createResult(false, getNameChangeStatusStatuses.INVALID_INPUT, null, {
             error: validationError,
@@ -47,8 +49,8 @@ export default async function getNameChangeStatus({ page, commonPayload, timeout
 
     try {
         const normalizedTimeout = normalizeTimeout(timeout);
-        const profileId = String(commonPayload.__user);
-        const body = buildMutationBody(commonPayload, {
+        const profileId = String(runtimeContext.__user);
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: nameEditorFriendlyName,
             docId: nameEditorDocId,
             variables: {
@@ -62,7 +64,6 @@ export default async function getNameChangeStatus({ page, commonPayload, timeout
         const response = await postFacebookForm(page, {
             body,
             friendlyName: nameEditorFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizedTimeout,
             endpoint: accountsCenterGraphqlEndpoint,
         });

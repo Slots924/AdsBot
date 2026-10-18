@@ -30,7 +30,6 @@ function parseTargetDate(value) {
 // Створює фото-пости послідовно та одразу змінює дату кожного створеного story.
 export default async function publishProfilePostsWithDates({
     page,
-    commonPayload,
     posts,
     timeout,
 } = {}) {
@@ -60,7 +59,6 @@ export default async function publishProfilePostsWithDates({
         for (const [index, post] of normalizedPosts.entries()) {
             const createResult = await createPublicPhotoPost({
                 page,
-                commonPayload,
                 imagePath: post.imagePath,
                 timeout,
             });
@@ -79,7 +77,6 @@ export default async function publishProfilePostsWithDates({
 
             const backdateResult = await backdatePost({
                 page,
-                commonPayload,
                 storyId: item.storyId,
                 ...post.targetDate,
                 hour: 12,

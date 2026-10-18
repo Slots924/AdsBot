@@ -4,10 +4,10 @@ const accountFields = "id,account_id,currency,timezone_name";
 const businessFields = "business_name,business_country_code,business_state,business_city,business_zip,business_street,business_street2";
 
 // Читає дані вибраного рекламного акаунта в його браузерній сесії.
-export default async function getAdAccountBusinessInfo({ page, accessToken, adAccountId, timeout = 60000 }) {
+export default async function getAdAccountBusinessInfo({ page, adAccountId, timeout = 60000 }) {
     const accountId = String(adAccountId ?? "").replace(/^act_/, "").trim();
     const response = await readAdAccountFields({
-        page, accessToken, adAccountId, timeout, fieldGroups: [accountFields, businessFields],
+        page, adAccountId, timeout, fieldGroups: [accountFields, businessFields],
     });
     if (!response.success) return response;
     const data = response.data;

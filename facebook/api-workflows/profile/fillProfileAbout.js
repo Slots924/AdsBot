@@ -31,12 +31,11 @@ function step(success, status, extra = {}) {
 }
 
 
-async function updateEducation({ page, commonPayload, tokens, schoolName, timeout }) {
+async function updateEducation({ page, tokens, schoolName, timeout }) {
     if (!tokens) return step(false, "TOKENS_NOT_FOUND");
 
     const current = await getEducationExperiences({
         page,
-        commonPayload,
         ...tokens,
         timeout,
     });
@@ -47,7 +46,6 @@ async function updateEducation({ page, commonPayload, tokens, schoolName, timeou
 
     const primary = await addEducation({
         page,
-        commonPayload,
         collectionToken: tokens.collectionToken,
         sectionToken: tokens.sectionToken,
         schoolName,
@@ -57,7 +55,6 @@ async function updateEducation({ page, commonPayload, tokens, schoolName, timeou
 
     const fallback = await addFallbackEducation({
         page,
-        commonPayload,
         collectionToken: tokens.collectionToken,
         sectionToken: tokens.sectionToken,
         timeout,
@@ -69,12 +66,11 @@ async function updateEducation({ page, commonPayload, tokens, schoolName, timeou
 }
 
 
-async function updateWork({ page, commonPayload, tokens, work, timeout }) {
+async function updateWork({ page, tokens, work, timeout }) {
     if (!tokens) return step(false, "TOKENS_NOT_FOUND");
 
     const current = await getWorkExperiences({
         page,
-        commonPayload,
         ...tokens,
         timeout,
     });
@@ -89,13 +85,11 @@ async function updateWork({ page, commonPayload, tokens, work, timeout }) {
     if (companyName && jobTitleName) {
         const companyResult = await searchWorkplace({
             page,
-            commonPayload,
             query: companyName,
             timeout,
         });
         const jobTitleResult = await searchJobTitle({
             page,
-            commonPayload,
             query: jobTitleName,
             timeout,
         });
@@ -105,7 +99,6 @@ async function updateWork({ page, commonPayload, tokens, work, timeout }) {
         primary = company && jobTitle
             ? await createWorkExperience({
                 page,
-                commonPayload,
                 collectionToken: tokens.collectionToken,
                 sectionToken: tokens.sectionToken,
                 companyId: company.fbid,
@@ -116,7 +109,6 @@ async function updateWork({ page, commonPayload, tokens, work, timeout }) {
             })
             : await createCustomWorkExperience({
                 page,
-                commonPayload,
                 collectionToken: tokens.collectionToken,
                 sectionToken: tokens.sectionToken,
                 companyName,
@@ -128,7 +120,6 @@ async function updateWork({ page, commonPayload, tokens, work, timeout }) {
 
     const fallback = await addFallbackWorkExperience({
         page,
-        commonPayload,
         collectionToken: tokens.collectionToken,
         sectionToken: tokens.sectionToken,
         timeout,
@@ -143,7 +134,6 @@ async function updateWork({ page, commonPayload, tokens, work, timeout }) {
 // Очищає bio та незалежно оновлює освіту й роботу з локальними fallback-варіантами.
 export default async function fillProfileAbout({
     page,
-    commonPayload,
     fields = {},
     skipBio = false,
     timeout,
@@ -151,7 +141,6 @@ export default async function fillProfileAbout({
     try {
         const tokenResult = await getAboutSectionTokens({
             page,
-            commonPayload,
             sections: ["directory_intro", "directory_education", "directory_work"],
             timeout,
         });
@@ -173,7 +162,6 @@ export default async function fillProfileAbout({
             : bioTokens
             ? await updateBio({
                 page,
-                commonPayload,
                 collectionToken: bioTokens.collectionToken,
                 sectionToken: bioTokens.sectionToken,
                 value: "",
@@ -182,14 +170,12 @@ export default async function fillProfileAbout({
             : step(false, "TOKENS_NOT_FOUND");
         const educationResult = await updateEducation({
             page,
-            commonPayload,
             tokens: tokens.directory_education,
             schoolName: fields.education,
             timeout,
         });
         const workResult = await updateWork({
             page,
-            commonPayload,
             tokens: tokens.directory_work,
             work: fields.work,
             timeout,

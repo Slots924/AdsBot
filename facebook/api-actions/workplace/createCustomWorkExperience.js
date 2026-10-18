@@ -14,7 +14,6 @@ export const createCustomWorkExperienceStatuses = Object.freeze({
 // Створює власні Facebook-компанію та посаду в межах нового Work Experience.
 export default async function createCustomWorkExperience({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     companyName,
@@ -42,7 +41,6 @@ export default async function createCustomWorkExperience({
     };
     const result = await createWorkExperience({
         page,
-        commonPayload,
         collectionToken,
         sectionToken,
         companyId: company.id,

@@ -1,11 +1,11 @@
-import captureGraphqlPayload from "../api-actions/captureGraphqlPayload.js";
+import { readFacebookRuntime } from "../api/runtime.js";
 
 
 export const confirmFacebookProfileSwitchStatuses = Object.freeze({
     PROFILE_SWITCH_CONFIRMED: "PROFILE_SWITCH_CONFIRMED",
     INVALID_INPUT: "INVALID_INPUT",
     BRING_TO_FRONT_FAILED: "BRING_TO_FRONT_FAILED",
-    PAYLOAD_CAPTURE_FAILED: "PAYLOAD_CAPTURE_FAILED",
+    RUNTIME_UNAVAILABLE: "RUNTIME_UNAVAILABLE",
     ACTOR_MISMATCH: "ACTOR_MISMATCH",
     ERROR: "ERROR",
 });
@@ -16,7 +16,7 @@ function createResult(success, status, data = null, extra = {}) {
 }
 
 
-// Підтверджує switch лише за свіжим payload після примусового перемальовування UI.
+// Підтверджує actor лише після оновлення сторінки та читання нового runtime.
 export default async function confirmFacebookProfileSwitch({
     page,
     targetProfileId,
@@ -38,16 +38,25 @@ export default async function confirmFacebookProfileSwitch({
         });
     }
 
-    // Перехід на /me одночасно оновлює інтерфейс і дає GraphQL-запит для свіжого payload.
-    const captured = await captureGraphqlPayload(page, { profileUrl, timeout });
-    if (!captured.success) {
-        return createResult(false, confirmFacebookProfileSwitchStatuses.PAYLOAD_CAPTURE_FAILED, null, {
-            error: captured.error ?? captured.status,
-            captureStatus: captured.status,
+    // Після switch старий JS-контекст може ще належати попередньому actor.
+    try {
+        const target = new URL(profileUrl);
+        if (target.protocol !== "https:" || !["www.facebook.com", "facebook.com"].includes(target.hostname)) {
+            throw new Error("Некоректна сторінка підтвердження Facebook actor");
+        }
+        await page.goto(target.href, { waitUntil: "domcontentloaded", timeout });
+    } catch {
+        return createResult(false, confirmFacebookProfileSwitchStatuses.ERROR, null, {
+            error: "Не вдалося оновити сторінку після перемикання Facebook actor",
         });
     }
-
-    const actorId = String(captured.data?.__user ?? "");
+    const runtime = await readFacebookRuntime(page, { timeout });
+    if (runtime.runtimeError) {
+        return createResult(false, confirmFacebookProfileSwitchStatuses.RUNTIME_UNAVAILABLE, null, {
+            error: runtime.runtimeError,
+        });
+    }
+    const actorId = String(runtime.av ?? runtime.__user ?? "");
     if (actorId !== normalizedTargetProfileId) {
         return createResult(false, confirmFacebookProfileSwitchStatuses.ACTOR_MISMATCH, null, {
             error: "Facebook actor не відповідає вибраній фанпейджі після перемикання",
@@ -57,7 +66,6 @@ export default async function confirmFacebookProfileSwitch({
     }
 
     return createResult(true, confirmFacebookProfileSwitchStatuses.PROFILE_SWITCH_CONFIRMED, {
-        payload: captured.data,
         actorId,
     });
 }

@@ -1,3 +1,4 @@
+import { withFacebookRuntime } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import addCreditCardPaymentMethod, {
@@ -9,13 +10,13 @@ import addCreditCardPaymentMethod, {
 function createPage(runtimeResult) {
     const calls = [];
 
-    return {
+    return withFacebookRuntime({
         calls,
         async evaluate(_callback, argumentsObject) {
             calls.push(argumentsObject);
             return runtimeResult;
         },
-    };
+    }, { surface: "adsManager" });
 }
 
 

@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import { getProfilePhotoRejectReason }
     from "../../../services/accounts/photoSets.js";
 import loadImageFromPath
@@ -11,7 +12,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const uploadEndpoint = "/profile/picture/upload/";
@@ -68,19 +69,19 @@ function extractProfilePhotoData(data) {
 // Завантажує локальне фото та встановлює його аватаркою поточного Facebook-профілю.
 export default async function changeProfilePicture({
     page,
-    commonPayload,
     imagePath,
     attributionId = null,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     if (validationError || missingRequestField || !String(imagePath ?? "").trim()) {
         return createResult(false, changeProfilePictureStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : "Потрібен шлях до файлу avatar"),
         });
     }
@@ -94,13 +95,12 @@ export default async function changeProfilePicture({
 
     try {
         const image = await loadImageFromPath(imagePath);
-        const profileId = String(commonPayload.__user);
+        const profileId = String(runtimeContext.__user);
         const normalizedTimeout = normalizeTimeout(timeout);
         const uploadResponse = await uploadProfilePhoto(page, {
             endpoint: uploadEndpoint,
             image,
             profileId,
-            commonPayload,
             timeout: normalizedTimeout,
             queryParameters: {
                 photo_source: uploadPhotoSource,
@@ -170,7 +170,7 @@ export default async function changeProfilePicture({
             input.attribution_id_v2 = attributionId.trim();
         }
 
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: setPictureFriendlyName,
             docId: setPictureDocId,
             variables: {
@@ -181,16 +181,15 @@ export default async function changeProfilePicture({
                 __relay_internal__pv__ProfileGeminiIsCoinFlipEnabledrelayprovider: false,
             },
             extraParameters: {
-                __spin_r: commonPayload.__spin_r,
-                __spin_b: commonPayload.__spin_b,
-                __spin_t: commonPayload.__spin_t,
-                __crn: commonPayload.__crn,
+                __spin_r: runtimeContext.__spin_r,
+                __spin_b: runtimeContext.__spin_b,
+                __spin_t: runtimeContext.__spin_t,
+                __crn: runtimeContext.__crn,
             },
         });
         const setResponse = await postFacebookForm(page, {
             body,
             friendlyName: setPictureFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizedTimeout,
         });
 

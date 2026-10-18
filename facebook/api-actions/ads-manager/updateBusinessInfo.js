@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -8,7 +9,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const updateBusinessInfoFriendlyName = "BillingAccountInformationUtilsUpdateAccountMutation";
@@ -98,7 +99,6 @@ function extractBusinessInfo(data) {
 // Оновлює business information платіжного рекламного акаунта однією GraphQL mutation.
 export default async function updateBusinessInfo({
     page,
-    commonPayload,
     billableAccountPaymentLegacyAccountId,
     currency = null,
     deviceCountry = null,
@@ -109,9 +109,10 @@ export default async function updateBusinessInfo({
     includeCreateNewFromOldFragment = false,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload, { requireAv: false });
+    const runtimeContext = await readFacebookRuntime(page, { surface: "adsManager", timeout });
+    const validationError = validateMutationInput(page, runtimeContext, { requireAv: false });
     const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const accountId = String(billableAccountPaymentLegacyAccountId ?? "").trim();
     const normalizedCurrency = currency === null ? null : String(currency ?? "").trim().toUpperCase();
     const normalizedDeviceCountry = deviceCountry === null
@@ -138,13 +139,13 @@ export default async function updateBusinessInfo({
         return createResult(false, updateBusinessInfoStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : "Потрібні ID платіжного акаунта, коректні currency/address/timezone та clientMutationId"),
         });
     }
 
     try {
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: updateBusinessInfoFriendlyName,
             docId: updateBusinessInfoDocId,
             variables: {
@@ -169,24 +170,23 @@ export default async function updateBusinessInfo({
                     },
                     timezone: normalizedTimezone,
                     upl_logging_data: createUplLoggingData(uplLoggingData ?? {}),
-                    actor_id: String(commonPayload.__user),
+                    actor_id: String(runtimeContext.__user),
                     client_mutation_id: normalizedMutationId,
                 },
                 includeCreateNewFromOldFragment: Boolean(includeCreateNewFromOldFragment),
             },
             extraParameters: {
                 __aaid: accountId,
-                __spin_r: commonPayload.__spin_r,
-                __spin_b: commonPayload.__spin_b,
-                __spin_t: commonPayload.__spin_t,
-                __crn: commonPayload.__crn,
+                __spin_r: runtimeContext.__spin_r,
+                __spin_b: runtimeContext.__spin_b,
+                __spin_t: runtimeContext.__spin_t,
+                __crn: runtimeContext.__crn,
                 ads_manager_write_regions: "true",
             },
         });
         const response = await postFacebookForm(page, {
             body,
             friendlyName: updateBusinessInfoFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
 

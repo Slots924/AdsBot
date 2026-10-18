@@ -4,8 +4,6 @@ import { randomUUID } from "node:crypto";
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "../../classes/AdsPower.js";
-import captureGraphqlPayload
-    from "../../facebook/api-actions/captureGraphqlPayload.js";
 import getAboutSectionTokens
     from "../../facebook/api-actions/getAboutSectionTokens.js";
 import getEducationExperiences
@@ -101,25 +99,11 @@ async function main() {
         });
         const page = (await browser.pages())[0] ?? await browser.newPage();
 
-        log("Отримуємо commonPayload");
-        const payloadResult = await captureGraphqlPayload(page, {
-            timeout: actionTimeout,
-        });
-        if (!payloadResult.success) {
-            throw new Error(
-                `captureGraphqlPayload: ${payloadResult.status} — `
-                + `${payloadResult.error ?? "невідома помилка"}`
-            );
-        }
-        const commonPayload = payloadResult.data;
-        log("commonPayload отримано", {
-            fieldsCount: Object.keys(commonPayload).length,
-        });
+
 
         log("Отримуємо collectionToken і sectionToken для Education");
         const tokensResult = await getAboutSectionTokens({
             page,
-            commonPayload,
             sections: [educationSection],
             timeout: actionTimeout,
         });
@@ -138,7 +122,6 @@ async function main() {
         logEducationStep("Читаємо поточні College профілю");
         const currentEducation = await getEducationExperiences({
             page,
-            commonPayload,
             collectionToken: educationTokens.collectionToken,
             sectionToken: educationTokens.sectionToken,
             rawSectionToken: educationTokens.rawSectionToken,
@@ -159,7 +142,6 @@ async function main() {
             logEducationStep("Видаляємо College", education);
             const deleteResult = await deleteEducation({
                 page,
-                commonPayload,
                 collectionToken: educationTokens.collectionToken,
                 sectionToken: educationTokens.sectionToken,
                 educationExperienceID: education.education_experience_id,
@@ -185,7 +167,6 @@ async function main() {
         logEducationStep("Перевіряємо, що всі College видалено");
         const educationAfterDelete = await getEducationExperiences({
             page,
-            commonPayload,
             collectionToken: educationTokens.collectionToken,
             sectionToken: educationTokens.sectionToken,
             rawSectionToken: educationTokens.rawSectionToken,
@@ -204,7 +185,6 @@ async function main() {
         logEducationStep(`Шукаємо "${targetSchoolName}" через typeahead`);
         const searchResult = await searchCollege({
             page,
-            commonPayload,
             query: targetSchoolName,
             timeout: actionTimeout,
         });
@@ -227,7 +207,6 @@ async function main() {
         });
         const createResult = await createEducation({
             page,
-            commonPayload,
             collectionToken: educationTokens.collectionToken,
             sectionToken: educationTokens.sectionToken,
             schoolId: school.schoolId,
@@ -250,7 +229,6 @@ async function main() {
         logEducationStep("Фінальна перевірка College");
         const finalEducation = await getEducationExperiences({
             page,
-            commonPayload,
             collectionToken: educationTokens.collectionToken,
             sectionToken: educationTokens.sectionToken,
             rawSectionToken: educationTokens.rawSectionToken,

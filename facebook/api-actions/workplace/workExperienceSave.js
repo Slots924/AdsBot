@@ -6,14 +6,14 @@ export const workExperienceRouteName =
 
 
 // Перевіряє дані сесії, обов'язкові для Work mutation.
-export function getWorkMutationValidationError(commonPayload) {
+export function getWorkMutationValidationError(runtimeContext) {
     const missingSessionField = ["__spin_r", "__spin_b", "__spin_t"].find(
-        (field) => commonPayload?.[field] === undefined
-            || commonPayload[field] === null
+        (field) => runtimeContext?.[field] === undefined
+            || runtimeContext[field] === null
     );
 
     if (missingSessionField) {
-        return `У commonPayload відсутнє поле ${missingSessionField}`;
+        return `У runtimeContext відсутнє поле ${missingSessionField}`;
     }
     return null;
 }
@@ -61,7 +61,7 @@ export function buildWorkExperienceInput({
 
 // Формує variables для create mutation Work Experience.
 export function buildWorkExperienceSaveVariables({
-    commonPayload,
+    runtimeContext,
     collectionToken,
     sectionToken,
     companyId,
@@ -73,7 +73,7 @@ export function buildWorkExperienceSaveVariables({
     return {
         collectionToken,
         input: buildWorkExperienceInput({
-            actorId: commonPayload.__user,
+            actorId: runtimeContext.__user,
             companyId,
             companyName,
             jobTitleId,
@@ -82,7 +82,7 @@ export function buildWorkExperienceSaveVariables({
         }),
         scale: 1,
         sectionToken,
-        profileID: String(commonPayload.__user),
+        profileID: String(runtimeContext.__user),
         workExperienceID: null,
         isProfileDirectory: true,
         shouldFetchPostClick: false,

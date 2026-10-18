@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -8,7 +9,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const triggerFriendlyName = "CometIXTFacebookXfacBvTriggerRootQuery";
@@ -109,7 +110,7 @@ function getChallengeSelectScreen(viewModel) {
 // Виконує один GraphQL-крок і повертає розібраний або сирий response.
 async function executeStep({
     page,
-    commonPayload,
+    runtimeContext,
     adAccountId,
     friendlyName,
     docId,
@@ -117,22 +118,21 @@ async function executeStep({
     timeout,
     stage,
 }) {
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName,
         docId,
         variables,
         extraParameters: {
             __aaid: adAccountId,
-            __spin_r: commonPayload.__spin_r,
-            __spin_b: commonPayload.__spin_b,
-            __spin_t: commonPayload.__spin_t,
-            __crn: commonPayload.__crn,
+            __spin_r: runtimeContext.__spin_r,
+            __spin_b: runtimeContext.__spin_b,
+            __spin_t: runtimeContext.__spin_t,
+            __crn: runtimeContext.__crn,
         },
     });
     const response = await postFacebookForm(page, {
         body,
         friendlyName,
-        lsd: commonPayload.lsd,
         timeout,
     });
 
@@ -206,7 +206,6 @@ function createFlow({
 // Запускає verification flow, за потреби обирає інший номер і надсилає код через SMS або WhatsApp.
 export default async function requestPhoneVerificationCode({
     page,
-    commonPayload,
     adAccountId,
     phoneE164,
     countryCode,
@@ -215,9 +214,10 @@ export default async function requestPhoneVerificationCode({
     triggerSessionId = randomUUID(),
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload, { requireAv: false });
+    const runtimeContext = await readFacebookRuntime(page, { surface: "adsManager", timeout });
+    const validationError = validateMutationInput(page, runtimeContext, { requireAv: false });
     const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const normalizedAdAccountId = String(adAccountId ?? "").trim();
     const normalizedPhone = String(phoneE164 ?? "").trim();
     const normalizedCountryCode = String(countryCode ?? "").trim().toUpperCase();
@@ -233,7 +233,7 @@ export default async function requestPhoneVerificationCode({
         return createResult(false, requestPhoneVerificationCodeStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : "Потрібні adAccountId, телефон E.164, дволітерний countryCode, locale і triggerSessionId"),
         });
     }
@@ -249,7 +249,7 @@ export default async function requestPhoneVerificationCode({
         const normalizedTimeout = normalizeTimeout(timeout);
         const rootResult = await executeStep({
             page,
-            commonPayload,
+            runtimeContext,
             adAccountId: normalizedAdAccountId,
             friendlyName: triggerFriendlyName,
             docId: triggerDocId,
@@ -300,7 +300,7 @@ export default async function requestPhoneVerificationCode({
             entryStage = "SELECT_DIFFERENT_PHONE";
             enterPhoneResultSource = await executeStep({
                 page,
-                commonPayload,
+                runtimeContext,
                 adAccountId: normalizedAdAccountId,
                 friendlyName: nextFriendlyName,
                 docId: nextDocId,
@@ -310,7 +310,7 @@ export default async function requestPhoneVerificationCode({
                             option: alternativeOption.option,
                             serialized_state: enterPhoneScreen.serializedState,
                         },
-                        actor_id: String(commonPayload.__user),
+                        actor_id: String(runtimeContext.__user),
                         client_mutation_id: String(++clientMutationId),
                     },
                     scale: 1,
@@ -336,7 +336,7 @@ export default async function requestPhoneVerificationCode({
 
         const enterPhoneResult = await executeStep({
             page,
-            commonPayload,
+            runtimeContext,
             adAccountId: normalizedAdAccountId,
             friendlyName: nextFriendlyName,
             docId: nextDocId,
@@ -348,7 +348,7 @@ export default async function requestPhoneVerificationCode({
                         phone_number: normalizedPhone,
                         serialized_state: enterPhoneScreen.serializedState,
                     },
-                    actor_id: String(commonPayload.__user),
+                    actor_id: String(runtimeContext.__user),
                     client_mutation_id: String(++clientMutationId),
                 },
                 scale: 1,
@@ -394,7 +394,7 @@ export default async function requestPhoneVerificationCode({
 
         const selectMethodResult = await executeStep({
             page,
-            commonPayload,
+            runtimeContext,
             adAccountId: normalizedAdAccountId,
             friendlyName: nextFriendlyName,
             docId: nextDocId,
@@ -404,7 +404,7 @@ export default async function requestPhoneVerificationCode({
                         selected_challenge_method: normalizedMethod,
                         serialized_state: selectMethodScreen.serializedState,
                     },
-                    actor_id: String(commonPayload.__user),
+                    actor_id: String(runtimeContext.__user),
                     client_mutation_id: String(++clientMutationId),
                 },
                 scale: 1,
@@ -430,7 +430,7 @@ export default async function requestPhoneVerificationCode({
 
         const sendCodeResult = await executeStep({
             page,
-            commonPayload,
+            runtimeContext,
             adAccountId: normalizedAdAccountId,
             friendlyName: nextFriendlyName,
             docId: nextDocId,
@@ -440,7 +440,7 @@ export default async function requestPhoneVerificationCode({
                         phone_number: phoneDisplay,
                         serialized_state: confirmScreen.serializedState,
                     },
-                    actor_id: String(commonPayload.__user),
+                    actor_id: String(runtimeContext.__user),
                     client_mutation_id: String(++clientMutationId),
                 },
                 scale: 1,

@@ -1,3 +1,4 @@
+import { withFacebookRuntime } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import updateBusinessInfo, {
@@ -5,7 +6,7 @@ import updateBusinessInfo, {
 } from "../facebook/api-actions/ads-manager/updateBusinessInfo.js";
 
 
-const commonPayload = {
+const runtimeFixture = {
     __user: "user-id",
     __a: "1",
     fb_dtsg: "token",
@@ -22,13 +23,13 @@ const commonPayload = {
 function createPage(response) {
     const calls = [];
 
-    return {
+    return withFacebookRuntime({
         calls,
         async evaluate(_callback, argumentsObject) {
             calls.push(argumentsObject);
             return response;
         },
-    };
+    }, { surface: "adsManager", runtime: runtimeFixture });
 }
 
 
@@ -64,7 +65,6 @@ const page = createPage({
 });
 const validInput = {
     page,
-    commonPayload,
     billableAccountPaymentLegacyAccountId: "payment-account-id",
     currency: " usd ",
     timezone: " Europe/Kiev ",
@@ -93,7 +93,7 @@ assert.equal(
 );
 assert.equal(parameters.get("doc_id"), "28163983213226133");
 assert.equal(parameters.get("__aaid"), "payment-account-id");
-assert.equal(parameters.get("av"), null);
+assert.equal(parameters.get("av"), runtimeFixture.__user);
 assert.equal(parameters.get("__crn"), null);
 
 const variables = JSON.parse(parameters.get("variables"));
@@ -113,7 +113,6 @@ assert.equal(variables.input.upl_logging_data.target_name, parameters.get("fb_ap
 const invalidResult = await updateBusinessInfo({
     ...validInput,
     page: createPage({ ok: true, statusCode: 200, body: "{}" }),
-    commonPayload,
     billableAccountPaymentLegacyAccountId: "",
 });
 

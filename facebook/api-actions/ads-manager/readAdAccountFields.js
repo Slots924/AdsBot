@@ -1,5 +1,7 @@
+import { readFacebookAccessToken } from "../../api/browserCredentials.js";
 // Виконує читання Graph API у браузері поточної Facebook-сесії.
-export default async function readAdAccountFields({ page, accessToken, adAccountId, fieldGroups, timeout = 60000 }) {
+export default async function readAdAccountFields({ page, adAccountId, fieldGroups, timeout = 60000 }) {
+    const accessToken = await readFacebookAccessToken(page);
     const token = String(accessToken ?? "").trim();
     const accountId = String(adAccountId ?? "").replace(/^act_/, "").trim();
     if (!page?.evaluate || !token || !/^\d+$/.test(accountId)

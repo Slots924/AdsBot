@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const profileSwitchFriendlyName = "CometProfileSwitchMutation";
@@ -27,46 +28,44 @@ export const switchToAdditionalProfileStatuses = Object.freeze({
 
 // Перемикає активний Facebook-контекст на additional profile за його ID.
 // additionalProfileId — це additional_profile.id з createFanPage, а не page.id фанпейджа.
-// Після успішного виклику потрібно ОКРЕМО отримати новий commonPayload через
-// captureGraphqlPayload: поточний payload належить основному профілю й більше неактуальний.
+// Після успішного виклику workflow оновлює сторінку та підтверджує actor у новому runtime.
 export default async function switchToAdditionalProfile({
     page,
-    commonPayload,
     additionalProfileId,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const normalizedAdditionalProfileId = String(additionalProfileId ?? "").trim();
 
     if (validationError || missingRequestField || !normalizedAdditionalProfileId) {
         return createResult(false, switchToAdditionalProfileStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : "Потрібен additionalProfileId, а не pageId фанпейджа"),
         });
     }
 
     try {
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: profileSwitchFriendlyName,
             docId: profileSwitchDocId,
             variables: {
                 profile_id: normalizedAdditionalProfileId,
             },
             extraParameters: {
-                __spin_r: commonPayload.__spin_r,
-                __spin_b: commonPayload.__spin_b,
-                __spin_t: commonPayload.__spin_t,
-                __crn: commonPayload.__crn,
+                __spin_r: runtimeContext.__spin_r,
+                __spin_b: runtimeContext.__spin_b,
+                __spin_t: runtimeContext.__spin_t,
+                __crn: runtimeContext.__crn,
             },
         });
         const response = await postFacebookForm(page, {
             body,
             friendlyName: profileSwitchFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
 

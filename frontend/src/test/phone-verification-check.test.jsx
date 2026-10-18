@@ -2,14 +2,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import PhoneVerificationNotice from "../components/PhoneVerificationNotice.jsx";
 import checkPhoneVerification from "../../../facebook/api-actions/phone-verification/checkPhoneVerification.js";
+import { withFacebookRuntime } from "../../../test/helpers/facebookRuntimePage.js";
 
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 
-// Відтворюємо окремий browser context без модульного require тестового середовища.
-const page = { url: () => "https://adsmanager.facebook.com/adsmanager/",
-    evaluate: (fn, args) => new Function("require", "args", `return (${fn.toString()})(args)`)(globalThis.require, args) };
+// Відокремлює читання runtime від перевірки справжнього HTTP callback.
+const page = withFacebookRuntime({ evaluate: (fn, args) => fn(args) }, {
+    surface: "adsManager", runtime: { av: "42", __user: "42", fb_dtsg: "test-token" },
+});
 function mockResponse(chunks, ok = true) {
-    vi.stubGlobal("require", (name) => name === "DTSGInitialData" ? { token: "test-token" } : { USER_ID: "42" });
     const fetch = vi.fn().mockResolvedValue({ ok, text: async () => chunks.map((chunk) => JSON.stringify(chunk)).join("\n") });
     vi.stubGlobal("fetch", fetch);
     return fetch;
@@ -38,7 +39,7 @@ describe("Перевірка телефонної задачі", () => {
         mockResponse([responseWith("COMPLETE"), { errors: [{ message: "Failed" }] }]);
         expect((await checkPhoneVerification({ page, adAccountId: "123" })).phoneStatus).toBe("UNKNOWN");
     });
-    it("не надсилає запит з іншого домену", async () => {
+    it("не надсилає запит, якщо неможливо перейти до потрібного домену", async () => {
         const evaluate = vi.fn();
         const result = await checkPhoneVerification({ page: { url: () => "https://www.facebook.com/", evaluate }, adAccountId: "123" });
         expect(result.phoneStatus).toBe("UNKNOWN");

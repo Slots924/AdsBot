@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "./common.js";
+} from "../../api/browserRequest.js";
 
 
 const friendlyName = "ProfileCometAboutFieldItemDeleteMutation";
@@ -28,13 +29,13 @@ export const deleteEducationStatuses = Object.freeze({
 // Видаляє конкретний запис College за його EducationExperience ID.
 export default async function deleteEducation({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     educationExperienceID,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     if (validationError || !collectionToken || !sectionToken || !educationExperienceID) {
         return createResult(false, deleteEducationStatuses.INVALID_INPUT, null, {
             error: validationError ?? "Потрібні collectionToken, sectionToken і educationExperienceID",
@@ -47,7 +48,7 @@ export default async function deleteEducation({
         input: {
             entid: String(educationExperienceID),
             field_type: "education",
-            actor_id: String(commonPayload.__user),
+            actor_id: String(runtimeContext.__user),
             client_mutation_id: "1",
         },
         scale: 1,
@@ -59,7 +60,7 @@ export default async function deleteEducation({
         isFamilyDeletion: false,
         __relay_internal__pv__ProfileCometFeaturedHighlightsPortraitAspectRatioGKrelayprovider: false,
     };
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName,
         docId,
         variables,
@@ -69,7 +70,6 @@ export default async function deleteEducation({
         const response = await postFacebookForm(page, {
             body,
             friendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
         if (response.requestError === "TIMEOUT") {

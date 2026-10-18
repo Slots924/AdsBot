@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import getEducationExperiences
     from "./getEducationExperiences.js";
 import {
@@ -8,7 +9,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "./common.js";
+} from "../../api/browserRequest.js";
 import {
     buildEducationSaveVariables,
     educationSaveDocId,
@@ -32,7 +33,6 @@ export const updateEducationStatuses = Object.freeze({
 // Змінює конкретний існуючий College після перевірки його EducationExperience ID.
 export default async function updateEducation({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     rawSectionToken,
@@ -41,7 +41,8 @@ export default async function updateEducation({
     schoolName,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     if (
         validationError
         || !collectionToken
@@ -59,7 +60,6 @@ export default async function updateEducation({
     // Перед mutation перевіряємо, що цей ID справді належить College профілю.
     const currentEducation = await getEducationExperiences({
         page,
-        commonPayload,
         collectionToken,
         sectionToken,
         rawSectionToken,
@@ -83,14 +83,14 @@ export default async function updateEducation({
     }
 
     const variables = buildEducationSaveVariables({
-        commonPayload,
+        runtimeContext,
         collectionToken,
         sectionToken,
         schoolId,
         schoolName,
         educationExperienceID,
     });
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName: educationSaveFriendlyName,
         docId: educationSaveDocId,
         variables,
@@ -100,7 +100,6 @@ export default async function updateEducation({
         const response = await postFacebookForm(page, {
             body,
             friendlyName: educationSaveFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
         if (response.requestError === "TIMEOUT") {

@@ -1,3 +1,4 @@
+import { withFacebookRuntime, testAccessToken } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import getAdAccounts, {
@@ -7,13 +8,13 @@ import getAdAccounts, {
 
 function pageWith(response) {
     const calls = [];
-    return {
+    return withFacebookRuntime({
         calls,
         async evaluate(_callback, input) {
             calls.push(input);
             return response;
         },
-    };
+    }, { surface: "adsManager" });
 }
 
 
@@ -28,7 +29,7 @@ const page = pageWith({
         currency: "USD",
     }],
 });
-const result = await getAdAccounts({ page, accessToken: "test-token" });
+const result = await getAdAccounts({ page });
 assert.equal(result.success, true);
 assert.equal(result.status, getBrowserAdAccountsStatuses.ACCOUNTS_FETCHED);
 assert.deepEqual(result.data, [{
@@ -40,12 +41,11 @@ assert.deepEqual(result.data, [{
     currency: "USD",
     timezoneName: null,
 }]);
-assert.equal(page.calls[0].tokenValue, "test-token");
+assert.equal(page.calls[0].tokenValue, testAccessToken);
 assert.equal(JSON.stringify(result).includes("test-token"), false);
 
 const failed = await getAdAccounts({
     page: pageWith({ ok: false, statusCode: 400, graphError: { message: "Bad token", code: 190 } }),
-    accessToken: "test-token",
 });
 assert.equal(failed.status, getBrowserAdAccountsStatuses.GRAPH_API_ERROR);
 assert.equal(failed.graphCode, 190);

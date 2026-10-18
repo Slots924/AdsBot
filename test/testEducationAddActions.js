@@ -1,3 +1,4 @@
+import { withFacebookRuntime } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import addEducation, {
@@ -14,7 +15,7 @@ import searchWorkplace, {
 } from "../facebook/api-actions/workplace/searchWorkplace.js";
 
 
-const commonPayload = {
+const runtimeFixture = {
     av: "100",
     __user: "100",
     __a: "1",
@@ -27,13 +28,13 @@ const commonPayload = {
 
 // Створює page-заглушку з наперед визначеними відповідями Facebook.
 function createPage(responses) {
-    return {
+    return withFacebookRuntime({
         async evaluate() {
             const response = responses.shift();
             assert(response, "Отримано неочікуваний запит Facebook");
             return response;
         },
-    };
+    }, { surface: "facebook", runtime: runtimeFixture });
 }
 
 
@@ -57,7 +58,6 @@ const addResult = await addEducation({
         }),
         successResponse({ data: { saved: true } }),
     ]),
-    commonPayload,
     collectionToken: "collection-token",
     sectionToken: "section-token",
     schoolName: "Oxford Brookes University",
@@ -73,7 +73,6 @@ assert.equal(addResult.stage, "CREATE");
 
 const notFoundResult = await addEducation({
     page: createPage([successResponse({ data: {} })]),
-    commonPayload,
     collectionToken: "collection-token",
     sectionToken: "section-token",
     schoolName: "Unknown College",
@@ -93,7 +92,6 @@ const collegeCustomOptionResult = await searchCollege({
             },
         },
     })]),
-    commonPayload,
     query: "Unknown College",
 });
 
@@ -123,7 +121,6 @@ const workplaceResult = await searchWorkplace({
             },
         },
     })]),
-    commonPayload,
     query: "Example Company",
 });
 
@@ -137,7 +134,6 @@ assert.deepEqual(workplaceResult.data, [{
 
 const fallbackResult = await addFallbackEducation({
     page: createPage([successResponse({ data: { saved: true } })]),
-    commonPayload,
     collectionToken: "collection-token",
     sectionToken: "section-token",
 });

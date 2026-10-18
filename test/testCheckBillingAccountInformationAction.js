@@ -1,3 +1,4 @@
+import { withFacebookRuntime } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import checkBillingAccountInformation, {
@@ -5,7 +6,7 @@ import checkBillingAccountInformation, {
 } from "../facebook/api-actions/ads-manager/checkBillingAccountInformation.js";
 
 
-const commonPayload = {
+const runtimeFixture = {
     __user: "user-id",
     __a: "1",
     fb_dtsg: "token",
@@ -22,13 +23,13 @@ const commonPayload = {
 function createPage(response) {
     const calls = [];
 
-    return {
+    return withFacebookRuntime({
         calls,
         async evaluate(_callback, argumentsObject) {
             calls.push(argumentsObject);
             return response;
         },
-    };
+    }, { surface: "adsManager", runtime: runtimeFixture });
 }
 
 
@@ -63,7 +64,6 @@ const page = createPage({
 });
 const result = await checkBillingAccountInformation({
     page,
-    commonPayload,
     paymentAccountId: "payment-account-id",
 });
 
@@ -81,7 +81,7 @@ assert.equal(
 );
 assert.equal(parameters.get("doc_id"), "28130792889912915");
 assert.equal(parameters.get("__aaid"), "payment-account-id");
-assert.equal(parameters.get("av"), null);
+assert.equal(parameters.get("av"), runtimeFixture.__user);
 assert.equal(parameters.get("__crn"), null);
 assert.deepEqual(JSON.parse(parameters.get("variables")), {
     paymentAccountID: "payment-account-id",
@@ -109,7 +109,6 @@ const noProblemResult = await checkBillingAccountInformation({
             },
         }),
     }),
-    commonPayload,
     paymentAccountId: "payment-account-id",
 });
 

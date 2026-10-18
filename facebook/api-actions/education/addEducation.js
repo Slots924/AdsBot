@@ -1,4 +1,4 @@
-import { createResult } from "./common.js";
+import { createResult } from "../../api/browserRequest.js";
 import createEducation from "./createEducation.js";
 import searchCollege from "./searchCollege.js";
 
@@ -30,7 +30,6 @@ function resolveCollege(options) {
 // Додає College, знайдений за переданою назвою, без прихованого fallback.
 export default async function addEducation({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     schoolName,
@@ -38,7 +37,6 @@ export default async function addEducation({
 }) {
     const searchResult = await searchCollege({
         page,
-        commonPayload,
         query: schoolName,
         timeout,
     });
@@ -56,7 +54,6 @@ export default async function addEducation({
 
     const mutationResult = await createEducation({
         page,
-        commonPayload,
         collectionToken,
         sectionToken,
         schoolId: school.id,

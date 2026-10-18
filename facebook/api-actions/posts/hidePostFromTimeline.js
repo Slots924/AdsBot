@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const hidePostFriendlyName = "CometFeedStoryExecuteNFXActionMutation";
@@ -47,14 +48,14 @@ function normalizeContext(context) {
 // Приховує конкретний story з таймлайна поточного Facebook-профілю.
 export default async function hidePostFromTimeline({
     page,
-    commonPayload,
     context,
     clientMutationId,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const normalizedContext = normalizeContext(context);
     const normalizedClientMutationId = String(clientMutationId ?? "").trim();
 
@@ -67,7 +68,7 @@ export default async function hidePostFromTimeline({
         return createResult(false, hidePostFromTimelineStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : (!normalizedContext
                         ? "Потрібен коректний JSON context конкретного story"
                         : "Потрібен clientMutationId поточного workflow")),
@@ -75,9 +76,9 @@ export default async function hidePostFromTimeline({
     }
 
     try {
-        const profileId = String(commonPayload.__user);
+        const profileId = String(runtimeContext.__user);
         const normalizedTimeout = normalizeTimeout(timeout);
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: hidePostFriendlyName,
             docId: hidePostDocId,
             variables: {
@@ -90,16 +91,15 @@ export default async function hidePostFromTimeline({
                 scale: 1,
             },
             extraParameters: {
-                __spin_r: commonPayload.__spin_r,
-                __spin_b: commonPayload.__spin_b,
-                __spin_t: commonPayload.__spin_t,
-                __crn: commonPayload.__crn,
+                __spin_r: runtimeContext.__spin_r,
+                __spin_b: runtimeContext.__spin_b,
+                __spin_t: runtimeContext.__spin_t,
+                __crn: runtimeContext.__crn,
             },
         });
         const response = await postFacebookForm(page, {
             body,
             friendlyName: hidePostFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizedTimeout,
         });
 

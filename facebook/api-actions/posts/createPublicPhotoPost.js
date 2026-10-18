@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import { randomUUID } from "node:crypto";
 
 import { getProfilePhotoRejectReason }
@@ -13,7 +14,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const photoUploadEndpoint = "https://upload.facebook.com/ajax/react_composer/attachments/photo/upload";
@@ -97,19 +98,19 @@ function createUploadId() {
 // Завантажує одне фото та створює від імені профілю публічний пост без тексту.
 export default async function createPublicPhotoPost({
     page,
-    commonPayload,
     imagePath,
     attributionId = null,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     if (validationError || missingRequestField || !String(imagePath ?? "").trim()) {
         return createResult(false, createPublicPhotoPostStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : "Потрібен шлях до файлу зображення"),
         });
     }
@@ -123,14 +124,13 @@ export default async function createPublicPhotoPost({
 
     try {
         const image = await loadImageFromPath(imagePath);
-        const profileId = String(commonPayload.__user);
+        const profileId = String(runtimeContext.__user);
         const normalizedTimeout = normalizeTimeout(timeout);
         const uploadId = createUploadId();
         const uploadResponse = await uploadProfilePhoto(page, {
             endpoint: photoUploadEndpoint,
             image,
             profileId,
-            commonPayload,
             timeout: normalizedTimeout,
             formParameters: {
                 source: "8",
@@ -229,7 +229,7 @@ export default async function createPublicPhotoPost({
             };
         }
 
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: createPostFriendlyName,
             docId: createPostDocId,
             variables: {
@@ -259,16 +259,15 @@ export default async function createPublicPhotoPost({
                 ...relayProviderVariables,
             },
             extraParameters: {
-                __spin_r: commonPayload.__spin_r,
-                __spin_b: commonPayload.__spin_b,
-                __spin_t: commonPayload.__spin_t,
-                __crn: commonPayload.__crn,
+                __spin_r: runtimeContext.__spin_r,
+                __spin_b: runtimeContext.__spin_b,
+                __spin_t: runtimeContext.__spin_t,
+                __crn: runtimeContext.__crn,
             },
         });
         const createResponse = await postFacebookForm(page, {
             body,
             friendlyName: createPostFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizedTimeout,
         });
 

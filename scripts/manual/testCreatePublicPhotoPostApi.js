@@ -3,8 +3,6 @@ import "dotenv/config";
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "../../classes/AdsPower.js";
-import captureGraphqlPayload
-    from "../../facebook/api-actions/captureGraphqlPayload.js";
 import createPublicPhotoPost
     from "../../facebook/api-actions/posts/createPublicPhotoPost.js";
 import ensureAdsPowerProfileReady
@@ -54,21 +52,13 @@ async function main() {
         const page = (await browser.pages())[0] ?? await browser.newPage();
 
         console.log("[PUBLIC-POST-TEST] Отримуємо актуальні параметри Facebook-сесії");
-        const payloadResult = await captureGraphqlPayload(page, {
-            timeout: actionTimeout,
-        });
-        console.log(`[PUBLIC-POST-TEST] captureGraphqlPayload: ${payloadResult.status}`);
-        if (!payloadResult.success) {
-            logPostError("captureGraphqlPayload", payloadResult);
-            throw new Error(payloadResult.error ?? payloadResult.status);
-        }
+
 
         console.log("[PUBLIC-POST-TEST] Завантажуємо фото та створюємо PUBLIC-пост", {
             imagePath,
         });
         const result = await createPublicPhotoPost({
             page,
-            commonPayload: payloadResult.data,
             imagePath,
             timeout: actionTimeout,
         });

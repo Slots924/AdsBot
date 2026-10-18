@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "./common.js";
+} from "../../api/browserRequest.js";
 import {
     buildEducationSaveVariables,
     educationSaveDocId,
@@ -29,14 +30,14 @@ export const createEducationStatuses = Object.freeze({
 // Створює новий College, коли educationExperienceID ще не існує.
 export default async function createEducation({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     schoolId,
     schoolName,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     if (validationError || !collectionToken || !sectionToken || !schoolId || !schoolName) {
         return createResult(false, createEducationStatuses.INVALID_INPUT, null, {
             error: validationError ?? "Потрібні collectionToken, sectionToken, schoolId і schoolName",
@@ -44,13 +45,13 @@ export default async function createEducation({
     }
 
     const variables = buildEducationSaveVariables({
-        commonPayload,
+        runtimeContext,
         collectionToken,
         sectionToken,
         schoolId,
         schoolName,
     });
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName: educationSaveFriendlyName,
         docId: educationSaveDocId,
         variables,
@@ -60,7 +61,6 @@ export default async function createEducation({
         const response = await postFacebookForm(page, {
             body,
             friendlyName: educationSaveFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
         if (response.requestError === "TIMEOUT") {

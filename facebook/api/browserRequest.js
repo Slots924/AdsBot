@@ -1,8 +1,10 @@
+import { getFacebookSurface, readFacebookRuntime } from "./runtime.js";
+
 export const graphqlEndpoint = "/api/graphql/";
 export const defaultTimeoutMs = 30000;
 
 
-// Формує стандартний результат для Education API actions.
+// Формує стандартний результат для Facebook API actions.
 export function createResult(success, status, data = null, extra = {}) {
     return {
         success,
@@ -22,14 +24,16 @@ export function normalizeTimeout(timeout) {
 
 
 // Перевіряє Page та мінімальний набір спільних Facebook параметрів.
-export function validateMutationInput(page, commonPayload, { requireAv = true } = {}) {
+export function validateMutationInput(page, runtimeContext, { requireAv = true } = {}) {
     if (!page || typeof page.evaluate !== "function") {
         return "Не передано Puppeteer page";
     }
 
-    if (!commonPayload || typeof commonPayload !== "object") {
-        return "Не передано commonPayload";
+    if (!runtimeContext || typeof runtimeContext !== "object") {
+        return "Не передано runtimeContext";
     }
+
+    if (runtimeContext.runtimeError) return runtimeContext.runtimeError;
 
     const requiredFields = [
         "__user",
@@ -41,32 +45,32 @@ export function validateMutationInput(page, commonPayload, { requireAv = true } 
     ];
     if (requireAv) requiredFields.unshift("av");
     const missingField = requiredFields.find(
-        (field) => commonPayload[field] === undefined
-            || commonPayload[field] === null
+        (field) => runtimeContext[field] === undefined
+            || runtimeContext[field] === null
     );
 
     return missingField
-        ? `У commonPayload відсутнє поле ${missingField}`
+        ? `У runtimeContext відсутнє поле ${missingField}`
         : null;
 }
 
 
 // Формує body у форматі, який використовують GraphQL-запити Facebook.
-export function buildMutationBody(commonPayload, {
+export function buildMutationBody(runtimeContext, {
     friendlyName,
     docId,
     variables,
     extraParameters = {},
 }) {
-    const actorValue = String(commonPayload.av ?? "").trim();
+    const actorValue = String(runtimeContext.av ?? "").trim();
     const parameters = {
         ...(actorValue ? { av: actorValue } : {}),
-        __user: String(commonPayload.__user),
-        __a: String(commonPayload.__a),
-        fb_dtsg: String(commonPayload.fb_dtsg),
-        jazoest: String(commonPayload.jazoest),
-        lsd: String(commonPayload.lsd),
-        __comet_req: String(commonPayload.__comet_req),
+        __user: String(runtimeContext.__user),
+        __a: String(runtimeContext.__a),
+        fb_dtsg: String(runtimeContext.fb_dtsg),
+        jazoest: String(runtimeContext.jazoest),
+        lsd: String(runtimeContext.lsd),
+        __comet_req: String(runtimeContext.__comet_req),
         fb_api_caller_class: "RelayModern",
         server_timestamps: "true",
         fb_api_req_friendly_name: friendlyName,
@@ -87,10 +91,21 @@ export function buildMutationBody(commonPayload, {
 export async function postFacebookForm(page, {
     body,
     friendlyName,
-    lsd,
     timeout,
     endpoint = graphqlEndpoint,
 }) {
+    const surface = getFacebookSurface(page);
+    if (!surface) return { requestError: "RUNTIME_UNAVAILABLE" };
+    const current = await readFacebookRuntime(page, { surface, timeout });
+    if (current.runtimeError) return { requestError: "RUNTIME_UNAVAILABLE" };
+    const parameters = new URLSearchParams(body);
+    // Після вкладених запитів або upload токени могли оновитися, а actor має залишитися тим самим.
+    if (["av", "__user"].some((key) => parameters.has(key) && parameters.get(key) !== String(current[key]))) {
+        return { requestError: "FACEBOOK_ACTOR_CHANGED" };
+    }
+    for (const key of ["fb_dtsg", "lsd", "jazoest", "__rev", "__spin_r", "__spin_b", "__spin_t", "__comet_req"]) {
+        if (parameters.has(key) && current[key] !== undefined) parameters.set(key, String(current[key]));
+    }
     return page.evaluate(
         async ({ requestBody, requestFriendlyName, requestLsd, timeoutMs, requestEndpoint }) => {
             const controller = new AbortController();
@@ -102,7 +117,7 @@ export async function postFacebookForm(page, {
                     credentials: "include",
                     headers: {
                         "content-type": "application/x-www-form-urlencoded",
-                        "x-fb-friendly-name": requestFriendlyName,
+                        ...(requestFriendlyName ? { "x-fb-friendly-name": requestFriendlyName } : {}),
                         "x-fb-lsd": requestLsd,
                     },
                     body: requestBody,
@@ -125,9 +140,9 @@ export async function postFacebookForm(page, {
             }
         },
         {
-            requestBody: body,
+            requestBody: parameters.toString(),
             requestFriendlyName: friendlyName,
-            requestLsd: String(lsd),
+            requestLsd: String(current.lsd),
             timeoutMs: timeout,
             requestEndpoint: endpoint,
         }

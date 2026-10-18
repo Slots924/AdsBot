@@ -1,3 +1,4 @@
+import { withFacebookRuntime } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import requestPhoneVerificationCode, {
@@ -8,7 +9,7 @@ import submitPhoneVerificationCode, {
 } from "../facebook/api-actions/phone-verification/submitPhoneVerificationCode.js";
 
 
-const commonPayload = {
+const runtimeFixture = {
     __user: "61593928954145",
     __a: "1",
     fb_dtsg: "token",
@@ -25,7 +26,7 @@ const commonPayload = {
 function createPage(responses) {
     const calls = [];
 
-    return {
+    return withFacebookRuntime({
         calls,
         async evaluate(_callback, argumentsObject) {
             const response = responses.shift();
@@ -33,7 +34,7 @@ function createPage(responses) {
             calls.push(argumentsObject);
             return response;
         },
-    };
+    }, { surface: "adsManager", runtime: runtimeFixture });
 }
 
 
@@ -104,7 +105,6 @@ const smsResponses = [
 const requestPage = createPage(structuredClone(smsResponses));
 const requestResult = await requestPhoneVerificationCode({
     page: requestPage,
-    commonPayload,
     adAccountId: "act_123",
     phoneE164: "+17302784461",
     countryCode: "us",
@@ -128,7 +128,7 @@ assert.equal(
 );
 assert.equal(rootParameters.get("doc_id"), "29392639113662669");
 assert.equal(rootParameters.get("__aaid"), "act_123");
-assert.equal(rootParameters.get("av"), null);
+assert.equal(rootParameters.get("av"), runtimeFixture.__user);
 assert.equal(rootParameters.get("__crn"), null);
 assert.equal(
     JSON.parse(rootParameters.get("variables")).input.trigger_session_id,
@@ -146,7 +146,6 @@ assert.deepEqual(
 
 // Перевіряє обидва старти та передавання актуального стану на кожному кроці.
 const requestInput = {
-    commonPayload,
     adAccountId: "act_123",
     phoneE164: "+17302784461",
     countryCode: "US",
@@ -185,7 +184,7 @@ assert.deepEqual(mutationInput(sharingPage.calls[1]), {
         option: "alternative_option",
         serialized_state: "sharing-state",
     },
-    actor_id: commonPayload.__user,
+    actor_id: runtimeFixture.__user,
     client_mutation_id: "1",
 });
 assert.equal(mutationInput(sharingPage.calls[2])
@@ -253,7 +252,6 @@ const submitPage = createPage([successResponse({
 })]);
 const submitResult = await submitPhoneVerificationCode({
     page: submitPage,
-    commonPayload,
     flow: requestResult.data.flow,
     code: "123456",
 });
@@ -334,7 +332,6 @@ const whatsappPage = createPage([
 ]);
 const whatsappResult = await requestPhoneVerificationCode({
     page: whatsappPage,
-    commonPayload,
     adAccountId: "act_123",
     phoneE164: "+17302784461",
     countryCode: "US",
@@ -364,7 +361,6 @@ const whatsappSubmitPage = createPage([successResponse({
 })]);
 const whatsappSubmitResult = await submitPhoneVerificationCode({
     page: whatsappSubmitPage,
-    commonPayload,
     flow: whatsappResult.data.flow,
     code: "123456",
 });
@@ -388,7 +384,6 @@ const rejectedWhatsappCodeResult = await submitPhoneVerificationCode({
             summary: "Invalid confirmation code",
         }],
     })]),
-    commonPayload,
     flow: whatsappResult.data.flow,
     code: "123456",
 });
@@ -401,7 +396,6 @@ assert.equal(rejectedWhatsappCodeResult.error, "Невірний або прос
 
 const unsupportedMethodResult = await requestPhoneVerificationCode({
     page: createPage([]),
-    commonPayload,
     adAccountId: "act_123",
     phoneE164: "+17302784461",
     countryCode: "US",

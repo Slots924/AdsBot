@@ -1,5 +1,3 @@
-import captureGraphqlPayload
-    from "../../api-actions/captureGraphqlPayload.js";
 import getNameChangeStatus
     from "../../api-actions/accounts/getNameChangeStatus.js";
 import validateFacebookName
@@ -8,8 +6,6 @@ import changeFacebookName
     from "../../api-actions/accounts/changeFacebookName.js";
 
 
-const accountsCenterUrl = "https://accountscenter.facebook.com/";
-const accountsCenterGraphqlUrl = "https://accountscenter.facebook.com/api/graphql/";
 const defaultTimeoutMs = 30000;
 
 
@@ -20,7 +16,7 @@ export const changeFacebookNameWorkflowStatuses = Object.freeze({
     NAME_CHANGE_AVAILABILITY_UNKNOWN: "NAME_CHANGE_AVAILABILITY_UNKNOWN",
     NAME_INVALID: "NAME_INVALID",
     NAME_VALIDATION_UNKNOWN: "NAME_VALIDATION_UNKNOWN",
-    PAYLOAD_CAPTURE_FAILED: "PAYLOAD_CAPTURE_FAILED",
+    RUNTIME_UNAVAILABLE: "RUNTIME_UNAVAILABLE",
     NAME_CHANGE_STATUS_FAILED: "NAME_CHANGE_STATUS_FAILED",
     NAME_VALIDATION_FAILED: "NAME_VALIDATION_FAILED",
     NAME_CHANGE_FAILED: "NAME_CHANGE_FAILED",
@@ -96,23 +92,8 @@ export default async function changeFacebookNameWorkflow({
     }
 
     try {
-        const payloadResult = await captureGraphqlPayload(page, {
-            profileUrl: accountsCenterUrl,
-            graphqlUrl: accountsCenterGraphqlUrl,
-            timeout,
-        });
-        if (!payloadResult.success) {
-            return createResult(false, changeFacebookNameWorkflowStatuses.PAYLOAD_CAPTURE_FAILED, null, {
-                stage: "CAPTURE_ACCOUNTS_CENTER_PAYLOAD",
-                actionStatus: payloadResult.status,
-                error: payloadResult.error ?? null,
-            });
-        }
-
-        const commonPayload = payloadResult.data;
         const availabilityResult = await getNameChangeStatus({
             page,
-            commonPayload,
             timeout,
         });
         if (!availabilityResult.success) {
@@ -157,7 +138,6 @@ export default async function changeFacebookNameWorkflow({
 
         const validationResult = await validateFacebookName({
             page,
-            commonPayload,
             ...requestedName,
             timeout,
         });
@@ -188,7 +168,6 @@ export default async function changeFacebookNameWorkflow({
 
         const changeResult = await changeFacebookName({
             page,
-            commonPayload,
             ...requestedName,
             timeout,
         });

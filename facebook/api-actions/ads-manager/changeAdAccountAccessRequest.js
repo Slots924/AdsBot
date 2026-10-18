@@ -1,4 +1,4 @@
-import { createResult, parseFacebookJson } from "../education/common.js";
+import { createResult, parseFacebookJson } from "../../api/browserRequest.js";
 import {
     getAgencyResponseError,
     performAgencyRequest,

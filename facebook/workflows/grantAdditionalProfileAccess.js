@@ -5,7 +5,6 @@ import reauthAdditionalProfileAdmin from "../api-actions/pages/reauthAdditionalP
 // Виконує reauth і надсилає invite у вже підготовленому Facebook-контексті.
 export default async function grantAdditionalProfileAccess({
     page,
-    commonPayload,
     additionalProfileId,
     targetUserId,
     password,
@@ -13,7 +12,6 @@ export default async function grantAdditionalProfileAccess({
 }) {
     const reauth = await reauthAdditionalProfileAdmin({
         page,
-        commonPayload,
         additionalProfileId,
         password,
         timeout,
@@ -22,7 +20,6 @@ export default async function grantAdditionalProfileAccess({
 
     const result = await inviteAdditionalProfileAdmin({
         page,
-        commonPayload,
         additionalProfileId,
         targetUserId,
         timeout,

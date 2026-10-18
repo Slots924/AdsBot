@@ -5,7 +5,8 @@ import puppeteer from "puppeteer-core";
 import configureFacebookAutomationWindow
     from "../../facebook/browser/configureFacebookAutomationWindow.js";
 import openPageWithoutPopups from "../../facebook/actions/openPageWithoutPopups.js";
-import captureGraphqlPayload from "../../facebook/api-actions/captureGraphqlPayload.js";
+import { ensureFacebookPage, readFacebookRuntime } from "../../facebook/api/runtime.js";
+import { readFacebookAccessToken, readFacebookBrowserCredentials } from "../../facebook/api/browserCredentials.js";
 import createFanPage from "../../facebook/api-actions/pages/createFanPage.js";
 import getFanPages from "../../facebook/api-actions/pages/getFanPages.js";
 import getSwitchableFacebookProfiles
@@ -36,9 +37,6 @@ import requestPhoneVerificationCode
     from "../../facebook/api-actions/phone-verification/requestPhoneVerificationCode.js";
 import submitPhoneVerificationCode
     from "../../facebook/api-actions/phone-verification/submitPhoneVerificationCode.js";
-import {
-    extractFacebookAccessTokenFromHtml,
-} from "../../facebook/workflows/syncFacebookApiClientFromAdsPowerProfile.js";
 import checkProfileBeforeLaunch from "../../workflows/profile/checkProfileBeforeLaunch.js";
 import checkFacebookAfterLaunch from "../../workflows/profile/checkFacebookAfterLaunch.js";
 import PersonalAccountSessionReport from "./PersonalAccountSessionReport.js";
@@ -46,34 +44,15 @@ import PersonalAccountSessionReport from "./PersonalAccountSessionReport.js";
 
 const facebookUrl = "https://www.facebook.com/";
 const profileUrl = "https://www.facebook.com/me";
-const facebookGraphqlUrl = "https://www.facebook.com/api/graphql/";
 const adsManagerUrl = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
-const adsManagerGraphqlUrl = "https://adsmanager.facebook.com/api/graphql/";
 const businessManagerSettingsUrl = "https://business.facebook.com/latest/settings";
 const adAccountSettingsPath = "/adsmanager/manage/ad_account_settings/ad_account_setup";
-const businessManagerGraphqlUrls = [
-    "https://business.facebook.com/api/graphql/",
-    "https://www.facebook.com/api/graphql/",
-];
 const billingPaymentSettingsPath = "/adsmanager/billing_hub/payment_settings/";
 const personalAccountLaunchOptions = Object.freeze({
     browserMode: "visible",
     restoreLastOpenedTabs: false,
     proxyDetection: true,
 });
-const adsManagerSupplementalPayloadFields = Object.freeze([
-    "av",
-    "__user",
-    "__a",
-    "fb_dtsg",
-    "jazoest",
-    "lsd",
-    "__comet_req",
-    "__spin_r",
-    "__spin_b",
-    "__spin_t",
-    "__crn",
-]);
 const billingPaymentRuntimeModules = [
     "BillingProtectedString",
     "BillingCreditCardUtils",
@@ -188,27 +167,6 @@ const billingIxAssets = Object.freeze({
 });
 
 
-function isAdsManagerUrl(value) {
-    try {
-        const url = new URL(String(value ?? ""));
-        return url.hostname.endsWith("facebook.com") && url.pathname.startsWith("/adsmanager");
-    } catch {
-        return false;
-    }
-}
-
-// Доповнює Ads Manager payload лише полями, яких у ньому немає.
-function supplementAdsManagerPayload(adsManagerPayload, facebookPayload) {
-    const payload = { ...adsManagerPayload };
-    for (const field of adsManagerSupplementalPayloadFields) {
-        if (payload[field] !== undefined && payload[field] !== null) continue;
-        if (facebookPayload?.[field] === undefined || facebookPayload[field] === null) continue;
-        payload[field] = facebookPayload[field];
-    }
-    return payload;
-}
-
-
 function isConnectionRefused(error) {
     return error?.code === "ECONNREFUSED"
         || /\bECONNREFUSED\b/i.test(String(error?.message ?? error));
@@ -250,7 +208,6 @@ function publicSession(session) {
         pageId: session.pageId,
         additionalProfileId: session.additionalProfileId,
         hasAccessToken: Boolean(session.accessToken),
-        hasBusinessManagerPayload: Boolean(session.businessManagerPayload),
         hasPhoneFlow: Boolean(session.phoneFlow),
         overview: session.overview ?? null,
         connected: Boolean(session.browser?.connected),
@@ -343,10 +300,8 @@ export default class PersonalAccountSessionManager {
             await configureFacebookAutomationWindow(page, { browserMode: "visible" });
             await openPageWithoutPopups(page, facebookUrl, { timeout: 60000 });
             await this.#checkFacebook(profile, page);
-            const captured = assertAction(
-                await captureGraphqlPayload(page, { profileUrl, timeout: 60000 }),
-                "Не вдалося отримати Facebook payload"
-            );
+            const runtime = await readFacebookRuntime(page);
+            if (runtime.runtimeError) throw sessionError(runtime.runtimeError, "RUNTIME_UNAVAILABLE");
             const session = {
                 id,
                 profileNo: normalizedProfileNo,
@@ -358,17 +313,11 @@ export default class PersonalAccountSessionManager {
                 wsEndpoint: browserData.ws.puppeteer,
                 opened,
                 context: "FACEBOOK_MAIN",
-                payload: captured.data,
-                facebookPayload: captured.data,
-                payloadUrl: page.url(),
-                actorId: String(captured.data.__user ?? ""),
-                mainActorId: String(captured.data.__user ?? ""),
+                actorId: String(runtime.av ?? runtime.__user ?? ""),
+                mainActorId: String(runtime.accountId ?? runtime.__user ?? ""),
                 pageId: null,
                 additionalProfileId: null,
                 accessToken: "",
-                businessManagerPayload: null,
-                addAccountSettingsPayload: null,
-                addAccountSettingsPayloadUrl: "",
                 fanPages: [],
                 overview: null,
                 phoneFlow: null,
@@ -407,18 +356,12 @@ export default class PersonalAccountSessionManager {
     refresh(sessionId) {
         return this.#perform(sessionId, "session.refresh", async (session) => {
             session.profile = await this.adsPower.getProfileByNo(session.profileNo);
-            session.payload = null;
-            session.payloadUrl = "";
-            session.facebookPayload = null;
-            session.businessManagerPayload = null;
-            session.addAccountSettingsPayload = null;
-            session.addAccountSettingsPayloadUrl = "";
             session.accessToken = "";
             session.overview = null;
             session.fanPages = [];
             await openPageWithoutPopups(session.page, facebookUrl, { timeout: 60000 });
             await this.#checkFacebook(session.profile, session.page);
-            await this.#capture(session, profileUrl, "FACEBOOK_MAIN");
+            await this.#prepareFacebookContext(session, profileUrl, "FACEBOOK_MAIN");
             await this.#ensureAdsManager(session);
             await this.#refreshOverview(session);
             return publicSession(session);
@@ -430,7 +373,7 @@ export default class PersonalAccountSessionManager {
             if (this.mode !== "businessManager") throw sessionError("Потрібна сесія БМ", "BUSINESS_SESSION_REQUIRED");
             await this.#ensureAccessToken(session);
             return assertAction(await getBrowserBusinessManagers({
-                page: session.page, accessToken: session.accessToken,
+                page: session.page,
             }), "Не вдалося отримати список бізнес-менеджерів").data;
         });
     }
@@ -447,14 +390,8 @@ export default class PersonalAccountSessionManager {
                 throw sessionError("Некоректний ID бізнесу або РК", "INVALID_INPUT");
             }
             const target = `${businessManagerSettingsUrl}/ad_accounts?business_id=${businessId}`;
-            const current = session.page.url();
-            if (current !== target || !session.businessManagerPayload || session.businessManagerPayloadUrl !== current) {
-                const captured = assertAction(await captureGraphqlPayload(session.page, {
-                    profileUrl: target, graphqlUrl: businessManagerGraphqlUrls, timeout: 60000,
-                }), "Не вдалося отримати payload налаштувань БМ");
-                session.businessManagerPayload = captured.data;
-                session.businessManagerPayloadUrl = session.page.url();
-            }
+            await this.#ensureAdsManager(session);
+            await ensureFacebookPage(session.page, { surface: "business", url: target, timeout: 60000 });
             const result = await requestAdAccountAccess({
                 page: session.page, businessId, adAccountId,
             });
@@ -474,19 +411,8 @@ export default class PersonalAccountSessionManager {
             if (this.mode === "businessManager") throw sessionError("Потрібен персональний профіль", "PERSONAL_SESSION_REQUIRED");
             const accountId = String(adAccountId ?? "").replace(/^act_/, "");
             if (!/^\d+$/.test(accountId)) throw sessionError("Некоректний ID РК", "INVALID_INPUT");
-            const target = `https://adsmanager.facebook.com${adAccountSettingsPath}?act=${accountId}`;
-            if (session.page.url() !== target || session.addAccountSettingsPayloadUrl !== target) {
-                const captured = assertAction(await captureGraphqlPayload(session.page, {
-                    profileUrl: target, graphqlUrl: adsManagerGraphqlUrl, timeout: 60000,
-                }), "Не вдалося отримати Add Account Settings payload");
-                session.addAccountSettingsPayload = captured.data;
-                session.addAccountSettingsPayloadUrl = session.page.url();
-                session.payload = supplementAdsManagerPayload(captured.data, session.facebookPayload);
-                session.payloadUrl = session.page.url();
-                session.actorId = String(session.payload.__user ?? "");
-                session.context = "ADS_MANAGER";
-            }
-            return { ready: Boolean(session.addAccountSettingsPayload) };
+            await this.#ensureAdAccountSettings(session, accountId);
+            return { ready: true };
         });
     }
 
@@ -499,10 +425,7 @@ export default class PersonalAccountSessionManager {
                 agencyId: input?.agencyId,
                 adMarketId: input?.adMarketId,
             });
-            if (this.mode === "businessManager" || !session.addAccountSettingsPayload
-                || session.addAccountSettingsPayloadUrl !== session.page.url()) {
-                throw sessionError("Спочатку відкрийте налаштування РК", "ACCOUNT_SETTINGS_REQUIRED");
-            }
+            await this.#ensureAdAccountSettings(session, input?.adAccountId);
             const result = await getAdAccountAccessRequest({ page: session.page, ...input });
             await session.report.append("ads.access_find.response", {
                 status: result.status,
@@ -518,10 +441,7 @@ export default class PersonalAccountSessionManager {
 
     listAdAccountAccessRequests(sessionId, { adAccountId }) {
         return this.#perform(sessionId, "ads.access_list", async (session) => {
-            if (this.mode === "businessManager" || !session.addAccountSettingsPayload
-                || session.addAccountSettingsPayloadUrl !== session.page.url()) {
-                throw sessionError("Спочатку відкрийте налаштування РК", "ACCOUNT_SETTINGS_REQUIRED");
-            }
+            await this.#ensureAdAccountSettings(session, adAccountId);
             const listed = assertAction(await listAdAccountAccessRequests({ page: session.page, adAccountId }),
                 "Не вдалося отримати список запрошень").data;
             await session.report.append("ads.access_list.candidates", {
@@ -566,10 +486,7 @@ export default class PersonalAccountSessionManager {
                 hasExt: Boolean(invite?.accept?.ext),
                 hasHash: Boolean(invite?.accept?.hash),
             });
-            if (this.mode === "businessManager" || !session.addAccountSettingsPayload
-                || session.addAccountSettingsPayloadUrl !== session.page.url()) {
-                throw sessionError("Спочатку відкрийте налаштування РК", "ACCOUNT_SETTINGS_REQUIRED");
-            }
+            await this.#ensureAdAccountSettings(session, invite?.adAccountId);
             const result = await acceptAdAccountAccessRequest({ page: session.page, invite });
             await session.report.append("ads.access_accept.response", {
                 status: result.status,
@@ -593,10 +510,7 @@ export default class PersonalAccountSessionManager {
                 hasExt: Boolean(invite?.reject?.ext),
                 hasHash: Boolean(invite?.reject?.hash),
             });
-            if (this.mode === "businessManager" || !session.addAccountSettingsPayload
-                || session.addAccountSettingsPayloadUrl !== session.page.url()) {
-                throw sessionError("Спочатку відкрийте налаштування РК", "ACCOUNT_SETTINGS_REQUIRED");
-            }
+            await this.#ensureAdAccountSettings(session, invite?.adAccountId);
             const result = await rejectAdAccountAccessRequest({ page: session.page, invite });
             await session.report.append("ads.access_reject.response", {
                 status: result.status,
@@ -614,7 +528,6 @@ export default class PersonalAccountSessionManager {
             await this.#ensureFacebookContext(session, session.mainActorId, profileUrl, "FACEBOOK_MAIN");
             const result = assertAction(await createFanPage({
                 page: session.page,
-                commonPayload: session.payload,
                 name: input.name,
                 categoryId: input.categoryId || undefined,
                 bio: input.bio ?? "",
@@ -652,7 +565,6 @@ export default class PersonalAccountSessionManager {
             try {
                 switchResult = assertAction(await switchToAdditionalProfile({
                     page: session.page,
-                    commonPayload: session.payload,
                     additionalProfileId,
                     timeout: 60000,
                 }), "Не вдалося перемкнутися на фанпейдж");
@@ -670,7 +582,6 @@ export default class PersonalAccountSessionManager {
                 context: session.context,
             });
             session.additionalProfileId = additionalProfileId;
-            session.payload = null;
             session.context = "FACEBOOK_SWITCH_REQUESTED";
             const confirmationStartedAt = Date.now();
             await session.report.append("fanpage.switch.confirmation_started", {
@@ -694,8 +605,6 @@ export default class PersonalAccountSessionManager {
                 });
                 throw error;
             }
-            session.payload = confirmed.data.payload;
-            session.payloadUrl = session.page.url();
             session.actorId = confirmed.data.actorId;
             session.context = "FACEBOOK_ADDITIONAL_PROFILE";
             await session.report.append("fanpage.switch.confirmed", {
@@ -738,7 +647,7 @@ export default class PersonalAccountSessionManager {
                 );
             }
 
-            // Використовує поточний Facebook actor або отримує свіжий payload після переходу на /me.
+            // Використовує поточний Facebook actor або читає runtime поточної сторінки.
             await this.#ensureFacebookContext(
                 session,
                 "",
@@ -746,7 +655,7 @@ export default class PersonalAccountSessionManager {
                 "FACEBOOK_CURRENT"
             );
             const additionalProfileId = String(
-                session.payload?.__user ?? session.actorId ?? ""
+                session.actorId ?? ""
             ).trim();
 
             // Фіксує лише безпечні ознаки вхідних даних для діагностики reauth.
@@ -757,39 +666,23 @@ export default class PersonalAccountSessionManager {
                 sessionMainActorId: session.mainActorId || null,
                 sessionAdditionalProfileId: session.additionalProfileId || null,
                 sessionContext: session.context || null,
-                payloadAdditionalProfileId: additionalProfileId || null,
-                payloadAdditionalProfileIdIsNumeric: /^\d+$/.test(additionalProfileId),
+                runtimeAdditionalProfileId: additionalProfileId || null,
+                runtimeAdditionalProfileIdIsNumeric: /^\d+$/.test(additionalProfileId),
                 reauthCredentialPresent: true,
             });
             if (!/^\d+$/.test(additionalProfileId)) {
                 throw sessionError(
-                    "Не вдалося визначити поточну фанпейджу з Facebook payload",
+                    "Не вдалося визначити поточну фанпейджу з Facebook runtime",
                     "ADDITIONAL_PROFILE_ID_REQUIRED"
                 );
             }
-            const commonPayload = {
-                ...session.payload,
-                // DevTools-виклик Facebook використовує поточний Additional Profile як av.
-                av: additionalProfileId,
-            };
-            await session.report.append("fanpage.access_grant.context_verified", {
-                additionalProfileId,
-                actorId: session.actorId || null,
-                actorMatchesAdditionalProfile: session.actorId === additionalProfileId,
-                payloadUserId: String(commonPayload.__user ?? "") || null,
-                payloadUserMatchesAdditionalProfile: String(commonPayload.__user ?? "") === additionalProfileId,
-                payloadAv: String(commonPayload.av ?? "") || null,
-                payloadAvMatchesAdditionalProfile: String(commonPayload.av ?? "") === additionalProfileId,
-            });
             const result = assertAction(await grantAdditionalProfileAccess({
                 page: session.page,
-                commonPayload,
                 additionalProfileId,
                 targetUserId,
                 password: credential,
                 timeout: 60000,
             }), "Не вдалося надати доступ до фанпейджа");
-            session.payload = null;
             return {
                 ...publicResult(result),
                 additionalProfileId,
@@ -805,7 +698,6 @@ export default class PersonalAccountSessionManager {
             await this.#ensureAccessToken(session);
             const result = assertAction(await getBrowserAdAccounts({
                 page: session.page,
-                accessToken: session.accessToken,
             }), "Не вдалося отримати рекламні акаунти");
             return result.data;
         });
@@ -838,10 +730,8 @@ export default class PersonalAccountSessionManager {
     checkBusinessInfo(sessionId, input) {
         return this.#perform(sessionId, "ads.business_info_check", async (session) => {
             await this.#ensureAdsManager(session, input.adAccountId);
-            await this.#ensureAccessToken(session);
             const details = assertAction(await getAdAccountBusinessInfo({
                 page: session.page,
-                accessToken: session.accessToken,
                 adAccountId: input.adAccountId,
                 timeout: 60000,
             }), "Не вдалося отримати бізнес-інформацію через Graph API");
@@ -853,10 +743,8 @@ export default class PersonalAccountSessionManager {
     updateBusinessInfo(sessionId, input) {
         return this.#perform(sessionId, "ads.business_info_update", async (session) => {
             await this.#ensureAdsManager(session, input.adAccountId);
-            await this.#ensureAccessToken(session);
             const current = assertAction(await getAdAccountBusinessInfo({
                 page: session.page,
-                accessToken: session.accessToken,
                 adAccountId: input.adAccountId,
                 timeout: 60000,
             }), "Не вдалося перевірити поточну бізнес-інформацію").data;
@@ -867,7 +755,6 @@ export default class PersonalAccountSessionManager {
             }
             const billing = await checkBillingAccountInformation({
                 page: session.page,
-                commonPayload: session.payload,
                 paymentAccountId: input.adAccountId,
                 timeout: 60000,
             });
@@ -875,7 +762,6 @@ export default class PersonalAccountSessionManager {
             const taxInfo = billing.data?.businessInfo ?? {};
             assertAction(await updateBusinessInfo({
                 page: session.page,
-                commonPayload: session.payload,
                 billableAccountPaymentLegacyAccountId: input.adAccountId,
                 currency: input.currency || current.currency,
                 timezone: input.timezone || current.timezone,
@@ -892,7 +778,6 @@ export default class PersonalAccountSessionManager {
             }), "Не вдалося оновити business info");
             const refreshed = await getAdAccountBusinessInfo({
                 page: session.page,
-                accessToken: session.accessToken,
                 adAccountId: input.adAccountId,
                 timeout: 60000,
             });
@@ -907,10 +792,8 @@ export default class PersonalAccountSessionManager {
     checkPaymentSources(sessionId, input) {
         return this.#perform(sessionId, "ads.payment_sources_check", async (session) => {
             await this.#ensureAdsManager(session, input.adAccountId);
-            await this.#ensureAccessToken(session);
             const result = assertAction(await getAdAccountPaymentSources({
                 page: session.page,
-                accessToken: session.accessToken,
                 adAccountId: input.adAccountId,
                 timeout: 60000,
             }), "Не вдалося перевірити способи оплати");
@@ -950,7 +833,7 @@ export default class PersonalAccountSessionManager {
     checkPhoneVerification(sessionId, input) {
         return this.#perform(sessionId, "ads.phone_check", async (session) => {
             if (new URL(session.page.url()).hostname !== "adsmanager.facebook.com") {
-                await this.#capture(session,
+                await this.#prepareFacebookContext(session,
                     `${adsManagerUrl}?act=${encodeURIComponent(input.adAccountId)}`, "ADS_MANAGER");
             }
             await this.#ensureAdsManager(session, input.adAccountId, { requireAccessToken: false });
@@ -966,10 +849,9 @@ export default class PersonalAccountSessionManager {
     requestPhoneCode(sessionId, input) {
         return this.#perform(sessionId, "ads.phone_code_request", async (session) => {
             await this.#ensureAdsManager(session, input.adAccountId);
-            await this.#ensureBillingPagePayload(session, input.adAccountId);
+            await this.#ensureBillingPage(session, input.adAccountId);
             const result = assertAction(await requestPhoneVerificationCode({
                 page: session.page,
-                commonPayload: session.payload,
                 adAccountId: input.adAccountId,
                 phoneE164: input.phoneE164,
                 countryCode: input.countryCode,
@@ -992,10 +874,9 @@ export default class PersonalAccountSessionManager {
                 throw sessionError("Спочатку надішліть код підтвердження", "PHONE_FLOW_REQUIRED");
             }
             await this.#ensureAdsManager(session, session.phoneFlow.adAccountId);
-            await this.#ensureBillingPagePayload(session, session.phoneFlow.adAccountId);
+            await this.#ensureBillingPage(session, session.phoneFlow.adAccountId);
             const result = assertAction(await submitPhoneVerificationCode({
                 page: session.page,
-                commonPayload: session.payload,
                 flow: session.phoneFlow,
                 code: input.code,
                 timeout: 60000,
@@ -1011,7 +892,6 @@ export default class PersonalAccountSessionManager {
             await this.#ensureAccessToken(session);
             const result = assertAction(await getAdPixels({
                 page: session.page,
-                accessToken: session.accessToken,
                 adAccountId: input.adAccountId,
                 timeout: 60000,
             }), "Не вдалося отримати пікселі");
@@ -1025,7 +905,6 @@ export default class PersonalAccountSessionManager {
             await this.#ensureAccessToken(session);
             const result = assertAction(await createAdPixel({
                 page: session.page,
-                accessToken: session.accessToken,
                 adAccountId: input.adAccountId,
                 name: input.name,
                 timeout: 60000,
@@ -1046,15 +925,13 @@ export default class PersonalAccountSessionManager {
             const name = card
                 ? `${baseName} (${card.nickname} ${card.last4})`
                 : baseName;
-            const [userAgent, cookies] = await Promise.all([
-                session.page.evaluate(() => navigator.userAgent),
-                session.page.cookies("https://www.facebook.com"),
-            ]);
+            const { userAgent, cookies, accessToken } = await readFacebookBrowserCredentials(session.page);
+            session.accessToken = accessToken;
             const account = await this.facebookAccountManager.create({
                 name,
                 adsPowerProfileNo: session.profileNo,
                 userAgent,
-                accessToken: session.accessToken,
+                accessToken,
                 cookie: cookies,
             });
             await this.reloadFacebookBackend();
@@ -1233,30 +1110,21 @@ export default class PersonalAccountSessionManager {
     }
 
 
-    // Оновлює payload поточного Facebook actor, не перемикаючи профіль заради списку.
+    // Читає список у поточному Facebook-контексті без перемикання actor заради списку.
     async #getSwitchableProfiles(session) {
-        const hasCurrentFacebookPayload = Boolean(session.payload)
-            && Boolean(session.payloadUrl)
-            && !isAdsManagerUrl(session.payloadUrl)
-            && session.payloadUrl === session.page.url();
-        if (!hasCurrentFacebookPayload) {
-            await this.#capture(session, profileUrl, "FACEBOOK_CURRENT");
-        }
-        const result = assertAction(await getSwitchableFacebookProfiles({
-            page: session.page,
-            commonPayload: session.payload,
-            timeout: 60000,
-        }), "Не вдалося отримати доступні для перемикання профілі");
-        return result.data;
+        await this.#prepareFacebookContext(session, profileUrl, "FACEBOOK_CURRENT");
+        return assertAction(await getSwitchableFacebookProfiles({
+            page: session.page, timeout: 60000,
+        }), "Не вдалося отримати доступні для перемикання профілі").data;
     }
 
 
-    // Формує єдиний read-only знімок для огляду без повторного збереження payload чи token.
+    // Формує єдиний read-only знімок для огляду для інтерфейсу.
     async #refreshOverview(session) {
         await this.#ensureAccessToken(session);
         const [fanPagesResult, accountsResult] = await Promise.allSettled([
-            getFanPages({ page: session.page, accessToken: session.accessToken, timeout: 60000 }),
-            getBrowserAdAccounts({ page: session.page, accessToken: session.accessToken, timeout: 60000 }),
+            getFanPages({ page: session.page, timeout: 60000 }),
+            getBrowserAdAccounts({ page: session.page, timeout: 60000 }),
         ]);
         const fanPagesResponse = fanPagesResult.status === "fulfilled"
             ? fanPagesResult.value
@@ -1282,7 +1150,6 @@ export default class PersonalAccountSessionManager {
         for (const account of accounts) {
             const pixelsResult = await getAdPixels({
                 page: session.page,
-                accessToken: session.accessToken,
                 adAccountId: account.id,
                 timeout: 60000,
             });
@@ -1294,10 +1161,7 @@ export default class PersonalAccountSessionManager {
         }
         session.fanPages = mergedFanPages;
         session.overview = {
-            hasFacebookPayload: Boolean(session.facebookPayload),
-            hasAdsManagerPayload: session.context === "ADS_MANAGER" && Boolean(session.payload),
             hasAccessToken: Boolean(session.accessToken),
-            hasBusinessManagerPayload: Boolean(session.businessManagerPayload),
             fanPages: mergedFanPages,
             adAccounts: accountsWithPixels,
             fanPagesError: fanPagesResponse.success
@@ -1312,70 +1176,57 @@ export default class PersonalAccountSessionManager {
     }
 
 
-    async #capture(session, url, context) {
-        const graphqlUrl = context === "ADS_MANAGER"
-            ? adsManagerGraphqlUrl
-            : facebookGraphqlUrl;
-        const captured = assertAction(await captureGraphqlPayload(session.page, {
-            profileUrl: url,
-            graphqlUrl,
-            timeout: 60000,
-        }), `Не вдалося отримати payload для ${context}`);
-        if (context === "FACEBOOK_MAIN") {
-            session.facebookPayload = captured.data;
-        }
-        session.payload = context === "ADS_MANAGER"
-            ? supplementAdsManagerPayload(captured.data, session.facebookPayload)
-            : captured.data;
-        session.payloadUrl = session.page.url();
-        session.actorId = String(session.payload.__user ?? "");
+    async #prepareFacebookContext(session, url, context) {
+        const runtime = await readFacebookRuntime(session.page, {
+            surface: context === "ADS_MANAGER" ? "adsManager" : "facebook", url, timeout: 60000,
+        });
+        if (runtime.runtimeError) throw sessionError(runtime.runtimeError, "RUNTIME_UNAVAILABLE");
+        session.actorId = String(runtime.av ?? runtime.__user);
         session.context = context;
-        return captured.data;
     }
+
 
     async #ensureFacebookContext(session, actorId, url, context) {
         const expectedActor = String(actorId ?? "").trim();
-        if (this.#hasCurrentPayload(session, context)
-            && (!expectedActor || session.actorId === expectedActor)) {
-            return;
-        }
-        await this.#capture(session, url, context);
+        await this.#prepareFacebookContext(session, url, context);
         if (!expectedActor || session.actorId === expectedActor) return;
         assertAction(await switchToAdditionalProfile({
-            page: session.page,
-            commonPayload: session.payload,
-            additionalProfileId: expectedActor,
-            timeout: 60000,
+            page: session.page, additionalProfileId: expectedActor, timeout: 60000,
         }), "Не вдалося перемкнути Facebook actor");
-        await this.#capture(session, url, context);
-        if (session.actorId !== expectedActor) {
-            throw sessionError("Facebook actor не відповідає потрібному контексту", "FACEBOOK_ACTOR_MISMATCH");
-        }
+        const confirmed = assertAction(await confirmFacebookProfileSwitch({
+            page: session.page, targetProfileId: expectedActor, profileUrl: url, timeout: 60000,
+        }), "Не вдалося підтвердити Facebook actor");
+        session.actorId = confirmed.data.actorId;
+        session.context = context;
     }
 
 
     async #ensureAdsManager(session, adAccountId = "", { requireAccessToken = true } = {}) {
-        const normalizedAdAccountId = String(adAccountId ?? "").replace(/^act_/, "").trim();
-        const url = normalizedAdAccountId
-            ? `${adsManagerUrl}?act=${normalizedAdAccountId}`
-            : adsManagerUrl;
-        if (!this.#hasCurrentPayload(session, "ADS_MANAGER")) {
-            await this.#capture(session, url, "ADS_MANAGER");
-        }
+        const accountId = String(adAccountId ?? "").replace(/^act_/, "").trim();
+        const url = accountId ? `${adsManagerUrl}?act=${accountId}` : adsManagerUrl;
+        await this.#prepareFacebookContext(session, url, "ADS_MANAGER");
         if (session.actorId !== session.mainActorId) {
-            assertAction(await switchToAdditionalProfile({
-                page: session.page,
-                commonPayload: session.payload,
-                additionalProfileId: session.mainActorId,
-                timeout: 60000,
-            }), "Не вдалося перемкнути Facebook actor для Ads Manager");
-            await this.#capture(session, url, "ADS_MANAGER");
+            await this.#ensureFacebookContext(session, session.mainActorId, profileUrl, "FACEBOOK_MAIN");
+            await this.#prepareFacebookContext(session, url, "ADS_MANAGER");
         }
         if (requireAccessToken) await this.#readAccessToken(session);
     }
 
 
-    async #ensureBillingPagePayload(session, adAccountId) {
+    async #ensureAdAccountSettings(session, adAccountId) {
+        if (this.mode === "businessManager") throw sessionError("Потрібен персональний профіль", "PERSONAL_SESSION_REQUIRED");
+        const accountId = String(adAccountId ?? "").replace(/^act_/, "");
+        if (!/^\d+$/.test(accountId)) throw sessionError("Некоректний ID РК", "INVALID_INPUT");
+        await this.#ensureAdsManager(session, accountId);
+        await ensureFacebookPage(session.page, {
+            surface: "adsManager",
+            url: `https://adsmanager.facebook.com${adAccountSettingsPath}?act=${accountId}`,
+            matchPath: true, queryKeys: ["act"], timeout: 60000,
+        });
+    }
+
+
+    async #ensureBillingPage(session, adAccountId) {
         const normalizedAdAccountId = String(adAccountId ?? "")
             .replace(/^act_/, "")
             .trim();
@@ -1383,7 +1234,7 @@ export default class PersonalAccountSessionManager {
             throw sessionError(
                 "Потрібен коректний ID рекламного акаунта для платіжних налаштувань",
                 "BILLING_ACCOUNT_ID_INVALID",
-                { stage: "ENSURE_BILLING_PAGE_PAYLOAD" }
+                { stage: "ENSURE_BILLING_PAGE" }
             );
         }
 
@@ -1396,62 +1247,17 @@ export default class PersonalAccountSessionManager {
         targetUrl.searchParams.set("asset_id", normalizedAdAccountId);
         targetUrl.searchParams.set("payment_account_id", normalizedAdAccountId);
 
-        const currentUrl = new URL(session.page.url());
-        const isCorrectPage = currentUrl.hostname === targetUrl.hostname
-            && currentUrl.pathname.replace(/\/$/, "") === billingPaymentSettingsPath.replace(/\/$/, "")
-            && currentUrl.searchParams.get("asset_id") === normalizedAdAccountId
-            && currentUrl.searchParams.get("payment_account_id") === normalizedAdAccountId;
-        let payloadUrl = null;
-        try {
-            payloadUrl = session.payloadUrl ? new URL(session.payloadUrl) : null;
-        } catch {
-            payloadUrl = null;
-        }
-        const hasBillingPayload = Boolean(
-            payloadUrl
-            && payloadUrl.hostname === targetUrl.hostname
-            && payloadUrl.pathname.replace(/\/$/, "") === billingPaymentSettingsPath.replace(/\/$/, "")
-            && payloadUrl.searchParams.get("asset_id") === normalizedAdAccountId
-            && payloadUrl.searchParams.get("payment_account_id") === normalizedAdAccountId
-        );
-
-        await session.report.append("ads.billing_page.check", {
-            currentHost: currentUrl.hostname,
-            currentPath: currentUrl.pathname,
-            targetPath: targetUrl.pathname,
-            accountIdMatches: isCorrectPage,
-            payloadMatches: hasBillingPayload,
-            navigated: !isCorrectPage || !hasBillingPayload,
+        await this.#ensureAdsManager(session, normalizedAdAccountId);
+        await ensureFacebookPage(session.page, {
+            surface: "adsManager", url: targetUrl.href, matchPath: true,
+            queryKeys: ["asset_id", "payment_account_id"], timeout: 60000,
         });
-
-        if (!isCorrectPage || !hasBillingPayload) {
-            try {
-                await this.#capture(
-                    session,
-                    targetUrl.toString(),
-                    "ADS_MANAGER"
-                );
-            } catch (error) {
-                await session.report.append("ads.billing_page.navigation_failed", {
-                    message: String(error?.message ?? error),
-                });
-                throw sessionError(
-                    "Не вдалося відкрити сторінку платіжних налаштувань Ads Manager",
-                    "BILLING_PAGE_NAVIGATION_FAILED",
-                    { stage: "CAPTURE_BILLING_PAGE_PAYLOAD" }
-                );
-            }
-        }
-        await session.report.append("ads.billing_page.payload_ready", {
-            pageUrl: session.page.url(),
-            payloadUrl: session.payloadUrl,
-            accountId: normalizedAdAccountId,
-        });
+        await session.report.append("ads.billing_page.ready", { accountId: normalizedAdAccountId });
     }
 
 
     async #ensureBillingPaymentSettings(session, adAccountId) {
-        await this.#ensureBillingPagePayload(session, adAccountId);
+        await this.#ensureBillingPage(session, adAccountId);
 
         const initiallyMissingModules = await session.page.evaluate((moduleNames) => {
             const isReady = (moduleName) => {
@@ -1727,32 +1533,13 @@ export default class PersonalAccountSessionManager {
 
 
     async #ensureAccessToken(session) {
-        if (session.accessToken) return;
         await this.#ensureAdsManager(session);
     }
 
 
-    #hasCurrentPayload(session, context) {
-        if (!session.payload || session.context !== context || !session.payloadUrl) return false;
-        if (context === "ADS_MANAGER") {
-            return isAdsManagerUrl(session.payloadUrl)
-                && isAdsManagerUrl(session.page.url());
-        }
-        return session.payloadUrl === session.page.url();
-    }
-
-
     async #readAccessToken(session) {
-        if (session.accessToken) return;
-        await session.page.waitForFunction(
-            () => document.documentElement?.innerHTML.includes("EAA"),
-            { timeout: 15000 }
-        ).catch(() => {});
-        const html = await session.page.content();
-        const token = extractFacebookAccessTokenFromHtml(html);
-        if (!token) {
-            throw sessionError("Не знайдено access token у Ads Manager", "ADS_MANAGER_TOKEN_NOT_FOUND");
-        }
+        const token = await readFacebookAccessToken(session.page);
+        if (!token) throw sessionError("Не знайдено access token у Ads Manager", "ADS_MANAGER_TOKEN_NOT_FOUND");
         session.accessToken = token;
     }
 

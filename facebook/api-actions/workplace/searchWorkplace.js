@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const friendlyName = "useProfileCometDirectoryTypeaheadDataSourceQuery";
@@ -59,11 +60,11 @@ function collectWorkplaceOptions(data) {
 // Шукає компанії через Facebook typeahead; опція з fbid "-1" повертається у data.
 export default async function searchWorkplace({
     page,
-    commonPayload,
     query,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     if (validationError) {
         return createResult(false, searchWorkplaceStatuses.INVALID_INPUT, null, {
             error: validationError,
@@ -80,7 +81,7 @@ export default async function searchWorkplace({
         search_category: "WORKPLACE",
         query: query.trim(),
     };
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName,
         docId,
         variables,
@@ -90,7 +91,6 @@ export default async function searchWorkplace({
         const response = await postFacebookForm(page, {
             body,
             friendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
 

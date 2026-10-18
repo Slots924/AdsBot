@@ -1,3 +1,4 @@
+import { readFacebookAccessToken } from "../../api/browserCredentials.js";
 const graphApiVersion = "v26.0";
 const defaultTimeoutMs = 30000;
 
@@ -13,7 +14,8 @@ export const getFanPagesStatuses = Object.freeze({
 
 
 // Зчитує сторінки, доступні основному профілю, через поточну browser-сесію.
-export default async function getFanPages({ page, accessToken, timeout = defaultTimeoutMs }) {
+export default async function getFanPages({ page, timeout = defaultTimeoutMs }) {
+    const accessToken = await readFacebookAccessToken(page);
     const token = String(accessToken ?? "").trim();
     const timeoutMs = Number.isFinite(Number(timeout))
         ? Math.max(1, Number(timeout))

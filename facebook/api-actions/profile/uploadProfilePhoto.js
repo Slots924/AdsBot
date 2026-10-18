@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 const uploadPayloadFields = [
     "av",
     "__aaid",
@@ -27,14 +28,14 @@ const uploadPayloadFields = [
 
 
 // Формує актуальні параметри сесії для multipart-завантаження фото.
-function buildUploadParameters(commonPayload, profileId, extraParameters) {
+function buildUploadParameters(runtimeContext, profileId, extraParameters) {
     const parameters = {
         profile_id: String(profileId),
         ...extraParameters,
     };
 
     uploadPayloadFields.forEach((field) => {
-        const value = commonPayload[field];
+        const value = runtimeContext[field];
         if (value !== undefined && value !== null) {
             parameters[field] = String(value);
         }
@@ -49,12 +50,13 @@ export default async function uploadProfilePhoto(page, {
     endpoint,
     image,
     profileId,
-    commonPayload,
     timeout,
     queryParameters = {},
     formParameters = {},
     fileFieldName = "file",
 }) {
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    if (runtimeContext.runtimeError) return { requestError: runtimeContext.runtimeError };
     return page.evaluate(
         async ({
             imageBase64,
@@ -113,7 +115,7 @@ export default async function uploadProfilePhoto(page, {
             imageName: image.filename,
             imageType: image.contentType,
             currentProfileId: String(profileId),
-            parameters: buildUploadParameters(commonPayload, profileId, queryParameters),
+            parameters: buildUploadParameters(runtimeContext, profileId, queryParameters),
             formFields: {
                 profile_id: String(profileId),
                 av: String(profileId),

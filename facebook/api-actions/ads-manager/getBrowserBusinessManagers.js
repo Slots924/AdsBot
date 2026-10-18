@@ -1,7 +1,9 @@
+import { readFacebookAccessToken } from "../../api/browserCredentials.js";
 const graphApiVersion = "v26.0";
 
 // Читає доступні бізнеси лише в контексті відкритого браузера БМ.
-export default async function getBrowserBusinessManagers({ page, accessToken }) {
+export default async function getBrowserBusinessManagers({ page }) {
+    const accessToken = await readFacebookAccessToken(page);
     if (!page?.evaluate || !accessToken) return { success: false, status: "INVALID_INPUT" };
     try {
         const response = await page.evaluate(async ({ token, version }) => {

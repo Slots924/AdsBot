@@ -1,3 +1,4 @@
+import { withFacebookRuntime } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import createFanPage, {
@@ -5,7 +6,7 @@ import createFanPage, {
 } from "../facebook/api-actions/pages/createFanPage.js";
 
 
-const commonPayload = {
+const runtimeFixture = {
     av: "100",
     __user: "100",
     __a: "1",
@@ -24,13 +25,13 @@ const commonPayload = {
 function createPage(response) {
     const calls = [];
 
-    return {
+    return withFacebookRuntime({
         calls,
         async evaluate(_callback, argumentsObject) {
             calls.push(argumentsObject);
             return response;
         },
-    };
+    }, { surface: "facebook", runtime: runtimeFixture });
 }
 
 
@@ -53,7 +54,6 @@ const page = createPage(successResponse({
 }));
 const successResult = await createFanPage({
     page,
-    commonPayload,
     name: "Test Fan Page",
 });
 
@@ -100,7 +100,6 @@ const rejectedResult = await createFanPage({
             },
         },
     })),
-    commonPayload,
     name: "Already used",
 });
 
@@ -110,7 +109,6 @@ assert.equal(rejectedResult.error, "Назва недоступна");
 
 const invalidResult = await createFanPage({
     page: createPage(successResponse({})),
-    commonPayload,
     name: "",
 });
 

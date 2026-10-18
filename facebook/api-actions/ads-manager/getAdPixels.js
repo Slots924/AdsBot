@@ -1,3 +1,4 @@
+import { readFacebookAccessToken } from "../../api/browserCredentials.js";
 const graphApiVersion = "v26.0";
 const defaultTimeoutMs = 30000;
 
@@ -26,10 +27,10 @@ function normalizeAdAccountId(value) {
 // Access token використовується лише для browser-запитів і не повертається в результаті.
 export default async function getAdPixels({
     page,
-    accessToken,
     adAccountId,
     timeout = defaultTimeoutMs,
 }) {
+    const accessToken = await readFacebookAccessToken(page);
     const normalizedAdAccountId = normalizeAdAccountId(adAccountId);
     const normalizedAccessToken = String(accessToken ?? "").trim();
     const normalizedTimeout = Number.isFinite(Number(timeout))

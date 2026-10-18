@@ -3,8 +3,6 @@ import "dotenv/config";
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "../../classes/AdsPower.js";
-import captureGraphqlPayload
-    from "../../facebook/api-actions/captureGraphqlPayload.js";
 import getNameChangeStatus
     from "../../facebook/api-actions/accounts/getNameChangeStatus.js";
 import ensureAdsPowerProfileReady
@@ -55,21 +53,11 @@ async function main() {
         const page = (await browser.pages())[0] ?? await browser.newPage();
 
         console.log("[NAME-STATUS-TEST] Захоплюємо актуальний Accounts Center GraphQL request");
-        const payloadResult = await captureGraphqlPayload(page, {
-            profileUrl: accountsCenterUrl,
-            graphqlUrl: accountsCenterGraphqlUrl,
-            timeout: actionTimeout,
-        });
-        console.log(`[NAME-STATUS-TEST] captureGraphqlPayload: ${payloadResult.status}`);
-        if (!payloadResult.success) {
-            logActionError("captureGraphqlPayload", payloadResult);
-            throw new Error(payloadResult.error ?? payloadResult.status);
-        }
+
 
         console.log("[NAME-STATUS-TEST] Перевіряємо правила зміни імені");
         const result = await getNameChangeStatus({
             page,
-            commonPayload: payloadResult.data,
             timeout: actionTimeout,
         });
         console.log(`[NAME-STATUS-TEST] getNameChangeStatus: ${result.status}`);

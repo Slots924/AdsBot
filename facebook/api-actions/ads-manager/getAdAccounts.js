@@ -1,3 +1,4 @@
+import { readFacebookAccessToken } from "../../api/browserCredentials.js";
 const graphApiVersion = "v26.0";
 const defaultTimeoutMs = 30000;
 
@@ -16,9 +17,9 @@ export const getBrowserAdAccountsStatuses = Object.freeze({
 // Токен і cookies використовуються тільки всередині browser context.
 export default async function getAdAccounts({
     page,
-    accessToken,
     timeout = defaultTimeoutMs,
 }) {
+    const accessToken = await readFacebookAccessToken(page);
     const token = String(accessToken ?? "").trim();
     const timeoutMs = Number.isFinite(Number(timeout))
         ? Math.max(1, Number(timeout))

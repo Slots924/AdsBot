@@ -1,10 +1,11 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     createResult,
     hasGraphqlErrors,
     normalizeTimeout,
     parseFacebookJson,
     postFacebookForm,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const profileListFriendlyName = "CometProfileSwitcherListQuery";
@@ -27,31 +28,31 @@ export const getSwitchableFacebookProfilesStatuses = Object.freeze({
 // Повертає additional profiles, доступні для CometProfileSwitchMutation.
 export default async function getSwitchableFacebookProfiles({
     page,
-    commonPayload,
     timeout,
 }) {
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
     const requiredFields = ["av", "__user", "__a", "fb_dtsg", "lsd"];
     const missingField = requiredFields.find((field) => (
-        commonPayload?.[field] === undefined || commonPayload[field] === null
+        runtimeContext?.[field] === undefined || runtimeContext[field] === null
     ));
-    if (!page || typeof page.evaluate !== "function" || !commonPayload || missingField) {
+    if (!page || typeof page.evaluate !== "function" || !runtimeContext || missingField) {
         return createResult(false, getSwitchableFacebookProfilesStatuses.INVALID_INPUT, null, {
             error: !page || typeof page.evaluate !== "function"
                 ? "Не передано Puppeteer page"
                 : (missingField
-                    ? `У commonPayload відсутнє поле ${missingField}`
-                    : "Не передано commonPayload"),
+                    ? `У runtimeContext відсутнє поле ${missingField}`
+                    : "Не передано runtimeContext"),
         });
     }
 
     try {
         const scale = await page.evaluate(() => window.devicePixelRatio || 1);
         const body = new URLSearchParams({
-            av: String(commonPayload.av),
-            __user: String(commonPayload.__user),
-            __a: String(commonPayload.__a),
-            fb_dtsg: String(commonPayload.fb_dtsg),
-            lsd: String(commonPayload.lsd),
+            av: String(runtimeContext.av),
+            __user: String(runtimeContext.__user),
+            __a: String(runtimeContext.__a),
+            fb_dtsg: String(runtimeContext.fb_dtsg),
+            lsd: String(runtimeContext.lsd),
             fb_api_caller_class: "RelayModern",
             fb_api_req_friendly_name: profileListFriendlyName,
             server_timestamps: "true",
@@ -64,7 +65,6 @@ export default async function getSwitchableFacebookProfiles({
         const response = await postFacebookForm(page, {
             body,
             friendlyName: profileListFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
         if (response.requestError === "TIMEOUT") {

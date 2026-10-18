@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const createFanPageFriendlyName = "AdditionalProfilePlusCreationMutation";
@@ -32,15 +33,15 @@ export const createFanPageStatuses = Object.freeze({
 // Створює додатковий Facebook-профіль Plus і пов'язану з ним сторінку.
 export default async function createFanPage({
     page,
-    commonPayload,
     name,
     categoryId = defaultCategoryId,
     bio = "",
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const normalizedName = String(name ?? "").trim();
     const normalizedCategoryId = String(categoryId ?? "").trim();
 
@@ -49,7 +50,7 @@ export default async function createFanPage({
         return createResult(false, createFanPageStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : (!normalizedName
                         ? "Потрібна непорожня назва сторінки"
                         : (!normalizedCategoryId
@@ -67,25 +68,24 @@ export default async function createFanPage({
                 name: normalizedName,
                 off_platform_creator_reachout_id: null,
                 page_referrer: pageReferrer,
-                actor_id: String(commonPayload.__user),
+                actor_id: String(runtimeContext.__user),
                 client_mutation_id: "1",
             },
         };
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: createFanPageFriendlyName,
             docId: createFanPageDocId,
             variables,
             extraParameters: {
-                __spin_r: commonPayload.__spin_r,
-                __spin_b: commonPayload.__spin_b,
-                __spin_t: commonPayload.__spin_t,
-                __crn: commonPayload.__crn,
+                __spin_r: runtimeContext.__spin_r,
+                __spin_b: runtimeContext.__spin_b,
+                __spin_t: runtimeContext.__spin_t,
+                __crn: runtimeContext.__crn,
             },
         });
         const response = await postFacebookForm(page, {
             body,
             friendlyName: createFanPageFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
 

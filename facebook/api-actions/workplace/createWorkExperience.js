@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 import {
     buildWorkExperienceSaveVariables,
     getWorkMutationValidationError,
@@ -31,7 +32,6 @@ export const createWorkExperienceStatuses = Object.freeze({
 // Створює Work Experience з існуючою компанією та існуючою Facebook-посадою.
 export default async function createWorkExperience({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     companyId,
@@ -41,9 +41,10 @@ export default async function createWorkExperience({
     navChain,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     const workValidationError = getWorkMutationValidationError(
-        commonPayload
+        runtimeContext
     );
     if (
         validationError
@@ -66,7 +67,7 @@ export default async function createWorkExperience({
     }
 
     const variables = buildWorkExperienceSaveVariables({
-        commonPayload,
+        runtimeContext,
         collectionToken,
         sectionToken,
         companyId,
@@ -75,14 +76,14 @@ export default async function createWorkExperience({
         jobTitleName,
         navChain,
     });
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName: workExperienceSaveFriendlyName,
         docId: workExperienceSaveDocId,
         variables,
         extraParameters: {
-            __spin_r: commonPayload.__spin_r,
-            __spin_b: commonPayload.__spin_b,
-            __spin_t: commonPayload.__spin_t,
+            __spin_r: runtimeContext.__spin_r,
+            __spin_b: runtimeContext.__spin_b,
+            __spin_t: runtimeContext.__spin_t,
             __crn: workExperienceRouteName,
         },
     });
@@ -91,7 +92,6 @@ export default async function createWorkExperience({
         const response = await postFacebookForm(page, {
             body,
             friendlyName: workExperienceSaveFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
         if (response.requestError === "TIMEOUT") {

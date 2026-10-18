@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import { getProfilePhotoRejectReason }
     from "../../../services/accounts/photoSets.js";
 import loadImageFromPath
@@ -11,7 +12,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const uploadEndpoint = "/profile/cover/comet_upload/";
@@ -67,21 +68,21 @@ function extractCoverPhotoData(data) {
 // Завантажує локальне зображення та встановлює його обкладинкою поточного Facebook-профілю.
 export default async function changeCoverPhoto({
     page,
-    commonPayload,
     imagePath,
     attributionId = null,
     focus,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const normalizedFocus = normalizeFocus(focus);
     if (validationError || missingRequestField || !String(imagePath ?? "").trim() || !normalizedFocus) {
         return createResult(false, changeCoverPhotoStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : (!normalizedFocus
                         ? "focus має містити координати x та y від 0 до 1"
                         : "Потрібен шлях до файлу cover")),
@@ -97,13 +98,12 @@ export default async function changeCoverPhoto({
 
     try {
         const image = await loadImageFromPath(imagePath);
-        const profileId = String(commonPayload.__user);
+        const profileId = String(runtimeContext.__user);
         const normalizedTimeout = normalizeTimeout(timeout);
         const uploadResponse = await uploadProfilePhoto(page, {
             endpoint: uploadEndpoint,
             image,
             profileId,
-            commonPayload,
             timeout: normalizedTimeout,
         });
 
@@ -160,7 +160,7 @@ export default async function changeCoverPhoto({
             input.attribution_id_v2 = attributionId.trim();
         }
 
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: setCoverFriendlyName,
             docId: setCoverDocId,
             variables: {
@@ -169,16 +169,15 @@ export default async function changeCoverPhoto({
                 contextualProfileContext: null,
             },
             extraParameters: {
-                __spin_r: commonPayload.__spin_r,
-                __spin_b: commonPayload.__spin_b,
-                __spin_t: commonPayload.__spin_t,
-                __crn: commonPayload.__crn,
+                __spin_r: runtimeContext.__spin_r,
+                __spin_b: runtimeContext.__spin_b,
+                __spin_t: runtimeContext.__spin_t,
+                __crn: runtimeContext.__crn,
             },
         });
         const setResponse = await postFacebookForm(page, {
             body,
             friendlyName: setCoverFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizedTimeout,
         });
 

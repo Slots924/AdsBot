@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const backdateFriendlyName = "ProfileCometBackdateStoryMutation";
@@ -50,7 +51,6 @@ function normalizeBackdate({ year, month, day, hour, minute }) {
 // Змінює дату й час існуючого поста поточного Facebook-профілю за його GraphQL story ID.
 export default async function backdatePost({
     page,
-    commonPayload,
     storyId,
     year,
     month,
@@ -60,9 +60,10 @@ export default async function backdatePost({
     clientMutationId,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const normalizedDate = normalizeBackdate({ year, month, day, hour, minute });
     const normalizedStoryId = String(storyId ?? "").trim();
     const normalizedClientMutationId = String(clientMutationId ?? "").trim();
@@ -77,7 +78,7 @@ export default async function backdatePost({
         return createResult(false, backdatePostStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : (!normalizedStoryId
                         ? "Потрібен GraphQL storyId поста"
                         : (!normalizedDate
@@ -87,9 +88,9 @@ export default async function backdatePost({
     }
 
     try {
-        const profileId = String(commonPayload.__user);
+        const profileId = String(runtimeContext.__user);
         const normalizedTimeout = normalizeTimeout(timeout);
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: backdateFriendlyName,
             docId: backdateDocId,
             variables: {
@@ -101,16 +102,15 @@ export default async function backdatePost({
                 },
             },
             extraParameters: {
-                __spin_r: commonPayload.__spin_r,
-                __spin_b: commonPayload.__spin_b,
-                __spin_t: commonPayload.__spin_t,
-                __crn: commonPayload.__crn,
+                __spin_r: runtimeContext.__spin_r,
+                __spin_b: runtimeContext.__spin_b,
+                __spin_t: runtimeContext.__spin_t,
+                __crn: runtimeContext.__crn,
             },
         });
         const response = await postFacebookForm(page, {
             body,
             friendlyName: backdateFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizedTimeout,
         });
 

@@ -4,12 +4,13 @@ import PersonalPaymentSources from "../components/PersonalPaymentSources.jsx";
 import { addCardAndRefreshSources } from "../lib/personalPaymentSources.js";
 import getAdAccountPaymentSources from "../../../facebook/api-actions/ads-manager/getAdAccountPaymentSources.js";
 import getAdAccountBusinessInfo from "../../../facebook/api-actions/ads-manager/getAdAccountBusinessInfo.js";
+import { withFacebookRuntime } from "../../../test/helpers/facebookRuntimePage.js";
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 const source = { id: "source-1", network: "Mastercard", last4: "2124", displayString: "Mastercard *2124" };
-const page = { evaluate: (fn, args) => fn(args) };
-const input = { page, accessToken: "mock-token", adAccountId: "123" };
+const page = withFacebookRuntime({ evaluate: (fn, args) => fn(args) }, { surface: "adsManager" });
+const input = { page, adAccountId: "123" };
 const mockGraph = (body, ok = true) => {
     const fetch = vi.fn().mockResolvedValue({ ok, status: ok ? 200 : 400, json: async () => body });
     vi.stubGlobal("fetch", fetch);

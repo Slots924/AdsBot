@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 
 import { extractFacebookAccessTokenFromHtml }
-    from "../facebook/workflows/syncFacebookApiClientFromAdsPowerProfile.js";
+    from "../facebook/api/browserCredentials.js";
 
 
 const token = "EAA".padEnd(28, "a");

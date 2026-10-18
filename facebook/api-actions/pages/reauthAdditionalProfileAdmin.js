@@ -1,10 +1,11 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     createResult,
     hasGraphqlErrors,
     normalizeTimeout,
     parseFacebookJson,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const reauthFriendlyName = "ProfilePlusMarkReauthedMutation";
@@ -30,7 +31,7 @@ export const reauthAdditionalProfileAdminStatuses = Object.freeze({
 
 // Формує reauth-запит у контексті сторінки, щоб пароль і protected payload не покидали browser runtime.
 async function submitReauthInPage(page, {
-    commonPayload,
+    runtimeContext,
     additionalProfileId,
     password,
     timeout,
@@ -163,7 +164,7 @@ async function submitReauthInPage(page, {
             }
         },
         {
-            payload: commonPayload,
+            payload: runtimeContext,
             profileId: additionalProfileId,
             plaintextPassword: password,
             timeoutMs: timeout,
@@ -175,14 +176,14 @@ async function submitReauthInPage(page, {
 // Підтверджує поточну Meta-сесію перед видачею Full Access до additional profile.
 export default async function reauthAdditionalProfileAdmin({
     page,
-    commonPayload,
     additionalProfileId,
     password,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const normalizedProfileId = String(additionalProfileId ?? "").trim();
     const normalizedPassword = String(password ?? "");
 
@@ -190,14 +191,20 @@ export default async function reauthAdditionalProfileAdmin({
         return createResult(false, reauthAdditionalProfileAdminStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : "Потрібні числовий additionalProfileId і пароль"),
+        });
+    }
+
+    if (String(runtimeContext.av) !== normalizedProfileId) {
+        return createResult(false, reauthAdditionalProfileAdminStatuses.INVALID_INPUT, null, {
+            error: "Поточний Facebook actor не відповідає additionalProfileId",
         });
     }
 
     try {
         const response = await submitReauthInPage(page, {
-            commonPayload,
+            runtimeContext,
             additionalProfileId: normalizedProfileId,
             password: normalizedPassword,
             timeout: normalizeTimeout(timeout),

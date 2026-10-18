@@ -1,4 +1,4 @@
-import { createResult } from "../education/common.js";
+import { createResult } from "../../api/browserRequest.js";
 import createWorkExperience from "./createWorkExperience.js";
 
 
@@ -80,7 +80,6 @@ function selectFallbackWorkExperience() {
 // Додає випадковий Work Experience з локального fallback-списку.
 export default async function addFallbackWorkExperience({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     navChain,
@@ -96,7 +95,6 @@ export default async function addFallbackWorkExperience({
 
     const result = await createWorkExperience({
         page,
-        commonPayload,
         collectionToken,
         sectionToken,
         companyId: fallbackWorkExperience.company_id,

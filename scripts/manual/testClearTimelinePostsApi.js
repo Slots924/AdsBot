@@ -3,8 +3,6 @@ import "dotenv/config";
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "../../classes/AdsPower.js";
-import captureGraphqlPayload
-    from "../../facebook/api-actions/captureGraphqlPayload.js";
 import getManagePosts
     from "../../facebook/api-actions/posts/getManagePosts.js";
 import deletePost
@@ -22,7 +20,7 @@ const actionTimeout = 30000;
 
 
 // Видаляє звичайні пости послідовно, щоб окремо зафіксувати результат кожного запиту.
-async function deleteRegularPosts(page, commonPayload, posts) {
+async function deleteRegularPosts(page, posts) {
     const regularPosts = posts.filter((post) => !post.isSystem && post.canDelete);
     const skippedPosts = posts.filter((post) => !post.isSystem && !post.canDelete);
     const deletionResults = [];
@@ -41,7 +39,6 @@ async function deleteRegularPosts(page, commonPayload, posts) {
 
         const result = await deletePost({
             page,
-            commonPayload,
             storyId: post.storyId,
             clientMutationId: String(index + 1),
             timeout: actionTimeout,
@@ -62,7 +59,7 @@ async function deleteRegularPosts(page, commonPayload, posts) {
 
 
 // Приховує системні пости послідовно, отримуючи новий context для кожного story.
-async function hideSystemPosts(page, commonPayload, posts, clientMutationIdStart) {
+async function hideSystemPosts(page, posts, clientMutationIdStart) {
     const systemPosts = posts.filter((post) => post.isSystem);
     const hideResults = [];
 
@@ -79,7 +76,6 @@ async function hideSystemPosts(page, commonPayload, posts, clientMutationIdStart
 
         const contextResult = await getPostHideContext({
             page,
-            commonPayload,
             storyId: post.storyId,
             timeout: actionTimeout,
         });
@@ -95,7 +91,6 @@ async function hideSystemPosts(page, commonPayload, posts, clientMutationIdStart
         console.log(`[MANAGE-POSTS-TEST] Приховуємо системний пост ${position}`);
         const hideResult = await hidePostFromTimeline({
             page,
-            commonPayload,
             context: contextResult.data.context,
             clientMutationId: String(clientMutationIdStart + index),
             timeout: actionTimeout,
@@ -149,20 +144,11 @@ async function main() {
         });
         const page = (await browser.pages())[0] ?? await browser.newPage();
 
-        console.log("[MANAGE-POSTS-TEST] Захоплюємо актуальний Facebook GraphQL request");
-        const payloadResult = await captureGraphqlPayload(page, {
-            timeout: actionTimeout,
-        });
-        console.log(`[MANAGE-POSTS-TEST] captureGraphqlPayload: ${payloadResult.status}`);
-        if (!payloadResult.success) {
-            logActionError("captureGraphqlPayload", payloadResult);
-            throw new Error(payloadResult.error ?? payloadResult.status);
-        }
+
 
         console.log("[MANAGE-POSTS-TEST] Отримуємо максимальну кількість постів через Manage Posts");
         const result = await getManagePosts({
             page,
-            commonPayload: payloadResult.data,
             timeout: actionTimeout,
         });
         console.log(`[MANAGE-POSTS-TEST] getManagePosts: ${result.status}`, {
@@ -197,7 +183,6 @@ async function main() {
 
         const { deletionResults, skippedPosts } = await deleteRegularPosts(
             page,
-            payloadResult.data,
             posts
         );
         const failedDeletions = deletionResults.filter(({ result: deletionResult }) => !deletionResult.success);
@@ -214,7 +199,6 @@ async function main() {
 
         const hideResults = await hideSystemPosts(
             page,
-            payloadResult.data,
             posts,
             deletionResults.length + 1
         );

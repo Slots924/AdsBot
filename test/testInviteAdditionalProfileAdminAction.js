@@ -1,3 +1,4 @@
+import { withFacebookRuntime } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import inviteAdditionalProfileAdmin, {
@@ -5,9 +6,9 @@ import inviteAdditionalProfileAdmin, {
 } from "../facebook/api-actions/pages/inviteAdditionalProfileAdmin.js";
 
 
-const commonPayload = {
-    av: "additional-profile-id",
-    __user: "additional-profile-id",
+const runtimeFixture = {
+    av: "61594979545862",
+    __user: "61594979545862",
     __a: "1",
     fb_dtsg: "token",
     jazoest: "25681",
@@ -24,13 +25,13 @@ const commonPayload = {
 function createPage(response) {
     const calls = [];
 
-    return {
+    return withFacebookRuntime({
         calls,
         async evaluate(_callback, argumentsObject) {
             calls.push(argumentsObject);
             return response;
         },
-    };
+    }, { surface: "facebook", runtime: runtimeFixture });
 }
 
 
@@ -51,7 +52,6 @@ const page = createPage({
 });
 const result = await inviteAdditionalProfileAdmin({
     page,
-    commonPayload,
     additionalProfileId: "61594979545862",
     targetUserId: "61594188892743",
 });
@@ -92,7 +92,6 @@ const notSentResult = await inviteAdditionalProfileAdmin({
             data: { profile_plus_core_admin_invite: { is_invite_sent: false } },
         }),
     }),
-    commonPayload,
     additionalProfileId: "61594979545862",
     targetUserId: "61594188892743",
 });

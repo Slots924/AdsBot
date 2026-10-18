@@ -1,3 +1,4 @@
+import { withFacebookRuntime, testAccessToken } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import createAdPixel, {
@@ -9,13 +10,13 @@ import createAdPixel, {
 function createPage(response) {
     const calls = [];
 
-    return {
+    return withFacebookRuntime({
         calls,
         async evaluate(_callback, argumentsObject) {
             calls.push(argumentsObject);
             return response;
         },
-    };
+    }, { surface: "adsManager" });
 }
 
 
@@ -26,7 +27,6 @@ const page = createPage({
 });
 const result = await createAdPixel({
     page,
-    accessToken: "test-access-token",
     adAccountId: "123456",
     name: "Test Pixel",
 });
@@ -40,7 +40,7 @@ assert.deepEqual(result.data, {
 });
 assert.equal(page.calls[0].accountId, "act_123456");
 assert.equal(page.calls[0].pixelName, "Test Pixel");
-assert.equal(page.calls[0].token, "test-access-token");
+assert.equal(page.calls[0].token, testAccessToken);
 
 const graphErrorResult = await createAdPixel({
     page: createPage({
@@ -50,7 +50,6 @@ const graphErrorResult = await createAdPixel({
             error: { message: "Invalid name", code: 100, type: "OAuthException" },
         }),
     }),
-    accessToken: "test-access-token",
     adAccountId: "act_123456",
     name: "Test Pixel",
 });
@@ -61,7 +60,6 @@ assert.equal(graphErrorResult.graphError.code, 100);
 
 const invalidResult = await createAdPixel({
     page: createPage({}),
-    accessToken: "",
     adAccountId: "invalid",
     name: "",
 });

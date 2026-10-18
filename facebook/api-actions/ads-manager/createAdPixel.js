@@ -1,3 +1,4 @@
+import { readFacebookAccessToken } from "../../api/browserCredentials.js";
 const graphApiVersion = "v26.0";
 const defaultTimeoutMs = 30000;
 
@@ -23,15 +24,15 @@ function normalizeAdAccountId(value) {
 }
 
 
-// Створює Meta Pixel у контексті активної browser-сесії через переданий access token.
+// Створює Meta Pixel у контексті активної browser-сесії через актуальний access token сторінки.
 // Access token використовується лише всередині запиту й ніколи не повертається або не логується.
 export default async function createAdPixel({
     page,
-    accessToken,
     adAccountId,
     name,
     timeout = defaultTimeoutMs,
 }) {
+    const accessToken = await readFacebookAccessToken(page);
     const normalizedAdAccountId = normalizeAdAccountId(adAccountId);
     const normalizedName = String(name ?? "").trim();
     const normalizedAccessToken = String(accessToken ?? "").trim();

@@ -3,8 +3,6 @@ import "dotenv/config";
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "../../classes/AdsPower.js";
-import captureGraphqlPayload
-    from "../../facebook/api-actions/captureGraphqlPayload.js";
 import getAboutSectionTokens
     from "../../facebook/api-actions/getAboutSectionTokens.js";
 import createCustomWorkExperience
@@ -74,18 +72,9 @@ async function main() {
         });
 
         const page = (await browser.pages())[0] ?? await browser.newPage();
-        const payloadResult = await captureGraphqlPayload(page, {
-            timeout: actionTimeout,
-        });
-        logActionResult("captureGraphqlPayload", payloadResult);
-        if (!payloadResult.success) {
-            throw new Error(payloadResult.error ?? payloadResult.status);
-        }
 
-        const commonPayload = payloadResult.data;
         const tokensResult = await getAboutSectionTokens({
             page,
-            commonPayload,
             sections: [workSection],
             timeout: actionTimeout,
         });
@@ -102,7 +91,6 @@ async function main() {
 
         const workParams = {
             page,
-            commonPayload,
             collectionToken: workTokens.collectionToken,
             sectionToken: workTokens.sectionToken,
             rawSectionToken: workTokens.rawSectionToken,
@@ -123,7 +111,6 @@ async function main() {
             );
             const deleteResult = await deleteWorkExperience({
                 page,
-                commonPayload,
                 collectionToken: workTokens.collectionToken,
                 sectionToken: workTokens.sectionToken,
                 workExperienceID: workExperience.work_experience_id,
@@ -147,7 +134,6 @@ async function main() {
         });
         const createResult = await createCustomWorkExperience({
             page,
-            commonPayload,
             collectionToken: workTokens.collectionToken,
             sectionToken: workTokens.sectionToken,
             companyName: customCompanyName,

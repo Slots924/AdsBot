@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const friendlyName = "useProfileCometDirectoryTypeaheadDataSourceQuery";
@@ -60,11 +61,11 @@ function collectJobTitleOptions(data) {
 // Шукає наявні Facebook-посади через typeahead.
 export default async function searchJobTitle({
     page,
-    commonPayload,
     query,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     if (validationError) {
         return createResult(false, searchJobTitleStatuses.INVALID_INPUT, null, {
             error: validationError,
@@ -81,7 +82,7 @@ export default async function searchJobTitle({
         search_category: "JOB_TITLE",
         query: query.trim(),
     };
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName,
         docId,
         variables,
@@ -91,7 +92,6 @@ export default async function searchJobTitle({
         const response = await postFacebookForm(page, {
             body,
             friendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
 

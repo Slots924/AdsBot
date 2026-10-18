@@ -1,3 +1,4 @@
+import { withFacebookRuntime } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import reauthAdditionalProfileAdmin, {
@@ -5,9 +6,9 @@ import reauthAdditionalProfileAdmin, {
 } from "../facebook/api-actions/pages/reauthAdditionalProfileAdmin.js";
 
 
-const commonPayload = {
-    av: "additional-profile-id",
-    __user: "additional-profile-id",
+const runtimeFixture = {
+    av: "61594979545862",
+    __user: "61594979545862",
     __a: "1",
     fb_dtsg: "token",
     jazoest: "25681",
@@ -23,13 +24,13 @@ const commonPayload = {
 // Імітує відповідь, яку безпечно повертає browser runtime після reauth mutation.
 function createPage(response) {
     const calls = [];
-    return {
+    return withFacebookRuntime({
         calls,
         async evaluate(_callback, argumentsObject) {
             calls.push(argumentsObject);
             return response;
         },
-    };
+    }, { surface: "facebook", runtime: runtimeFixture });
 }
 
 
@@ -44,7 +45,6 @@ const page = createPage({
 });
 const result = await reauthAdditionalProfileAdmin({
     page,
-    commonPayload,
     additionalProfileId: "61594979545862",
     password: "test-password",
 });
@@ -64,7 +64,6 @@ const rejectedResult = await reauthAdditionalProfileAdmin({
             data: { admin_management_mark_reauthed: { reauth_is_successful: false } },
         }),
     }),
-    commonPayload,
     additionalProfileId: "61594979545862",
     password: "test-password",
 });

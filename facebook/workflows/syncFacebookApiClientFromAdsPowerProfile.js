@@ -7,22 +7,7 @@ import checkProfileBeforeLaunch from "../../workflows/profile/checkProfileBefore
 import checkFacebookAfterLaunch from "../../workflows/profile/checkFacebookAfterLaunch.js";
 
 
-const adsManagerUrl = "https://www.facebook.com/adsmanager/manage/campaigns";
-
-
-export function extractFacebookAccessTokenFromHtml(html) {
-    const source = String(html ?? "");
-    const patterns = [
-        /"accessToken"\s*:\s*"(EAA[A-Za-z0-9_-]{20,})"/g,
-        /\\"accessToken\\"\s*:\s*\\"(EAA[A-Za-z0-9_-]{20,})\\"/g,
-        /\b(EAA[A-Za-z0-9_-]{20,})\b/g,
-    ];
-    for (const pattern of patterns) {
-        const match = pattern.exec(source);
-        if (match?.[1]) return match[1];
-    }
-    return "";
-}
+import { readFacebookBrowserCredentials } from "../api/browserCredentials.js";
 
 
 export default async function syncFacebookApiClientFromAdsPowerProfile({
@@ -85,23 +70,7 @@ export default async function syncFacebookApiClientFromAdsPowerProfile({
         assertNotAborted();
 
         await onProgress({ stage: "credentials", message: "Оновлюємо дані API-клієнта" });
-        await openPageWithoutPopups(page, adsManagerUrl, { timeout: 60000 });
-        await page.waitForFunction(
-            () => document.documentElement?.innerHTML.includes("EAA"),
-            { timeout: 15000 }
-        ).catch(() => {});
-        const [userAgent, html, cookies] = await Promise.all([
-            page.evaluate(() => navigator.userAgent),
-            page.content(),
-            page.cookies("https://www.facebook.com"),
-        ]);
-        const accessToken = extractFacebookAccessTokenFromHtml(html);
-        if (!accessToken) throw new Error("Не знайдено access token у DOM Ads Manager");
-        if (!Array.isArray(cookies) || cookies.length === 0) {
-            throw new Error("Не знайдено cookies Facebook");
-        }
-        if (!String(userAgent).trim()) throw new Error("Не знайдено user agent браузера");
-        return { userAgent: String(userAgent), accessToken, cookies };
+        return await readFacebookBrowserCredentials(page);
     } finally {
         await browser?.disconnect().catch(() => {});
         if (opened) await adsPower.closeProfile(normalizedProfileNo).catch(() => {});

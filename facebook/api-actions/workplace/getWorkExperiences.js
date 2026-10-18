@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import { defaultRelayVariables }
     from "../education/getEducationExperiences.js";
 import {
@@ -8,7 +9,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const friendlyName = "ProfileCometAboutAppSectionQuery";
@@ -95,14 +96,14 @@ function extractWorkExperiences(data) {
 // Отримує наявні Work Experience та їх ID через About App Section GraphQL query.
 export default async function getWorkExperiences({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     rawSectionToken,
     relayVariables = {},
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     if (
         validationError
         || !collectionToken
@@ -122,18 +123,18 @@ export default async function getWorkExperiences({
         );
     }
 
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload[field] === undefined || commonPayload[field] === null);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext[field] === undefined || runtimeContext[field] === null);
     if (missingRequestField) {
         return createResult(
             false,
             getWorkExperiencesStatuses.INVALID_INPUT,
             null,
-            { error: `У commonPayload відсутнє поле ${missingRequestField}` }
+            { error: `У runtimeContext відсутнє поле ${missingRequestField}` }
         );
     }
 
-    const profileId = String(commonPayload.__user);
+    const profileId = String(runtimeContext.__user);
     const variables = {
         ...defaultRelayVariables,
         ...relayVariables,
@@ -147,15 +148,15 @@ export default async function getWorkExperiences({
         showReactions: true,
         userID: profileId,
     };
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName,
         docId,
         variables,
         extraParameters: {
-            __spin_r: commonPayload.__spin_r,
-            __spin_b: commonPayload.__spin_b,
-            __spin_t: commonPayload.__spin_t,
-            __crn: commonPayload.__crn,
+            __spin_r: runtimeContext.__spin_r,
+            __spin_b: runtimeContext.__spin_b,
+            __spin_t: runtimeContext.__spin_t,
+            __crn: runtimeContext.__crn,
         },
     });
 
@@ -163,7 +164,6 @@ export default async function getWorkExperiences({
         const response = await postFacebookForm(page, {
             body,
             friendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
 

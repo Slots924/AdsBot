@@ -3,8 +3,6 @@ import "dotenv/config";
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "../../classes/AdsPower.js";
-import captureGraphqlPayload
-    from "../../facebook/api-actions/captureGraphqlPayload.js";
 import changeCoverPhoto
     from "../../facebook/api-actions/profile/changeCoverPhoto.js";
 import ensureAdsPowerProfileReady
@@ -53,19 +51,11 @@ async function main() {
         });
         const page = (await browser.pages())[0] ?? await browser.newPage();
 
-        const payloadResult = await captureGraphqlPayload(page, {
-            timeout: actionTimeout,
-        });
-        console.log(`[COVER-TEST] captureGraphqlPayload: ${payloadResult.status}`);
-        if (!payloadResult.success) {
-            logCoverError("captureGraphqlPayload", payloadResult);
-            throw new Error(payloadResult.error ?? payloadResult.status);
-        }
+
 
         console.log("[COVER-TEST] Запускаємо зміну обкладинки", { imagePath });
         const result = await changeCoverPhoto({
             page,
-            commonPayload: payloadResult.data,
             imagePath,
             timeout: actionTimeout,
         });

@@ -1,13 +1,14 @@
+import { withFacebookRuntime } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 import inviteBusinessUser from "../facebook/api-actions/ads-manager/inviteBusinessUser.js";
 
-const commonPayload = {
+const runtimeFixture = {
     av: "123", __user: "123", __a: "1", __comet_req: "11",
     fb_dtsg: "mock-dtsg", jazoest: "2000", lsd: "mock-lsd",
     __dyn: "не передавати", __bid: "999", variables: "не передавати", doc_id: "999",
 };
 const input = {
-    commonPayload, businessId: "456", emails: ["person@example.test"],
+    businessId: "456", emails: ["person@example.test"],
     pageIds: ["789", "789"], adAccountIds: ["act_120252063622850734", "120252063622850734"],
 };
 const pendingResponse = {
@@ -20,7 +21,7 @@ const pendingResponse = {
 // Виконує справжній браузерний callback із підміною лише HTTP-транспорту.
 function createPage(response = pendingResponse) {
     const calls = [];
-    return {
+    return withFacebookRuntime({
         calls,
         url: () => "https://business.facebook.com/latest/settings/business_users?business_id=456",
         async evaluate(callback, args) {
@@ -37,7 +38,7 @@ function createPage(response = pendingResponse) {
             };
             try { return await callback(args); } finally { globalThis.fetch = previousFetch; }
         },
-    };
+    }, { surface: "business", runtime: runtimeFixture });
 }
 
 const employeeWithFinance = ["926381894526285", "768085000593466", "416103972652535"];
@@ -95,7 +96,6 @@ for (const invalid of [
     { role: "OWNER" }, { financeAccess: "false" }, { businessId: 456 },
     { emails: [] }, { emails: ["bad-email"] }, { adAccountIds: [120252063622850734] },
     { pageIds: ["789"], adAccountIds: ["789"] },
-    { commonPayload: { ...commonPayload, fb_dtsg: "" } },
 ]) {
     const page = createPage();
     assert.equal((await inviteBusinessUser({ ...input, ...invalid, page })).status, "INVALID_INPUT");

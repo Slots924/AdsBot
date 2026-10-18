@@ -1,8 +1,9 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import { randomUUID } from "node:crypto";
 import {
     buildMutationBody, createResult, hasGraphqlErrors, normalizeTimeout,
     parseFacebookJson, postFacebookForm, validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 import { fullAdAccountTaskIds } from "./requestAdAccountAccess.js";
 
 const friendlyName = "BizKitSettingsInvitePeopleModalMutation";
@@ -46,12 +47,13 @@ function normalizeIds(ids, stripPrefix = false) {
 
 // Запрошує людей до БМ і призначає повні права лише на передані активи в поточній браузерній сесії.
 export default async function inviteBusinessUser({
-    page, commonPayload, businessId, emails, role = "EMPLOYEE", financeAccess = true,
+    page, businessId, emails, role = "EMPLOYEE", financeAccess = true,
     pageIds = [], adAccountIds = [], timeout,
 } = {}) {
+    const runtimeContext = await readFacebookRuntime(page, { surface: "business", timeout });
     let normalizedEmails, normalizedPages, normalizedAccounts, normalizedBusinessId;
     try {
-        const validationError = validateMutationInput(page, commonPayload);
+        const validationError = validateMutationInput(page, runtimeContext);
         if (validationError) throw new Error(validationError);
         if (new URL(page.url()).origin !== "https://business.facebook.com") {
             throw new Error("Потрібна сторінка business.facebook.com");
@@ -61,12 +63,12 @@ export default async function inviteBusinessUser({
             throw new Error("Потрібні роль ADMIN або EMPLOYEE та булевий financeAccess");
         }
         for (const field of ["av", "__user"]) {
-            if (!/^[1-9]\d*$/.test(String(commonPayload[field] ?? ""))) {
-                throw new Error(`Некоректне поле ${field} у commonPayload`);
+            if (!/^[1-9]\d*$/.test(String(runtimeContext[field] ?? ""))) {
+                throw new Error(`Некоректне поле ${field} у runtimeContext`);
             }
         }
         for (const field of ["fb_dtsg", "jazoest", "lsd", "__a", "__comet_req"]) {
-            if (!String(commonPayload[field] ?? "").trim()) throw new Error(`Порожнє поле ${field}`);
+            if (!String(runtimeContext[field] ?? "").trim()) throw new Error(`Порожнє поле ${field}`);
         }
         if (!Array.isArray(emails) || !emails.length || emails.some((email) =>
             typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))) {
@@ -87,7 +89,7 @@ export default async function inviteBusinessUser({
     try {
         const timezone = await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
         const variables = { input: {
-            actor_id: String(commonPayload.av),
+            actor_id: String(runtimeContext.av),
             client_mutation_id: randomUUID(),
             business_id: normalizedBusinessId,
             business_emails: normalizedEmails,
@@ -106,12 +108,12 @@ export default async function inviteBusinessUser({
             is_spark_permission: false,
             client_timezone_id: timezone,
         } };
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName, docId, variables, extraParameters: { __bid: normalizedBusinessId },
         });
         // Виконує одну спробу: після таймауту запрошення вже могло бути створене.
         const response = await postFacebookForm(page, {
-            body, friendlyName, lsd: commonPayload.lsd, timeout: normalizeTimeout(timeout),
+            body, friendlyName, timeout: normalizeTimeout(timeout),
         });
         if (response.requestError) return createResult(false,
             response.requestError === "TIMEOUT" ? inviteBusinessUserStatuses.REQUEST_TIMEOUT

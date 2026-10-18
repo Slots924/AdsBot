@@ -1,3 +1,4 @@
+import { withFacebookRuntime } from "./helpers/facebookRuntimePage.js";
 import assert from "node:assert/strict";
 
 import switchToAdditionalProfile, {
@@ -5,7 +6,7 @@ import switchToAdditionalProfile, {
 } from "../facebook/api-actions/pages/switchToAdditionalProfile.js";
 
 
-const commonPayload = {
+const runtimeFixture = {
     av: "61593928954145",
     __user: "61593928954145",
     __a: "1",
@@ -24,13 +25,13 @@ const commonPayload = {
 function createPage(response) {
     const calls = [];
 
-    return {
+    return withFacebookRuntime({
         calls,
         async evaluate(_callback, argumentsObject) {
             calls.push(argumentsObject);
             return response;
         },
-    };
+    }, { surface: "facebook", runtime: runtimeFixture });
 }
 
 
@@ -41,7 +42,6 @@ const page = createPage({
 });
 const result = await switchToAdditionalProfile({
     page,
-    commonPayload,
     additionalProfileId: "61594979545862",
 });
 
@@ -65,7 +65,6 @@ assert.deepEqual(JSON.parse(requestParameters.get("variables")), {
 
 const invalidResult = await switchToAdditionalProfile({
     page: createPage({ ok: true, statusCode: 200, body: "" }),
-    commonPayload,
     additionalProfileId: "",
 });
 

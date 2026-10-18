@@ -1,10 +1,11 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     createResult,
     hasGraphqlErrors,
     normalizeTimeout,
     parseFacebookJson,
     postFacebookForm,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const friendlyName = "BizKitSettingsRequestAdAccountAccessMutation";
@@ -40,6 +41,8 @@ export default async function requestAdAccountAccess({
     businessId = defaultBusinessId,
     timeout,
 }) {
+    const context = await readFacebookRuntime(page, { surface: "business", timeout });
+    if (context.runtimeError) return createResult(false, requestAdAccountAccessStatuses.RUNTIME_DATA_UNAVAILABLE);
     const accountId = String(adAccountId ?? "").trim().replace(/^act_/, "");
     const requestingBusinessId = String(businessId ?? "").trim();
     const pageUrl = typeof page?.url === "function" ? page.url() : "";
@@ -58,31 +61,17 @@ export default async function requestAdAccountAccess({
     }
 
     try {
-        // Зчитує одноразові значення лише з активної Facebook-сторінки.
-        const runtime = await page.evaluate(() => {
-            try {
-                const actorId = String(require("CurrentUserInitialData").USER_ID ?? "");
-                const fbDtsg = String(require("DTSGInitialData").token ?? "");
-                const lsd = String(require("LSD").token ?? "");
-                return { actorId, fbDtsg, lsd };
-            } catch {
-                return null;
-            }
-        });
-        if (!/^\d+$/.test(runtime?.actorId ?? "") || !runtime?.fbDtsg || !runtime?.lsd) {
-            return createResult(false, requestAdAccountAccessStatuses.RUNTIME_DATA_UNAVAILABLE);
-        }
-
+        const runtime = { actorId: context.av, fbDtsg: context.fb_dtsg, lsd: context.lsd };
         const jazoest = `2${[...runtime.fbDtsg].reduce((sum, character) =>
             sum + character.charCodeAt(0), 0)}`;
         const body = new URLSearchParams({
             av: runtime.actorId,
-            __user: runtime.actorId,
+            __user: context.__user,
             __a: "1",
             __bid: requestingBusinessId,
             fb_dtsg: runtime.fbDtsg,
-            jazoest,
             lsd: runtime.lsd,
+            jazoest,
             fb_api_caller_class: "RelayModern",
             fb_api_req_friendly_name: friendlyName,
             server_timestamps: "true",
@@ -101,7 +90,6 @@ export default async function requestAdAccountAccess({
         const response = await postFacebookForm(page, {
             body,
             friendlyName,
-            lsd: runtime.lsd,
             timeout: normalizeTimeout(timeout),
         });
 

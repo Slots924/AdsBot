@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const inviteFriendlyName = "ProfilePlusCoreAppAdminInviteMutation";
@@ -31,14 +32,14 @@ export const inviteAdditionalProfileAdminStatuses = Object.freeze({
 // Перед викликом Facebook-сесія має бути вже reauthed, якщо цього вимагає поточний Page Plus flow.
 export default async function inviteAdditionalProfileAdmin({
     page,
-    commonPayload,
     additionalProfileId,
     targetUserId,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const normalizedAdditionalProfileId = String(additionalProfileId ?? "").trim();
     const normalizedTargetUserId = String(targetUserId ?? "").trim();
 
@@ -47,13 +48,19 @@ export default async function inviteAdditionalProfileAdmin({
         return createResult(false, inviteAdditionalProfileAdminStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : "Потрібні числові additionalProfileId і targetUserId"),
         });
     }
 
+    if (String(runtimeContext.av) !== normalizedAdditionalProfileId) {
+        return createResult(false, inviteAdditionalProfileAdminStatuses.INVALID_INPUT, null, {
+            error: "Поточний Facebook actor не відповідає additionalProfileId",
+        });
+    }
+
     try {
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: inviteFriendlyName,
             docId: inviteDocId,
             variables: {
@@ -67,16 +74,15 @@ export default async function inviteAdditionalProfileAdmin({
                 scale: 1,
             },
             extraParameters: {
-                __spin_r: commonPayload.__spin_r,
-                __spin_b: commonPayload.__spin_b,
-                __spin_t: commonPayload.__spin_t,
-                __crn: commonPayload.__crn,
+                __spin_r: runtimeContext.__spin_r,
+                __spin_b: runtimeContext.__spin_b,
+                __spin_t: runtimeContext.__spin_t,
+                __crn: runtimeContext.__crn,
             },
         });
         const response = await postFacebookForm(page, {
             body,
             friendlyName: inviteFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
 

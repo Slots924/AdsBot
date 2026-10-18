@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 import {
     getWorkMutationValidationError,
     workExperienceRouteName,
@@ -32,16 +33,16 @@ export const deleteWorkExperienceStatuses = Object.freeze({
 // Видаляє Work Experience за його ID, а не за ID компанії чи посади.
 export default async function deleteWorkExperience({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     workExperienceID,
     navChain,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     const workValidationError = getWorkMutationValidationError(
-        commonPayload
+        runtimeContext
     );
     if (
         validationError
@@ -67,7 +68,7 @@ export default async function deleteWorkExperience({
         input: {
             entid: String(workExperienceID),
             field_type: "work",
-            actor_id: String(commonPayload.__user),
+            actor_id: String(runtimeContext.__user),
             client_mutation_id: "2",
         },
         scale: 1,
@@ -84,14 +85,14 @@ export default async function deleteWorkExperience({
             nav_chain: navChain.trim(),
         };
     }
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName,
         docId,
         variables,
         extraParameters: {
-            __spin_r: commonPayload.__spin_r,
-            __spin_b: commonPayload.__spin_b,
-            __spin_t: commonPayload.__spin_t,
+            __spin_r: runtimeContext.__spin_r,
+            __spin_b: runtimeContext.__spin_b,
+            __spin_t: runtimeContext.__spin_t,
             __crn: workExperienceRouteName,
         },
     });
@@ -100,7 +101,6 @@ export default async function deleteWorkExperience({
         const response = await postFacebookForm(page, {
             body,
             friendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
         if (response.requestError === "TIMEOUT") {

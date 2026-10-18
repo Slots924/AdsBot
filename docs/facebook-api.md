@@ -1,5 +1,7 @@
 # Facebook Graph API
 
+Контракт браузерних API-екшинів, отримання runtime та збережені винятки описані в [Facebook browser runtime](facebook-browser-runtime.md).
+
 ## Puppeteer: пости особистого профілю з вибраними датами
 
 `publishFacebookPersonalProfileMediaPostsWithDates(page, options)` обробляє

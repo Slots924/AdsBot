@@ -3,8 +3,6 @@ import "dotenv/config";
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "../../classes/AdsPower.js";
-import captureGraphqlPayload
-    from "../../facebook/api-actions/captureGraphqlPayload.js";
 import getAboutSectionTokens
     from "../../facebook/api-actions/getAboutSectionTokens.js";
 import updateBio from "../../facebook/api-actions/updateBio.js";
@@ -64,17 +62,10 @@ async function main() {
         });
         const page = (await browser.pages())[0] ?? await browser.newPage();
 
-        const payloadResult = await captureGraphqlPayload(page, {
-            timeout: actionTimeout,
-        });
-        printResult("Захоплення актуального Facebook payload", payloadResult);
-        if (!payloadResult.success) {
-            throw new Error(payloadResult.error ?? payloadResult.status);
-        }
+
 
         const tokensResult = await getAboutSectionTokens({
             page,
-            commonPayload: payloadResult.data,
             sections: [bioSection],
             timeout: actionTimeout,
         });
@@ -86,7 +77,6 @@ async function main() {
 
         const bioResult = await updateBio({
             page,
-            commonPayload: payloadResult.data,
             collectionToken: bioTokens.collectionToken,
             sectionToken: bioTokens.sectionToken,
             value: "",

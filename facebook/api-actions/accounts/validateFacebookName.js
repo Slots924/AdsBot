@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const accountsCenterGraphqlEndpoint = "https://accountscenter.facebook.com/api/graphql/";
@@ -40,13 +41,13 @@ function normalizeMiddleName(value) {
 // Перевіряє нове ім'я в Accounts Center без жодної зміни даних профілю.
 export default async function validateFacebookName({
     page,
-    commonPayload,
     firstName,
     middleName = "",
     lastName,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "accountsCenter", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     const normalizedFirstName = normalizeRequiredNamePart(firstName);
     const normalizedMiddleName = normalizeMiddleName(middleName);
     const normalizedLastName = normalizeRequiredNamePart(lastName);
@@ -60,13 +61,13 @@ export default async function validateFacebookName({
 
     try {
         const normalizedTimeout = normalizeTimeout(timeout);
-        const profileId = String(commonPayload.__user);
+        const profileId = String(runtimeContext.__user);
         const requestedName = {
             firstName: normalizedFirstName,
             middleName: normalizedMiddleName,
             lastName: normalizedLastName,
         };
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: nameValidatorFriendlyName,
             docId: nameValidatorDocId,
             variables: {
@@ -84,7 +85,6 @@ export default async function validateFacebookName({
         const response = await postFacebookForm(page, {
             body,
             friendlyName: nameValidatorFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizedTimeout,
             endpoint: accountsCenterGraphqlEndpoint,
         });

@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "./common.js";
+} from "../../api/browserRequest.js";
 
 
 const friendlyName = "useProfileCometDirectoryTypeaheadDataSourceQuery";
@@ -63,11 +64,11 @@ function collectCollegeOptions(value, options = [], seen = new Set()) {
 // Шукає College через Facebook typeahead.
 export default async function searchCollege({
     page,
-    commonPayload,
     query,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     if (validationError) {
         return createResult(false, searchCollegeStatuses.INVALID_INPUT, null, {
             error: validationError,
@@ -84,7 +85,7 @@ export default async function searchCollege({
         search_category: "COLLEGE",
         query: query.trim(),
     };
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName,
         docId,
         variables,
@@ -94,7 +95,6 @@ export default async function searchCollege({
         const response = await postFacebookForm(page, {
             body,
             friendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
 

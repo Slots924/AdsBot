@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -8,7 +9,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const accountsCenterGraphqlEndpoint = "https://accountscenter.facebook.com/api/graphql/";
@@ -60,14 +61,14 @@ function normalizeConfirmation(updateResult) {
 // Змінює ім'я поточного профілю через Accounts Center після окремої перевірки правил імені.
 export default async function changeFacebookName({
     page,
-    commonPayload,
     firstName,
     middleName = "",
     lastName,
     clientMutationId = randomUUID(),
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "accountsCenter", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     const normalizedFirstName = normalizeRequiredNamePart(firstName);
     const normalizedMiddleName = normalizeMiddleName(middleName);
     const normalizedLastName = normalizeRequiredNamePart(lastName);
@@ -89,7 +90,7 @@ export default async function changeFacebookName({
 
     try {
         const normalizedTimeout = normalizeTimeout(timeout);
-        const profileId = String(commonPayload.__user);
+        const profileId = String(runtimeContext.__user);
         const requestedName = {
             firstName: normalizedFirstName,
             middleName: normalizedMiddleName,
@@ -100,7 +101,7 @@ export default async function changeFacebookName({
             requestedName.middleName,
             requestedName.lastName,
         ].filter(Boolean).join(" ");
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: updateNameFriendlyName,
             docId: updateNameDocId,
             variables: {
@@ -120,7 +121,6 @@ export default async function changeFacebookName({
         const response = await postFacebookForm(page, {
             body,
             friendlyName: updateNameFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizedTimeout,
             endpoint: accountsCenterGraphqlEndpoint,
         });

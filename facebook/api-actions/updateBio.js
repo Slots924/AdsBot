@@ -1,4 +1,5 @@
-const graphqlEndpoint = "/api/graphql/";
+import { postFacebookForm, parseFacebookJson } from "../api/browserRequest.js";
+import { readFacebookRuntime } from "../api/runtime.js";
 const bioFriendlyName = "ProfileCometBioFieldSaveMutation";
 const bioDocId = "28830271826608945";
 const bioSectionType = "DIRECTORY_BIO";
@@ -28,13 +29,13 @@ function createResult(success, status, data = null, extra = {}) {
 
 
 // Перевіряє, що всі параметри, необхідні для Bio mutation, передані.
-function validateInput({ page, commonPayload, collectionToken, sectionToken, value }) {
+function validateInput({ page, runtimeContext, collectionToken, sectionToken, value }) {
     if (!page || typeof page.evaluate !== "function") {
         return "Не передано Puppeteer page";
     }
 
-    if (!commonPayload || typeof commonPayload !== "object") {
-        return "Не передано commonPayload";
+    if (!runtimeContext || typeof runtimeContext !== "object") {
+        return "Не передано runtimeContext";
     }
 
     const requiredPayloadFields = [
@@ -48,12 +49,12 @@ function validateInput({ page, commonPayload, collectionToken, sectionToken, val
     ];
 
     const missingField = requiredPayloadFields.find(
-        (field) => commonPayload[field] === undefined
-            || commonPayload[field] === null
+        (field) => runtimeContext[field] === undefined
+            || runtimeContext[field] === null
     );
 
     if (missingField) {
-        return `У commonPayload відсутнє поле ${missingField}`;
+        return `У runtimeContext відсутнє поле ${missingField}`;
     }
 
     if (typeof collectionToken !== "string" || !collectionToken) {
@@ -75,15 +76,15 @@ function validateInput({ page, commonPayload, collectionToken, sectionToken, val
 // Оновлює Bio профілю через ProfileCometBioFieldSaveMutation.
 export default async function updateBio({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     value,
     timeout = defaultTimeoutMs,
 }) {
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
     const validationError = validateInput({
         page,
-        commonPayload,
+        runtimeContext,
         collectionToken,
         sectionToken,
         value,
@@ -108,7 +109,7 @@ export default async function updateBio({
         input: {
             bio: value,
             profile_field_section_type: bioSectionType,
-            actor_id: commonPayload.__user,
+            actor_id: runtimeContext.__user,
             client_mutation_id: "1",
         },
         scale: 1,
@@ -117,13 +118,13 @@ export default async function updateBio({
 
     // Усі параметри передаються у форматі application/x-www-form-urlencoded.
     const requestBody = new URLSearchParams({
-        av: String(commonPayload.av),
-        __user: String(commonPayload.__user),
-        __a: String(commonPayload.__a),
-        fb_dtsg: String(commonPayload.fb_dtsg),
-        jazoest: String(commonPayload.jazoest),
-        lsd: String(commonPayload.lsd),
-        __comet_req: String(commonPayload.__comet_req),
+        av: String(runtimeContext.av),
+        __user: String(runtimeContext.__user),
+        __a: String(runtimeContext.__a),
+        fb_dtsg: String(runtimeContext.fb_dtsg),
+        jazoest: String(runtimeContext.jazoest),
+        lsd: String(runtimeContext.lsd),
+        __comet_req: String(runtimeContext.__comet_req),
         fb_api_caller_class: "RelayModern",
         server_timestamps: "true",
         fb_api_req_friendly_name: bioFriendlyName,
@@ -137,59 +138,13 @@ export default async function updateBio({
     try {
         // Запит виконується всередині Facebook-сторінки,
         // тому браузер автоматично використовує її cookies та сесію.
-        const response = await page.evaluate(
-            async ({ body, friendlyName, lsd, timeoutMs, endpoint }) => {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(
-                    () => controller.abort(),
-                    timeoutMs
-                );
-
-                try {
-                    const fetchResponse = await fetch(endpoint, {
-                        method: "POST",
-                        credentials: "include",
-                        headers: {
-                            "content-type": "application/x-www-form-urlencoded",
-                            "x-fb-friendly-name": friendlyName,
-                            "x-fb-lsd": lsd,
-                        },
-                        body,
-                        signal: controller.signal,
-                    });
-
-                    const responseText = await fetchResponse.text();
-                    let responseData = responseText;
-
-                    try {
-                        responseData = JSON.parse(responseText);
-                    } catch {
-                        // Якщо Facebook повернув не JSON, залишаємо raw-відповідь.
-                    }
-
-                    return {
-                        ok: fetchResponse.ok,
-                        statusCode: fetchResponse.status,
-                        data: responseData,
-                    };
-                } catch (error) {
-                    return {
-                        requestError: error?.name === "AbortError"
-                            ? "TIMEOUT"
-                            : String(error?.message ?? error),
-                    };
-                } finally {
-                    clearTimeout(timeoutId);
-                }
-            },
-            {
-                body: requestBody,
-                friendlyName: bioFriendlyName,
-                lsd: String(commonPayload.lsd),
-                timeoutMs: normalizedTimeout,
-                endpoint: graphqlEndpoint,
-            }
-        );
+        const response = await postFacebookForm(page, {
+            body: requestBody, friendlyName: bioFriendlyName, timeout: normalizedTimeout,
+        });
+        if (!response.requestError) {
+            try { response.data = parseFacebookJson(response.body); }
+            catch { response.data = response.body; }
+        }
 
         if (response.requestError === "TIMEOUT") {
             return createResult(

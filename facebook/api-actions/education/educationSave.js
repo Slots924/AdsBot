@@ -44,7 +44,7 @@ export function buildEducationInput({
 
 // Формує variables для Save mutation College.
 export function buildEducationSaveVariables({
-    commonPayload,
+    runtimeContext,
     collectionToken,
     sectionToken,
     schoolId,
@@ -54,14 +54,14 @@ export function buildEducationSaveVariables({
     return {
         collectionToken,
         input: buildEducationInput({
-            actorId: commonPayload.__user,
+            actorId: runtimeContext.__user,
             schoolId,
             schoolName,
             educationExperienceID,
         }),
         scale: 1,
         sectionToken,
-        profileID: String(commonPayload.__user),
+        profileID: String(runtimeContext.__user),
         educationExperienceID: educationExperienceID
             ? String(educationExperienceID)
             : null,

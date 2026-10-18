@@ -21,7 +21,6 @@ function createResult(success, status, data = {}, extra = {}) {
 // Послідовно видаляє звичайні пости та приховує системні пости аватарки й обкладинки.
 export default async function clearProfilePosts({
     page,
-    commonPayload,
     timeout,
     maxPasses = 3,
 } = {}) {
@@ -33,7 +32,6 @@ export default async function clearProfilePosts({
         for (let pass = 1; pass <= maxPasses; pass += 1) {
             const postsResult = await getManagePosts({
                 page,
-                commonPayload,
                 timeout,
                 omitPinnedPost: false,
             });
@@ -83,7 +81,6 @@ export default async function clearProfilePosts({
                 if (post.isSystem && post.canHide) {
                     const contextResult = await getPostHideContext({
                         page,
-                        commonPayload,
                         storyId: post.storyId,
                         timeout,
                     });
@@ -98,7 +95,6 @@ export default async function clearProfilePosts({
 
                     const hideResult = await hidePostFromTimeline({
                         page,
-                        commonPayload,
                         context: contextResult.data.context,
                         clientMutationId,
                         timeout,
@@ -118,7 +114,6 @@ export default async function clearProfilePosts({
                 if (!post.isSystem && post.canDelete) {
                     const deleteResult = await deletePost({
                         page,
-                        commonPayload,
                         storyId: post.storyId,
                         clientMutationId,
                         timeout,
@@ -145,7 +140,6 @@ export default async function clearProfilePosts({
 
         const finalResult = await getManagePosts({
             page,
-            commonPayload,
             timeout,
             omitPinnedPost: false,
         });

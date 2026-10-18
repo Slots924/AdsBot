@@ -1,4 +1,4 @@
-import { createResult } from "./common.js";
+import { createResult } from "../../api/browserRequest.js";
 import createEducation from "./createEducation.js";
 
 
@@ -29,7 +29,6 @@ function selectFallbackInstitution() {
 // Додає випадковий заклад із локального fallback-списку без пошуку typeahead.
 export default async function addFallbackEducation({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     timeout,
@@ -44,7 +43,6 @@ export default async function addFallbackEducation({
 
     const result = await createEducation({
         page,
-        commonPayload,
         collectionToken,
         sectionToken,
         schoolId: school.id,

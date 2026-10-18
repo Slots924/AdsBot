@@ -1,7 +1,8 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     createResult,
     normalizeTimeout,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const defaultTimeoutMs = 60000;
@@ -58,6 +59,8 @@ export default async function addCreditCardPaymentMethod({
     businessId = null,
     timeout = defaultTimeoutMs,
 }) {
+    const runtime = await readFacebookRuntime(page, { surface: "adsManager", timeout });
+    if (runtime.runtimeError) return createResult(false, addCreditCardPaymentMethodStatuses.RUNTIME_CONTEXT_UNAVAILABLE, null, { error: runtime.runtimeError });
     if (!page || typeof page.evaluate !== "function") {
         return createResult(false, addCreditCardPaymentMethodStatuses.INVALID_INPUT, null, {
             error: "Не передано Puppeteer page",

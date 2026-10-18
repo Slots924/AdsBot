@@ -7,7 +7,6 @@ import inviteBusinessUser from "../facebook/api-actions/ads-manager/inviteBusine
 
 const result = await inviteBusinessUser({
     page,
-    commonPayload,
     businessId: "456",
     emails: ["person@example.test"],
     role: "EMPLOYEE",
@@ -18,9 +17,9 @@ const result = await inviteBusinessUser({
 });
 ```
 
-Вхід: Puppeteer `page`, актуальний `commonPayload` з браузерної сесії БМ, `businessId` та непорожній масив `emails`. Необов'язкові поля: `role` (`EMPLOYEE` за замовчуванням або `ADMIN`), булевий `financeAccess` (за замовчуванням `true`), масиви `pageIds`, `adAccountIds` (за замовчуванням порожні) та `timeout`. Усі ID передаються рядками; префікс `act_` для РК дозволений. Повторні активи видаляються. Порожні масиви активів дозволяють запросити лише до БМ.
+Вхід: Puppeteer `page`, `businessId` та непорожній масив `emails`. Необов'язкові поля: `role` (`EMPLOYEE` за замовчуванням або `ADMIN`), булевий `financeAccess` (за замовчуванням `true`), масиви `pageIds`, `adAccountIds` (за замовчуванням порожні) та `timeout`. Усі ID передаються рядками; префікс `act_` для РК дозволений. Повторні активи видаляються. Порожні масиви активів дозволяють запросити лише до БМ.
 
-Із `commonPayload` відбираються лише `av`, `__user`, `__a`, `fb_dtsg`, `jazoest`, `lsd`, `__comet_req`. `actor_id` береться з `av`. `__bid` завжди формується з аргументу `businessId`. Інші поля перехопленого запиту не копіюються. Cookies підставляє браузер через `credentials: "include"`, часовий пояс читається з браузера. `doc_id` і friendly name задає action, `client_mutation_id` генерується для кожного виклику.
+Екшин готує `business.facebook.com` і самостійно читає `av`, `__user`, `__a`, `fb_dtsg`, `jazoest`, `lsd`, `__comet_req` із поточного runtime. `actor_id` береться з `av`. `__bid` завжди формується з аргументу `businessId`. Перехоплення та кешування мережевих запитів відсутні. Cookies підставляє браузер через `credentials: "include"`, часовий пояс читається з браузера. `doc_id` і friendly name задає action, `client_mutation_id` генерується для кожного виклику. Транспорт освіжає токени перед запитом і відхиляє зміну actor.
 
 Набори task ID відповідають наданим прикладам: `EMPLOYEE` з фінансами — три ID, `ADMIN` без фінансів — десять ID, фанки — одинадцять ID, РК — чотири ID. Спільний ID `926381894526285` використовується для `EMPLOYEE` без фінансів; два ID, наявні лише у першому прикладі, трактуються як фінансовий набір та додаються за `financeAccess: true`. Це висновок із порівняння прикладів, а не підтверджене зіставлення назв дозволів Facebook. Комбінації `EMPLOYEE` без фінансів та `ADMIN` з фінансами потребують перевірки реальним браузерним запитом.
 

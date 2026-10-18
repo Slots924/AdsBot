@@ -3,8 +3,6 @@ import "dotenv/config";
 import puppeteer from "puppeteer-core";
 
 import AdsPower from "../../classes/AdsPower.js";
-import captureGraphqlPayload
-    from "../../facebook/api-actions/captureGraphqlPayload.js";
 import changeProfilePicture
     from "../../facebook/api-actions/profile/changeProfilePicture.js";
 import ensureAdsPowerProfileReady
@@ -53,19 +51,11 @@ async function main() {
         });
         const page = (await browser.pages())[0] ?? await browser.newPage();
 
-        const payloadResult = await captureGraphqlPayload(page, {
-            timeout: actionTimeout,
-        });
-        console.log(`[AVATAR-TEST] captureGraphqlPayload: ${payloadResult.status}`);
-        if (!payloadResult.success) {
-            logAvatarError("captureGraphqlPayload", payloadResult);
-            throw new Error(payloadResult.error ?? payloadResult.status);
-        }
+
 
         console.log("[AVATAR-TEST] Запускаємо зміну аватарки", { imagePath });
         const result = await changeProfilePicture({
             page,
-            commonPayload: payloadResult.data,
             imagePath,
             timeout: actionTimeout,
         });

@@ -1,24 +1,21 @@
-import { hasGraphqlErrors, normalizeTimeout, parseFacebookJsonChunks } from "../education/common.js";
+import { readFacebookRuntime } from "../../api/runtime.js";
+import { hasGraphqlErrors, normalizeTimeout, parseFacebookJsonChunks } from "../../api/browserRequest.js";
 
 // TODO: При нагоді перевірити фактичну прив'язку номера окремим query.
 // Поки COMPLETE трактуємо як прив'язаний телефон, INCOMPLETE — як неприв'язаний.
 export default async function checkPhoneVerification({ page, adAccountId, timeout = 30000 }) {
+    const runtime = await readFacebookRuntime(page, { surface: "adsManager", timeout });
     const accountId = String(adAccountId ?? "").trim().replace(/^act_/, "");
     const unknown = { adAccountId: accountId, phoneStatus: "UNKNOWN", completionStatus: null };
+    if (runtime.runtimeError) return { ...unknown, reason: "SESSION_UNAVAILABLE" };
     let hostname = "";
     try { hostname = new URL(page?.url?.() ?? "").hostname; } catch {}
     if (typeof page?.evaluate !== "function" || hostname !== "adsmanager.facebook.com" || !/^\d+$/.test(accountId)) {
         return { ...unknown, reason: "INVALID_INPUT" };
     }
     try {
-        const response = await page.evaluate(async ({ accountId, timeoutMs }) => {
-            let fbDtsg;
-            let userId;
-            try {
-                fbDtsg = require("DTSGInitialData")?.token;
-                userId = require("CurrentUserInitialData")?.USER_ID;
-            } catch { return { reason: "SESSION_UNAVAILABLE" }; }
-            if (!fbDtsg || !userId) return { reason: "SESSION_UNAVAILABLE" };
+        const response = await page.evaluate(async ({ accountId, timeoutMs, runtime }) => {
+            const { fb_dtsg: fbDtsg, __user: userId } = runtime;
             const body = new URLSearchParams({
                 __aaid: accountId,
                 __user: String(userId),
@@ -43,7 +40,7 @@ export default async function checkPhoneVerification({ page, adAccountId, timeou
                 return { ok: result.ok, body: await result.text() };
             } catch { return { reason: "REQUEST_FAILED" }; }
             finally { clearTimeout(timer); }
-        }, { accountId, timeoutMs: normalizeTimeout(timeout) });
+        }, { accountId, timeoutMs: normalizeTimeout(timeout), runtime });
         if (!response?.ok) return { ...unknown, reason: response?.reason ?? "HTTP_ERROR" };
         const chunks = parseFacebookJsonChunks(response.body);
         if (chunks.some(hasGraphqlErrors)) return { ...unknown, reason: "GRAPHQL_ERROR" };

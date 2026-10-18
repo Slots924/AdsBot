@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "./common.js";
+} from "../../api/browserRequest.js";
 
 
 const friendlyName = "ProfileCometAboutAppSectionQuery";
@@ -102,14 +103,14 @@ function extractEducationExperiences(data) {
 // Отримує наявні College та їх EducationExperience ID через About App Section GraphQL query.
 export default async function getEducationExperiences({
     page,
-    commonPayload,
     collectionToken,
     sectionToken,
     rawSectionToken,
     relayVariables = {},
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
     if (
         validationError
         || !collectionToken
@@ -129,18 +130,18 @@ export default async function getEducationExperiences({
         );
     }
 
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload[field] === undefined || commonPayload[field] === null);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext[field] === undefined || runtimeContext[field] === null);
     if (missingRequestField) {
         return createResult(
             false,
             getEducationExperiencesStatuses.INVALID_INPUT,
             null,
-            { error: `У commonPayload відсутнє поле ${missingRequestField}` }
+            { error: `У runtimeContext відсутнє поле ${missingRequestField}` }
         );
     }
 
-    const profileId = String(commonPayload.__user);
+    const profileId = String(runtimeContext.__user);
     const variables = {
         ...defaultRelayVariables,
         ...relayVariables,
@@ -154,15 +155,15 @@ export default async function getEducationExperiences({
         showReactions: true,
         userID: profileId,
     };
-    const body = buildMutationBody(commonPayload, {
+    const body = buildMutationBody(runtimeContext, {
         friendlyName,
         docId,
         variables,
         extraParameters: {
-            __spin_r: commonPayload.__spin_r,
-            __spin_b: commonPayload.__spin_b,
-            __spin_t: commonPayload.__spin_t,
-            __crn: commonPayload.__crn,
+            __spin_r: runtimeContext.__spin_r,
+            __spin_b: runtimeContext.__spin_b,
+            __spin_t: runtimeContext.__spin_t,
+            __crn: runtimeContext.__crn,
         },
     });
 
@@ -170,7 +171,6 @@ export default async function getEducationExperiences({
         const response = await postFacebookForm(page, {
             body,
             friendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
 

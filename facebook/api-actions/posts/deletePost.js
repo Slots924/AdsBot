@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const deletePostFriendlyName = "useCometTrashPostMutation";
@@ -28,19 +29,19 @@ export const deletePostStatuses = Object.freeze({
 // Переміщує існуючий пост поточного Facebook-профілю до кошика за його GraphQL story ID.
 export default async function deletePost({
     page,
-    commonPayload,
     storyId,
     clientMutationId,
     qplActiveFlowIds = null,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload);
-    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t", "__crn"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+    const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
+    const validationError = validateMutationInput(page, runtimeContext);
+    const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const normalizedStoryId = String(storyId ?? "").trim();
     const normalizedClientMutationId = String(clientMutationId ?? "").trim();
     const normalizedQplActiveFlowIds = String(
-        qplActiveFlowIds ?? commonPayload?.qpl_active_flow_ids ?? ""
+        qplActiveFlowIds ?? runtimeContext?.qpl_active_flow_ids ?? ""
     ).trim();
 
     if (
@@ -52,7 +53,7 @@ export default async function deletePost({
         return createResult(false, deletePostStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : (!normalizedStoryId
                         ? "Потрібен GraphQL storyId поста"
                         : "Потрібен clientMutationId поточного workflow")),
@@ -60,13 +61,13 @@ export default async function deletePost({
     }
 
     try {
-        const profileId = String(commonPayload.__user);
+        const profileId = String(runtimeContext.__user);
         const normalizedTimeout = normalizeTimeout(timeout);
         const extraParameters = {
-            __spin_r: commonPayload.__spin_r,
-            __spin_b: commonPayload.__spin_b,
-            __spin_t: commonPayload.__spin_t,
-            __crn: commonPayload.__crn,
+            __spin_r: runtimeContext.__spin_r,
+            __spin_b: runtimeContext.__spin_b,
+            __spin_t: runtimeContext.__spin_t,
+            __crn: runtimeContext.__crn,
         };
         if (normalizedQplActiveFlowIds) {
             extraParameters.qpl_active_flow_ids = normalizedQplActiveFlowIds;
@@ -75,7 +76,7 @@ export default async function deletePost({
             ]);
         }
 
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: deletePostFriendlyName,
             docId: deletePostDocId,
             variables: {
@@ -91,7 +92,6 @@ export default async function deletePost({
         const response = await postFacebookForm(page, {
             body,
             friendlyName: deletePostFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizedTimeout,
         });
 

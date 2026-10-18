@@ -1,3 +1,4 @@
+import { readFacebookRuntime } from "../../api/runtime.js";
 import {
     buildMutationBody,
     createResult,
@@ -6,7 +7,7 @@ import {
     parseFacebookJson,
     postFacebookForm,
     validateMutationInput,
-} from "../education/common.js";
+} from "../../api/browserRequest.js";
 
 
 const billingAccountInformationFriendlyName = "BillingAccountInformationScreenQuery";
@@ -73,26 +74,26 @@ function parseBillingAccountInformation(data, paymentAccountId) {
 // Зчитує billing tax info рекламного акаунта без будь-яких змін на стороні Meta.
 export default async function checkBillingAccountInformation({
     page,
-    commonPayload,
     paymentAccountId,
     timeout,
 }) {
-    const validationError = validateMutationInput(page, commonPayload, { requireAv: false });
+    const runtimeContext = await readFacebookRuntime(page, { surface: "adsManager", timeout });
+    const validationError = validateMutationInput(page, runtimeContext, { requireAv: false });
     const missingRequestField = ["__spin_r", "__spin_b", "__spin_t"]
-        .find((field) => commonPayload?.[field] === undefined || commonPayload[field] === null);
+        .find((field) => runtimeContext?.[field] === undefined || runtimeContext[field] === null);
     const normalizedPaymentAccountId = String(paymentAccountId ?? "").trim();
 
     if (validationError || missingRequestField || !normalizedPaymentAccountId) {
         return createResult(false, checkBillingAccountInformationStatuses.INVALID_INPUT, null, {
             error: validationError
                 ?? (missingRequestField
-                    ? `У commonPayload відсутнє поле ${missingRequestField}`
+                    ? `У runtimeContext відсутнє поле ${missingRequestField}`
                     : "Потрібен paymentAccountId"),
         });
     }
 
     try {
-        const body = buildMutationBody(commonPayload, {
+        const body = buildMutationBody(runtimeContext, {
             friendlyName: billingAccountInformationFriendlyName,
             docId: billingAccountInformationDocId,
             variables: {
@@ -100,17 +101,16 @@ export default async function checkBillingAccountInformation({
             },
             extraParameters: {
                 __aaid: normalizedPaymentAccountId,
-                __spin_r: commonPayload.__spin_r,
-                __spin_b: commonPayload.__spin_b,
-                __spin_t: commonPayload.__spin_t,
-                __crn: commonPayload.__crn,
+                __spin_r: runtimeContext.__spin_r,
+                __spin_b: runtimeContext.__spin_b,
+                __spin_t: runtimeContext.__spin_t,
+                __crn: runtimeContext.__crn,
                 ads_manager_write_regions: "true",
             },
         });
         const response = await postFacebookForm(page, {
             body,
             friendlyName: billingAccountInformationFriendlyName,
-            lsd: commonPayload.lsd,
             timeout: normalizeTimeout(timeout),
         });
 
