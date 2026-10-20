@@ -1,4 +1,8 @@
 export default {
+    nameChange: {
+        firstName: ["Имя"],
+        lastName: ["Фамилия"],
+    },
     // Англійський текст підтверджено відповіддю Facebook; інші варіанти потребують живої перевірки.
     pageNameChange: { nameNotAllowed: ["Создание контента с этим именем запрещено"] },
     login: {

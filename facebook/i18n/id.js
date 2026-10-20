@@ -1,4 +1,8 @@
 export default {
+    nameChange: {
+        firstName: ["Nama depan"],
+        lastName: ["Nama belakang"],
+    },
     // Англійський текст підтверджено відповіддю Facebook; інші варіанти потребують живої перевірки.
     pageNameChange: { nameNotAllowed: ["Membuat konten dengan nama ini tidak diizinkan"] },
     login: {

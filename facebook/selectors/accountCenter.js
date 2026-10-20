@@ -26,7 +26,7 @@ export const facebookNameChangeSelectors = {
         + '[aria-hidden="false"]',
     /** Будь-яке модальне вікно налаштування імені. */
     anyNameDialog:
-        'div[aria-label="Name"][aria-modal="true"][role="dialog"]',
+        'div[aria-label="Name" i][aria-modal="true"][role="dialog"]',
     /** Модальне вікно результату зі зв’язаним заголовком. */
     anyDialog:
         'div[role="dialog"][aria-modal="true"][aria-labelledby]',

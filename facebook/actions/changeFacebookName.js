@@ -2,6 +2,7 @@ import {
     clickUntilConfirmed,
     clickWhenStable,
     describeLocator,
+    waitForDomQuiet,
 } from "../browser/confirmedClick.js";
 import {
     getFirstVisibleElement,
@@ -10,6 +11,7 @@ import {
 import { humanClickElement as browserHumanClickElement } from "../browser/pointer.js";
 import { waitRandom as waitRandomDelay } from "../browser/timing.js";
 import { facebookNameChangeSelectors as selectors } from "../selectors/accountCenter.js";
+import { facebookTranslations } from "../i18n/index.js";
 
 
 const PROFILES_URL = "https://accountscenter.facebook.com/profiles";
@@ -66,6 +68,10 @@ function createErrorDetails(error, fallback = {}) {
 
 
 function emitLog(logger, level, event, message, fields = {}) {
+    const completed = event === "facebook.name_change.completed";
+    if (typeof logger?.child !== "function" && !completed) {
+        return;
+    }
     const method = logger?.[level];
 
     if (typeof method !== "function") {
@@ -74,14 +80,13 @@ function emitLog(logger, level, event, message, fields = {}) {
 
     try {
         if (typeof logger.child === "function") {
-            method.call(logger, event, message, fields);
+            method.call(logger, event, message, fields, { userVisible: completed });
             return;
         }
 
         method.call(
             logger,
-            `[changeFacebookName] [${fields.stage ?? "UNKNOWN"}] ${message}`,
-            fields
+            message
         );
     } catch {
         // Помилка журналювання не повинна зупиняти Facebook action
@@ -379,15 +384,37 @@ async function humanClickSelector(
 }
 
 
-async function getNameInput(page, labelText) {
-    const handle = await page.evaluateHandle((text) => {
-        const label = Array.from(document.querySelectorAll("label"))
-            .find((element) => element.textContent?.trim() === text);
+// Функція виконується в браузері й повторно використовується для очікування та пошуку.
+export function findNameInputInPage(dialogSelector, labelTexts) {
+    const normalize = (text) => String(text ?? "")
+        .replace(/\s+/g, " ").trim().toLowerCase();
+    const isVisible = (element) => {
+        if (!element?.isConnected || element.closest('[aria-hidden="true"]')) return false;
+        const box = element.getBoundingClientRect();
+        const style = window.getComputedStyle(element);
+        return box.width > 0 && box.height > 0
+            && style.display !== "none" && style.visibility !== "hidden"
+            && style.opacity !== "0";
+    };
+    const expected = labelTexts.map(normalize);
+    for (const dialog of document.querySelectorAll(dialogSelector)) {
+        if (!isVisible(dialog)) continue;
+        for (const label of dialog.querySelectorAll("label")) {
+            if (!expected.includes(normalize(label.textContent))) continue;
+            const input = label.control;
+            if (input?.tagName === "INPUT" && input.type === "text"
+                && dialog.contains(input) && isVisible(input)
+                && !input.disabled && !input.readOnly) return input;
+        }
+    }
+    return null;
+}
 
-        return label?.htmlFor
-            ? document.getElementById(label.htmlFor)
-            : null;
-    }, labelText);
+
+async function getNameInput(page, labelTexts) {
+    const handle = await page.evaluateHandle(
+        findNameInputInPage, selectors.anyNameDialog, labelTexts
+    );
     const element = handle.asElement();
 
     if (!element) {
@@ -401,13 +428,14 @@ async function getNameInput(page, labelText) {
 
 async function humanTypeInput(
     page,
-    labelText,
+    labelTexts,
     value,
     report,
     stage
 ) {
+    const labelText = labelTexts.join(" / ");
     const selectorDescription =
-        `label[textContent="${labelText}"] -> #htmlFor`;
+        `${selectors.anyNameDialog} label[text="${labelText}"] -> control`;
     const timeout = 30000;
 
     report(stage, `Шукаємо поле за label «${labelText}»`, {
@@ -419,15 +447,9 @@ async function humanTypeInput(
     let labelHandle;
 
     try {
-        labelHandle = await page.waitForFunction((text) => {
-            const label = Array.from(document.querySelectorAll("label"))
-                .find((element) => element.textContent?.trim() === text);
-            const input = label?.htmlFor
-                ? document.getElementById(label.htmlFor)
-                : null;
-
-            return Boolean(input);
-        }, { timeout }, labelText);
+        labelHandle = await page.waitForFunction(
+            findNameInputInPage, { timeout }, selectors.anyNameDialog, labelTexts
+        );
     } catch (error) {
         throw new FacebookNameChangeError(
             `Не знайдено поле «${labelText}»`,
@@ -444,7 +466,21 @@ async function humanTypeInput(
 
     await labelHandle.dispose();
 
-    const target = await getNameInput(page, labelText);
+    const stable = await waitForDomQuiet(page, { selector: selectors.anyNameDialog }, {
+        quietMs: 300,
+        timeout,
+    });
+    if (!stable) {
+        throw new FacebookNameChangeError(`Форма поля «${labelText}» не стабілізувалася`, {
+            code: "FACEBOOK_NAME_DOM_NOT_STABLE",
+            stage,
+            selector: selectorDescription,
+            timeoutMs: timeout,
+            url: page.url(),
+        });
+    }
+
+    const target = await getNameInput(page, labelTexts);
 
     if (!target) {
         throw new FacebookNameChangeError(
@@ -615,7 +651,7 @@ export default async function changeFacebookName(
         message,
         details = null,
         {
-            level = "info",
+            level = "debug",
             event = "facebook.name_change.step",
         } = {}
     ) => {
@@ -649,7 +685,13 @@ export default async function changeFacebookName(
 
         report(
             stage,
-            `Зміна імені завершена зі статусом ${status}`,
+            success
+                ? "Ім’я та прізвище змінено"
+                : `Не вдалося змінити ім’я та прізвище: ${extra.error?.message ?? ({
+                    RECENTLY_CHANGED: "ім’я вже змінювали протягом останніх 60 днів",
+                    UNUSUAL_DEVICE: "Facebook обмежив зміну з незвичного пристрою",
+                    WHATSAPP_REQUIRED: "потрібне підтвердження через WhatsApp",
+                }[status] ?? status)}`,
             {
                 status,
                 success,
@@ -902,7 +944,7 @@ export default async function changeFacebookName(
         stage = "FILL_NAME";
         await humanTypeInput(
             page,
-            "First name",
+            facebookTranslations.en.nameChange.firstName,
             normalizedFirstName,
             report,
             stage
@@ -916,7 +958,7 @@ export default async function changeFacebookName(
         );
         await humanTypeInput(
             page,
-            "Last name",
+            facebookTranslations.en.nameChange.lastName,
             normalizedLastName,
             report,
             stage

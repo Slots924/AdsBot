@@ -53,6 +53,10 @@ function createGuiError(message, code) {
 
 
 function normalizeLogger(logger) {
+    if (typeof logger?.child === "function") {
+        return logger;
+    }
+
     return {
         info: typeof logger?.info === "function"
             ? logger.info.bind(logger)

@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "id": "f693ebe6-2857-49c5-a77d-13801003722a",
+  "taskId": "c3dcf2f1-7c7a-43ab-9079-42a77fd5ae5e",
+  "type": "account-setup",
+  "title": "Акаунти під коментарі · HU · 4",
+  "status": "interrupted",
+  "createdAt": "2026-10-20T16:37:36.013Z",
+  "startedAt": "2026-10-20T16:33:38.358Z",
+  "finishedAt": "2026-10-20T16:37:36.012Z",
+  "durationMs": 237654,
+  "inputSummary": {
+    "profileNos": [
+      "2390",
+      "2391",
+      "2392",
+      "2393"
+    ],
+    "geo": "HU",
+    "maleCount": 4,
+    "femaleCount": 0,
+    "namesGeo": "HU",
+    "companiesGeo": "HU",
+    "universitiesGeo": "HU",
+    "professionsGeo": "HU",
+    "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
+    "useApiRequests": false,
+    "profileNameNote": "New US",
+    "operations": {
+      "changeName": true,
+      "changeAvatar": true,
+      "changeCover": true,
+      "deletePosts": true,
+      "publishPosts": true,
+      "fillAbout": true
+    },
+    "browserMode": "visible",
+    "commentWorkerProxyIds": "[REDACTED]"
+  },
+  "resultSummary": {
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-20_19-37-36-010.md",
+    "fatalError": "Оформлення акаунтів перервано",
+    "interrupted": true
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Оформлення акаунтів перервано",
+      "code": "ACCOUNT_SETUP_ABORTED",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "httpStatus": null,
+      "requestId": null,
+      "traceId": null,
+      "metaRequestId": null,
+      "endpoint": null,
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": null,
+      "isTransient": false
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "2390",
+      "2391",
+      "2392",
+      "2393"
+    ],
+    "geo": "HU",
+    "browserMode": "visible",
+    "useApiRequests": false
+  }
+}

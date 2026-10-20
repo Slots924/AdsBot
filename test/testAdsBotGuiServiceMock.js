@@ -17,6 +17,17 @@ const temporaryDirectory = await mkdtemp(
 const groupsFile = path.join(temporaryDirectory, "groups.json");
 
 try {
+    // GUI має зберігати структурований контракт і дочірній контекст логера.
+    const loggerCalls = [];
+    const structuredLogger = {
+        child(scope) { return { scope }; },
+        info(...args) { loggerCalls.push(args); },
+    };
+    const loggingService = new AdsBotGuiService({ facebookBackend: {}, logger: structuredLogger });
+    assert.deepEqual(loggingService.logger.child("account.setup"), { scope: "account.setup" });
+    loggingService.logger.info("name.changed", "Ім’я змінено", { stage: "DONE" });
+    assert.deepEqual(loggerCalls, [["name.changed", "Ім’я змінено", { stage: "DONE" }]]);
+
     await writeFile(groupsFile, JSON.stringify({
         generated_at: "test",
         source: "profile-api-v2",
