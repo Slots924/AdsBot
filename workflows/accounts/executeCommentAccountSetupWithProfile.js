@@ -1,4 +1,5 @@
 import path from "node:path";
+import BrowserTrace from "../../services/logging/BrowserTrace.js";
 
 import puppeteer from "puppeteer-core";
 
@@ -94,6 +95,16 @@ function collectAboutFallback(aboutResult) {
         .filter(([, step]) => step?.success && step.fallback)
         .map(([field]) => field)
         .join(", ") || null;
+}
+
+function getAboutSteps(aboutResult) {
+    if (aboutResult?.steps) return aboutResult.steps;
+    return Object.fromEntries(Object.entries(aboutResult?.fields ?? {}).map(([field, step]) => [field, {
+        ...step,
+        success: ["UPDATED", "CLEARED", "FILLED", "SKIPPED"].includes(step.status),
+        skipped: step.status === "SKIPPED",
+        error: step.error?.message ?? step.error ?? null,
+    }]));
 }
 
 
@@ -226,17 +237,36 @@ export default async function executeCommentAccountSetupWithProfile({
     skipHumanDelays = false,
     skipBrowserWindowConfiguration = false,
     ignoreSkipReasons = false,
+    traceEnabled = true,
+    traceDirectory = "./data/browser-traces",
+    traceUiTexts = [],
     actions = {},
 } = {}) {
     const profileNo = String(profile?.profile_no ?? "невідомий");
-    const changeName = actions.changeName ?? changeFacebookName;
-    const changeAvatar = actions.changeAvatar ?? changeFacebookProfilePicture;
-    const changeCover = actions.changeCover ?? changeFacebookCoverPhoto;
-    const deletePosts = actions.deletePosts
-        ?? deleteAllFacebookPersonalProfilePosts;
-    const publishPosts = actions.publishPosts
-        ?? publishFacebookPersonalProfileMediaPostsWithDates;
-    const fillAbout = actions.fillAbout ?? fillFacebookPersonalProfileAbout;
+    const trace = new BrowserTrace({
+        enabled: traceEnabled, directory: traceDirectory, uiTexts: traceUiTexts,
+        sensitiveTexts: [persona, profile?.name,
+            ...String(profile?.name ?? "").split(/[^\p{L}\p{N}]+/u)],
+    });
+    const traced = (id, goal, action) => (targetPage, options = {}) => trace.step(
+        targetPage, { id, goal }, () => action(targetPage, {
+            ...options,
+            onProgress: async (event) => {
+                await trace.event("action.progress", { point: event.type,
+                    status: event.status, sequence: event.sequence });
+                await trace.observe(targetPage, { point: `${id}.${event.field ?? event.type}` });
+                await options.onProgress?.(event);
+            },
+        })
+    );
+    const changeName = traced("name", "Змінити ім’я", actions.changeName ?? changeFacebookName);
+    const changeAvatar = traced("avatar", "Змінити аватар", actions.changeAvatar ?? changeFacebookProfilePicture);
+    const changeCover = traced("cover", "Змінити обкладинку", actions.changeCover ?? changeFacebookCoverPhoto);
+    const deletePosts = traced("delete-posts", "Очистити старі пости",
+        actions.deletePosts ?? deleteAllFacebookPersonalProfilePosts);
+    const publishPosts = traced("publish-posts", "Опублікувати пости та змінити дати",
+        actions.publishPosts ?? publishFacebookPersonalProfileMediaPostsWithDates);
+    const fillAbout = traced("about", "Заповнити About", actions.fillAbout ?? fillFacebookPersonalProfileAbout);
     const openPage = actions.openPage ?? openPageWithoutPopups;
     const configureBrowserWindow = actions.configureBrowserWindow
         ?? configureFacebookAutomationWindow;
@@ -633,7 +663,6 @@ export default async function executeCommentAccountSetupWithProfile({
                     reason: "Аватар уже змінено, крок пропущено",
                 });
             } else {
-                if (!skipHumanDelays) await waitHuman("long", { random });
                 const avatarAttempt = await tryProfilePhoto({
                     changeFn: changeAvatar,
                     page,
@@ -658,7 +687,6 @@ export default async function executeCommentAccountSetupWithProfile({
                     reason: "Обкладинку вже змінено, крок пропущено",
                 });
             } else {
-                if (!skipHumanDelays) await waitHuman("long", { random });
                 const coverAttempt = await tryProfilePhoto({
                     changeFn: changeCover,
                     page,
@@ -783,6 +811,7 @@ export default async function executeCommentAccountSetupWithProfile({
             skipBio,
             logger,
         });
+        const aboutSteps = getAboutSteps(aboutResult);
         if (aboutResult?.success) {
             result.steps.about = createStep({
                 ok: true,
@@ -792,16 +821,16 @@ export default async function executeCommentAccountSetupWithProfile({
                     `${persona.work?.position} @ ${persona.work?.company}`,
                     persona.education,
                 ].filter(Boolean).join("; "),
-                fields: aboutResult.steps ?? null,
+                fields: aboutSteps,
                 fallback: collectAboutFallback(aboutResult),
             });
         } else {
             result.steps.about = createStep({
                 status: aboutResult?.status ?? null,
-                detail: Object.entries(aboutResult?.steps ?? {})
+                detail: Object.entries(aboutSteps)
                     .map(([field, step]) => `${field}: ${step.status}`)
                     .join("; ") || null,
-                fields: aboutResult?.steps ?? null,
+                fields: aboutSteps,
                 fallback: collectAboutFallback(aboutResult),
                 error: aboutResult?.error?.message
                     || aboutResult?.status
@@ -810,6 +839,7 @@ export default async function executeCommentAccountSetupWithProfile({
         }
         }
     } catch (error) {
+        if (page) await trace.failure(page, { point: result.stage, error });
         result.error = signal?.aborted
             ? "Оформлення акаунта перервано"
             : error.message;
@@ -898,6 +928,9 @@ export default async function executeCommentAccountSetupWithProfile({
                 result.steps.adsPowerNote = createStep({ error: error.message });
             }
             finalizeOutcome();
+        }
+        if (trace.steps.length || trace.failures.length) {
+            result.browserTracePath = await trace.finish(result.outcome);
         }
     }
 

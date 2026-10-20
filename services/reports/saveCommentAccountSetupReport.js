@@ -191,6 +191,9 @@ function buildProfileSection(item) {
     ]));
 
     const problem = profileProblem(item);
+    if (item.browserTracePath) {
+        lines.push("", `Журнал браузера: ${escapeText(item.browserTracePath)}`);
+    }
     if (problem) lines.push("", `> Причина: ${escapeText(problem)}`);
 
     return lines.join("\n");

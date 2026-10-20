@@ -1,4 +1,5 @@
 import path from "node:path";
+import { getBrowserTrace } from "../../services/logging/browserTraceContext.js";
 
 import loadImageFromPath from "../../services/images/loadImageFromPath.js";
 import {
@@ -10,7 +11,7 @@ import {
     waitForVisibleElement,
 } from "../browser/elements.js";
 import { humanClickElement } from "../browser/pointer.js";
-import { waitHuman } from "../browser/timing.js";
+import waitForUiReady from "../browser/waitForUiReady.js";
 import { modalDialogSelector } from "../selectors/overlays.js";
 import {
     chooseProfilePictureMenuItemSelector,
@@ -164,22 +165,6 @@ async function waitForVisible(
 }
 
 
-async function pauseAfterVisible(
-    preset,
-    report,
-    stage,
-    reason,
-    timingOptions
-) {
-    await waitHuman(preset, {
-        ...timingOptions,
-        onDelay: (delayMs) => report(
-            stage,
-            `Пауза ${delayMs} мс: ${reason}`,
-            { delayMs, reason }
-        ),
-    });
-}
 
 
 async function findVisibleElementByText(page, selector, expectedText) {
@@ -285,13 +270,7 @@ async function clickChooseProfilePictureMenuItem(
     }
 
     await element.dispose().catch(() => {});
-    await pauseAfterVisible(
-        "medium",
-        report,
-        stage,
-        "стабілізація React для menuitem «Choose profile picture»",
-        timingOptions
-    );
+    await waitForUiReady(page, chooseProfilePictureMenuItemSelector, { timeout });
     element = await findVisibleElementByText(
         page,
         chooseProfilePictureMenuItemSelector,
@@ -357,7 +336,6 @@ async function clickFreshVisibleElement(
         report,
         stage,
         description,
-        stabilization = "long",
         beforeDelay = [100, 260],
         timingOptions,
         attempt = 1,
@@ -376,13 +354,7 @@ async function clickFreshVisibleElement(
         stage
     );
     await initialElement.dispose().catch(() => {});
-    await pauseAfterVisible(
-        stabilization,
-        report,
-        stage,
-        `стабілізація React для «${description}»`,
-        timingOptions
-    );
+    await waitForUiReady(page, selector, { timeout });
 
     const element = await waitForVisible(
         page,
@@ -572,7 +544,6 @@ async function uploadPicture(
                     report,
                     stage,
                     description: "Upload Photo",
-                    stabilization: "medium",
                     timingOptions,
                     attempt,
                 }
@@ -625,6 +596,7 @@ async function uploadPicture(
 
             return;
         } catch (error) {
+            await getBrowserTrace(page)?.failure(page, { point: "avatar.upload", error });
             lastError = error instanceof FacebookAvatarChangeError
                 ? error
                 : new FacebookAvatarChangeError(
@@ -806,13 +778,7 @@ export default async function changeFacebookProfilePicture(
         });
 
         stage = "WAIT_CHOOSER_DIALOG";
-        await pauseAfterVisible(
-            "long",
-            report,
-            stage,
-            "повне завантаження діалогу Choose profile picture",
-            timingOptions
-        );
+        await waitForUiReady(page, chooseProfilePictureDialogSelector, { timeout });
 
         stage = "UPLOAD_PHOTO";
         await uploadPicture(page, absolutePath, {
@@ -822,13 +788,7 @@ export default async function changeFacebookProfilePicture(
         });
 
         stage = "WAIT_PREVIEW";
-        await pauseAfterVisible(
-            "veryLong",
-            report,
-            stage,
-            "завантаження preview і скриптів crop",
-            timingOptions
-        );
+        await waitForUiReady(page, saveProfilePictureButtonSelector, { timeout });
 
         stage = "SAVE";
         await clickFreshVisibleElement(
@@ -839,8 +799,7 @@ export default async function changeFacebookProfilePicture(
                 report,
                 stage,
                 description: "Save",
-                stabilization: "medium",
-                beforeDelay: [1500, 3000],
+                beforeDelay: [100, 260],
                 timingOptions,
                 attempt: 1,
             }

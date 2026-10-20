@@ -1,6 +1,6 @@
 ﻿import { waitForVisibleElement } from "../browser/elements.js";
 import { humanClickElement } from "../browser/pointer.js";
-import { waitHuman } from "../browser/timing.js";
+import waitForUiReady from "../browser/waitForUiReady.js";
 
 
 function normalizeText(value) {
@@ -26,12 +26,11 @@ export async function clickModalSelector(
     page,
     selector,
     timeout,
-    timingOptions,
-    stabilization = "medium"
+    timingOptions
 ) {
     const initial = await waitForVisibleElement(page, selector, { timeout });
     await initial.dispose().catch(() => {});
-    await waitHuman(stabilization, timingOptions);
+    await waitForUiReady(page, selector, { timeout });
     const fresh = await waitForVisibleElement(page, selector, { timeout });
     await clickHandle(page, fresh, timingOptions);
 }
@@ -71,7 +70,7 @@ export async function clickModalButtonByText(
         expected,
         match
     );
-    await waitHuman("medium", timingOptions);
+    await waitForUiReady(page, selector, { timeout, expectedText, textMatch: match });
     const handle = await page.evaluateHandle((targetSelector, targetText, matchMode) => {
         return Array.from(document.querySelectorAll(targetSelector)).find(
             (element) => {
@@ -141,7 +140,7 @@ export async function clickDialogSpanParent(
         spanSelector,
         expected
     );
-    await waitHuman("medium", timingOptions);
+    await waitForUiReady(page, spanSelector, { timeout, expectedText });
     const handle = await page.evaluateHandle(
         (dlgSelector, labelSelector, targetText) => {
             const visible = (node) => {

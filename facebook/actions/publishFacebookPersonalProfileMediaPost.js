@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { waitForVisibleElement } from "../browser/elements.js";
 import { humanClickElement } from "../browser/pointer.js";
-import { waitHuman } from "../browser/timing.js";
+import waitForUiReady from "../browser/waitForUiReady.js";
 import handlePostPublishModals from "../modals/handlePostPublishModals.js";
 import { postPublishModalDialogSelector }
     from "../selectors/postPublishModals.js";
@@ -278,14 +278,13 @@ async function clickVisibleSelector(
     page,
     selector,
     timeout,
-    timingOptions,
-    stabilization = "long"
+    timingOptions
 ) {
     const initialElement = await waitForVisibleElement(page, selector, {
         timeout,
     });
     await initialElement.dispose().catch(() => {});
-    await waitHuman(stabilization, timingOptions);
+    await waitForUiReady(page, selector, { timeout });
     const element = await waitForVisibleElement(page, selector, { timeout });
     await clickElement(page, element, timingOptions);
 }
@@ -320,7 +319,7 @@ async function clickVisibleText(
         selector,
         expectedText
     );
-    await waitHuman("medium", timingOptions);
+    await waitForUiReady(page, selector, { timeout, expectedText, firstLine: true });
     const element = await findVisibleElementByText(
         page,
         selector,
@@ -352,8 +351,7 @@ async function ensurePublicAudience(page, timeout, timingOptions) {
         page,
         personalProfilePostPrivacyButtonSelector,
         timeout,
-        timingOptions,
-        "medium"
+        timingOptions
     );
     await clickVisibleText(
         page,
@@ -366,8 +364,7 @@ async function ensurePublicAudience(page, timeout, timingOptions) {
         page,
         personalProfileAudienceDoneButtonSelector,
         timeout,
-        timingOptions,
-        "medium"
+        timingOptions
     );
     await waitForVisibleElement(
         page,
@@ -402,7 +399,7 @@ async function ensurePublicAudience(page, timeout, timingOptions) {
             }
         );
     }
-    await waitHuman("medium", timingOptions);
+    await waitForUiReady(page, personalProfilePostPrivacyButtonSelector, { timeout });
 
     if (normalizeText(await readAudience(page)) !== "public") {
         throw new PersonalProfileMediaPostError(
@@ -477,7 +474,7 @@ export default async function publishFacebookPersonalProfileMediaPost(
             personalProfileCreatePostDialogSelector,
             personalProfilePhotoVideoButtonSelector
         );
-        await waitHuman("long", timingOptions);
+        await waitForUiReady(page, personalProfilePostPrivacyButtonSelector, { timeout });
 
         stage = "ENSURE_PUBLIC";
         await ensurePublicAudience(page, timeout, timingOptions);
@@ -510,7 +507,7 @@ export default async function publishFacebookPersonalProfileMediaPost(
             { timeout },
             personalProfilePublishPostButtonSelector
         );
-        await waitHuman("long", timingOptions);
+        await waitForUiReady(page, personalProfilePublishPostButtonSelector, { timeout });
         await page.waitForFunction(
             (selector) => {
                 const button = document.querySelector(selector);
@@ -543,8 +540,7 @@ export default async function publishFacebookPersonalProfileMediaPost(
             page,
             personalProfilePublishPostButtonSelector,
             timeout,
-            timingOptions,
-            "medium"
+            timingOptions
         );
         await handlePostPublishModals(page, {
             timeout,
@@ -559,8 +555,6 @@ export default async function publishFacebookPersonalProfileMediaPost(
 
         if (capturePostUrl) {
             stage = "CAPTURE_POST_URL";
-            console.log("Чекаємо стабілізації перед пошуком нового permalink (щоб пост з'явився в фіді)");
-            await waitHuman("long", timingOptions);
             console.log("Починаємо пошук нового post URL");
             postUrl = await waitForNewPostPermalink(
                 page,

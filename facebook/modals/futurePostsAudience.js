@@ -1,4 +1,3 @@
-import { waitHuman } from "../browser/timing.js";
 import {
     postPublishAudienceSaveButtonSelector,
     postPublishModalDialogSelector,
@@ -37,7 +36,6 @@ export default async function handleFuturePostsAudience(
     });
     logModal(logger, "Знайшли Public, натиснули ЛКМ по parent");
 
-    await waitHuman("medium", timingOptions);
 
     logModal(logger, "Шукаємо кнопку Save", {
         selector: postPublishAudienceSaveButtonSelector,
@@ -47,8 +45,7 @@ export default async function handleFuturePostsAudience(
             page,
             postPublishAudienceSaveButtonSelector,
             timeout,
-            timingOptions,
-            "medium"
+            timingOptions
         );
         logModal(logger, "Знайшли Save, натиснули ЛКМ");
     } catch (error) {
@@ -65,5 +62,4 @@ export default async function handleFuturePostsAudience(
         logModal(logger, "Знайшли Save за текстом, натиснули ЛКМ");
     }
 
-    await waitHuman("medium", timingOptions);
 }

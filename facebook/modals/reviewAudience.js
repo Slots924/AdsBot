@@ -1,4 +1,3 @@
-import { waitHuman } from "../browser/timing.js";
 import {
     postPublishContinueButtonSelector,
 } from "../selectors/postPublishModals.js";
@@ -29,8 +28,7 @@ export default async function handleReviewAudience(
             page,
             postPublishContinueButtonSelector,
             timeout,
-            timingOptions,
-            "medium"
+            timingOptions
         );
         logModal(logger, "Знайшли Continue, натиснули");
     } catch (error) {
@@ -47,7 +45,6 @@ export default async function handleReviewAudience(
         logModal(logger, "Знайшли Continue за текстом, натиснули");
     }
 
-    await waitHuman("medium", timingOptions);
     logModal(logger, "Після Continue вибираємо Public і тиснемо Save");
     await handleFuturePostsAudience(page, { timeout, timingOptions, logger });
 }

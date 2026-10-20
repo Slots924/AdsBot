@@ -105,6 +105,13 @@ function createMockPage({
             return createHandle(selector, selectorVisible(selector));
         },
         async waitForFunction(_callback, _options, ...args) {
+            if (_callback.name === "uiReadyInPage") {
+                const selector = args[0];
+                const ready = selector === coverPhotoEditingMenuItemSelector
+                    ? state.menuVisible : selectorVisible(selector);
+                if (!ready) throw new Error(`timeout: ${selector}`);
+                return createHandle(selector);
+            }
             if (args.length === 3) {
                 if (result === "save-timeout") {
                     throw new Error("save timeout");

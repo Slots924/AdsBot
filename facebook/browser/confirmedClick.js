@@ -3,6 +3,7 @@ import {
     waitForVisibleElement,
 } from "./elements.js";
 import { humanClickElement } from "./pointer.js";
+import { getBrowserTrace } from "../../services/logging/browserTraceContext.js";
 
 
 export class ConfirmedClickError extends Error {
@@ -604,6 +605,8 @@ export async function clickWhenStable(page, {
     onStep = null,
 } = {}) {
     const normalizedTarget = normalizeLocator(target);
+    const trace = getBrowserTrace(page);
+    await trace?.event("click.target", { selector: describeLocator(normalizedTarget), point: description });
 
     await clickLocator(page, normalizedTarget, {
         timeout,
@@ -634,6 +637,8 @@ export async function clickUntilConfirmed(page, {
     const normalizedConfirm = normalizeLocator(confirm);
     const targetSelector = describeLocator(normalizedTarget);
     const confirmSelector = describeLocator(normalizedConfirm);
+    const trace = getBrowserTrace(page);
+    await trace?.event("click.expect", { selector: targetSelector, expected: confirmSelector, point: description });
 
     if (!Number.isInteger(attempts) || attempts < 1) {
         throw new RangeError(`Некоректна кількість спроб кліку: ${attempts}`);
@@ -686,6 +691,7 @@ export async function clickUntilConfirmed(page, {
                 onStep,
             });
         } catch (error) {
+            await trace?.failure(page, { point: "click-attempt", selector: normalizedTarget.type === "selector" ? normalizedTarget.selector : undefined, error });
             if (attempt === attempts) {
                 throw error;
             }
@@ -719,6 +725,8 @@ export async function clickUntilConfirmed(page, {
                 { timeout: confirmTimeout }
             );
             await disposeHandle(confirmed);
+            await trace?.observe(page, { point: "click-confirmed",
+                selector: normalizedConfirm.type === "selector" ? normalizedConfirm.selector : null });
             await emitStep(
                 onStep,
                 `Підтвердження після «${description}» з’явилось`,
@@ -729,6 +737,7 @@ export async function clickUntilConfirmed(page, {
             );
             return { attempt, clicked: true };
         } catch (error) {
+            await trace?.failure(page, { point: "click-confirmation", selector: normalizedConfirm.type === "selector" ? normalizedConfirm.selector : undefined, error });
             await emitStep(
                 onStep,
                 `Підтвердження після «${description}» не з’явилось`,

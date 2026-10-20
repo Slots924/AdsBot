@@ -4,6 +4,7 @@ import {
     waitHuman,
     waitRandom,
 } from "./timing.js";
+import { getBrowserTrace } from "../../services/logging/browserTraceContext.js";
 
 
 async function emit(onEvent, type, details = {}) {
@@ -280,8 +281,15 @@ export async function humanClickElement(
     element,
     options = {}
 ) {
-    const movement = await moveMouseToElement(page, element, options);
-    const click = await clickLeftMouse(page, options);
-
-    return { ...movement, ...click };
+    const trace = getBrowserTrace(page);
+    await trace?.observe(page, { point: "before-click" });
+    try {
+        const movement = await moveMouseToElement(page, element, options);
+        const click = await clickLeftMouse(page, options);
+        await trace?.event("click.dispatched");
+        return { ...movement, ...click };
+    } catch (error) {
+        await trace?.failure(page, { point: "click", error });
+        throw error;
+    }
 }

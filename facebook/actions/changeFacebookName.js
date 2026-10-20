@@ -9,6 +9,7 @@ import {
     waitForVisibleElement,
 } from "../browser/elements.js";
 import { humanClickElement as browserHumanClickElement } from "../browser/pointer.js";
+import waitForUiReady from "../browser/waitForUiReady.js";
 import { waitRandom as waitRandomDelay } from "../browser/timing.js";
 import { facebookNameChangeSelectors as selectors } from "../selectors/accountCenter.js";
 import { facebookTranslations } from "../i18n/index.js";
@@ -606,36 +607,36 @@ async function readVisibleDialogs(page) {
 }
 
 
+const blockingRules = [
+    { pattern: /last\s+60\s+days/i, status: facebookNameChangeStatuses.RECENTLY_CHANGED },
+    { pattern: /can't make this change at the moment|cannot make this change at the moment|device you (?:don't|do not) usually use|used this device for a while/i,
+        status: facebookNameChangeStatuses.UNUSUAL_DEVICE },
+    { pattern: /check your whatsapp messages|code we sent to your whatsapp/i,
+        status: facebookNameChangeStatuses.WHATSAPP_REQUIRED },
+];
+
 function classifyBlockingText(text) {
-    const normalized = normalizeText(text);
+    return blockingRules.find((rule) => rule.pattern.test(normalizeText(text)))?.status ?? null;
+}
 
-    if (/last\s+60\s+days/i.test(normalized)) {
-        return facebookNameChangeStatuses.RECENTLY_CHANGED;
-    }
-
-    if (
-        /can't make this change at the moment/i.test(normalized)
-        || /cannot make this change at the moment/i.test(normalized)
-        || /device you (?:don't|do not) usually use/i.test(normalized)
-        || /used this device for a while/i.test(normalized)
-    ) {
-        return facebookNameChangeStatuses.UNUSUAL_DEVICE;
-    }
-
-    if (
-        /check your whatsapp messages/i.test(normalized)
-        || /code we sent to your whatsapp/i.test(normalized)
-    ) {
-        return facebookNameChangeStatuses.WHATSAPP_REQUIRED;
-    }
-
-    return null;
+export function nameChangeOutcomeInPage(config) {
+    const normalize = (value) => String(value ?? "").replace(/[’‘`]/g, "'").replace(/\s+/g, " ").trim();
+    const visible = (node) => {
+        const rect = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        return rect.width > 0 && rect.height > 0 && style.display !== "none" && style.visibility !== "hidden";
+    };
+    if ([...document.querySelectorAll(config.finalName)].some((node) =>
+        visible(node) && normalize(node.textContent) === config.expectedName)) return true;
+    const text = [...document.querySelectorAll(config.dialogs)].filter(visible)
+        .map((node) => normalize(node.innerText)).join(" ");
+    return config.patterns.some((pattern) => new RegExp(pattern, "i").test(text));
 }
 
 
 export default async function changeFacebookName(
     page,
-    { firstName, lastName, logger = console } = {}
+    { firstName, lastName, logger = console, timeout = 90000 } = {}
 ) {
     const normalizedFirstName = normalizeText(firstName);
     const normalizedLastName = normalizeText(lastName);
@@ -739,13 +740,12 @@ export default async function changeFacebookName(
             waitUntil: "domcontentloaded",
             timeout: 60000,
         });
-        await waitRandom(
-            1500,
-            3000,
-            report,
-            stage,
-            "очікування можливого перенаправлення"
-        );
+        const landingReady = await page.waitForFunction((selector) => {
+            if (location.href.includes("www.facebook.com/forced_account_switch")) return true;
+            return document.readyState !== "loading" && [...document.querySelectorAll(selector)]
+                .some((node) => node.getBoundingClientRect().width > 0 && node.getBoundingClientRect().height > 0);
+        }, { timeout }, `${selectors.profile}, ${selectors.accountOverview}`);
+        await landingReady?.dispose?.().catch(() => {});
 
         const profilesUrl = page.url();
         report(stage, `URL після переходу: ${profilesUrl}`, {
@@ -816,13 +816,7 @@ export default async function changeFacebookName(
                 report,
                 stage
             );
-            await waitRandom(
-                3000,
-                5000,
-                report,
-                stage,
-                "повне завантаження модального вікна account_overview"
-            );
+            await waitForUiReady(page, selectors.accountOverviewDialogLink, { timeout });
 
             stage = "SELECT_ACCOUNT_FROM_OVERVIEW";
             await humanClickSelector(
@@ -832,21 +826,9 @@ export default async function changeFacebookName(
                 stage,
                 "Facebook-профіль у модальному вікні account_overview"
             );
-            await waitRandom(
-                1500,
-                3000,
-                report,
-                stage,
-                "завантаження налаштувань вибраного профілю"
-            );
+            await waitForUiReady(page, selectors.nameLink, { timeout });
         } else {
-            await waitRandom(
-                3000,
-                5000,
-                report,
-                stage,
-                "повне завантаження списку профілів"
-            );
+            await waitForUiReady(page, selectors.profile, { timeout });
 
             stage = "SELECT_PROFILE";
             await humanClickSelector(
@@ -865,13 +847,7 @@ export default async function changeFacebookName(
                 report,
                 stage
             );
-            await waitRandom(
-                1500,
-                3000,
-                report,
-                stage,
-                "завантаження скриптів діалогу профілю"
-            );
+            await waitForUiReady(page, selectors.nameLink, { timeout });
         }
 
         stage = "OPEN_NAME_DIALOG";
@@ -889,7 +865,7 @@ export default async function changeFacebookName(
                     description: "Name",
                     attempts: 1,
                     confirmTimeout: 15000,
-                    quietMs: 3000,
+                    quietMs: 300,
                     quietTimeout: 15000,
                     requireQuiet: true,
                 },
@@ -919,13 +895,7 @@ export default async function changeFacebookName(
         }
 
         stage = "WAIT_NAME_DIALOG";
-        await waitRandom(
-            1500,
-            3000,
-            report,
-            stage,
-            "завантаження форми імені"
-        );
+        await waitForUiReady(page, selectors.nameDialog, { timeout });
 
         const initialDialogs = await readVisibleDialogs(page);
         const initialText = initialDialogs.join(" ");
@@ -949,13 +919,7 @@ export default async function changeFacebookName(
             report,
             stage
         );
-        await waitRandom(
-            450,
-            900,
-            report,
-            stage,
-            "перехід між полями"
-        );
+
         await humanTypeInput(
             page,
             facebookTranslations.en.nameChange.lastName,
@@ -1005,13 +969,12 @@ export default async function changeFacebookName(
             report,
             stage
         );
-        await waitRandom(
-            7000,
-            10000,
-            report,
-            stage,
-            "остаточне завантаження результату"
-        );
+        const outcomeHandle = await page.waitForFunction(nameChangeOutcomeInPage, { timeout }, {
+            finalName: selectors.finalName, expectedName: expectedFullName,
+            dialogs: selectors.visibleDialogs, patterns: blockingRules.map((rule) => rule.pattern.source),
+        });
+        await outcomeHandle?.dispose?.().catch(() => {});
+        await waitForUiReady(page, selectors.anyDialog, { timeout });
 
         const resultDialogs = await readVisibleDialogs(page);
         const resultText = resultDialogs.join(" ");

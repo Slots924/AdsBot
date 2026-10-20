@@ -1,4 +1,5 @@
 import path from "node:path";
+import { getBrowserTrace } from "../../services/logging/browserTraceContext.js";
 
 import loadImageFromPath from "../../services/images/loadImageFromPath.js";
 import {
@@ -10,7 +11,7 @@ import {
     waitForVisibleElement,
 } from "../browser/elements.js";
 import { humanClickElement } from "../browser/pointer.js";
-import { waitHuman } from "../browser/timing.js";
+import waitForUiReady from "../browser/waitForUiReady.js";
 import { modalDialogSelector } from "../selectors/overlays.js";
 import {
     coverPhotoEditingMenuItemSelector,
@@ -160,22 +161,6 @@ async function waitForVisible(page, selector, timeout, stage) {
 }
 
 
-async function pauseAfterVisible(
-    preset,
-    report,
-    stage,
-    reason,
-    timingOptions
-) {
-    await waitHuman(preset, {
-        ...timingOptions,
-        onDelay: (delayMs) => report(
-            stage,
-            `Пауза ${delayMs} мс: ${reason}`,
-            { delayMs, reason }
-        ),
-    });
-}
 
 
 async function clickFreshVisibleElement(
@@ -186,7 +171,6 @@ async function clickFreshVisibleElement(
         report,
         stage,
         description,
-        stabilization = "long",
         beforeDelay = [100, 260],
         timingOptions,
         attempt = 1,
@@ -205,13 +189,7 @@ async function clickFreshVisibleElement(
         stage
     );
     await initialElement.dispose().catch(() => {});
-    await pauseAfterVisible(
-        stabilization,
-        report,
-        stage,
-        `стабілізація React для «${description}»`,
-        timingOptions
-    );
+    await waitForUiReady(page, selector, { timeout });
 
     const element = await waitForVisible(
         page,
@@ -320,13 +298,7 @@ async function clickFreshMenuItem(
     }
 
     await element.dispose().catch(() => {});
-    await pauseAfterVisible(
-        "medium",
-        report,
-        stage,
-        `стабілізація React для menuitem «${expectedText}»`,
-        timingOptions
-    );
+    await waitForUiReady(page, coverPhotoEditingMenuItemSelector, { timeout });
     element = await findVisibleElementByText(
         page,
         coverPhotoEditingMenuItemSelector,
@@ -466,13 +438,7 @@ async function uploadCoverPhoto(
                     report,
                     timingOptions,
                 });
-                await pauseAfterVisible(
-                    "long",
-                    report,
-                    stage,
-                    "повне завантаження меню редагування шпалер",
-                    timingOptions
-                );
+                await waitForUiReady(page, coverPhotoEditingMenuSelector, { timeout });
             }
 
             const chooserPromise = page.waitForFileChooser({
@@ -535,6 +501,7 @@ async function uploadCoverPhoto(
 
             return;
         } catch (error) {
+            await getBrowserTrace(page)?.failure(page, { point: "cover.upload", error });
             lastError = error instanceof FacebookCoverPhotoChangeError
                 ? error
                 : new FacebookCoverPhotoChangeError(
@@ -707,13 +674,7 @@ export default async function changeFacebookCoverPhoto(
         });
 
         stage = "WAIT_COVER_MENU";
-        await pauseAfterVisible(
-            "long",
-            report,
-            stage,
-            "повне завантаження меню Cover photo editing options",
-            timingOptions
-        );
+        await waitForUiReady(page, coverPhotoEditingMenuSelector, { timeout });
 
         stage = "UPLOAD_COVER";
         await uploadCoverPhoto(page, absolutePath, {
@@ -723,13 +684,7 @@ export default async function changeFacebookCoverPhoto(
         });
 
         stage = "WAIT_PREVIEW";
-        await pauseAfterVisible(
-            "veryLong",
-            report,
-            stage,
-            "завантаження preview та скриптів reposition",
-            timingOptions
-        );
+        await waitForUiReady(page, saveCoverPhotoButtonSelector, { timeout });
 
         stage = "SAVE";
         await clickFreshVisibleElement(
@@ -740,8 +695,7 @@ export default async function changeFacebookCoverPhoto(
                 report,
                 stage,
                 description: "Save changes",
-                stabilization: "medium",
-                beforeDelay: [1500, 3000],
+                beforeDelay: [100, 260],
                 timingOptions,
                 attempt: 1,
             }

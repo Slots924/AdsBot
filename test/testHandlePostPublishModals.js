@@ -118,6 +118,7 @@ function createModalPage() {
             return createHandle(state, selector, selectorVisible(selector));
         },
         async waitForFunction(_callback, _options, ...args) {
+            if (_callback.name === "uiReadyInPage") return createHandle(state, args[0], true);
             if (
                 args[0] === postPublishModalDialogSelector
                 && args[2] === "public"
@@ -185,5 +186,18 @@ assert.deepEqual(result.handled, ["reviewAudience"]);
 assert.equal(page.state.continued, 1);
 assert.equal(page.state.publicClicks, 1);
 assert.equal(page.state.saveClicks, 1);
+
+const unknownPage = createModalPage();
+const originalEvaluate = unknownPage.evaluate.bind(unknownPage);
+unknownPage.evaluate = async (callback, first, ...args) => {
+    if (first?.dialog && unknownPage.state.saveClicks > 0) {
+        return { createPostVisible: true, found: true, kind: "unknown", title: "Unknown dialog" };
+    }
+    return originalEvaluate(callback, first, ...args);
+};
+await assert.rejects(() => handlePostPublishModals(unknownPage, {
+    timeout: 30, timingOptions,
+}), (error) => error.code === "FACEBOOK_UNKNOWN_POST_MODAL");
+assert.equal(unknownPage.state.saveClicks, 1);
 
 console.log("Перевірка модалок після Post пройшла успішно");

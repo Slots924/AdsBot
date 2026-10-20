@@ -1,4 +1,3 @@
-import { waitHuman } from "../browser/timing.js";
 import changeFacebookPersonalProfilePostDate, {
     parseFacebookPersonalProfilePostDate,
 } from "./changeFacebookPersonalProfilePostDate.js";
@@ -104,7 +103,6 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
 ) {
     const startedAt = new Date().toISOString();
     const normalizedPosts = validatePosts(posts);
-    const timingOptions = { random, ...(sleep ? { sleep } : {}) };
     let stage = "VALIDATE_INPUT";
     let status = facebookPersonalProfilePostsWithDatesStatuses.ERROR;
     let errorDetails = null;
@@ -216,7 +214,6 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
                 return buildResult();
             }
 
-            await waitHuman("short", timingOptions);
 
             stage = "WAIT_FEED_POST";
             report(
@@ -368,7 +365,6 @@ export default async function publishFacebookPersonalProfileMediaPostsWithDates(
                     verified: dateChangeResult.verified,
                 }
             );
-            await waitHuman("short", timingOptions);
         }
 
         status = facebookPersonalProfilePostsWithDatesStatuses.COMPLETED;

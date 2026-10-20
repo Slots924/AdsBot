@@ -7,6 +7,7 @@ import logModal from "./logModal.js";
 import handleReviewAudience, {
     matchReviewAudience,
 } from "./reviewAudience.js";
+import { getBrowserTrace } from "../../services/logging/browserTraceContext.js";
 
 
 const knownPostPublishModals = [
@@ -32,9 +33,10 @@ export default async function handlePostPublishModals(
     } = {}
 ) {
     const handled = [];
+    const trace = getBrowserTrace(page);
+    let unknownRecorded = false;
     let emptyStreak = 0;
     const deadline = Date.now() + Number(timeout);
-    await waitHuman("medium", timingOptions);
 
     while (Date.now() < deadline) {
         const snapshot = await inspectVisibleModal(page);
@@ -43,6 +45,8 @@ export default async function handlePostPublishModals(
         );
 
         if (modal) {
+            await trace?.event("modal.detected", { point: modal.id });
+            await trace?.observe(page, { point: `modal.${modal.id}` });
             logModal(logger, "Піймали модальне вікно", {
                 kind: modal.id,
                 title: snapshot?.title ?? "",
@@ -50,18 +54,11 @@ export default async function handlePostPublishModals(
             });
             await modal.handle(page, { timeout, timingOptions, logger });
             handled.push(modal.id);
-            if (modal.id === "reviewAudience") {
-                logModal(
-                    logger,
-                    "Аудиторію збережено. Вікно поста має бути відкрите, кнопку «What's on your mind?» більше не тиснемо"
-                );
-                return { handled };
-            }
             emptyStreak = 0;
             continue;
         }
 
-        if (snapshot?.createPostVisible || snapshot?.kind === "createPost") {
+        if ((!snapshot?.found && snapshot?.createPostVisible) || snapshot?.kind === "createPost") {
             logModal(logger, "Вікно Create post готове, постимо далі");
             return { handled };
         }
@@ -75,20 +72,20 @@ export default async function handlePostPublishModals(
             continue;
         }
 
-        logModal(logger, "Невідома модалка", {
-            title: snapshot?.title ?? "",
-            ariaLabel: snapshot?.ariaLabel ?? "",
-        });
-        if (handled.length > 0) {
-            logModal(
-                logger,
-                "Після Save лишилось вікно — вважаємо це композер поста, не клікаємо «What's on your mind?» знову"
-            );
-            return { handled };
+        if (!unknownRecorded) {
+            logModal(logger, "Невідома модалка", {
+                title: snapshot?.title ?? "",
+                ariaLabel: snapshot?.ariaLabel ?? "",
+            });
+            unknownRecorded = true;
+            await trace?.failure(page, { point: "modal.unknown",
+                error: { code: "FACEBOOK_UNKNOWN_POST_MODAL" } });
         }
 
         await waitHuman("short", timingOptions);
     }
 
-    throw new Error("Після Post лишилось невідоме модальне вікно");
+    throw Object.assign(new Error("Після Post лишилось невідоме модальне вікно"), {
+        code: "FACEBOOK_UNKNOWN_POST_MODAL",
+    });
 }

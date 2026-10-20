@@ -183,7 +183,7 @@ assert.deepEqual(facebookNameChangeSelectors, {
         'div[aria-label="Name"][aria-modal="true"][role="dialog"] '
         + '[aria-hidden="false"]',
     anyNameDialog:
-        'div[aria-label="Name"][aria-modal="true"][role="dialog"]',
+        'div[aria-label="Name" i][aria-modal="true"][role="dialog"]',
     anyDialog:
         'div[role="dialog"][aria-modal="true"][aria-labelledby]',
     visibleDialogs:

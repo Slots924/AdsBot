@@ -82,6 +82,7 @@ try {
                 outcome: "success",
                 profileNo: String(profile.profile_no),
                 stage: "DONE",
+                browserTracePath: path.join(reportsDirectory, "trace", "summary.md"),
                 error: null,
                 persona,
                 adsPowerName: `${persona.gender === "female" ? "f_" : "m_"}${
@@ -100,6 +101,8 @@ try {
         result.report.profiles.map((item) => [item.profileNo, item.outcome])
     );
     assert.equal(outcomes["10"], "success");
+    assert.equal(result.report.profiles.find((item) => item.profileNo === "10").browserTracePath,
+        path.join(reportsDirectory, "trace", "summary.md"));
     assert.equal(outcomes["11"], "success");
     assert.equal(outcomes["12"], "skipped");
     assert.equal(outcomes["13"], "skipped");

@@ -1,6 +1,8 @@
 import { waitForVisibleElement } from "../browser/elements.js";
 import { humanClickElement } from "../browser/pointer.js";
-import { wait, waitHuman, waitRandom } from "../browser/timing.js";
+import { waitRandom } from "../browser/timing.js";
+import waitForUiReady from "../browser/waitForUiReady.js";
+import { getBrowserTrace } from "../../services/logging/browserTraceContext.js";
 import { personalProfileAboutSelectors as aboutSelectors } from "../selectors/personalProfileAbout.js";
 
 
@@ -152,7 +154,28 @@ function createFieldState({
 }
 
 
-function aboutDomRuntime(query) {
+export function aboutDomRuntime(query) {
+    if (query.stableToken) {
+        const value = aboutDomRuntime({ ...query, stableToken: null });
+        const key = Symbol.for("adsbot.aboutTarget");
+        const isElement = value instanceof Element;
+        const blocked = !value || document.readyState === "loading" || (isElement && (
+            !value.isConnected || value.disabled || value.getAttribute("aria-disabled") === "true"
+            || value.closest('[aria-busy="true"], [inert]')
+        ));
+        if (blocked) { document[key] = null; return false; }
+        const rect = isElement ? value.getBoundingClientRect() : null;
+        const fingerprint = isElement
+            ? [rect.x, rect.y, rect.width, rect.height, value.textContent, value.getAttribute("aria-disabled")].join("|")
+            : JSON.stringify(value);
+        const previous = document[key];
+        if (!previous || previous.token !== query.stableToken || previous.fingerprint !== fingerprint
+            || (isElement && previous.node !== value)) {
+            document[key] = { token: query.stableToken, fingerprint, node: isElement ? value : null, since: Date.now() };
+            return false;
+        }
+        return Date.now() - previous.since >= 180 ? value : false;
+    }
     const selectors = query?.selectors ?? {};
     const normalize = (value) => String(value ?? "")
         .replace(/\s+/g, " ")
@@ -332,7 +355,7 @@ function aboutDomRuntime(query) {
             const editorClosed = !snap.hasCompany
                 && !snap.hasPosition
                 && !snap.hasSave;
-            return editorClosed
+            return editorClosed && snap.hasEditWorkplace
                 ? { invalidName: false, saved: true }
                 : false;
         }
@@ -343,7 +366,7 @@ function aboutDomRuntime(query) {
             const snap = sectionSnapshot("College");
             if (!snap.found) return false;
             const editorClosed = !snap.hasCollegeName && !snap.hasSave;
-            return editorClosed
+            return editorClosed && snap.hasEditCollege
                 ? { invalidName: false, saved: true }
                 : false;
         }
@@ -475,11 +498,15 @@ export default async function fillFacebookPersonalProfileAbout(
         sleep,
         logger = console,
         onProgress = null,
+        maxSuggestionTrims = 8,
     } = {}
 ) {
     const startedAt = new Date().toISOString();
     const normalized = normalizeFacebookPersonalProfileAboutFields(fields, { skipBio });
     const timingOptions = { random, ...(sleep ? { sleep } : {}) };
+    const trace = getBrowserTrace(page);
+    let waitSequence = 0;
+    const stableQuery = (query) => ({ ...query, stableToken: `${startedAt}:${++waitSequence}` });
     const fieldStates = {
         bio: createFieldState({ requested: Boolean(normalized?.bioRequested) }),
         work: createFieldState({
@@ -520,16 +547,19 @@ export default async function fillFacebookPersonalProfileAbout(
             title: query.title ?? null,
             timeout: waitTimeout,
         });
+        await trace?.event("about.wait", { point: stage, expected: label,
+            selector: query.selector ?? query.inputSelector });
         const handle = await page.waitForFunction(
             aboutDomRuntime,
             { timeout: waitTimeout },
             {
                 mode: "inspect",
                 selectors: aboutSelectors,
-                ...query,
+                ...stableQuery(query),
             }
         );
         await handle?.dispose?.().catch(() => {});
+        await trace?.observe(page, { point: `about.${stage}.ready`, selector: query.selector ?? query.inputSelector });
     };
 
     const waitInspectValue = async (query, label, waitTimeout = timeout) => {
@@ -544,7 +574,7 @@ export default async function fillFacebookPersonalProfileAbout(
             {
                 mode: "inspect",
                 selectors: aboutSelectors,
-                ...query,
+                ...stableQuery(query),
             }
         );
         try {
@@ -615,7 +645,7 @@ export default async function fillFacebookPersonalProfileAbout(
         });
         const initial = await waitForVisibleElement(page, selector, { timeout });
         await initial.dispose().catch(() => {});
-        await waitHuman("short", timingOptions);
+        await waitForUiReady(page, selector, { timeout });
         const fresh = await waitForVisibleElement(page, selector, { timeout });
         report("facebook.personal_about.selector.found", `Знайдено «${description}»`, {
             selector,
@@ -626,16 +656,19 @@ export default async function fillFacebookPersonalProfileAbout(
     };
 
     const clickFreshQuery = async (query, description) => {
-        await page.waitForFunction(
+        const ready = await page.waitForFunction(
             aboutDomRuntime,
             { timeout },
             {
                 mode: "find",
                 selectors: aboutSelectors,
-                ...query,
+                ...stableQuery(query),
             }
         );
-        await waitHuman("short", timingOptions);
+        await ready?.dispose?.().catch(() => {});
+        await trace?.event("about.target", { point: stage,
+            expected: query.kind === "comboboxOption" ? "combobox-option" : description,
+            selector: query.selector ?? query.inputSelector });
         const handle = await findHandle(query, description);
         if (!handle) {
             throw new FacebookPersonalProfileAboutError(
@@ -650,8 +683,9 @@ export default async function fillFacebookPersonalProfileAbout(
         await clickHandle(handle, description);
     };
 
-    const pauseAfterChange = async (preset = "short") => {
-        await waitHuman(preset, timingOptions);
+    const observeTransition = async () => {
+        // Наступна операція сама чекає свій DOM-стан; тут лише фіксуємо перехід.
+        await trace?.observe(page, { point: `about.${stage}.transition` });
     };
 
     const markFailed = (name, error) => {
@@ -669,6 +703,8 @@ export default async function fillFacebookPersonalProfileAbout(
     const dismissLeavePage = async (fromPrevious = true) => {
         const dialog = await inspect({ kind: "leavePageDialog" });
         if (!dialog?.found || !dialog.unsaved) return false;
+        await trace?.failure(page, { point: `about.${stage}.unsaved`,
+            error: { code: "ABOUT_UNSAVED_CHANGES" } });
 
         report(
             "facebook.personal_about.leave_page",
@@ -686,13 +722,15 @@ export default async function fillFacebookPersonalProfileAbout(
             { kind: "leavePageDialog", expectAbsent: true },
             "закриття Leave Page?"
         );
-        await pauseAfterChange("short");
+        await observeTransition();
         return true;
     };
 
     const dismissInvalidName = async () => {
         const dialog = await inspect({ kind: "invalidNameDialog" });
         if (!dialog?.found) return false;
+        await trace?.failure(page, { point: `about.${stage}.invalid-name`,
+            error: { code: "ABOUT_INVALID_NAME" } });
         report(
             "facebook.personal_about.invalid_name",
             "Facebook показав Invalid Name",
@@ -703,7 +741,7 @@ export default async function fillFacebookPersonalProfileAbout(
             { kind: "invalidNameDialog", expectAbsent: true },
             "закриття Invalid Name"
         );
-        await pauseAfterChange("short");
+        await observeTransition();
         return true;
     };
 
@@ -732,7 +770,7 @@ export default async function fillFacebookPersonalProfileAbout(
     const openSideTab = async (selector, description) => {
         await clickFreshSelector(selector, description);
         await dismissLeavePage(true);
-        await pauseAfterChange("short");
+        await observeTransition();
     };
 
     const typeIntoHandle = async (
@@ -806,12 +844,14 @@ export default async function fillFacebookPersonalProfileAbout(
             },
             addOnly ? `Add option «${chosen}»` : `перший option «${chosen}»`
         );
-        await pauseAfterChange("short");
+        await observeTransition();
         return true;
     };
 
-    const waitForSuggestionList = async (inputSelector, label) => {
+    const waitForSuggestionList = async (inputSelector, label, deadline) => {
         for (let attempt = 1; attempt <= 3; attempt += 1) {
+            const remaining = deadline - Date.now();
+            if (remaining <= 0) return false;
             report(
                 "facebook.personal_about.combobox.wait",
                 `Чекаємо підказки «${label}», спроба ${attempt}/3`,
@@ -825,7 +865,7 @@ export default async function fillFacebookPersonalProfileAbout(
                         expectReady: true,
                     },
                     `список «${label}» (${attempt}/3)`,
-                    5000
+                    Math.min(5000, timeout, remaining)
                 );
                 return true;
             } catch {
@@ -840,8 +880,8 @@ export default async function fillFacebookPersonalProfileAbout(
         return false;
     };
 
-    const shortenUntilSuggestions = async (query, inputSelector, label) => {
-        while (true) {
+    const shortenUntilSuggestions = async (query, inputSelector, label, deadline) => {
+        for (let trims = 0; trims < maxSuggestionTrims && Date.now() < deadline; trims += 1) {
             const current = String(
                 await inspect({
                     kind: "inputValue",
@@ -873,14 +913,14 @@ export default async function fillFacebookPersonalProfileAbout(
             } finally {
                 await handle.dispose().catch(() => {});
             }
-            await wait(3000, timingOptions);
-            const ready = await inspect({
-                kind: "comboboxOptions",
-                inputSelector,
-                expectReady: true,
-            });
+            const ready = await waitInspect(
+                { kind: "comboboxOptions", inputSelector, expectReady: true },
+                `підказки після скорочення «${label}»`,
+                Math.max(1, Math.min(timeout, 3000, deadline - Date.now()))
+            ).then(() => true, () => false);
             if (ready) return true;
         }
+        return false;
     };
 
     const fillSuggestionField = async (
@@ -890,6 +930,7 @@ export default async function fillFacebookPersonalProfileAbout(
         inputSelector,
         { charByChar = false, required = true } = {}
     ) => {
+        const deadline = Date.now() + timeout;
         const handle = await findHandle(query, label);
         if (!handle) {
             throw new FacebookPersonalProfileAboutError(
@@ -902,13 +943,14 @@ export default async function fillFacebookPersonalProfileAbout(
             );
         }
         await typeIntoHandle(handle, value, label, { charByChar });
-        await pauseAfterChange("short");
-        let ready = await waitForSuggestionList(inputSelector, label);
+        await observeTransition();
+        let ready = await waitForSuggestionList(inputSelector, label, deadline);
         if (!ready) {
             ready = await shortenUntilSuggestions(
                 query,
                 inputSelector,
-                label
+                label,
+                deadline
             );
         }
         if (ready) {
@@ -944,6 +986,13 @@ export default async function fillFacebookPersonalProfileAbout(
     };
 
     try {
+        if (!Number.isFinite(timeout) || timeout <= 0
+            || !Number.isInteger(maxSuggestionTrims) || maxSuggestionTrims < 0) {
+            status = facebookPersonalProfileAboutStatuses.INVALID_INPUT;
+            throw new FacebookPersonalProfileAboutError("Некоректні ліміти очікування About", {
+                code: "FACEBOOK_PERSONAL_ABOUT_INVALID_INPUT", stage,
+            });
+        }
         if (!page || typeof page.url !== "function" || !normalized) {
             status = facebookPersonalProfileAboutStatuses.INVALID_INPUT;
             throw new FacebookPersonalProfileAboutError(
@@ -988,7 +1037,7 @@ export default async function fillFacebookPersonalProfileAbout(
         stage = "OPEN_ABOUT";
         await clickFreshSelector(aboutSelectors.aboutTab, "вкладка About");
         await waitInspect({ kind: "aboutPanel" }, "бічна панель About");
-        await pauseAfterChange("medium");
+        await observeTransition();
 
         if (normalized.bioRequested) {
         stage = "BIO";
@@ -997,7 +1046,7 @@ export default async function fillFacebookPersonalProfileAbout(
             { kind: "sectionSnapshot", title: "Bio" },
             "секція Bio"
         );
-        await pauseAfterChange("short");
+        await observeTransition();
 
         try {
             const snapshot = await inspect({
@@ -1064,7 +1113,7 @@ export default async function fillFacebookPersonalProfileAbout(
                     },
                     "редактор Bio"
                 );
-                await pauseAfterChange("short");
+                await observeTransition();
 
                 const editor = await inspect({
                     kind: "sectionSnapshot",
@@ -1146,7 +1195,7 @@ export default async function fillFacebookPersonalProfileAbout(
                         { kind: "bioOutcome" },
                         "поля біо зникли після Save"
                     );
-                    await pauseAfterChange("short");
+                    await observeTransition();
                     if (await dismissLeavePage(false)) {
                         throw new FacebookPersonalProfileAboutError(
                             "Біо не збережено",
@@ -1171,6 +1220,7 @@ export default async function fillFacebookPersonalProfileAbout(
                 }
             }
         } catch (error) {
+            await trace?.failure(page, { point: "about.bio", error });
             markFailed("bio", error);
             report(
                 "facebook.personal_about.field.failed",
@@ -1215,7 +1265,7 @@ export default async function fillFacebookPersonalProfileAbout(
                     }
                 );
             }
-            await pauseAfterChange("short");
+            await observeTransition();
             try {
                 const snapshot = await inspect({
                     kind: "sectionSnapshot",
@@ -1261,7 +1311,7 @@ export default async function fillFacebookPersonalProfileAbout(
                         },
                         "форма Work"
                     );
-                    await pauseAfterChange("short");
+                    await observeTransition();
                     await fillSuggestionField(
                         {
                             kind: "sectionField",
@@ -1300,7 +1350,7 @@ export default async function fillFacebookPersonalProfileAbout(
                             { kind: "workSaveOutcome" },
                             "результат Save роботи"
                         );
-                        await pauseAfterChange("short");
+                        await observeTransition();
                         if (outcome?.saved) {
                             fieldStates.work.status =
                                 facebookPersonalProfileAboutFieldStatuses.FILLED;
@@ -1380,6 +1430,7 @@ export default async function fillFacebookPersonalProfileAbout(
                     }
                 }
             } catch (error) {
+                await trace?.failure(page, { point: "about.work", error });
                 markFailed("work", error);
                 report(
                     "facebook.personal_about.field.failed",
@@ -1408,7 +1459,7 @@ export default async function fillFacebookPersonalProfileAbout(
                 { kind: "sectionSnapshot", title: "College" },
                 "секція College"
             );
-            await pauseAfterChange("short");
+            await observeTransition();
             try {
                 const snapshot = await inspect({
                     kind: "sectionSnapshot",
@@ -1453,7 +1504,7 @@ export default async function fillFacebookPersonalProfileAbout(
                         },
                         "форма College"
                     );
-                    await pauseAfterChange("short");
+                    await observeTransition();
                     await fillSuggestionField(
                         {
                             kind: "sectionField",
@@ -1471,7 +1522,7 @@ export default async function fillFacebookPersonalProfileAbout(
                             { kind: "collegeSaveOutcome" },
                             "результат Save коледжу"
                         );
-                        await pauseAfterChange("short");
+                        await observeTransition();
                         if (outcome?.saved) {
                             fieldStates.education.status =
                                 facebookPersonalProfileAboutFieldStatuses.FILLED;
@@ -1524,6 +1575,7 @@ export default async function fillFacebookPersonalProfileAbout(
                     }
                 }
             } catch (error) {
+                await trace?.failure(page, { point: "about.education", error });
                 markFailed("education", error);
                 report(
                     "facebook.personal_about.field.failed",
@@ -1561,6 +1613,7 @@ export default async function fillFacebookPersonalProfileAbout(
             : facebookPersonalProfileAboutStatuses.COMPLETED;
         stage = hasFailed ? stage : "COMPLETED";
     } catch (error) {
+        await trace?.failure(page, { point: `about.${stage}`, error });
         if (status !== facebookPersonalProfileAboutStatuses.INVALID_INPUT) {
             status = facebookPersonalProfileAboutStatuses.ERROR;
         }

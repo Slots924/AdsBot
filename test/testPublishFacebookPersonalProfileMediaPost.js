@@ -119,6 +119,9 @@ function createMockPage({ applyPrivacy = true } = {}) {
             );
         },
         async waitForFunction(_callback, _options, ...args) {
+            if (_callback.name === "uiReadyInPage") {
+                return createHandle(args[0]);
+            }
             if (
                 args[0] === personalProfileCreatePostDialogSelector
                 && args[1] === personalProfilePhotoVideoButtonSelector

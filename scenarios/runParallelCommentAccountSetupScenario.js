@@ -231,6 +231,7 @@ export default async function runParallelCommentAccountSetupScenario({
         photoFolder: result.photoFolder ?? extra.photoFolder ?? null,
         renamedPhotoFolder: result.renamedPhotoFolder ?? null,
         steps: result.steps ?? extra.steps ?? null,
+        browserTracePath: result.browserTracePath ?? null,
         workerId: extra.workerId ?? null,
         startedAt: extra.startedAt ?? null,
         finishedAt: extra.finishedAt ?? null,
