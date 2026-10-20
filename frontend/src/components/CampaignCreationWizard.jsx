@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { errorDetails, unwrap } from "../lib/api.js";
+import { buildPixelUtm } from "../../../services/keitaro/pixelUtm.js";
 import TemplatesTab from "../tabs/TemplatesTab.jsx";
 import SearchSelect from "./SearchSelect.jsx";
 
@@ -388,7 +389,7 @@ export default function CampaignCreationWizard({
             const nextPixels = settings?.pixels ?? [];
             setSavedKeitaroPixels(nextPixels);
             const saved = nextPixels.find((pixel) => String(pixel.pixelId) === String(defaultPixelId));
-            if (saved) setForm((current) => current.utm === defaultUtm ? { ...current, utm: saved.utm } : current);
+            if (saved) setForm((current) => current.pixelId === defaultPixelId && current.utm === defaultUtm ? { ...current, utm: saved.utm } : current);
         }).catch(() => {});
         return () => { active = false; };
     }, [defaultPixelId, defaultUtm]);
@@ -423,7 +424,7 @@ export default function CampaignCreationWizard({
         setForm((current) => {
             if (field !== "pixelId") return { ...current, [field]: value };
             const saved = savedKeitaroPixels.find((pixel) => String(pixel.pixelId) === String(value).trim());
-            return { ...current, pixelId: value, ...(saved ? { utm: saved.utm } : {}) };
+            return { ...current, pixelId: value, utm: saved ? saved.utm : buildPixelUtm(value) };
         });
         setVerified(null);
         setFailure(null);

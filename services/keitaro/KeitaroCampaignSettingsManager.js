@@ -1,10 +1,8 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { buildPixelUtm } from "./pixelUtm.js";
 
-
-export function buildPixelUtm(pixelId, token) {
-    return `utm_campaign={{campaign.name}}&utm_source={{site_source_name}}&utm_placement={{placement}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}&adset_name={{adset.name}}&pixel=${String(pixelId).trim()}&ad_name={{ad.name}}&token=${String(token).trim()}`;
-}
+export { buildPixelUtm } from "./pixelUtm.js";
 
 
 function normalizePixel(value = {}) {

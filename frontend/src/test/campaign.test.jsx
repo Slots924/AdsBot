@@ -27,6 +27,51 @@ describe("Створення рекламної кампанії", () => {
         cleanup();
     });
 
+    it("формує мітки без токена для незбереженого пікселя після ручного вибору", async () => {
+        window.adsBot.getTemplates = vi.fn().mockResolvedValue({ ok: true, data: [] });
+        window.adsBot.getFanPages.mockResolvedValue({ ok: true, data: [] });
+        window.adsBot.onCampaignCreationProgress = vi.fn(() => () => {});
+        window.adsBot.getAdPixels = vi.fn().mockResolvedValue({
+            ok: true,
+            data: [
+                { id: "30", name: "Saved pixel" },
+                { id: "40", name: "Unsaved pixel" },
+                { id: "50", name: "Another pixel" },
+            ],
+        });
+        const savedUtm = "utm_source=saved&pixel=30&token=test-token";
+        window.adsBot.getKeitaroCampaignSettings.mockResolvedValue({
+            ok: true,
+            data: { pixels: [{ pixelId: "30", token: "test-token", utm: savedUtm }] },
+        });
+        render(<CampaignCreationWizard
+            accountKey="client"
+            adAccount={{ id: "act_1", timezoneName: "Europe/Kyiv" }}
+            defaultPixelId="30"
+            defaultUtm="utm_source=default"
+            sourcePage={{ id: "10", name: "Page", geo: "DE" }}
+            sourcePost={{ id: "10_20", message: "Post" }}
+            onClose={vi.fn()}
+        />);
+        fireEvent.click(screen.getByLabelText("Ввести Pixel і UTM вручну"));
+        await waitFor(() => expect(screen.getByRole("button", { name: "Pixel" })).toBeEnabled());
+        await waitFor(() => expect(screen.getByLabelText("UTM")).toHaveValue(savedUtm));
+
+        const choosePixel = async (name) => {
+            fireEvent.click(screen.getByRole("button", { name: "Pixel" }));
+            fireEvent.click(await screen.findByRole("button", { name }));
+        };
+        await choosePixel(/Unsaved pixel\s*40/);
+        const expectedUtm = "utm_campaign={{campaign.name}}&utm_source={{site_source_name}}&utm_placement={{placement}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}&adset_name={{adset.name}}&pixel=40&ad_name={{ad.name}}";
+        expect(screen.getByLabelText("UTM")).toHaveValue(expectedUtm);
+        await choosePixel(/Saved pixel\s*30/);
+        expect(screen.getByLabelText("UTM")).toHaveValue(savedUtm);
+        await choosePixel(/Another pixel\s*50/);
+        expect(screen.getByLabelText("UTM")).toHaveValue(expectedUtm.replace("pixel=40", "pixel=50"));
+        fireEvent.change(screen.getByLabelText("UTM"), { target: { value: "utm_source=custom" } });
+        expect(screen.getByLabelText("UTM")).toHaveValue("utm_source=custom");
+    });
+
     it("перевіряє та створює lead-кампанію з безпечними дефолтами", async () => {
         window.adsBot.getTemplates = vi.fn().mockResolvedValue({
             ok: true,
