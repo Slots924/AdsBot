@@ -882,7 +882,9 @@ export default async function executeCommentAccountSetupWithProfile({
 
         finalizeOutcome();
         const note = String(profileNameNote ?? "").replace(/\s+/g, " ").trim();
-        if (result.success && note && !signal?.aborted) {
+        const canAppendNote = ["success", "completed_with_error"].includes(result.outcome)
+            && result.steps.adsPowerRename.ok;
+        if (canAppendNote && note && !signal?.aborted) {
             try {
                 const currentName = skipNameChange ? profile.name : adsPowerName;
                 if (!String(currentName ?? "").trim()) {

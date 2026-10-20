@@ -292,7 +292,9 @@ assert.deepEqual(openedPages, [
 for (const scenario of [
     { note: "  моя   група  ", expected: ["m_Holger Steinhof", "m_Holger Steinhof моя група"] },
     { note: "   ", expected: ["m_Holger Steinhof"] },
-    { note: "тест", aboutFails: true, expected: ["m_Holger Steinhof"] },
+    { note: "тест", aboutFails: true, expected: ["m_Holger Steinhof", "m_Holger Steinhof тест"] },
+    { note: "тест", aboutThrows: true, expected: ["m_Holger Steinhof"] },
+    { note: "тест", nameFails: true, expected: [] },
     { note: "тест", renameFails: true, expected: ["m_Holger Steinhof"] },
     { note: "тест", noteFails: true, expected: ["m_Holger Steinhof", "m_Holger Steinhof тест"] },
     { note: "тест", skipNameChange: true, expected: ["Попереднє ім’я тест"] },
@@ -321,8 +323,12 @@ for (const scenario of [
             ensureLoggedIn: async () => true,
             ensureActive: async () => true,
             ensureEnglish: async () => {},
-            changeName: async () => ({ success: true }),
-            fillAbout: async () => ({ success: !scenario.aboutFails }),
+            changeName: async () => ({ success: !scenario.nameFails }),
+            markChangeNameError: async () => {},
+            fillAbout: async () => {
+                if (scenario.aboutThrows) throw new Error("Помилка виконання");
+                return { success: !scenario.aboutFails };
+            },
             updateProfileName: async (id, name) => {
                 assert.equal(id, "id-78");
                 updates.push(name);
@@ -336,12 +342,15 @@ for (const scenario of [
     });
     assert.deepEqual(updates, scenario.expected);
     const failed = scenario.aboutFails || scenario.renameFails || scenario.noteFails;
-    assert.equal(setup.outcome, failed ? "completed_with_error" : "success");
-    if (scenario.note.trim() && !failed) {
+    const hardFailure = scenario.aboutThrows || scenario.nameFails;
+    assert.equal(setup.outcome, hardFailure ? "failed" : (failed ? "completed_with_error" : "success"));
+    if (scenario.note.trim() && !scenario.renameFails && !scenario.noteFails && !hardFailure) {
         assert.equal(setup.adsPowerName, scenario.expected.at(-1));
         assert.equal(events.at(-2), "gender");
         assert.equal(events.at(-1), scenario.expected.at(-1));
         assert.equal(setup.steps.adsPowerNote.ok, true);
+    } else if (!scenario.noteFails) {
+        assert.equal(setup.steps.adsPowerNote, undefined);
     }
 }
 

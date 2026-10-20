@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "id": "045ec9f1-578b-4b0d-9120-e973da6c5de4",
+  "taskId": "efa43119-cc0c-4d94-9a0c-9e586bf7206f",
+  "type": "page-post-delete",
+  "title": "Видалення поста · 837259442802833_122143965645087645",
+  "status": "failed",
+  "createdAt": "2026-10-20T09:40:33.523Z",
+  "startedAt": "2026-10-20T09:40:30.201Z",
+  "finishedAt": "2026-10-20T09:40:33.522Z",
+  "durationMs": 3321,
+  "inputSummary": {
+    "accountKey": "account-050",
+    "pageId": "837259442802833",
+    "postId": "837259442802833_122143965645087645"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Не вдалося знайти робочу проксі",
+      "code": "PROXY_POOL_EXHAUSTED",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "httpStatus": null,
+      "requestId": "17397e90-7190-4c2d-b0b6-dedf6d3df826",
+      "traceId": null,
+      "metaRequestId": null,
+      "endpoint": "/me/accounts",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": null,
+      "isTransient": false
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-050",
+    "pageId": "837259442802833"
+  }
+}

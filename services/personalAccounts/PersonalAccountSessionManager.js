@@ -1339,6 +1339,7 @@ export default class PersonalAccountSessionManager {
         await this.#ensureAdsManager(session, normalizedAdAccountId);
         await ensureFacebookPage(session.page, {
             surface: "adsManager", url: targetUrl.href, matchPath: true,
+            allowedPaths: ["/adsmanager/billing_hub/accounts/details/"],
             queryKeys: ["asset_id", "payment_account_id"], timeout: 60000,
         });
         await session.report.append("ads.billing_page.ready", { accountId: normalizedAdAccountId });

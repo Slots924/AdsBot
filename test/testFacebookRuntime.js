@@ -113,6 +113,50 @@ assert.equal(billingPage.state.navigations.length, 1);
 assert.equal(new URL(billingPage.url()).searchParams.get("asset_id"), "2");
 await assert.rejects(ensureFacebookPage(billingPage, { url: "https://facebook.com.example.test/" }));
 
+// Billing може відкрити деталі акаунта замість старого екрана платіжних налаштувань.
+const paymentSettingsUrl = "https://adsmanager.facebook.com/adsmanager/billing_hub/payment_settings/?asset_id=123&payment_account_id=123";
+const accountDetailsUrl = "https://adsmanager.facebook.com/adsmanager/billing_hub/accounts/details/?nav_entry_point=ads_ecosystem_navigation_menu&placement=ads_manager&asset_id=123&payment_account_id=123&session_id=test-session&business_id=456";
+const paymentOptions = {
+    surface: "adsManager", url: paymentSettingsUrl, matchPath: true,
+    allowedPaths: ["/adsmanager/billing_hub/accounts/details/"],
+    queryKeys: ["asset_id", "payment_account_id"],
+};
+const detailsPage = createPage(accountDetailsUrl);
+await ensureFacebookPage(detailsPage, paymentOptions);
+assert.equal(detailsPage.state.navigations.length, 0);
+const redirectedPaymentPage = createPage("https://adsmanager.facebook.com/adsmanager/manage/campaigns");
+redirectedPaymentPage.goto = async (nextUrl) => {
+    redirectedPaymentPage.state.navigations.push(nextUrl);
+    redirectedPaymentPage.state.url = accountDetailsUrl;
+};
+await ensureFacebookPage(redirectedPaymentPage, paymentOptions);
+await ensureFacebookPage(redirectedPaymentPage, paymentOptions);
+assert.deepEqual(redirectedPaymentPage.state.navigations, [paymentSettingsUrl]);
+await ensureFacebookPage(createPage(paymentSettingsUrl), paymentOptions);
+await ensureFacebookPage(createPage(accountDetailsUrl.replace("/details/", "/details")), paymentOptions);
+
+// Інший акаунт, домен чи довільний екран billing не проходять навіть після редиректу.
+for (const [redirectUrl, expectedError] of [
+    [accountDetailsUrl.replace("asset_id=123", "asset_id=999"), /параметр asset_id/],
+    [accountDetailsUrl.replace("payment_account_id=123", "payment_account_id=999"), /параметр payment_account_id/],
+    [accountDetailsUrl.replace("payment_account_id=123&", ""), /параметр payment_account_id/],
+    [accountDetailsUrl.replace("/accounts/details/", "/accounts/"), /неприпустимий шлях/],
+    [accountDetailsUrl.replace("adsmanager.facebook.com", "adsmanager.facebook.com.example.test"), /домен/],
+    [accountDetailsUrl.replace("https:", "http:"), /HTTPS/],
+    ["https://adsmanager.facebook.com/login/?session_id=test-session", /неприпустимий шлях/],
+]) {
+    const rejectedPage = createPage(redirectUrl);
+    rejectedPage.goto = async () => {};
+    await assert.rejects(ensureFacebookPage(rejectedPage, paymentOptions), (error) => {
+        assert.match(error.message, expectedError);
+        assert.equal(error.message.includes("test-session"), false);
+        return true;
+    });
+}
+const strictPaymentPage = createPage(accountDetailsUrl);
+strictPaymentPage.goto = async () => {};
+await assert.rejects(ensureFacebookPage(strictPaymentPage, { ...paymentOptions, allowedPaths: [] }), /неприпустимий шлях/);
+
 const unavailable = createPage();
 unavailable.state.modulesAvailable = false;
 assert.ok((await readFacebookRuntime(unavailable)).runtimeError);

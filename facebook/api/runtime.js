@@ -15,7 +15,7 @@ export function getFacebookSurface(page) {
 
 // Перевіряє фактичну адресу вкладки; шлях та параметри звіряє лише для спеціальних екранів.
 export async function ensureFacebookPage(page, {
-    surface = "facebook", url, matchPath = false, queryKeys = [], timeout = 30000,
+    surface = "facebook", url, matchPath = false, allowedPaths = [], queryKeys = [], timeout = 30000,
 } = {}) {
     if (typeof page?.evaluate !== "function" || typeof page?.url !== "function") {
         throw new Error("Не передано Puppeteer page");
@@ -26,21 +26,26 @@ export async function ensureFacebookPage(page, {
     if (destination.protocol !== "https:" || !target.hosts.includes(destination.hostname)) {
         throw new Error("Адреса не відповідає потрібному середовищу Facebook");
     }
-    let current;
-    try { current = new URL(page.url()); } catch {}
-    const matches = current?.protocol === "https:"
-        && target.hosts.includes(current.hostname)
-        && (!matchPath || current.pathname.replace(/\/$/, "") === destination.pathname.replace(/\/$/, ""))
-        && queryKeys.every((key) => current.searchParams.get(key) === destination.searchParams.get(key));
-    if (!matches) {
+    const acceptedPaths = [destination.pathname, ...allowedPaths].map((path) => path.replace(/\/$/, ""));
+    // Однакові правила діють до переходу й після редиректу; значення query не потрапляють у помилку.
+    const mismatchReason = (address) => {
+        let current;
+        try { current = new URL(address); } catch { return "некоректний URL"; }
+        if (current.protocol !== "https:") return "протокол має бути HTTPS";
+        if (!target.hosts.includes(current.hostname)) return "не збігається домен";
+        if (matchPath && !acceptedPaths.includes(current.pathname.replace(/\/$/, ""))) {
+            return `неприпустимий шлях ${current.pathname}; очікується ${acceptedPaths.join(" або ")}`;
+        }
+        const key = queryKeys.find((key) => current.searchParams.get(key) !== destination.searchParams.get(key));
+        return key ? `не збігається параметр ${key}` : null;
+    };
+    if (mismatchReason(page.url())) {
         await page.goto(destination.href, { waitUntil: "domcontentloaded", timeout });
     }
     // Перевіряє редиректи, зокрема перенаправлення на вхід або інший домен.
-    const actual = new URL(page.url());
-    if (actual.protocol !== "https:" || !target.hosts.includes(actual.hostname)
-        || (matchPath && actual.pathname.replace(/\/$/, "") !== destination.pathname.replace(/\/$/, ""))
-        || queryKeys.some((key) => actual.searchParams.get(key) !== destination.searchParams.get(key))) {
-        throw new Error("Facebook відкрив іншу сторінку замість потрібного середовища");
+    const reason = mismatchReason(page.url());
+    if (reason) {
+        throw new Error(`Facebook відкрив іншу сторінку замість потрібного середовища: ${reason}`);
     }
     await page.waitForFunction(() => {
         try {

@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "id": "cdba760f-4d52-4ecc-8ca7-84651ed6fa88",
+  "taskId": "6fa6f28b-5b84-4c9a-bb73-9c46c13827f7",
+  "type": "page-post-delete",
+  "title": "Видалення поста · 837259442802833_122143965645087645",
+  "status": "failed",
+  "createdAt": "2026-10-20T09:44:55.611Z",
+  "startedAt": "2026-10-20T09:44:52.204Z",
+  "finishedAt": "2026-10-20T09:44:55.609Z",
+  "durationMs": 3405,
+  "inputSummary": {
+    "accountKey": "account-050",
+    "pageId": "837259442802833",
+    "postId": "837259442802833_122143965645087645"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Error loading application",
+      "code": "FACEBOOK_API_ERROR",
+      "stage": null,
+      "graphCode": 190,
+      "graphSubcode": null,
+      "httpStatus": 401,
+      "requestId": "8c65a99c-a49e-4008-98a1-cc6b27dc8c9b",
+      "traceId": "APKUvrTQbaCJjiHrgz4-LKq",
+      "metaRequestId": "APKUvrTQbaCJjiHrgz4-LKq",
+      "endpoint": "/me/accounts",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": "OAuthException",
+      "isTransient": false
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-050",
+    "pageId": "837259442802833"
+  }
+}
