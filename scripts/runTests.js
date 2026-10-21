@@ -98,6 +98,7 @@ const backendSuites = {
         "test/testSpendService.js",
         "test/testRunCommentingScenarioMock.js",
         "test/testRunParallelCommentingScenarioMock.js",
+        "test/testRunSelectedProfilesCommentingScenario.js",
         "test/testCommentAccountSetupHelpers.js",
         "test/testCommentAccountPhotoSets.js",
         "test/testCommentAccountPersonaGeneratorMock.js",

@@ -112,6 +112,22 @@ try {
     assert.ok(result.report.profiles.every((item) => Number.isFinite(item.durationMs)));
     assert.equal(result.report.geo, "DE");
 
+    const resumed = [];
+    const resumeResult = await runParallelCommentAccountSetupScenario({
+        adsPower: { getProfileByNo: async (number) => profiles[String(number)] },
+        profileNos: [12, 14, 13],
+        personas: [createPersona("female", "Meike"), createPersona("male", "Holger")],
+        geo: "DE", checkGender: false, reportsDirectory,
+        logger: { info() {}, warn() {}, error() {}, debug() {} },
+        executeSetup: async ({ profile, persona, checkGender }) => {
+            assert.equal(checkGender, false);
+            resumed.push({ profileNo: profile.profile_no, gender: persona.gender });
+            return { success: true, outcome: "success", profileNo: profile.profile_no, persona, cleanupErrors: [] };
+        },
+    });
+    assert.deepEqual(resumed, [{ profileNo: "12", gender: "male" }]);
+    assert.equal(resumeResult.report.profiles.filter((item) => item.outcome === "skipped").length, 2);
+
     await assert.rejects(
         () => runParallelCommentAccountSetupScenario({
             adsPower: { getProfileByNo: async () => profiles[10] },

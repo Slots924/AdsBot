@@ -2487,6 +2487,68 @@ export default function registerIpcHandlers({
         })
     );
     ipcMain.handle(
+        "selected-profile-comments:run",
+        safeHandler(async (payload) => {
+            const profileNos = [...new Set((payload.profileNos ?? [])
+                .map((number) => String(number ?? "").trim()).filter(Boolean))];
+            if (!profileNos.length) throw new Error("Оберіть хоча б один профіль AdsPower");
+            const postUrl = String(payload.postUrl ?? "").trim();
+            let parsedUrl;
+            try { parsedUrl = new URL(postUrl); } catch { throw new Error("Вкажіть коректний URL Facebook-поста"); }
+            if (!["http:", "https:"].includes(parsedUrl.protocol)
+                || !(parsedUrl.hostname === "facebook.com" || parsedUrl.hostname.endsWith(".facebook.com"))) {
+                throw new Error("URL має вести на Facebook-пост");
+            }
+            const manualMode = payload.manualMode === true;
+            const manualComments = String(payload.manualComments ?? "");
+            const creativeGeo = String(payload.creativeGeo ?? "").trim().toUpperCase();
+            const creativeName = String(payload.creativeName ?? "").trim();
+            if (manualMode ? !manualComments.trim() : !creativeGeo || !creativeName) {
+                throw new Error(manualMode ? "Введіть коментарі, кожен з нового рядка" : "Оберіть мову та вкажіть креатив");
+            }
+            const input = {
+                profileNos, postUrl, manualMode,
+                manualComments: manualMode ? manualComments : "",
+                creativeGeo: manualMode ? "" : creativeGeo,
+                creativeName: manualMode ? "" : creativeName,
+                siteUrl: manualMode ? "" : String(payload.siteUrl ?? "").trim(),
+                browserMode: payload.browserMode === "headless" ? "headless" : "visible",
+                disableImages: payload.disableImages === true,
+                concurrency: Math.min(5, Math.max(1, Math.round(Number(payload.commentWorkerConcurrency) || 5))),
+                commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
+            };
+            const task = await backgroundTaskManager.enqueue({
+                type: "comments",
+                name: `Коментарі вибраними акаунтами · ${manualMode ? "Вручну" : `${creativeGeo} · ${creativeName}`} · ${profileNos.length}`,
+                resources: profileNos.map((profileNo) => ({ key: `adspower-profile:${profileNo}`, label: `AdsPower ${profileNo}` })),
+                input,
+                metadata: { profileNos, postUrl, manualMode },
+                runner: async ({ signal, progress, waitForAction }) => {
+                    const workerProxies = await resolveWorkerProxies(proxyManager, input.commentWorkerProxyIds);
+                    const summary = await guiService.runSelectedProfilesCommenting({
+                        ...input,
+                        workerProxies,
+                        onProxyUnavailable: createProxyUnavailableHandler({ proxyManager, progress, waitForAction }),
+                        signal,
+                        onProgress: progress,
+                    });
+                    const { reportDetails, ...result } = summary;
+                    if (summary.fatalError && !signal.aborted) {
+                        const error = Object.assign(new Error(summary.fatalError), { code: "COMMENTING_FATAL_ERROR", reportDetails });
+                        throw error;
+                    }
+                    return {
+                        result,
+                        taskStatus: summary.failedComments || summary.failedProfiles || summary.skipped || summary.excludedProfiles
+                            ? "completed_with_warnings" : "completed",
+                        reportDetails,
+                    };
+                },
+            });
+            return { taskId: task.id, task };
+        })
+    );
+    ipcMain.handle(
         "account-setup:run",
         safeHandler(async (payload) => {
             const browserMode = payload.browserMode === "headless"
@@ -2510,6 +2572,7 @@ export default function registerIpcHandlers({
             };
             const photosDirectory = String(payload.photosDirectory ?? "").trim();
             const useApiRequests = payload.useApiRequests === true;
+            const checkGender = payload.checkGender !== false;
             const profileNameNote = String(payload.profileNameNote ?? "").replace(/\s+/g, " ").trim();
             const operations = {
                 changeName: payload.operations?.changeName !== false,
@@ -2535,6 +2598,7 @@ export default function registerIpcHandlers({
                     photosDirectory,
                     useApiRequests,
                     profileNameNote,
+                    checkGender,
                     operations,
                     browserMode,
                     commentWorkerProxyIds: payload.commentWorkerProxyIds ?? {},
@@ -2559,6 +2623,7 @@ export default function registerIpcHandlers({
                         photosDirectory,
                         useApiRequests,
                         profileNameNote,
+                        checkGender,
                         operations,
                         browserMode,
                         concurrency: payload.commentWorkerConcurrency,

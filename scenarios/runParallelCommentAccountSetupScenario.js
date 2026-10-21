@@ -9,6 +9,7 @@ import getCommentAccountSetupSkipReason, {
 import { takeNextPhotoSet } from "../services/accounts/photoSets.js";
 import saveCommentAccountSetupReport from "../services/reports/saveCommentAccountSetupReport.js";
 import executeCommentAccountSetupWithProfile from "../workflows/accounts/executeCommentAccountSetupWithProfile.js";
+import getProfileGender from "../services/profile/getProfileGender.js";
 import {
     KeyedMutex,
     normalizeConcurrency,
@@ -145,6 +146,7 @@ export default async function runParallelCommentAccountSetupScenario({
     skipFillAbout = false,
     skipBio = false,
     ignoreSkipReasons = false,
+    checkGender = true,
     profileActivityStore = null,
     profileActivityType = null,
 } = {}) {
@@ -312,7 +314,7 @@ export default async function runParallelCommentAccountSetupScenario({
                         return;
                     }
 
-                    const skipReason = getCommentAccountSetupSkipReason(profile);
+                    const skipReason = getCommentAccountSetupSkipReason(profile, { checkGender });
                     const ignoredSkipReasons = new Set([
                         commentAccountSetupSkipReasons.ALREADY_SETUP,
                         commentAccountSetupSkipReasons.CHANGE_NAME_ERROR,
@@ -339,7 +341,13 @@ export default async function runParallelCommentAccountSetupScenario({
                     }
 
                     const assigned = await assignMutex.run("next", async () => {
-                        const nextPersona = personaQueue.shift() ?? null;
+                        const existingGender = checkGender ? null : getProfileGender(profile);
+                        const personaIndex = existingGender
+                            ? personaQueue.findIndex((candidate) => candidate.gender === existingGender)
+                            : 0;
+                        const nextPersona = personaIndex < 0
+                            ? null
+                            : personaQueue.splice(personaIndex, 1)[0] ?? null;
                         if (!nextPersona) {
                             return { persona: null, photoSet: null };
                         }
@@ -385,6 +393,7 @@ export default async function runParallelCommentAccountSetupScenario({
                         skipFillAbout,
                         skipBio,
                         ignoreSkipReasons,
+                        checkGender,
                         browserMode: report.browserMode,
                         disableImages: report.disableImages,
                         workerId,

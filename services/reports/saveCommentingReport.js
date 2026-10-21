@@ -146,6 +146,7 @@ function buildMarkdown(report) {
         `- Завершення: ${formatDateTime(report.finishedAt)}`,
         `- Загальний час: ${formatDuration(new Date(report.finishedAt) - new Date(report.startedAt))}`,
         `- ID груп AdsPower: ${escapeCell(report.groupIds?.join(", "))}`,
+        ...(report.profileNos?.length ? [`- Вибрані профілі AdsPower: ${escapeCell(report.profileNos.join(", "))}`] : []),
         `- Facebook-пост: ${escapeCell(report.postUrl)}`,
         `- Креатив: ${escapeCell(`${report.geo} ${report.creativeName}`)}`,
         `- Режим браузера: ${report.browserMode === "headless" ? "Headless" : "Звичайний"}`,

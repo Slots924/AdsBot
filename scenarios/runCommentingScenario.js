@@ -108,12 +108,13 @@ function getActionType(comment) {
 
 function validateSettings({
     groupIds,
+    profileNos,
     comments,
     geo,
     creativeName,
     postUrl,
 }) {
-    if (normalizeGroupIds(groupIds).length === 0) {
+    if (normalizeGroupIds(groupIds).length === 0 && normalizeGroupIds(profileNos).length === 0) {
         throw new Error("Не вказано ID груп AdsPower");
     }
 

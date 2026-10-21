@@ -2,801 +2,252 @@
   "version": 1,
   "tasks": [
     {
-      "id": "3542d82e-e126-488e-ae6a-1afb11d8a953",
-      "type": "comments",
-      "name": "Коментарі поста · HU · 4",
-      "status": "completed_with_warnings",
-      "resources": [
-        {
-          "key": "adspower-group:8278298",
-          "label": "[HU] Hungary"
-        }
-      ],
-      "input": {
-        "groupIds": [
-          "8278298"
-        ],
-        "geo": "HU",
-        "creativeGeo": "HU",
-        "language": "",
-        "creativeName": "4",
-        "siteUrl": "",
-        "postUrl": "https://www.facebook.com/61595207534512/posts/pfbid0tHsEMVmnnnRounw11m3Z6u6wmasaiAgAccd7D1nAwBrNu5HTpe7kGwHb92G9U5S1l",
-        "browserMode": "headless",
-        "disableImages": true,
-        "commentTarget": "post",
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "groupIds": [
-          "8278298"
-        ],
-        "geo": "HU",
-        "language": "",
-        "browserMode": "headless",
-        "disableImages": true,
-        "reportId": "2c424573-da51-454b-8477-518afd3fadf7"
-      },
-      "progress": {
-        "completed": 17,
-        "total": 17,
-        "stage": "completed_with_warnings",
-        "message": "Задачу завершено",
-        "published": 10,
-        "skipped": 3,
-        "failedComments": 4,
-        "failedProfiles": 1,
-        "activeWorkers": 0,
-        "concurrency": 1,
-        "currentCommentId": "11",
-        "currentProfileNo": "1793",
-        "workerId": 1
-      },
-      "result": {
-        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-20_21-19-40-181.md",
-        "published": 10,
-        "skipped": 3,
-        "failedComments": 4,
-        "failedProfiles": 1,
-        "fatalError": null,
-        "browserMode": "headless",
-        "disableImages": true
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T18:05:56.387Z",
-      "startedAt": "2026-10-20T18:05:56.389Z",
-      "finishedAt": "2026-10-20T18:19:40.183Z",
-      "updatedAt": "2026-10-20T18:19:40.185Z"
-    },
-    {
-      "id": "34523fd7-2627-47eb-8d78-6e0b20952cdb",
-      "type": "campaign",
-      "name": "HU | Creo_4 | 25+ 20/10 20:58",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-campaign-write",
-          "label": "черга створення рекламних кампаній"
-        }
-      ],
-      "input": {
-        "campaignJobId": "5d961ab6-0f8a-4cfe-ac2e-06bcad8ad1d3"
-      },
-      "metadata": {
-        "campaignJobId": "5d961ab6-0f8a-4cfe-ac2e-06bcad8ad1d3",
-        "accountKey": "account-051",
-        "adAccountId": "act_1006141189164628",
-        "uniqueKey": "campaign-job:5d961ab6-0f8a-4cfe-ac2e-06bcad8ad1d3",
-        "reportId": "32526675-7e6f-48fd-8e61-db198b64cb91"
-      },
-      "progress": {
-        "completed": 9,
-        "total": 9,
-        "stage": "completed",
-        "message": "Задачу завершено",
-        "objects": {
-          "campaignId": "120250736605290477",
-          "creativeId": "974266048476852",
-          "creatives": [
-            {
-              "id": "974266048476852",
-              "pageId": "1289485740924945",
-              "postId": "1289485740924945_122108073669506917"
-            }
-          ],
-          "adSets": [
-            {
-              "index": 0,
-              "id": "120250736606470477",
-              "name": "HU | Creo_4 | 25+ 20/10 20:58 | AS 01"
-            },
-            {
-              "index": 1,
-              "id": "120250736607830477",
-              "name": "HU | Creo_4 | 25+ 20/10 20:58 | AS 02"
-            },
-            {
-              "index": 2,
-              "id": "120250736609370477",
-              "name": "HU | Creo_4 | 25+ 20/10 20:58 | AS 03"
-            }
-          ],
-          "ads": [
-            {
-              "index": 0,
-              "creativeIndex": 0,
-              "id": "120250736607600477",
-              "name": "HU | Creo_4 | 25+ 20/10 20:58 | AD 01"
-            },
-            {
-              "index": 1,
-              "creativeIndex": 0,
-              "id": "120250736608610477",
-              "name": "HU | Creo_4 | 25+ 20/10 20:58 | AD 02"
-            },
-            {
-              "index": 2,
-              "creativeIndex": 0,
-              "id": "120250736609880477",
-              "name": "HU | Creo_4 | 25+ 20/10 20:58 | AD 03"
-            }
-          ]
-        }
-      },
-      "result": {
-        "campaignJobId": "5d961ab6-0f8a-4cfe-ac2e-06bcad8ad1d3",
-        "campaignId": "120250736605290477",
-        "warnings": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T17:58:52.511Z",
-      "startedAt": "2026-10-20T17:58:52.513Z",
-      "finishedAt": "2026-10-20T17:59:34.892Z",
-      "updatedAt": "2026-10-20T17:59:34.894Z"
-    },
-    {
-      "id": "79164848-76ed-46cd-a998-f74f07beea9b",
-      "type": "publication",
-      "name": "Публікація · HU · 4",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-page-publish",
-          "label": "черга публікації Facebook-постів"
-        }
-      ],
-      "input": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeGeo": "HU",
-        "creativeName": "4",
-        "siteUrl": "https://love-in-hurt.club/a9ddkw",
-        "manualCreativeText": "",
-        "useCreativeFont": true,
-        "creativeFont": "blurry",
-        "imagePath": "",
-        "imagePaths": [
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558674094_17876948694410212_5685162515973610647_n.png",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558967207_17876948703410212_8701678181365780701_n.png"
-        ],
-        "disableComments": true,
-        "commentGroupIds": [],
-        "commentBrowserMode": "headless",
-        "commentDisableImages": true,
-        "commentWorkerConcurrency": 1,
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeName": "4",
-        "manualCreativeText": false,
-        "useCreativeFont": true,
-        "commentsEnabled": false,
-        "reportId": "8e490a37-9cbd-4e69-a68a-6db569fb2f08"
-      },
-      "progress": {
-        "completed": 3,
-        "total": 3,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeName": "4",
-        "siteUrl": "https://love-in-hurt.club/a9ddkw",
-        "postId": "1289485740924945_122108073669506917",
-        "permalinkUrl": "https://www.facebook.com/61595207534512/posts/pfbid0tHsEMVmnnnRounw11m3Z6u6wmasaiAgAccd7D1nAwBrNu5HTpe7kGwHb92G9U5S1l",
-        "type": "photo",
-        "verified": true,
-        "comments": null
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T17:57:37.783Z",
-      "startedAt": "2026-10-20T17:57:37.785Z",
-      "finishedAt": "2026-10-20T17:57:48.769Z",
-      "updatedAt": "2026-10-20T17:57:48.771Z"
-    },
-    {
-      "id": "e2f15a37-2fd7-4c26-968d-bd769f4929a2",
-      "type": "page-post-delete",
-      "name": "Видалення поста · 1289485740924945_122108071287506917",
-      "status": "completed",
-      "resources": [],
-      "input": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "postId": "1289485740924945_122108071287506917"
-      },
-      "metadata": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "reportId": "3c0f797b-f154-4539-993e-1544dc157f3f"
-      },
-      "progress": {
-        "completed": 0,
-        "total": 1,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "deleted": [
-          {
-            "id": "1289485740924945_122108071287506917"
-          }
-        ],
-        "failed": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T17:57:00.094Z",
-      "startedAt": "2026-10-20T17:57:00.096Z",
-      "finishedAt": "2026-10-20T17:57:06.789Z",
-      "updatedAt": "2026-10-20T17:57:06.791Z"
-    },
-    {
-      "id": "e3dffefe-e371-4bed-b7a0-617895d8a0b5",
-      "type": "campaign",
-      "name": "HU | Creo_5 | 25+ 20/10 20:49",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-campaign-write",
-          "label": "черга створення рекламних кампаній"
-        }
-      ],
-      "input": {
-        "campaignJobId": "70ed558d-7288-4f43-8f13-2ddee043494b"
-      },
-      "metadata": {
-        "campaignJobId": "70ed558d-7288-4f43-8f13-2ddee043494b",
-        "accountKey": "account-051",
-        "adAccountId": "act_1006141189164628",
-        "uniqueKey": "campaign-job:70ed558d-7288-4f43-8f13-2ddee043494b",
-        "reportId": "749a411c-9f2a-41fc-8a69-a3c535144bae"
-      },
-      "progress": {
-        "completed": 9,
-        "total": 9,
-        "stage": "completed",
-        "message": "Задачу завершено",
-        "objects": {
-          "campaignId": "120250736560570477",
-          "creativeId": "29837866465817906",
-          "creatives": [
-            {
-              "id": "29837866465817906",
-              "pageId": "1289485740924945",
-              "postId": "1289485740924945_122108071287506917"
-            }
-          ],
-          "adSets": [
-            {
-              "index": 0,
-              "id": "120250736560980477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:49 | AS 01"
-            },
-            {
-              "index": 1,
-              "id": "120250736562110477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:49 | AS 02"
-            },
-            {
-              "index": 2,
-              "id": "120250736563280477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:49 | AS 03"
-            }
-          ],
-          "ads": [
-            {
-              "index": 0,
-              "creativeIndex": 0,
-              "id": "120250736561520477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:49 | AD 01"
-            },
-            {
-              "index": 1,
-              "creativeIndex": 0,
-              "id": "120250736562610477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:49 | AD 02"
-            },
-            {
-              "index": 2,
-              "creativeIndex": 0,
-              "id": "120250736563780477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:49 | AD 03"
-            }
-          ]
-        }
-      },
-      "result": {
-        "campaignJobId": "70ed558d-7288-4f43-8f13-2ddee043494b",
-        "campaignId": "120250736560570477",
-        "warnings": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T17:49:27.327Z",
-      "startedAt": "2026-10-20T17:49:27.329Z",
-      "finishedAt": "2026-10-20T17:50:06.219Z",
-      "updatedAt": "2026-10-20T17:50:06.221Z"
-    },
-    {
-      "id": "4ec79b4c-35d9-4d79-9d48-8d60ddbd6c6e",
-      "type": "publication",
-      "name": "Публікація · HU · 5",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-page-publish",
-          "label": "черга публікації Facebook-постів"
-        }
-      ],
-      "input": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeGeo": "HU",
-        "creativeName": "5",
-        "siteUrl": "https://love-in-hurt.club/a9ddkw",
-        "manualCreativeText": "",
-        "useCreativeFont": true,
-        "creativeFont": "blurry",
-        "imagePath": "",
-        "imagePaths": [
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558674094_17876948694410212_5685162515973610647_n.png",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558967207_17876948703410212_8701678181365780701_n.png"
-        ],
-        "disableComments": true,
-        "commentGroupIds": [],
-        "commentBrowserMode": "headless",
-        "commentDisableImages": true,
-        "commentWorkerConcurrency": 1,
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeName": "5",
-        "manualCreativeText": false,
-        "useCreativeFont": true,
-        "commentsEnabled": false,
-        "reportId": "1aa3c601-1f49-42a3-9c9f-28511daee72f"
-      },
-      "progress": {
-        "completed": 3,
-        "total": 3,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeName": "5",
-        "siteUrl": "https://love-in-hurt.club/a9ddkw",
-        "postId": "1289485740924945_122108071287506917",
-        "permalinkUrl": "https://www.facebook.com/61595207534512/posts/pfbid0XV6UN1xAJkiYEUdjg5nHtnTTkx48PwLpt49bnjyCQ9f2CSC6MpgEhJ5HrR3i4RwMl",
-        "type": "photo",
-        "verified": true,
-        "comments": null
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T17:48:44.603Z",
-      "startedAt": "2026-10-20T17:48:44.605Z",
-      "finishedAt": "2026-10-20T17:49:07.337Z",
-      "updatedAt": "2026-10-20T17:49:07.340Z"
-    },
-    {
-      "id": "b0bbd705-ec01-4659-985f-3392e19f9e96",
-      "type": "page-post-delete",
-      "name": "Видалення поста · 1289485740924945_122108066853506917",
-      "status": "completed",
-      "resources": [],
-      "input": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "postId": "1289485740924945_122108066853506917"
-      },
-      "metadata": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "reportId": "71395c1c-59ca-4300-9f97-fbaaf5be4a73"
-      },
-      "progress": {
-        "completed": 0,
-        "total": 1,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "deleted": [
-          {
-            "id": "1289485740924945_122108066853506917"
-          }
-        ],
-        "failed": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T17:47:58.675Z",
-      "startedAt": "2026-10-20T17:47:58.676Z",
-      "finishedAt": "2026-10-20T17:48:04.629Z",
-      "updatedAt": "2026-10-20T17:48:04.633Z"
-    },
-    {
-      "id": "be51f836-a44d-42b9-a475-cca76dbd487d",
-      "type": "campaign",
-      "name": "HU | Creo_5 | 25+ 20/10 20:35",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-campaign-write",
-          "label": "черга створення рекламних кампаній"
-        }
-      ],
-      "input": {
-        "campaignJobId": "912f0d13-b892-4f8b-be19-2aaa0c5b4cda"
-      },
-      "metadata": {
-        "campaignJobId": "912f0d13-b892-4f8b-be19-2aaa0c5b4cda",
-        "accountKey": "account-051",
-        "adAccountId": "act_1006141189164628",
-        "uniqueKey": "campaign-job:912f0d13-b892-4f8b-be19-2aaa0c5b4cda",
-        "reportId": "b4764bf0-c508-48fc-ad91-c307fee993ae"
-      },
-      "progress": {
-        "completed": 9,
-        "total": 9,
-        "stage": "completed",
-        "message": "Задачу завершено",
-        "objects": {
-          "campaignId": "120250736439460477",
-          "creativeId": "1086682484271146",
-          "creatives": [
-            {
-              "id": "1086682484271146",
-              "pageId": "1289485740924945",
-              "postId": "1289485740924945_122108066853506917"
-            }
-          ],
-          "adSets": [
-            {
-              "index": 0,
-              "id": "120250736440470477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:35 | AS 01"
-            },
-            {
-              "index": 1,
-              "id": "120250736442020477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:35 | AS 02"
-            },
-            {
-              "index": 2,
-              "id": "120250736443430477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:35 | AS 03"
-            }
-          ],
-          "ads": [
-            {
-              "index": 0,
-              "creativeIndex": 0,
-              "id": "120250736441380477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:35 | AD 01"
-            },
-            {
-              "index": 1,
-              "creativeIndex": 0,
-              "id": "120250736443060477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:35 | AD 02"
-            },
-            {
-              "index": 2,
-              "creativeIndex": 0,
-              "id": "120250736444190477",
-              "name": "HU | Creo_5 | 25+ 20/10 20:35 | AD 03"
-            }
-          ]
-        }
-      },
-      "result": {
-        "campaignJobId": "912f0d13-b892-4f8b-be19-2aaa0c5b4cda",
-        "campaignId": "120250736439460477",
-        "warnings": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T17:36:02.515Z",
-      "startedAt": "2026-10-20T17:36:02.516Z",
-      "finishedAt": "2026-10-20T17:36:44.589Z",
-      "updatedAt": "2026-10-20T17:36:44.591Z"
-    },
-    {
-      "id": "2b5a640e-6399-4c42-b4f3-5684fb1f99f5",
-      "type": "publication",
-      "name": "Публікація · HU · 5",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-page-publish",
-          "label": "черга публікації Facebook-постів"
-        }
-      ],
-      "input": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeGeo": "HU",
-        "creativeName": "5",
-        "siteUrl": "https://love-in-hurt.club/6387y0",
-        "manualCreativeText": "",
-        "useCreativeFont": false,
-        "creativeFont": "blurry",
-        "imagePath": "",
-        "imagePaths": [
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\14.jpeg"
-        ],
-        "disableComments": true,
-        "commentGroupIds": [],
-        "commentBrowserMode": "headless",
-        "commentDisableImages": true,
-        "commentWorkerConcurrency": 1,
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeName": "5",
-        "manualCreativeText": false,
-        "useCreativeFont": false,
-        "commentsEnabled": false,
-        "reportId": "6aeae1bf-de61-410c-8127-5b9834dc0032"
-      },
-      "progress": {
-        "completed": 3,
-        "total": 3,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeName": "5",
-        "siteUrl": "https://love-in-hurt.club/6387y0",
-        "postId": "1289485740924945_122108066853506917",
-        "permalinkUrl": "https://www.facebook.com/61595207534512/posts/pfbid02tw78RPEmw8mfHSGi7JmbFpiNJ2BVWNZbaSdCDoPw3S1tsKmY9KkExDcpVeScrofEl",
-        "type": "photo",
-        "verified": true,
-        "comments": null
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T17:35:31.486Z",
-      "startedAt": "2026-10-20T17:35:31.487Z",
-      "finishedAt": "2026-10-20T17:35:37.396Z",
-      "updatedAt": "2026-10-20T17:35:37.401Z"
-    },
-    {
-      "id": "cd86f4b7-6b63-4067-9653-026365c5175d",
-      "type": "page-post-delete",
-      "name": "Видалення поста · 1289485740924945_122107944603506917",
-      "status": "completed",
-      "resources": [],
-      "input": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "postId": "1289485740924945_122107944603506917"
-      },
-      "metadata": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "reportId": "67cbf665-8b4c-40c0-a2b5-d5e9a9d88f85"
-      },
-      "progress": {
-        "completed": 0,
-        "total": 1,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "deleted": [
-          {
-            "id": "1289485740924945_122107944603506917"
-          }
-        ],
-        "failed": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T17:34:15.572Z",
-      "startedAt": "2026-10-20T17:34:15.574Z",
-      "finishedAt": "2026-10-20T17:34:22.578Z",
-      "updatedAt": "2026-10-20T17:34:22.581Z"
-    },
-    {
-      "id": "a0fc87ed-dec7-49d3-ab9d-f5eaf291ee27",
+      "id": "4bcc1a56-9e9b-470a-8da4-7fab46077e6c",
       "type": "account-setup",
-      "name": "Акаунти під коментарі · HU · 4",
+      "name": "Акаунти під коментарі · US · 5",
       "status": "completed_with_warnings",
       "resources": [
         {
-          "key": "adspower-profile:2390",
-          "label": "AdsPower 2390"
+          "key": "adspower-profile:1980",
+          "label": "AdsPower 1980"
         },
         {
-          "key": "adspower-profile:2391",
-          "label": "AdsPower 2391"
+          "key": "adspower-profile:1983",
+          "label": "AdsPower 1983"
         },
         {
-          "key": "adspower-profile:2392",
-          "label": "AdsPower 2392"
+          "key": "adspower-profile:1984",
+          "label": "AdsPower 1984"
         },
         {
-          "key": "adspower-profile:2393",
-          "label": "AdsPower 2393"
+          "key": "adspower-profile:1985",
+          "label": "AdsPower 1985"
+        },
+        {
+          "key": "adspower-profile:1986",
+          "label": "AdsPower 1986"
         }
       ],
       "input": {
         "profileNos": [
-          "2390",
-          "2391",
-          "2392",
-          "2393"
+          "1980",
+          "1983",
+          "1984",
+          "1985",
+          "1986"
         ],
-        "geo": "HU",
-        "maleCount": 4,
+        "geo": "US",
+        "maleCount": 5,
         "femaleCount": 0,
-        "namesGeo": "HU",
-        "companiesGeo": "HU",
-        "universitiesGeo": "HU",
-        "professionsGeo": "HU",
-        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
-        "useApiRequests": false,
-        "profileNameNote": "New US",
+        "namesGeo": "US",
+        "companiesGeo": "US",
+        "universitiesGeo": "US",
+        "professionsGeo": "US",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\USA",
+        "useApiRequests": true,
+        "profileNameNote": "| Ivan | -name | api",
         "operations": {
-          "changeName": true,
+          "changeName": false,
           "changeAvatar": true,
           "changeCover": true,
           "deletePosts": true,
           "publishPosts": true,
           "fillAbout": true
         },
-        "browserMode": "visible",
+        "browserMode": "headless",
         "commentWorkerProxyIds": {
           "1": "proxy-003"
         }
       },
       "metadata": {
         "profileNos": [
-          "2390",
-          "2391",
-          "2392",
-          "2393"
+          "1980",
+          "1983",
+          "1984",
+          "1985",
+          "1986"
         ],
-        "geo": "HU",
-        "browserMode": "visible",
-        "useApiRequests": false,
-        "reportId": "d85ce577-ebb4-445e-9178-65fe09e0f3e6"
+        "geo": "US",
+        "browserMode": "headless",
+        "useApiRequests": true,
+        "reportId": "e2e9aba7-747a-441b-8040-0610da60db8e"
       },
       "progress": {
-        "completed": 4,
-        "total": 4,
+        "completed": 5,
+        "total": 5,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 3,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 1,
+        "currentProfileNo": "1986",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-21_15-01-58-901.md",
+        "fatalError": null,
+        "success": 3,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 1
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-21T11:57:30.556Z",
+      "startedAt": "2026-10-21T11:57:30.557Z",
+      "finishedAt": "2026-10-21T12:01:58.903Z",
+      "updatedAt": "2026-10-21T12:01:58.905Z"
+    },
+    {
+      "id": "3e46358c-922d-4a2e-8a80-34d1ef8d1d98",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · US · 5",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1978",
+          "label": "AdsPower 1978"
+        },
+        {
+          "key": "adspower-profile:1979",
+          "label": "AdsPower 1979"
+        },
+        {
+          "key": "adspower-profile:1980",
+          "label": "AdsPower 1980"
+        },
+        {
+          "key": "adspower-profile:1981",
+          "label": "AdsPower 1981"
+        },
+        {
+          "key": "adspower-profile:1982",
+          "label": "AdsPower 1982"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1978",
+          "1979",
+          "1980",
+          "1981",
+          "1982"
+        ],
+        "geo": "US",
+        "maleCount": 5,
+        "femaleCount": 0,
+        "namesGeo": "US",
+        "companiesGeo": "US",
+        "universitiesGeo": "US",
+        "professionsGeo": "US",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\USA",
+        "useApiRequests": false,
+        "profileNameNote": "Ivan -name",
+        "operations": {
+          "changeName": false,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "headless",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "1978",
+          "1979",
+          "1980",
+          "1981",
+          "1982"
+        ],
+        "geo": "US",
+        "browserMode": "headless",
+        "useApiRequests": false,
+        "reportId": "955838f2-70a7-4526-8985-03981944b145"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
         "stage": "completed_with_warnings",
         "message": "Задачу завершено",
         "activeWorkers": 0,
         "concurrency": 1,
         "success": 0,
         "completedWithError": 4,
-        "failed": 0,
+        "failed": 1,
         "skipped": 0,
-        "currentProfileNo": "2393",
+        "currentProfileNo": "1982",
         "workerId": 1
       },
       "result": {
-        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-20_20-19-37-528.md",
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-21_14-52-37-570.md",
         "fatalError": null,
         "success": 0,
         "completedWithError": 4,
-        "failed": 0,
+        "failed": 1,
         "skipped": 0
       },
       "error": null,
       "waitingReason": null,
-      "createdAt": "2026-10-20T16:47:44.808Z",
-      "startedAt": "2026-10-20T16:47:44.810Z",
-      "finishedAt": "2026-10-20T17:19:37.531Z",
-      "updatedAt": "2026-10-20T17:19:37.533Z"
+      "createdAt": "2026-10-21T11:36:59.512Z",
+      "startedAt": "2026-10-21T11:36:59.513Z",
+      "finishedAt": "2026-10-21T11:52:37.571Z",
+      "updatedAt": "2026-10-21T11:52:37.573Z"
     },
     {
-      "id": "c3dcf2f1-7c7a-43ab-9079-42a77fd5ae5e",
+      "id": "c6b13d2e-aa9e-4ba4-b454-8e89fb1322ae",
       "type": "account-setup",
-      "name": "Акаунти під коментарі · HU · 4",
-      "status": "interrupted",
+      "name": "Акаунти під коментарі · US · 5",
+      "status": "completed",
       "resources": [
         {
-          "key": "adspower-profile:2390",
-          "label": "AdsPower 2390"
+          "key": "adspower-profile:337",
+          "label": "AdsPower 337"
         },
         {
-          "key": "adspower-profile:2391",
-          "label": "AdsPower 2391"
+          "key": "adspower-profile:338",
+          "label": "AdsPower 338"
         },
         {
-          "key": "adspower-profile:2392",
-          "label": "AdsPower 2392"
+          "key": "adspower-profile:340",
+          "label": "AdsPower 340"
         },
         {
-          "key": "adspower-profile:2393",
-          "label": "AdsPower 2393"
+          "key": "adspower-profile:342",
+          "label": "AdsPower 342"
+        },
+        {
+          "key": "adspower-profile:343",
+          "label": "AdsPower 343"
         }
       ],
       "input": {
         "profileNos": [
-          "2390",
-          "2391",
-          "2392",
-          "2393"
+          "337",
+          "338",
+          "340",
+          "342",
+          "343"
         ],
-        "geo": "HU",
-        "maleCount": 4,
+        "geo": "US",
+        "maleCount": 5,
         "femaleCount": 0,
-        "namesGeo": "HU",
-        "companiesGeo": "HU",
-        "universitiesGeo": "HU",
-        "professionsGeo": "HU",
-        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
-        "useApiRequests": false,
-        "profileNameNote": "New US",
+        "namesGeo": "US",
+        "companiesGeo": "US",
+        "universitiesGeo": "US",
+        "professionsGeo": "US",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\USA",
+        "useApiRequests": true,
+        "profileNameNote": "Ivan -name",
         "operations": {
-          "changeName": true,
+          "changeName": false,
           "changeAvatar": true,
           "changeCover": true,
           "deletePosts": true,
@@ -810,1263 +261,45 @@
       },
       "metadata": {
         "profileNos": [
-          "2390",
-          "2391",
-          "2392",
-          "2393"
+          "337",
+          "338",
+          "340",
+          "342",
+          "343"
         ],
-        "geo": "HU",
+        "geo": "US",
         "browserMode": "visible",
-        "useApiRequests": false,
-        "reportId": "f693ebe6-2857-49c5-a77d-13801003722a"
+        "useApiRequests": true,
+        "reportId": "3c62c125-bc34-4e93-9b07-cbd7705185f5"
       },
       "progress": {
-        "completed": 3,
-        "total": 4,
-        "stage": "interrupted",
-        "message": "Задачу перервано",
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
         "activeWorkers": 0,
         "concurrency": 1,
         "success": 0,
         "completedWithError": 0,
-        "failed": 3,
-        "skipped": 0,
-        "currentProfileNo": "2392",
+        "failed": 0,
+        "skipped": 5,
+        "currentProfileNo": "343",
         "workerId": 1
       },
       "result": {
-        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-20_19-37-36-010.md",
-        "fatalError": "Оформлення акаунтів перервано",
-        "interrupted": true
-      },
-      "error": {
-        "message": "Оформлення акаунтів перервано",
-        "code": "ACCOUNT_SETUP_ABORTED",
-        "stage": null,
-        "graphCode": null,
-        "graphSubcode": null,
-        "httpStatus": null,
-        "requestId": null,
-        "traceId": null,
-        "metaRequestId": null,
-        "endpoint": null,
-        "actionRequired": null,
-        "retryable": false,
-        "outcomeUnknown": false,
-        "reason": null,
-        "graphUserTitle": null,
-        "graphUserMessage": null,
-        "graphType": null,
-        "isTransient": false
-      },
-      "waitingReason": null,
-      "createdAt": "2026-10-20T16:33:38.356Z",
-      "startedAt": "2026-10-20T16:33:38.358Z",
-      "finishedAt": "2026-10-20T16:37:36.012Z",
-      "updatedAt": "2026-10-20T16:37:36.015Z"
-    },
-    {
-      "id": "06edccb6-778e-4574-9837-d3dd12294eb5",
-      "type": "comments",
-      "name": "Коментарі поста · HU · 139",
-      "status": "completed_with_warnings",
-      "resources": [
-        {
-          "key": "adspower-group:8278298",
-          "label": "[HU] Hungary"
-        }
-      ],
-      "input": {
-        "groupIds": [
-          "8278298"
-        ],
-        "geo": "HU",
-        "creativeGeo": "HU",
-        "language": "",
-        "creativeName": "139",
-        "siteUrl": "",
-        "postUrl": "https://www.facebook.com/61595207534512/posts/pfbid0tDAqTYgP2squyr3aQxUgf922P3WHqsC9AXvjsUdgcJkHfxeJaqp6VXTYWgH1nmi6l",
-        "browserMode": "headless",
-        "disableImages": true,
-        "commentTarget": "post",
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "groupIds": [
-          "8278298"
-        ],
-        "geo": "HU",
-        "language": "",
-        "browserMode": "headless",
-        "disableImages": true,
-        "reportId": "b6f32aec-e067-4898-8ebb-8f101e43dba6"
-      },
-      "progress": {
-        "completed": 8,
-        "total": 8,
-        "stage": "completed_with_warnings",
-        "message": "Задачу завершено",
-        "published": 4,
-        "skipped": 0,
-        "failedComments": 4,
-        "failedProfiles": 3,
-        "activeWorkers": 0,
-        "concurrency": 1,
-        "currentCommentId": "4",
-        "currentProfileNo": "1793",
-        "workerId": 1
-      },
-      "result": {
-        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-20_16-54-12-535.md",
-        "published": 4,
-        "skipped": 0,
-        "failedComments": 4,
-        "failedProfiles": 3,
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-21_14-35-00-033.md",
         "fatalError": null,
-        "browserMode": "headless",
-        "disableImages": true
+        "success": 0,
+        "completedWithError": 0,
+        "failed": 0,
+        "skipped": 5
       },
       "error": null,
       "waitingReason": null,
-      "createdAt": "2026-10-20T13:46:58.133Z",
-      "startedAt": "2026-10-20T13:46:58.135Z",
-      "finishedAt": "2026-10-20T13:54:12.538Z",
-      "updatedAt": "2026-10-20T13:54:12.540Z"
-    },
-    {
-      "id": "4f89aa1e-65d5-4493-8457-bbe087211fa2",
-      "type": "campaign",
-      "name": "HU | Creo_139 | 25+ 20/10 16:36",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-campaign-write",
-          "label": "черга створення рекламних кампаній"
-        }
-      ],
-      "input": {
-        "campaignJobId": "ffa66cb3-48d3-4467-8dbc-d14bedc2ef5c"
-      },
-      "metadata": {
-        "campaignJobId": "ffa66cb3-48d3-4467-8dbc-d14bedc2ef5c",
-        "accountKey": "account-051",
-        "adAccountId": "act_1006141189164628",
-        "uniqueKey": "campaign-job:ffa66cb3-48d3-4467-8dbc-d14bedc2ef5c",
-        "reportId": "902822ba-25e8-4fa7-9bab-d4a017bc3590"
-      },
-      "progress": {
-        "completed": 9,
-        "total": 9,
-        "stage": "completed",
-        "message": "Задачу завершено",
-        "objects": {
-          "campaignId": "120250732166770477",
-          "creativeId": "972645539228510",
-          "creatives": [
-            {
-              "id": "972645539228510",
-              "pageId": "1289485740924945",
-              "postId": "1289485740924945_122107944603506917"
-            }
-          ],
-          "adSets": [
-            {
-              "index": 0,
-              "id": "120250732169570477",
-              "name": "HU | Creo_139 | 25+ 20/10 16:36 | AS 01"
-            },
-            {
-              "index": 1,
-              "id": "120250732176280477",
-              "name": "HU | Creo_139 | 25+ 20/10 16:36 | AS 02"
-            },
-            {
-              "index": 2,
-              "id": "120250732181930477",
-              "name": "HU | Creo_139 | 25+ 20/10 16:36 | AS 03"
-            }
-          ],
-          "ads": [
-            {
-              "index": 0,
-              "creativeIndex": 0,
-              "id": "120250732175140477",
-              "name": "HU | Creo_139 | 25+ 20/10 16:36 | AD 01"
-            },
-            {
-              "index": 1,
-              "creativeIndex": 0,
-              "id": "120250732180490477",
-              "name": "HU | Creo_139 | 25+ 20/10 16:36 | AD 02"
-            },
-            {
-              "index": 2,
-              "creativeIndex": 0,
-              "id": "120250732185360477",
-              "name": "HU | Creo_139 | 25+ 20/10 16:36 | AD 03"
-            }
-          ]
-        }
-      },
-      "result": {
-        "campaignJobId": "ffa66cb3-48d3-4467-8dbc-d14bedc2ef5c",
-        "campaignId": "120250732166770477",
-        "warnings": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T13:36:38.715Z",
-      "startedAt": "2026-10-20T13:36:38.716Z",
-      "finishedAt": "2026-10-20T13:37:47.039Z",
-      "updatedAt": "2026-10-20T13:37:47.042Z"
-    },
-    {
-      "id": "8bb956f5-d3ce-43c2-a9cb-5ea8548105cc",
-      "type": "publication",
-      "name": "Публікація · HU · 139",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-page-publish",
-          "label": "черга публікації Facebook-постів"
-        }
-      ],
-      "input": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeGeo": "HU",
-        "creativeName": "139",
-        "siteUrl": "https://love-in-hurt.club/b5f2fm",
-        "manualCreativeText": "",
-        "useCreativeFont": false,
-        "creativeFont": "blurry",
-        "imagePath": "",
-        "imagePaths": [
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\14.jpeg"
-        ],
-        "disableComments": true,
-        "commentGroupIds": [],
-        "commentBrowserMode": "headless",
-        "commentDisableImages": true,
-        "commentWorkerConcurrency": 1,
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeName": "139",
-        "manualCreativeText": false,
-        "useCreativeFont": false,
-        "commentsEnabled": false,
-        "reportId": "e8a40572-367c-4f7a-a326-eac291054a89"
-      },
-      "progress": {
-        "completed": 3,
-        "total": 3,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeName": "139",
-        "siteUrl": "https://love-in-hurt.club/b5f2fm",
-        "postId": "1289485740924945_122107944603506917",
-        "permalinkUrl": "https://www.facebook.com/61595207534512/posts/pfbid0tDAqTYgP2squyr3aQxUgf922P3WHqsC9AXvjsUdgcJkHfxeJaqp6VXTYWgH1nmi6l",
-        "type": "photo",
-        "verified": true,
-        "comments": null
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T13:14:11.059Z",
-      "startedAt": "2026-10-20T13:14:11.061Z",
-      "finishedAt": "2026-10-20T13:15:27.233Z",
-      "updatedAt": "2026-10-20T13:15:27.238Z"
-    },
-    {
-      "id": "1adfafb8-7b99-43fc-977c-49a632b1eae3",
-      "type": "page-post-delete",
-      "name": "Видалення поста · 1289485740924945_122107921971506917",
-      "status": "completed",
-      "resources": [],
-      "input": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "postId": "1289485740924945_122107921971506917"
-      },
-      "metadata": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "reportId": "8ea5af48-3a7c-49c9-8d2c-634d13d137a4"
-      },
-      "progress": {
-        "completed": 0,
-        "total": 1,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "deleted": [
-          {
-            "id": "1289485740924945_122107921971506917"
-          }
-        ],
-        "failed": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T13:13:53.027Z",
-      "startedAt": "2026-10-20T13:13:53.029Z",
-      "finishedAt": "2026-10-20T13:14:00.840Z",
-      "updatedAt": "2026-10-20T13:14:00.845Z"
-    },
-    {
-      "id": "423bf259-4f88-4e85-be06-d1af56892351",
-      "type": "campaign",
-      "name": "HU | Creo_17 | 25+ 20/10 15:55",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-campaign-write",
-          "label": "черга створення рекламних кампаній"
-        }
-      ],
-      "input": {
-        "campaignJobId": "85573ceb-a9d1-4e52-8693-969f3793eb67"
-      },
-      "metadata": {
-        "campaignJobId": "85573ceb-a9d1-4e52-8693-969f3793eb67",
-        "accountKey": "account-051",
-        "adAccountId": "act_1006141189164628",
-        "uniqueKey": "campaign-job:85573ceb-a9d1-4e52-8693-969f3793eb67",
-        "reportId": "4e1c9232-0842-4b7c-8b2e-faddd67b9e8f"
-      },
-      "progress": {
-        "completed": 13,
-        "total": 13,
-        "stage": "completed",
-        "message": "Задачу завершено",
-        "objects": {
-          "campaignId": "120250731247830477",
-          "creativeId": "2334556344033629",
-          "creatives": [
-            {
-              "id": "2334556344033629",
-              "pageId": "1289485740924945",
-              "postId": "1289485740924945_122107921971506917"
-            }
-          ],
-          "adSets": [
-            {
-              "index": 0,
-              "id": "120250731249040477",
-              "name": "HU | Creo_17 | 25+ 20/10 15:55 | AS 01"
-            },
-            {
-              "index": 1,
-              "id": "120250731257160477",
-              "name": "HU | Creo_17 | 25+ 20/10 15:55 | AS 02"
-            },
-            {
-              "index": 2,
-              "id": "120250731258590477",
-              "name": "HU | Creo_17 | 25+ 20/10 15:55 | AS 03"
-            },
-            {
-              "index": 3,
-              "id": "120250731260320477",
-              "name": "HU | Creo_17 | 25+ 20/10 15:55 | AS 04"
-            },
-            {
-              "index": 4,
-              "id": "120250731261770477",
-              "name": "HU | Creo_17 | 25+ 20/10 15:55 | AS 05"
-            }
-          ],
-          "ads": [
-            {
-              "index": 0,
-              "creativeIndex": 0,
-              "id": "120250731256680477",
-              "name": "HU | Creo_17 | 25+ 20/10 15:55 | AD 01"
-            },
-            {
-              "index": 1,
-              "creativeIndex": 0,
-              "id": "120250731257930477",
-              "name": "HU | Creo_17 | 25+ 20/10 15:55 | AD 02"
-            },
-            {
-              "index": 2,
-              "creativeIndex": 0,
-              "id": "120250731259690477",
-              "name": "HU | Creo_17 | 25+ 20/10 15:55 | AD 03"
-            },
-            {
-              "index": 3,
-              "creativeIndex": 0,
-              "id": "120250731260970477",
-              "name": "HU | Creo_17 | 25+ 20/10 15:55 | AD 04"
-            },
-            {
-              "index": 4,
-              "creativeIndex": 0,
-              "id": "120250731264910477",
-              "name": "HU | Creo_17 | 25+ 20/10 15:55 | AD 05"
-            }
-          ]
-        }
-      },
-      "result": {
-        "campaignJobId": "85573ceb-a9d1-4e52-8693-969f3793eb67",
-        "campaignId": "120250731247830477",
-        "warnings": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T12:55:41.103Z",
-      "startedAt": "2026-10-20T12:55:41.104Z",
-      "finishedAt": "2026-10-20T12:56:54.486Z",
-      "updatedAt": "2026-10-20T12:56:54.488Z"
-    },
-    {
-      "id": "273d2baf-3857-460d-a97b-2336acb9585c",
-      "type": "publication",
-      "name": "Публікація · HU · 17",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-page-publish",
-          "label": "черга публікації Facebook-постів"
-        }
-      ],
-      "input": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeGeo": "HU",
-        "creativeName": "17",
-        "siteUrl": "https://love-in-hurt.club/di2pq3",
-        "manualCreativeText": "",
-        "useCreativeFont": false,
-        "creativeFont": "blurry",
-        "imagePath": "",
-        "imagePaths": [
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\017\\photo_2026-04-22_11-11-17 (2) 1_19e77b67cd4.png",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\017\\photo_2026-04-22_11-11-17 1_19e77b6bde3.png"
-        ],
-        "disableComments": true,
-        "commentGroupIds": [],
-        "commentBrowserMode": "headless",
-        "commentDisableImages": true,
-        "commentWorkerConcurrency": 1,
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeName": "17",
-        "manualCreativeText": false,
-        "useCreativeFont": false,
-        "commentsEnabled": false,
-        "reportId": "9c814e02-bdca-44dd-b658-43522699652c"
-      },
-      "progress": {
-        "completed": 3,
-        "total": 3,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "accountKey": "account-051",
-        "pageId": "1289485740924945",
-        "geo": "HU",
-        "language": "",
-        "creativeName": "17",
-        "siteUrl": "https://love-in-hurt.club/di2pq3",
-        "postId": "1289485740924945_122107921971506917",
-        "permalinkUrl": "https://www.facebook.com/61595207534512/posts/pfbid0yfmeD5f2NiFcWitvAomBryH64Hfwgjfjwtrt6xDqtmWKp6cMgzrqZgGyWnLuXhmal",
-        "type": "photo",
-        "verified": true,
-        "comments": null
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T12:54:48.631Z",
-      "startedAt": "2026-10-20T12:54:48.633Z",
-      "finishedAt": "2026-10-20T12:55:05.974Z",
-      "updatedAt": "2026-10-20T12:55:05.976Z"
-    },
-    {
-      "id": "84d47138-bf59-44fd-9fc8-9bd01bf5aac3",
-      "type": "comments",
-      "name": "Коментарі поста · DE · 1",
-      "status": "completed_with_warnings",
-      "resources": [
-        {
-          "key": "adspower-group:7887375",
-          "label": "[DE] Germany"
-        },
-        {
-          "key": "adspower-group:7887373",
-          "label": "[AT] Austria"
-        },
-        {
-          "key": "adspower-group:7887378",
-          "label": "[CH] Switherland"
-        }
-      ],
-      "input": {
-        "groupIds": [
-          "7887375",
-          "7887373",
-          "7887378"
-        ],
-        "geo": "DE",
-        "creativeGeo": "DE",
-        "language": "",
-        "creativeName": "1",
-        "siteUrl": "",
-        "postUrl": "https://www.facebook.com/61595264109247/posts/pfbid02hQxYzE8WL7AZ974nkSnNLJh33x6875cGAPYGJetL8vy7HyUwCyVmxv3G74czMqaMl",
-        "browserMode": "headless",
-        "disableImages": true,
-        "commentTarget": "post",
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "groupIds": [
-          "7887375",
-          "7887373",
-          "7887378"
-        ],
-        "geo": "DE",
-        "language": "",
-        "browserMode": "headless",
-        "disableImages": true,
-        "reportId": "1c4ad1c0-383a-48c2-af2a-060efdcf33d7"
-      },
-      "progress": {
-        "completed": 16,
-        "total": 16,
-        "stage": "completed_with_warnings",
-        "message": "Задачу завершено",
-        "published": 10,
-        "skipped": 3,
-        "failedComments": 3,
-        "failedProfiles": 7,
-        "activeWorkers": 0,
-        "concurrency": 1,
-        "currentCommentId": "5.1",
-        "currentProfileNo": "190",
-        "workerId": 1
-      },
-      "result": {
-        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-20_15-30-05-893.md",
-        "published": 10,
-        "skipped": 3,
-        "failedComments": 3,
-        "failedProfiles": 7,
-        "fatalError": null,
-        "browserMode": "headless",
-        "disableImages": true
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T12:13:50.811Z",
-      "startedAt": "2026-10-20T12:13:50.813Z",
-      "finishedAt": "2026-10-20T12:30:05.896Z",
-      "updatedAt": "2026-10-20T12:30:05.898Z"
-    },
-    {
-      "id": "8e438cdc-6903-4a0d-88af-beda6394ceef",
-      "type": "campaign",
-      "name": "DE | Creo_1 | 25+ 20/10 15:10",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-campaign-write",
-          "label": "черга створення рекламних кампаній"
-        }
-      ],
-      "input": {
-        "campaignJobId": "fd0e0133-d385-4e4a-a05f-90e72e7d5417"
-      },
-      "metadata": {
-        "campaignJobId": "fd0e0133-d385-4e4a-a05f-90e72e7d5417",
-        "accountKey": "account-048",
-        "adAccountId": "act_1831924154498531",
-        "uniqueKey": "campaign-job:fd0e0133-d385-4e4a-a05f-90e72e7d5417",
-        "reportId": "2b4fda46-cbbf-4456-ab0e-1359bc04b52d"
-      },
-      "progress": {
-        "completed": 13,
-        "total": 13,
-        "stage": "completed",
-        "message": "Задачу завершено",
-        "objects": {
-          "campaignId": "6986601820849",
-          "creativeId": "1776504670225685",
-          "creatives": [
-            {
-              "id": "1776504670225685",
-              "pageId": "1284807618060555",
-              "postId": "1284807618060555_122106319875508803"
-            }
-          ],
-          "adSets": [
-            {
-              "index": 0,
-              "id": "6986601833449",
-              "name": "DE | Creo_1 | 25+ 20/10 15:10 | AS 01"
-            },
-            {
-              "index": 1,
-              "id": "6986601856249",
-              "name": "DE | Creo_1 | 25+ 20/10 15:10 | AS 02"
-            },
-            {
-              "index": 2,
-              "id": "6986601876849",
-              "name": "DE | Creo_1 | 25+ 20/10 15:10 | AS 03"
-            },
-            {
-              "index": 3,
-              "id": "6986601903649",
-              "name": "DE | Creo_1 | 25+ 20/10 15:10 | AS 04"
-            },
-            {
-              "index": 4,
-              "id": "6986601943649",
-              "name": "DE | Creo_1 | 25+ 20/10 15:10 | AS 05"
-            }
-          ],
-          "ads": [
-            {
-              "index": 0,
-              "creativeIndex": 0,
-              "id": "6986601851849",
-              "name": "DE | Creo_1 | 25+ 20/10 15:10 | AD 01"
-            },
-            {
-              "index": 1,
-              "creativeIndex": 0,
-              "id": "6986601872049",
-              "name": "DE | Creo_1 | 25+ 20/10 15:10 | AD 02"
-            },
-            {
-              "index": 2,
-              "creativeIndex": 0,
-              "id": "6986601892849",
-              "name": "DE | Creo_1 | 25+ 20/10 15:10 | AD 03"
-            },
-            {
-              "index": 3,
-              "creativeIndex": 0,
-              "id": "6986601921249",
-              "name": "DE | Creo_1 | 25+ 20/10 15:10 | AD 04"
-            },
-            {
-              "index": 4,
-              "creativeIndex": 0,
-              "id": "6986601959849",
-              "name": "DE | Creo_1 | 25+ 20/10 15:10 | AD 05"
-            }
-          ]
-        }
-      },
-      "result": {
-        "campaignJobId": "fd0e0133-d385-4e4a-a05f-90e72e7d5417",
-        "campaignId": "6986601820849",
-        "warnings": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T12:10:55.062Z",
-      "startedAt": "2026-10-20T12:10:55.063Z",
-      "finishedAt": "2026-10-20T12:12:04.704Z",
-      "updatedAt": "2026-10-20T12:12:04.706Z"
-    },
-    {
-      "id": "b84b1e89-516e-47b0-8389-fde879ce680e",
-      "type": "campaign",
-      "name": "DE | Creo_1 | 25+ 20/10 14:52",
-      "status": "failed",
-      "resources": [
-        {
-          "key": "facebook-campaign-write",
-          "label": "черга створення рекламних кампаній"
-        }
-      ],
-      "input": {
-        "campaignJobId": "51cbec39-0b85-4736-b54e-82049d5df746"
-      },
-      "metadata": {
-        "campaignJobId": "51cbec39-0b85-4736-b54e-82049d5df746",
-        "accountKey": "account-052",
-        "adAccountId": "act_1345748084138462",
-        "uniqueKey": "campaign-job:51cbec39-0b85-4736-b54e-82049d5df746",
-        "reportId": "df8b7b3c-0050-4300-8084-bee6ecf1ffa6"
-      },
-      "progress": {
-        "completed": 8,
-        "total": 13,
-        "stage": "failed",
-        "message": "You can't perform the requested action because your account is disabled.",
-        "objects": {
-          "campaignId": "120250363142850307",
-          "creativeId": "1850801869608197",
-          "creatives": [
-            {
-              "id": "1850801869608197",
-              "pageId": "1284807618060555",
-              "postId": "1284807618060555_122106319875508803"
-            }
-          ],
-          "adSets": [
-            {
-              "index": 0,
-              "id": "120250363143430307",
-              "name": "DE | Creo_1 | 25+ 20/10 14:52 | AS 01"
-            },
-            {
-              "index": 1,
-              "id": "120250363145080307",
-              "name": "DE | Creo_1 | 25+ 20/10 14:52 | AS 02"
-            },
-            {
-              "index": 2,
-              "id": "120250363146870307",
-              "name": "DE | Creo_1 | 25+ 20/10 14:52 | AS 03"
-            },
-            {
-              "index": 3,
-              "id": "120250363148460307",
-              "name": "DE | Creo_1 | 25+ 20/10 14:52 | AS 04"
-            },
-            {
-              "index": 4,
-              "id": "120250363150160307",
-              "name": "DE | Creo_1 | 25+ 20/10 14:52 | AS 05"
-            }
-          ],
-          "ads": [
-            {
-              "index": 0,
-              "creativeIndex": 0,
-              "id": "120250363144250307",
-              "name": "DE | Creo_1 | 25+ 20/10 14:52 | AD 01"
-            },
-            {
-              "index": 1,
-              "creativeIndex": 0,
-              "id": "120250363146230307",
-              "name": "DE | Creo_1 | 25+ 20/10 14:52 | AD 02"
-            },
-            {
-              "index": 2,
-              "creativeIndex": 0,
-              "id": "120250363147680307",
-              "name": "DE | Creo_1 | 25+ 20/10 14:52 | AD 03"
-            },
-            {
-              "index": 3,
-              "creativeIndex": 0,
-              "id": "120250363149680307",
-              "name": "DE | Creo_1 | 25+ 20/10 14:52 | AD 04"
-            }
-          ]
-        }
-      },
-      "result": null,
-      "error": {
-        "message": "You can't perform the requested action because your account is disabled.",
-        "code": "FACEBOOK_API_ERROR",
-        "stage": "ad",
-        "graphCode": 200,
-        "graphSubcode": 1359005,
-        "httpStatus": 500,
-        "requestId": "d10e90c5-b5b1-4e06-b358-29fb278be57e",
-        "traceId": "Aip2Gb8l_4XdAWYcO8I9JvZ",
-        "metaRequestId": "Aip2Gb8l_4XdAWYcO8I9JvZ",
-        "endpoint": "/act_1345748084138462/ads",
-        "actionRequired": null,
-        "retryable": false,
-        "outcomeUnknown": false,
-        "reason": null,
-        "graphUserTitle": "Your Account Is Disabled",
-        "graphUserMessage": "You can't perform the requested action because your account is disabled.",
-        "graphType": "FacebookApiException",
-        "isTransient": false
-      },
-      "waitingReason": null,
-      "createdAt": "2026-10-20T11:52:18.506Z",
-      "startedAt": "2026-10-20T11:52:18.507Z",
-      "finishedAt": "2026-10-20T11:53:12.176Z",
-      "updatedAt": "2026-10-20T11:53:12.178Z"
-    },
-    {
-      "id": "caf3ecbc-97bb-4eaa-b274-f45e508613e6",
-      "type": "publication",
-      "name": "Публікація · DE · 1",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-page-publish",
-          "label": "черга публікації Facebook-постів"
-        }
-      ],
-      "input": {
-        "accountKey": "account-052",
-        "pageId": "1284807618060555",
-        "geo": "DE",
-        "language": "",
-        "creativeGeo": "DE",
-        "creativeName": "1",
-        "siteUrl": "https://love-in-hurt.club/0jjho5",
-        "manualCreativeText": "",
-        "useCreativeFont": false,
-        "creativeFont": "blurry",
-        "imagePath": "",
-        "imagePaths": [
-          "C:\\Users\\Darkness\\Downloads\\DE (5)_19d94b32fbf_19e06242954.png",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\photo_2026-03-30_00-02-20_19d59c867d4_19d94b382f9_19daeb83ac0.jpg"
-        ],
-        "disableComments": true,
-        "commentGroupIds": [],
-        "commentBrowserMode": "headless",
-        "commentDisableImages": true,
-        "commentWorkerConcurrency": 1,
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "accountKey": "account-052",
-        "pageId": "1284807618060555",
-        "geo": "DE",
-        "language": "",
-        "creativeName": "1",
-        "manualCreativeText": false,
-        "useCreativeFont": false,
-        "commentsEnabled": false,
-        "reportId": "3f23696f-86b4-463d-835c-fce4db2f29f9"
-      },
-      "progress": {
-        "completed": 3,
-        "total": 3,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "accountKey": "account-052",
-        "pageId": "1284807618060555",
-        "geo": "DE",
-        "language": "",
-        "creativeName": "1",
-        "siteUrl": "https://love-in-hurt.club/0jjho5",
-        "postId": "1284807618060555_122106319875508803",
-        "permalinkUrl": "https://www.facebook.com/61595264109247/posts/pfbid02hQxYzE8WL7AZ974nkSnNLJh33x6875cGAPYGJetL8vy7HyUwCyVmxv3G74czMqaMl",
-        "type": "photo",
-        "verified": true,
-        "comments": null
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T11:51:29.613Z",
-      "startedAt": "2026-10-20T11:51:29.614Z",
-      "finishedAt": "2026-10-20T11:51:46.796Z",
-      "updatedAt": "2026-10-20T11:51:46.798Z"
-    },
-    {
-      "id": "e8e329d1-5083-49be-a5d0-4fece51be738",
-      "type": "comments",
-      "name": "Коментарі поста · US · 1",
-      "status": "completed_with_warnings",
-      "resources": [
-        {
-          "key": "adspower-group:7705877",
-          "label": "[USA] America"
-        },
-        {
-          "key": "adspower-group:7617732",
-          "label": "[AU] Australia"
-        },
-        {
-          "key": "adspower-group:7617734",
-          "label": "[CA] Canada"
-        }
-      ],
-      "input": {
-        "groupIds": [
-          "7705877",
-          "7617732",
-          "7617734"
-        ],
-        "geo": "US",
-        "creativeGeo": "US",
-        "language": "",
-        "creativeName": "1",
-        "siteUrl": "",
-        "postUrl": "https://www.facebook.com/61581619600262/posts/pfbid02r4fq2X2F6fK3C1A4JdffTuhyNXUZLQYtWUhikFTSC3tTXL5bKG9qTTGTqnJhy2QDl",
-        "browserMode": "headless",
-        "disableImages": true,
-        "commentTarget": "post",
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "groupIds": [
-          "7705877",
-          "7617732",
-          "7617734"
-        ],
-        "geo": "US",
-        "language": "",
-        "browserMode": "headless",
-        "disableImages": true,
-        "reportId": "2831045f-6ecc-4ae1-a076-7cb538c71193"
-      },
-      "progress": {
-        "completed": 16,
-        "total": 16,
-        "stage": "completed_with_warnings",
-        "message": "Задачу завершено",
-        "published": 14,
-        "skipped": 1,
-        "failedComments": 1,
-        "failedProfiles": 1,
-        "activeWorkers": 0,
-        "concurrency": 1,
-        "currentCommentId": "2.1.1",
-        "currentProfileNo": "1358",
-        "workerId": 1
-      },
-      "result": {
-        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-20_14-28-27-049.md",
-        "published": 14,
-        "skipped": 1,
-        "failedComments": 1,
-        "failedProfiles": 1,
-        "fatalError": null,
-        "browserMode": "headless",
-        "disableImages": true
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T11:05:30.136Z",
-      "startedAt": "2026-10-20T11:05:30.137Z",
-      "finishedAt": "2026-10-20T11:28:27.052Z",
-      "updatedAt": "2026-10-20T11:28:27.054Z"
-    },
-    {
-      "id": "42a50029-979e-4a89-bb0b-9d68c5320f51",
-      "type": "campaign",
-      "name": "US | Creo_1 | 40+ IOS 20/10 13:59",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-campaign-write",
-          "label": "черга створення рекламних кампаній"
-        }
-      ],
-      "input": {
-        "campaignJobId": "fbcf63fa-c03c-403c-9e64-941197502e18"
-      },
-      "metadata": {
-        "campaignJobId": "fbcf63fa-c03c-403c-9e64-941197502e18",
-        "accountKey": "account-049",
-        "adAccountId": "act_1592508035460232",
-        "uniqueKey": "campaign-job:fbcf63fa-c03c-403c-9e64-941197502e18",
-        "reportId": "4e9ae275-b3f6-47e1-992d-b51cd219b2a8"
-      },
-      "progress": {
-        "completed": 13,
-        "total": 13,
-        "stage": "completed",
-        "message": "Задачу завершено",
-        "objects": {
-          "campaignId": "120250446820140553",
-          "creativeId": "2667838556952426",
-          "creatives": [
-            {
-              "id": "2667838556952426",
-              "pageId": "793374197197941",
-              "postId": "793374197197941_122146017063053986"
-            }
-          ],
-          "adSets": [
-            {
-              "index": 0,
-              "id": "120250446821380553",
-              "name": "US | Creo_1 | 40+ IOS 20/10 13:59 | AS 01"
-            },
-            {
-              "index": 1,
-              "id": "120250446828610553",
-              "name": "US | Creo_1 | 40+ IOS 20/10 13:59 | AS 02"
-            },
-            {
-              "index": 2,
-              "id": "120250446835780553",
-              "name": "US | Creo_1 | 40+ IOS 20/10 13:59 | AS 03"
-            },
-            {
-              "index": 3,
-              "id": "120250446838210553",
-              "name": "US | Creo_1 | 40+ IOS 20/10 13:59 | AS 04"
-            },
-            {
-              "index": 4,
-              "id": "120250446839220553",
-              "name": "US | Creo_1 | 40+ IOS 20/10 13:59 | AS 05"
-            }
-          ],
-          "ads": [
-            {
-              "index": 0,
-              "creativeIndex": 0,
-              "id": "120250446825800553",
-              "name": "US | Creo_1 | 40+ IOS 20/10 13:59 | AD 01"
-            },
-            {
-              "index": 1,
-              "creativeIndex": 0,
-              "id": "120250446831870553",
-              "name": "US | Creo_1 | 40+ IOS 20/10 13:59 | AD 02"
-            },
-            {
-              "index": 2,
-              "creativeIndex": 0,
-              "id": "120250446837850553",
-              "name": "US | Creo_1 | 40+ IOS 20/10 13:59 | AD 03"
-            },
-            {
-              "index": 3,
-              "creativeIndex": 0,
-              "id": "120250446838870553",
-              "name": "US | Creo_1 | 40+ IOS 20/10 13:59 | AD 04"
-            },
-            {
-              "index": 4,
-              "creativeIndex": 0,
-              "id": "120250446840130553",
-              "name": "US | Creo_1 | 40+ IOS 20/10 13:59 | AD 05"
-            }
-          ]
-        }
-      },
-      "result": {
-        "campaignJobId": "fbcf63fa-c03c-403c-9e64-941197502e18",
-        "campaignId": "120250446820140553",
-        "warnings": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T10:59:17.975Z",
-      "startedAt": "2026-10-20T11:00:04.637Z",
-      "finishedAt": "2026-10-20T11:01:07.720Z",
-      "updatedAt": "2026-10-20T11:01:07.721Z"
-    },
-    {
-      "id": "51b7042f-15e1-4a68-8df4-576cf5a05b89",
-      "type": "campaign",
-      "name": "US | Creo_1 | 40+ Android 20/10 13:58",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-campaign-write",
-          "label": "черга створення рекламних кампаній"
-        }
-      ],
-      "input": {
-        "campaignJobId": "5f665bd2-7caa-48a8-b96d-7259ab5c9e1d"
-      },
-      "metadata": {
-        "campaignJobId": "5f665bd2-7caa-48a8-b96d-7259ab5c9e1d",
-        "accountKey": "account-049",
-        "adAccountId": "act_1592508035460232",
-        "uniqueKey": "campaign-job:5f665bd2-7caa-48a8-b96d-7259ab5c9e1d",
-        "reportId": "d5a720ee-f3ea-486c-80c1-27dba8146391"
-      },
-      "progress": {
-        "completed": 13,
-        "total": 13,
-        "stage": "completed",
-        "message": "Задачу завершено",
-        "objects": {
-          "campaignId": "120250446806360553",
-          "creativeId": "2667838556952426",
-          "creatives": [
-            {
-              "id": "2667838556952426",
-              "pageId": "793374197197941",
-              "postId": "793374197197941_122146017063053986"
-            }
-          ],
-          "adSets": [
-            {
-              "index": 0,
-              "id": "120250446808070553",
-              "name": "US | Creo_1 | 40+ Android 20/10 13:58 | AS 01"
-            },
-            {
-              "index": 1,
-              "id": "120250446810140553",
-              "name": "US | Creo_1 | 40+ Android 20/10 13:58 | AS 02"
-            },
-            {
-              "index": 2,
-              "id": "120250446812100553",
-              "name": "US | Creo_1 | 40+ Android 20/10 13:58 | AS 03"
-            },
-            {
-              "index": 3,
-              "id": "120250446814910553",
-              "name": "US | Creo_1 | 40+ Android 20/10 13:58 | AS 04"
-            },
-            {
-              "index": 4,
-              "id": "120250446818030553",
-              "name": "US | Creo_1 | 40+ Android 20/10 13:58 | AS 05"
-            }
-          ],
-          "ads": [
-            {
-              "index": 0,
-              "creativeIndex": 0,
-              "id": "120250446809510553",
-              "name": "US | Creo_1 | 40+ Android 20/10 13:58 | AD 01"
-            },
-            {
-              "index": 1,
-              "creativeIndex": 0,
-              "id": "120250446811050553",
-              "name": "US | Creo_1 | 40+ Android 20/10 13:58 | AD 02"
-            },
-            {
-              "index": 2,
-              "creativeIndex": 0,
-              "id": "120250446813330553",
-              "name": "US | Creo_1 | 40+ Android 20/10 13:58 | AD 03"
-            },
-            {
-              "index": 3,
-              "creativeIndex": 0,
-              "id": "120250446816140553",
-              "name": "US | Creo_1 | 40+ Android 20/10 13:58 | AD 04"
-            },
-            {
-              "index": 4,
-              "creativeIndex": 0,
-              "id": "120250446819000553",
-              "name": "US | Creo_1 | 40+ Android 20/10 13:58 | AD 05"
-            }
-          ]
-        }
-      },
-      "result": {
-        "campaignJobId": "5f665bd2-7caa-48a8-b96d-7259ab5c9e1d",
-        "campaignId": "120250446806360553",
-        "warnings": []
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T10:58:58.447Z",
-      "startedAt": "2026-10-20T10:58:58.448Z",
-      "finishedAt": "2026-10-20T11:00:04.633Z",
-      "updatedAt": "2026-10-20T11:00:04.636Z"
-    },
-    {
-      "id": "5afb3958-e967-4b99-8298-65c265c204f7",
-      "type": "publication",
-      "name": "Публікація · US · 1",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "facebook-page-publish",
-          "label": "черга публікації Facebook-постів"
-        }
-      ],
-      "input": {
-        "accountKey": "account-049",
-        "pageId": "793374197197941",
-        "geo": "US",
-        "language": "",
-        "creativeGeo": "US",
-        "creativeName": "1",
-        "siteUrl": "https://love-in-hurt.club/rf6p48",
-        "manualCreativeText": "",
-        "useCreativeFont": false,
-        "creativeFont": "blurry",
-        "imagePath": "",
-        "imagePaths": [
-          "C:\\Users\\Darkness\\Downloads\\USA.png",
-          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\photo_2026-03-30_00-02-20_19d59c867d4_19d94b382f9_19daeb83ac0.jpg"
-        ],
-        "disableComments": true,
-        "commentGroupIds": [],
-        "commentBrowserMode": "headless",
-        "commentDisableImages": true,
-        "commentWorkerConcurrency": 1,
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "accountKey": "account-049",
-        "pageId": "793374197197941",
-        "geo": "US",
-        "language": "",
-        "creativeName": "1",
-        "manualCreativeText": false,
-        "useCreativeFont": false,
-        "commentsEnabled": false,
-        "reportId": "4ec050d2-beef-4422-894e-1376174a93d8"
-      },
-      "progress": {
-        "completed": 3,
-        "total": 3,
-        "stage": "completed",
-        "message": "Задачу завершено"
-      },
-      "result": {
-        "accountKey": "account-049",
-        "pageId": "793374197197941",
-        "geo": "US",
-        "language": "",
-        "creativeName": "1",
-        "siteUrl": "https://love-in-hurt.club/rf6p48",
-        "postId": "793374197197941_122146017063053986",
-        "permalinkUrl": "https://www.facebook.com/61581619600262/posts/pfbid02r4fq2X2F6fK3C1A4JdffTuhyNXUZLQYtWUhikFTSC3tTXL5bKG9qTTGTqnJhy2QDl",
-        "type": "photo",
-        "verified": true,
-        "comments": null
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-20T10:56:20.894Z",
-      "startedAt": "2026-10-20T10:56:20.895Z",
-      "finishedAt": "2026-10-20T10:56:37.175Z",
-      "updatedAt": "2026-10-20T10:56:37.177Z"
+      "createdAt": "2026-10-21T11:34:55.353Z",
+      "startedAt": "2026-10-21T11:34:55.354Z",
+      "finishedAt": "2026-10-21T11:35:00.035Z",
+      "updatedAt": "2026-10-21T11:35:00.037Z"
     }
   ]
 }

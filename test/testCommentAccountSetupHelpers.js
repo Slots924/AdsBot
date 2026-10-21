@@ -39,6 +39,9 @@ assert.equal(
 );
 
 const blankProfile = { profile_id: "p1", profile_tags: [] };
+assert.equal(getCommentAccountSetupSkipReason({ profile_tags: [{ id: MAN_TAG_ID }] }, { checkGender: false }), null);
+assert.equal(getCommentAccountSetupSkipReason({ profile_tags: [{ id: WOMAN_TAG_ID }] }, { checkGender: false }), null);
+assert.equal(getCommentAccountSetupSkipReason({ profile_tags: [{ id: BAN_TAG_ID }, { id: MAN_TAG_ID }] }, { checkGender: false }), commentAccountSetupSkipReasons.BANNED);
 assert.equal(getCommentAccountSetupSkipReason(blankProfile), null);
 assert.equal(
     getCommentAccountSetupSkipReason({

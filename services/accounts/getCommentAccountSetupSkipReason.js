@@ -10,11 +10,11 @@ export const commentAccountSetupSkipReasons = Object.freeze({
 });
 
 
-export default function getCommentAccountSetupSkipReason(profile) {
+export default function getCommentAccountSetupSkipReason(profile, { checkGender = true } = {}) {
     const blockedTag = getBlockedProfileTag(profile, ["BAN", "LOGIN_ERROR", "CHANGE_NAME_ERROR"]);
     if (blockedTag) return blockedTag === "BAN" ? commentAccountSetupSkipReasons.BANNED : blockedTag;
 
-    if (getProfileGender(profile)) {
+    if (checkGender && getProfileGender(profile)) {
         return commentAccountSetupSkipReasons.ALREADY_SETUP;
     }
 

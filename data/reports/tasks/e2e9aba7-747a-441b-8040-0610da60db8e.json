@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "id": "e2e9aba7-747a-441b-8040-0610da60db8e",
+  "taskId": "4bcc1a56-9e9b-470a-8da4-7fab46077e6c",
+  "type": "account-setup",
+  "title": "Акаунти під коментарі · US · 5",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-21T12:01:58.904Z",
+  "startedAt": "2026-10-21T11:57:30.557Z",
+  "finishedAt": "2026-10-21T12:01:58.903Z",
+  "durationMs": 268346,
+  "inputSummary": {
+    "profileNos": [
+      "1980",
+      "1983",
+      "1984",
+      "1985",
+      "1986"
+    ],
+    "geo": "US",
+    "maleCount": 5,
+    "femaleCount": 0,
+    "namesGeo": "US",
+    "companiesGeo": "US",
+    "universitiesGeo": "US",
+    "professionsGeo": "US",
+    "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\USA",
+    "useApiRequests": true,
+    "profileNameNote": "| Ivan | -name | api",
+    "operations": {
+      "changeName": false,
+      "changeAvatar": true,
+      "changeCover": true,
+      "deletePosts": true,
+      "publishPosts": true,
+      "fillAbout": true
+    },
+    "browserMode": "headless",
+    "commentWorkerProxyIds": "[REDACTED]"
+  },
+  "resultSummary": {
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-21_15-01-58-901.md",
+    "fatalError": null,
+    "success": 3,
+    "completedWithError": 1,
+    "failed": 0,
+    "skipped": 1
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "1980",
+      "1983",
+      "1984",
+      "1985",
+      "1986"
+    ],
+    "geo": "US",
+    "browserMode": "headless",
+    "useApiRequests": true
+  }
+}

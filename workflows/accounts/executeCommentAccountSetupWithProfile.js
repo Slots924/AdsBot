@@ -237,6 +237,7 @@ export default async function executeCommentAccountSetupWithProfile({
     skipHumanDelays = false,
     skipBrowserWindowConfiguration = false,
     ignoreSkipReasons = false,
+    checkGender = true,
     traceEnabled = true,
     traceDirectory = "./data/browser-traces",
     traceUiTexts = [],
@@ -459,7 +460,7 @@ export default async function executeCommentAccountSetupWithProfile({
             throw new Error("Не передано дані персонажа");
         }
 
-        const skipReason = getCommentAccountSetupSkipReason(profile);
+        const skipReason = getCommentAccountSetupSkipReason(profile, { checkGender });
         const ignoredSkipReasons = new Set([
             commentAccountSetupSkipReasons.ALREADY_SETUP,
             commentAccountSetupSkipReasons.CHANGE_NAME_ERROR,

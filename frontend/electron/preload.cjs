@@ -171,6 +171,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("post:publish", options),
     runCommentingCampaign: (options) =>
         ipcRenderer.invoke("comments:run", options),
+    runSelectedProfilesCommenting: (options) =>
+        ipcRenderer.invoke("selected-profile-comments:run", options),
     runCommentAccountSetup: (options) =>
         ipcRenderer.invoke("account-setup:run", options),
     runCommentReactions: (options) =>

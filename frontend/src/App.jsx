@@ -433,6 +433,7 @@ export default function App() {
                         lastPhotosDirectory={accountSetupPhotosDirectory}
                         onPhotosDirectoryChange={setAccountSetupPhotosDirectory}
                         settings={{
+                            ...settings,
                             accountSetupWorkerConcurrency,
                             accountSetupWorkerProxyIds,
                             accountSetupBrowserMode,

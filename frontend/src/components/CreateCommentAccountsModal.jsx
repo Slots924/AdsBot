@@ -26,6 +26,7 @@ export default function CreateCommentAccountsModal({
         photosDirectory: "",
         profileNameNote: "",
         useApiRequests: false,
+        checkGender: true,
         operations: {
             changeName: true,
             changeAvatar: true,
@@ -99,6 +100,7 @@ export default function CreateCommentAccountsModal({
                 photosDirectory: draft.photosDirectory,
                 profileNameNote: draft.profileNameNote.trim(),
                 useApiRequests: draft.useApiRequests,
+                checkGender: draft.checkGender,
                 operations: draft.operations,
                 browserMode: settings.accountSetupBrowserMode,
                 commentWorkerConcurrency: settings.accountSetupWorkerConcurrency,
@@ -184,6 +186,8 @@ export default function CreateCommentAccountsModal({
                     <summary>Розширені налаштування</summary>
                     <section className="account-setup-operations">
                         <strong>Дії над Facebook-профілем</strong>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.checkGender} onChange={(event) => setDraft((current) => ({ ...current, checkGender: event.target.checked }))} /><span>Перевіряти стать</span></label>
+                        <small className="settings-hint">Увімкнено — пропускати акаунти з тегом Man або Woman. Вимкнено — доробляти їх зі збереженням статі; вкажіть відповідну кількість чоловічих і жіночих акаунтів.</small>
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.changeName} onChange={(event) => setOperation("changeName", event.target.checked)} /><span>Змінити ім’я Facebook</span></label>
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.changeAvatar} onChange={(event) => setOperation("changeAvatar", event.target.checked)} /><span>Змінити аватарку</span></label>
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.changeCover} onChange={(event) => setOperation("changeCover", event.target.checked)} /><span>Змінити обкладинку</span></label>

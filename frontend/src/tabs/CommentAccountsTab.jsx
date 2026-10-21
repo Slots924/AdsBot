@@ -4,6 +4,7 @@ import {
     ArrowRight,
     CircleCheck,
     Heart,
+    MessageSquareText,
     RefreshCw,
     Star,
     UserPlus,
@@ -12,6 +13,7 @@ import {
 
 import CreateCommentAccountsModal from "../components/CreateCommentAccountsModal.jsx";
 import CommentReactionsModal from "../components/CommentReactionsModal.jsx";
+import CommentPostModal from "../components/CommentPostModal.jsx";
 import SearchSelect from "../components/SearchSelect.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import {
@@ -196,6 +198,7 @@ export default function CommentAccountsTab({
     const [moving, setMoving] = useState(false);
     const [createOpen, setCreateOpen] = useState(false);
     const [reactionsOpen, setReactionsOpen] = useState(false);
+    const [commentPostOpen, setCommentPostOpen] = useState(false);
     const [checkingAccounts, setCheckingAccounts] = useState(false);
     const leftSelected = useMemo(
         () => new Set(leftSelectedIds),
@@ -406,6 +409,9 @@ export default function CommentAccountsTab({
                     >
                         <Heart size={16} /> Реакції під коментарями
                     </button>
+                    <button type="button" className="secondary-button" disabled={selectedProfiles.length === 0} onClick={() => setCommentPostOpen(true)}>
+                        <MessageSquareText size={16} /> Коментувати пост
+                    </button>
                     <button
                         type="button"
                         className="primary-button"
@@ -493,6 +499,18 @@ export default function CommentAccountsTab({
                     onQueued={() => {
                         setCreateOpen(false);
                         showToast?.("Оформлення акаунтів поставлено в чергу", "success");
+                    }}
+                    onError={onError}
+                />
+            )}
+            {commentPostOpen && (
+                <CommentPostModal
+                    profiles={selectedProfiles}
+                    settings={settings}
+                    onClose={() => setCommentPostOpen(false)}
+                    onQueued={() => {
+                        setCommentPostOpen(false);
+                        showToast?.("Коментування поста поставлено в чергу", "success");
                     }}
                     onError={onError}
                 />

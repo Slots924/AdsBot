@@ -573,6 +573,37 @@ assert.equal(commentingTask.data.task.input.commentTarget, "ad");
 assert.equal(commentingTask.data.task.metadata.browserMode, "headless");
 assert.equal(commentingTask.data.task.metadata.disableImages, true);
 assert.equal(JSON.stringify(commentingTask.data.task).includes("accessToken"), false);
+let selectedCommentOptions;
+guiService.runSelectedProfilesCommenting = async (options) => {
+    selectedCommentOptions = options;
+    return { published: 2, failedComments: 0, failedProfiles: 0, skipped: 0, reportDetails: { counters: { published: 2 } } };
+};
+const selectedCommentTask = await handlers.get("selected-profile-comments:run")({}, {
+    profileNos: ["12", "13", "12"], manualMode: true,
+    manualComments: "Перший\nДругий", postUrl: "https://www.facebook.com/post",
+    browserMode: "headless", disableImages: true, commentWorkerConcurrency: 2,
+});
+assert.equal(selectedCommentTask.ok, true);
+const selectedTaskOptions = enqueuedOptions.at(-1);
+assert.deepEqual(selectedTaskOptions.resources.map((resource) => resource.key), ["adspower-profile:12", "adspower-profile:13"]);
+assert.equal(selectedTaskOptions.input.manualComments, "Перший\nДругий");
+const selectedOutput = await selectedTaskOptions.runner({ signal: new AbortController().signal, progress: async () => {} });
+assert.deepEqual(selectedCommentOptions.profileNos, ["12", "13"]);
+assert.equal(selectedCommentOptions.concurrency, 2);
+assert.equal(selectedCommentOptions.browserMode, "headless");
+assert.equal(selectedCommentOptions.disableImages, true);
+assert.equal(selectedOutput.taskStatus, "completed");
+assert.deepEqual(selectedOutput.reportDetails.counters, { published: 2 });
+assert.equal((await handlers.get("selected-profile-comments:run")({}, { profileNos: ["12"], manualMode: true, manualComments: " ", postUrl: "https://www.facebook.com/post" })).ok, false);
+assert.equal((await handlers.get("selected-profile-comments:run")({}, { profileNos: ["12"], manualMode: true, manualComments: "Текст", postUrl: "https://notfacebook.com/post" })).ok, false);
+const setupTask = await handlers.get("account-setup:run")({}, { profileNos: ["12"], geo: "DE", maleCount: 1, femaleCount: 0, checkGender: false });
+assert.equal(setupTask.ok, true);
+assert.equal(enqueuedOptions.at(-1).input.checkGender, false);
+guiService.runCommentAccountSetup = async (options) => {
+    assert.equal(options.checkGender, false);
+    return { success: 1, failed: 0, completedWithError: 0 };
+};
+await enqueuedOptions.at(-1).runner({ signal: new AbortController().signal, progress: async () => {} });
 assert.deepEqual(
     await handlers.get("tasks:comment-concurrency-set")({}, { value: 3 }),
     { ok: true, data: 3 }

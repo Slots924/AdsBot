@@ -77,6 +77,8 @@ class KeyedMutex {
 export default async function runParallelCommentingScenario({
     adsPower,
     groupIds,
+    profileNos = null,
+    matchProfileGender = true,
     comments,
     geo,
     creativeName,
@@ -117,6 +119,7 @@ export default async function runParallelCommentingScenario({
             disableImages,
         }),
         mode: "parallel",
+        profileNos: normalizeGroupIds(profileNos),
         concurrency: workerProxyMap ? workerProxyMap.size : workerLimit,
         interrupted: false,
         totalComments: Array.isArray(comments) ? comments.length : 0,
@@ -171,8 +174,10 @@ export default async function runParallelCommentingScenario({
 
     try {
         assertNotAborted();
-        validateSettings({ groupIds, comments, geo, creativeName, postUrl });
-        const normalizedComments = comments.map(normalizeComment);
+        validateSettings({ groupIds, profileNos, comments, geo, creativeName, postUrl });
+        const normalizedComments = comments.map(normalizeComment).map((comment) => (
+            matchProfileGender ? comment : { ...comment, gender: "any" }
+        ));
         const commentsById = new Map();
         const duplicateRows = new Set();
 
@@ -189,9 +194,20 @@ export default async function runParallelCommentingScenario({
             message: "Завантажуємо та перемішуємо AdsPower-профілі",
         });
         const normalizedGroupIds = normalizeGroupIds(groupIds);
-        const profilesFromGroups = await Promise.all(
-            normalizedGroupIds.map((groupId) => adsPower.getProfilesByGroupId(groupId))
-        );
+        let profilesFromGroups;
+        if (profileNos !== null) {
+            const numbers = normalizeGroupIds(profileNos);
+            const loaded = await Promise.allSettled(numbers.map((number) => adsPower.getProfileByNo(number)));
+            profilesFromGroups = loaded.map((item, index) => {
+                if (item.status === "fulfilled" && item.value) return [item.value];
+                report.excludedProfiles.push({ profileNo: numbers[index], reason: item.reason?.message || "Профіль не знайдено" });
+                return [];
+            });
+        } else {
+            profilesFromGroups = await Promise.all(
+                normalizedGroupIds.map((groupId) => adsPower.getProfilesByGroupId(groupId))
+            );
+        }
         await profileActivityStore?.syncProfileGroups?.(profilesFromGroups.flat());
         assertNotAborted();
 
@@ -205,14 +221,15 @@ export default async function runParallelCommentingScenario({
         });
         const profiles = shuffleArray(uniqueProfiles);
         if (!profiles.length) {
+            if (profileNos !== null) throw new Error("Не вдалося завантажити жодного вибраного профілю");
             throw new Error(`Групи AdsPower ${normalizedGroupIds.join(", ")} порожні або не існують`);
         }
 
         const profilesByNo = new Map();
-        const profilePools = { male: [], female: [] };
+        const profilePools = matchProfileGender ? { male: [], female: [] } : { any: [] };
         profiles.forEach((profile) => {
             const profileNo = String(profile?.profile_no ?? "").trim();
-            const gender = getGender(profile);
+            const gender = matchProfileGender ? getGender(profile) : "any";
             if (!gender || !profilePools[gender]) {
                 report.excludedProfiles.push({
                     profileNo: profileNo || "невідомий",
@@ -227,8 +244,8 @@ export default async function runParallelCommentingScenario({
         scenarioLogger.info("profiles.ready", "Профілі для паралельного коментування підготовлено", {
             groups: normalizedGroupIds,
             total: profilesByNo.size,
-            male: profilePools.male.length,
-            female: profilePools.female.length,
+            male: profilePools.male?.length ?? 0,
+            female: profilePools.female?.length ?? 0,
             concurrency: workerLimit,
         });
 
@@ -424,7 +441,7 @@ export default async function runParallelCommentingScenario({
             if (comment.profile_key && profileKeyMap.has(comment.profile_key)) {
                 const profileNo = profileKeyMap.get(comment.profile_key);
                 const profile = profilesByNo.get(profileNo);
-                if (getGender(profile) !== comment.gender) {
+                if (matchProfileGender && getGender(profile) !== comment.gender) {
                     return {
                         published: false,
                         attempts: 0,
@@ -499,7 +516,7 @@ export default async function runParallelCommentingScenario({
                     ? getActionType(comment) === "reply"
                         ? `Не вдалося опублікувати reply: ${lastError}`
                         : `Усі спроби завершилися помилкою: ${lastError}`
-                    : `Закінчилися профілі gender=${comment.gender}`,
+                    : matchProfileGender ? `Закінчилися профілі gender=${comment.gender}` : "Закінчилися доступні профілі",
             };
         };
         const processComment = async (comment, workerId) => {
@@ -546,7 +563,7 @@ export default async function runParallelCommentingScenario({
                     commentId: comment.id,
                     actionType: getActionType(comment),
                     profileNo: String(outcome.profile.profile_no),
-                    gender: comment.gender,
+                    gender: matchProfileGender ? comment.gender : null,
                     profileKey: comment.profile_key,
                     text: comment.text,
                 });

@@ -6,6 +6,8 @@ import runCommentingScenario
     from "../../scenarios/runCommentingScenario.js";
 import runParallelCommentingScenario
     from "../../scenarios/runParallelCommentingScenario.js";
+import runSelectedProfilesCommentingScenario
+    from "../../scenarios/runSelectedProfilesCommentingScenario.js";
 import runParallelCommentAccountSetupScenario
     from "../../scenarios/runParallelCommentAccountSetupScenario.js";
 import executeCommentAccountApiSetupWithProfile
@@ -707,6 +709,7 @@ export default class AdsBotGuiService {
         professionsGeo,
         photosDirectory,
         useApiRequests = false,
+        checkGender = true,
         profileNameNote = "",
         operations = {},
         concurrency = 5,
@@ -781,6 +784,7 @@ export default class AdsBotGuiService {
                 : undefined,
             profileNameNote,
             skipNameChange: !normalizedOperations.changeName,
+            checkGender,
             skipAvatarChange: !normalizedOperations.changeAvatar,
             skipCoverChange: !normalizedOperations.changeCover,
             skipDeletePosts: !normalizedOperations.deletePosts,
@@ -915,19 +919,54 @@ export default class AdsBotGuiService {
         });
         const response = await this.runParallelComments({ ...options, geo: creativeGeo, comments });
         const report = response.report;
+        return this.#summarizeCommentingReport(report);
+    }
+
+
+    async runSelectedProfilesCommenting(options = {}) {
+        const manualMode = options.manualMode === true;
+        const creativeGeo = options.creativeGeo || options.language || options.geo;
+        let comments;
+        if (!manualMode) {
+            if (!this.#creativeManager) this.#creativeManager = this.#creativeManagerFactory();
+            const creative = await this.#creativeManager.getCreative(creativeGeo, options.creativeName);
+            comments = prepareCommentsForCampaign({ creative, siteUrl: options.siteUrl ?? "" });
+        }
+        try {
+            const { report } = await runSelectedProfilesCommentingScenario({
+                ...options,
+                manualMode,
+                geo: creativeGeo,
+                comments,
+                adsPower: this.adsPower,
+                logger: this.logger,
+                reportsDirectory: this.reportsDirectory,
+                profileActivityStore: this.#profileActivityStore,
+            });
+            return this.#summarizeCommentingReport(report);
+        } catch (error) {
+            if (error.report) error.reportDetails = this.#summarizeCommentingReport(error.report).reportDetails;
+            throw error;
+        }
+    }
+
+
+    #summarizeCommentingReport(report) {
+        const excludedProfiles = report.excludedProfiles ?? [];
         return {
             reportPath: report.reportPath,
             published: report.published.length,
             skipped: report.skipped.length,
             failedComments: report.failedComments.length,
             failedProfiles: report.failedProfiles.length,
+            excludedProfiles: excludedProfiles.length,
             fatalError: report.fatalError,
             browserMode: report.browserMode,
             disableImages: report.disableImages,
             reportDetails: {
-                inputSummary: { groupIds: report.groupIds, geo: report.geo, creativeName: report.creativeName, postUrl: report.postUrl, browserMode: report.browserMode, disableImages: report.disableImages },
-                resultSummary: { published: report.published, skipped: report.skipped, failedComments: report.failedComments, failedProfiles: report.failedProfiles, uncertain: report.interrupted ? report.failedComments : [] },
-                counters: { published: report.published.length, skipped: report.skipped.length, failedComments: report.failedComments.length, failedProfiles: report.failedProfiles.length },
+                inputSummary: { groupIds: report.groupIds, profileNos: report.profileNos, geo: report.geo, creativeName: report.creativeName, postUrl: report.postUrl, browserMode: report.browserMode, disableImages: report.disableImages },
+                resultSummary: { published: report.published, skipped: report.skipped, failedComments: report.failedComments, failedProfiles: report.failedProfiles, excludedProfiles, uncertain: report.interrupted ? report.failedComments : [] },
+                counters: { published: report.published.length, skipped: report.skipped.length, failedComments: report.failedComments.length, failedProfiles: report.failedProfiles.length, excludedProfiles: excludedProfiles.length },
                 warnings: report.cleanupWarnings,
                 artifacts: report.reportPath ? [{ path: report.reportPath, kind: "markdown" }] : [],
             },

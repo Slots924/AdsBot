@@ -311,6 +311,24 @@ try {
     );
     assert(logs.length > 0);
 
+    const manualService = new AdsBotGuiService({
+        facebookBackend: {},
+        adsPower: { getProfileByNo: async (number) => ({ profile_no: number }) },
+        creativeManagerFactory: () => assert.fail("Ручні коментарі не потребують генерації креативу"),
+        profileActivityStore: null,
+        reportsDirectory: temporaryDirectory,
+        logger: { info() {}, warn() {}, error() {} },
+    });
+    const manualSummary = await manualService.runSelectedProfilesCommenting({
+        profileNos: [1], manualMode: true, manualComments: "Коментар без статі",
+        postUrl: "https://www.facebook.com/post",
+        executeComment: async () => ({ success: true, cleanupErrors: [] }),
+    });
+    assert.equal(manualSummary.published, 1);
+    assert.deepEqual(manualSummary.reportDetails.inputSummary.profileNos, ["1"]);
+    assert.equal(manualSummary.reportDetails.resultSummary.published[0].text, "Коментар без статі");
+    assert(manualSummary.reportDetails.artifacts[0].path);
+
     console.log("Mock-перевірка AdsBotGuiService пройшла успішно");
 } finally {
     await rm(temporaryDirectory, { recursive: true, force: true });
