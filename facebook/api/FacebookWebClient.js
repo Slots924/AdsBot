@@ -60,8 +60,14 @@ export default class FacebookWebClient {
                 headers: {
                     "User-Agent": this.#userAgent,
                     Cookie: this.#jar.getCookieStringSync(target.href),
-                    Accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
+                    // Заголовки навігації потрібні для отримання HTML домашньої сторінки Facebook.
+                    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                     "Accept-Language": "en-US,en;q=0.9",
+                    "Sec-Fetch-Dest": "document",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-Site": "none",
+                    "Sec-Fetch-User": "?1",
+                    "Upgrade-Insecure-Requests": "1",
                 },
             });
             const updates = response.headers?.["set-cookie"] ?? [];

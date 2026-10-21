@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import http from "node:http";
 import FacebookWebClient from "../facebook/api/FacebookWebClient.js";
 import AdsPower from "../classes/AdsPower.js";
 import AutouploadStore from "../services/autoupload/AutouploadStore.js";
@@ -68,6 +69,58 @@ test("AdsPower читає cookies і UA виключно через спільн
     await assert.rejects(adsPower.getProfileCookies("p1"), (error) => !error.message.includes("test-secret"));
 });
 
+test("AdsPower надсилає GET/HEAD без тіла та зберігає JSON-тіло POST", async () => {
+    const received = [];
+    const server = http.createServer((request, response) => {
+        let body = "";
+        request.on("data", (part) => { body += part; });
+        request.on("end", () => {
+            received.push({ method: request.method, body, contentLength: request.headers["content-length"], url: request.url });
+            response.setHeader("Content-Type", "application/json");
+            response.end(JSON.stringify({ code: 0 }));
+        });
+    });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    try {
+        const adsPower = new AdsPower();
+        const url = `http://127.0.0.1:${server.address().port}/test`;
+        await adsPower.request("get", url, null, { profile_id: "test" });
+        await adsPower.request("head", url);
+        await adsPower.request("post", url, { profile_id: ["test"] });
+        assert.equal(received[0].body, "");
+        assert.equal(received[0].contentLength, undefined);
+        assert.equal(received[0].url, "/test?profile_id=test");
+        assert.equal(received[1].body, "");
+        assert.deepEqual(JSON.parse(received[2].body), { profile_id: ["test"] });
+    } finally {
+        await new Promise((resolve) => server.close(resolve));
+    }
+});
+
+test("workflow показує безпечний HTTP-статус помилки cookies", async () => {
+    const output = await checkProfileSession({ profileId: "test", adsPower: {
+        getProfileById: async () => ({ user_proxy_config: { proxy_type: "http", proxy_host: "127.0.0.1", proxy_port: "1234" } }),
+        getProfileCookies: async () => { throw Object.assign(new Error("AdsPower: HTTP 400"), { safeAdsPowerMessage: true }); },
+    } });
+    assert.equal(output.result.message, "AdsPower: HTTP 400");
+    assert.equal(output.result.stage, "cookies");
+});
+
+test("workflow готує проксі, сумісну з наявним ProxyHttpClient", async () => {
+    let constructed = false;
+    const output = await checkProfileSession({ profileId: "test", adsPower: {
+        getProfileById: async () => ({ user_proxy_config: { proxy_type: "http", proxy_host: "127.0.0.1", proxy_port: "1234" } }),
+        getProfileCookies: async () => cookies,
+        getProfileUserAgent: async () => "Test-UA",
+    }, createClient: (options) => {
+        new FacebookWebClient(options);
+        constructed = true;
+        return { checkSession: async () => ({ fields: ["fb_dtsg"], message: "OK" }) };
+    } });
+    assert.equal(constructed, true);
+    assert.equal(output.result.status, "active");
+});
+
 test("сесія підтверджує ID, не повертає значення токенів, враховує атрибути cookies", async () => {
     let sent;
     const web = client(async (config) => { sent = config; return reply(); }, { cookies: [...cookies,
@@ -77,6 +130,9 @@ test("сесія підтверджує ID, не повертає значенн
     ] });
     const result = await web.checkSession();
     assert.equal(sent.headers["User-Agent"], "Test-UA");
+    assert.equal(sent.headers["Sec-Fetch-Dest"], "document");
+    assert.equal(sent.headers["Sec-Fetch-Mode"], "navigate");
+    assert.equal(sent.headers["Upgrade-Insecure-Requests"], "1");
     assert.ok(sent.headers.Cookie.includes("c_user=123"));
     assert.ok(!sent.headers.Cookie.includes("hidden"));
     assert.ok(result.fields.includes("fb_dtsg"));

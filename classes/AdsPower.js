@@ -59,7 +59,8 @@ class AdsPower {
                 const response = await axios({
                     method,
                     url,
-                    data,
+                    // GET/HEAD не повинні містити тіло: JSON null спричиняє HTTP 400 у Local API.
+                    ...(["get", "head"].includes(String(method).toLowerCase()) ? {} : { data }),
                     params,
                     headers: this.headers,
                     timeout: 60000,
@@ -325,8 +326,13 @@ class AdsPower {
             const cookies = typeof value === "string" ? JSON.parse(value) : value;
             if (!Array.isArray(cookies)) throw new Error();
             return cookies;
-        } catch {
-            throw new Error("Не вдалося отримати cookies AdsPower. Перевірте доступ до профілю й актуальність патча");
+        } catch (error) {
+            const httpStatus = error.response?.status ?? null;
+            throw Object.assign(new Error(httpStatus
+                ? `Не вдалося отримати cookies AdsPower: HTTP ${httpStatus}`
+                : "Не вдалося отримати cookies AdsPower: помилка з’єднання або непідтримуваний формат відповіді"), {
+                code: "ADSPOWER_COOKIES_FAILED", httpStatus, safeAdsPowerMessage: true,
+            });
         }
     }
 

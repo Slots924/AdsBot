@@ -2,6 +2,56 @@
   "version": 1,
   "tasks": [
     {
+      "id": "ea4e32f5-335d-4d99-a898-9f4b43c54eee",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1987",
+          "label": "профіль №1987"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1gueugg"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1gueugg",
+        "reportId": "eea06c61-9f9b-488b-a64e-bb4734ebc1ad"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1gueugg",
+            "profileNo": "1987",
+            "status": "error",
+            "stage": "cookies",
+            "message": "Не вдалося отримати cookies. Перевірте доступ до профілю та патч AdsPower",
+            "fields": [],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Не вдалося отримати cookies. Перевірте доступ до профілю та патч AdsPower"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-21T19:40:25.564Z",
+      "startedAt": "2026-10-21T19:40:25.566Z",
+      "finishedAt": "2026-10-21T19:40:26.675Z",
+      "updatedAt": "2026-10-21T19:40:26.677Z"
+    },
+    {
       "id": "cd135a6b-44c3-4bee-ba9d-63c39c4c2a3f",
       "type": "comments",
       "name": "Коментарі поста · AT · 1",

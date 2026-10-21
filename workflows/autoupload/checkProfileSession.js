@@ -16,7 +16,7 @@ export default async function checkProfileSession({ profileId, adsPower, signal,
         if ((!config?.proxy_host || !config?.proxy_port) && profile.fbcc_proxy_acc_id) {
             config = await adsPower.getProxyById(profile.fbcc_proxy_acc_id);
         }
-        const proxy = normalizeProxy(config);
+        const proxy = { ...normalizeProxy(config), id: `adspower-profile-${profileId}` };
         await note("Проксі профілю налаштовано");
         stage = "cookies";
         signal?.throwIfAborted();
@@ -41,7 +41,7 @@ export default async function checkProfileSession({ profileId, adsPower, signal,
             ua: "Не вдалося отримати UA. Перевірте патч AdsPower та формат відповіді API",
             facebook: "Помилка підготовки або перевірки сесії Facebook",
         };
-        const message = error.sessionStatus ? error.message : messages[stage];
+        const message = error.sessionStatus || error.safeAdsPowerMessage ? error.message : messages[stage];
         return { client: null, result: { status: error.sessionStatus ?? "error", stage, message, fields: [], steps: [...steps, message] } };
     }
 }

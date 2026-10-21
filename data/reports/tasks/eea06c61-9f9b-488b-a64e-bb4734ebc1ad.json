@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "id": "eea06c61-9f9b-488b-a64e-bb4734ebc1ad",
+  "taskId": "ea4e32f5-335d-4d99-a898-9f4b43c54eee",
+  "type": "autoupload-session-check",
+  "title": "Перевірка сесій · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-21T19:40:26.676Z",
+  "startedAt": "2026-10-21T19:40:25.566Z",
+  "finishedAt": "2026-10-21T19:40:26.675Z",
+  "durationMs": 1109,
+  "inputSummary": {
+    "profileIds": [
+      "k1gueugg"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1gueugg",
+        "profileNo": "1987",
+        "status": "error",
+        "stage": "cookies",
+        "message": "Не вдалося отримати cookies. Перевірте доступ до профілю та патч AdsPower",
+        "fields": [],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Не вдалося отримати cookies. Перевірте доступ до профілю та патч AdsPower"
+        ]
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload:k1gueugg"
+  }
+}
