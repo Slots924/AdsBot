@@ -94,6 +94,10 @@ button:focus-visible, input:focus-visible {
 .autoupload-form label { display: grid; gap: 8px; }
 .autoupload-form p, .autoupload-details { line-height: 1.6; }
 .autoupload-details article + article { margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--stroke); }
+.autoupload-action-details dl { display: grid; gap: 6px; font-size: 12px; }
+.autoupload-action-details dl > div { display: grid; grid-template-columns: 145px minmax(0, 1fr); gap: 12px; }
+.autoupload-action-details dt { color: var(--muted); }
+.autoupload-action-details dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 1000px) { .autoupload-workspace { grid-template-columns: 190px minmax(0, 1fr); } .autoupload-tab { padding: 16px; } }
 .comment-accounts-workspace { display: grid; grid-template-columns: minmax(0,1fr) 52px minmax(0,1fr); gap: 12px; flex: 1; min-height: 0; }
 .comment-pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; gap: 10px; }

@@ -1,6 +1,7 @@
 import { Cookie, CookieJar } from "tough-cookie";
 import ProxyHttpClient from "../../services/proxy/ProxyHttpClient.js";
 import parseWebSession from "../session/parseWebSession.js";
+import { actionError } from "../autoupload/graphql/errors.js";
 
 const homeUrl = "https://www.facebook.com/";
 const isFacebook = (host) => host === "facebook.com" || host.endsWith(".facebook.com");
@@ -12,6 +13,7 @@ export default class FacebookWebClient {
     #userAgent;
     #expectedId;
     #session = null;
+    #sessionCheckedAt = 0;
     #queue = Promise.resolve();
 
     constructor({ cookies, userAgent, proxy, httpClient }) {
@@ -45,7 +47,20 @@ export default class FacebookWebClient {
         return operation;
     }
 
-    async request({ url = homeUrl, method = "get", data, signal }) {
+    getFbData(profileId) {
+        if (!this.#session) throw actionError("Спочатку перевірте сесію Facebook", "FACEBOOK_SESSION_REQUIRED");
+        return Object.freeze({ profileId, userId: this.#expectedId, session: this.#session, client: this });
+    }
+
+    validateFbData(fbData) {
+        if (fbData?.client !== this || fbData.session !== this.#session || String(fbData.userId) !== this.#expectedId) {
+            throw actionError("Сесія була оновлена або належить іншому профілю", "FACEBOOK_SESSION_MISMATCH", { actionRequired: "refresh_session" });
+        }
+        if (Date.now() - this.#sessionCheckedAt > 15 * 60_000) throw actionError("Підготуйте актуальну сесію Facebook", "FACEBOOK_SESSION_EXPIRED", { actionRequired: "refresh_session" });
+    }
+
+    async request({ url = homeUrl, method = "get", data, signal, headers = {}, mutation = !["get", "head"].includes(String(method).toLowerCase()), allowHttpErrors = false }) {
+        signal?.throwIfAborted();
         let target = new URL(url, homeUrl);
         let requestMethod = method;
         let requestData = data;
@@ -53,23 +68,30 @@ export default class FacebookWebClient {
             if (target.protocol !== "https:" || !isFacebook(target.hostname) || target.username || target.password || (target.port && target.port !== "443")) {
                 throw failure("Facebook повернув непідтримуваний напрямок переходу");
             }
-            const response = await this.#http.request({
+            let response;
+            try { response = await this.#http.request({
                 method: requestMethod, url: target.href, data: requestData, signal,
                 timeout: 30000, maxRedirects: 0, responseType: "text", maxContentLength: 15 * 1024 * 1024,
                 validateStatus: () => true,
                 headers: {
+                    ...headers,
                     "User-Agent": this.#userAgent,
                     Cookie: this.#jar.getCookieStringSync(target.href),
                     // Заголовки навігації потрібні для отримання HTML домашньої сторінки Facebook.
-                    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    Accept: mutation ? "*/*" : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                     "Accept-Language": "en-US,en;q=0.9",
-                    "Sec-Fetch-Dest": "document",
-                    "Sec-Fetch-Mode": "navigate",
-                    "Sec-Fetch-Site": "none",
-                    "Sec-Fetch-User": "?1",
-                    "Upgrade-Insecure-Requests": "1",
+                    "Sec-Fetch-Dest": mutation ? "empty" : "document",
+                    "Sec-Fetch-Mode": mutation ? "cors" : "navigate",
+                    "Sec-Fetch-Site": mutation ? "same-origin" : "none",
+                    ...(mutation ? { Origin: "https://www.facebook.com", Referer: homeUrl } : { "Sec-Fetch-User": "?1", "Upgrade-Insecure-Requests": "1" }),
                 },
-            });
+            }, { retryOnConnectionError: !mutation }); }
+            catch (error) {
+                if (!mutation) throw error;
+                throw actionError("Відповідь на заявку не отримано. Результат невідомий; перевірте стан перед повтором", "FACEBOOK_WRITE_OUTCOME_UNKNOWN", {
+                    httpStatus: error?.response?.status ?? null, outcomeUnknown: true, actionRequired: "check_friendship_status",
+                });
+            }
             const updates = response.headers?.["set-cookie"] ?? [];
             for (const cookie of typeof updates === "string" ? [updates] : updates) {
                 this.#jar.setCookieSync(cookie, target.href, { ignoreError: true });
@@ -77,15 +99,20 @@ export default class FacebookWebClient {
             if ([301, 302, 303, 307, 308].includes(response.status) && response.headers?.location) {
                 target = new URL(response.headers.location, target);
                 if (target.protocol !== "https:" || !isFacebook(target.hostname)) throw failure("Непідтримуваний перехід Facebook");
-                this.#checkPage(target, "");
+                try { this.#checkPage(target, ""); }
+                catch (error) { if (mutation) error.outcomeUnknown = true; throw error; }
+                if (mutation) throw actionError("Facebook перенаправив запит. Результат заявки невідомий; повтор не виконувався", "FACEBOOK_WRITE_REDIRECT", {
+                    httpStatus: response.status, outcomeUnknown: true, actionRequired: "check_friendship_status",
+                });
                 if (response.status === 303 || ([301, 302].includes(response.status) && requestMethod.toLowerCase() === "post")) {
                     requestMethod = "get";
                     requestData = undefined;
                 }
                 continue;
             }
-            if (response.status < 200 || response.status >= 300) throw failure(`Facebook повернув HTTP ${response.status}`);
-            this.#checkPage(target, String(response.data));
+            if (!allowHttpErrors && (response.status < 200 || response.status >= 300)) throw Object.assign(failure(`Facebook повернув HTTP ${response.status}`), { httpStatus: response.status });
+            try { this.#checkPage(target, String(response.data)); }
+            catch (error) { if (mutation) error.outcomeUnknown = true; throw error; }
             return response;
         }
         throw failure("Забагато перенаправлень Facebook");
@@ -117,7 +144,8 @@ export default class FacebookWebClient {
             const currentId = currentCookies.find((cookie) => cookie.key === "c_user")?.value;
             if (currentId !== this.#expectedId) throw failure("Cookies відповіді належать іншому акаунту");
             if (!currentCookies.some((cookie) => cookie.key === "xs" && cookie.value)) throw failure("Facebook скинув сесію. Потрібна повторна авторизація", "login_required");
-            this.#session = session;
+            this.#session = Object.freeze(session);
+            this.#sessionCheckedAt = Date.now();
             return { fields: Object.keys(session).filter((key) => session[key]), message: "Facebook відповів. Дані сесії отримано, акаунт підтверджено" };
         });
     }

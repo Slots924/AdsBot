@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FolderPlus, LoaderCircle, Pencil, Play, Power, RefreshCw, Trash2 } from "lucide-react";
+import { FolderPlus, LoaderCircle, Pencil, Play, Power, RefreshCw, Trash2, UserPlus } from "lucide-react";
 import WorkspaceDialog from "../components/WorkspaceDialog.jsx";
+import AutouploadFriendRequestModal from "../components/AutouploadFriendRequestModal.jsx";
+import AutouploadActionDetails from "../components/AutouploadActionDetails.jsx";
 import { unwrap } from "../lib/api.js";
 
 const statuses = {
-    unchecked: ["Не перевірено", "muted"], checking: ["Перевіряємо…", "pending"], active: ["Сесія активна", "success"],
+    unchecked: ["Не перевірено", "muted"], checking: ["Виконується…", "pending"], active: ["Сесія активна", "success"],
     login_required: ["Потрібна авторизація", "danger"], checkpoint: ["Потрібне підтвердження", "danger"], error: ["Помилка перевірки", "warning"],
 };
 const time = (value) => value ? new Date(value).toLocaleString("uk-UA") : "—";
@@ -21,6 +23,7 @@ export default function AutouploadTab({ showToast }) {
     const [name, setName] = useState("");
     const [target, setTarget] = useState("new");
     const [detail, setDetail] = useState(null);
+    const [friendProfiles, setFriendProfiles] = useState(null);
     const revision = useRef(0);
     useEffect(() => {
         let live = true;
@@ -97,27 +100,30 @@ export default function AutouploadTab({ showToast }) {
                     <input aria-label="Пошук профілів" placeholder="Номер або назва профілю…" value={search} onChange={(event) => { setSearch(event.target.value); setSelected([]); }} />
                     <span>Вибрано: {ids.length}</span>
                     <button className="primary-button" disabled={busy || !ids.length || checking} onClick={() => act(() => unwrap(window.adsBot.checkAutouploadSessions(ids)), "Перевірку сесій поставлено в чергу")}>Перевірити сесію</button>
+                    <button className="secondary-button" disabled={busy || !ids.length || checking} onClick={() => setFriendProfiles(visible.filter((profile) => ids.includes(profile.profileId)))}><UserPlus size={16} /> Додати в друзі</button>
                     <button className="secondary-button" disabled={busy || !ids.length || checking} onClick={() => open({ action: "move", ids, title: "Перемістити профілі" })}>Перемістити</button>
                     <button className="secondary-button" disabled={busy || !ids.length || checking} onClick={() => open({ action: "remove", ids, title: "Прибрати вибрані профілі?" })}>Прибрати</button>
                 </div>
                 <div className="autoupload-table-scroll"><table className="autoupload-table"><thead><tr>
                     <th><input type="checkbox" aria-label="Вибрати всі видимі профілі" checked={visible.length > 0 && ids.length === visible.length} onChange={(event) => setSelected(event.target.checked ? visible.map((item) => item.profileId) : [])} /></th>
-                    <th className="autoupload-profile-control" aria-label="Запуск профілю" /><th>№ AdsPower</th><th>Назва профілю</th><th>Статус</th><th>Остання перевірка</th><th>Результат</th>
+                    <th className="autoupload-profile-control" aria-label="Запуск профілю" /><th>№ AdsPower</th><th>Назва профілю</th><th>Статус сесії</th><th>Остання перевірка</th><th>Остання дія</th><th>Результат</th>
                 </tr></thead><tbody>{visible.map((profile) => {
                     const [label, tone] = statuses[profile.status] ?? statuses.error;
                     return <tr key={profile.profileId}><td><input type="checkbox" aria-label={`Вибрати профіль ${profile.profileNo}`} checked={ids.includes(profile.profileId)} onChange={(event) => setSelected((current) => event.target.checked ? [...current, profile.profileId] : current.filter((id) => id !== profile.profileId))} /></td>
                         <td><button type="button" className={`icon-button${profile.adsPowerOpen ? " danger" : ""}`} title={profile.adsPowerOpen ? "Профіль відкритий — закрити" : "Відкрити AdsPower-профіль"} aria-label={`${profile.adsPowerOpen ? "Закрити" : "Відкрити"} профіль ${profile.profileNo}`} disabled={profileBusy.includes(profile.profileId) || profile.browserBusy || profile.status === "checking"} onClick={() => controlProfile(profile)}>{profileBusy.includes(profile.profileId) || profile.browserBusy ? <LoaderCircle className="spin" size={13} /> : profile.adsPowerOpen ? <Power size={13} /> : <Play size={13} />}</button></td>
                         <td>{profile.profileNo}</td><td>{profile.name || "Без назви"}</td><td><span className={`autoupload-status ${tone}`} title={profile.message}>{label}</span></td><td>{time(profile.checkedAt)}</td>
+                        <td>{profile.lastAction ? <span className={`autoupload-status ${profile.lastAction.success ? "success" : profile.lastAction.outcomeUnknown ? "warning" : "danger"}`}>{profile.lastAction.message}</span> : "—"}</td>
                         <td><button className="secondary-button" onClick={() => setDetail(profile.profileId)}>Деталі</button></td></tr>;
                 })}</tbody></table>
                     {!visible.length && <p className="autoupload-empty">{state.profiles.length ? "Профілів за цим фільтром немає." : "Виберіть профілі у вкладці «Акаунти під коментарі» та натисніть «Додати до автозаливів»."}</p>}
                 </div>
-                <section className="autoupload-history" aria-label="Журнал перевірок"><h3>Останні перевірки</h3>
-                    {state.history.slice(0, 25).map((entry) => <button key={entry.id} onClick={() => setDetail(entry.profileId)}><time>{time(entry.checkedAt)}</time><strong>№{entry.profileNo}</strong><span className={`autoupload-status ${statuses[entry.status]?.[1] ?? "warning"}`}>{entry.message}</span></button>)}
-                    {!state.history.length && <p>Тут з’являться етапи та результати перевірок.</p>}
+                <section className="autoupload-history" aria-label="Журнал операцій"><h3>Журнал операцій</h3>
+                    {state.history.slice(0, 25).map((entry) => <button key={entry.id} onClick={() => setDetail(entry.profileId)}><time>{time(entry.checkedAt)}</time><strong>№{entry.profileNo}</strong><span className={`autoupload-status ${entry.operation === "friend-request" ? entry.success ? "success" : entry.outcomeUnknown ? "warning" : "danger" : statuses[entry.status]?.[1] ?? "warning"}`}>{entry.message}</span></button>)}
+                    {!state.history.length && <p>Тут з’являться етапи та результати операцій.</p>}
                 </section>
             </div>
         </div>
+        {friendProfiles && <AutouploadFriendRequestModal profiles={friendProfiles} onClose={() => setFriendProfiles(null)} onQueued={() => { setFriendProfiles(null); showToast?.("Послідовне надсилання заявок поставлено в чергу", "success"); }} />}
         {dialog && <WorkspaceDialog title={dialog.title} busy={busy} onClose={() => setDialog(null)}><form className="autoupload-form" onSubmit={submit}>
             {["create", "rename"].includes(dialog.action) && <label>Назва групи<input required maxLength={100} value={name} onChange={(event) => setName(event.target.value)} disabled={busy} /></label>}
             {dialog.action === "move" && <label>Група<select value={target} onChange={(event) => setTarget(event.target.value)} disabled={busy}>{state.groups.map((group) => <option key={group.id} value={group.id}>{group.name}</option>)}</select></label>}
@@ -126,8 +132,8 @@ export default function AutouploadTab({ showToast }) {
             {error && <p role="alert" className="autoupload-error">{error}</p>}
             <div className="inline-actions"><button type="button" className="secondary-button" disabled={busy} onClick={() => setDialog(null)}>Скасувати</button><button className="primary-button" disabled={busy}>{busy ? "Зберігаємо…" : "Підтвердити"}</button></div>
         </form></WorkspaceDialog>}
-        {detail && <WorkspaceDialog title="Результати перевірки сесії" onClose={() => setDetail(null)}><div className="autoupload-details">
-            {state.history.filter((entry) => entry.profileId === detail).slice(0, 10).map((entry) => <article key={entry.id}><h3>№{entry.profileNo} · {time(entry.checkedAt)}</h3><ol>{entry.steps.map((step, index) => <li key={index}>{step}</li>)}</ol>{entry.fields.length > 0 && <p>Отримані поля: {entry.fields.join(", ")}</p>}</article>)}
+        {detail && <WorkspaceDialog title="Історія профілю" onClose={() => setDetail(null)}><div className="autoupload-details">
+            {state.history.filter((entry) => entry.profileId === detail).slice(0, 10).map((entry) => <article key={entry.id}><h3>№{entry.profileNo} · {time(entry.checkedAt)} · {entry.operation === "friend-request" ? "Заявка в друзі" : "Перевірка сесії"}</h3><AutouploadActionDetails entry={entry} /><ol>{(entry.steps ?? []).map((step, index) => <li key={index}>{step}</li>)}</ol>{entry.fields?.length > 0 && <p>Отримані поля: {entry.fields.join(", ")}</p>}</article>)}
             {!state.history.some((entry) => entry.profileId === detail) && <p>Перевірок ще не було.</p>}
         </div></WorkspaceDialog>}
     </section>;

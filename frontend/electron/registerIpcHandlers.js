@@ -11,6 +11,7 @@ import { getProfileProxyService } from "../../services/proxy/AdsPowerProfileProx
 import BusinessManagerService from "../../services/gui/BusinessManagerService.js";
 import AutouploadStore from "../../services/autoupload/AutouploadStore.js";
 import AutouploadService from "../../services/autoupload/AutouploadService.js";
+import { validateTargetUserId } from "../../facebook/autoupload/actions/friends/sendFriendRequest.js";
 import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
 
 
@@ -236,6 +237,22 @@ export default function registerIpcHandlers({
             resources: profiles.map((item) => ({ key: `adspower-profile:${item.profileNo}`, label: `профіль №${item.profileNo}` })),
             input: { profileIds: profiles.map((item) => item.profileId) },
             runner: (context) => autoupload.check(profiles.map((item) => item.profileId), context),
+        });
+        return { taskId: task.id };
+    }));
+    ipcMain.handle("autoupload:friend-request", safeHandler(async ({ ids, targetUserId } = {}) => {
+        const targetId = validateTargetUserId(targetUserId);
+        const profiles = await autoupload.selected(ids);
+        const selectedIds = profiles.map((item) => item.profileId);
+        const task = await backgroundTaskManager.enqueue({
+            type: "autoupload-friend-request", name: `Заявки в друзі · ${profiles.length}`,
+            uniqueKey: `autoupload-friend-request:${targetId}:${[...selectedIds].sort().join(",")}`,
+            resources: [
+                { key: "autoupload-friend-requests", label: "послідовне надсилання заявок" },
+                ...profiles.map((item) => ({ key: `adspower-profile:${item.profileNo}`, label: `профіль №${item.profileNo}` })),
+            ],
+            input: { profileIds: selectedIds, targetUserId: targetId },
+            runner: (context) => autoupload.sendFriendRequests(selectedIds, targetId, context),
         });
         return { taskId: task.id };
     }));

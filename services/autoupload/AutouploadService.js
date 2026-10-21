@@ -1,13 +1,14 @@
 import { profileIds } from "./AutouploadStore.js";
 import checkProfileSession from "../../workflows/autoupload/checkProfileSession.js";
+import sendFriendRequest, { validateTargetUserId } from "../../facebook/autoupload/actions/friends/sendFriendRequest.js";
 
 export default class AutouploadService {
     #clients = new Map();
     #running = new Set();
     #browserStates = new Map();
     #browserBusy = new Set();
-    constructor({ store, adsPower, profileBrowser, onUpdated = () => {}, checkSession = checkProfileSession }) {
-        Object.assign(this, { store, adsPower, profileBrowser, onUpdated, checkSession });
+    constructor({ store, adsPower, profileBrowser, onUpdated = () => {}, checkSession = checkProfileSession, sendFriendRequestFn = sendFriendRequest }) {
+        Object.assign(this, { store, adsPower, profileBrowser, onUpdated, checkSession, sendFriendRequestFn });
     }
     async snapshot() {
         const state = await this.store.snapshot();
@@ -86,13 +87,20 @@ export default class AutouploadService {
         const selected = new Set(profileIds(ids));
         const profiles = (await this.store.snapshot()).profiles.filter((item) => selected.has(item.profileId));
         if (profiles.length !== selected.size) throw new Error("Один із вибраних профілів уже прибрано зі списку");
-        return profiles;
+        const byId = new Map(profiles.map((profile) => [profile.profileId, profile]));
+        return [...selected].map((id) => byId.get(id));
     }
     async check(ids, { signal, progress = async () => {} } = {}) {
+        return this.#runProfiles(ids, { signal, progress });
+    }
+    async sendFriendRequests(ids, targetUserId, context = {}) {
+        return this.#runProfiles(ids, { ...context, targetUserId: validateTargetUserId(targetUserId) });
+    }
+    async #runProfiles(ids, { signal, progress = async () => {}, targetUserId = null } = {}) {
         const profiles = await this.selected(ids);
         const results = [];
         for (const profile of profiles) {
-            signal?.throwIfAborted();
+            if (signal?.aborted) break;
             if (this.#running.has(profile.profileId)) throw new Error("Цей профіль уже перевіряється");
             this.#running.add(profile.profileId);
             this.#clients.delete(profile.profileId);
@@ -104,20 +112,38 @@ export default class AutouploadService {
                 });
                 await this.store.record(profile.profileId, result);
                 if (client) this.#clients.set(profile.profileId, client);
-                results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...result });
+                if (targetUserId) {
+                    await progress({ stage: "friend-request", completed: results.length, total: profiles.length, message: `№${profile.profileNo}: надсилаємо заявку` });
+                    let attempted = false;
+                    const action = client ? await this.sendFriendRequestFn(client.getFbData(profile.profileId), targetUserId, {
+                        signal, beforeSend: async () => { await this.store.beginFriendRequest(profile.profileId, targetUserId); attempted = true; },
+                    }) : {
+                        success: false, outcome: "NOT_SENT", code: "FACEBOOK_SESSION_PREPARATION_FAILED", message: result.message,
+                        stage: result.stage, sessionStatus: result.status, outcomeUnknown: false, retryable: false, targetUserId,
+                    };
+                    const record = { ...action, attempted, fields: [], steps: [...result.steps, action.message] };
+                    await this.store.recordAction(profile.profileId, record);
+                    results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...record });
+                } else results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...result });
             } catch (error) {
                 if (signal?.aborted) {
                     await this.store.record(profile.profileId, {
                         status: "error", stage: "interrupted", message: "Перевірку сесії перервано", fields: [], steps: ["Перевірку сесії перервано"],
                     });
+                    if (targetUserId) {
+                        const interrupted = { success: false, outcome: "NOT_SENT", code: "TASK_INTERRUPTED", message: "Задачу перервано до надсилання заявки", targetUserId, outcomeUnknown: false, retryable: false, fields: [], steps: ["Задачу перервано до надсилання заявки"] };
+                        await this.store.recordAction(profile.profileId, interrupted);
+                        results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...interrupted });
+                        break;
+                    }
                 }
                 throw error;
             } finally {
                 this.#running.delete(profile.profileId);
                 await this.#publish();
             }
-            await progress({ stage: "session", completed: results.length, total: profiles.length, message: `Перевірено ${results.length} із ${profiles.length}` });
+            await progress({ stage: targetUserId ? "friend-request" : "session", completed: results.length, total: profiles.length, message: `${targetUserId ? "Оброблено" : "Перевірено"} ${results.length} із ${profiles.length}` });
         }
-        return { result: { profiles: results }, taskStatus: results.some((item) => item.status !== "active") ? "completed_with_warnings" : "completed" };
+        return { result: { profiles: results, ...(targetUserId ? { targetUserId } : {}) }, taskStatus: results.some((item) => targetUserId ? !item.success : item.status !== "active") ? "completed_with_warnings" : "completed" };
     }
 }

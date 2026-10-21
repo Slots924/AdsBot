@@ -163,6 +163,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     controlAutouploadProfile: (profileId, action) => ipcRenderer.invoke("autoupload:profile", { profileId, action }),
     mutateAutoupload: (payload) => ipcRenderer.invoke("autoupload:mutate", payload),
     checkAutouploadSessions: (ids) => ipcRenderer.invoke("autoupload:check", { ids }),
+    sendAutouploadFriendRequests: (ids, targetUserId) => ipcRenderer.invoke("autoupload:friend-request", { ids, targetUserId }),
     onAutouploadUpdated: (callback) => subscribe("autoupload:updated", callback),
     getAdsPowerGroups: () => ipcRenderer.invoke("groups:list"),
     refreshAdsPowerGroups: () => ipcRenderer.invoke("groups:refresh"),

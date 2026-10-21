@@ -15,12 +15,43 @@ beforeEach(() => {
         onAutouploadUpdated: vi.fn(() => () => {}),
         mutateAutoupload: vi.fn(() => ok(structuredClone(state))),
         checkAutouploadSessions: vi.fn(() => ok({ taskId: "task1" })),
+        sendAutouploadFriendRequests: vi.fn(() => ok({ taskId: "friend-task" })),
         controlAutouploadProfile: vi.fn((_profileId, action) => ok({ profileId: "p1", adsPowerOpen: action === "open" })),
     };
 });
 afterEach(() => { cleanup(); delete window.adsBot; });
 
 describe("Автозаливи", () => {
+    it("запускає заявки лише для вибраних профілів із введеним Facebook ID", async () => {
+        render(<AutouploadTab />);
+        expect(screen.getByRole("button", { name: "Додати в друзі" })).toBeDisabled();
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("button", { name: "Додати в друзі" }));
+        fireEvent.change(screen.getByLabelText("Facebook ID отримувача"), { target: { value: "456" } });
+        expect(window.adsBot.sendAutouploadFriendRequests).not.toHaveBeenCalled();
+        fireEvent.click(screen.getByRole("button", { name: "Надіслати заявки" }));
+        await waitFor(() => expect(window.adsBot.sendAutouploadFriendRequests).toHaveBeenCalledWith(["p1"], "456"));
+        await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    });
+    it("відхиляє некоректний ID до запуску задачі", async () => {
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("button", { name: "Додати в друзі" }));
+        fireEvent.change(screen.getByLabelText("Facebook ID отримувача"), { target: { value: "not-id" } });
+        fireEvent.click(screen.getByRole("button", { name: "Надіслати заявки" }));
+        expect(await screen.findByRole("alert")).toHaveTextContent("числовий Facebook ID");
+        expect(window.adsBot.sendAutouploadFriendRequests).not.toHaveBeenCalled();
+    });
+    it("показує помилку заявки та фактичні коди окремо від активної сесії", async () => {
+        const action = { operation: "friend-request", message: "Request rejected", success: false, outcome: "NOT_CONFIRMED", code: "FACEBOOK_GRAPHQL_ERROR", httpStatus: 200, graphCode: 1234, apiErrorCode: 5678, targetUserId: "456", errors: [], steps: [], fields: [] };
+        window.adsBot.getAutoupload.mockImplementation(() => ok({ ...state, profiles: [{ ...state.profiles[0], status: "active", lastAction: action }], history: [{ ...action, id: "history1", profileId: "p1", profileNo: "12", checkedAt: "2026-10-22T12:00:00Z" }] }));
+        render(<AutouploadTab />);
+        expect(await screen.findByText("Сесія активна")).toHaveClass("success");
+        fireEvent.click(screen.getByRole("button", { name: "Деталі" }));
+        expect(screen.getByRole("dialog")).toHaveTextContent("FACEBOOK_GRAPHQL_ERROR");
+        expect(screen.getByRole("dialog")).toHaveTextContent("1234");
+        expect(screen.getByRole("dialog")).toHaveTextContent("5678");
+    });
     it("кнопка запуску стає червоною та повертається у звичайний стан після закриття", async () => {
         render(<AutouploadTab />);
         fireEvent.click(await screen.findByRole("button", { name: "Відкрити профіль 12" }));

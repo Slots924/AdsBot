@@ -96,4 +96,39 @@ export default class AutouploadStore {
             state.history = [{ id: randomUUID(), profileId, profileNo: profile.profileNo, checkedAt, ...result }, ...state.history].slice(0, 500);
         });
     }
+
+    beginFriendRequest(profileId, targetUserId) {
+        return this.change((state) => {
+            if (!state.profiles.some((profile) => profile.profileId === profileId)) throw new Error("Профіль прибрано зі списку");
+            state.friendRequests ??= {};
+            const key = `${profileId}:${targetUserId}`;
+            const previous = state.friendRequests[key];
+            if (previous?.success) throw Object.assign(new Error("Заявку цьому отримувачу вже підтверджено раніше"), {
+                code: "FRIEND_REQUEST_ALREADY_SENT", safeFacebookError: true,
+            });
+            if (previous?.outcomeUnknown) throw Object.assign(new Error("Попередній результат невідомий. Перевірте стан дружби перед новою спробою"), {
+                code: "FRIEND_REQUEST_PREVIOUS_OUTCOME_UNKNOWN", safeFacebookError: true, outcomeUnknown: true, actionRequired: "check_friendship_status",
+            });
+            // Запис до POST зберігає невизначений результат навіть після аварійного завершення програми.
+            state.friendRequests[key] = { outcomeUnknown: true, success: false, targetUserId, startedAt: new Date().toISOString() };
+        });
+    }
+
+    recordAction(profileId, result) {
+        return this.change((state) => {
+            const profile = state.profiles.find((item) => item.profileId === profileId);
+            if (!profile) return;
+            const checkedAt = new Date().toISOString();
+            const entry = { ...result, operation: "friend-request", checkedAt };
+            profile.lastAction = entry;
+            if (["login_required", "checkpoint"].includes(result.sessionStatus)) {
+                Object.assign(profile, { status: result.sessionStatus, message: result.message });
+            }
+            state.history = [{ id: randomUUID(), profileId, profileNo: profile.profileNo, ...entry }, ...state.history].slice(0, 500);
+            if (result.attempted && !["FRIEND_REQUEST_ALREADY_SENT", "FRIEND_REQUEST_PREVIOUS_OUTCOME_UNKNOWN"].includes(result.code)) {
+                state.friendRequests ??= {};
+                state.friendRequests[`${profileId}:${result.targetUserId}`] = entry;
+            }
+        });
+    }
 }
