@@ -1,6 +1,6 @@
 import { actionError, safeGraphText } from "./errors.js";
 
-export default function parseResponse(response, { session = {} } = {}) {
+export default function parseResponse(response, { session = {}, mutation = true } = {}) {
     const source = String(response?.data ?? "").replace(/^\s*for\s*\(\s*;;\s*\);\s*/, "").trim();
     let chunks;
     try {
@@ -8,8 +8,8 @@ export default function parseResponse(response, { session = {} } = {}) {
         catch { chunks = source.split(/\r?\n/).filter((line) => line.trim()).map((line) => JSON.parse(line)); }
         if (!chunks.length || chunks.some((item) => !item || typeof item !== "object" || Array.isArray(item))) throw new Error();
     } catch {
-        throw actionError("Facebook повернув неочікуваний формат. Результат заявки невідомий; перевірте його перед повтором", "FACEBOOK_RESPONSE_INVALID", {
-            httpStatus: response?.status ?? null, outcomeUnknown: true, actionRequired: "check_friendship_status",
+        throw actionError(mutation ? "Facebook повернув неочікуваний формат. Результат заявки невідомий; перевірте його перед повтором" : "Не вдалося розібрати відповідь Facebook зі списком заявок", "FACEBOOK_RESPONSE_INVALID", {
+            httpStatus: response?.status ?? null, outcomeUnknown: mutation, actionRequired: mutation ? "check_friendship_status" : "refresh_incoming_requests",
         });
     }
     const rawErrors = chunks.flatMap((item) => [
@@ -35,7 +35,7 @@ export default function parseResponse(response, { session = {} } = {}) {
     const metaRequestId = safeGraphText(response?.headers?.["x-fb-request-id"] ?? "", session) || null;
     if (errors.length) {
         const first = errors[0];
-        const partialResult = chunks.some((item) => item.data?.friend_request_send);
+        const partialResult = mutation && chunks.some((item) => item.data?.friend_request_send || item.data?.friend_request_accept);
         const authenticationRequired = Number(first.code) === 190 || (Number(first.code) === 31 && Number(first.error_subcode) === 3858385);
         throw actionError(first.error_user_msg || first.message, "FACEBOOK_GRAPHQL_ERROR", {
             httpStatus, graphCode: first.code, graphSubcode: first.error_subcode, apiErrorCode: first.api_error_code,
@@ -45,8 +45,8 @@ export default function parseResponse(response, { session = {} } = {}) {
             ...(authenticationRequired ? { sessionStatus: "login_required", actionRequired: "authenticate_account" } : {}),
         });
     }
-    if (httpStatus < 200 || httpStatus >= 300) throw actionError(`Facebook повернув HTTP ${httpStatus}; заявку не підтверджено`, "FACEBOOK_HTTP_ERROR", {
-        httpStatus, traceId, metaRequestId, outcomeUnknown: true, actionRequired: "check_friendship_status",
+    if (httpStatus < 200 || httpStatus >= 300) throw actionError(`Facebook повернув HTTP ${httpStatus}; ${mutation ? "заявку не підтверджено" : "список заявок не отримано"}`, "FACEBOOK_HTTP_ERROR", {
+        httpStatus, traceId, metaRequestId, outcomeUnknown: mutation, actionRequired: mutation ? "check_friendship_status" : "refresh_incoming_requests",
     });
     return { chunks, httpStatus, traceId, metaRequestId };
 }

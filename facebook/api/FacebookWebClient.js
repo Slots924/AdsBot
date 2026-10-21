@@ -69,6 +69,7 @@ export default class FacebookWebClient {
                 throw failure("Facebook повернув непідтримуваний напрямок переходу");
             }
             let response;
+            const navigation = ["get", "head"].includes(String(requestMethod).toLowerCase());
             try { response = await this.#http.request({
                 method: requestMethod, url: target.href, data: requestData, signal,
                 timeout: 30000, maxRedirects: 0, responseType: "text", maxContentLength: 15 * 1024 * 1024,
@@ -78,12 +79,12 @@ export default class FacebookWebClient {
                     "User-Agent": this.#userAgent,
                     Cookie: this.#jar.getCookieStringSync(target.href),
                     // Заголовки навігації потрібні для отримання HTML домашньої сторінки Facebook.
-                    Accept: mutation ? "*/*" : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    Accept: navigation ? "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" : "*/*",
                     "Accept-Language": "en-US,en;q=0.9",
-                    "Sec-Fetch-Dest": mutation ? "empty" : "document",
-                    "Sec-Fetch-Mode": mutation ? "cors" : "navigate",
-                    "Sec-Fetch-Site": mutation ? "same-origin" : "none",
-                    ...(mutation ? { Origin: "https://www.facebook.com", Referer: homeUrl } : { "Sec-Fetch-User": "?1", "Upgrade-Insecure-Requests": "1" }),
+                    "Sec-Fetch-Dest": navigation ? "document" : "empty",
+                    "Sec-Fetch-Mode": navigation ? "navigate" : "cors",
+                    "Sec-Fetch-Site": navigation ? "none" : "same-origin",
+                    ...(navigation ? { "Sec-Fetch-User": "?1", "Upgrade-Insecure-Requests": "1" } : { Origin: "https://www.facebook.com", Referer: homeUrl }),
                 },
             }, { retryOnConnectionError: !mutation }); }
             catch (error) {

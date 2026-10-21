@@ -54,6 +54,28 @@ POST не повторюється при timeout або втраті відпо
 
 Використовується `FriendingCometFriendRequestSendMutation` з `doc_id` із наданого HAR. Це не гарантує актуальність mutation: Facebook може змінити doc_id або вимагати додатковий контекст. Непідтверджені `click_proof_validation_result` не генеруються. Старі cookies та токени HAR не використовуються. Реальне надсилання перевіряється запуском користувача; локальні тести використовують лише mock-відповіді.
 
+## Вхідні заявки та прийняття
+
+Нові backend-дії доступні з `facebook/autoupload/actions/friends/index.js`:
+
+```js
+const fbData = client.getFbData(profileId);
+const incoming = await getIncomingFriendRequests(fbData, { signal });
+const accepted = await acceptIncomingFriendRequest(fbData, targetUserId, { signal });
+```
+
+- `getIncomingFriendRequests(fbData, options)` спочатку використовує `FriendingCometRootContentQuery`, а за відсутності придатної відповіді читає JSON із `script[type="application/json"]` сторінки `/friends`. JavaScript сторінки не виконується. Опція `source` може мати значення `auto`, `graphql` або `html`.
+- `acceptFriendRequest(fbData, targetUserId, options)` виконує лише mutation прийняття конкретної заявки. Цей метод призначений для вже перевіреного отримувача.
+- `acceptIncomingFriendRequest(fbData, targetUserId, options)` перевіряє поточний список і приймає лише знайдену заявку зі статусом `INCOMING_REQUEST`. Читання та прийняття виконуються в одній черзі клієнта без взаємного блокування.
+
+Отримання повертає `success`, `totalCount`, `loadedCount`, `requests` з полями `id`, `name`, `status`, а також `hasNextPage`, `endCursor`, `incomplete`, `source` і безпечну діагностику. Порожній масив `edges` є успішним результатом, а відсутній `edges` — помилкою. Сторінки не підвантажуються за вигаданими параметрами курсора. Якщо `hasNextPage === true`, інформації про пагінацію немає або загальна кількість перевищує завантажену, встановлюється `incomplete: true`.
+
+Відсутність потрібного ID у неповному списку повертає `FACEBOOK_INCOMING_REQUESTS_INCOMPLETE`, а не висновок про відсутню заявку. Якщо ID знайдено, можна прийняти саме цю заявку навіть за неповного списку. Масового прийняття немає.
+
+Успіх прийняття потребує HTTP 2xx, відсутності GraphQL errors, збігу `friend_requester.id` із потрібним ID та `friendship_status === ARE_FRIENDS`. Повертається `FRIEND_REQUEST_ACCEPTED`; помилки мають той самий формат діагностики, що й надсилання. Mutation не повторюється після timeout чи невідомого результату. `beforeSend`, як і в надсиланні, дозволяє workflow зберегти позначку спроби перед POST.
+
+Використовуються doc_id з наданого опису HAR. Застарілі сесійні значення, ID акаунтів із прикладів і вигадані результати перевірки кліку не використовуються. Якщо сервер потребуватиме додаткового актуального контексту, метод поверне помилку; автоматичного запуску браузера для обходу HTTP-помилки немає. Ці дії поки є backend-функціями: нові кнопки чи масові операції GUI не додаються.
+
 ## Сумісність
 
 Потрібен запущений AdsPower Local API з доступом до профілів та актуальним патчем, який підтримує cookies й UA API. Браузер профілю не запускається. Якщо AdsPower не повертає збережені cookies закритого профілю, перевірка завершується помилкою. Автоматичного обходу через запуск браузера немає.

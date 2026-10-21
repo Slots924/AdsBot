@@ -2,6 +2,75 @@
   "version": 1,
   "tasks": [
     {
+      "id": "e76c966d-58e7-4717-911b-953e8eaf2287",
+      "type": "autoupload-friend-request",
+      "name": "Заявки в друзі · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "autoupload-friend-requests",
+          "label": "послідовне надсилання заявок"
+        },
+        {
+          "key": "adspower-profile:1987",
+          "label": "профіль №1987"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1gueugg"
+        ],
+        "targetUserId": "61584762126962"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-friend-request:61584762126962:k1gueugg",
+        "reportId": "e901a392-02cc-4c85-86ba-fdcabf6563e3"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1gueugg",
+            "profileNo": "1987",
+            "success": true,
+            "outcome": "FRIEND_REQUEST_SENT",
+            "code": null,
+            "message": "Заявку в друзі підтверджено сервером",
+            "targetUserId": "61584762126962",
+            "friendshipStatus": "OUTGOING_REQUEST",
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "errors": [],
+            "outcomeUnknown": false,
+            "retryable": false,
+            "attempted": true,
+            "fields": [],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Заявку в друзі підтверджено сервером"
+            ]
+          }
+        ],
+        "targetUserId": "61584762126962"
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-21T21:20:24.093Z",
+      "startedAt": "2026-10-21T21:20:24.095Z",
+      "finishedAt": "2026-10-21T21:20:36.750Z",
+      "updatedAt": "2026-10-21T21:20:36.752Z"
+    },
+    {
       "id": "ae23ae2e-1db3-4420-ac2c-15e2367a9730",
       "type": "autoupload-session-check",
       "name": "Перевірка сесій · 1",
