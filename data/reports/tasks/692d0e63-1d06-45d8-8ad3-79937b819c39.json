@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "id": "692d0e63-1d06-45d8-8ad3-79937b819c39",
+  "taskId": "ae23ae2e-1db3-4420-ac2c-15e2367a9730",
+  "type": "autoupload-session-check",
+  "title": "Перевірка сесій · 1",
+  "status": "completed",
+  "createdAt": "2026-10-21T19:46:42.844Z",
+  "startedAt": "2026-10-21T19:46:35.864Z",
+  "finishedAt": "2026-10-21T19:46:42.843Z",
+  "durationMs": 6979,
+  "inputSummary": {
+    "profileIds": [
+      "k1gueugg"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1gueugg",
+        "profileNo": "1987",
+        "status": "active",
+        "stage": "facebook",
+        "message": "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+        "fields": [
+          "fb_dtsg",
+          "fb_dtsg_ag",
+          "jazoest",
+          "sessionID",
+          "FacebookID",
+          "clientRevision"
+        ],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено"
+        ]
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload:k1gueugg"
+  }
+}

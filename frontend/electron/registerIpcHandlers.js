@@ -213,9 +213,20 @@ export default function registerIpcHandlers({
     const autoupload = new AutouploadService({
         store: new AutouploadStore(appPaths.autoupload),
         adsPower: guiService.adsPower,
+        profileBrowser: guiService,
         onUpdated: (state) => sendRendererEvent("autoupload:updated", state),
     });
-    ipcMain.handle("autoupload:get", safeHandler(() => autoupload.snapshot()));
+    ipcMain.handle("autoupload:get", safeHandler(async ({ refreshBrowserStates = false } = {}) => {
+        if (refreshBrowserStates) {
+            // Список залишається доступним навіть за тимчасової недоступності AdsPower.
+            try { await autoupload.refreshBrowserStates(); } catch {}
+        }
+        return autoupload.snapshot();
+    }));
+    ipcMain.handle("autoupload:profile", safeHandler(async ({ profileId, action }) => {
+        const [profile] = await autoupload.selected([profileId]);
+        return withProfileReservation(profile.profileNo, () => autoupload.controlProfile(profileId, action));
+    }));
     ipcMain.handle("autoupload:mutate", safeHandler((payload) => autoupload.mutate(payload)));
     ipcMain.handle("autoupload:check", safeHandler(async ({ ids } = {}) => {
         const profiles = await autoupload.selected(ids);

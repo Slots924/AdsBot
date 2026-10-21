@@ -213,3 +213,39 @@ test("скасування прибирає стан перевірки й не 
     assert.equal(snapshot.profiles[0].status, "error");
     assert.equal(snapshot.history[0].stage, "interrupted");
 });
+
+test("червона кнопка скидається, коли AdsPower-профіль уже закрито вручну", async (t) => {
+    const store = await storeFixture(t);
+    await store.add([{ profileId: "p1", profileNo: "1", name: "Test" }], "new");
+    let closeCalls = 0;
+    const service = new AutouploadService({ store, profileBrowser: {
+        openAdsPowerProfile: async () => {},
+        getAdsPowerProfileOpenState: async () => false,
+        closeAdsPowerProfile: async () => { closeCalls += 1; },
+    } });
+    await service.controlProfile("p1", "open");
+    assert.equal((await service.snapshot()).profiles[0].adsPowerOpen, true);
+    await service.controlProfile("p1", "close");
+    assert.equal((await service.snapshot()).profiles[0].adsPowerOpen, false);
+    assert.equal(closeCalls, 0);
+});
+
+test("закриття враховує ручне закриття під час запиту й не маскує справжню помилку", async (t) => {
+    const store = await storeFixture(t);
+    await store.add([{ profileId: "p1", profileNo: "1", name: "Test" }], "new");
+    let checks = 0;
+    let closedExternally = true;
+    const service = new AutouploadService({ store, profileBrowser: {
+        openAdsPowerProfile: async () => {},
+        getAdsPowerProfileOpenState: async () => ++checks % 2 === 1 || !closedExternally,
+        closeAdsPowerProfile: async () => { throw new Error("Test failure"); },
+    } });
+    await service.controlProfile("p1", "open");
+    await service.controlProfile("p1", "close");
+    assert.equal((await service.snapshot()).profiles[0].adsPowerOpen, false);
+    await service.controlProfile("p1", "open");
+    closedExternally = false;
+    await assert.rejects(service.controlProfile("p1", "close"));
+    assert.equal((await service.snapshot()).profiles[0].adsPowerOpen, true);
+    assert.equal((await service.snapshot()).profiles[0].browserBusy, false);
+});

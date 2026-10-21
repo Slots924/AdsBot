@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FolderPlus, Pencil, RefreshCw, Trash2 } from "lucide-react";
+import { FolderPlus, LoaderCircle, Pencil, Play, Power, RefreshCw, Trash2 } from "lucide-react";
 import WorkspaceDialog from "../components/WorkspaceDialog.jsx";
 import { unwrap } from "../lib/api.js";
 
@@ -15,6 +15,7 @@ export default function AutouploadTab({ showToast }) {
     const [search, setSearch] = useState("");
     const [selected, setSelected] = useState([]);
     const [busy, setBusy] = useState(false);
+    const [profileBusy, setProfileBusy] = useState([]);
     const [error, setError] = useState("");
     const [dialog, setDialog] = useState(null);
     const [name, setName] = useState("");
@@ -28,7 +29,7 @@ export default function AutouploadTab({ showToast }) {
             revision.current += 1;
             if (live) setState(next);
         });
-        unwrap(window.adsBot.getAutoupload()).then((next) => { if (live && revision.current === start) setState(next); }).catch((failure) => { if (live) setError(failure.message); });
+        unwrap(window.adsBot.getAutoupload({ refreshBrowserStates: true })).then((next) => { if (live && revision.current === start) setState(next); }).catch((failure) => { if (live) setError(failure.message); });
         return () => { live = false; off(); };
     }, []);
     const visible = useMemo(() => state.profiles.filter((item) => (groupId === "all" || item.groupId === groupId)
@@ -55,8 +56,18 @@ export default function AutouploadTab({ showToast }) {
     };
     const refresh = async () => {
         const start = revision.current;
-        const next = await unwrap(window.adsBot.getAutoupload());
+        const next = await unwrap(window.adsBot.getAutoupload({ refreshBrowserStates: true }));
         if (revision.current === start) setState(next);
+    };
+    const controlProfile = async (profile) => {
+        if (profileBusy.includes(profile.profileId) || profile.browserBusy) return;
+        setProfileBusy((current) => [...current, profile.profileId]);
+        setError("");
+        try {
+            const result = await unwrap(window.adsBot.controlAutouploadProfile(profile.profileId, profile.adsPowerOpen ? "close" : "open"));
+            setState((current) => ({ ...current, profiles: current.profiles.map((item) => item.profileId === result.profileId ? { ...item, adsPowerOpen: result.adsPowerOpen } : item) }));
+        } catch (failure) { setError(failure.message || "Не вдалося змінити стан профілю AdsPower"); }
+        finally { setProfileBusy((current) => current.filter((id) => id !== profile.profileId)); }
     };
     const open = (value) => { setDialog(value); setName(value.name ?? ""); setTarget("new"); setError(""); };
     const submit = (event) => {
@@ -91,10 +102,11 @@ export default function AutouploadTab({ showToast }) {
                 </div>
                 <div className="autoupload-table-scroll"><table className="autoupload-table"><thead><tr>
                     <th><input type="checkbox" aria-label="Вибрати всі видимі профілі" checked={visible.length > 0 && ids.length === visible.length} onChange={(event) => setSelected(event.target.checked ? visible.map((item) => item.profileId) : [])} /></th>
-                    <th>№ AdsPower</th><th>Назва профілю</th><th>Статус</th><th>Остання перевірка</th><th>Результат</th>
+                    <th className="autoupload-profile-control" aria-label="Запуск профілю" /><th>№ AdsPower</th><th>Назва профілю</th><th>Статус</th><th>Остання перевірка</th><th>Результат</th>
                 </tr></thead><tbody>{visible.map((profile) => {
                     const [label, tone] = statuses[profile.status] ?? statuses.error;
                     return <tr key={profile.profileId}><td><input type="checkbox" aria-label={`Вибрати профіль ${profile.profileNo}`} checked={ids.includes(profile.profileId)} onChange={(event) => setSelected((current) => event.target.checked ? [...current, profile.profileId] : current.filter((id) => id !== profile.profileId))} /></td>
+                        <td><button type="button" className={`icon-button${profile.adsPowerOpen ? " danger" : ""}`} title={profile.adsPowerOpen ? "Профіль відкритий — закрити" : "Відкрити AdsPower-профіль"} aria-label={`${profile.adsPowerOpen ? "Закрити" : "Відкрити"} профіль ${profile.profileNo}`} disabled={profileBusy.includes(profile.profileId) || profile.browserBusy || profile.status === "checking"} onClick={() => controlProfile(profile)}>{profileBusy.includes(profile.profileId) || profile.browserBusy ? <LoaderCircle className="spin" size={13} /> : profile.adsPowerOpen ? <Power size={13} /> : <Play size={13} />}</button></td>
                         <td>{profile.profileNo}</td><td>{profile.name || "Без назви"}</td><td><span className={`autoupload-status ${tone}`} title={profile.message}>{label}</span></td><td>{time(profile.checkedAt)}</td>
                         <td><button className="secondary-button" onClick={() => setDetail(profile.profileId)}>Деталі</button></td></tr>;
                 })}</tbody></table>

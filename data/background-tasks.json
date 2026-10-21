@@ -2,6 +2,65 @@
   "version": 1,
   "tasks": [
     {
+      "id": "ae23ae2e-1db3-4420-ac2c-15e2367a9730",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1987",
+          "label": "профіль №1987"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1gueugg"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1gueugg",
+        "reportId": "692d0e63-1d06-45d8-8ad3-79937b819c39"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1gueugg",
+            "profileNo": "1987",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-21T19:46:35.863Z",
+      "startedAt": "2026-10-21T19:46:35.864Z",
+      "finishedAt": "2026-10-21T19:46:42.843Z",
+      "updatedAt": "2026-10-21T19:46:42.844Z"
+    },
+    {
       "id": "ea4e32f5-335d-4d99-a898-9f4b43c54eee",
       "type": "autoupload-session-check",
       "name": "Перевірка сесій · 1",

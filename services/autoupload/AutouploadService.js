@@ -4,12 +4,59 @@ import checkProfileSession from "../../workflows/autoupload/checkProfileSession.
 export default class AutouploadService {
     #clients = new Map();
     #running = new Set();
-    constructor({ store, adsPower, onUpdated = () => {}, checkSession = checkProfileSession }) {
-        Object.assign(this, { store, adsPower, onUpdated, checkSession });
+    #browserStates = new Map();
+    #browserBusy = new Set();
+    constructor({ store, adsPower, profileBrowser, onUpdated = () => {}, checkSession = checkProfileSession }) {
+        Object.assign(this, { store, adsPower, profileBrowser, onUpdated, checkSession });
     }
     async snapshot() {
         const state = await this.store.snapshot();
-        return { ...state, profiles: state.profiles.map((item) => this.#running.has(item.profileId) ? { ...item, status: "checking", message: "Виконується перевірка" } : item) };
+        return { ...state, profiles: state.profiles.map((item) => ({
+            ...item, adsPowerOpen: this.#browserStates.get(item.profileId) ?? null,
+            browserBusy: this.#browserBusy.has(item.profileId),
+            ...(this.#running.has(item.profileId) ? { status: "checking", message: "Виконується перевірка" } : {}),
+        })) };
+    }
+    async refreshBrowserStates() {
+        const profiles = (await this.store.snapshot()).profiles;
+        for (let offset = 0; offset < profiles.length; offset += 100) {
+            const batch = profiles.slice(offset, offset + 100);
+            const states = await this.profileBrowser.getAdsPowerProfileOpenStates(batch.map((item) => item.profileNo));
+            for (const item of batch) {
+                if (!this.#browserBusy.has(item.profileId)) this.#browserStates.set(item.profileId, states.get(item.profileNo) ?? null);
+            }
+        }
+        return this.#publish();
+    }
+    async controlProfile(profileId, action) {
+        if (!["open", "close"].includes(action)) throw new Error("Невідома дія профілю AdsPower");
+        const [profile] = await this.selected([profileId]);
+        if (this.#browserBusy.has(profileId)) throw new Error("Операція над цим профілем уже виконується");
+        this.#browserBusy.add(profileId);
+        try {
+            await this.#publish();
+            if (action === "open") {
+                await this.profileBrowser.openAdsPowerProfile(profile.profileNo);
+                this.#browserStates.set(profileId, true);
+            } else {
+                const isOpen = await this.profileBrowser.getAdsPowerProfileOpenState(profile.profileNo);
+                if (isOpen === null) throw new Error("Не вдалося визначити стан профілю AdsPower");
+                if (isOpen) {
+                    try { await this.profileBrowser.closeAdsPowerProfile(profile.profileNo); }
+                    catch {
+                        // Якщо профіль закрили вручну під час запиту, повертаємо звичайний стан кнопки.
+                        if (await this.profileBrowser.getAdsPowerProfileOpenState(profile.profileNo) !== false) {
+                            throw new Error("Не вдалося закрити профіль AdsPower");
+                        }
+                    }
+                }
+                this.#browserStates.set(profileId, false);
+            }
+        } finally {
+            this.#browserBusy.delete(profileId);
+            await this.#publish();
+        }
+        return { profileId, adsPowerOpen: this.#browserStates.get(profileId) ?? null };
     }
     async #publish() {
         const snapshot = await this.snapshot();

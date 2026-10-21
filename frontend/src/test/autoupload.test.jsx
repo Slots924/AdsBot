@@ -15,11 +15,23 @@ beforeEach(() => {
         onAutouploadUpdated: vi.fn(() => () => {}),
         mutateAutoupload: vi.fn(() => ok(structuredClone(state))),
         checkAutouploadSessions: vi.fn(() => ok({ taskId: "task1" })),
+        controlAutouploadProfile: vi.fn((_profileId, action) => ok({ profileId: "p1", adsPowerOpen: action === "open" })),
     };
 });
 afterEach(() => { cleanup(); delete window.adsBot; });
 
 describe("Автозаливи", () => {
+    it("кнопка запуску стає червоною та повертається у звичайний стан після закриття", async () => {
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("button", { name: "Відкрити профіль 12" }));
+        const close = await screen.findByRole("button", { name: "Закрити профіль 12" });
+        expect(close).toHaveClass("danger");
+        await waitFor(() => expect(close).toBeEnabled());
+        fireEvent.click(close);
+        const open = await screen.findByRole("button", { name: "Відкрити профіль 12" });
+        expect(open).not.toHaveClass("danger");
+        expect(window.adsBot.controlAutouploadProfile.mock.calls).toEqual([["p1", "open"], ["p1", "close"]]);
+    });
     it("показує статус і ставить перевірку вибраного профілю в чергу", async () => {
         render(<AutouploadTab />);
         expect(await screen.findByText("Test profile")).toBeInTheDocument();
