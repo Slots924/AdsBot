@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "id": "0e636dff-55f0-4eae-b61a-669194764191",
+  "taskId": "1f12800a-e750-4a7b-855d-666924175d7a",
+  "type": "comments",
+  "title": "Коментарі вибраними акаунтами · Вручну · 4",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-21T13:52:59.607Z",
+  "startedAt": "2026-10-21T13:49:31.736Z",
+  "finishedAt": "2026-10-21T13:52:59.606Z",
+  "durationMs": 207870,
+  "inputSummary": {
+    "groupIds": [],
+    "profileNos": [
+      "1969",
+      "1970",
+      "1971",
+      "1972"
+    ],
+    "geo": "MANUAL",
+    "creativeName": "Ручні коментарі",
+    "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02xYTmFu4jcmMsGG1pQWS5RSFAnwEVk3vKAupu9gLfr2vfdhvydUj1HVhoMwfb6o9Rl&id=61579705329512",
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "published": [
+      {
+        "commentId": "1",
+        "actionType": "comment",
+        "profileNo": "1971",
+        "gender": null,
+        "profileKey": null,
+        "text": "This would make such a cute wallpaper."
+      },
+      {
+        "commentId": "2",
+        "actionType": "comment",
+        "profileNo": "1970",
+        "gender": null,
+        "profileKey": null,
+        "text": "That cat has the facial expression of someone who pays all the bills."
+      },
+      {
+        "commentId": "3",
+        "actionType": "comment",
+        "profileNo": "1972",
+        "gender": null,
+        "profileKey": null,
+        "text": "I can almost hear the rain just by looking at this picture."
+      }
+    ],
+    "skipped": [],
+    "failedComments": [
+      {
+        "commentId": "4",
+        "actionType": "comment",
+        "reason": "Закінчилися доступні профілі",
+        "attempts": 0,
+        "text": "Pretty cute, but why is nobody talking about the suspiciously perfect umbrella?"
+      },
+      {
+        "commentId": "5",
+        "actionType": "comment",
+        "reason": "Закінчилися доступні профілі",
+        "attempts": 0,
+        "text": "Five minutes later, the cat reveals its true form and challenges her to a sword fight."
+      }
+    ],
+    "failedProfiles": [
+      {
+        "profileNo": "1969",
+        "commentId": "3",
+        "stage": "FACEBOOK_ACTIVE",
+        "error": "Facebook-акаунт не активний"
+      }
+    ],
+    "excludedProfiles": [],
+    "uncertain": []
+  },
+  "counters": {
+    "published": 3,
+    "skipped": 0,
+    "failedComments": 2,
+    "failedProfiles": 1,
+    "excludedProfiles": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-21_16-52-59-604.md",
+      "kind": "markdown"
+    }
+  ],
+  "metadata": {
+    "profileNos": [
+      "1969",
+      "1970",
+      "1971",
+      "1972"
+    ],
+    "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02xYTmFu4jcmMsGG1pQWS5RSFAnwEVk3vKAupu9gLfr2vfdhvydUj1HVhoMwfb6o9Rl&id=61579705329512",
+    "manualMode": true
+  }
+}

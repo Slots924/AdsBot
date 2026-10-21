@@ -21,6 +21,7 @@ AdsBot — Node.js-проєкт для роботи з AdsPower, автомат�
 - [Grok client](docs/grok-client.md)
 - [Creative manager](docs/creative-manager.md)
 - [Desktop GUI](docs/gui.md)
+- [Автозаливи: профілі, групи та HTTP-сесії Facebook](docs/autoupload.md)
 
 ## Налаштування
 

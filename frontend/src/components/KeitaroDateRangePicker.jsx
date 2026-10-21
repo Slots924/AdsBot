@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CalendarDays, ChevronDown } from "lucide-react";
 
-import { GrayButton } from "./gray-ui/index.js";
+import { UiButton } from "./shared-ui/index.js";
 import { keitaroDatePresets } from "../lib/keitaro.js";
 
 
@@ -50,25 +50,25 @@ export default function KeitaroDateRangePicker({
         setOpen(false);
     };
 
-    return <div className="kg-date-picker" ref={root}>
-        <GrayButton className="kg-date-trigger" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
+    return <div className="ui-date-picker" ref={root}>
+        <UiButton className="ui-date-trigger" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
             <CalendarDays size={16} />
             <span>{label}</span>
             <ChevronDown size={15} />
-        </GrayButton>
-        {open && <div className="kg-date-popover">
-            <div className="kg-date-presets">
+        </UiButton>
+        {open && <div className="ui-date-popover">
+            <div className="ui-date-presets">
                 {keitaroDatePresets.map((item) => <button key={item.id} type="button" className={!range && preset === item.id ? "active" : ""} onClick={() => { onPresetChange(item.id); onRangeChange(null); setOpen(false); }}>{item.label}</button>)}
             </div>
-            <div className="kg-date-mode" role="group" aria-label="Режим вибору дати">
+            <div className="ui-date-mode" role="group" aria-label="Режим вибору дати">
                 <button type="button" className={mode === "day" ? "active" : ""} onClick={() => setMode("day")}>Один день</button>
                 <button type="button" className={mode === "range" ? "active" : ""} onClick={() => setMode("range")}>Інтервал</button>
             </div>
-            <div className="kg-date-fields">
+            <div className="ui-date-fields">
                 <label><span>{mode === "day" ? "Дата" : "Від"}</span><input type="date" value={from} onChange={(event) => { setFrom(event.target.value); if (mode === "day") setTo(event.target.value); }} /></label>
                 {mode === "range" && <label><span>До</span><input type="date" value={to} min={from} onChange={(event) => setTo(event.target.value)} /></label>}
             </div>
-            <div className="kg-date-actions"><GrayButton variant="primary" disabled={!from || (mode === "range" && !to)} onClick={apply}>Застосувати</GrayButton></div>
+            <div className="ui-date-actions"><UiButton variant="primary" disabled={!from || (mode === "range" && !to)} onClick={apply}>Застосувати</UiButton></div>
         </div>}
     </div>;
 }

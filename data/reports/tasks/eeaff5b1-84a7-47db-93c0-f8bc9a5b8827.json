@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "id": "eeaff5b1-84a7-47db-93c0-f8bc9a5b8827",
+  "taskId": "12981d9f-5546-43dd-a070-9f01c8301e29",
+  "type": "comments",
+  "title": "Коментарі вибраними акаунтами · Вручну · 9",
+  "status": "interrupted",
+  "createdAt": "2026-10-21T13:00:08.711Z",
+  "startedAt": "2026-10-21T12:54:04.328Z",
+  "finishedAt": "2026-10-21T13:00:08.710Z",
+  "durationMs": 364382,
+  "inputSummary": {
+    "groupIds": [],
+    "profileNos": [
+      "1978",
+      "1979",
+      "1980",
+      "1981",
+      "1982",
+      "1983",
+      "1984",
+      "1985",
+      "1986"
+    ],
+    "geo": "MANUAL",
+    "creativeName": "Ручні коментарі",
+    "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02oZCh8ZiSWaKF8DPxJDHmb3Mk9boyCjC8kjbazmbocwsdDJbwcHFQ8ZVKqxDY483yl&id=61594188892743",
+    "browserMode": "headless",
+    "disableImages": true
+  },
+  "resultSummary": {
+    "published": [],
+    "skipped": [],
+    "failedComments": [],
+    "failedProfiles": [
+      {
+        "profileNo": "1982",
+        "commentId": "1",
+        "stage": "FACEBOOK_ACTIVE",
+        "error": "Facebook-акаунт не активний"
+      },
+      {
+        "profileNo": "1986",
+        "commentId": "1",
+        "stage": "FACEBOOK_ACTIVE",
+        "error": "Facebook-акаунт не активний"
+      },
+      {
+        "profileNo": "1980",
+        "commentId": "1",
+        "stage": "FACEBOOK_ACTIVE",
+        "error": "Facebook-акаунт не активний"
+      },
+      {
+        "profileNo": "1979",
+        "commentId": "1",
+        "stage": "FACEBOOK_ACTIVE",
+        "error": "Facebook-акаунт не активний"
+      },
+      {
+        "profileNo": "1983",
+        "commentId": "1",
+        "stage": "FACEBOOK_ACTIVE",
+        "error": "Facebook-акаунт не активний"
+      },
+      {
+        "profileNo": "1978",
+        "commentId": "1",
+        "stage": "FACEBOOK_ACTIVE",
+        "error": "Facebook-акаунт не активний"
+      },
+      {
+        "profileNo": "1985",
+        "commentId": "1",
+        "stage": "OPEN_POST_VIA_AUTHOR_PAGE",
+        "error": "Не вдалося відкрити потрібний Facebook-допис: POST_NOT_OPENED"
+      },
+      {
+        "profileNo": "1981",
+        "commentId": "1",
+        "stage": "FACEBOOK_ACTIVE",
+        "error": "Facebook-акаунт не активний"
+      }
+    ],
+    "excludedProfiles": [],
+    "uncertain": "[CIRCULAR]"
+  },
+  "counters": {
+    "published": 0,
+    "skipped": 0,
+    "failedComments": 0,
+    "failedProfiles": 8,
+    "excludedProfiles": 0
+  },
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Паралельне коментування перервано",
+      "code": "COMMENTING_ABORTED",
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "httpStatus": null,
+      "requestId": null,
+      "traceId": null,
+      "metaRequestId": null,
+      "endpoint": null,
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": null,
+      "isTransient": false
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-21_16-00-08-706.md",
+      "kind": "markdown"
+    }
+  ],
+  "metadata": {
+    "profileNos": [
+      "1978",
+      "1979",
+      "1980",
+      "1981",
+      "1982",
+      "1983",
+      "1984",
+      "1985",
+      "1986"
+    ],
+    "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02oZCh8ZiSWaKF8DPxJDHmb3Mk9boyCjC8kjbazmbocwsdDJbwcHFQ8ZVKqxDY483yl&id=61594188892743",
+    "manualMode": true
+  }
+}

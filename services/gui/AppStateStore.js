@@ -159,6 +159,7 @@ function normalizeState(state = {}) {
         "ads",
         "pages",
         "comment-accounts",
+        "autoupload",
         "keitaro",
         "spend",
         "journal",

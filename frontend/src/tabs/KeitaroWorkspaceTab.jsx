@@ -12,8 +12,8 @@ export default function KeitaroWorkspaceTab({
     ...props
 }) {
     return (
-        <section className="keitaro-workspace kg-theme">
-            <nav className="kg-workspace-tabs" aria-label="Розділи Keitaro">
+        <section className="keitaro-workspace ui-theme">
+            <nav className="ui-workspace-tabs" aria-label="Розділи Keitaro">
                 <button
                     type="button"
                     className={keitaroSubtab === "campaigns" ? "active" : ""}
@@ -36,7 +36,7 @@ export default function KeitaroWorkspaceTab({
                     Шаблони потоків
                 </button>
             </nav>
-            <div className="kg-workspace-body">
+            <div className="ui-workspace-body">
             {keitaroSubtab === "campaigns" ? (
                 <KeitaroTab {...props} />
             ) : keitaroSubtab === "offers" ? (

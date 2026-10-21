@@ -96,8 +96,7 @@ AdsBot/
 - `frontend/src/tabs/` — вкладки GUI: акаунти, сторінки, публікації, кампанії, Keitaro тощо.
 - `frontend/src/lib/` — frontend API-клієнти та допоміжні функції.
 - `frontend/src/styles/` — стилі GUI.
-- `frontend/src/components/gray-ui/` — повторно використовувані компоненти сірого дизайну `Keitaro Gray UI`.
-- `frontend/src/design/KeitaroGrayShowcase.jsx` — живий візуальний еталон `Keitaro Gray UI`.
+- `frontend/src/components/shared-ui/` — спільні компоненти керування, меню та модальні вікна інтерфейсу.
 - `frontend/src/test/` — frontend-тести Vitest.
 - `frontend/package.json` — залежності й команди frontend-частини.
 - `frontend/dist/` — зібрана GUI-версія; генерується під час build і не редагується вручну.

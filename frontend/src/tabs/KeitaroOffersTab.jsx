@@ -3,7 +3,7 @@ import { AlertCircle, ChevronDown, GripVertical, Layers3, LoaderCircle, MoveRigh
 
 import KeitaroDateRangePicker from "../components/KeitaroDateRangePicker.jsx";
 import KeitaroMoveDialog from "../components/KeitaroMoveDialog.jsx";
-import { GrayButton, GraySearch, GraySelect } from "../components/gray-ui/index.js";
+import { UiButton, UiSearch, UiSelect } from "../components/shared-ui/index.js";
 import { errorDetails, unwrap } from "../lib/api.js";
 import {
     defaultKeitaroOfferColumns,
@@ -137,50 +137,50 @@ export default function KeitaroOffersTab({
         } catch (moveError) { onError({ ...errorDetails(moveError), title: "Не вдалося перенести офери" }); }
     };
 
-    return <section className="kg-report-workspace kg-offers-workspace">
-        <header className="kg-report-heading"><div><span>Keitaro tracker</span><h1>Офери</h1></div><label className={`kg-grouping-switch ${grouped ? "active" : ""}`}><input type="checkbox" role="switch" checked={grouped} onChange={(event) => onGroupedChange(event.target.checked)} /><span className="kg-switch-track" aria-hidden="true"><i /></span><Layers3 size={17} /><span>Групувати офери</span></label></header>
-        <div className="kg-report-toolbar">
-            <GraySearch value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Пошук офера, ID або мережі…" ariaLabel="Пошук оферів Keitaro" />
-            <GraySelect items={groupOptions} value={groupId} onChange={setGroupId} searchPlaceholder="Пошук групи…" ariaLabel="Група оферів Keitaro" />
+    return <section className="ui-report-workspace ui-offers-workspace">
+        <header className="ui-report-heading"><div><span>Keitaro tracker</span><h1>Офери</h1></div><label className={`ui-grouping-switch ${grouped ? "active" : ""}`}><input type="checkbox" role="switch" checked={grouped} onChange={(event) => onGroupedChange(event.target.checked)} /><span className="ui-switch-track" aria-hidden="true"><i /></span><Layers3 size={17} /><span>Групувати офери</span></label></header>
+        <div className="ui-report-toolbar">
+            <UiSearch value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Пошук офера, ID або мережі…" ariaLabel="Пошук оферів Keitaro" />
+            <UiSelect items={groupOptions} value={groupId} onChange={setGroupId} searchPlaceholder="Пошук групи…" ariaLabel="Група оферів Keitaro" />
             <KeitaroDateRangePicker preset={datePreset} range={dateRange} onPresetChange={setDatePreset} onRangeChange={setDateRange} />
-            <GrayButton disabled={loading} onClick={() => load(true)}><RefreshCw className={loading ? "spin" : ""} size={16} /> Оновити</GrayButton>
-            <div className="kg-columns-menu" ref={menuRef}><GrayButton iconOnly aria-label="Колонки оферів" onClick={() => setColumnsOpen((current) => !current)}><Settings2 size={17} /></GrayButton>{columnsOpen && <div className="kg-columns-popover"><strong>Параметри звіту</strong>{keitaroOfferColumns.map((column) => <label key={column.id}><input type="checkbox" checked={visibleColumns.includes(column.id)} onChange={() => toggleColumn(column.id)} />{column.label}</label>)}</div>}</div>
+            <UiButton disabled={loading} onClick={() => load(true)}><RefreshCw className={loading ? "spin" : ""} size={16} /> Оновити</UiButton>
+            <div className="ui-columns-menu" ref={menuRef}><UiButton iconOnly aria-label="Колонки оферів" onClick={() => setColumnsOpen((current) => !current)}><Settings2 size={17} /></UiButton>{columnsOpen && <div className="ui-columns-popover"><strong>Параметри звіту</strong>{keitaroOfferColumns.map((column) => <label key={column.id}><input type="checkbox" checked={visibleColumns.includes(column.id)} onChange={() => toggleColumn(column.id)} />{column.label}</label>)}</div>}</div>
         </div>
-        <div className="kg-bulk-bar"><span>Вибрано оферів: <strong>{selectedIds.length}</strong></span><GrayButton disabled={selectedIds.length === 0} onClick={() => setMoveOpen(true)}><MoveRight size={15} /> Перенести</GrayButton><small>{grouped ? "Групування: група + GEO + [назва] + мережа" : "Кожен ленд показано окремо"}</small></div>
-        <div className="kg-report-table">
-            <div className="kg-report-grid kg-report-head" style={{ gridTemplateColumns: gridTemplate }}><label><input type="checkbox" aria-label="Вибрати всі офери" checked={allVisibleSelected} disabled={paged.length === 0} onChange={toggleAll} /></label>{columns.map((column) => <div key={column.id} className="kg-report-column" draggable onDragStart={() => { dragColumn.current = column.id; }} onDragOver={(event) => event.preventDefault()} onDrop={() => moveColumn(dragColumn.current, column.id)}><GripVertical className="kg-drag-dots" size={15} /><button type="button" onClick={() => toggleSort(column.id)}>{column.label}{sort.column === column.id ? (sort.direction === "asc" ? " ▲" : " ▼") : ""}</button><span className="kg-column-resizer" onPointerDown={(event) => { event.preventDefault(); resizeState.current = { columnId: column.id, startX: event.clientX, startWidth: columnWidths[column.id] || column.width }; }} /></div>)}</div>
-            <div className="kg-report-scroll">
-                {loading && offers.length === 0 && <div className="kg-report-state"><LoaderCircle className="spin" size={21} /> Завантажуємо офери…</div>}
-                {!loading && error && <div className="kg-report-state error"><AlertCircle size={22} /><strong>Не вдалося завантажити дані</strong><span>{error}</span></div>}
-                {!loading && !error && displayRows.length === 0 && <div className="kg-report-state">Оферів за цим фільтром немає.</div>}
+        <div className="ui-bulk-bar"><span>Вибрано оферів: <strong>{selectedIds.length}</strong></span><UiButton disabled={selectedIds.length === 0} onClick={() => setMoveOpen(true)}><MoveRight size={15} /> Перенести</UiButton><small>{grouped ? "Групування: група + GEO + [назва] + мережа" : "Кожен ленд показано окремо"}</small></div>
+        <div className="ui-report-table">
+            <div className="ui-report-grid ui-report-head" style={{ gridTemplateColumns: gridTemplate }}><label><input type="checkbox" aria-label="Вибрати всі офери" checked={allVisibleSelected} disabled={paged.length === 0} onChange={toggleAll} /></label>{columns.map((column) => <div key={column.id} className="ui-report-column" draggable onDragStart={() => { dragColumn.current = column.id; }} onDragOver={(event) => event.preventDefault()} onDrop={() => moveColumn(dragColumn.current, column.id)}><GripVertical className="ui-drag-dots" size={15} /><button type="button" onClick={() => toggleSort(column.id)}>{column.label}{sort.column === column.id ? (sort.direction === "asc" ? " ▲" : " ▼") : ""}</button><span className="ui-column-resizer" onPointerDown={(event) => { event.preventDefault(); resizeState.current = { columnId: column.id, startX: event.clientX, startWidth: columnWidths[column.id] || column.width }; }} /></div>)}</div>
+            <div className="ui-report-scroll">
+                {loading && offers.length === 0 && <div className="ui-report-state"><LoaderCircle className="spin" size={21} /> Завантажуємо офери…</div>}
+                {!loading && error && <div className="ui-report-state error"><AlertCircle size={22} /><strong>Не вдалося завантажити дані</strong><span>{error}</span></div>}
+                {!loading && !error && displayRows.length === 0 && <div className="ui-report-state">Оферів за цим фільтром немає.</div>}
                 {!loading && paged.map((row) => {
                     const ids = idsForRow(row);
                     const checked = ids.every((id) => selectedSet.has(String(id)));
                     const expanded = grouped && expandedGroups.includes(String(row.id));
                     return <Fragment key={row.id}>
-                        <div className={`kg-report-grid kg-report-row ${checked ? "selected" : ""} ${grouped ? "grouped-parent" : ""}`} style={{ gridTemplateColumns: gridTemplate }}>
+                        <div className={`ui-report-grid ui-report-row ${checked ? "selected" : ""} ${grouped ? "grouped-parent" : ""}`} style={{ gridTemplateColumns: gridTemplate }}>
                             <label><input type="checkbox" checked={checked} onChange={() => toggleRow(row)} aria-label={`Вибрати офер ${row.name}`} /></label>
-                            {columns.map((column) => <div key={column.id} className={`kg-report-cell ${["number", "money", "percent"].includes(column.type) ? "numeric" : ""}`}>
-                                {column.id === "name" ? <div className="kg-offer-name">
-                                    {grouped && <button type="button" className="kg-offer-expand" aria-label={`${expanded ? "Згорнути" : "Розгорнути"} групу ${row.name}`} aria-expanded={expanded} onClick={() => toggleExpanded(String(row.id))}><ChevronDown size={17} /></button>}
+                            {columns.map((column) => <div key={column.id} className={`ui-report-cell ${["number", "money", "percent"].includes(column.type) ? "numeric" : ""}`}>
+                                {column.id === "name" ? <div className="ui-offer-name">
+                                    {grouped && <button type="button" className="ui-offer-expand" aria-label={`${expanded ? "Згорнути" : "Розгорнути"} групу ${row.name}`} aria-expanded={expanded} onClick={() => toggleExpanded(String(row.id))}><ChevronDown size={17} /></button>}
                                     <span><strong title={row.name}>{row.name}</strong>{grouped && <small>{row.children.length} {row.children.length === 1 ? "офер" : "офери"}</small>}</span>
-                                </div> : column.id === "state" ? <i className={`kg-status ${row.state === "active" ? "active" : "paused"}`}>{formatKeitaroValue(column, row.state)}</i> : formatKeitaroValue(column, offerValue(row, column.id))}
+                                </div> : column.id === "state" ? <i className={`ui-status ${row.state === "active" ? "active" : "paused"}`}>{formatKeitaroValue(column, row.state)}</i> : formatKeitaroValue(column, offerValue(row, column.id))}
                             </div>)}
                         </div>
                         {expanded && row.children.map((child) => {
                             const childChecked = selectedSet.has(String(child.id));
-                            return <div key={`${row.id}-${child.id}`} className={`kg-report-grid kg-report-row grouped-child ${childChecked ? "selected" : ""}`} style={{ gridTemplateColumns: gridTemplate }}>
+                            return <div key={`${row.id}-${child.id}`} className={`ui-report-grid ui-report-row grouped-child ${childChecked ? "selected" : ""}`} style={{ gridTemplateColumns: gridTemplate }}>
                                 <label><input type="checkbox" checked={childChecked} onChange={() => toggleRow(child)} aria-label={`Вибрати підофер ${child.name}`} /></label>
-                                {columns.map((column) => <div key={column.id} className={`kg-report-cell ${["number", "money", "percent"].includes(column.type) ? "numeric" : ""}`}>
-                                    {column.id === "name" ? <div className="kg-child-offer-name"><i /><span><strong title={child.name}>{child.name}</strong><small>ID {child.id}</small></span></div> : column.id === "state" ? <i className={`kg-status ${child.state === "active" ? "active" : "paused"}`}>{formatKeitaroValue(column, child.state)}</i> : formatKeitaroValue(column, offerValue(child, column.id))}
+                                {columns.map((column) => <div key={column.id} className={`ui-report-cell ${["number", "money", "percent"].includes(column.type) ? "numeric" : ""}`}>
+                                    {column.id === "name" ? <div className="ui-child-offer-name"><i /><span><strong title={child.name}>{child.name}</strong><small>ID {child.id}</small></span></div> : column.id === "state" ? <i className={`ui-status ${child.state === "active" ? "active" : "paused"}`}>{formatKeitaroValue(column, child.state)}</i> : formatKeitaroValue(column, offerValue(child, column.id))}
                                 </div>)}
                             </div>;
                         })}
                     </Fragment>;
                 })}
             </div>
-            <div className="kg-report-grid kg-summary-row" style={{ gridTemplateColumns: gridTemplate }}><span />{columns.map((column) => <strong key={column.id} className={["number", "money", "percent"].includes(column.type) ? "numeric" : ""}>{totalValue(column, summary, summaryRows.length)}</strong>)}</div>
-            <footer className="kg-report-pager"><span>{selectedIds.length > 0 ? `Сума вибраних оферів: ${selectedIds.length}` : `Сума на сторінці: ${summaryRows.length}`}</span><div><GrayButton disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>Назад</GrayButton><span>Сторінка {currentPage} з {pageCount}</span><GrayButton disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)}>Далі</GrayButton></div><label>На сторінці <select aria-label="Оферів на сторінці" value={pageSize} onChange={(event) => setPageSize(Number(event.target.value))}>{keitaroPageSizes.map((size) => <option key={size} value={size}>{size}</option>)}</select></label></footer>
+            <div className="ui-report-grid ui-summary-row" style={{ gridTemplateColumns: gridTemplate }}><span />{columns.map((column) => <strong key={column.id} className={["number", "money", "percent"].includes(column.type) ? "numeric" : ""}>{totalValue(column, summary, summaryRows.length)}</strong>)}</div>
+            <footer className="ui-report-pager"><span>{selectedIds.length > 0 ? `Сума вибраних оферів: ${selectedIds.length}` : `Сума на сторінці: ${summaryRows.length}`}</span><div><UiButton disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>Назад</UiButton><span>Сторінка {currentPage} з {pageCount}</span><UiButton disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)}>Далі</UiButton></div><label>На сторінці <select aria-label="Оферів на сторінці" value={pageSize} onChange={(event) => setPageSize(Number(event.target.value))}>{keitaroPageSizes.map((size) => <option key={size} value={size}>{size}</option>)}</select></label></footer>
         </div>
         {moveOpen && <KeitaroMoveDialog title="Перенести офери" count={selectedIds.length} groups={groups} onClose={() => setMoveOpen(false)} onMove={moveOffers} />}
     </section>;

@@ -25,5 +25,5 @@ if (!window.adsBot) window.adsBot = {
 };
 
 export default function BusinessManagerShowcase() {
-    return <div style={{ padding: 24, height: "100vh", background: "var(--kg-bg)", overflow: "auto" }}><BusinessManagerTab accounts={accounts} /></div>;
+    return <div style={{ padding: 24, height: "100vh", background: "var(--ui-bg)", overflow: "auto" }}><BusinessManagerTab accounts={accounts} /></div>;
 }

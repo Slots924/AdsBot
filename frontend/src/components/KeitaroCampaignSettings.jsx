@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, Globe2, LoaderCircle, Pencil, Plus, Radio, Trash2, X } from "lucide-react";
 
-import { GrayField, GraySelect } from "./gray-ui/index.js";
+import { UiField, UiSelect } from "./shared-ui/index.js";
 import { errorDetails, unwrap } from "../lib/api.js";
 
 
@@ -157,12 +157,12 @@ export default function KeitaroCampaignSettings({ onError = () => {}, showToast 
                     </article>;
                 })}
             </div>
-            {domainEditor && <div className="keitaro-inline-editor keitaro-gray-editor keitaro-domain-editor kg-theme">
+            {domainEditor && <div className="keitaro-inline-editor keitaro-inline-controls keitaro-domain-editor ui-theme">
                 <div className="keitaro-inline-editor-head"><strong>{domainEditor.originalGeo ? "Редагувати GEO-домен" : "Нове GEO"}</strong><button type="button" className="icon-button" onClick={() => setDomainEditor(null)}><X size={15} /></button></div>
                 <div className="keitaro-inline-grid">
-                    <GrayField label="Ім’я"><input className="kg-input" value={domainEditor.name} onChange={(event) => setDomainEditor({ ...domainEditor, name: event.target.value })} placeholder="Необов’язково" /></GrayField>
-                    <GrayField label="GEO"><GraySelect portal items={editorCountryOptions} value={domainEditor.geo} onChange={(geo) => setDomainEditor({ ...domainEditor, geo: String(geo) })} placeholder="Введіть GEO" searchPlaceholder="Пошук країни або GEO…" emptyText="GEO не знайдено" ariaLabel="GEO домену" /></GrayField>
-                    <GrayField label="Домен"><GraySelect portal items={domainOptions} value={domainEditor.domainId} onChange={(domainId) => setDomainEditor({ ...domainEditor, domainId: String(domainId) })} placeholder="Введіть домен" searchPlaceholder="Пошук домену…" emptyText="Доменів не знайдено" ariaLabel="Домен GEO" /></GrayField>
+                    <UiField label="Ім’я"><input className="ui-input" value={domainEditor.name} onChange={(event) => setDomainEditor({ ...domainEditor, name: event.target.value })} placeholder="Необов’язково" /></UiField>
+                    <UiField label="GEO"><UiSelect portal items={editorCountryOptions} value={domainEditor.geo} onChange={(geo) => setDomainEditor({ ...domainEditor, geo: String(geo) })} placeholder="Введіть GEO" searchPlaceholder="Пошук країни або GEO…" emptyText="GEO не знайдено" ariaLabel="GEO домену" /></UiField>
+                    <UiField label="Домен"><UiSelect portal items={domainOptions} value={domainEditor.domainId} onChange={(domainId) => setDomainEditor({ ...domainEditor, domainId: String(domainId) })} placeholder="Введіть домен" searchPlaceholder="Пошук домену…" emptyText="Доменів не знайдено" ariaLabel="Домен GEO" /></UiField>
                 </div>
                 <div className="keitaro-inline-actions"><button type="button" className="secondary-button" onClick={() => setDomainEditor(null)}>Скасувати</button><button type="button" className="primary-button" disabled={saving || !domainEditor.geo || !domainEditor.domainId} onClick={saveDomain}>{saving && <LoaderCircle className="spin" size={15} />} Зберегти</button></div>
             </div>}

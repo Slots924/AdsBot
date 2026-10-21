@@ -12,6 +12,7 @@
     "test": "npm run test:campaign",
     "test:campaign": "node scripts/runTests.js campaign",
     "test:all": "node scripts/runTests.js all",
+    "test:autoupload": "node --test scripts/autoupload.test.js",
     "test:campaign:live": "node scripts/manual/validateCampaign.js"
   },
   "keywords": [],
@@ -25,6 +26,7 @@
     "imapflow": "^2.2.2",
     "mailparser": "^3.9.33",
     "puppeteer-core": "^25.4.0",
-    "socks-proxy-agent": "^10.1.0"
+    "socks-proxy-agent": "^10.1.0",
+    "tough-cookie": "^6.0.2"
   }
 }

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import CreateCommentAccountsModal from "../components/CreateCommentAccountsModal.jsx";
+import AutouploadAddModal from "../components/AutouploadAddModal.jsx";
 import CommentReactionsModal from "../components/CommentReactionsModal.jsx";
 import CommentPostModal from "../components/CommentPostModal.jsx";
 import SearchSelect from "../components/SearchSelect.jsx";
@@ -197,6 +198,7 @@ export default function CommentAccountsTab({
     const [groupsLoading, setGroupsLoading] = useState(false);
     const [moving, setMoving] = useState(false);
     const [createOpen, setCreateOpen] = useState(false);
+    const [autouploadOpen, setAutouploadOpen] = useState(false);
     const [reactionsOpen, setReactionsOpen] = useState(false);
     const [commentPostOpen, setCommentPostOpen] = useState(false);
     const [checkingAccounts, setCheckingAccounts] = useState(false);
@@ -384,6 +386,7 @@ export default function CommentAccountsTab({
                     <h2>Акаунти під коментарі</h2>
                 </div>
                 <div className="inline-actions">
+                    <button type="button" className="secondary-button" disabled={!selectedProfiles.length} onClick={() => setAutouploadOpen(true)}>Додати до автозаливів</button>
                     <button
                         type="button"
                         className="secondary-button"
@@ -489,6 +492,7 @@ export default function CommentAccountsTab({
                     onSort={(column) => toggleSort("right", column)}
                 />
             </div>
+            {autouploadOpen && <AutouploadAddModal profiles={selectedProfiles} onClose={() => setAutouploadOpen(false)} onAdded={() => { setAutouploadOpen(false); showToast?.("Профілі додано до автозаливів", "success"); }} />}
             {createOpen && (
                 <CreateCommentAccountsModal
                     profiles={selectedProfiles}

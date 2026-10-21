@@ -1,0 +1,521 @@
+{
+  "version": 1,
+  "id": "2f1f3421-3f2e-40e0-9041-19afc3c8b30a",
+  "taskId": "0c70212e-1306-42a4-9af2-2fa8aac1324a",
+  "type": "campaign",
+  "title": "AT | Creo_1 | 25+ 21/10 20:05",
+  "status": "completed",
+  "createdAt": "2026-10-21T17:06:19.225Z",
+  "startedAt": "2026-10-21T17:05:28.814Z",
+  "finishedAt": "2026-10-21T17:06:19.224Z",
+  "durationMs": 50410,
+  "inputSummary": {
+    "campaignJobId": "8315df43-f970-4be9-b278-cd49ae772b9c",
+    "accountKey": "account-052",
+    "adAccountId": "act_1697515718702009",
+    "campaignName": "AT | Creo_1 | 25+ 21/10 20:05",
+    "templateId": 34,
+    "pageId": "1362372916961209",
+    "postId": "1362372916961209_122107537467509385",
+    "adSetCount": 3,
+    "dailyBudget": 10,
+    "startTime": "2026-10-21T17:05:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "campaignJobId": "8315df43-f970-4be9-b278-cd49ae772b9c",
+    "objects": {
+      "campaignId": "120252567533100213",
+      "creativeId": "3524627414362313",
+      "creatives": [
+        {
+          "id": "3524627414362313",
+          "pageId": "1362372916961209",
+          "postId": "1362372916961209_122107537467509385"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120252567534130213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "120252567535980213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AS 02"
+        },
+        {
+          "index": 2,
+          "id": "120252567537750213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AS 03"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "creativeIndex": 0,
+          "id": "120252567535410213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AD 01"
+        },
+        {
+          "index": 1,
+          "creativeIndex": 0,
+          "id": "120252567536980213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AD 02"
+        },
+        {
+          "index": 2,
+          "creativeIndex": 0,
+          "id": "120252567539240213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AD 03"
+        }
+      ]
+    },
+    "readback": {
+      "campaign": {
+        "id": "120252567533100213",
+        "name": "AT | Creo_1 | 25+ 21/10 20:05",
+        "status": "PAUSED",
+        "effective_status": "PAUSED"
+      },
+      "creative": {
+        "id": "3524627414362313",
+        "name": "AT | Creo_1 | 25+ 21/10 20:05 | Creative 2026-10-21-5d9a24540384c36961f33dfdea06030a",
+        "degrees_of_freedom_spec": {
+          "creative_features_spec": {
+            "adapt_to_placement": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "add_text_overlay": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "advantage_plus_creative": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "audio": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "auto_promotion_tag": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "carousel_to_video": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "catalog_feed_tag": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "customize_product_recommendation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "cv_transformation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "description_automation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "dha_optimization": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "dynamic_cta_text": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "enhance_cta": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "feed_caption_optimization": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "generate_cta": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_animation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_auto_crop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_background_gen": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_brightness_and_contrast": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_enhancement": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_templates": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_text_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_touchups": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "image_uncrop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "media_liquidity_animated_image": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "media_order": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "media_type_automation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "multi_creative_post_carousel": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "multi_photo_to_video": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "music_generation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "pac_genai_recomposition": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "pac_recomposition": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "pac_relaxation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "product_browsing": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "product_extensions": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "product_metadata_automation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "product_tags": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "site_extensions": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "standard_enhancements": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_extraction_for_headline": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_extraction_for_tap_target": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_formatting_optimization": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_generation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_optimizations": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_overlay_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "text_translation": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "translate_voiceover": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_auto_crop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_filtering": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_highlight": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_highlights": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_to_image": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_uncrop": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_uncrop_9x16_to_9x18": {
+              "enroll_status": "[MAX_DEPTH]"
+            },
+            "video_voiceover": {
+              "enroll_status": "[MAX_DEPTH]"
+            }
+          }
+        },
+        "contextual_multi_ads": {
+          "enroll_status": "OPT_OUT"
+        },
+        "effective_object_story_id": "1362372916961209_122107537467509385"
+      },
+      "creatives": [
+        "[CIRCULAR]"
+      ],
+      "adSets": [
+        {
+          "id": "120252567534130213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AS 01",
+          "status": "ACTIVE",
+          "effective_status": "CAMPAIGN_PAUSED",
+          "start_time": "2026-10-21T20:05:44+0300",
+          "daily_budget": "1000",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 25,
+            "age_range": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ],
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "targeting_optimization": "expansion_all",
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ],
+            "instagram_positions": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "1781945619724174",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "dsa_beneficiary": "Sity Lots",
+          "dsa_payor": "Sity Lots",
+          "placement_soft_opt_out": {
+            "facebook_positions": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ],
+            "instagram_positions": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ]
+          },
+          "__fb_trace_id__": "Bj7b9wsjbyS",
+          "__www_request_id__": "ABO6n4ZXuRnhL1kYHpp1iuM"
+        },
+        {
+          "id": "120252567535980213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AS 02",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-10-21T20:05:56+0300",
+          "daily_budget": "1000",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 25,
+            "age_range": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ],
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "targeting_optimization": "expansion_all",
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ],
+            "instagram_positions": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "1781945619724174",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "dsa_beneficiary": "Sity Lots",
+          "dsa_payor": "Sity Lots",
+          "placement_soft_opt_out": {
+            "facebook_positions": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ],
+            "instagram_positions": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ]
+          },
+          "__fb_trace_id__": "DjOMvKkgV4Y",
+          "__www_request_id__": "AzWv3_14e3L_VdssMVIKwn3"
+        },
+        {
+          "id": "120252567537750213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AS 03",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "start_time": "2026-10-21T20:06:07+0300",
+          "daily_budget": "1000",
+          "targeting": {
+            "age_max": 65,
+            "age_min": 25,
+            "age_range": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ],
+            "genders": [
+              "[MAX_DEPTH]"
+            ],
+            "geo_locations": {
+              "countries": "[MAX_DEPTH]",
+              "location_types": "[MAX_DEPTH]"
+            },
+            "targeting_optimization": "expansion_all",
+            "targeting_relaxation_types": {
+              "lookalike": "[MAX_DEPTH]",
+              "custom_audience": "[MAX_DEPTH]"
+            },
+            "targeting_automation": {
+              "advantage_audience": "[MAX_DEPTH]"
+            },
+            "publisher_platforms": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ],
+            "facebook_positions": [
+              "[MAX_DEPTH]"
+            ],
+            "instagram_positions": [
+              "[MAX_DEPTH]"
+            ]
+          },
+          "promoted_object": {
+            "pixel_id": "1781945619724174",
+            "custom_event_type": "LEAD",
+            "smart_pse_enabled": false
+          },
+          "dsa_beneficiary": "Sity Lots",
+          "dsa_payor": "Sity Lots",
+          "placement_soft_opt_out": {
+            "facebook_positions": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ],
+            "instagram_positions": [
+              "[MAX_DEPTH]",
+              "[MAX_DEPTH]"
+            ]
+          },
+          "__fb_trace_id__": "EyBuY26v2bc",
+          "__www_request_id__": "Axf-0rSmMOPu5lMxKQT1UXF"
+        }
+      ],
+      "ads": [
+        {
+          "id": "120252567535410213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AD 01",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "3524627414362313"
+          },
+          "__fb_trace_id__": "Bvx1uIy1dTt",
+          "__www_request_id__": "AMGPieEH-4w7CVUMxTx3yyN"
+        },
+        {
+          "id": "120252567536980213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AD 02",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "3524627414362313"
+          },
+          "__fb_trace_id__": "DFMAtZjowR0",
+          "__www_request_id__": "AAXpycScNJIGSLi4AEDkw5e"
+        },
+        {
+          "id": "120252567539240213",
+          "name": "AT | Creo_1 | 25+ 21/10 20:05 | AD 03",
+          "status": "ACTIVE",
+          "effective_status": "IN_PROCESS",
+          "creative": {
+            "id": "3524627414362313"
+          },
+          "__fb_trace_id__": "Bj4AUgtIQss",
+          "__www_request_id__": "Ac1J9A-HRXFsEy0z6HTDjKg"
+        }
+      ],
+      "warnings": [],
+      "dsaChecks": [
+        {
+          "adSetId": "120252567534130213",
+          "expectedBeneficiary": "Sity Lots",
+          "expectedPayor": "Sity Lots",
+          "actualBeneficiary": "Sity Lots",
+          "actualPayor": "Sity Lots",
+          "matches": true
+        },
+        {
+          "adSetId": "120252567535980213",
+          "expectedBeneficiary": "Sity Lots",
+          "expectedPayor": "Sity Lots",
+          "actualBeneficiary": "Sity Lots",
+          "actualPayor": "Sity Lots",
+          "matches": true
+        },
+        {
+          "adSetId": "120252567537750213",
+          "expectedBeneficiary": "Sity Lots",
+          "expectedPayor": "Sity Lots",
+          "actualBeneficiary": "Sity Lots",
+          "actualPayor": "Sity Lots",
+          "matches": true
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": "[CIRCULAR]",
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "8315df43-f970-4be9-b278-cd49ae772b9c",
+    "accountKey": "account-052",
+    "adAccountId": "act_1697515718702009",
+    "uniqueKey": "campaign-job:8315df43-f970-4be9-b278-cd49ae772b9c"
+  }
+}

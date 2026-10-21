@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 import { errorDetails } from "../lib/api.js";
-import { GraySelect } from "./gray-ui/GrayUi.jsx";
+import { UiSelect } from "./shared-ui/SharedUi.jsx";
 import { getAccountProxyMode } from "../../../services/proxy/accountProxyMode.js";
 
 const kinds = [
@@ -42,7 +42,7 @@ function KindPicker({ value, onChange, disabled = false }) {
 }
 
 function ProxyPicker({ proxies, value, onChange }) {
-    return <GraySelect items={proxies.map((proxy) => ({
+    return <UiSelect items={proxies.map((proxy) => ({
         id: proxy.id,
         name: `${proxy.name || "Без назви"} · ${proxy.adsPowerId ?? proxy.id}`,
     }))} value={value} onChange={onChange} ariaLabel="Прив’язана проксі"

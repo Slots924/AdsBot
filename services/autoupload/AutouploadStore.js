@@ -1,0 +1,99 @@
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { randomUUID } from "node:crypto";
+
+const initial = () => ({ version: 1, groups: [{ id: "new", name: "Нові" }], profiles: [], history: [] });
+export const profileIds = (value) => {
+    if (!Array.isArray(value) || !value.length || value.length > 1000) throw new Error("Оберіть від 1 до 1000 профілів");
+    const ids = [...new Set(value.map(String))];
+    if (ids.some((id) => !/^[a-zA-Z0-9_-]{1,100}$/.test(id))) throw new Error("Некоректний ID профілю");
+    return ids;
+};
+
+export default class AutouploadStore {
+    #queue = Promise.resolve();
+    constructor(file) { this.file = file; }
+
+    async #read() {
+        try {
+            const value = JSON.parse(await readFile(this.file, "utf8"));
+            if (value.version !== 1 || !Array.isArray(value.groups) || !Array.isArray(value.profiles) || !Array.isArray(value.history)
+                || !value.groups.some((group) => group.id === "new")) throw new Error();
+            return value;
+        } catch (error) {
+            if (error.code === "ENOENT") return initial();
+            throw new Error("Не вдалося прочитати сховище автозаливів. Дані не перезаписано");
+        }
+    }
+
+    async snapshot() {
+        await this.#queue;
+        return this.#read();
+    }
+
+    change(action) {
+        const operation = this.#queue.then(async () => {
+            const state = await this.#read();
+            await action(state);
+            await mkdir(path.dirname(this.file), { recursive: true });
+            await writeFile(`${this.file}.tmp`, JSON.stringify(state, null, 2), "utf8");
+            await rename(`${this.file}.tmp`, this.file);
+            return state;
+        });
+        this.#queue = operation.catch(() => {});
+        return operation;
+    }
+
+    group(action, id, name) {
+        return this.change((state) => {
+            if (!["create", "rename", "delete"].includes(action)) throw new Error("Невідома дія над групою");
+            const group = state.groups.find((item) => item.id === id);
+            if (action !== "create" && !group) throw new Error("Групу не знайдено");
+            if (action === "delete") {
+                if (id === "new") throw new Error("Групу «Нові» не можна видалити");
+                state.groups = state.groups.filter((item) => item.id !== id);
+                state.profiles.forEach((profile) => { if (profile.groupId === id) profile.groupId = "new"; });
+                return;
+            }
+            const title = String(name ?? "").trim();
+            if (!title || title.length > 100) throw new Error("Назва групи має містити від 1 до 100 символів");
+            if (state.groups.some((item) => item.id !== (action === "rename" ? id : null) && item.name.toLocaleLowerCase() === title.toLocaleLowerCase())) {
+                throw new Error("Група з такою назвою вже існує");
+            }
+            if (action === "create") state.groups.push({ id: randomUUID(), name: title });
+            else group.name = title;
+        });
+    }
+
+    add(profiles, groupId) {
+        return this.change((state) => {
+            if (!state.groups.some((group) => group.id === groupId)) throw new Error("Групу не знайдено");
+            for (const source of profiles) {
+                const existing = state.profiles.find((item) => item.profileId === source.profileId);
+                if (existing) Object.assign(existing, source, { groupId });
+                else state.profiles.push({ ...source, groupId, status: "unchecked", message: "Ще не перевірено", addedAt: new Date().toISOString(), checkedAt: null });
+            }
+        });
+    }
+
+    editProfiles(action, ids, groupId) {
+        const selected = new Set(profileIds(ids));
+        return this.change((state) => {
+            if (action === "remove") state.profiles = state.profiles.filter((item) => !selected.has(item.profileId));
+            else if (action === "move") {
+                if (!state.groups.some((group) => group.id === groupId)) throw new Error("Групу не знайдено");
+                state.profiles.forEach((item) => { if (selected.has(item.profileId)) item.groupId = groupId; });
+            } else throw new Error("Невідома дія над профілями");
+        });
+    }
+
+    record(profileId, result) {
+        return this.change((state) => {
+            const profile = state.profiles.find((item) => item.profileId === profileId);
+            if (!profile) return;
+            const checkedAt = new Date().toISOString();
+            Object.assign(profile, { status: result.status, message: result.message, checkedAt });
+            state.history = [{ id: randomUUID(), profileId, profileNo: profile.profileNo, checkedAt, ...result }, ...state.history].slice(0, 500);
+        });
+    }
+}

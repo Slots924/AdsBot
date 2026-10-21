@@ -9,6 +9,8 @@ import prepareAccountProfileProxy from "../../services/proxy/prepareAccountProfi
 import { getAccountProxyMode, normalizeAccountProxySettings } from "../../services/proxy/accountProxyMode.js";
 import { getProfileProxyService } from "../../services/proxy/AdsPowerProfileProxy.js";
 import BusinessManagerService from "../../services/gui/BusinessManagerService.js";
+import AutouploadStore from "../../services/autoupload/AutouploadStore.js";
+import AutouploadService from "../../services/autoupload/AutouploadService.js";
 import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
 
 
@@ -208,6 +210,24 @@ export default function registerIpcHandlers({
             window.webContents.send(channel, payload);
         }
     };
+    const autoupload = new AutouploadService({
+        store: new AutouploadStore(appPaths.autoupload),
+        adsPower: guiService.adsPower,
+        onUpdated: (state) => sendRendererEvent("autoupload:updated", state),
+    });
+    ipcMain.handle("autoupload:get", safeHandler(() => autoupload.snapshot()));
+    ipcMain.handle("autoupload:mutate", safeHandler((payload) => autoupload.mutate(payload)));
+    ipcMain.handle("autoupload:check", safeHandler(async ({ ids } = {}) => {
+        const profiles = await autoupload.selected(ids);
+        const task = await backgroundTaskManager.enqueue({
+            type: "autoupload-session-check", name: `Перевірка сесій · ${profiles.length}`,
+            uniqueKey: `autoupload:${profiles.map((item) => item.profileId).sort().join(",")}`,
+            resources: profiles.map((item) => ({ key: `adspower-profile:${item.profileNo}`, label: `профіль №${item.profileNo}` })),
+            input: { profileIds: profiles.map((item) => item.profileId) },
+            runner: (context) => autoupload.check(profiles.map((item) => item.profileId), context),
+        });
+        return { taskId: task.id };
+    }));
     remoteDataCacheStore.subscribe?.((event) => sendRendererEvent(
         event.kind === "write-failed" ? "cache:write-failed" : event.kind === "recovered" ? "cache:recovered" : "remote-cache:updated", event
     ));

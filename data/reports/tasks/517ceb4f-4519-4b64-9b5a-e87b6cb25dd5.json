@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "id": "517ceb4f-4519-4b64-9b5a-e87b6cb25dd5",
+  "taskId": "fceca311-f4a5-47af-8e2a-f49e4ad394ee",
+  "type": "comments",
+  "title": "Коментарі вибраними акаунтами · Вручну · 3",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-21T14:00:50.553Z",
+  "startedAt": "2026-10-21T13:57:54.124Z",
+  "finishedAt": "2026-10-21T14:00:50.552Z",
+  "durationMs": 176428,
+  "inputSummary": {
+    "groupIds": [],
+    "profileNos": [
+      "1970",
+      "1971",
+      "1972"
+    ],
+    "geo": "MANUAL",
+    "creativeName": "Ручні коментарі",
+    "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0Eq8bTRKasuMVFEHCokvNVCt4qmDuLDZNzx5thXB6ZFkU1yNcZ7741c3B3ZNpNom8l&id=61579986805638",
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "published": [
+      {
+        "commentId": "1",
+        "actionType": "comment",
+        "profileNo": "1970",
+        "gender": null,
+        "profileKey": null,
+        "text": "The lighting in this is really soft and beautiful."
+      },
+      {
+        "commentId": "2",
+        "actionType": "comment",
+        "profileNo": "1971",
+        "gender": null,
+        "profileKey": null,
+        "text": "That cat definitely knows more about the universe than we do."
+      }
+    ],
+    "skipped": [],
+    "failedComments": [
+      {
+        "commentId": "3",
+        "actionType": "comment",
+        "reason": "Закінчилися доступні профілі",
+        "attempts": 0,
+        "text": "Rainy days hit different when you have a tiny furry companion."
+      },
+      {
+        "commentId": "4",
+        "actionType": "comment",
+        "reason": "Закінчилися доступні профілі",
+        "attempts": 0,
+        "text": "I give this umbrella exactly seven minutes before the cat claims full ownership."
+      },
+      {
+        "commentId": "5",
+        "actionType": "comment",
+        "reason": "Закінчилися доступні профілі",
+        "attempts": 0,
+        "text": "Somewhere in another dimension, this is the final boss of a very emotional anime."
+      }
+    ],
+    "failedProfiles": [
+      {
+        "profileNo": "1972",
+        "commentId": "1",
+        "stage": "OPEN_POST_VIA_AUTHOR_PAGE",
+        "error": "Не вдалося відкрити потрібний Facebook-допис: FIRST_POST_NOT_FOUND"
+      }
+    ],
+    "excludedProfiles": [],
+    "uncertain": []
+  },
+  "counters": {
+    "published": 2,
+    "skipped": 0,
+    "failedComments": 3,
+    "failedProfiles": 1,
+    "excludedProfiles": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-21_17-00-50-551.md",
+      "kind": "markdown"
+    }
+  ],
+  "metadata": {
+    "profileNos": [
+      "1970",
+      "1971",
+      "1972"
+    ],
+    "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0Eq8bTRKasuMVFEHCokvNVCt4qmDuLDZNzx5thXB6ZFkU1yNcZ7741c3B3ZNpNom8l&id=61579986805638",
+    "manualMode": true
+  }
+}

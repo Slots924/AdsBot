@@ -1,29 +1,29 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, Search, Trash2, X } from "lucide-react";
-import "../../styles/keitaro-gray.css";
+import "../../styles/shared-ui.css";
 
-export function GrayButton({ variant = "secondary", iconOnly = false, className = "", children, ...props }) {
-    return <button type="button" className={`kg-button ${variant} ${iconOnly ? "icon" : ""} ${className}`.trim()} {...props}>{children}</button>;
+export function UiButton({ variant = "secondary", iconOnly = false, className = "", children, ...props }) {
+    return <button type="button" className={`ui-button ${variant} ${iconOnly ? "icon" : ""} ${className}`.trim()} {...props}>{children}</button>;
 }
 
-export function GrayField({ label, help, children, className = "" }) {
-    return <label className={`kg-field ${className}`.trim()}><span className="kg-field-label">{label}</span>{children}{help && <small className="kg-field-help">{help}</small>}</label>;
+export function UiField({ label, help, children, className = "" }) {
+    return <label className={`ui-field ${className}`.trim()}><span className="ui-field-label">{label}</span>{children}{help && <small className="ui-field-help">{help}</small>}</label>;
 }
 
-export function GrayInput(props) {
-    return <input className="kg-input" {...props} />;
+export function UiInput(props) {
+    return <input className="ui-input" {...props} />;
 }
 
-export function GrayTextarea(props) {
-    return <textarea className="kg-textarea" {...props} />;
+export function UiTextarea(props) {
+    return <textarea className="ui-textarea" {...props} />;
 }
 
-export function GraySearch({ value, onChange, placeholder, ariaLabel = placeholder }) {
-    return <label className="kg-search"><Search size={16} /><input value={value} onChange={onChange} placeholder={placeholder} aria-label={ariaLabel} /></label>;
+export function UiSearch({ value, onChange, placeholder, ariaLabel = placeholder }) {
+    return <label className="ui-search"><Search size={16} /><input value={value} onChange={onChange} placeholder={placeholder} aria-label={ariaLabel} /></label>;
 }
 
-export function GraySelect({
+export function UiSelect({
     items,
     value,
     onChange,
@@ -87,13 +87,13 @@ export function GraySelect({
         };
     }, [open, portal]);
 
-    const options = open && !disabled && <div ref={menu} id={listboxId} className={`kg-select-menu ${portal ? "portal" : ""}`} style={portal ? menuStyle : undefined} role="listbox" onMouseDown={(event) => event.stopPropagation()}>
-        {visible.length === 0 && <div className="kg-select-empty">{emptyText}</div>}
-        {visible.map((item) => <button type="button" role="option" aria-selected={String(item.id) === String(value)} key={item.id} className={`kg-select-option ${String(item.id) === String(value) ? "selected" : ""}`} onClick={() => { onChange(item.id); setQuery(""); setOpen(false); }}>{item.name}</button>)}
+    const options = open && !disabled && <div ref={menu} id={listboxId} className={`ui-select-menu ${portal ? "portal" : ""}`} style={portal ? menuStyle : undefined} role="listbox" onMouseDown={(event) => event.stopPropagation()}>
+        {visible.length === 0 && <div className="ui-select-empty">{emptyText}</div>}
+        {visible.map((item) => <button type="button" role="option" aria-selected={String(item.id) === String(value)} key={item.id} className={`ui-select-option ${String(item.id) === String(value) ? "selected" : ""}`} onClick={() => { onChange(item.id); setQuery(""); setOpen(false); }}>{item.name}</button>)}
     </div>;
 
-    return <div ref={root} className={`kg-select ${open ? "open" : ""}`}>
-        <div className={`kg-select-trigger ${disabled ? "disabled" : ""}`}>
+    return <div ref={root} className={`ui-select ${open ? "open" : ""}`}>
+        <div className={`ui-select-trigger ${disabled ? "disabled" : ""}`}>
             <Search size={16} aria-hidden="true" />
             <input
                 ref={input}
@@ -130,7 +130,7 @@ export function GraySelect({
             />
             <button
                 type="button"
-                className="kg-select-chevron"
+                className="ui-select-chevron"
                 aria-label={open ? "Згорнути список" : "Розгорнути список"}
                 disabled={disabled}
                 onClick={() => {
@@ -150,18 +150,18 @@ export function GraySelect({
     </div>;
 }
 
-export function GrayCard({ title, description, children, className = "" }) {
-    return <section className={`kg-card ${className}`.trim()}>{(title || description) && <header className="kg-card-header">{title && <h3>{title}</h3>}{description && <p>{description}</p>}</header>}<div className="kg-card-body">{children}</div></section>;
+export function UiCard({ title, description, children, className = "" }) {
+    return <section className={`ui-card ${className}`.trim()}>{(title || description) && <header className="ui-card-header">{title && <h3>{title}</h3>}{description && <p>{description}</p>}</header>}<div className="ui-card-body">{children}</div></section>;
 }
 
-export function GrayToggle({ enabled, onChange }) {
-    return <span className="kg-toggle"><button type="button" className={enabled ? "active" : ""} onClick={() => onChange(true)}>Увімк.</button><button type="button" className={!enabled ? "active off" : ""} onClick={() => onChange(false)}>Вимк.</button></span>;
+export function UiToggle({ enabled, onChange }) {
+    return <span className="ui-toggle"><button type="button" className={enabled ? "active" : ""} onClick={() => onChange(true)}>Увімк.</button><button type="button" className={!enabled ? "active off" : ""} onClick={() => onChange(false)}>Вимк.</button></span>;
 }
 
-export function GrayAssetRow({ name, meta, share = 100, enabled = true, onShareChange, onEnabledChange, onRemove }) {
-    return <div className="kg-asset-row"><div className="kg-asset-copy"><strong>{name}</strong><small>{meta}</small></div><label className="kg-share"><input aria-label={`Частка ${name}`} type="number" min="0" max="100" value={share} disabled={!enabled} onChange={(event) => onShareChange?.(Number(event.target.value))} /> %</label><GrayToggle enabled={enabled} onChange={(next) => onEnabledChange?.(next)} /><GrayButton variant="danger" iconOnly aria-label={`Видалити ${name}`} onClick={onRemove}><Trash2 size={15} /></GrayButton></div>;
+export function UiAssetRow({ name, meta, share = 100, enabled = true, onShareChange, onEnabledChange, onRemove }) {
+    return <div className="ui-asset-row"><div className="ui-asset-copy"><strong>{name}</strong><small>{meta}</small></div><label className="ui-share"><input aria-label={`Частка ${name}`} type="number" min="0" max="100" value={share} disabled={!enabled} onChange={(event) => onShareChange?.(Number(event.target.value))} /> %</label><UiToggle enabled={enabled} onChange={(next) => onEnabledChange?.(next)} /><UiButton variant="danger" iconOnly aria-label={`Видалити ${name}`} onClick={onRemove}><Trash2 size={15} /></UiButton></div>;
 }
 
-export function GrayModal({ title, description, onClose, preview = false, children }) {
-    return <div className={`kg-modal-layer ${preview ? "preview" : ""}`} role="dialog" aria-modal={!preview} aria-label={title}><div className="kg-modal"><header className="kg-modal-header"><div><h2>{title}</h2>{description && <p>{description}</p>}</div><GrayButton iconOnly aria-label="Закрити" onClick={onClose}><X size={18} /></GrayButton></header><div className="kg-modal-body">{children}</div></div></div>;
+export function UiModal({ title, description, onClose, preview = false, children }) {
+    return <div className={`ui-modal-layer ${preview ? "preview" : ""}`} role="dialog" aria-modal={!preview} aria-label={title}><div className="ui-modal"><header className="ui-modal-header"><div><h2>{title}</h2>{description && <p>{description}</p>}</div><UiButton iconOnly aria-label="Закрити" onClick={onClose}><X size={18} /></UiButton></header><div className="ui-modal-body">{children}</div></div></div>;
 }

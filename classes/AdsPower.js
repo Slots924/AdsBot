@@ -313,6 +313,44 @@ class AdsPower {
         return profile;
     }
 
+    // Читає збережені cookies без запуску браузера.
+    async getProfileCookies(profileId) {
+        if (!String(profileId ?? "").trim()) throw new Error("Не вказано profile_id");
+        try {
+            const response = await this.request("get", `${this.apiUrl}/api/v2/browser-profile/cookies`, null, {
+                profile_id: String(profileId),
+            });
+            if (response.data?.code !== 0) throw new Error();
+            const value = response.data.data?.cookies;
+            const cookies = typeof value === "string" ? JSON.parse(value) : value;
+            if (!Array.isArray(cookies)) throw new Error();
+            return cookies;
+        } catch {
+            throw new Error("Не вдалося отримати cookies AdsPower. Перевірте доступ до профілю й актуальність патча");
+        }
+    }
+
+    // Читає UA конкретного профілю; не підставляє випадковий браузерний UA.
+    async getProfileUserAgent(profileId) {
+        if (!String(profileId ?? "").trim()) throw new Error("Не вказано profile_id");
+        try {
+            const response = await this.request("post", `${this.apiUrl}/api/v2/browser-profile/ua`, {
+                profile_id: [String(profileId)],
+            });
+            if (response.data?.code !== 0) throw new Error();
+            const data = response.data.data;
+            const list = Array.isArray(data) ? data : data?.list;
+            const item = Array.isArray(list)
+                ? list.find((entry) => String(entry.profile_id) === String(profileId))
+                : data?.[String(profileId)] ?? (String(data?.profile_id) === String(profileId) ? data : null);
+            const ua = typeof item === "string" ? item : item?.ua ?? item?.user_agent;
+            if (typeof ua !== "string" || !ua.trim() || /[\r\n]/.test(ua)) throw new Error();
+            return ua.trim();
+        } catch {
+            throw new Error("Не вдалося отримати User-Agent профілю AdsPower. Перевірте актуальність патча та формат відповіді UA API");
+        }
+    }
+
     // Оновлює лише платформи, основні облікові поля та нотатки.
     async updateProfileCredentials(profileId, changes) {
         if (!profileId) throw new Error("Не вказано profile_id");

@@ -2,304 +2,87 @@
   "version": 1,
   "tasks": [
     {
-      "id": "4bcc1a56-9e9b-470a-8da4-7fab46077e6c",
-      "type": "account-setup",
-      "name": "Акаунти під коментарі · US · 5",
+      "id": "cd135a6b-44c3-4bee-ba9d-63c39c4c2a3f",
+      "type": "comments",
+      "name": "Коментарі поста · AT · 1",
       "status": "completed_with_warnings",
       "resources": [
         {
-          "key": "adspower-profile:1980",
-          "label": "AdsPower 1980"
+          "key": "adspower-group:7887373",
+          "label": "[AT] Austria"
         },
         {
-          "key": "adspower-profile:1983",
-          "label": "AdsPower 1983"
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
         },
         {
-          "key": "adspower-profile:1984",
-          "label": "AdsPower 1984"
-        },
-        {
-          "key": "adspower-profile:1985",
-          "label": "AdsPower 1985"
-        },
-        {
-          "key": "adspower-profile:1986",
-          "label": "AdsPower 1986"
+          "key": "adspower-group:7887378",
+          "label": "[CH] Switherland"
         }
       ],
       "input": {
-        "profileNos": [
-          "1980",
-          "1983",
-          "1984",
-          "1985",
-          "1986"
+        "groupIds": [
+          "7887373",
+          "7887375",
+          "7887378"
         ],
-        "geo": "US",
-        "maleCount": 5,
-        "femaleCount": 0,
-        "namesGeo": "US",
-        "companiesGeo": "US",
-        "universitiesGeo": "US",
-        "professionsGeo": "US",
-        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\USA",
-        "useApiRequests": true,
-        "profileNameNote": "| Ivan | -name | api",
-        "operations": {
-          "changeName": false,
-          "changeAvatar": true,
-          "changeCover": true,
-          "deletePosts": true,
-          "publishPosts": true,
-          "fillAbout": true
-        },
-        "browserMode": "headless",
+        "geo": "AT",
+        "creativeGeo": "AT",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61595281571591/posts/pfbid0Swu5ob3JwG2rmbMo6eDGyLHC1a2qco9eNn46BkFfvoPExnG4eaWsX93mGLP1wAqrl",
+        "browserMode": "visible",
+        "disableImages": false,
+        "commentTarget": "post",
         "commentWorkerProxyIds": {
           "1": "proxy-003"
         }
       },
       "metadata": {
-        "profileNos": [
-          "1980",
-          "1983",
-          "1984",
-          "1985",
-          "1986"
+        "groupIds": [
+          "7887373",
+          "7887375",
+          "7887378"
         ],
-        "geo": "US",
-        "browserMode": "headless",
-        "useApiRequests": true,
-        "reportId": "e2e9aba7-747a-441b-8040-0610da60db8e"
+        "geo": "AT",
+        "language": "",
+        "browserMode": "visible",
+        "disableImages": false,
+        "reportId": "f65f1c6b-5b13-40bc-9043-b289b6f6b340"
       },
       "progress": {
-        "completed": 5,
-        "total": 5,
+        "completed": 16,
+        "total": 16,
         "stage": "completed_with_warnings",
         "message": "Задачу завершено",
+        "published": 9,
+        "skipped": 3,
+        "failedComments": 4,
+        "failedProfiles": 9,
         "activeWorkers": 0,
         "concurrency": 1,
-        "success": 3,
-        "completedWithError": 1,
-        "failed": 0,
-        "skipped": 1,
-        "currentProfileNo": "1986",
+        "currentCommentId": "11",
+        "currentProfileNo": "190",
         "workerId": 1
       },
       "result": {
-        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-21_15-01-58-901.md",
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-21_20-58-14-055.md",
+        "published": 9,
+        "skipped": 3,
+        "failedComments": 4,
+        "failedProfiles": 9,
+        "excludedProfiles": 0,
         "fatalError": null,
-        "success": 3,
-        "completedWithError": 1,
-        "failed": 0,
-        "skipped": 1
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-21T11:57:30.556Z",
-      "startedAt": "2026-10-21T11:57:30.557Z",
-      "finishedAt": "2026-10-21T12:01:58.903Z",
-      "updatedAt": "2026-10-21T12:01:58.905Z"
-    },
-    {
-      "id": "3e46358c-922d-4a2e-8a80-34d1ef8d1d98",
-      "type": "account-setup",
-      "name": "Акаунти під коментарі · US · 5",
-      "status": "completed_with_warnings",
-      "resources": [
-        {
-          "key": "adspower-profile:1978",
-          "label": "AdsPower 1978"
-        },
-        {
-          "key": "adspower-profile:1979",
-          "label": "AdsPower 1979"
-        },
-        {
-          "key": "adspower-profile:1980",
-          "label": "AdsPower 1980"
-        },
-        {
-          "key": "adspower-profile:1981",
-          "label": "AdsPower 1981"
-        },
-        {
-          "key": "adspower-profile:1982",
-          "label": "AdsPower 1982"
-        }
-      ],
-      "input": {
-        "profileNos": [
-          "1978",
-          "1979",
-          "1980",
-          "1981",
-          "1982"
-        ],
-        "geo": "US",
-        "maleCount": 5,
-        "femaleCount": 0,
-        "namesGeo": "US",
-        "companiesGeo": "US",
-        "universitiesGeo": "US",
-        "professionsGeo": "US",
-        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\USA",
-        "useApiRequests": false,
-        "profileNameNote": "Ivan -name",
-        "operations": {
-          "changeName": false,
-          "changeAvatar": true,
-          "changeCover": true,
-          "deletePosts": true,
-          "publishPosts": true,
-          "fillAbout": true
-        },
-        "browserMode": "headless",
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "profileNos": [
-          "1978",
-          "1979",
-          "1980",
-          "1981",
-          "1982"
-        ],
-        "geo": "US",
-        "browserMode": "headless",
-        "useApiRequests": false,
-        "reportId": "955838f2-70a7-4526-8985-03981944b145"
-      },
-      "progress": {
-        "completed": 5,
-        "total": 5,
-        "stage": "completed_with_warnings",
-        "message": "Задачу завершено",
-        "activeWorkers": 0,
-        "concurrency": 1,
-        "success": 0,
-        "completedWithError": 4,
-        "failed": 1,
-        "skipped": 0,
-        "currentProfileNo": "1982",
-        "workerId": 1
-      },
-      "result": {
-        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-21_14-52-37-570.md",
-        "fatalError": null,
-        "success": 0,
-        "completedWithError": 4,
-        "failed": 1,
-        "skipped": 0
-      },
-      "error": null,
-      "waitingReason": null,
-      "createdAt": "2026-10-21T11:36:59.512Z",
-      "startedAt": "2026-10-21T11:36:59.513Z",
-      "finishedAt": "2026-10-21T11:52:37.571Z",
-      "updatedAt": "2026-10-21T11:52:37.573Z"
-    },
-    {
-      "id": "c6b13d2e-aa9e-4ba4-b454-8e89fb1322ae",
-      "type": "account-setup",
-      "name": "Акаунти під коментарі · US · 5",
-      "status": "completed",
-      "resources": [
-        {
-          "key": "adspower-profile:337",
-          "label": "AdsPower 337"
-        },
-        {
-          "key": "adspower-profile:338",
-          "label": "AdsPower 338"
-        },
-        {
-          "key": "adspower-profile:340",
-          "label": "AdsPower 340"
-        },
-        {
-          "key": "adspower-profile:342",
-          "label": "AdsPower 342"
-        },
-        {
-          "key": "adspower-profile:343",
-          "label": "AdsPower 343"
-        }
-      ],
-      "input": {
-        "profileNos": [
-          "337",
-          "338",
-          "340",
-          "342",
-          "343"
-        ],
-        "geo": "US",
-        "maleCount": 5,
-        "femaleCount": 0,
-        "namesGeo": "US",
-        "companiesGeo": "US",
-        "universitiesGeo": "US",
-        "professionsGeo": "US",
-        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\USA",
-        "useApiRequests": true,
-        "profileNameNote": "Ivan -name",
-        "operations": {
-          "changeName": false,
-          "changeAvatar": true,
-          "changeCover": true,
-          "deletePosts": true,
-          "publishPosts": true,
-          "fillAbout": true
-        },
         "browserMode": "visible",
-        "commentWorkerProxyIds": {
-          "1": "proxy-003"
-        }
-      },
-      "metadata": {
-        "profileNos": [
-          "337",
-          "338",
-          "340",
-          "342",
-          "343"
-        ],
-        "geo": "US",
-        "browserMode": "visible",
-        "useApiRequests": true,
-        "reportId": "3c62c125-bc34-4e93-9b07-cbd7705185f5"
-      },
-      "progress": {
-        "completed": 5,
-        "total": 5,
-        "stage": "completed",
-        "message": "Задачу завершено",
-        "activeWorkers": 0,
-        "concurrency": 1,
-        "success": 0,
-        "completedWithError": 0,
-        "failed": 0,
-        "skipped": 5,
-        "currentProfileNo": "343",
-        "workerId": 1
-      },
-      "result": {
-        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-21_14-35-00-033.md",
-        "fatalError": null,
-        "success": 0,
-        "completedWithError": 0,
-        "failed": 0,
-        "skipped": 5
+        "disableImages": false
       },
       "error": null,
       "waitingReason": null,
-      "createdAt": "2026-10-21T11:34:55.353Z",
-      "startedAt": "2026-10-21T11:34:55.354Z",
-      "finishedAt": "2026-10-21T11:35:00.035Z",
-      "updatedAt": "2026-10-21T11:35:00.037Z"
+      "createdAt": "2026-10-21T17:41:06.464Z",
+      "startedAt": "2026-10-21T17:41:06.465Z",
+      "finishedAt": "2026-10-21T17:58:14.057Z",
+      "updatedAt": "2026-10-21T17:58:14.058Z"
     }
   ]
 }

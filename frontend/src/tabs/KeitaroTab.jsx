@@ -5,7 +5,7 @@ import { AlertCircle, Clipboard, Globe2, GripVertical, LoaderCircle, MoveRight, 
 import KeitaroCampaignCreateModal from "../components/KeitaroCampaignCreateModal.jsx";
 import KeitaroDateRangePicker from "../components/KeitaroDateRangePicker.jsx";
 import KeitaroMoveDialog from "../components/KeitaroMoveDialog.jsx";
-import { GrayButton, GrayModal, GraySearch, GraySelect } from "../components/gray-ui/index.js";
+import { UiButton, UiModal, UiSearch, UiSelect } from "../components/shared-ui/index.js";
 import { errorDetails, unwrap } from "../lib/api.js";
 import { campaignField, formatKeitaroValue, keitaroColumns, keitaroPageSizes, sortKeitaroCampaigns, summarizeKeitaroRows, visibleKeitaroColumns } from "../lib/keitaro.js";
 
@@ -165,16 +165,16 @@ export default function KeitaroTab({
         } catch (moveError) { onError({ ...errorDetails(moveError), title: "Не вдалося перенести кампанії" }); }
     };
 
-    return <motion.section className="kg-report-workspace" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <header className="kg-report-heading"><div><span>Keitaro tracker</span><h1>Кампанії</h1></div><GrayButton variant="primary" onClick={() => setCampaignCreateOpen(true)}><Plus size={16} /> Створити</GrayButton></header>
-        <div className="kg-report-toolbar">
-            <GraySearch value={search} onChange={(event) => onSearchChange(event.target.value)} placeholder="Пошук за ID або назвою…" ariaLabel="Пошук кампаній Keitaro" />
-            <GraySelect items={groupOptions} value={selectedGroupId} onChange={onSelectedGroupIdChange} placeholder="Оберіть групу" searchPlaceholder="Пошук групи…" ariaLabel="Група кампаній Keitaro" />
+    return <motion.section className="ui-report-workspace" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <header className="ui-report-heading"><div><span>Keitaro tracker</span><h1>Кампанії</h1></div><UiButton variant="primary" onClick={() => setCampaignCreateOpen(true)}><Plus size={16} /> Створити</UiButton></header>
+        <div className="ui-report-toolbar">
+            <UiSearch value={search} onChange={(event) => onSearchChange(event.target.value)} placeholder="Пошук за ID або назвою…" ariaLabel="Пошук кампаній Keitaro" />
+            <UiSelect items={groupOptions} value={selectedGroupId} onChange={onSelectedGroupIdChange} placeholder="Оберіть групу" searchPlaceholder="Пошук групи…" ariaLabel="Група кампаній Keitaro" />
             <KeitaroDateRangePicker preset={datePreset} range={dateRange} onPresetChange={onDatePresetChange} onRangeChange={setDateRange} />
-            <GrayButton disabled={loading || statsLoading || availableGroupIds.length === 0} onClick={() => loadCampaigns(true)}><RefreshCw className={loading || statsLoading ? "spin" : ""} size={16} /> Оновити</GrayButton>
-            <div className="kg-columns-menu" ref={columnsRef}>
-                <GrayButton iconOnly aria-label="Колонки таблиці" onClick={() => setColumnsOpen((current) => !current)}><Settings2 size={17} /></GrayButton>
-                {columnsOpen && <div className="kg-columns-popover">
+            <UiButton disabled={loading || statsLoading || availableGroupIds.length === 0} onClick={() => loadCampaigns(true)}><RefreshCw className={loading || statsLoading ? "spin" : ""} size={16} /> Оновити</UiButton>
+            <div className="ui-columns-menu" ref={columnsRef}>
+                <UiButton iconOnly aria-label="Колонки таблиці" onClick={() => setColumnsOpen((current) => !current)}><Settings2 size={17} /></UiButton>
+                {columnsOpen && <div className="ui-columns-popover">
                     <strong>Параметри звіту</strong>
                     {keitaroColumns.map((column) => <Fragment key={column.id}>
                         {column.id === "fullRevenue" && <strong>Кастомні показники</strong>}
@@ -183,18 +183,18 @@ export default function KeitaroTab({
                 </div>}
             </div>
         </div>
-        <div className="kg-bulk-bar"><span>{`Вибрано: ${selectedIds.length}`}</span><GrayButton disabled={selectedIds.length === 0} onClick={() => setMoveModalOpen(true)}><MoveRight size={15} /> Перенести</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setTemplateModalOpen(true)}><Plus size={15} /> Застосувати шаблон</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setPixelModalOpen(true)}><Replace size={15} /> Змінити піксель</GrayButton><GrayButton disabled={selectedIds.length === 0} onClick={() => setDomainModalOpen(true)}><Globe2 size={15} /> Змінити домен</GrayButton><small className={statsError ? "error" : ""}>{statsLoading ? "Статистика оновлюється…" : statsError}</small></div>
-        {availableGroupIds.length === 0 && <div className="kg-report-notice">У налаштуваннях оберіть групи кампаній, з якими можна працювати.</div>}
-        <div className="kg-report-table">
-            <div className="kg-report-grid kg-report-head" style={{ gridTemplateColumns: gridTemplate }}><label><input type="checkbox" aria-label="Вибрати всі кампанії" checked={allVisibleSelected} disabled={paged.length === 0} onChange={toggleAll} /></label>{columns.map((column) => <div key={column.id} className="kg-report-column" draggable onDragStart={() => { dragColumn.current = column.id; }} onDragOver={(event) => event.preventDefault()} onDrop={() => moveColumn(dragColumn.current, column.id)}><GripVertical className="kg-drag-dots" size={15} aria-hidden="true" /><button type="button" onClick={() => toggleSort(column.id)}>{column.label}{sort.column === column.id ? (sort.direction === "asc" ? " ▲" : " ▼") : ""}</button><span className="kg-column-resizer" onPointerDown={(event) => { event.preventDefault(); resizeState.current = { columnId: column.id, startX: event.clientX, startWidth: columnWidths[column.id] || column.width }; }} /></div>)}</div>
-            <div className="kg-report-scroll">
-                {loading && campaigns.length === 0 && <div className="kg-report-state"><LoaderCircle className="spin" size={21} /> Завантажуємо кампанії…</div>}
-                {!loading && error && campaigns.length === 0 && <div className="kg-report-state error"><AlertCircle size={22} /><strong>Не вдалося завантажити дані</strong><span>{error}</span></div>}
-                {!loading && !error && availableGroupIds.length > 0 && filtered.length === 0 && <div className="kg-report-state">Кампаній за цим фільтром немає.</div>}
-                {!loading && paged.map((campaign) => { const checked = selectedSet.has(String(campaign.id)); return <div key={campaign.id} className={`kg-report-grid kg-report-row ${checked ? "selected" : ""}`} style={{ gridTemplateColumns: gridTemplate }}><label><input type="checkbox" checked={checked} onChange={() => toggleRow(campaign.id)} aria-label={`Вибрати кампанію ${campaign.name}`} /></label>{columns.map((column) => <div key={column.id} className={`kg-report-cell ${["number", "money", "percent"].includes(column.type) ? "numeric" : ""}`}>{column.id === "name" ? <span className="kg-campaign-name"><strong title={campaign.name}>{campaign.name}</strong><button type="button" aria-label={`Копіювати URL кампанії ${campaign.name}`} title={campaign.url ? `Копіювати ${campaign.url}` : "URL недоступний"} onClick={() => copyCampaignUrl(campaign)}><Clipboard size={14} /></button></span> : column.id === "state" ? <i className={`kg-status ${campaign.state === "active" ? "active" : "paused"}`}>{formatKeitaroValue(column, campaign.state)}</i> : formatKeitaroValue(column, campaignField(campaign, column.id))}</div>)}</div>; })}
+        <div className="ui-bulk-bar"><span>{`Вибрано: ${selectedIds.length}`}</span><UiButton disabled={selectedIds.length === 0} onClick={() => setMoveModalOpen(true)}><MoveRight size={15} /> Перенести</UiButton><UiButton disabled={selectedIds.length === 0} onClick={() => setTemplateModalOpen(true)}><Plus size={15} /> Застосувати шаблон</UiButton><UiButton disabled={selectedIds.length === 0} onClick={() => setPixelModalOpen(true)}><Replace size={15} /> Змінити піксель</UiButton><UiButton disabled={selectedIds.length === 0} onClick={() => setDomainModalOpen(true)}><Globe2 size={15} /> Змінити домен</UiButton><small className={statsError ? "error" : ""}>{statsLoading ? "Статистика оновлюється…" : statsError}</small></div>
+        {availableGroupIds.length === 0 && <div className="ui-report-notice">У налаштуваннях оберіть групи кампаній, з якими можна працювати.</div>}
+        <div className="ui-report-table">
+            <div className="ui-report-grid ui-report-head" style={{ gridTemplateColumns: gridTemplate }}><label><input type="checkbox" aria-label="Вибрати всі кампанії" checked={allVisibleSelected} disabled={paged.length === 0} onChange={toggleAll} /></label>{columns.map((column) => <div key={column.id} className="ui-report-column" draggable onDragStart={() => { dragColumn.current = column.id; }} onDragOver={(event) => event.preventDefault()} onDrop={() => moveColumn(dragColumn.current, column.id)}><GripVertical className="ui-drag-dots" size={15} aria-hidden="true" /><button type="button" onClick={() => toggleSort(column.id)}>{column.label}{sort.column === column.id ? (sort.direction === "asc" ? " ▲" : " ▼") : ""}</button><span className="ui-column-resizer" onPointerDown={(event) => { event.preventDefault(); resizeState.current = { columnId: column.id, startX: event.clientX, startWidth: columnWidths[column.id] || column.width }; }} /></div>)}</div>
+            <div className="ui-report-scroll">
+                {loading && campaigns.length === 0 && <div className="ui-report-state"><LoaderCircle className="spin" size={21} /> Завантажуємо кампанії…</div>}
+                {!loading && error && campaigns.length === 0 && <div className="ui-report-state error"><AlertCircle size={22} /><strong>Не вдалося завантажити дані</strong><span>{error}</span></div>}
+                {!loading && !error && availableGroupIds.length > 0 && filtered.length === 0 && <div className="ui-report-state">Кампаній за цим фільтром немає.</div>}
+                {!loading && paged.map((campaign) => { const checked = selectedSet.has(String(campaign.id)); return <div key={campaign.id} className={`ui-report-grid ui-report-row ${checked ? "selected" : ""}`} style={{ gridTemplateColumns: gridTemplate }}><label><input type="checkbox" checked={checked} onChange={() => toggleRow(campaign.id)} aria-label={`Вибрати кампанію ${campaign.name}`} /></label>{columns.map((column) => <div key={column.id} className={`ui-report-cell ${["number", "money", "percent"].includes(column.type) ? "numeric" : ""}`}>{column.id === "name" ? <span className="ui-campaign-name"><strong title={campaign.name}>{campaign.name}</strong><button type="button" aria-label={`Копіювати URL кампанії ${campaign.name}`} title={campaign.url ? `Копіювати ${campaign.url}` : "URL недоступний"} onClick={() => copyCampaignUrl(campaign)}><Clipboard size={14} /></button></span> : column.id === "state" ? <i className={`ui-status ${campaign.state === "active" ? "active" : "paused"}`}>{formatKeitaroValue(column, campaign.state)}</i> : formatKeitaroValue(column, campaignField(campaign, column.id))}</div>)}</div>; })}
             </div>
-            <div className="kg-report-grid kg-summary-row" style={{ gridTemplateColumns: gridTemplate }}><span />{columns.map((column) => <strong key={column.id} className={["number", "money", "percent"].includes(column.type) ? "numeric" : ""}>{summaryValue(column, summary, summaryRows.length)}</strong>)}</div>
-            <footer className="kg-report-pager"><span>{selectedIds.length > 0 ? `Сума вибраних: ${selectedIds.length}` : `Сума на сторінці: ${paged.length}`}</span><div><GrayButton disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>Назад</GrayButton><span>Сторінка {currentPage} з {pageCount}</span><GrayButton disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)}>Далі</GrayButton></div><label>На сторінці <select aria-label="Кампаній на сторінці" value={pageSize} onChange={(event) => onPageSizeChange(Number(event.target.value))}>{keitaroPageSizes.map((size) => <option key={size} value={size}>{size}</option>)}</select></label></footer>
+            <div className="ui-report-grid ui-summary-row" style={{ gridTemplateColumns: gridTemplate }}><span />{columns.map((column) => <strong key={column.id} className={["number", "money", "percent"].includes(column.type) ? "numeric" : ""}>{summaryValue(column, summary, summaryRows.length)}</strong>)}</div>
+            <footer className="ui-report-pager"><span>{selectedIds.length > 0 ? `Сума вибраних: ${selectedIds.length}` : `Сума на сторінці: ${paged.length}`}</span><div><UiButton disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>Назад</UiButton><span>Сторінка {currentPage} з {pageCount}</span><UiButton disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)}>Далі</UiButton></div><label>На сторінці <select aria-label="Кампаній на сторінці" value={pageSize} onChange={(event) => onPageSizeChange(Number(event.target.value))}>{keitaroPageSizes.map((size) => <option key={size} value={size}>{size}</option>)}</select></label></footer>
         </div>
         {moveModalOpen && <KeitaroMoveDialog title="Перенести кампанії" count={selectedIds.length} groups={groups} onClose={() => setMoveModalOpen(false)} onMove={moveCampaigns} />}
         {templateModalOpen && <ApplyStreamTemplateModal campaignIds={selectedIds} onClose={() => setTemplateModalOpen(false)} onError={onError} showToast={showToast} />}
@@ -243,18 +243,18 @@ function ChangeCampaignDomainModal({ campaignIds, onClose, onError, showToast, o
         }
     };
 
-    return <GrayModal title="Змінити домен" description={`Вибрано кампаній: ${campaignIds.length}`} onClose={onClose}>
-        <div className="kg-domain-change">
-            <div className="kg-domain-choice-list">
-                {loading && <div className="kg-select-empty">Завантажуємо домени…</div>}
-                {!loading && mappings.length === 0 && <div className="kg-select-empty">У налаштуваннях ще немає доменів.</div>}
-                {mappings.map((mapping) => <button type="button" key={mapping.id} className={`kg-domain-choice ${selectedId === String(mapping.id) ? "selected" : ""}`} onClick={() => setSelectedId(String(mapping.id))}>
-                    <span><span className="kg-domain-choice-heading"><strong>{mapping.name || "Без імені"}</strong><small><Globe2 size={13} /> {mapping.geo}</small></span><em>{mapping.domain}</em></span>
+    return <UiModal title="Змінити домен" description={`Вибрано кампаній: ${campaignIds.length}`} onClose={onClose}>
+        <div className="ui-domain-change">
+            <div className="ui-domain-choice-list">
+                {loading && <div className="ui-select-empty">Завантажуємо домени…</div>}
+                {!loading && mappings.length === 0 && <div className="ui-select-empty">У налаштуваннях ще немає доменів.</div>}
+                {mappings.map((mapping) => <button type="button" key={mapping.id} className={`ui-domain-choice ${selectedId === String(mapping.id) ? "selected" : ""}`} onClick={() => setSelectedId(String(mapping.id))}>
+                    <span><span className="ui-domain-choice-heading"><strong>{mapping.name || "Без імені"}</strong><small><Globe2 size={13} /> {mapping.geo}</small></span><em>{mapping.domain}</em></span>
                 </button>)}
             </div>
-            <div className="kg-modal-actions"><GrayButton onClick={onClose}>Скасувати</GrayButton><GrayButton variant="primary" disabled={loading || applying || !selectedId} onClick={apply}>{applying && <LoaderCircle className="spin" size={16} />} Змінити</GrayButton></div>
+            <div className="ui-modal-actions"><UiButton onClick={onClose}>Скасувати</UiButton><UiButton variant="primary" disabled={loading || applying || !selectedId} onClick={apply}>{applying && <LoaderCircle className="spin" size={16} />} Змінити</UiButton></div>
         </div>
-    </GrayModal>;
+    </UiModal>;
 }
 
 
@@ -289,12 +289,12 @@ function ChangeCampaignPixelModal({ campaignIds, onClose, onError, showToast, on
         }
     };
 
-    return <GrayModal title="Змінити піксель" description={`Вибрано кампаній: ${campaignIds.length}`} onClose={onClose}>
-        <div className="kg-apply-template">
-            <label><span>Новий піксель</span><GraySelect items={pixels.map((pixel) => ({ id: pixel.id, name: `${pixel.name} · ID ${pixel.pixelId}` }))} value={pixelId} onChange={(value) => setPixelId(String(value))} placeholder="Оберіть піксель" searchPlaceholder="Пошук за назвою або ID…" emptyText="Пікселів не знайдено" ariaLabel="Новий піксель" disabled={loading} /></label>
-            <div className="kg-modal-actions"><GrayButton onClick={onClose}>Скасувати</GrayButton><GrayButton variant="primary" disabled={applying || loading || !pixelId} onClick={apply}>{applying && <LoaderCircle className="spin" size={16} />} Змінити</GrayButton></div>
+    return <UiModal title="Змінити піксель" description={`Вибрано кампаній: ${campaignIds.length}`} onClose={onClose}>
+        <div className="ui-apply-template">
+            <label><span>Новий піксель</span><UiSelect items={pixels.map((pixel) => ({ id: pixel.id, name: `${pixel.name} · ID ${pixel.pixelId}` }))} value={pixelId} onChange={(value) => setPixelId(String(value))} placeholder="Оберіть піксель" searchPlaceholder="Пошук за назвою або ID…" emptyText="Пікселів не знайдено" ariaLabel="Новий піксель" disabled={loading} /></label>
+            <div className="ui-modal-actions"><UiButton onClick={onClose}>Скасувати</UiButton><UiButton variant="primary" disabled={applying || loading || !pixelId} onClick={apply}>{applying && <LoaderCircle className="spin" size={16} />} Змінити</UiButton></div>
         </div>
-    </GrayModal>;
+    </UiModal>;
 }
 
 
@@ -314,5 +314,5 @@ function ApplyStreamTemplateModal({ campaignIds, onClose, onError, showToast }) 
         finally { setApplying(false); }
     };
     const templateOptions = templates.map((item) => ({ id: item.id, name: `${streamTemplateDisplayName(item)} · ID ${item.id}` }));
-    return <GrayModal title="Застосувати шаблон до кампаній" description={`Вибрано кампаній: ${campaignIds.length}`} onClose={onClose}><div className="kg-apply-template"><label><span>Шаблон потоку</span><GraySelect items={templateOptions} value={templateId} onChange={(value) => setTemplateId(String(value))} placeholder="Оберіть шаблон" searchPlaceholder="Пошук шаблону…" emptyText="Шаблонів не знайдено" ariaLabel="Шаблон потоку" disabled={loading} /></label><label><span>Що зробити</span><select value={mode} onChange={(event) => setMode(event.target.value)}><option value="add">Додати потік</option><option value="replace">Замінити потік у вибраних кампаніях</option></select></label>{mode === "replace" && <label><span>Номер потоку в кампанії</span><input type="number" min="1" value={replacePosition} onChange={(event) => setReplacePosition(event.target.value)} /></label>}<div className="kg-modal-actions"><GrayButton onClick={onClose}>Скасувати</GrayButton><GrayButton variant="primary" disabled={applying || loading || !templateId || (mode === "replace" && Number(replacePosition) < 1)} onClick={apply}>{applying && <LoaderCircle className="spin" size={16} />} Застосувати</GrayButton></div></div></GrayModal>;
+    return <UiModal title="Застосувати шаблон до кампаній" description={`Вибрано кампаній: ${campaignIds.length}`} onClose={onClose}><div className="ui-apply-template"><label><span>Шаблон потоку</span><UiSelect items={templateOptions} value={templateId} onChange={(value) => setTemplateId(String(value))} placeholder="Оберіть шаблон" searchPlaceholder="Пошук шаблону…" emptyText="Шаблонів не знайдено" ariaLabel="Шаблон потоку" disabled={loading} /></label><label><span>Що зробити</span><select value={mode} onChange={(event) => setMode(event.target.value)}><option value="add">Додати потік</option><option value="replace">Замінити потік у вибраних кампаніях</option></select></label>{mode === "replace" && <label><span>Номер потоку в кампанії</span><input type="number" min="1" value={replacePosition} onChange={(event) => setReplacePosition(event.target.value)} /></label>}<div className="ui-modal-actions"><UiButton onClick={onClose}>Скасувати</UiButton><UiButton variant="primary" disabled={applying || loading || !templateId || (mode === "replace" && Number(replacePosition) < 1)} onClick={apply}>{applying && <LoaderCircle className="spin" size={16} />} Застосувати</UiButton></div></div></UiModal>;
 }
