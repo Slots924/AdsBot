@@ -124,18 +124,35 @@ export default class AutouploadStore {
         });
     }
 
+    beginAdAccountShare(profileId, adAccountId, targetUserId) {
+        return this.change((state) => {
+            if (!state.profiles.some((profile) => profile.profileId === profileId)) throw new Error("Профіль прибрано зі списку");
+            state.adAccountShares ??= {};
+            const key = `${profileId}:${adAccountId}:${targetUserId}`;
+            if (state.adAccountShares[key]?.outcomeUnknown) throw Object.assign(new Error("Попередній результат зміни доступів невідомий. Перевірте права РК перед повтором"), {
+                code: "AD_ACCOUNT_SHARE_PREVIOUS_OUTCOME_UNKNOWN", safeFacebookError: true, outcomeUnknown: true, actionRequired: "check_ad_account_permissions",
+            });
+            // Намір зберігається до POST, щоб аварія не спричинила сліпий повтор.
+            state.adAccountShares[key] = { success: false, outcomeUnknown: true, adAccountId, targetUserId, startedAt: new Date().toISOString() };
+        });
+    }
+
     recordAction(profileId, result) {
         return this.change((state) => {
             const profile = state.profiles.find((item) => item.profileId === profileId);
             if (!profile) return;
             const checkedAt = new Date().toISOString();
-            const entry = { ...result, operation: "friend-request", checkedAt };
+            const entry = { ...result, operation: result.operation ?? "friend-request", checkedAt };
             profile.lastAction = entry;
             if (["login_required", "checkpoint"].includes(result.sessionStatus)) {
                 Object.assign(profile, { status: result.sessionStatus, message: result.message });
             }
             state.history = [{ id: randomUUID(), profileId, profileNo: profile.profileNo, ...entry }, ...state.history].slice(0, 500);
-            if (result.attempted && !["FRIEND_REQUEST_ALREADY_SENT", "FRIEND_REQUEST_PREVIOUS_OUTCOME_UNKNOWN"].includes(result.code)) {
+            if (entry.operation === "ad-account-share" && (result.attempted || result.success)) {
+                state.adAccountShares ??= {};
+                state.adAccountShares[`${profileId}:${result.adAccountId}:${result.targetUserId}`] = entry;
+            }
+            if (entry.operation === "friend-request" && result.attempted && !["FRIEND_REQUEST_ALREADY_SENT", "FRIEND_REQUEST_PREVIOUS_OUTCOME_UNKNOWN"].includes(result.code)) {
                 state.friendRequests ??= {};
                 state.friendRequests[`${profileId}:${result.targetUserId}`] = entry;
             }

@@ -227,6 +227,23 @@ button:focus-visible, input:focus-visible {
 .proxy-public-toggle:checked { background: #7562db; }
 .proxy-public-toggle:checked::before { transform: translateX(13px); background: white; }
 .proxy-public-toggle:disabled { opacity: .5; cursor: default; }
+.autoupload-share-form > p { color: var(--muted); line-height: 1.5; margin: 0; }
+.autoupload-share-summary { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+.autoupload-share-summary strong { color: var(--text); }
+.autoupload-share-list { max-height: min(38vh, 350px); overflow-y: auto; border: 1px solid var(--stroke); border-radius: 10px; }
+.autoupload-share-list section + section { border-top: 1px solid var(--stroke); }
+.autoupload-share-list h3 { display: flex; align-items: baseline; gap: 10px; margin: 0; padding: 10px 14px; background: rgba(117,98,219,.07); font-size: 12px; }
+.autoupload-share-list h3 span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-weight: 400; }
+.autoupload-share-form label.autoupload-share-account { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 14px; cursor: pointer; }
+.autoupload-share-account + .autoupload-share-account { border-top: 1px solid var(--stroke); }
+.autoupload-share-account > span { display: grid; gap: 3px; min-width: 0; }
+.autoupload-share-account strong { overflow-wrap: anywhere; font-size: 13px; font-weight: 500; }
+.autoupload-share-account small { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.autoupload-share-form input.proxy-public-toggle { flex: 0 0 30px; padding: 2px; border-radius: 999px; }
+.autoupload-share-list .autoupload-asset-empty { margin: 12px 14px; }
+.autoupload-share-form label.autoupload-share-confirm { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; line-height: 1.5; cursor: pointer; }
+.autoupload-share-confirm input { flex: 0 0 auto; margin-top: 3px; accent-color: #7562db; }
+.autoupload-share-form > .autoupload-share-note { font-size: 12px; }
 .proxy-editor-control { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; min-width: 0; }
 .proxy-editor-control input { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .proxy-editor-control .secondary-button { min-height: 51px; padding: 0 14px; font-size: var(--font-control); white-space: nowrap; }

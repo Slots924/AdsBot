@@ -3,14 +3,17 @@ import checkProfileSession from "../../workflows/autoupload/checkProfileSession.
 import refreshProfileSession from "../../workflows/autoupload/refreshProfileSession.js";
 import FacebookWebClient from "../../facebook/api/FacebookWebClient.js";
 import sendFriendRequest, { validateTargetUserId } from "../../facebook/autoupload/actions/friends/sendFriendRequest.js";
+import shareAdAccount from "../../facebook/autoupload/actions/adAccounts/shareAdAccount.js";
+import { validateAdAccountId } from "../../facebook/autoupload/actions/adAccounts/common.js";
+import { actionFailure } from "../../facebook/autoupload/graphql/errors.js";
 
 export default class AutouploadService {
     #clients = new Map();
     #running = new Set();
     #browserStates = new Map();
     #browserBusy = new Set();
-    constructor({ store, adsPower, profileBrowser, sessionStore, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest }) {
-        Object.assign(this, { store, adsPower, profileBrowser, sessionStore, onUpdated, checkSession: checkSession ?? (sessionStore ? refreshProfileSession : checkProfileSession), sendFriendRequestFn });
+    constructor({ store, adsPower, profileBrowser, sessionStore, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount }) {
+        Object.assign(this, { store, adsPower, profileBrowser, sessionStore, onUpdated, checkSession: checkSession ?? (sessionStore ? refreshProfileSession : checkProfileSession), sendFriendRequestFn, shareAdAccountFn });
     }
     #statusHandler(profileId) {
         return async ({ status, message }) => {
@@ -126,6 +129,71 @@ export default class AutouploadService {
     }
     async sendFriendRequests(ids, targetUserId, context = {}) {
         return this.#runProfiles(ids, { ...context, targetUserId: validateTargetUserId(targetUserId) });
+    }
+    async validateShareSelection({ ids, accounts, targetUserId, confirmed } = {}) {
+        if (confirmed !== true) throw new Error("Підтвердьте надання Admin-доступу до вибраних РК");
+        const targetId = validateTargetUserId(targetUserId);
+        const profiles = await this.selected(ids);
+        if (!Array.isArray(accounts) || !accounts.length || accounts.length > 1000) throw new Error("Оберіть від 1 до 1000 рекламних кабінетів");
+        const seen = new Set();
+        const selection = accounts.map((item) => {
+            const profile = profiles.find(profile => profile.profileId === item?.profileId);
+            const adAccountId = validateAdAccountId(item?.adAccountId);
+            if (!profile || !profile.assets?.adAccounts?.some(account => account.accountId === adAccountId && account.isPersonal === true && !account.businessId)) {
+                throw new Error("РК відсутній серед перевірених персональних кабінетів вибраного профілю. Оновіть перевірку");
+            }
+            if (seen.has(adAccountId)) throw new Error("Один рекламний кабінет не можна вибирати через кілька профілів одночасно");
+            seen.add(adAccountId);
+            return { profileId: profile.profileId, adAccountId };
+        });
+        return { profiles: profiles.filter(profile => selection.some(item => item.profileId === profile.profileId)), accounts: selection, targetUserId: targetId, confirmed: true };
+    }
+    async shareAdAccounts(input, { signal, progress = async () => {} } = {}) {
+        const { profiles, accounts, targetUserId } = await this.validateShareSelection(input);
+        const results = [];
+        for (const profile of profiles) {
+            if (signal?.aborted) break;
+            if (this.#running.has(profile.profileId)) throw new Error("Операція над профілем уже виконується");
+            this.#running.add(profile.profileId);
+            let client;
+            try {
+                await this.#publish();
+                const prepared = await this.#prepare(profile.profileId, { signal }, false);
+                let sessionFailure = prepared.result;
+                client = prepared.client;
+                if (client) this.#clients.set(profile.profileId, client);
+                for (const account of accounts.filter(item => item.profileId === profile.profileId)) {
+                    if (signal?.aborted) break;
+                    await progress({ stage: "ad-account-share", completed: results.length, total: accounts.length, message: `№${profile.profileNo} · РК ${account.adAccountId}: надання Admin-доступу` });
+                    let attempted = false;
+                    let action;
+                    try {
+                        action = client ? await this.shareAdAccountFn(client.getFbData(profile.profileId), account.adAccountId, targetUserId, {
+                            signal, confirmation: { confirmed: true, adAccountId: account.adAccountId, targetUserId, role: "ADMIN" },
+                            beforeSend: async () => { await this.store.beginAdAccountShare(profile.profileId, account.adAccountId, targetUserId); attempted = true; },
+                        }) : { success: false, outcome: "NOT_SENT", code: "FACEBOOK_SESSION_PREPARATION_FAILED", message: sessionFailure.message, sessionStatus: sessionFailure.sessionStatus ?? sessionFailure.status, retryable: false, outcomeUnknown: false };
+                    } catch (error) {
+                        action = actionFailure(error);
+                        if (attempted) Object.assign(action, { outcomeUnknown: true, actionRequired: "check_ad_account_permissions", outcome: "OUTCOME_UNKNOWN" });
+                    }
+                    const record = { ...action, operation: "ad-account-share", adAccountId: account.adAccountId, targetUserId, attempted, fields: [], steps: [action.message] };
+                    await this.store.recordAction(profile.profileId, record);
+                    results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...record });
+                    if (["login_required", "checkpoint"].includes(action.sessionStatus)) {
+                        await this.#statusHandler(profile.profileId)({ status: action.sessionStatus, message: action.message });
+                        client = null;
+                        sessionFailure = action;
+                    }
+                    await this.#publish();
+                }
+                if (client && this.sessionStore) await this.sessionStore.save(profile.profileId, client.exportSession());
+            } finally {
+                this.#running.delete(profile.profileId);
+                await this.#publish();
+            }
+        }
+        await progress({ stage: "ad-account-share", completed: results.length, total: accounts.length, message: `Оброблено ${results.length} із ${accounts.length} РК` });
+        return { result: { accounts: results, targetUserId }, taskStatus: results.some(item => !item.success) || results.length !== accounts.length ? "completed_with_warnings" : "completed" };
     }
     async #runProfiles(ids, { signal, progress = async () => {}, targetUserId = null } = {}) {
         const profiles = await this.selected(ids);

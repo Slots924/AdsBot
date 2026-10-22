@@ -16,12 +16,56 @@ beforeEach(() => {
         mutateAutoupload: vi.fn(() => ok(structuredClone(state))),
         checkAutouploadSessions: vi.fn(() => ok({ taskId: "task1" })),
         sendAutouploadFriendRequests: vi.fn(() => ok({ taskId: "friend-task" })),
+        shareAutouploadAdAccounts: vi.fn(() => ok({ taskId: "share-task" })),
         controlAutouploadProfile: vi.fn((_profileId, action) => ok({ profileId: "p1", adsPowerOpen: action === "open" })),
     };
 });
 afterEach(() => { cleanup(); delete window.adsBot; });
 
 describe("Автозаливи", () => {
+    it("шерить лише вибрані персональні РК після явного підтвердження", async () => {
+        window.adsBot.getAutoupload.mockImplementation(() => ok({ ...state, profiles: [{ ...state.profiles[0], assets: { adAccounts: [
+            { accountId: "101", name: "Особистий", isPersonal: true }, { accountId: "102", name: "Другий", isPersonal: true },
+            { accountId: "103", name: "Бізнесовий", isPersonal: false, businessId: "999" }, { accountId: "104", name: "Старі дані" },
+        ] } }] }));
+        render(<AutouploadTab />);
+        expect(screen.getByRole("button", { name: "Пошерити РК" })).toBeDisabled();
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("button", { name: "Пошерити РК" }));
+        expect(screen.getAllByRole("switch")).toHaveLength(2);
+        expect(screen.queryByRole("switch", { name: /103|104/ })).not.toBeInTheDocument();
+        fireEvent.click(screen.getByRole("switch", { name: "Вибрати РК 101 профілю 12" }));
+        fireEvent.change(screen.getByLabelText("Facebook ID отримувача"), { target: { value: "456" } });
+        expect(screen.getByRole("button", { name: "Надати Admin-доступ" })).toBeDisabled();
+        expect(window.adsBot.shareAutouploadAdAccounts).not.toHaveBeenCalled();
+        fireEvent.click(screen.getByRole("checkbox", { name: /Підтверджую надання/ }));
+        fireEvent.click(screen.getByRole("button", { name: "Надати Admin-доступ" }));
+        await waitFor(() => expect(window.adsBot.shareAutouploadAdAccounts).toHaveBeenCalledWith({ ids: ["p1"], accounts: [{ profileId: "p1", adAccountId: "101" }], targetUserId: "456", confirmed: true }));
+        await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    });
+    it("зміна отримувача скидає підтвердження, помилка запуску залишається в модальному вікні", async () => {
+        window.adsBot.getAutoupload.mockImplementation(() => ok({ ...state, profiles: [{ ...state.profiles[0], assets: { adAccounts: [{ accountId: "101", name: "Особистий", isPersonal: true }] } }] }));
+        window.adsBot.shareAutouploadAdAccounts.mockResolvedValue({ ok: false, error: { message: "Сесія застаріла" } });
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("button", { name: "Пошерити РК" }));
+        fireEvent.click(screen.getByRole("switch"));
+        fireEvent.change(screen.getByLabelText("Facebook ID отримувача"), { target: { value: "456" } });
+        fireEvent.click(screen.getByRole("checkbox", { name: /Підтверджую надання/ }));
+        fireEvent.change(screen.getByLabelText("Facebook ID отримувача"), { target: { value: "789" } });
+        expect(screen.getByRole("checkbox", { name: /Підтверджую надання/ })).not.toBeChecked();
+        fireEvent.click(screen.getByRole("checkbox", { name: /Підтверджую надання/ }));
+        fireEvent.click(screen.getByRole("button", { name: "Надати Admin-доступ" }));
+        expect(await screen.findByRole("alert")).toHaveTextContent("Сесія застаріла");
+        expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
+    it("без даних персональних РК пропонує повторну перевірку та блокує запуск", async () => {
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("button", { name: "Пошерити РК" }));
+        expect(screen.getByText(/щоб визначити персональні РК/)).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Надати Admin-доступ" })).toBeDisabled();
+    });
     it("запускає заявки лише для вибраних профілів із введеним Facebook ID", async () => {
         render(<AutouploadTab />);
         expect(screen.getByRole("button", { name: "Додати в друзі" })).toBeDisabled();

@@ -104,3 +104,74 @@ test("EAAB-екстрактор пропускає інші EAA-токени, з
     assert.equal(extractFacebookAccessTokenFromHtml(source), other);
     assert.equal(extractFacebookAccessTokenFromHtml(source, { prefix: "EAAB" }), fakeToken);
 });
+
+async function shareFixture(t) {
+    const setup = await fixture(t);
+    await setup.store.add([{ profileId: "p1", profileNo: "1", name: "Test" }, { profileId: "p2", profileNo: "2", name: "Other" }], "new");
+    for (const profileId of ["p1", "p2"]) {
+        await setup.sessionStore.save(profileId, (await prepared()).exportSession());
+        await setup.store.record(profileId, { status: "active", message: "OK", assets: { adAccounts: [
+            { accountId: profileId === "p1" ? "111" : "222", isPersonal: true }, { accountId: "333", isPersonal: false, businessId: "9" }, { accountId: "444" },
+        ] } });
+    }
+    return setup;
+}
+
+test("шеринг перевіряє підтвердження, вибрані профілі та належність РК до персональних", async (t) => {
+    const setup = await shareFixture(t);
+    const service = new AutouploadService(setup);
+    const input = { ids: ["p1"], accounts: [{ profileId: "p1", adAccountId: "111" }], targetUserId: "456", confirmed: true };
+    for (const invalid of [
+        { ...input, confirmed: false }, { ...input, accounts: [] }, { ...input, accounts: [{ profileId: "p2", adAccountId: "222" }] },
+        { ...input, accounts: [{ profileId: "p1", adAccountId: "333" }] }, { ...input, accounts: [{ profileId: "p1", adAccountId: "444" }] },
+    ]) await assert.rejects(() => service.validateShareSelection(invalid));
+    assert.equal((await service.validateShareSelection(input)).accounts.length, 1);
+});
+
+test("РК шеряться послідовно зі збережених сесій, результати не потрапляють у журнал заявок", async (t) => {
+    const setup = await shareFixture(t);
+    const order = [];
+    let active = 0;
+    const service = new AutouploadService({ ...setup, checkSession: async () => { throw new Error("No refresh"); },
+        shareAdAccountFn: async (_fbData, adAccountId, targetUserId, options) => {
+            assert.equal(++active, 1);
+            await options.beforeSend();
+            await new Promise(resolve => setImmediate(resolve));
+            order.push(adAccountId); active--;
+            return { success: adAccountId === "222", message: "Result", outcomeUnknown: false, adAccountId, targetUserId };
+        },
+    });
+    const result = await service.shareAdAccounts({ ids: ["p1", "p2"], accounts: [{ profileId: "p1", adAccountId: "111" }, { profileId: "p2", adAccountId: "222" }], targetUserId: "456", confirmed: true });
+    assert.deepEqual(order, ["111", "222"]);
+    assert.equal(result.taskStatus, "completed_with_warnings");
+    const state = await setup.store.snapshot();
+    assert.equal(state.history.filter(item => item.operation === "ad-account-share").length, 2);
+    assert.equal(state.friendRequests, undefined);
+    assert.equal(state.adAccountShares["p2:222:456"].success, true);
+});
+
+test("незавершена зміна доступів після перезапуску блокує новий POST і зберігає невизначеність", async (t) => {
+    const setup = await shareFixture(t);
+    await setup.store.beginAdAccountShare("p1", "111", "456");
+    let writes = 0;
+    const service = new AutouploadService({ ...setup, shareAdAccountFn: async (_data, _id, _target, options) => { await options.beforeSend(); writes++; return { success: true }; } });
+    const result = await service.shareAdAccounts({ ids: ["p1"], accounts: [{ profileId: "p1", adAccountId: "111" }], targetUserId: "456", confirmed: true });
+    assert.equal(writes, 0);
+    assert.equal(result.result.accounts[0].outcomeUnknown, true);
+    assert.equal((await setup.store.snapshot()).adAccountShares["p1:111:456"].outcomeUnknown, true);
+});
+
+test("втрата авторизації під час шерингу змінює індикатор і не використовує сесію для наступного РК", async (t) => {
+    const setup = await shareFixture(t);
+    await setup.store.record("p1", { status: "active", message: "OK", assets: { adAccounts: [{ accountId: "111", isPersonal: true }, { accountId: "112", isPersonal: true }] } });
+    let calls = 0;
+    const service = new AutouploadService({ ...setup, shareAdAccountFn: async () => {
+        calls++;
+        return { success: false, code: "FACEBOOK_SESSION_ERROR", sessionStatus: "login_required", message: "Потрібна авторизація" };
+    } });
+    const result = await service.shareAdAccounts({ ids: ["p1"], accounts: [{ profileId: "p1", adAccountId: "111" }, { profileId: "p1", adAccountId: "112" }], targetUserId: "456", confirmed: true });
+    assert.equal(calls, 1);
+    assert.equal(result.result.accounts[1].sessionStatus, "login_required");
+    assert.equal((await setup.store.snapshot()).profiles[0].status, "login_required");
+    assert.equal(await setup.sessionStore.load("p1"), null);
+});

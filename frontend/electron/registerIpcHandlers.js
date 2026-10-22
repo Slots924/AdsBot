@@ -258,6 +258,19 @@ export default function registerIpcHandlers({
         });
         return { taskId: task.id };
     }));
+    ipcMain.handle("autoupload:share-ad-accounts", safeHandler(async (payload) => {
+        const selected = await autoupload.validateShareSelection(payload);
+        const input = { ids: selected.profiles.map(profile => profile.profileId), accounts: selected.accounts, targetUserId: selected.targetUserId, confirmed: true };
+        const task = await backgroundTaskManager.enqueue({
+            type: "autoupload-ad-account-share", name: `Admin-доступ до РК · ${input.accounts.length}`,
+            uniqueKey: `autoupload-share:${input.targetUserId}:${input.accounts.map(item => item.adAccountId).sort().join(",")}`,
+            resources: [{ key: "autoupload-ad-account-share", label: "послідовне надання доступів РК" },
+                ...selected.profiles.map(profile => ({ key: `adspower-profile:${profile.profileNo}`, label: `профіль №${profile.profileNo}` }))],
+            input,
+            runner: context => autoupload.shareAdAccounts(input, context),
+        });
+        return { taskId: task.id };
+    }));
     remoteDataCacheStore.subscribe?.((event) => sendRendererEvent(
         event.kind === "write-failed" ? "cache:write-failed" : event.kind === "recovered" ? "cache:recovered" : "remote-cache:updated", event
     ));

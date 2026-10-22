@@ -31,7 +31,7 @@ export default async function refreshProfileSession(options) {
                     message: code === 190 ? "Access token недійсний: потрібна нова перевірка" : "Не вдалося завантажити активи: перевірте права доступу або з’єднання" });
             }
         };
-        await load("adAccounts", "adAccountsState", () => api.getAdAccounts(), (item) => ({ id: String(item.id), accountId: String(item.accountId || item.id).replace(/^act_/, ""), name: String(item.name ?? ""), accountStatus: Number(item.accountStatus) || null }));
+        await load("adAccounts", "adAccountsState", () => api.getAdAccounts(), (item) => ({ id: String(item.id), accountId: String(item.accountId || item.id).replace(/^act_/, ""), name: String(item.name ?? ""), accountStatus: Number(item.accountStatus) || null, businessId: item.business?.id ? String(item.business.id) : null, isPersonal: !item.business }));
         await load("pages", "pagesState", () => api.getPages({ force: true }), (item) => ({ id: String(item.id), name: String(item.name ?? "") }));
         await note(`Рекламних кабінетів: ${assets.adAccounts.length}; фанпейджів: ${assets.pages.length}`);
     } catch (error) {
