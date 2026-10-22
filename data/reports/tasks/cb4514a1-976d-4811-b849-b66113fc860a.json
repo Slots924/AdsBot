@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "id": "cb4514a1-976d-4811-b849-b66113fc860a",
+  "taskId": "954b022a-e8eb-4cbe-bcaf-859297d845a0",
+  "type": "autoupload-ad-account-share",
+  "title": "Admin-доступ до РК · 4",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T08:19:58.551Z",
+  "startedAt": "2026-10-22T08:19:51.455Z",
+  "finishedAt": "2026-10-22T08:19:58.549Z",
+  "durationMs": 7094,
+  "inputSummary": {
+    "ids": [
+      "k1h0nhql",
+      "k1h0nhqm",
+      "k1h0nhqn",
+      "k1h0nhqo"
+    ],
+    "accounts": [
+      {
+        "profileId": "k1h0nhql",
+        "adAccountId": "1127604759719820"
+      },
+      {
+        "profileId": "k1h0nhqm",
+        "adAccountId": "1105877892222828"
+      },
+      {
+        "profileId": "k1h0nhqn",
+        "adAccountId": "1656890526052734"
+      },
+      {
+        "profileId": "k1h0nhqo",
+        "adAccountId": "1117138830677584"
+      }
+    ],
+    "targetUserId": "61586347006946",
+    "confirmed": true
+  },
+  "resultSummary": {
+    "accounts": [
+      {
+        "profileId": "k1h0nhql",
+        "profileNo": "2080",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_SESSION_ERROR",
+        "message": "Facebook потребує підтвердження акаунта",
+        "httpStatus": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "apiErrorCode": null,
+        "graphType": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [],
+        "isTransient": false,
+        "sessionStatus": "checkpoint",
+        "actionRequired": "confirm_account",
+        "outcomeUnknown": false,
+        "diagnostic": null,
+        "retryable": false,
+        "adAccountId": "1127604759719820",
+        "targetUserId": "61586347006946",
+        "writeAccepted": false,
+        "operation": "ad-account-share",
+        "attempted": false,
+        "fields": [],
+        "steps": [
+          "Facebook потребує підтвердження акаунта"
+        ]
+      },
+      {
+        "profileId": "k1h0nhqm",
+        "profileNo": "2081",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_RESPONSE_INVALID",
+        "message": "Не вдалося розібрати відповідь Facebook для доступів РК",
+        "httpStatus": 200,
+        "graphCode": null,
+        "graphSubcode": null,
+        "apiErrorCode": null,
+        "graphType": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [],
+        "isTransient": false,
+        "sessionStatus": null,
+        "actionRequired": "check_ad_account_permissions",
+        "outcomeUnknown": false,
+        "diagnostic": null,
+        "retryable": false,
+        "adAccountId": "1105877892222828",
+        "targetUserId": "61586347006946",
+        "writeAccepted": false,
+        "operation": "ad-account-share",
+        "attempted": false,
+        "fields": [],
+        "steps": [
+          "Не вдалося розібрати відповідь Facebook для доступів РК"
+        ]
+      },
+      {
+        "profileId": "k1h0nhqn",
+        "profileNo": "2082",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_SESSION_ERROR",
+        "message": "Facebook потребує підтвердження акаунта",
+        "httpStatus": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "apiErrorCode": null,
+        "graphType": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [],
+        "isTransient": false,
+        "sessionStatus": "checkpoint",
+        "actionRequired": "confirm_account",
+        "outcomeUnknown": false,
+        "diagnostic": null,
+        "retryable": false,
+        "adAccountId": "1656890526052734",
+        "targetUserId": "61586347006946",
+        "writeAccepted": false,
+        "operation": "ad-account-share",
+        "attempted": false,
+        "fields": [],
+        "steps": [
+          "Facebook потребує підтвердження акаунта"
+        ]
+      },
+      {
+        "profileId": "k1h0nhqo",
+        "profileNo": "2083",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_SESSION_ERROR",
+        "message": "Facebook потребує підтвердження акаунта",
+        "httpStatus": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "apiErrorCode": null,
+        "graphType": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [],
+        "isTransient": false,
+        "sessionStatus": "checkpoint",
+        "actionRequired": "confirm_account",
+        "outcomeUnknown": false,
+        "diagnostic": null,
+        "retryable": false,
+        "adAccountId": "1117138830677584",
+        "targetUserId": "61586347006946",
+        "writeAccepted": false,
+        "operation": "ad-account-share",
+        "attempted": false,
+        "fields": [],
+        "steps": [
+          "Facebook потребує підтвердження акаунта"
+        ]
+      }
+    ],
+    "targetUserId": "61586347006946"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-share:61586347006946:1105877892222828,1117138830677584,1127604759719820,1656890526052734"
+  }
+}

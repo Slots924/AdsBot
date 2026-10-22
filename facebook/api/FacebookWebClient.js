@@ -64,6 +64,14 @@ export default class FacebookWebClient {
         return { session: this.#adsManager.session };
     }
 
+    requestAdsManagerGraph(fbData, config) {
+        this.getAdsManagerData(fbData);
+        if (new URL(config.url).origin !== "https://adsmanager-graph.facebook.com") throw actionError("Непідтримуваний напрямок Ads Manager API", "ADS_MANAGER_GRAPH_ORIGIN_INVALID");
+        if (!this.#adsManager.accessToken) throw actionError("Потрібен чинний access token Ads Manager", "ADS_MANAGER_ACCESS_TOKEN_REQUIRED", { actionRequired: "refresh_session" });
+        // Контекст застосунку передається в Authorization, а не в URL або тілі mutation.
+        return this.request({ ...config, headers: { ...config.headers, Authorization: `Bearer ${this.#adsManager.accessToken}` } });
+    }
+
     createGraphApi() {
         if (!this.#adsManager?.accessToken) throw actionError("Потрібна нова перевірка Ads Manager", "ADS_MANAGER_SESSION_REQUIRED");
         return new FacebookGraphApi({ accountKey: `autoupload-${this.#expectedId}`, facebookUserId: this.#expectedId,

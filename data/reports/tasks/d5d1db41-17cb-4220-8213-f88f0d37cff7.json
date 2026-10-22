@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "id": "d5d1db41-17cb-4220-8213-f88f0d37cff7",
+  "taskId": "e735d0c7-4958-4f2f-bce6-bb9b9657b5e6",
+  "type": "autoupload-friend-request",
+  "title": "Заявки в друзі · 3",
+  "status": "completed",
+  "createdAt": "2026-10-22T08:26:26.176Z",
+  "startedAt": "2026-10-22T08:26:14.265Z",
+  "finishedAt": "2026-10-22T08:26:26.175Z",
+  "durationMs": 11910,
+  "inputSummary": {
+    "profileIds": [
+      "k1i44oq4",
+      "k1i44oqb",
+      "k1i44oqc"
+    ],
+    "targetUserId": "61586347006946"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1i44oq4",
+        "profileNo": "2409",
+        "success": true,
+        "outcome": "FRIEND_REQUEST_SENT",
+        "code": null,
+        "message": "Заявку в друзі підтверджено сервером",
+        "targetUserId": "61586347006946",
+        "friendshipStatus": "OUTGOING_REQUEST",
+        "httpStatus": 200,
+        "traceId": null,
+        "metaRequestId": null,
+        "errors": [],
+        "outcomeUnknown": false,
+        "retryable": false,
+        "attempted": true,
+        "fields": [],
+        "steps": [
+          "Сесію прочитано з локального сховища",
+          "Заявку в друзі підтверджено сервером"
+        ]
+      },
+      {
+        "profileId": "k1i44oqb",
+        "profileNo": "2414",
+        "success": true,
+        "outcome": "FRIEND_REQUEST_SENT",
+        "code": null,
+        "message": "Заявку в друзі підтверджено сервером",
+        "targetUserId": "61586347006946",
+        "friendshipStatus": "OUTGOING_REQUEST",
+        "httpStatus": 200,
+        "traceId": null,
+        "metaRequestId": null,
+        "errors": [],
+        "outcomeUnknown": false,
+        "retryable": false,
+        "attempted": true,
+        "fields": [],
+        "steps": [
+          "Сесію прочитано з локального сховища",
+          "Заявку в друзі підтверджено сервером"
+        ]
+      },
+      {
+        "profileId": "k1i44oqc",
+        "profileNo": "2415",
+        "success": true,
+        "outcome": "FRIEND_REQUEST_SENT",
+        "code": null,
+        "message": "Заявку в друзі підтверджено сервером",
+        "targetUserId": "61586347006946",
+        "friendshipStatus": "OUTGOING_REQUEST",
+        "httpStatus": 200,
+        "traceId": null,
+        "metaRequestId": null,
+        "errors": [],
+        "outcomeUnknown": false,
+        "retryable": false,
+        "attempted": true,
+        "fields": [],
+        "steps": [
+          "Сесію прочитано з локального сховища",
+          "Заявку в друзі підтверджено сервером"
+        ]
+      }
+    ],
+    "targetUserId": "61586347006946"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-friend-request:61586347006946:k1i44oq4,k1i44oqb,k1i44oqc"
+  }
+}

@@ -1,6 +1,7 @@
 import { actionError, actionFailure } from "../../graphql/errors.js";
 import parseResponse from "../../graphql/parseResponse.js";
 import { validateTargetUserId, validateFriendSession } from "../friends/common.js";
+import describeHttpError from "../../../../services/logging/httpDiagnostics.js";
 
 export { validateTargetUserId };
 export const adminRole = "281423141961500";
@@ -22,8 +23,10 @@ export function validateSession(fbData) {
 // Парсер помилок спільний із рештою HTTP-дій; зовні повертається лише безпечна діагностика.
 export async function requestJson(fbData, config) {
     const { session } = validateSession(fbData);
+    let response;
     try {
-        const response = await fbData.client.request({ ...config, allowHttpErrors: true, asFetch: true,
+        const request = new URL(config.url).origin === graphOrigin ? value => fbData.client.requestAdsManagerGraph(fbData, value) : value => fbData.client.request(value);
+        response = await request({ ...config, allowHttpErrors: true, asFetch: true,
             headers: { Accept: "application/json", Origin: managerOrigin, Referer: `${managerOrigin}/`,
                 "Sec-Fetch-Dest": "empty", "Sec-Fetch-Mode": "cors", "Sec-Fetch-Site": "same-site", ...config.headers } });
         const parsed = parseResponse(response, { session, mutation: config.mutation === true });
@@ -32,6 +35,10 @@ export async function requestJson(fbData, config) {
     } catch (error) {
         if (error.code === "FACEBOOK_GRAPHQL_ERROR" && ["login_required", "checkpoint"].includes(error.sessionStatus)) await fbData.client.invalidateSession(error);
         if (error.code === "FACEBOOK_RESPONSE_INVALID") error.message = "Не вдалося розібрати відповідь Facebook для доступів РК";
+        if (error.code === "FACEBOOK_RESPONSE_INVALID" && response && !String(response.data ?? "").trim()) {
+            error.code = "FACEBOOK_RESPONSE_EMPTY";
+            error.message = "Facebook повернув порожню відповідь на запит доступів РК";
+        }
         if (error.code === "FACEBOOK_HTTP_ERROR") error.message = `Facebook повернув HTTP ${error.httpStatus} для запиту доступів РК`;
         if (error.outcomeUnknown) {
             if (!error.sessionStatus) error.actionRequired = "check_ad_account_permissions";
@@ -39,6 +46,9 @@ export async function requestJson(fbData, config) {
         } else if (["refresh_incoming_requests", "check_friendship_status"].includes(error.actionRequired)) {
             error.actionRequired = "check_ad_account_permissions";
         }
+        error.diagnostic = { ...describeHttpError(error, { url: config.url, method: config.method ?? "get", stage: config.stage, session }),
+            contentType: response?.headers?.["content-type"]?.split(";")[0] ?? null,
+            responseBytes: response ? Buffer.byteLength(String(response.data ?? "")) : null };
         throw error;
     }
 }

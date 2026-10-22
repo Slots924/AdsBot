@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "id": "63f0f8b2-6eaa-47ab-abd0-3fb904caf409",
+  "taskId": "b49f74ad-b0d9-465f-8bfc-798281619da2",
+  "type": "autoupload-session-check",
+  "title": "Перевірка сесій · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T08:17:04.654Z",
+  "startedAt": "2026-10-22T08:16:52.269Z",
+  "finishedAt": "2026-10-22T08:17:04.653Z",
+  "durationMs": 12384,
+  "inputSummary": {
+    "profileIds": [
+      "k1h0nhqi"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1h0nhqi",
+        "profileNo": "2078",
+        "status": "active",
+        "stage": "facebook",
+        "message": "Facebook активний; частину даних Ads Manager або активів не оновлено",
+        "fields": [
+          "fb_dtsg",
+          "fb_dtsg_ag",
+          "lsd",
+          "jazoest",
+          "sessionID",
+          "FacebookID",
+          "clientRevision",
+          "hsi",
+          "spinR",
+          "spinB",
+          "spinT"
+        ],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+          "Ads Manager: 1071872:error:100003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY:..\\..\\third_party\\boringssl\\src\\ssl\\tls_record.cc:489:SSL alert number 0\n"
+        ],
+        "assets": {
+          "adAccounts": [],
+          "pages": [],
+          "adAccountsState": "unavailable",
+          "pagesState": "unavailable"
+        },
+        "capabilities": {
+          "facebook": true,
+          "adsManager": false,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": [
+          {
+            "status": "network_error",
+            "code": "PROXY_POOL_EXHAUSTED",
+            "networkCode": "ERR_SSL_SSLV3_ALERT_CLOSE_NOTIFY",
+            "httpStatus": null,
+            "graphCode": null,
+            "graphSubcode": null,
+            "message": "1071872:error:100003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY:..\\..\\third_party\\boringssl\\src\\ssl\\tls_record.cc:489:SSL alert number 0\n",
+            "stage": "adsManager",
+            "endpoint": "https://adsmanager.facebook.com/adsmanager/manage/campaigns",
+            "method": "GET",
+            "durationMs": 2966,
+            "traceId": null,
+            "scope": "adsManager"
+          }
+        ],
+        "hasWarnings": true
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload:k1h0nhqi"
+  }
+}

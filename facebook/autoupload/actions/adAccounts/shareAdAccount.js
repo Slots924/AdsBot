@@ -31,7 +31,7 @@ export default async function shareAdAccount(fbData, accountId, targetId, { sign
             validateSession(fbData);
             sent = true;
             const response = await requestJson(fbData, { url: `${graphOrigin}/v22.0/act_${adAccountId}/users`, method: "post", data: form.toString(),
-                signal, mutation: true, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+                signal, mutation: true, stage: "ad_account_admin_write", headers: { "Content-Type": "application/x-www-form-urlencoded" } });
             if (response.json.success !== true) throw actionError("Facebook не підтвердив призначення Admin", "FACEBOOK_ADMIN_WRITE_NOT_CONFIRMED", { httpStatus: response.httpStatus, outcomeUnknown: true, actionRequired: "check_ad_account_permissions" });
             writeAccepted = true;
             let verified;

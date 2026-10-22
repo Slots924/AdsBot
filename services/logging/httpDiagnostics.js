@@ -45,6 +45,7 @@ export default function describeHttpError(error, options = {}) {
     if (httpStatus) status = httpStatus === 407 ? "proxy_auth_error" : httpStatus === 429 ? "rate_limited" : httpStatus === 403 ? "forbidden" : httpStatus >= 400 ? "http_error" : status;
     if (graphCode !== null) status = "facebook_api_error";
     if (error?.code === "FACEBOOK_RESPONSE_INVALID") status = "response_invalid";
+    if (error?.code === "FACEBOOK_RESPONSE_EMPTY") status = "response_empty";
     if (error?.code === "ADS_MANAGER_ACCESS_TOKEN_NOT_FOUND") status = "access_token_missing";
     if (error?.code === "ADS_MANAGER_ACCOUNT_MISMATCH") status = "account_mismatch";
     if (error?.sessionStatus === "error" && status === "error") status = "session_error";

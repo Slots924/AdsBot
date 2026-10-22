@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "id": "61e7c169-23ef-42c7-83ca-1d189df5ff32",
+  "taskId": "86f4c154-6120-4028-bc23-49fb8d4d5aa7",
+  "type": "autoupload-ad-account-share",
+  "title": "Admin-доступ до РК · 3",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T08:28:56.037Z",
+  "startedAt": "2026-10-22T08:28:54.153Z",
+  "finishedAt": "2026-10-22T08:28:56.036Z",
+  "durationMs": 1883,
+  "inputSummary": {
+    "ids": [
+      "k1i44oq4",
+      "k1i44oqb",
+      "k1i44oqc"
+    ],
+    "accounts": [
+      {
+        "profileId": "k1i44oq4",
+        "adAccountId": "968174703030046"
+      },
+      {
+        "profileId": "k1i44oqb",
+        "adAccountId": "2579141585846569"
+      },
+      {
+        "profileId": "k1i44oqc",
+        "adAccountId": "1460994319283048"
+      }
+    ],
+    "targetUserId": "61586347006946",
+    "confirmed": true
+  },
+  "resultSummary": {
+    "accounts": [
+      {
+        "profileId": "k1i44oq4",
+        "profileNo": "2409",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_RESPONSE_INVALID",
+        "message": "Не вдалося розібрати відповідь Facebook для доступів РК",
+        "httpStatus": 200,
+        "graphCode": null,
+        "graphSubcode": null,
+        "apiErrorCode": null,
+        "graphType": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [],
+        "isTransient": false,
+        "sessionStatus": null,
+        "actionRequired": "check_ad_account_permissions",
+        "outcomeUnknown": false,
+        "diagnostic": null,
+        "retryable": false,
+        "adAccountId": "968174703030046",
+        "targetUserId": "61586347006946",
+        "writeAccepted": false,
+        "operation": "ad-account-share",
+        "attempted": false,
+        "fields": [],
+        "steps": [
+          "Не вдалося розібрати відповідь Facebook для доступів РК"
+        ]
+      },
+      {
+        "profileId": "k1i44oqb",
+        "profileNo": "2414",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_RESPONSE_INVALID",
+        "message": "Не вдалося розібрати відповідь Facebook для доступів РК",
+        "httpStatus": 200,
+        "graphCode": null,
+        "graphSubcode": null,
+        "apiErrorCode": null,
+        "graphType": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [],
+        "isTransient": false,
+        "sessionStatus": null,
+        "actionRequired": "check_ad_account_permissions",
+        "outcomeUnknown": false,
+        "diagnostic": null,
+        "retryable": false,
+        "adAccountId": "2579141585846569",
+        "targetUserId": "61586347006946",
+        "writeAccepted": false,
+        "operation": "ad-account-share",
+        "attempted": false,
+        "fields": [],
+        "steps": [
+          "Не вдалося розібрати відповідь Facebook для доступів РК"
+        ]
+      },
+      {
+        "profileId": "k1i44oqc",
+        "profileNo": "2415",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_RESPONSE_INVALID",
+        "message": "Не вдалося розібрати відповідь Facebook для доступів РК",
+        "httpStatus": 200,
+        "graphCode": null,
+        "graphSubcode": null,
+        "apiErrorCode": null,
+        "graphType": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [],
+        "isTransient": false,
+        "sessionStatus": null,
+        "actionRequired": "check_ad_account_permissions",
+        "outcomeUnknown": false,
+        "diagnostic": null,
+        "retryable": false,
+        "adAccountId": "1460994319283048",
+        "targetUserId": "61586347006946",
+        "writeAccepted": false,
+        "operation": "ad-account-share",
+        "attempted": false,
+        "fields": [],
+        "steps": [
+          "Не вдалося розібрати відповідь Facebook для доступів РК"
+        ]
+      }
+    ],
+    "targetUserId": "61586347006946"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-share:61586347006946:1460994319283048,2579141585846569,968174703030046"
+  }
+}

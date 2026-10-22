@@ -23,7 +23,7 @@ async function fixture(responses, options = {}) {
         } },
     });
     await client.checkSession();
-    client.setAdsManagerSession({ session: { FacebookID: "123", fb_dtsg: "fake-ads-dtsg" } });
+    client.setAdsManagerSession({ session: { FacebookID: "123", fb_dtsg: "fake-ads-dtsg", fb_dtsg_ag: "fake-async-token" }, accessToken: "EAAB-fake-unit-test" });
     return { client, fbData: client.getFbData("test"), calls };
 }
 
@@ -36,6 +36,9 @@ test("пошук друга використовує UID, friends_only, пото
     assert.equal(urls[0].searchParams.get("viewer"), "123");
     assert.equal(urls[0].searchParams.get("options[0]"), "friends_only");
     assert.equal(urls[0].searchParams.get("filter[0]"), "user");
+    assert.equal(urls[0].searchParams.get("__a"), "1");
+    assert.equal(urls[0].searchParams.get("__user"), "123");
+    assert.equal(urls[0].searchParams.get("fb_dtsg_ag"), "fake-async-token");
     assert.notEqual(urls[0].searchParams.get("request_id"), urls[1].searchParams.get("request_id"));
     for (const key of ["q", "query", "search"]) assert.equal(urls[0].searchParams.has(key), false);
     assert.equal(calls[0].config.headers.Origin, "https://adsmanager.facebook.com");
@@ -73,12 +76,16 @@ test("Admin призначається лише через adsmanager-graph і �
     const write = calls[2];
     assert.equal(write.config.url, "https://adsmanager-graph.facebook.com/v22.0/act_789/users");
     assert.equal(write.config.method, "post");
+    assert.equal(write.config.headers.Authorization, "Bearer EAAB-fake-unit-test");
+    assert.equal(calls[1].config.headers.Authorization, "Bearer EAAB-fake-unit-test");
+    assert.equal(calls[0].config.headers.Authorization, undefined);
     assert.equal(write.retryOptions.retryOnConnectionError, false);
     const form = new URLSearchParams(write.config.data);
     assert.equal(form.get("uid"), "456");
     assert.equal(form.get("role"), "281423141961500");
     for (const key of ["access_token", "fb_dtsg", "jazoest", "doc_id", "_sessionID", "_callFlowletID", "xref"]) assert.equal(form.has(key), false);
     assert.ok(!JSON.stringify(result).includes("fake-xs"));
+    assert.ok(!JSON.stringify(result).includes("EAAB-fake-unit-test"));
     assert.equal(calls.length, 4);
 });
 
@@ -147,4 +154,31 @@ test("неправильний РК, формат відповіді та ска
     const result = await shareAdAccount(stopped.fbData, "789", "456", { confirmation, signal: controller.signal, beforeSend: async () => controller.abort() });
     assert.equal(result.code, "TASK_INTERRUPTED");
     assert.equal(stopped.calls.length, 2);
+});
+
+test("порожня відповідь пошуку друга має окремий код, етап і розмір без POST", async () => {
+    const { fbData, calls } = await fixture([{ data: "", headers: { "content-type": "text/html; charset=utf-8" } }]);
+    const result = await shareAdAccount(fbData, "789", "456", { confirmation });
+    assert.equal(result.code, "FACEBOOK_RESPONSE_EMPTY");
+    assert.equal(result.diagnostic.status, "response_empty");
+    assert.equal(result.diagnostic.stage, "friends_lookup");
+    assert.equal(result.diagnostic.responseBytes, 0);
+    assert.equal(result.diagnostic.contentType, "text/html");
+    assert.equal(calls.length, 1);
+});
+
+test("JSON з XSSI-префіксом зберігає серверну причину 1357004 і приховує GET-токен", async () => {
+    const { fbData } = await fixture([{ data: 'for (;;);{"error":1357004,"errorSummary":"Sorry","errorDescription":"Request failed fake-async-token","payload":null}' }]);
+    const result = await findFriendById(fbData, "456");
+    assert.equal(result.graphCode, 1357004);
+    assert.equal(result.diagnostic.stage, "friends_lookup");
+    assert.equal(result.diagnostic.graphCode, 1357004);
+    assert.equal(result.message, "Request failed [REDACTED]");
+    assert.ok(!JSON.stringify(result).includes("fake-async-token"));
+});
+
+test("Ads Manager access token не відправляється на сторонній origin", async () => {
+    const { client, fbData, calls } = await fixture([]);
+    assert.throws(() => client.requestAdsManagerGraph(fbData, { url: "https://example.com/" }), error => error.code === "ADS_MANAGER_GRAPH_ORIGIN_INVALID");
+    assert.equal(calls.length, 0);
 });

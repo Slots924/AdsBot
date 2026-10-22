@@ -4,7 +4,7 @@ import { getLogger } from "../../../services/logging/runtimeLogger.js";
 // Повертає лише дозволені діагностичні поля, без payload, HTML та об'єкта сесії.
 export function safeGraphText(value, session = {}) {
     let text = redactString(String(value ?? ""));
-    for (const key of ["fb_dtsg", "fb_dtsg_ag", "lsd"]) {
+    for (const key of ["fb_dtsg", "fb_dtsg_ag", "lsd", "sessionID", "jazoest"]) {
         if (session[key]) text = text.split(String(session[key])).join("[REDACTED]");
     }
     return text.replace(/\b(c_user|xs|fr|datr|sb)=([^;\s]+)/gi, "$1=[REDACTED]").slice(0, 1500);

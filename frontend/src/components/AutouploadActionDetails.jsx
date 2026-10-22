@@ -10,7 +10,7 @@ const requiredActions = {
 const errorStatuses = {
     network_timeout: "Час очікування вичерпано", network_error: "Помилка мережі", proxy_unavailable: "Проксі недоступна",
     proxy_auth_error: "Помилка авторизації проксі", rate_limited: "Ліміт запитів", forbidden: "Доступ заборонено",
-    http_error: "Помилка HTTP", facebook_api_error: "Помилка Facebook API", response_invalid: "Неочікувана відповідь",
+    http_error: "Помилка HTTP", facebook_api_error: "Помилка Facebook API", response_invalid: "Неочікувана відповідь", response_empty: "Порожня відповідь",
     access_token_missing: "Access token не знайдено", account_mismatch: "Інший акаунт", session_error: "Помилка сесії",
     login_required: "Потрібна авторизація", checkpoint: "Потрібне підтвердження", error: "Помилка",
 };

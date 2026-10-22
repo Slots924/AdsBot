@@ -4,7 +4,7 @@ import { failure, graphOrigin, isAdmin, requestJson, validateAdAccountId, valida
 export async function readUsers(fbData, adAccountId, { signal } = {}) {
     const url = new URL(`/v22.0/act_${adAccountId}`, graphOrigin);
     url.search = new URLSearchParams({ fields: "id,users{id,role,permissions}", __aaid: adAccountId }).toString();
-    const { json, httpStatus } = await requestJson(fbData, { url: url.href, signal, mutation: false });
+    const { json, httpStatus } = await requestJson(fbData, { url: url.href, signal, mutation: false, stage: "ad_account_users" });
     if (String(json.id) !== `act_${adAccountId}` || !Array.isArray(json.users?.data)) {
         throw actionError("Facebook не повернув користувачів потрібного РК", "FACEBOOK_AD_ACCOUNT_USERS_INVALID", { httpStatus });
     }
