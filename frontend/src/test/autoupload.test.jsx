@@ -46,7 +46,7 @@ describe("Автозаливи", () => {
         const action = { operation: "friend-request", message: "Request rejected", success: false, outcome: "NOT_CONFIRMED", code: "FACEBOOK_GRAPHQL_ERROR", httpStatus: 200, graphCode: 1234, apiErrorCode: 5678, targetUserId: "456", errors: [], steps: [], fields: [] };
         window.adsBot.getAutoupload.mockImplementation(() => ok({ ...state, profiles: [{ ...state.profiles[0], status: "active", lastAction: action }], history: [{ ...action, id: "history1", profileId: "p1", profileNo: "12", checkedAt: "2026-10-22T12:00:00Z" }] }));
         render(<AutouploadTab />);
-        expect(await screen.findByText("Сесія активна")).toHaveClass("success");
+        expect(await screen.findByRole("img", { name: "Стан акаунта: Акаунт активний" })).toHaveClass("success");
         fireEvent.click(screen.getByRole("button", { name: "Деталі" }));
         expect(screen.getByRole("dialog")).toHaveTextContent("FACEBOOK_GRAPHQL_ERROR");
         expect(screen.getByRole("dialog")).toHaveTextContent("1234");
@@ -66,7 +66,7 @@ describe("Автозаливи", () => {
     it("показує статус і ставить перевірку вибраного профілю в чергу", async () => {
         render(<AutouploadTab />);
         expect(await screen.findByText("Test profile")).toBeInTheDocument();
-        expect(screen.getByText("Потрібна авторизація")).toHaveClass("danger");
+        expect(screen.getByRole("img", { name: "Стан акаунта: Потрібна авторизація" })).toHaveClass("danger");
         fireEvent.click(screen.getByRole("checkbox", { name: "Вибрати профіль 12" }));
         fireEvent.click(screen.getByRole("button", { name: "Перевірити сесію" }));
         await waitFor(() => expect(window.adsBot.checkAutouploadSessions).toHaveBeenCalledWith(["p1"]));

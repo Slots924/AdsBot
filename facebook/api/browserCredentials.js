@@ -1,7 +1,7 @@
 import { ensureFacebookPage } from "./runtime.js";
 
 // Читає токен зі сторінки Ads Manager без перехоплення мережевих запитів.
-export function extractFacebookAccessTokenFromHtml(html) {
+export function extractFacebookAccessTokenFromHtml(html, { prefix = "EAA" } = {}) {
     const source = String(html ?? "");
     const patterns = [
         /"accessToken"\s*:\s*"(EAA[A-Za-z0-9_-]{20,})"/g,
@@ -9,8 +9,9 @@ export function extractFacebookAccessTokenFromHtml(html) {
         /\b(EAA[A-Za-z0-9_-]{20,})\b/g,
     ];
     for (const pattern of patterns) {
-        const match = pattern.exec(source);
-        if (match?.[1]) return match[1];
+        for (const match of source.matchAll(pattern)) {
+            if (match[1].startsWith(prefix)) return match[1];
+        }
     }
     return "";
 }

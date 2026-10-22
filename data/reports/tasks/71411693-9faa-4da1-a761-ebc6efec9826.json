@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "id": "71411693-9faa-4da1-a761-ebc6efec9826",
+  "taskId": "4548e9f3-32c9-435b-b7da-5d4f256e2bab",
+  "type": "autoupload-session-check",
+  "title": "Перевірка сесій · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T05:56:28.960Z",
+  "startedAt": "2026-10-22T05:56:25.946Z",
+  "finishedAt": "2026-10-22T05:56:28.959Z",
+  "durationMs": 3013,
+  "inputSummary": {
+    "profileIds": [
+      "k1gueugl"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1gueugl",
+        "profileNo": "1989",
+        "status": "checkpoint",
+        "stage": "facebook",
+        "message": "Facebook потребує підтвердження акаунта",
+        "fields": [],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook потребує підтвердження акаунта"
+        ]
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload:k1gueugl"
+  }
+}

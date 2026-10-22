@@ -54,6 +54,7 @@ button:focus-visible, input:focus-visible {
 .accounts-tab { position: relative; height: 100%; padding: 24px; }
 .comment-accounts-tab { height: 100%; min-height: 0; padding: 24px; display: flex; flex-direction: column; }
 .autoupload-tab { height: 100%; min-height: 0; padding: 24px; display: flex; flex-direction: column; }
+.autoupload-showcase { height: 100vh; }
 .autoupload-workspace { display: grid; grid-template-columns: 235px minmax(0, 1fr); gap: 16px; flex: 1; min-height: 0; }
 .autoupload-groups { min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--stroke); border-radius: 14px; background: var(--panel); }
 .autoupload-group-row { display: flex; align-items: center; gap: 3px; }
@@ -74,9 +75,28 @@ button:focus-visible, input:focus-visible {
 .autoupload-table-scroll { min-height: 150px; flex: 1; overflow: auto; border: 1px solid var(--stroke); border-radius: 12px; background: var(--panel); }
 .autoupload-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
 .autoupload-table th { position: sticky; top: 0; z-index: 1; color: var(--muted); background: var(--panel-solid); white-space: nowrap; font-size: 11px; }
-.autoupload-table th, .autoupload-table td { padding: 12px; border-bottom: 1px solid var(--stroke); }
+.autoupload-table th, .autoupload-table td { padding: 14px 12px; border-bottom: 1px solid var(--stroke); vertical-align: top; }
+.autoupload-table td { line-height: 24px; }
+.autoupload-table th:first-child, .autoupload-table td:first-child { width: 38px; }
 .autoupload-table tr:hover td { background: var(--panel-light); }
 .autoupload-table td:nth-child(4) { min-width: 130px; overflow-wrap: anywhere; }
+.autoupload-profile-number { display: inline-flex; align-items: center; gap: 9px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.autoupload-led { display: inline-block; flex: 0 0 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 0 3px rgba(141,148,169,.07); }
+.autoupload-led.success { background: var(--green); box-shadow: 0 0 0 3px rgba(69,223,161,.08), 0 0 8px rgba(69,223,161,.2); }
+.autoupload-led.danger { background: var(--red); box-shadow: 0 0 0 3px rgba(255,100,124,.08); }
+.autoupload-led.warning { background: var(--yellow); box-shadow: 0 0 0 3px rgba(246,189,88,.08); }
+.autoupload-led.pending { background: var(--accent); animation: autoupload-pulse 1.2s ease-in-out infinite; }
+.autoupload-profile-name strong { font-size: 13px; font-weight: 500; }
+.autoupload-profile-name > small { display: block; font-size: 11px; line-height: 18px; color: var(--yellow); }
+.autoupload-assets { display: grid; gap: 5px; }
+.autoupload-asset { display: flex; align-items: center; gap: 9px; min-height: 24px; }
+.autoupload-asset-id { font-size: 12px; font-variant-numeric: tabular-nums; color: #dce1f4; }
+.autoupload-asset-empty { color: var(--muted); font-size: 12px; }
+.autoupload-page { display: grid; gap: 0; line-height: 18px; }
+.autoupload-page small { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.autoupload-table td:nth-child(7) { max-width: 230px; line-height: 20px; }
+@keyframes autoupload-pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .autoupload-led.pending { animation: none; } }
 .autoupload-status { font-size: 12px; }
 .autoupload-status.success { color: var(--green); }
 .autoupload-status.danger, .autoupload-error { color: var(--red); }

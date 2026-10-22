@@ -155,6 +155,7 @@ function createSafeHandler(handler, logger = null) {
 
 
 export default function registerIpcHandlers({
+    autouploadSessionStore,
     ipcMain,
     dialog,
     shell,
@@ -215,6 +216,7 @@ export default function registerIpcHandlers({
         store: new AutouploadStore(appPaths.autoupload),
         adsPower: guiService.adsPower,
         profileBrowser: guiService,
+        sessionStore: autouploadSessionStore,
         onUpdated: (state) => sendRendererEvent("autoupload:updated", state),
     });
     ipcMain.handle("autoupload:get", safeHandler(async ({ refreshBrowserStates = false } = {}) => {

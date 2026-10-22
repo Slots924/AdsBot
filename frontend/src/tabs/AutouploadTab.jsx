@@ -6,10 +6,24 @@ import AutouploadActionDetails from "../components/AutouploadActionDetails.jsx";
 import { unwrap } from "../lib/api.js";
 
 const statuses = {
-    unchecked: ["Не перевірено", "muted"], checking: ["Виконується…", "pending"], active: ["Сесія активна", "success"],
+    unchecked: ["Не перевірено", "muted"], checking: ["Виконується…", "pending"], active: ["Акаунт активний", "success"],
     login_required: ["Потрібна авторизація", "danger"], checkpoint: ["Потрібне підтвердження", "danger"], error: ["Помилка перевірки", "warning"],
 };
 const time = (value) => value ? new Date(value).toLocaleString("uk-UA") : "—";
+
+function AccountLed({ tone, label, title = label }) {
+    return <span role="img" aria-label={label} title={title} className={`autoupload-led ${tone}`} />;
+}
+
+function ProfileAssets({ profile, type }) {
+    const assets = profile.assets ?? {};
+    const items = assets[type] ?? [];
+    if (!items.length) return <span className="autoupload-asset-empty">{assets[`${type}State`] === "loaded" ? "Немає доступних" : assets[`${type}State`] === "error" ? "Помилка завантаження" : "Не перевірено"}</span>;
+    return <div className="autoupload-assets">{items.map((item) => type === "adAccounts" ? <div className="autoupload-asset" key={item.id} title={`${item.name || "Рекламний кабінет"} · статус Meta: ${item.accountStatus ?? "невідомий"}`}>
+        <AccountLed tone={item.accountStatus === 1 ? "success" : [2, 100, 101].includes(item.accountStatus) ? "danger" : "warning"} label={`РК ${item.accountId}: ${item.accountStatus === 1 ? "активний" : [2, 100, 101].includes(item.accountStatus) ? "неактивний" : "потребує уваги"}`} />
+        <span className="autoupload-asset-id">{item.accountId}</span>
+    </div> : <div className="autoupload-asset autoupload-page" key={item.id} title={`${item.name} · ${item.id}`}><span>{item.name || "Без назви"}</span><small>{item.id}</small></div>)}</div>;
+}
 
 export default function AutouploadTab({ showToast }) {
     const [state, setState] = useState({ groups: [], profiles: [], history: [] });
@@ -106,12 +120,14 @@ export default function AutouploadTab({ showToast }) {
                 </div>
                 <div className="autoupload-table-scroll"><table className="autoupload-table"><thead><tr>
                     <th><input type="checkbox" aria-label="Вибрати всі видимі профілі" checked={visible.length > 0 && ids.length === visible.length} onChange={(event) => setSelected(event.target.checked ? visible.map((item) => item.profileId) : [])} /></th>
-                    <th className="autoupload-profile-control" aria-label="Запуск профілю" /><th>№ AdsPower</th><th>Назва профілю</th><th>Статус сесії</th><th>Остання перевірка</th><th>Остання дія</th><th>Результат</th>
+                    <th className="autoupload-profile-control" aria-label="Запуск профілю" /><th>AdsPower</th><th>Назва профілю</th><th>Рекламні кабінети</th><th>Фанпейджі</th><th>Остання дія</th><th>Результат</th>
                 </tr></thead><tbody>{visible.map((profile) => {
                     const [label, tone] = statuses[profile.status] ?? statuses.error;
                     return <tr key={profile.profileId}><td><input type="checkbox" aria-label={`Вибрати профіль ${profile.profileNo}`} checked={ids.includes(profile.profileId)} onChange={(event) => setSelected((current) => event.target.checked ? [...current, profile.profileId] : current.filter((id) => id !== profile.profileId))} /></td>
                         <td><button type="button" className={`icon-button${profile.adsPowerOpen ? " danger" : ""}`} title={profile.adsPowerOpen ? "Профіль відкритий — закрити" : "Відкрити AdsPower-профіль"} aria-label={`${profile.adsPowerOpen ? "Закрити" : "Відкрити"} профіль ${profile.profileNo}`} disabled={profileBusy.includes(profile.profileId) || profile.browserBusy || profile.status === "checking"} onClick={() => controlProfile(profile)}>{profileBusy.includes(profile.profileId) || profile.browserBusy ? <LoaderCircle className="spin" size={13} /> : profile.adsPowerOpen ? <Power size={13} /> : <Play size={13} />}</button></td>
-                        <td>{profile.profileNo}</td><td>{profile.name || "Без назви"}</td><td><span className={`autoupload-status ${tone}`} title={profile.message}>{label}</span></td><td>{time(profile.checkedAt)}</td>
+                        <td><span className="autoupload-profile-number"><AccountLed tone={tone} label={`Стан акаунта: ${label}`} title={`${label}${profile.message ? ` · ${profile.message}` : ""}`} />{profile.profileNo}</span></td>
+                        <td className="autoupload-profile-name"><strong title={profile.name}>{profile.name || "Без назви"}</strong>{profile.checkWarnings?.length > 0 && <small title={profile.checkWarnings.map((warning) => warning.message).join("\n")}>Дані оновлено частково</small>}</td>
+                        <td><ProfileAssets profile={profile} type="adAccounts" /></td><td><ProfileAssets profile={profile} type="pages" /></td>
                         <td>{profile.lastAction ? <span className={`autoupload-status ${profile.lastAction.success ? "success" : profile.lastAction.outcomeUnknown ? "warning" : "danger"}`}>{profile.lastAction.message}</span> : "—"}</td>
                         <td><button className="secondary-button" onClick={() => setDetail(profile.profileId)}>Деталі</button></td></tr>;
                 })}</tbody></table>

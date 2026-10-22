@@ -2,6 +2,440 @@
   "version": 1,
   "tasks": [
     {
+      "id": "0e0f500c-3573-4e67-b06c-2e72c2e565c8",
+      "type": "autoupload-friend-request",
+      "name": "Заявки в друзі · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "autoupload-friend-requests",
+          "label": "послідовне надсилання заявок"
+        },
+        {
+          "key": "adspower-profile:629",
+          "label": "профіль №629"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k19tjjct"
+        ],
+        "targetUserId": "61584762126962"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-friend-request:61584762126962:k19tjjct",
+        "reportId": "37210841-d2fb-424c-874f-8f053080d422"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k19tjjct",
+            "profileNo": "629",
+            "success": true,
+            "outcome": "FRIEND_REQUEST_SENT",
+            "code": null,
+            "message": "Заявку в друзі підтверджено сервером",
+            "targetUserId": "61584762126962",
+            "friendshipStatus": "OUTGOING_REQUEST",
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "errors": [],
+            "outcomeUnknown": false,
+            "retryable": false,
+            "attempted": true,
+            "fields": [],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Заявку в друзі підтверджено сервером"
+            ]
+          }
+        ],
+        "targetUserId": "61584762126962"
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-22T06:24:44.287Z",
+      "startedAt": "2026-10-22T06:24:44.288Z",
+      "finishedAt": "2026-10-22T06:24:52.784Z",
+      "updatedAt": "2026-10-22T06:24:52.785Z"
+    },
+    {
+      "id": "ca5d5bb1-e9c9-4d1b-833b-e120c1475eab",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:629",
+          "label": "профіль №629"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k19tjjct"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k19tjjct",
+        "reportId": "6c0c69b4-49fd-4b34-8ad9-837227cc6445"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k19tjjct",
+            "profileNo": "629",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-22T06:24:34.190Z",
+      "startedAt": "2026-10-22T06:24:34.191Z",
+      "finishedAt": "2026-10-22T06:24:39.585Z",
+      "updatedAt": "2026-10-22T06:24:39.586Z"
+    },
+    {
+      "id": "f591dd56-e1fd-4d1c-9411-a48e36434d63",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:629",
+          "label": "профіль №629"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k19tjjct"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k19tjjct",
+        "reportId": "678d5b60-7718-4af0-81f4-58e7c50bd6d8"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k19tjjct",
+            "profileNo": "629",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-22T06:22:09.501Z",
+      "startedAt": "2026-10-22T06:22:09.503Z",
+      "finishedAt": "2026-10-22T06:22:16.786Z",
+      "updatedAt": "2026-10-22T06:22:16.788Z"
+    },
+    {
+      "id": "4548e9f3-32c9-435b-b7da-5d4f256e2bab",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1989",
+          "label": "профіль №1989"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1gueugl"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1gueugl",
+        "reportId": "71411693-9faa-4da1-a761-ebc6efec9826"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1gueugl",
+            "profileNo": "1989",
+            "status": "checkpoint",
+            "stage": "facebook",
+            "message": "Facebook потребує підтвердження акаунта",
+            "fields": [],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook потребує підтвердження акаунта"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-22T05:56:25.944Z",
+      "startedAt": "2026-10-22T05:56:25.946Z",
+      "finishedAt": "2026-10-22T05:56:28.959Z",
+      "updatedAt": "2026-10-22T05:56:28.961Z"
+    },
+    {
+      "id": "a315dc2e-58ac-4c92-af00-58058e7c4bc1",
+      "type": "autoupload-friend-request",
+      "name": "Заявки в друзі · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "autoupload-friend-requests",
+          "label": "послідовне надсилання заявок"
+        },
+        {
+          "key": "adspower-profile:1989",
+          "label": "профіль №1989"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1gueugl"
+        ],
+        "targetUserId": "61584762126962"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-friend-request:61584762126962:k1gueugl",
+        "reportId": "fd96c13b-7080-4f6d-a95d-4a5c7e9e4613"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1gueugl",
+            "profileNo": "1989",
+            "success": true,
+            "outcome": "FRIEND_REQUEST_SENT",
+            "code": null,
+            "message": "Заявку в друзі підтверджено сервером",
+            "targetUserId": "61584762126962",
+            "friendshipStatus": "OUTGOING_REQUEST",
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "errors": [],
+            "outcomeUnknown": false,
+            "retryable": false,
+            "attempted": true,
+            "fields": [],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Заявку в друзі підтверджено сервером"
+            ]
+          }
+        ],
+        "targetUserId": "61584762126962"
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-21T22:17:34.480Z",
+      "startedAt": "2026-10-21T22:17:34.481Z",
+      "finishedAt": "2026-10-21T22:17:44.406Z",
+      "updatedAt": "2026-10-21T22:17:44.407Z"
+    },
+    {
+      "id": "6bcce18d-c962-4120-ab58-61e4a77feea0",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1989",
+          "label": "профіль №1989"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1gueugl"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1gueugl",
+        "reportId": "7fba5b05-5a79-4039-a841-7b9f8c3d5d3d"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1gueugl",
+            "profileNo": "1989",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-21T22:16:57.055Z",
+      "startedAt": "2026-10-21T22:16:57.056Z",
+      "finishedAt": "2026-10-21T22:17:02.756Z",
+      "updatedAt": "2026-10-21T22:17:02.758Z"
+    },
+    {
+      "id": "43d78578-7479-4beb-828b-7a335f9cae4c",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1988",
+          "label": "профіль №1988"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1gueugh"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1gueugh",
+        "reportId": "edda7604-1688-42fb-af51-47946f661412"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1gueugh",
+            "profileNo": "1988",
+            "status": "checkpoint",
+            "stage": "facebook",
+            "message": "Facebook потребує підтвердження акаунта",
+            "fields": [],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook потребує підтвердження акаунта"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-21T22:16:06.535Z",
+      "startedAt": "2026-10-21T22:16:06.536Z",
+      "finishedAt": "2026-10-21T22:16:09.275Z",
+      "updatedAt": "2026-10-21T22:16:09.277Z"
+    },
+    {
       "id": "e76c966d-58e7-4717-911b-953e8eaf2287",
       "type": "autoupload-friend-request",
       "name": "Заявки в друзі · 1",

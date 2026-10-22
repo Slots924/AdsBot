@@ -1,5 +1,7 @@
 import { profileIds } from "./AutouploadStore.js";
 import checkProfileSession from "../../workflows/autoupload/checkProfileSession.js";
+import refreshProfileSession from "../../workflows/autoupload/refreshProfileSession.js";
+import FacebookWebClient from "../../facebook/api/FacebookWebClient.js";
 import sendFriendRequest, { validateTargetUserId } from "../../facebook/autoupload/actions/friends/sendFriendRequest.js";
 
 export default class AutouploadService {
@@ -7,8 +9,35 @@ export default class AutouploadService {
     #running = new Set();
     #browserStates = new Map();
     #browserBusy = new Set();
-    constructor({ store, adsPower, profileBrowser, onUpdated = () => {}, checkSession = checkProfileSession, sendFriendRequestFn = sendFriendRequest }) {
-        Object.assign(this, { store, adsPower, profileBrowser, onUpdated, checkSession, sendFriendRequestFn });
+    constructor({ store, adsPower, profileBrowser, sessionStore, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest }) {
+        Object.assign(this, { store, adsPower, profileBrowser, sessionStore, onUpdated, checkSession: checkSession ?? (sessionStore ? refreshProfileSession : checkProfileSession), sendFriendRequestFn });
+    }
+    #statusHandler(profileId) {
+        return async ({ status, message }) => {
+            await this.store.setAccountStatus(profileId, status, message);
+            this.#clients.delete(profileId);
+            await this.sessionStore?.remove(profileId);
+            await this.#publish();
+        };
+    }
+    async #prepare(profileId, context, refresh) {
+        const onSessionStatus = this.#statusHandler(profileId);
+        if (!refresh && this.sessionStore) {
+            try {
+                const saved = await this.sessionStore.load(profileId);
+                if (!saved) throw new Error();
+                const client = this.#clients.get(profileId) ?? FacebookWebClient.restore(saved, { onSessionStatus });
+                client.validateFbData(client.getFbData(profileId));
+                return { client, result: { status: "active", message: "Використано збережену сесію Facebook", fields: [], steps: ["Сесію прочитано з локального сховища"] } };
+            } catch {
+                return { client: null, result: { status: "error", message: "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна", fields: [], steps: ["Потрібна нова перевірка профілю"] } };
+            }
+        }
+        this.#clients.delete(profileId);
+        await this.sessionStore?.remove(profileId);
+        const prepared = await this.checkSession({ profileId, adsPower: this.adsPower, onSessionStatus, ...context });
+        if (prepared.client && this.sessionStore) await this.sessionStore.save(profileId, prepared.client.exportSession());
+        return prepared;
     }
     async snapshot() {
         const state = await this.store.snapshot();
@@ -79,7 +108,9 @@ export default class AutouploadService {
             const selected = profileIds(ids);
             if (selected.some((profileId) => this.#running.has(profileId))) throw new Error("Дочекайтеся завершення перевірки вибраних профілів");
             await this.store.editProfiles(action, selected, groupId);
-            if (action === "remove") selected.forEach((profileId) => this.#clients.delete(profileId));
+            if (action === "remove") {
+                for (const profileId of selected) { this.#clients.delete(profileId); await this.sessionStore?.remove(profileId); }
+            }
         } else throw new Error("Невідома дія автозаливів");
         return this.#publish();
     }
@@ -103,13 +134,13 @@ export default class AutouploadService {
             if (signal?.aborted) break;
             if (this.#running.has(profile.profileId)) throw new Error("Цей профіль уже перевіряється");
             this.#running.add(profile.profileId);
-            this.#clients.delete(profile.profileId);
             try {
                 await this.#publish();
-                const { client, result } = await this.checkSession({
-                    profileId: profile.profileId, adsPower: this.adsPower, signal,
+                const { client, result } = await this.#prepare(profile.profileId, {
+                    signal,
                     onStage: (message) => progress({ stage: "session", completed: results.length, total: profiles.length, message: `№${profile.profileNo}: ${message}` }),
-                });
+                }, !targetUserId);
+                if (targetUserId && !client && ["login_required", "checkpoint"].includes(profile.status)) result.status = profile.status;
                 await this.store.record(profile.profileId, result);
                 if (client) this.#clients.set(profile.profileId, client);
                 if (targetUserId) {
@@ -123,9 +154,22 @@ export default class AutouploadService {
                     };
                     const record = { ...action, attempted, fields: [], steps: [...result.steps, action.message] };
                     await this.store.recordAction(profile.profileId, record);
+                    if (["login_required", "checkpoint"].includes(action.sessionStatus)) {
+                        await this.#statusHandler(profile.profileId)({ status: action.sessionStatus, message: action.message });
+                    }
+                    if (client && this.sessionStore && !["login_required", "checkpoint"].includes(action.sessionStatus)) {
+                        await this.sessionStore.save(profile.profileId, client.exportSession());
+                    }
                     results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...record });
                 } else results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...result });
             } catch (error) {
+                if (!signal?.aborted && !targetUserId) {
+                    await this.store.record(profile.profileId, {
+                        status: "error", stage: "storage", message: "Не вдалося оновити або зберегти сесії профілю. Повторіть перевірку", fields: [], steps: ["Перевірка не завершена"],
+                        capabilities: { facebook: false, adsManager: false, accessToken: false },
+                        assets: { adAccounts: [], pages: [], adAccountsState: "unavailable", pagesState: "unavailable" },
+                    });
+                }
                 if (signal?.aborted) {
                     await this.store.record(profile.profileId, {
                         status: "error", stage: "interrupted", message: "Перевірку сесії перервано", fields: [], steps: ["Перевірку сесії перервано"],
@@ -144,6 +188,6 @@ export default class AutouploadService {
             }
             await progress({ stage: targetUserId ? "friend-request" : "session", completed: results.length, total: profiles.length, message: `${targetUserId ? "Оброблено" : "Перевірено"} ${results.length} із ${profiles.length}` });
         }
-        return { result: { profiles: results, ...(targetUserId ? { targetUserId } : {}) }, taskStatus: results.some((item) => targetUserId ? !item.success : item.status !== "active") ? "completed_with_warnings" : "completed" };
+        return { result: { profiles: results, ...(targetUserId ? { targetUserId } : {}) }, taskStatus: results.some((item) => targetUserId ? !item.success : item.status !== "active" || item.hasWarnings) ? "completed_with_warnings" : "completed" };
     }
 }

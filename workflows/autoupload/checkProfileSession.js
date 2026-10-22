@@ -2,7 +2,7 @@ import FacebookWebClient from "../../facebook/api/FacebookWebClient.js";
 import normalizeProxy from "../../services/proxy/normalizeProxy.js";
 
 // Дані авторизації залишаються всередині клієнта й не входять до результату задачі.
-export default async function checkProfileSession({ profileId, adsPower, signal, onStage = () => {}, createClient = (options) => new FacebookWebClient(options) }) {
+export default async function checkProfileSession({ profileId, adsPower, signal, onSessionStatus, onStage = () => {}, createClient = (options) => new FacebookWebClient(options) }) {
     const steps = [];
     let stage = "profile";
     const note = async (message) => { steps.push(message); await onStage(message); };
@@ -28,7 +28,7 @@ export default async function checkProfileSession({ profileId, adsPower, signal,
         await note("User-Agent отримано");
         stage = "facebook";
         signal?.throwIfAborted();
-        const client = createClient({ cookies, userAgent, proxy });
+        const client = createClient({ cookies, userAgent, proxy, onSessionStatus });
         const result = await client.checkSession({ signal });
         await note(result.message);
         return { client, result: { status: "active", stage, message: result.message, fields: result.fields, steps } };

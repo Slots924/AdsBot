@@ -1,4 +1,6 @@
-import { Cookie, CookieJar } from "tough-cookie";
+import createFacebookCookieJar from "../session/createFacebookCookieJar.js";
+import { CookieJar } from "tough-cookie";
+import FacebookGraphApi from "./FacebookGraphApi.js";
 import ProxyHttpClient from "../../services/proxy/ProxyHttpClient.js";
 import parseWebSession from "../session/parseWebSession.js";
 import { actionError } from "../autoupload/graphql/errors.js";
@@ -8,36 +10,62 @@ const isFacebook = (host) => host === "facebook.com" || host.endsWith(".facebook
 const failure = (message, status = "error") => Object.assign(new Error(message), { sessionStatus: status });
 
 export default class FacebookWebClient {
-    #jar = new CookieJar();
+    #jar;
     #http;
     #userAgent;
     #expectedId;
     #session = null;
     #sessionCheckedAt = 0;
+    #adsManager = null;
+    #proxy;
+    #onSessionStatus;
     #queue = Promise.resolve();
 
-    constructor({ cookies, userAgent, proxy, httpClient }) {
+    constructor({ cookies, userAgent, proxy, httpClient, cookieJar, onSessionStatus }) {
         if (!String(userAgent ?? "").trim()) throw failure("Відсутній User-Agent профілю");
         this.#userAgent = userAgent;
+        this.#proxy = proxy ? { ...proxy } : null;
+        this.#onSessionStatus = onSessionStatus;
         this.#http = httpClient ?? new ProxyHttpClient({ proxies: [proxy] });
-        for (const item of cookies ?? []) {
-            const domain = String(item.domain ?? "").replace(/^\./, "").toLowerCase();
-            if (!isFacebook(domain)) continue;
-            const expires = Number(item.expirationDate ?? item.expires);
-            const cookie = new Cookie({
-                key: item.name, value: item.value, domain, path: item.path || "/",
-                hostOnly: item.hostOnly ?? !String(item.domain).startsWith("."),
-                secure: Boolean(item.secure), httpOnly: Boolean(item.httpOnly),
-                ...(!item.session && expires > 0 ? { expires: new Date(expires * 1000) } : {}),
-                ...(["strict", "lax", "none"].includes(item.sameSite) ? { sameSite: item.sameSite } : {}),
-            });
-            this.#jar.setCookieSync(cookie, `https://${domain}${cookie.path}`, { ignoreError: true });
-        }
+        this.#jar = cookieJar ? CookieJar.deserializeSync(cookieJar) : createFacebookCookieJar(cookies);
         const initial = this.#jar.getCookiesSync(homeUrl);
         this.#expectedId = initial.find((cookie) => cookie.key === "c_user")?.value;
         if (!/^\d+$/.test(this.#expectedId ?? "") || !initial.some((cookie) => cookie.key === "xs" && cookie.value)) {
             throw failure("У збережених cookies немає чинних c_user та xs. Потрібна авторизація у профілі", "login_required");
         }
+    }
+
+    static restore(snapshot, options = {}) {
+        const client = new FacebookWebClient({ ...snapshot, ...options });
+        if (!snapshot.session || String(snapshot.session.FacebookID) !== client.#expectedId || !Number.isFinite(Date.parse(snapshot.checkedAt))) {
+            throw actionError("Збережена сесія не відповідає профілю. Запустіть нову перевірку", "FACEBOOK_SESSION_MISMATCH");
+        }
+        client.#session = Object.freeze({ ...snapshot.session });
+        client.#sessionCheckedAt = Date.parse(snapshot.checkedAt);
+        client.#adsManager = snapshot.adsManager ?? null;
+        return client;
+    }
+
+    // Секретний знімок доступний лише backend-сховищу, не IPC або журналам.
+    exportSession() {
+        return { version: 1, userAgent: this.#userAgent, proxy: this.#proxy, cookieJar: this.#jar.serializeSync(),
+            session: this.#session, checkedAt: new Date(this.#sessionCheckedAt).toISOString(), adsManager: this.#adsManager };
+    }
+
+    setAdsManagerSession(value) { this.#adsManager = value; }
+
+    createGraphApi() {
+        if (!this.#adsManager?.accessToken) throw actionError("Потрібна нова перевірка Ads Manager", "ADS_MANAGER_SESSION_REQUIRED");
+        return new FacebookGraphApi({ accountKey: `autoupload-${this.#expectedId}`, facebookUserId: this.#expectedId,
+            accessToken: this.#adsManager.accessToken, userAgent: this.#userAgent,
+            cookie: this.#jar.getCookieStringSync("https://graph.facebook.com/"), proxyHttpClient: this.#http });
+    }
+
+    async #handleSessionStatus(error) {
+        if (!["login_required", "checkpoint"].includes(error?.sessionStatus)) return;
+        this.#session = null;
+        this.#adsManager = null;
+        await this.#onSessionStatus?.({ status: error.sessionStatus, message: error.message });
     }
 
     // Серіалізує дії одного клієнта, щоб вони не змінювали сесію одночасно.
@@ -101,7 +129,7 @@ export default class FacebookWebClient {
                 target = new URL(response.headers.location, target);
                 if (target.protocol !== "https:" || !isFacebook(target.hostname)) throw failure("Непідтримуваний перехід Facebook");
                 try { this.#checkPage(target, ""); }
-                catch (error) { if (mutation) error.outcomeUnknown = true; throw error; }
+                catch (error) { await this.#handleSessionStatus(error); if (mutation) error.outcomeUnknown = true; throw error; }
                 if (mutation) throw actionError("Facebook перенаправив запит. Результат заявки невідомий; повтор не виконувався", "FACEBOOK_WRITE_REDIRECT", {
                     httpStatus: response.status, outcomeUnknown: true, actionRequired: "check_friendship_status",
                 });
@@ -113,7 +141,7 @@ export default class FacebookWebClient {
             }
             if (!allowHttpErrors && (response.status < 200 || response.status >= 300)) throw Object.assign(failure(`Facebook повернув HTTP ${response.status}`), { httpStatus: response.status });
             try { this.#checkPage(target, String(response.data)); }
-            catch (error) { if (mutation) error.outcomeUnknown = true; throw error; }
+            catch (error) { await this.#handleSessionStatus(error); if (mutation) error.outcomeUnknown = true; throw error; }
             return response;
         }
         throw failure("Забагато перенаправлень Facebook");

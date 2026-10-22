@@ -93,7 +93,17 @@ export default class AutouploadStore {
             if (!profile) return;
             const checkedAt = new Date().toISOString();
             Object.assign(profile, { status: result.status, message: result.message, checkedAt });
+            if (result.assets) profile.assets = result.assets;
+            if (result.capabilities) profile.capabilities = result.capabilities;
+            profile.checkWarnings = result.warnings ?? [];
             state.history = [{ id: randomUUID(), profileId, profileNo: profile.profileNo, checkedAt, ...result }, ...state.history].slice(0, 500);
+        });
+    }
+
+    setAccountStatus(profileId, status, message) {
+        return this.change((state) => {
+            const profile = state.profiles.find((item) => item.profileId === profileId);
+            if (profile) Object.assign(profile, { status, message });
         });
     }
 

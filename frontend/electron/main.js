@@ -46,6 +46,8 @@ import SmsPoolPhoneVerificationManager
 import SmsPool from "../../classes/SmsPool.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
+import createSecretStorage from "./secretStorage.js";
+import AutouploadSessionStore from "../../services/autoupload/AutouploadSessionStore.js";
 
 
 loadEnv({ path: appPaths.env });
@@ -177,20 +179,11 @@ async function createWindow() {
     await facebookAccountManager.migrateLegacyAccountKeys();
     bmAccountManager = new FacebookAccountManager({ accountsFile: appPaths.businessManagers, kind: "bm" });
     systemUserManager = new FacebookAccountManager({ accountsFile: appPaths.systemUsers, kind: "system" });
+    const secretStorage = createSecretStorage(safeStorage);
+    const autouploadSessionStore = new AutouploadSessionStore({ directory: appPaths.autouploadSessions, ...secretStorage });
     const creditCardStore = new CreditCardStore({
         cardsFile: appPaths.creditCards,
-        encrypt: (value) => {
-            if (!safeStorage.isEncryptionAvailable()) {
-                throw new Error("Системне шифрування Electron недоступне");
-            }
-            return safeStorage.encryptString(String(value)).toString("base64");
-        },
-        decrypt: (value) => {
-            if (!safeStorage.isEncryptionAvailable()) {
-                throw new Error("Системне шифрування Electron недоступне");
-            }
-            return safeStorage.decryptString(Buffer.from(String(value), "base64"));
-        },
+        ...secretStorage,
     });
     const proxyManager = new ProxyManager({
         proxiesFile: appPaths.proxies,
@@ -301,6 +294,7 @@ async function createWindow() {
     });
 
     registerIpcHandlers({
+        autouploadSessionStore,
         ipcMain,
         dialog,
         shell,

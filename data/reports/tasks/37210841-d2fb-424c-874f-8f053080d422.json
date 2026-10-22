@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "id": "37210841-d2fb-424c-874f-8f053080d422",
+  "taskId": "0e0f500c-3573-4e67-b06c-2e72c2e565c8",
+  "type": "autoupload-friend-request",
+  "title": "Заявки в друзі · 1",
+  "status": "completed",
+  "createdAt": "2026-10-22T06:24:52.785Z",
+  "startedAt": "2026-10-22T06:24:44.288Z",
+  "finishedAt": "2026-10-22T06:24:52.784Z",
+  "durationMs": 8496,
+  "inputSummary": {
+    "profileIds": [
+      "k19tjjct"
+    ],
+    "targetUserId": "61584762126962"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k19tjjct",
+        "profileNo": "629",
+        "success": true,
+        "outcome": "FRIEND_REQUEST_SENT",
+        "code": null,
+        "message": "Заявку в друзі підтверджено сервером",
+        "targetUserId": "61584762126962",
+        "friendshipStatus": "OUTGOING_REQUEST",
+        "httpStatus": 200,
+        "traceId": null,
+        "metaRequestId": null,
+        "errors": [],
+        "outcomeUnknown": false,
+        "retryable": false,
+        "attempted": true,
+        "fields": [],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+          "Заявку в друзі підтверджено сервером"
+        ]
+      }
+    ],
+    "targetUserId": "61584762126962"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-friend-request:61584762126962:k19tjjct"
+  }
+}

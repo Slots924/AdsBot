@@ -36,6 +36,7 @@ export const appPaths = {
     spendDatabase: path.join(projectRoot, "data/spend/spend.sqlite"),
     appState: path.join(projectRoot, "data/app-state.json"),
     autoupload: path.join(projectRoot, "data/autoupload/workspace.json"),
+    autouploadSessions: path.join(projectRoot, "data/autoupload/sessions"),
     adAccountPreferences: path.join(
         projectRoot,
         "data/ad-account-preferences.json"
