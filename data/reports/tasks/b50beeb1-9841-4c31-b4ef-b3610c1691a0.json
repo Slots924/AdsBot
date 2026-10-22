@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "id": "b50beeb1-9841-4c31-b4ef-b3610c1691a0",
+  "taskId": "5ae5cefb-cb64-4b2f-8daf-6f258f676a61",
+  "type": "autoupload-personal-account-transfer",
+  "title": "Передати персональні РК · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T11:20:16.682Z",
+  "startedAt": "2026-10-22T11:20:16.665Z",
+  "finishedAt": "2026-10-22T11:20:16.681Z",
+  "durationMs": 16,
+  "inputSummary": {
+    "ids": [
+      "k1gueufq"
+    ],
+    "targetProfileId": "k1g2i0ix"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1gueufq",
+        "profileNo": "1970",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_SESSION_PREPARATION_FAILED",
+        "message": "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна",
+        "httpStatus": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "apiErrorCode": null,
+        "graphType": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [],
+        "isTransient": false,
+        "sessionStatus": null,
+        "actionRequired": null,
+        "outcomeUnknown": false,
+        "diagnostic": null,
+        "retryable": false,
+        "operation": "personal-account-transfer",
+        "status": "error",
+        "fields": [],
+        "steps": [
+          "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна"
+        ]
+      }
+    ],
+    "targetProfileId": "k1g2i0ix"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-transfer:k1g2i0ix:k1gueufq"
+  }
+}

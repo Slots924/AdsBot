@@ -1,4 +1,6 @@
 export default {
+    // Мовні варіанти фарму потребують підтвердження у живому браузері.
+    farming: {"like":["J’aime","J'aime"],"liked":["Je n’aime plus","Je n'aime plus"],"join":["Rejoindre le groupe"],"joined":["Membre"],"pending":["Annuler la demande"],"unavailable":["Ce contenu n’est pas disponible pour le moment"]},
     nameChange: {
         firstName: ["Prénom"],
         lastName: ["Nom","Nom de famille"],

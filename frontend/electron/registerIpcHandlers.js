@@ -1,5 +1,6 @@
 import { isUnavailableCampaign, clearUnavailableCampaignStatistics, visibleCampaigns } from "../../services/campaigns/campaignVisibility.js";
 import { readdir, readFile, stat } from "node:fs/promises";
+import registerFarmIpcHandlers from "./registerFarmIpcHandlers.js";
 import path from "node:path";
 
 import { appPaths } from "./paths.js";
@@ -192,6 +193,7 @@ export default function registerIpcHandlers({
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
+    registerFarmIpcHandlers({ ipcMain, safeHandler, profileActivityStore, guiService, backgroundTaskManager });
     const startingProfiles = new Set();
     const withProfileReservation = async (profileNo, action) => {
         const key = String(profileNo ?? "").trim();

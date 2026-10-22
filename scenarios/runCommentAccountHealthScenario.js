@@ -46,6 +46,7 @@ export default async function runCommentAccountHealthScenario({
         }
         report.profiles.push({
             ...result,
+            checkedAt: new Date().toISOString(),
             duration: `${Math.floor((Date.now() - startedAt) / 1000)} с`,
         });
         await onProgress?.({

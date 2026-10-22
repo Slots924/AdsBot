@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "id": "f1720391-11a9-48b1-93da-32ca9916fdc2",
+  "taskId": "1a0f7024-53b8-42e6-a099-092121cb0a26",
+  "type": "autoupload-personal-account-transfer",
+  "title": "Передати персональні РК · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T12:08:10.742Z",
+  "startedAt": "2026-10-22T12:08:04.518Z",
+  "finishedAt": "2026-10-22T12:08:10.740Z",
+  "durationMs": 6222,
+  "inputSummary": {
+    "ids": [
+      "k19wfan7"
+    ],
+    "targetProfileId": "k1g2i0ix"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k19wfan7",
+        "profileNo": "756",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FRIEND_REQUEST_ALREADY_SENT",
+        "message": "Заявку цьому отримувачу вже підтверджено раніше",
+        "httpStatus": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "apiErrorCode": null,
+        "graphType": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [],
+        "isTransient": false,
+        "sessionStatus": null,
+        "actionRequired": null,
+        "outcomeUnknown": false,
+        "diagnostic": null,
+        "retryable": false,
+        "targetUserId": "61584762126962",
+        "attempted": false,
+        "operation": "friend-request",
+        "status": "error",
+        "fields": [],
+        "steps": [
+          "Заявку цьому отримувачу вже підтверджено раніше"
+        ]
+      },
+      {
+        "profileId": "k1g2i0ix",
+        "profileNo": "1849",
+        "success": true,
+        "outcome": "FRIEND_REQUEST_ACCEPTED",
+        "code": null,
+        "message": "Заявку прийнято, дружбу підтверджено сервером",
+        "userId": "61587402660147",
+        "targetUserId": "61587402660147",
+        "friendshipStatus": "ARE_FRIENDS",
+        "friendship_status": "ARE_FRIENDS",
+        "httpStatus": 200,
+        "traceId": null,
+        "metaRequestId": null,
+        "errors": [],
+        "retryable": false,
+        "outcomeUnknown": false,
+        "incomingIncomplete": false,
+        "incomingCheckMessage": "Вхідну заявку знайдено",
+        "operation": "friend-request-accept",
+        "status": "success",
+        "fields": [],
+        "steps": [
+          "Заявку прийнято, дружбу підтверджено сервером"
+        ]
+      },
+      {
+        "profileId": "k19wfan7",
+        "profileNo": "756",
+        "success": true,
+        "outcome": "AD_ACCOUNT_ADMIN_WRITE_ACCEPTED",
+        "code": null,
+        "message": "Facebook підтвердив надання Admin-доступу",
+        "adAccountId": "1386187923502397",
+        "targetUserId": "61584762126962",
+        "writeAccepted": true,
+        "verified": false,
+        "httpStatus": 200,
+        "outcomeUnknown": false,
+        "retryable": false,
+        "attempted": true,
+        "operation": "ad-account-share",
+        "status": "success",
+        "fields": [],
+        "steps": [
+          "Facebook підтвердив надання Admin-доступу"
+        ]
+      }
+    ],
+    "targetProfileId": "k1g2i0ix"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-transfer:k1g2i0ix:k19wfan7"
+  }
+}

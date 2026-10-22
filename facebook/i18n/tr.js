@@ -1,4 +1,6 @@
 export default {
+    // Мовні варіанти фарму потребують підтвердження у живому браузері.
+    farming: {"like":["Beğen"],"liked":["Beğenmekten Vazgeç"],"join":["Gruba Katıl"],"joined":["Katıldın"],"pending":["İsteği İptal Et"],"unavailable":["Bu içerik şu anda kullanılamıyor"]},
     nameChange: {
         firstName: ["Ad","Adı"],
         lastName: ["Soyadı"],

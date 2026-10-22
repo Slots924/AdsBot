@@ -32,8 +32,9 @@ class AdsPower {
 
 
     // Усі запити до AdsPower проходять через цей метод
-    async request(method, url, data = null, params = null) {
+    async request(method, url, data = null, params = null, options = {}) {
         const sendRequest = async () => {
+            options.signal?.throwIfAborted();
             const startedAt = Date.now();
             const logger = getLogger("adspower");
             const timePassed =
@@ -47,6 +48,7 @@ class AdsPower {
             if (timeToWait > 0) {
                 await this.wait(timeToWait);
             }
+            options.signal?.throwIfAborted();
 
             // Запам'ятовуємо час запуску запиту
             this.lastRequestTime = Date.now();
@@ -63,7 +65,8 @@ class AdsPower {
                     ...(["get", "head"].includes(String(method).toLowerCase()) ? {} : { data }),
                     params,
                     headers: this.headers,
-                    timeout: 60000,
+                    timeout: options.timeout ?? 60000,
+                    signal: options.signal,
                 });
                 logger.debug("adspower.response", "AdsPower відповів", {
                     method,
@@ -142,7 +145,9 @@ class AdsPower {
             const response = await this.request(
                 "post",
                 url,
-                data
+                data,
+                null,
+                { signal: launchOptions.signal }
             );
 
             const result = response.data;
@@ -219,7 +224,7 @@ class AdsPower {
 
 
     // Закриває профіль за його номером
-    async closeProfile(profileNo) {
+    async closeProfile(profileNo, options = {}) {
         const url =
             `${this.apiUrl}/api/v2/browser-profile/stop`;
 
@@ -231,7 +236,9 @@ class AdsPower {
             const response = await this.request(
                 "post",
                 url,
-                data
+                data,
+                null,
+                options
             );
 
             const result = response.data;

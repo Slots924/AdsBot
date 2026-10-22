@@ -1,6 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import FarmStore from "../farming/FarmStore.js";
 
 
 export const profileActivityTypes = Object.freeze({
@@ -77,6 +78,7 @@ export default class ProfileActivityStore {
         this.db = null;
         this.initializing = null;
         this.profileGroups = new Map();
+        this.farm = new FarmStore(this);
     }
 
 
@@ -126,6 +128,7 @@ export default class ProfileActivityStore {
             this.db.exec(`UPDATE profile_activity
                 SET total_target_actions = comment_task_count + comment_reactions_task_count
                 WHERE total_target_actions != comment_task_count + comment_reactions_task_count`);
+            this.farm.initialize();
             return this;
         })();
         try {
@@ -141,6 +144,8 @@ export default class ProfileActivityStore {
         const update = this.db.prepare(`UPDATE profile_activity
             SET adspower_group_id = ?, adspower_group_name = ?
             WHERE profile_no = ? AND is_banned = 0 AND track_adspower_group = 1`);
+        const farmMember = this.db.prepare("SELECT data FROM farm_members WHERE profile_no = ?");
+        const updateFarm = this.db.prepare("UPDATE farm_members SET data = ? WHERE profile_no = ?");
         this.db.exec("BEGIN IMMEDIATE");
         try {
             for (const profile of profiles) {
@@ -150,6 +155,14 @@ export default class ProfileActivityStore {
                 const group = { id: groupId, name: String(profile.group_name ?? "").trim() };
                 this.profileGroups.set(profileNo, group);
                 update.run(group.id, group.name, profileNo);
+                const member = farmMember.get(profileNo);
+                if (member) {
+                    const cached = JSON.parse(member.data);
+                    updateFarm.run(JSON.stringify({ ...cached, adsPowerGroupId: group.id, adsPowerGroupName: group.name,
+                        ...(profile.profile_id != null ? { profileId: String(profile.profile_id) } : {}),
+                        ...(profile.name != null ? { name: String(profile.name) } : {}),
+                    }), profileNo);
+                }
             }
             this.db.exec("COMMIT");
         } catch (error) {

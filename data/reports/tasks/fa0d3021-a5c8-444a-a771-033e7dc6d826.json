@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "id": "fa0d3021-a5c8-444a-a771-033e7dc6d826",
+  "taskId": "1977c830-e732-4b38-a6a0-d2e561b25559",
+  "type": "autoupload-personal-account-transfer",
+  "title": "Передати персональні РК · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T11:22:03.817Z",
+  "startedAt": "2026-10-22T11:21:56.098Z",
+  "finishedAt": "2026-10-22T11:22:03.816Z",
+  "durationMs": 7718,
+  "inputSummary": {
+    "ids": [
+      "k1gueufs"
+    ],
+    "targetProfileId": "k1g2i0ix"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1gueufs",
+        "profileNo": "1971",
+        "success": true,
+        "outcome": "FRIEND_REQUEST_SENT",
+        "code": null,
+        "message": "Заявку в друзі підтверджено сервером",
+        "targetUserId": "61584762126962",
+        "friendshipStatus": "OUTGOING_REQUEST",
+        "httpStatus": 200,
+        "traceId": null,
+        "metaRequestId": null,
+        "errors": [],
+        "outcomeUnknown": false,
+        "retryable": false,
+        "attempted": true,
+        "operation": "friend-request",
+        "status": "success",
+        "fields": [],
+        "steps": [
+          "Заявку в друзі підтверджено сервером"
+        ]
+      },
+      {
+        "profileId": "k1g2i0ix",
+        "profileNo": "1849",
+        "success": true,
+        "outcome": "FRIEND_REQUEST_ACCEPTED",
+        "code": null,
+        "message": "Заявку прийнято, дружбу підтверджено сервером",
+        "userId": "61594130811808",
+        "targetUserId": "61594130811808",
+        "friendshipStatus": "ARE_FRIENDS",
+        "friendship_status": "ARE_FRIENDS",
+        "httpStatus": 200,
+        "traceId": null,
+        "metaRequestId": null,
+        "errors": [],
+        "retryable": false,
+        "outcomeUnknown": false,
+        "incomingIncomplete": false,
+        "incomingCheckMessage": "Вхідну заявку знайдено",
+        "operation": "friend-request-accept",
+        "status": "success",
+        "fields": [],
+        "steps": [
+          "Заявку прийнято, дружбу підтверджено сервером"
+        ]
+      },
+      {
+        "profileId": "k1gueufs",
+        "profileNo": "1971",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_GRAPHQL_ERROR",
+        "message": "This user can’t be added as an admin of this ad account. This may be because you lack permissions or the user you selected may not be authorized.Try managing people and ad accounts in Business Manager instead.",
+        "httpStatus": 200,
+        "graphCode": 2702,
+        "graphSubcode": 2016121,
+        "apiErrorCode": null,
+        "graphType": "OAuthException",
+        "graphUserTitle": "Can't Add Admin",
+        "graphUserMessage": "This user can’t be added as an admin of this ad account. This may be because you lack permissions or the user you selected may not be authorized.Try managing people and ad accounts in Business Manager instead.",
+        "traceId": "HRa8zyh44YA",
+        "metaRequestId": "ATxyLTIXVxL-BZlUFZp9Q8P",
+        "friendshipStatus": null,
+        "errors": [
+          {
+            "message": "This user can’t be added as an admin of this ad account. This may be because you lack permissions or the user you selected may not be authorized. Try managing people and ad accounts in Business Manager instead.",
+            "code": 2702,
+            "api_error_code": null,
+            "error_subcode": 2016121,
+            "type": "OAuthException",
+            "error_user_title": "Can't Add Admin",
+            "error_user_msg": "This user can’t be added as an admin of this ad account. This may be because you lack permissions or the user you selected may not be authorized.Try managing people and ad accounts in Business Manager instead.",
+            "is_transient": false
+          }
+        ],
+        "isTransient": false,
+        "sessionStatus": null,
+        "actionRequired": null,
+        "outcomeUnknown": false,
+        "diagnostic": {
+          "status": "facebook_api_error",
+          "code": "FACEBOOK_GRAPHQL_ERROR",
+          "networkCode": null,
+          "httpStatus": 200,
+          "graphCode": 2702,
+          "graphSubcode": 2016121,
+          "message": "This user can’t be added as an admin of this ad account. This may be because you lack permissions or the user you selected may not be authorized.Try managing people and ad accounts in Business Manager instead.",
+          "stage": "ad_account_admin_write",
+          "endpoint": "https://adsmanager-graph.facebook.com/v22.0/act_1001233679667459/users",
+          "method": "POST",
+          "durationMs": null,
+          "traceId": "HRa8zyh44YA",
+          "contentType": "application/json",
+          "responseBytes": 794
+        },
+        "retryable": false,
+        "adAccountId": "1001233679667459",
+        "targetUserId": "61584762126962",
+        "writeAccepted": false,
+        "attempted": true,
+        "operation": "ad-account-share",
+        "status": "error",
+        "fields": [],
+        "steps": [
+          "This user can’t be added as an admin of this ad account. This may be because you lack permissions or the user you selected may not be authorized.Try managing people and ad accounts in Business Manager instead."
+        ]
+      }
+    ],
+    "targetProfileId": "k1g2i0ix"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-transfer:k1g2i0ix:k1gueufs"
+  }
+}

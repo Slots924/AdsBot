@@ -1,0 +1,24 @@
+.farm-tab { display: flex; flex-direction: column; gap: 18px; padding: 24px; min-width: 0; }
+.farm-subtabs, .farm-fields { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; }
+.farm-subtabs .active { border-color: #7c8aff; color: #c5ccff; }
+.farm-form { display: flex; flex-direction: column; gap: 14px; }
+.farm-form label, .farm-group-picker { display: flex; flex-direction: column; gap: 7px; }
+.farm-form input:not([type=checkbox]), .farm-form select, .farm-form textarea, .farm-group-picker select, .farm-toolbar select { color: inherit; background: #161a28; border: 1px solid #363d52; border-radius: 8px; padding: 9px 12px; }
+.farm-fields label { flex: 1 1 180px; }
+.farm-form .farm-check { flex-direction: row; align-items: center; gap: 9px; }
+.farm-form fieldset { border: 1px solid #363d52; border-radius: 10px; padding: 16px; }
+.farm-form legend { padding: 0 8px; }
+.farm-group-info { max-width: 1000px; }
+.farm-group-info textarea { white-space: pre-wrap; resize: vertical; }
+.farm-group-picker { max-width: 480px; }
+.farm-toolbar { flex-wrap: wrap; }
+.farm-table-scroll { width: 100%; overflow: auto; border: 1px solid #30364b; border-radius: 10px; }
+.farm-tab table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.farm-tab td, .farm-tab th { text-align: left; padding: 12px; border-bottom: 1px solid #30364b; min-width: 90px; }
+.farm-tab th { background: #1b2031; }
+.farm-tab td small { display: block; color: #a4acc3; margin-top: 5px; }
+.farm-name { border: 0; background: transparent; color: #aab7ff; cursor: pointer; text-align: left; }
+.farm-error { color: #ff9f9f; white-space: pre-wrap; }
+.farm-history details { padding: 12px; border: 1px solid #30364b; margin-bottom: 10px; border-radius: 8px; }
+.farm-history summary { cursor: pointer; }
+.farm-history pre { white-space: pre-wrap; }

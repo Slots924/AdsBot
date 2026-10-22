@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "id": "9d29c213-49b0-4225-9d66-7487fc37d598",
+  "taskId": "ff7d87a9-0657-480d-a4fd-83a0392339b7",
+  "type": "autoupload-session-check",
+  "title": "Перевірка сесій · 3",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T11:55:30.397Z",
+  "startedAt": "2026-10-22T11:54:47.975Z",
+  "finishedAt": "2026-10-22T11:55:30.396Z",
+  "durationMs": 42421,
+  "inputSummary": {
+    "profileIds": [
+      "k1g2i0hx",
+      "k1g2i0i2",
+      "k1g2i0i4"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1g2i0hx",
+        "profileNo": "1819",
+        "status": "active",
+        "stage": "facebook",
+        "message": "Акаунт перевірено, сесії та активи оновлено",
+        "fields": [
+          "fb_dtsg",
+          "fb_dtsg_ag",
+          "lsd",
+          "jazoest",
+          "sessionID",
+          "FacebookID",
+          "clientRevision",
+          "hsi",
+          "spinR",
+          "spinB",
+          "spinT"
+        ],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+          "Сесію Ads Manager та access token отримано",
+          "Рекламних кабінетів: 1; фанпейджів: 0"
+        ],
+        "assets": {
+          "adAccounts": [
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            }
+          ],
+          "pages": [],
+          "adAccountsState": "loaded",
+          "pagesState": "loaded"
+        },
+        "capabilities": {
+          "facebook": true,
+          "adsManager": true,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": [],
+        "hasWarnings": false
+      },
+      {
+        "profileId": "k1g2i0i2",
+        "profileNo": "1822",
+        "status": "active",
+        "stage": "facebook",
+        "message": "Акаунт перевірено, сесії та активи оновлено",
+        "fields": [
+          "fb_dtsg",
+          "fb_dtsg_ag",
+          "lsd",
+          "jazoest",
+          "sessionID",
+          "FacebookID",
+          "clientRevision",
+          "hsi",
+          "spinR",
+          "spinB",
+          "spinT"
+        ],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+          "Сесію Ads Manager та access token отримано",
+          "Рекламних кабінетів: 1; фанпейджів: 0"
+        ],
+        "assets": {
+          "adAccounts": [
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            }
+          ],
+          "pages": [],
+          "adAccountsState": "loaded",
+          "pagesState": "loaded"
+        },
+        "capabilities": {
+          "facebook": true,
+          "adsManager": true,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": [],
+        "hasWarnings": false
+      },
+      {
+        "profileId": "k1g2i0i4",
+        "profileNo": "1824",
+        "status": "checkpoint",
+        "errorStatus": "checkpoint",
+        "stage": "facebook",
+        "message": "Facebook потребує підтвердження акаунта",
+        "diagnostic": {
+          "status": "checkpoint",
+          "code": "HTTP_REQUEST_FAILED",
+          "networkCode": null,
+          "httpStatus": null,
+          "graphCode": null,
+          "graphSubcode": null,
+          "message": "Facebook потребує підтвердження акаунта",
+          "stage": "facebook",
+          "endpoint": null,
+          "method": "GET",
+          "durationMs": null,
+          "traceId": null
+        },
+        "fields": [],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook потребує підтвердження акаунта"
+        ],
+        "assets": {
+          "adAccounts": [],
+          "pages": [],
+          "adAccountsState": "unavailable",
+          "pagesState": "unavailable"
+        },
+        "capabilities": {
+          "facebook": false,
+          "adsManager": false,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": []
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload:k1g2i0hx,k1g2i0i2,k1g2i0i4"
+  }
+}

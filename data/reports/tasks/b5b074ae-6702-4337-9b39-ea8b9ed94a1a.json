@@ -1,0 +1,295 @@
+{
+  "version": 1,
+  "id": "b5b074ae-6702-4337-9b39-ea8b9ed94a1a",
+  "taskId": "ebb605cb-37ea-44db-a0da-0860b2fcd9fb",
+  "type": "autoupload-session-check",
+  "title": "Перевірка сесій · 2",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T11:53:36.946Z",
+  "startedAt": "2026-10-22T11:53:19.327Z",
+  "finishedAt": "2026-10-22T11:53:36.945Z",
+  "durationMs": 17618,
+  "inputSummary": {
+    "profileIds": [
+      "k1g2i0i7",
+      "k1g2i0ix"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1g2i0i7",
+        "profileNo": "1827",
+        "status": "error",
+        "errorStatus": "session_error",
+        "stage": "facebook",
+        "message": "Не отримано поля сесії: fb_dtsg, sessionID",
+        "diagnostic": {
+          "status": "session_error",
+          "code": "HTTP_REQUEST_FAILED",
+          "networkCode": null,
+          "httpStatus": null,
+          "graphCode": null,
+          "graphSubcode": null,
+          "message": "Не отримано поля сесії: fb_dtsg, sessionID",
+          "stage": "facebook",
+          "endpoint": null,
+          "method": "GET",
+          "durationMs": null,
+          "traceId": null
+        },
+        "fields": [],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Не отримано поля сесії: fb_dtsg, sessionID"
+        ],
+        "assets": {
+          "adAccounts": [],
+          "pages": [],
+          "adAccountsState": "unavailable",
+          "pagesState": "unavailable"
+        },
+        "capabilities": {
+          "facebook": false,
+          "adsManager": false,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": []
+      },
+      {
+        "profileId": "k1g2i0ix",
+        "profileNo": "1849",
+        "status": "active",
+        "stage": "facebook",
+        "message": "Акаунт перевірено, сесії та активи оновлено",
+        "fields": [
+          "fb_dtsg",
+          "fb_dtsg_ag",
+          "lsd",
+          "jazoest",
+          "sessionID",
+          "FacebookID",
+          "clientRevision",
+          "hsi",
+          "spinR",
+          "spinB",
+          "spinT"
+        ],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+          "Сесію Ads Manager та access token отримано",
+          "Рекламних кабінетів: 16; фанпейджів: 13"
+        ],
+        "assets": {
+          "adAccounts": [
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            }
+          ],
+          "pages": [
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            }
+          ],
+          "adAccountsState": "loaded",
+          "pagesState": "loaded"
+        },
+        "capabilities": {
+          "facebook": true,
+          "adsManager": true,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": [],
+        "hasWarnings": false
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload:k1g2i0i7,k1g2i0ix"
+  }
+}

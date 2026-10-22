@@ -13,6 +13,7 @@ import {
 
 import CreateCommentAccountsModal from "../components/CreateCommentAccountsModal.jsx";
 import AutouploadAddModal from "../components/AutouploadAddModal.jsx";
+import FarmAddModal from "../components/FarmAddModal.jsx";
 import CommentReactionsModal from "../components/CommentReactionsModal.jsx";
 import CommentPostModal from "../components/CommentPostModal.jsx";
 import SearchSelect from "../components/SearchSelect.jsx";
@@ -192,6 +193,7 @@ export default function CommentAccountsTab({
     onPhotosDirectoryChange = () => {},
 }) {
     const [leftProfiles, setLeftProfiles] = useState([]);
+    const [farmOpen, setFarmOpen] = useState(false);
     const [rightProfiles, setRightProfiles] = useState([]);
     const [leftLoading, setLeftLoading] = useState(false);
     const [rightLoading, setRightLoading] = useState(false);
@@ -387,6 +389,7 @@ export default function CommentAccountsTab({
                 </div>
                 <div className="inline-actions">
                     <button type="button" className="secondary-button" disabled={!selectedProfiles.length} onClick={() => setAutouploadOpen(true)}>Додати до автозаливів</button>
+                    <button type="button" className="secondary-button" disabled={!selectedProfiles.length} onClick={() => setFarmOpen(true)}>Додати до групи фарму</button>
                     <button
                         type="button"
                         className="secondary-button"
@@ -492,6 +495,7 @@ export default function CommentAccountsTab({
                     onSort={(column) => toggleSort("right", column)}
                 />
             </div>
+            {farmOpen && <FarmAddModal profiles={selectedProfiles} onClose={() => setFarmOpen(false)} onAdded={() => { setFarmOpen(false); showToast?.("Акаунти додано до групи фарму", "success"); }} />}
             {autouploadOpen && <AutouploadAddModal profiles={selectedProfiles} onClose={() => setAutouploadOpen(false)} onAdded={() => { setAutouploadOpen(false); showToast?.("Профілі додано до автозаливів", "success"); }} />}
             {createOpen && (
                 <CreateCommentAccountsModal

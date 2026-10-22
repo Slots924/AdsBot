@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "id": "4dd44519-c325-4a88-b704-32fcd513a01e",
+  "taskId": "4550af69-884c-417b-bf15-e337537392c6",
+  "type": "autoupload-personal-account-transfer",
+  "title": "Передати персональні РК · 1",
+  "status": "completed",
+  "createdAt": "2026-10-22T11:21:41.423Z",
+  "startedAt": "2026-10-22T11:21:31.689Z",
+  "finishedAt": "2026-10-22T11:21:41.422Z",
+  "durationMs": 9733,
+  "inputSummary": {
+    "ids": [
+      "k1gueufq"
+    ],
+    "targetProfileId": "k1g2i0ix"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1gueufq",
+        "profileNo": "1970",
+        "success": true,
+        "outcome": "FRIEND_REQUEST_SENT",
+        "code": null,
+        "message": "Заявку в друзі підтверджено сервером",
+        "targetUserId": "61584762126962",
+        "friendshipStatus": "OUTGOING_REQUEST",
+        "httpStatus": 200,
+        "traceId": null,
+        "metaRequestId": null,
+        "errors": [],
+        "outcomeUnknown": false,
+        "retryable": false,
+        "attempted": true,
+        "operation": "friend-request",
+        "status": "success",
+        "fields": [],
+        "steps": [
+          "Заявку в друзі підтверджено сервером"
+        ]
+      },
+      {
+        "profileId": "k1g2i0ix",
+        "profileNo": "1849",
+        "success": true,
+        "outcome": "FRIEND_REQUEST_ACCEPTED",
+        "code": null,
+        "message": "Заявку прийнято, дружбу підтверджено сервером",
+        "userId": "61593575505666",
+        "targetUserId": "61593575505666",
+        "friendshipStatus": "ARE_FRIENDS",
+        "friendship_status": "ARE_FRIENDS",
+        "httpStatus": 200,
+        "traceId": null,
+        "metaRequestId": null,
+        "errors": [],
+        "retryable": false,
+        "outcomeUnknown": false,
+        "incomingIncomplete": false,
+        "incomingCheckMessage": "Вхідну заявку знайдено",
+        "operation": "friend-request-accept",
+        "status": "success",
+        "fields": [],
+        "steps": [
+          "Заявку прийнято, дружбу підтверджено сервером"
+        ]
+      },
+      {
+        "profileId": "k1gueufq",
+        "profileNo": "1970",
+        "success": true,
+        "outcome": "AD_ACCOUNT_ADMIN_WRITE_ACCEPTED",
+        "code": null,
+        "message": "Facebook підтвердив надання Admin-доступу",
+        "adAccountId": "2297565994364370",
+        "targetUserId": "61584762126962",
+        "writeAccepted": true,
+        "verified": false,
+        "httpStatus": 200,
+        "outcomeUnknown": false,
+        "retryable": false,
+        "attempted": true,
+        "operation": "ad-account-share",
+        "status": "success",
+        "fields": [],
+        "steps": [
+          "Facebook підтвердив надання Admin-доступу"
+        ]
+      }
+    ],
+    "targetProfileId": "k1g2i0ix"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-transfer:k1g2i0ix:k1gueufq"
+  }
+}

@@ -276,6 +276,7 @@ async function createWindow() {
         databaseFile: appPaths.spendDatabase,
     }).initialize();
     await defaultProfileActivityStore.initialize();
+    await defaultProfileActivityStore.farm.recoverInterrupted();
     const spendService = new SpendService({
         store: spendStore,
         guiService,

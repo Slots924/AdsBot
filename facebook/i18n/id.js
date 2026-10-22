@@ -1,4 +1,6 @@
 export default {
+    // Мовні варіанти фарму потребують підтвердження у живому браузері.
+    farming: {"like":["Suka"],"liked":["Batal Suka"],"join":["Gabung ke Grup","Bergabung dengan Grup"],"joined":["Bergabung"],"pending":["Batalkan Permintaan"],"unavailable":["Konten ini tidak tersedia saat ini"]},
     nameChange: {
         firstName: ["Nama depan"],
         lastName: ["Nama belakang"],

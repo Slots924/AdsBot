@@ -1,0 +1,184 @@
+{
+  "version": 1,
+  "id": "e975a028-8128-4318-8ecc-3c61383ddfe3",
+  "taskId": "c3e8bb35-a16d-41f9-951b-9e3aee110cee",
+  "type": "autoupload-personal-account-transfer",
+  "title": "Передати персональні РК · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T12:07:18.563Z",
+  "startedAt": "2026-10-22T12:07:10.661Z",
+  "finishedAt": "2026-10-22T12:07:18.561Z",
+  "durationMs": 7900,
+  "inputSummary": {
+    "ids": [
+      "k19wfan7"
+    ],
+    "targetProfileId": "k1g2i0ix"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k19wfan7",
+        "profileNo": "756",
+        "success": true,
+        "outcome": "FRIEND_REQUEST_SENT",
+        "code": null,
+        "message": "Заявку в друзі підтверджено сервером",
+        "targetUserId": "61584762126962",
+        "friendshipStatus": "OUTGOING_REQUEST",
+        "httpStatus": 200,
+        "traceId": null,
+        "metaRequestId": null,
+        "errors": [],
+        "outcomeUnknown": false,
+        "retryable": false,
+        "attempted": true,
+        "operation": "friend-request",
+        "status": "success",
+        "fields": [],
+        "steps": [
+          "Заявку в друзі підтверджено сервером"
+        ]
+      },
+      {
+        "profileId": "k1g2i0ix",
+        "profileNo": "1849",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_GRAPHQL_ERROR",
+        "message": "Please log in to your account.",
+        "httpStatus": 200,
+        "graphCode": 1357001,
+        "graphSubcode": null,
+        "apiErrorCode": null,
+        "graphType": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [
+          {
+            "message": "Please log in to your account.",
+            "code": 1357001,
+            "api_error_code": null,
+            "error_subcode": null,
+            "type": null,
+            "error_user_title": null,
+            "error_user_msg": null,
+            "is_transient": false
+          }
+        ],
+        "isTransient": false,
+        "sessionStatus": null,
+        "actionRequired": null,
+        "outcomeUnknown": false,
+        "diagnostic": null,
+        "retryable": false,
+        "targetUserId": "61587402660147",
+        "userId": "61587402660147",
+        "incomingIncomplete": true,
+        "incomingCheckError": {
+          "success": false,
+          "outcome": "NOT_CONFIRMED",
+          "code": "FACEBOOK_INCOMING_REQUESTS_NOT_FOUND",
+          "message": "Facebook не повернув viewer.friend_requests.edges",
+          "httpStatus": null,
+          "graphCode": null,
+          "graphSubcode": null,
+          "apiErrorCode": null,
+          "graphType": null,
+          "graphUserTitle": null,
+          "graphUserMessage": null,
+          "traceId": null,
+          "metaRequestId": null,
+          "friendshipStatus": null,
+          "errors": [],
+          "isTransient": false,
+          "sessionStatus": null,
+          "actionRequired": null,
+          "outcomeUnknown": false,
+          "diagnostic": null,
+          "retryable": false,
+          "targetUserId": "61587402660147"
+        },
+        "incomingCheckMessage": "Заявку не знайдено під час перевірки; виконано спробу прийняття",
+        "operation": "friend-request-accept",
+        "status": "error",
+        "fields": [],
+        "steps": [
+          "Please log in to your account."
+        ]
+      },
+      {
+        "profileId": "k19wfan7",
+        "profileNo": "756",
+        "success": false,
+        "outcome": "NOT_CONFIRMED",
+        "code": "FACEBOOK_GRAPHQL_ERROR",
+        "message": "To add someone to your ads account, please enter the e-mail address associated with a Facebook account.  Otherwise, you can enter the name of a friend.",
+        "httpStatus": 200,
+        "graphCode": 100,
+        "graphSubcode": 1359066,
+        "apiErrorCode": null,
+        "graphType": "OAuthException",
+        "graphUserTitle": "Invalid User",
+        "graphUserMessage": "To add someone to your ads account, please enter the e-mail address associated with a Facebook account.  Otherwise, you can enter the name of a friend.",
+        "traceId": "EQZYE1tSSEf",
+        "metaRequestId": "AhCxe4ajgzFBQjX86CwGs3W",
+        "friendshipStatus": null,
+        "errors": [
+          {
+            "message": "Invalid parameter",
+            "code": 100,
+            "api_error_code": null,
+            "error_subcode": 1359066,
+            "type": "OAuthException",
+            "error_user_title": "Invalid User",
+            "error_user_msg": "To add someone to your ads account, please enter the e-mail address associated with a Facebook account.  Otherwise, you can enter the name of a friend.",
+            "is_transient": false
+          }
+        ],
+        "isTransient": false,
+        "sessionStatus": null,
+        "actionRequired": null,
+        "outcomeUnknown": false,
+        "diagnostic": {
+          "status": "facebook_api_error",
+          "code": "FACEBOOK_GRAPHQL_ERROR",
+          "networkCode": null,
+          "httpStatus": 200,
+          "graphCode": 100,
+          "graphSubcode": 1359066,
+          "message": "To add someone to your ads account, please enter the e-mail address associated with a Facebook account.  Otherwise, you can enter the name of a friend.",
+          "stage": "ad_account_admin_write",
+          "endpoint": "https://adsmanager-graph.facebook.com/v22.0/act_1386187923502397/users",
+          "method": "POST",
+          "durationMs": null,
+          "traceId": "EQZYE1tSSEf",
+          "contentType": "application/json",
+          "responseBytes": 493
+        },
+        "retryable": false,
+        "adAccountId": "1386187923502397",
+        "targetUserId": "61584762126962",
+        "writeAccepted": false,
+        "attempted": true,
+        "operation": "ad-account-share",
+        "status": "error",
+        "fields": [],
+        "steps": [
+          "To add someone to your ads account, please enter the e-mail address associated with a Facebook account.  Otherwise, you can enter the name of a friend."
+        ]
+      }
+    ],
+    "targetProfileId": "k1g2i0ix"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-transfer:k1g2i0ix:k19wfan7"
+  }
+}

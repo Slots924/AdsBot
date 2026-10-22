@@ -674,6 +674,11 @@ export default class AdsBotGuiService {
         }
 
         await this.adsPower.moveProfilesToGroup(ids, normalizedGroupId);
+        for (const id of ids) {
+            await this.#profileActivityStore?.farm?.updateProfileById(id, {
+                adsPowerGroupId: normalizedGroupId, adsPowerGroupName: "",
+            });
+        }
         return { moved: ids.length, groupId: normalizedGroupId };
     }
 
@@ -694,6 +699,7 @@ export default class AdsBotGuiService {
             );
         }
         await this.adsPower.updateProfileName(normalizedProfileId, normalizedName);
+        await this.#profileActivityStore?.farm?.updateProfileById(normalizedProfileId, { name: normalizedName });
         return { profileId: normalizedProfileId, name: normalizedName };
     }
 
@@ -821,11 +827,18 @@ export default class AdsBotGuiService {
 
 
     async checkCommentAccounts(options = {}) {
-        return runCommentAccountHealthScenario({
+        const report = await runCommentAccountHealthScenario({
             adsPower: this.adsPower,
             reportsDirectory: this.reportsDirectory,
             ...options,
         });
+        for (const profile of report.profiles) {
+            if (profile.outcome === "banned") await this.#profileActivityStore?.markBanned?.(profile.profileNo);
+            await this.#profileActivityStore?.farm?.updateProfile(profile.profileNo, {
+                state: profile.outcome, checkedAt: profile.checkedAt ?? new Date().toISOString(),
+            });
+        }
+        return report;
     }
 
 
