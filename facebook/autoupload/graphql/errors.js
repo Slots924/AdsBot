@@ -1,4 +1,5 @@
 import { redactString } from "../../../services/logging/AppLogger.js";
+import { getLogger } from "../../../services/logging/runtimeLogger.js";
 
 // Повертає лише дозволені діагностичні поля, без payload, HTML та об'єкта сесії.
 export function safeGraphText(value, session = {}) {
@@ -15,7 +16,7 @@ export function actionError(message, code, details = {}) {
 
 export function actionFailure(error) {
     const trusted = error?.safeFacebookError === true || Boolean(error?.sessionStatus);
-    return {
+    const result = {
         success: false,
         outcome: error?.outcomeUnknown ? "OUTCOME_UNKNOWN" : "NOT_CONFIRMED",
         code: trusted ? error.code ?? "FACEBOOK_SESSION_ERROR" : "FACEBOOK_ACTION_FAILED",
@@ -35,6 +36,9 @@ export function actionFailure(error) {
         sessionStatus: trusted ? error.sessionStatus ?? null : null,
         actionRequired: trusted ? error.actionRequired ?? (error.sessionStatus === "login_required" ? "authenticate_account" : error.sessionStatus === "checkpoint" ? "confirm_account" : null) : null,
         outcomeUnknown: error?.outcomeUnknown === true,
+        diagnostic: error?.diagnostic ?? null,
         retryable: false,
     };
+    getLogger("autoupload.action").error("autoupload.action.failed", result.message, result);
+    return result;
 }

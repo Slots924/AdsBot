@@ -2,6 +2,8 @@ import axios from "axios";
 
 import checkProxy from "./checkProxy.js";
 import createProxyAgent from "./createProxyAgent.js";
+import describeHttpError from "../logging/httpDiagnostics.js";
+import { getLogger } from "../logging/runtimeLogger.js";
 
 
 const supportedProxyTypes = new Set([
@@ -164,12 +166,18 @@ export default class ProxyHttpClient {
         const proxy = this.#proxies[proxyIndex];
         const proxyAgent = createProxyAgent(proxy);
 
-        return this.httpClient.request({
+        const configWithAgent = {
             ...config,
             httpAgent: proxyAgent,
             httpsAgent: proxyAgent,
             proxy: false,
-        });
+        };
+        const startedAt = Date.now();
+        try { return await this.httpClient.request(configWithAgent); }
+        catch (error) {
+            error.diagnostic = describeHttpError(error, { config, proxy, durationMs: Date.now() - startedAt });
+            throw error;
+        }
     }
 
 
@@ -241,10 +249,15 @@ export default class ProxyHttpClient {
         }
 
         const failedProxyIndex = this.activeProxyIndex;
+        let diagnostic;
+        const startedAt = Date.now();
 
         try {
             return await this.#send(config, failedProxyIndex);
         } catch (error) {
+            diagnostic = describeHttpError(error, { config, proxy: this.#proxies[failedProxyIndex], durationMs: Date.now() - startedAt });
+            error.diagnostic = diagnostic;
+            getLogger("http").error("http.request.failed", diagnostic.message, diagnostic);
             if (!isConnectionError(error)) {
                 throw error;
             }
@@ -257,10 +270,11 @@ export default class ProxyHttpClient {
                 // Результат POST все одно невідомий, тому не замінюємо цю помилку.
             }
 
-            throw createRequestOutcomeUnknownError();
+            throw Object.assign(createRequestOutcomeUnknownError(), { diagnostic });
         }
 
-        await this.#switchProxy(failedProxyIndex);
+        try { await this.#switchProxy(failedProxyIndex); }
+        catch (error) { error.diagnostic = diagnostic; throw error; }
 
         return this.#send(config, this.activeProxyIndex);
     }

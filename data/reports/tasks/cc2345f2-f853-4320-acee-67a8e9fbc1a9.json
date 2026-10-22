@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "id": "cc2345f2-f853-4320-acee-67a8e9fbc1a9",
+  "taskId": "283258d3-5512-40ee-bec1-819d58cfe10d",
+  "type": "autoupload-session-check",
+  "title": "Перевірка сесій · 1",
+  "status": "completed",
+  "createdAt": "2026-10-22T08:07:16.378Z",
+  "startedAt": "2026-10-22T08:06:59.179Z",
+  "finishedAt": "2026-10-22T08:07:16.377Z",
+  "durationMs": 17198,
+  "inputSummary": {
+    "profileIds": [
+      "k1h0nhqn"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1h0nhqn",
+        "profileNo": "2082",
+        "status": "active",
+        "stage": "facebook",
+        "message": "Акаунт перевірено, сесії та активи оновлено",
+        "fields": [
+          "fb_dtsg",
+          "fb_dtsg_ag",
+          "lsd",
+          "jazoest",
+          "sessionID",
+          "FacebookID",
+          "clientRevision",
+          "hsi",
+          "spinR",
+          "spinB",
+          "spinT"
+        ],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+          "Сесію Ads Manager та access token отримано",
+          "Рекламних кабінетів: 1; фанпейджів: 0"
+        ],
+        "assets": {
+          "adAccounts": [
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            }
+          ],
+          "pages": [],
+          "adAccountsState": "loaded",
+          "pagesState": "loaded"
+        },
+        "capabilities": {
+          "facebook": true,
+          "adsManager": true,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": [],
+        "hasWarnings": false
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload:k1h0nhqn"
+  }
+}

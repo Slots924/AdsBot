@@ -2,6 +2,562 @@
   "version": 1,
   "tasks": [
     {
+      "id": "d47f880f-25bf-44b7-a6c6-be268fd57d08",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2078",
+          "label": "профіль №2078"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1h0nhqi"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1h0nhqi",
+        "reportId": "2cdf90cc-7df9-425b-b794-b52d92c37a31"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1h0nhqi",
+            "profileNo": "2078",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook активний; частину даних Ads Manager або активів не оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено"
+            ],
+            "assets": {
+              "adAccounts": [],
+              "pages": [],
+              "adAccountsState": "unavailable",
+              "pagesState": "unavailable"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": false,
+              "accessToken": false
+            },
+            "warnings": [
+              {
+                "scope": "adsManager",
+                "code": "FACEBOOK_ACTION_FAILED",
+                "message": "Не вдалося виконати дію Facebook"
+              }
+            ],
+            "hasWarnings": true
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-22T08:07:22.794Z",
+      "startedAt": "2026-10-22T08:07:22.795Z",
+      "finishedAt": "2026-10-22T08:07:34.839Z",
+      "updatedAt": "2026-10-22T08:07:34.844Z"
+    },
+    {
+      "id": "283258d3-5512-40ee-bec1-819d58cfe10d",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2082",
+          "label": "профіль №2082"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1h0nhqn"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1h0nhqn",
+        "reportId": "cc2345f2-f853-4320-acee-67a8e9fbc1a9"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1h0nhqn",
+            "profileNo": "2082",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1656890526052734",
+                  "accountId": "1656890526052734",
+                  "name": "Chip Dehoff",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-22T08:06:59.177Z",
+      "startedAt": "2026-10-22T08:06:59.179Z",
+      "finishedAt": "2026-10-22T08:07:16.377Z",
+      "updatedAt": "2026-10-22T08:07:16.379Z"
+    },
+    {
+      "id": "abc955c2-0cf8-455b-a0a8-f2d4e59dc612",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2078",
+          "label": "профіль №2078"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1h0nhqi"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1h0nhqi",
+        "reportId": "09ba4b91-01b4-4912-bcdb-b6fb795bf345"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1h0nhqi",
+            "profileNo": "2078",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook активний; частину даних Ads Manager або активів не оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено"
+            ],
+            "assets": {
+              "adAccounts": [],
+              "pages": [],
+              "adAccountsState": "unavailable",
+              "pagesState": "unavailable"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": false,
+              "accessToken": false
+            },
+            "warnings": [
+              {
+                "scope": "adsManager",
+                "code": "FACEBOOK_ACTION_FAILED",
+                "message": "Не вдалося виконати дію Facebook"
+              }
+            ],
+            "hasWarnings": true
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-22T08:06:39.145Z",
+      "startedAt": "2026-10-22T08:06:39.147Z",
+      "finishedAt": "2026-10-22T08:06:51.951Z",
+      "updatedAt": "2026-10-22T08:06:51.954Z"
+    },
+    {
+      "id": "4cb7fc4b-0f0a-4aa5-bcf2-810b12962d2e",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 5",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2078",
+          "label": "профіль №2078"
+        },
+        {
+          "key": "adspower-profile:2080",
+          "label": "профіль №2080"
+        },
+        {
+          "key": "adspower-profile:2081",
+          "label": "профіль №2081"
+        },
+        {
+          "key": "adspower-profile:2082",
+          "label": "профіль №2082"
+        },
+        {
+          "key": "adspower-profile:2083",
+          "label": "профіль №2083"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1h0nhqi",
+          "k1h0nhql",
+          "k1h0nhqm",
+          "k1h0nhqn",
+          "k1h0nhqo"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1h0nhqi,k1h0nhql,k1h0nhqm,k1h0nhqn,k1h0nhqo",
+        "reportId": "bfede8cb-a49e-4d21-9ef5-09749e444e78"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1h0nhqi",
+            "profileNo": "2078",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook активний; частину даних Ads Manager або активів не оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено"
+            ],
+            "assets": {
+              "adAccounts": [],
+              "pages": [],
+              "adAccountsState": "unavailable",
+              "pagesState": "unavailable"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": false,
+              "accessToken": false
+            },
+            "warnings": [
+              {
+                "scope": "adsManager",
+                "code": "FACEBOOK_ACTION_FAILED",
+                "message": "Не вдалося виконати дію Facebook"
+              }
+            ],
+            "hasWarnings": true
+          },
+          {
+            "profileId": "k1h0nhql",
+            "profileNo": "2080",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1127604759719820",
+                  "accountId": "1127604759719820",
+                  "name": "Dillon Blondye",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          },
+          {
+            "profileId": "k1h0nhqm",
+            "profileNo": "2081",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1105877892222828",
+                  "accountId": "1105877892222828",
+                  "name": "Lacuzong Fatu",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          },
+          {
+            "profileId": "k1h0nhqn",
+            "profileNo": "2082",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook активний; частину даних Ads Manager або активів не оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено"
+            ],
+            "assets": {
+              "adAccounts": [],
+              "pages": [],
+              "adAccountsState": "unavailable",
+              "pagesState": "unavailable"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": false,
+              "accessToken": false
+            },
+            "warnings": [
+              {
+                "scope": "adsManager",
+                "code": "FACEBOOK_ACTION_FAILED",
+                "message": "Не вдалося виконати дію Facebook"
+              }
+            ],
+            "hasWarnings": true
+          },
+          {
+            "profileId": "k1h0nhqo",
+            "profileNo": "2083",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1117138830677584",
+                  "accountId": "1117138830677584",
+                  "name": "Preston Pingle",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-22T08:05:06.138Z",
+      "startedAt": "2026-10-22T08:05:06.140Z",
+      "finishedAt": "2026-10-22T08:06:19.640Z",
+      "updatedAt": "2026-10-22T08:06:19.642Z"
+    },
+    {
       "id": "9428a65c-930e-4de5-8f75-3dbeb9fc3ef9",
       "type": "autoupload-friend-request",
       "name": "Заявки в друзі · 5",

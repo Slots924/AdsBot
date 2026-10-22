@@ -1,10 +1,13 @@
 import FacebookWebClient from "../../facebook/api/FacebookWebClient.js";
 import normalizeProxy from "../../services/proxy/normalizeProxy.js";
+import describeHttpError from "../../services/logging/httpDiagnostics.js";
+import { getLogger } from "../../services/logging/runtimeLogger.js";
 
 // Дані авторизації залишаються всередині клієнта й не входять до результату задачі.
 export default async function checkProfileSession({ profileId, adsPower, signal, onSessionStatus, onStage = () => {}, createClient = (options) => new FacebookWebClient(options) }) {
     const steps = [];
     let stage = "profile";
+    let privateProxy;
     const note = async (message) => { steps.push(message); await onStage(message); };
     try {
         signal?.throwIfAborted();
@@ -17,6 +20,7 @@ export default async function checkProfileSession({ profileId, adsPower, signal,
             config = await adsPower.getProxyById(profile.fbcc_proxy_acc_id);
         }
         const proxy = { ...normalizeProxy(config), id: `adspower-profile-${profileId}` };
+        privateProxy = proxy;
         await note("Проксі профілю налаштовано");
         stage = "cookies";
         signal?.throwIfAborted();
@@ -41,7 +45,9 @@ export default async function checkProfileSession({ profileId, adsPower, signal,
             ua: "Не вдалося отримати UA. Перевірте патч AdsPower та формат відповіді API",
             facebook: "Помилка підготовки або перевірки сесії Facebook",
         };
-        const message = error.sessionStatus || error.safeAdsPowerMessage ? error.message : messages[stage];
-        return { client: null, result: { status: error.sessionStatus ?? "error", stage, message, fields: [], steps: [...steps, message] } };
+        const diagnostic = describeHttpError(error, { stage, proxy: privateProxy });
+        const message = error.sessionStatus || error.safeAdsPowerMessage || error.diagnostic || error.response ? diagnostic.message : `${messages[stage]}: ${diagnostic.message}`;
+        getLogger("autoupload.session").error("autoupload.session.failed", message, { ...diagnostic, profileId });
+        return { client: null, result: { status: error.sessionStatus ?? "error", errorStatus: diagnostic.status, stage, message, diagnostic, fields: [], steps: [...steps, message] } };
     }
 }

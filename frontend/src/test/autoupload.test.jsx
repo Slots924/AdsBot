@@ -23,6 +23,15 @@ beforeEach(() => {
 afterEach(() => { cleanup(); delete window.adsBot; });
 
 describe("Автозаливи", () => {
+    it("показує точну причину часткового оновлення та мережевий код у деталях", async () => {
+        window.adsBot.getAutoupload.mockImplementation(() => ok({ ...state, history: [{ id: "partial", profileId: "p1", profileNo: "12", status: "active", message: "Дані оновлено частково", warnings: [{ scope: "adsManager", stage: "adsManager", status: "network_timeout", code: "PROXY_POOL_EXHAUSTED", networkCode: "ETIMEDOUT", message: "connect ETIMEDOUT [REDACTED]", endpoint: "https://adsmanager.facebook.com/adsmanager/manage/campaigns" }] }] }));
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("button", { name: "Деталі" }));
+        expect(screen.getByRole("dialog")).toHaveTextContent("Час очікування вичерпано");
+        expect(screen.getByRole("dialog")).toHaveTextContent("ETIMEDOUT");
+        expect(screen.getByRole("dialog")).toHaveTextContent("adsManager");
+        expect(screen.getByRole("dialog")).toHaveTextContent("PROXY_POOL_EXHAUSTED");
+    });
     it("шерить лише вибрані персональні РК після явного підтвердження", async () => {
         window.adsBot.getAutoupload.mockImplementation(() => ok({ ...state, profiles: [{ ...state.profiles[0], assets: { adAccounts: [
             { accountId: "101", name: "Особистий", isPersonal: true }, { accountId: "102", name: "Другий", isPersonal: true },

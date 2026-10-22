@@ -5,6 +5,7 @@ import { redactString } from "../../services/logging/AppLogger.js";
 import preflightLeadCampaignWorkflow from "../workflows/preflightLeadCampaign.js";
 import createLeadCampaignWorkflow from "../workflows/createLeadCampaign.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
+import describeHttpError from "../../services/logging/httpDiagnostics.js";
 import collectLatestPagePostsWithLinks
     from "../workflows/collectLatestPagePostsWithLinks.js";
 import deletePagePostsWorkflow
@@ -293,6 +294,8 @@ export default class FacebookGraphApi {
                 outcomeUnknownCode,
                 outcomeUnknownMessage,
             });
+            normalizedError.diagnostic = describeHttpError(error, { stage, durationMs: Date.now() - startedAt });
+            if (!normalizedError.actionRequired && !normalizedError.outcomeUnknown && normalizedError.diagnostic.status !== "error") normalizedError.message = normalizedError.diagnostic.message;
             responseSummary ??= error.response ? summarizeGraphResponse(error.response) : null;
             normalizedError.requestId = requestId;
             normalizedError.stage ??= stage;

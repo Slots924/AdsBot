@@ -4,6 +4,8 @@ import FacebookGraphApi from "./FacebookGraphApi.js";
 import ProxyHttpClient from "../../services/proxy/ProxyHttpClient.js";
 import parseWebSession from "../session/parseWebSession.js";
 import { actionError } from "../autoupload/graphql/errors.js";
+import describeHttpError from "../../services/logging/httpDiagnostics.js";
+import { getLogger } from "../../services/logging/runtimeLogger.js";
 
 const homeUrl = "https://www.facebook.com/";
 const isFacebook = (host) => host === "facebook.com" || host.endsWith(".facebook.com");
@@ -127,9 +129,11 @@ export default class FacebookWebClient {
                 },
             }, { retryOnConnectionError: !mutation }); }
             catch (error) {
-                if (!mutation) throw error;
+                error.diagnostic = describeHttpError(error, { url: target.href, method: requestMethod, session: this.#session ?? {}, proxy: this.#proxy });
+                getLogger("autoupload.http").error("autoupload.http.failed", error.diagnostic.message, error.diagnostic);
+                if (!mutation) throw actionError(error.diagnostic.message, error.diagnostic.code, { diagnostic: error.diagnostic, httpStatus: error.diagnostic.httpStatus });
                 throw actionError("Відповідь на заявку не отримано. Результат невідомий; перевірте стан перед повтором", "FACEBOOK_WRITE_OUTCOME_UNKNOWN", {
-                    httpStatus: error?.response?.status ?? null, outcomeUnknown: true, actionRequired: "check_friendship_status",
+                    httpStatus: error?.response?.status ?? null, diagnostic: error.diagnostic, outcomeUnknown: true, actionRequired: "check_friendship_status",
                 });
             }
             const updates = response.headers?.["set-cookie"] ?? [];
@@ -150,7 +154,12 @@ export default class FacebookWebClient {
                 }
                 continue;
             }
-            if (!allowHttpErrors && (response.status < 200 || response.status >= 300)) throw Object.assign(failure(`Facebook повернув HTTP ${response.status}`), { httpStatus: response.status });
+            if (!allowHttpErrors && (response.status < 200 || response.status >= 300)) {
+                const error = Object.assign(failure(`Facebook повернув HTTP ${response.status}`), { httpStatus: response.status });
+                error.diagnostic = describeHttpError(Object.assign(error, { response }), { url: target.href, method: requestMethod, session: this.#session ?? {}, proxy: this.#proxy });
+                getLogger("autoupload.http").error("autoupload.http.failed", error.diagnostic.message, error.diagnostic);
+                throw error;
+            }
             try { this.#checkPage(target, String(response.data)); }
             catch (error) { await this.#handleSessionStatus(error); if (mutation) error.outcomeUnknown = true; throw error; }
             return response;
@@ -175,7 +184,7 @@ export default class FacebookWebClient {
             catch (error) {
                 if (signal?.aborted) throw signal.reason ?? error;
                 if (error.sessionStatus) throw error;
-                throw failure("Не вдалося виконати запит через проксі профілю: перевірте з’єднання");
+                throw error;
             }
             const { session, missing } = parseWebSession(response.data);
             if (missing.length) throw failure(`Не отримано поля сесії: ${missing.join(", ")}`);

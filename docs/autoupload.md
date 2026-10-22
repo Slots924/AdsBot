@@ -121,4 +121,8 @@ Facebook може змінити формат HTML або вимагати ав�
 
 ## Локальна перевірка
 
+Помилки перевірки містять `diagnostic`, а часткові оновлення — `warnings[]` з окремими `status`, `code`, `networkCode`, `httpStatus`, `graphCode`, `graphSubcode`, `message`, `stage`, `endpoint`, `method` і `durationMs`. Типи розрізняють timeout, мережевий збій, недоступність або авторизацію проксі, HTTP 403/429 та інші HTTP-помилки, Facebook API, Login/Checkpoint, відсутність токена й невідповідність акаунта. Основний статус акаунта залишається окремим: активна Facebook-сесія може мати попередження Ads Manager.
+
+Серверний текст помилки з JSON або `text/plain` зберігається після видалення секретів. Сирі HTML, payload, заголовки та конфігурація запиту не записуються. URL містить лише origin і path без query та credentials. Невідомі внутрішні винятки без безпечного повідомлення повертають загальний текст. Початковий код мережі зберігається навіть після `PROXY_POOL_EXHAUSTED` або невизначеного результату POST. Причини потрапляють у загальний журнал через події `http.request.failed`, `autoupload.http.failed`, `autoupload.session.failed`, `autoupload.ads-manager.failed`, `autoupload.assets.failed` і `autoupload.action.failed`, а також у деталі профілю. Автоматичні повтори запитів цією зміною не додані.
+
 `npm run test:autoupload` перевіряє сховище, cookies, перенаправлення, помилки та workflow без запитів до реальних профілів. Frontend: `npm --prefix frontend run test -- src/test/autoupload.test.jsx src/test/shared-ui.test.jsx`. Збірка: `npm run gui:build`.

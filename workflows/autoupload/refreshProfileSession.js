@@ -1,6 +1,8 @@
 import checkProfileSession from "./checkProfileSession.js";
 import getAdsManagerSession from "../../facebook/autoupload/actions/getAdsManagerSession.js";
 import { actionFailure } from "../../facebook/autoupload/graphql/errors.js";
+import describeHttpError from "../../services/logging/httpDiagnostics.js";
+import { getLogger } from "../../services/logging/runtimeLogger.js";
 
 // Одна повна перевірка оновлює сесії й активи; секрети не потрапляють у result.
 export default async function refreshProfileSession(options) {
@@ -25,10 +27,12 @@ export default async function refreshProfileSession(options) {
                 assets[label] = values.map(select);
                 assets[stateKey] = "loaded";
             } catch (error) {
-                const code = typeof error.graphCode === "number" ? error.graphCode : null;
+                if (options.signal?.aborted) throw error;
+                const diagnostic = describeHttpError(error, { stage: label });
                 assets[stateKey] = "error";
-                result.warnings.push({ scope: label, code: "FACEBOOK_ASSETS_FAILED", graphCode: code,
-                    message: code === 190 ? "Access token недійсний: потрібна нова перевірка" : "Не вдалося завантажити активи: перевірте права доступу або з’єднання" });
+                result.warnings.push({ ...diagnostic, scope: label });
+                getLogger("autoupload.session").error("autoupload.assets.failed", diagnostic.message, { ...diagnostic, profileId: options.profileId });
+                await note(`${label === "adAccounts" ? "Рекламні кабінети" : "Фанпейджі"}: ${diagnostic.message}`);
             }
         };
         await load("adAccounts", "adAccountsState", () => api.getAdAccounts(), (item) => ({ id: String(item.id), accountId: String(item.accountId || item.id).replace(/^act_/, ""), name: String(item.name ?? ""), accountStatus: Number(item.accountStatus) || null, businessId: item.business?.id ? String(item.business.id) : null, isPersonal: !item.business }));
@@ -37,7 +41,10 @@ export default async function refreshProfileSession(options) {
     } catch (error) {
         if (options.signal?.aborted) throw error;
         const safe = actionFailure(error);
-        result.warnings.push({ scope: "adsManager", code: safe.code, message: safe.message });
+        const diagnostic = describeHttpError(error, { stage: "adsManager" });
+        result.warnings.push({ ...diagnostic, scope: "adsManager" });
+        getLogger("autoupload.session").error("autoupload.ads-manager.failed", diagnostic.message, { ...diagnostic, profileId: options.profileId });
+        await note(`Ads Manager: ${diagnostic.message}`);
         if (["login_required", "checkpoint"].includes(safe.sessionStatus)) {
             result.status = safe.sessionStatus;
             result.message = safe.message;
