@@ -83,6 +83,30 @@ const accepted = await acceptIncomingFriendRequest(fbData, targetUserId, { signa
 
 Використовуються doc_id з наданого опису HAR. Застарілі сесійні значення, ID акаунтів із прикладів і вигадані результати перевірки кліку не використовуються. Якщо сервер потребуватиме додаткового актуального контексту, метод поверне помилку; автоматичного запуску браузера для обходу HTTP-помилки немає. Ці дії поки є backend-функціями: нові кнопки чи масові операції GUI не додаються.
 
+## Admin-доступ до рекламного кабінету
+
+Backend-екшени розміщені в `facebook/autoupload/actions/adAccounts/` та експортуються через `index.js`:
+
+- `findFriendById(fbData, targetUserId, options)` читає `payload.entries` з Ads Manager `first_degree.php`, шукає точний UID із `is_friend_or_self === true` та виключає самого власника. Відсутність у відповіді не доводить відсутності дружби: список може бути обмежений сервером.
+- `getAdAccountUsers(fbData, adAccountId, options)` читає користувачів РК через `adsmanager-graph.facebook.com/v22.0/act_{id}`. Повертає лише UID, роль, permissions та ознаку Admin. За наявності наступної сторінки повертає `incomplete: true`, не переходячи за невідомими посиланнями.
+- `shareAdAccount(fbData, adAccountId, targetUserId, options)` виконує пошук друга, перевірку наявного доступу, один POST `/act_{id}/users` з `uid` та роллю `281423141961500`, а потім повторне читання прав. Успіх потребує одночасно `success: true` у POST та потрібного UID з `role: 1001` і permissions `1,2,3,4,5,7` у відповіді перевірки. Наявний підтверджений Admin повертає `AD_ACCOUNT_ALREADY_ADMIN` без POST. Неповний список без знайденого Admin блокує зміну.
+
+Усі запити виконуються з чинними cookies, UA та проксі того самого `FacebookWebClient`. Збережена сесія Ads Manager обов’язкова; окремий access token у POST не додається. Динамічні `_sessionID`, flowlet і `xref` не вигадуються та не копіюються з HAR. Їхня необов’язковість у живій сесії ще не підтверджена. UI-запит `add_user_confirm`, який у HAR був після успішного призначення, не виконується: фактичний результат перевіряється читанням користувачів РК.
+
+Викликаючий GUI має спочатку показати користувачу конкретний РК, отримувача та роль Admin й отримати явне підтвердження. Лише після нього передається об’єкт із точними нормалізованими ID:
+
+```js
+const result = await shareAdAccount(fbData, adAccountId, targetUserId, {
+    signal,
+    confirmation: { confirmed: true, adAccountId, targetUserId, role: "ADMIN" },
+    beforeSend: async (intent) => persistPendingOperation(intent),
+});
+```
+
+`beforeSend` дозволяє майбутньому GUI-сервісу записати намір перед зміною. Ці екшени ще не підключені до кнопки або фонових задач. Без об’єкта підтвердження, при невідповідності його ID або ролі повертається `FACEBOOK_ADMIN_CONFIRMATION_REQUIRED` без запитів. При timeout, redirect чи збої перевірки після POST повертаються `outcomeUnknown`, `retryable: false` та `actionRequired: check_ad_account_permissions`; автоматичного повтору POST немає. При Login/Checkpoint потрібно спочатку відновити авторизацію. Секрети та повні відповіді не повертаються в результати.
+
+Перевірено mock-тестами; реальні права акаунтів під час розробки не змінювалися. Для production-підключення потрібна окрема перевірка у власній сесії з явним підтвердженням конкретного призначення.
+
 ## Сумісність
 
 Потрібен запущений AdsPower Local API з доступом до профілів та актуальним патчем, який підтримує cookies й UA API. Браузер профілю не запускається. Якщо AdsPower не повертає збережені cookies закритого профілю, перевірка завершується помилкою. Автоматичного обходу через запуск браузера немає.

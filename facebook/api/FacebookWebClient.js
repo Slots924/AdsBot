@@ -54,6 +54,14 @@ export default class FacebookWebClient {
 
     setAdsManagerSession(value) { this.#adsManager = value; }
 
+    getAdsManagerData(fbData) {
+        this.validateFbData(fbData);
+        if (!this.#adsManager?.session || String(this.#adsManager.session.FacebookID) !== this.#expectedId) {
+            throw actionError("Спочатку перевірте сесію Ads Manager", "ADS_MANAGER_SESSION_REQUIRED", { actionRequired: "refresh_session" });
+        }
+        return { session: this.#adsManager.session };
+    }
+
     createGraphApi() {
         if (!this.#adsManager?.accessToken) throw actionError("Потрібна нова перевірка Ads Manager", "ADS_MANAGER_SESSION_REQUIRED");
         return new FacebookGraphApi({ accountKey: `autoupload-${this.#expectedId}`, facebookUserId: this.#expectedId,
@@ -67,6 +75,9 @@ export default class FacebookWebClient {
         this.#adsManager = null;
         await this.#onSessionStatus?.({ status: error.sessionStatus, message: error.message });
     }
+
+    // JSON-відповіді API також можуть повідомляти про втрату авторизації.
+    async invalidateSession(error) { await this.#handleSessionStatus(error); }
 
     // Серіалізує дії одного клієнта, щоб вони не змінювали сесію одночасно.
     run(action) {
@@ -87,7 +98,7 @@ export default class FacebookWebClient {
         if (Date.now() - this.#sessionCheckedAt > 15 * 60_000) throw actionError("Підготуйте актуальну сесію Facebook", "FACEBOOK_SESSION_EXPIRED", { actionRequired: "refresh_session" });
     }
 
-    async request({ url = homeUrl, method = "get", data, signal, headers = {}, mutation = !["get", "head"].includes(String(method).toLowerCase()), allowHttpErrors = false }) {
+    async request({ url = homeUrl, method = "get", data, signal, headers = {}, mutation = !["get", "head"].includes(String(method).toLowerCase()), allowHttpErrors = false, asFetch = false }) {
         signal?.throwIfAborted();
         let target = new URL(url, homeUrl);
         let requestMethod = method;
@@ -97,15 +108,12 @@ export default class FacebookWebClient {
                 throw failure("Facebook повернув непідтримуваний напрямок переходу");
             }
             let response;
-            const navigation = ["get", "head"].includes(String(requestMethod).toLowerCase());
+            const navigation = !asFetch && ["get", "head"].includes(String(requestMethod).toLowerCase());
             try { response = await this.#http.request({
                 method: requestMethod, url: target.href, data: requestData, signal,
                 timeout: 30000, maxRedirects: 0, responseType: "text", maxContentLength: 15 * 1024 * 1024,
                 validateStatus: () => true,
                 headers: {
-                    ...headers,
-                    "User-Agent": this.#userAgent,
-                    Cookie: this.#jar.getCookieStringSync(target.href),
                     // Заголовки навігації потрібні для отримання HTML домашньої сторінки Facebook.
                     Accept: navigation ? "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" : "*/*",
                     "Accept-Language": "en-US,en;q=0.9",
@@ -113,6 +121,9 @@ export default class FacebookWebClient {
                     "Sec-Fetch-Mode": navigation ? "navigate" : "cors",
                     "Sec-Fetch-Site": navigation ? "none" : "same-origin",
                     ...(navigation ? { "Sec-Fetch-User": "?1", "Upgrade-Insecure-Requests": "1" } : { Origin: "https://www.facebook.com", Referer: homeUrl }),
+                    ...headers,
+                    "User-Agent": this.#userAgent,
+                    Cookie: this.#jar.getCookieStringSync(target.href),
                 },
             }, { retryOnConnectionError: !mutation }); }
             catch (error) {

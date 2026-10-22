@@ -2,6 +2,113 @@
   "version": 1,
   "tasks": [
     {
+      "id": "13155e7a-1f14-4947-9237-e4fff2afdbef",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:629",
+          "label": "профіль №629"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k19tjjct"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k19tjjct",
+        "reportId": "9a33ca37-ca5f-4ce4-8686-0071082c2864"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k19tjjct",
+            "profileNo": "629",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 3; фанпейджів: 2"
+            ],
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1668145827216202",
+                  "accountId": "1668145827216202",
+                  "name": "Sandra37",
+                  "accountStatus": 2
+                },
+                {
+                  "id": "act_1058086359774570",
+                  "accountId": "1058086359774570",
+                  "name": "Haruto Nishimura",
+                  "accountStatus": 1
+                },
+                {
+                  "id": "act_1672894617449236",
+                  "accountId": "1672894617449236",
+                  "name": "Sandra67",
+                  "accountStatus": 1
+                }
+              ],
+              "pages": [
+                {
+                  "id": "747569765106849",
+                  "name": "Florian Richter"
+                },
+                {
+                  "id": "760370527157044",
+                  "name": "Kenta Moriyama"
+                }
+              ],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-22T06:56:08.340Z",
+      "startedAt": "2026-10-22T06:56:08.342Z",
+      "finishedAt": "2026-10-22T06:56:19.854Z",
+      "updatedAt": "2026-10-22T06:56:19.856Z"
+    },
+    {
       "id": "0e0f500c-3573-4e67-b06c-2e72c2e565c8",
       "type": "autoupload-friend-request",
       "name": "Заявки в друзі · 1",

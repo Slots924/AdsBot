@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "id": "9a33ca37-ca5f-4ce4-8686-0071082c2864",
+  "taskId": "13155e7a-1f14-4947-9237-e4fff2afdbef",
+  "type": "autoupload-session-check",
+  "title": "Перевірка сесій · 1",
+  "status": "completed",
+  "createdAt": "2026-10-22T06:56:19.855Z",
+  "startedAt": "2026-10-22T06:56:08.342Z",
+  "finishedAt": "2026-10-22T06:56:19.854Z",
+  "durationMs": 11512,
+  "inputSummary": {
+    "profileIds": [
+      "k19tjjct"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k19tjjct",
+        "profileNo": "629",
+        "status": "active",
+        "stage": "facebook",
+        "message": "Акаунт перевірено, сесії та активи оновлено",
+        "fields": [
+          "fb_dtsg",
+          "fb_dtsg_ag",
+          "lsd",
+          "jazoest",
+          "sessionID",
+          "FacebookID",
+          "clientRevision",
+          "hsi",
+          "spinR",
+          "spinB",
+          "spinT"
+        ],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+          "Сесію Ads Manager та access token отримано",
+          "Рекламних кабінетів: 3; фанпейджів: 2"
+        ],
+        "assets": {
+          "adAccounts": [
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]"
+            }
+          ],
+          "pages": [
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            },
+            {
+              "id": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]"
+            }
+          ],
+          "adAccountsState": "loaded",
+          "pagesState": "loaded"
+        },
+        "capabilities": {
+          "facebook": true,
+          "adsManager": true,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": [],
+        "hasWarnings": false
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload:k19tjjct"
+  }
+}
