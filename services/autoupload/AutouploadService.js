@@ -6,14 +6,17 @@ import sendFriendRequest, { validateTargetUserId } from "../../facebook/autouplo
 import shareAdAccount from "../../facebook/autoupload/actions/adAccounts/shareAdAccount.js";
 import { validateAdAccountId } from "../../facebook/autoupload/actions/adAccounts/common.js";
 import { actionFailure } from "../../facebook/autoupload/graphql/errors.js";
+import acceptIncomingFriendRequest from "../../facebook/autoupload/actions/friends/acceptIncomingFriendRequest.js";
+import { safeDiagnosticText } from "../logging/httpDiagnostics.js";
 
 export default class AutouploadService {
     #clients = new Map();
     #running = new Set();
     #browserStates = new Map();
     #browserBusy = new Set();
-    constructor({ store, adsPower, profileBrowser, sessionStore, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount }) {
-        Object.assign(this, { store, adsPower, profileBrowser, sessionStore, onUpdated, checkSession: checkSession ?? (sessionStore ? refreshProfileSession : checkProfileSession), sendFriendRequestFn, shareAdAccountFn });
+    #mutating = new Set();
+    constructor({ store, adsPower, profileBrowser, sessionStore, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount, acceptFriendRequestFn = acceptIncomingFriendRequest }) {
+        Object.assign(this, { store, adsPower, profileBrowser, sessionStore, onUpdated, checkSession: checkSession ?? (sessionStore ? refreshProfileSession : checkProfileSession), sendFriendRequestFn, shareAdAccountFn, acceptFriendRequestFn });
     }
     #statusHandler(profileId) {
         return async ({ status, message }) => {
@@ -25,11 +28,14 @@ export default class AutouploadService {
     }
     async #prepare(profileId, context, refresh) {
         const onSessionStatus = this.#statusHandler(profileId);
-        if (!refresh && this.sessionStore) {
+        if (!refresh && (this.sessionStore || context.cachedOnly)) {
             try {
-                const saved = await this.sessionStore.load(profileId);
-                if (!saved) throw new Error();
-                const client = this.#clients.get(profileId) ?? FacebookWebClient.restore(saved, { onSessionStatus });
+                let client = this.#clients.get(profileId);
+                if (!client) {
+                    const saved = await this.sessionStore?.load(profileId);
+                    if (!saved) throw new Error();
+                    client = FacebookWebClient.restore(saved, { onSessionStatus });
+                }
                 client.validateFbData(client.getFbData(profileId));
                 return { client, result: { status: "active", message: "Використано збережену сесію Facebook", fields: [], steps: ["Сесію прочитано з локального сховища"] } };
             } catch {
@@ -46,7 +52,7 @@ export default class AutouploadService {
         const state = await this.store.snapshot();
         return { ...state, profiles: state.profiles.map((item) => ({
             ...item, adsPowerOpen: this.#browserStates.get(item.profileId) ?? null,
-            browserBusy: this.#browserBusy.has(item.profileId),
+            browserBusy: this.#browserBusy.has(item.profileId) || this.#mutating.has(item.profileId),
             ...(this.#running.has(item.profileId) ? { status: "checking", message: "Виконується перевірка" } : {}),
         })) };
     }
@@ -64,6 +70,7 @@ export default class AutouploadService {
     async controlProfile(profileId, action) {
         if (!["open", "close"].includes(action)) throw new Error("Невідома дія профілю AdsPower");
         const [profile] = await this.selected([profileId]);
+        if (this.#running.has(profileId) || this.#mutating.has(profileId)) throw new Error("Дочекайтеся завершення операції профілю");
         if (this.#browserBusy.has(profileId)) throw new Error("Операція над цим профілем уже виконується");
         this.#browserBusy.add(profileId);
         try {
@@ -96,8 +103,31 @@ export default class AutouploadService {
         this.onUpdated(snapshot);
         return snapshot;
     }
-    async mutate({ action, id, name, ids, groupId = "new" } = {}) {
+    async mutate(payload = {}) {
+        if (!["remove", "rename-profile"].includes(payload.action)) return this.#mutate(payload);
+        const profiles = await this.selected(payload.action === "remove" ? payload.ids : [payload.id]);
+        const ids = profiles.map(profile => profile.profileId);
+        if (ids.some(id => this.#running.has(id) || this.#browserBusy.has(id) || this.#mutating.has(id))) throw new Error("Дочекайтеся завершення операції профілю");
+        ids.forEach(id => this.#mutating.add(id));
+        try {
+            await this.#publish();
+            await this.#mutate(payload);
+        } finally {
+            ids.forEach(id => this.#mutating.delete(id));
+            await this.#publish();
+        }
+        return this.snapshot();
+    }
+    async #mutate({ action, id, name, ids, groupId = "new", deleteAdsPower = false } = {}) {
         if (["create", "rename", "delete"].includes(action)) await this.store.group(action, id, name);
+        else if (action === "rename-profile") {
+            await this.selected([id]);
+            if (this.#running.has(id) || this.#browserBusy.has(id)) throw new Error("Дочекайтеся завершення операції профілю");
+            const title = String(name ?? "").trim();
+            if (!title || title.length > 100) throw new Error("Назва профілю має містити від 1 до 100 символів");
+            await this.adsPower.updateProfileName(id, title);
+            await this.store.renameProfile(id, title);
+        }
         else if (action === "add") {
             const profiles = [];
             for (const profileId of profileIds(ids)) {
@@ -109,8 +139,18 @@ export default class AutouploadService {
             await this.store.add(profiles, groupId);
         } else if (["move", "remove"].includes(action)) {
             const selected = profileIds(ids);
-            if (selected.some((profileId) => this.#running.has(profileId))) throw new Error("Дочекайтеся завершення перевірки вибраних профілів");
-            await this.store.editProfiles(action, selected, groupId);
+            await this.selected(selected);
+            if (selected.some((profileId) => this.#running.has(profileId) || this.#browserBusy.has(profileId))) throw new Error("Дочекайтеся завершення операції вибраних профілів");
+            if (action === "remove" && deleteAdsPower === true) {
+                try {
+                    for (const profileId of selected) {
+                        await this.adsPower.deleteProfile(profileId);
+                        await this.store.editProfiles("remove", [profileId]);
+                        this.#clients.delete(profileId);
+                        await this.sessionStore?.remove(profileId);
+                    }
+                } finally { await this.#publish(); }
+            } else await this.store.editProfiles(action, selected, groupId);
             if (action === "remove") {
                 for (const profileId of selected) { this.#clients.delete(profileId); await this.sessionStore?.remove(profileId); }
             }
@@ -129,6 +169,98 @@ export default class AutouploadService {
     }
     async sendFriendRequests(ids, targetUserId, context = {}) {
         return this.#runProfiles(ids, { ...context, targetUserId: validateTargetUserId(targetUserId) });
+    }
+    async validateTransfer({ ids, targetProfileId } = {}) {
+        const profiles = await this.selected(ids);
+        const [target] = await this.selected([targetProfileId]);
+        if (profiles.some(profile => profile.profileId === targetProfileId)) throw new Error("Кінг не може бути донором у цій операції");
+        for (const profile of [...profiles, target]) {
+            if (profile.assets?.adAccountsState !== "loaded") throw new Error(`№${profile.profileNo}: немає збереженого повного списку РК. Спочатку перевірте профіль`);
+        }
+        return { profiles, target };
+    }
+    async transferPersonalAccounts(input, { signal, progress = async () => {} } = {}) {
+        const { profiles, target } = await this.validateTransfer(input);
+        const locked = [...profiles, target].map(profile => profile.profileId);
+        if (locked.some(id => this.#running.has(id) || this.#browserBusy.has(id) || this.#mutating.has(id))) throw new Error("Операція над одним із профілів уже виконується");
+        locked.forEach(id => this.#running.add(id));
+        const results = [];
+        const targetAccounts = new Set(target.assets.adAccounts.map(account => String(account.accountId)));
+        let targetClient;
+        const record = async (profile, operation, action, extra = {}) => {
+            const entry = { ...action, ...extra, operation, status: action.success ? "success" : "error", fields: [], steps: [action.message] };
+            await this.store.recordAction(profile.profileId, entry);
+            results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...entry });
+            await this.#publish();
+        };
+        const savedClient = async (profile) => {
+            const prepared = await this.#prepare(profile.profileId, { signal, cachedOnly: true }, false);
+            if (!prepared.client) throw Object.assign(new Error(prepared.result.message), { safeFacebookError: true, code: "FACEBOOK_SESSION_PREPARATION_FAILED" });
+            this.#clients.set(profile.profileId, prepared.client);
+            return prepared.client;
+        };
+        try {
+            await this.#publish();
+            for (const profile of profiles) {
+                if (signal?.aborted) break;
+                try {
+                    await progress({ stage: "personal-account-transfer", completed: profiles.indexOf(profile), total: profiles.length, message: `№${profile.profileNo}: передача персональних РК` });
+                    const accounts = [...new Map(profile.assets.adAccounts.filter(account => account.isPersonal === true && !account.businessId && !targetAccounts.has(String(account.accountId))).map(account => [String(account.accountId), account])).values()];
+                    if (!accounts.length) {
+                        await record(profile, "personal-account-transfer", { success: true, outcome: "SKIPPED", message: "Пропущено: немає персональних РК, відсутніх у кінга" });
+                        continue;
+                    }
+                    targetClient ??= await savedClient(target);
+                    const client = await savedClient(profile);
+                    const targetData = targetClient.getFbData(target.profileId);
+                    const fbData = client.getFbData(profile.profileId);
+                    const targetUserId = validateTargetUserId(targetData.userId);
+                    const donorUserId = validateTargetUserId(fbData.userId);
+                    if (targetUserId === donorUserId) throw Object.assign(new Error("Донор і кінг використовують один Facebook-акаунт"), { safeFacebookError: true, code: "FACEBOOK_TRANSFER_SELF" });
+                    let attempted = false;
+                    const sent = await this.sendFriendRequestFn(fbData, targetUserId, {
+                        signal, beforeSend: async () => { await this.store.beginFriendRequest(profile.profileId, targetUserId); attempted = true; },
+                    });
+                    await record(profile, "friend-request", sent, { targetUserId, attempted });
+                    // Навіть за помилки надсилання дружба могла вже існувати: приймаємо заявку та пробуємо передачу.
+                    signal?.throwIfAborted();
+                    const accepted = await this.acceptFriendRequestFn(targetData, donorUserId, { signal, attemptOnCheckFailure: true });
+                    await record(target, "friend-request-accept", accepted, { targetUserId: donorUserId });
+                    for (const account of accounts) {
+                        signal?.throwIfAborted();
+                        const adAccountId = validateAdAccountId(account.accountId);
+                        if (targetAccounts.has(adAccountId)) continue;
+                        let attemptedShare = false;
+                        const shared = await this.shareAdAccountFn(fbData, adAccountId, targetUserId, {
+                            signal, useCachedAccess: true,
+                            confirmation: { confirmed: true, adAccountId, targetUserId, role: "ADMIN" },
+                            beforeSend: async () => { await this.store.beginAdAccountShare(profile.profileId, adAccountId, targetUserId); attemptedShare = true; },
+                        });
+                        if (shared.success) {
+                            // Зберігаємо доступ до наступного донора та наступного запуску без повторного читання Facebook.
+                            await this.store.addSharedAccount(target.profileId, account);
+                            targetAccounts.add(adAccountId);
+                        }
+                        await record(profile, "ad-account-share", shared, { adAccountId, targetUserId, attempted: attemptedShare });
+                    }
+                    if (this.sessionStore) {
+                        for (const id of [profile.profileId, target.profileId]) {
+                            const cached = this.#clients.get(id);
+                            if (cached) await this.sessionStore.save(id, cached.exportSession());
+                        }
+                    }
+                } catch (error) {
+                    const failure = actionFailure(error);
+                    if (!error.safeFacebookError) failure.message = safeDiagnosticText(error.message || failure.message);
+                    await record(profile, "personal-account-transfer", failure);
+                    if (signal?.aborted) break;
+                }
+            }
+        } finally {
+            locked.forEach(id => this.#running.delete(id));
+            await this.#publish();
+        }
+        return { result: { profiles: results, targetProfileId: target.profileId }, taskStatus: signal?.aborted || results.some(item => !item.success) ? "completed_with_warnings" : "completed" };
     }
     async validateShareSelection({ ids, accounts, targetUserId, confirmed } = {}) {
         if (confirmed !== true) throw new Error("Підтвердьте надання Admin-доступу до вибраних РК");
@@ -153,7 +285,7 @@ export default class AutouploadService {
         const results = [];
         for (const profile of profiles) {
             if (signal?.aborted) break;
-            if (this.#running.has(profile.profileId)) throw new Error("Операція над профілем уже виконується");
+            if (this.#running.has(profile.profileId) || this.#mutating.has(profile.profileId) || this.#browserBusy.has(profile.profileId)) throw new Error("Операція над профілем уже виконується");
             this.#running.add(profile.profileId);
             let client;
             try {
@@ -200,7 +332,7 @@ export default class AutouploadService {
         const results = [];
         for (const profile of profiles) {
             if (signal?.aborted) break;
-            if (this.#running.has(profile.profileId)) throw new Error("Цей профіль уже перевіряється");
+            if (this.#running.has(profile.profileId) || this.#mutating.has(profile.profileId) || this.#browserBusy.has(profile.profileId)) throw new Error("Операція над профілем уже виконується");
             this.#running.add(profile.profileId);
             try {
                 await this.#publish();

@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "id": "f6148a0e-b6c8-4084-a595-d17e068cf254",
+  "taskId": "04144def-5c88-4e07-92be-c5920d45a963",
+  "type": "campaign",
+  "title": "Test",
+  "status": "failed",
+  "createdAt": "2026-10-22T10:37:10.468Z",
+  "startedAt": "2026-10-22T10:36:48.817Z",
+  "finishedAt": "2026-10-22T10:37:10.467Z",
+  "durationMs": 21650,
+  "inputSummary": {
+    "campaignJobId": "5f58caf5-e294-456f-a157-27e77db5532e",
+    "accountKey": "account-031",
+    "adAccountId": "act_1058086359774570",
+    "campaignName": "Test",
+    "templateId": 34,
+    "pageId": "1437866019399969",
+    "postId": "1437866019399969_122112011679499318",
+    "adSetCount": 1,
+    "dailyBudget": 5,
+    "startTime": "2026-10-22T10:36:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120250208571190149",
+      "creativeId": "29464921496459227",
+      "creatives": [
+        {
+          "id": "29464921496459227",
+          "pageId": "1437866019399969",
+          "postId": "1437866019399969_122112011679499318"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120250208572210149",
+          "name": "Test | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Update payment method: Visit the Billing and payment center to add a valid payment method.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 100,
+      "graphSubcode": 1359188,
+      "graphUserTitle": "No Payment Method",
+      "graphUserMessage": "Update payment method: Visit the Billing and payment center to add a valid payment method.",
+      "graphType": "FacebookApiException",
+      "isTransient": false,
+      "requestId": "3382f306-b6a3-4d1c-9570-c3937acd42a8",
+      "traceId": "AqtJsMmIURC09Iq3YFCazQW",
+      "metaRequestId": "AqtJsMmIURC09Iq3YFCazQW",
+      "endpoint": "/act_1058086359774570/ads",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "stage": "ad",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "5f58caf5-e294-456f-a157-27e77db5532e",
+    "accountKey": "account-031",
+    "adAccountId": "act_1058086359774570",
+    "uniqueKey": "campaign-job:5f58caf5-e294-456f-a157-27e77db5532e"
+  }
+}

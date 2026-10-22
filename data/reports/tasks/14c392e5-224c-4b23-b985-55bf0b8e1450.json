@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "id": "14c392e5-224c-4b23-b985-55bf0b8e1450",
+  "taskId": "2642fcd6-5fa4-4865-872e-813f56a8bdbf",
+  "type": "autoupload-session-check",
+  "title": "Перевірка сесій · 2",
+  "status": "completed",
+  "createdAt": "2026-10-22T09:21:46.087Z",
+  "startedAt": "2026-10-22T09:21:23.435Z",
+  "finishedAt": "2026-10-22T09:21:46.085Z",
+  "durationMs": 22650,
+  "inputSummary": {
+    "profileIds": [
+      "k1i44oqb",
+      "k1i44oqc"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1i44oqb",
+        "profileNo": "2414",
+        "status": "active",
+        "stage": "facebook",
+        "message": "Акаунт перевірено, сесії та активи оновлено",
+        "fields": [
+          "fb_dtsg",
+          "fb_dtsg_ag",
+          "lsd",
+          "jazoest",
+          "sessionID",
+          "FacebookID",
+          "clientRevision",
+          "hsi",
+          "spinR",
+          "spinB",
+          "spinT"
+        ],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+          "Сесію Ads Manager та access token отримано",
+          "Рекламних кабінетів: 1; фанпейджів: 0"
+        ],
+        "assets": {
+          "adAccounts": [
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            }
+          ],
+          "pages": [],
+          "adAccountsState": "loaded",
+          "pagesState": "loaded"
+        },
+        "capabilities": {
+          "facebook": true,
+          "adsManager": true,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": [],
+        "hasWarnings": false
+      },
+      {
+        "profileId": "k1i44oqc",
+        "profileNo": "2415",
+        "status": "active",
+        "stage": "facebook",
+        "message": "Акаунт перевірено, сесії та активи оновлено",
+        "fields": [
+          "fb_dtsg",
+          "fb_dtsg_ag",
+          "lsd",
+          "jazoest",
+          "sessionID",
+          "FacebookID",
+          "clientRevision",
+          "hsi",
+          "spinR",
+          "spinB",
+          "spinT"
+        ],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+          "Сесію Ads Manager та access token отримано",
+          "Рекламних кабінетів: 1; фанпейджів: 0"
+        ],
+        "assets": {
+          "adAccounts": [
+            {
+              "id": "[MAX_DEPTH]",
+              "accountId": "[MAX_DEPTH]",
+              "name": "[MAX_DEPTH]",
+              "accountStatus": "[MAX_DEPTH]",
+              "businessId": "[MAX_DEPTH]",
+              "isPersonal": "[MAX_DEPTH]"
+            }
+          ],
+          "pages": [],
+          "adAccountsState": "loaded",
+          "pagesState": "loaded"
+        },
+        "capabilities": {
+          "facebook": true,
+          "adsManager": true,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": [],
+        "hasWarnings": false
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload:k1i44oqb,k1i44oqc"
+  }
+}

@@ -12,7 +12,7 @@
     "test": "npm run test:campaign",
     "test:campaign": "node scripts/runTests.js campaign",
     "test:all": "node scripts/runTests.js all",
-    "test:autoupload": "node --test scripts/autoupload.test.js scripts/autoupload-friends.test.js scripts/autoupload-sessions.test.js scripts/autoupload-ad-accounts.test.js scripts/autoupload-diagnostics.test.js",
+    "test:autoupload": "node --test scripts/autoupload.test.js scripts/autoupload-friends.test.js scripts/autoupload-sessions.test.js scripts/autoupload-ad-accounts.test.js scripts/autoupload-diagnostics.test.js scripts/autoupload-transfer.test.js",
     "test:campaign:live": "node scripts/manual/validateCampaign.js"
   },
   "keywords": [],

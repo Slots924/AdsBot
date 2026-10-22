@@ -27,6 +27,16 @@ async function fixture(responses, options = {}) {
     return { client, fbData: client.getFbData("test"), calls };
 }
 
+test("передача за збереженими даними робить лише один POST без читання друзів і прав РК", async () => {
+    const { fbData, calls } = await fixture([{ data: { success: true } }]);
+    const result = await shareAdAccount(fbData, "789", "456", { confirmation, useCachedAccess: true });
+    assert.equal(result.success, true);
+    assert.equal(result.writeAccepted, true);
+    assert.equal(result.verified, false);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].config.method, "post");
+});
+
 test("пошук друга використовує UID, friends_only, поточний viewer і свіжий request_id", async () => {
     const { fbData, calls } = await fixture([{ data: friends() }, { data: friends() }]);
     assert.equal((await findFriendById(fbData, "456")).found, true);

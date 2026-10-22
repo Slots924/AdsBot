@@ -666,6 +666,19 @@ class AdsPower {
     }
 
 
+    // Видаляє профіль через спільну чергу AdsPower.
+    async deleteProfile(profileId) {
+        const id = String(profileId ?? "").trim();
+        if (!/^[a-zA-Z0-9_-]{1,100}$/.test(id)) throw new Error("Некоректний ID профілю AdsPower");
+        try {
+            const { data } = await this.request("post", `${this.apiUrl}/api/v1/user/delete`, { user_ids: [id] });
+            if (data.code !== 0) throw new Error(data.msg || "AdsPower не підтвердив видалення");
+            return data.data ?? {};
+        } catch (error) {
+            throw new Error(`Не вдалося видалити профіль AdsPower: ${error.response?.data?.msg || error.message}`);
+        }
+    }
+
     // Оновлює відображувану назву AdsPower-профілю
     async updateProfileName(profileId, name) {
         const normalizedProfileId = String(profileId ?? "").trim();

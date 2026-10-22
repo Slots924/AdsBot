@@ -230,7 +230,26 @@ export default function registerIpcHandlers({
         const [profile] = await autoupload.selected([profileId]);
         return withProfileReservation(profile.profileNo, () => autoupload.controlProfile(profileId, action));
     }));
-    ipcMain.handle("autoupload:mutate", safeHandler((payload) => autoupload.mutate(payload)));
+    ipcMain.handle("autoupload:mutate", safeHandler(async (payload) => {
+        if (payload?.action !== "remove" && payload?.action !== "rename-profile") return autoupload.mutate(payload);
+        const profiles = await autoupload.selected(payload.action === "remove" ? payload.ids : [payload.id]);
+        const reserve = (offset) => offset === profiles.length ? autoupload.mutate(payload)
+            : withProfileReservation(profiles[offset].profileNo, () => reserve(offset + 1));
+        return reserve(0);
+    }));
+    ipcMain.handle("autoupload:transfer-personal-accounts", safeHandler(async (payload) => {
+        const { profiles, target } = await autoupload.validateTransfer(payload);
+        const input = { ids: profiles.map(profile => profile.profileId), targetProfileId: target.profileId };
+        const task = await backgroundTaskManager.enqueue({
+            type: "autoupload-personal-account-transfer", name: `Передати персональні РК · ${profiles.length}`,
+            uniqueKey: `autoupload-transfer:${target.profileId}:${[...input.ids].sort().join(",")}`,
+            resources: [{ key: "autoupload-ad-account-share", label: "послідовне надання доступів РК" },
+                { key: "autoupload-friend-requests", label: "послідовне надсилання заявок" },
+                ...[...profiles, target].map(profile => ({ key: `adspower-profile:${profile.profileNo}`, label: `профіль №${profile.profileNo}` }))],
+            input, runner: context => autoupload.transferPersonalAccounts(input, context),
+        });
+        return { taskId: task.id };
+    }));
     ipcMain.handle("autoupload:check", safeHandler(async ({ ids } = {}) => {
         const profiles = await autoupload.selected(ids);
         const task = await backgroundTaskManager.enqueue({

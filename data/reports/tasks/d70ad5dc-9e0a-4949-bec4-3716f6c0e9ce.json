@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "id": "d70ad5dc-9e0a-4949-bec4-3716f6c0e9ce",
+  "taskId": "82fe2de2-7720-441a-aafc-e86ef7712609",
+  "type": "autoupload-ad-account-share",
+  "title": "Admin-доступ до РК · 2",
+  "status": "completed",
+  "createdAt": "2026-10-22T09:22:10.730Z",
+  "startedAt": "2026-10-22T09:22:00.835Z",
+  "finishedAt": "2026-10-22T09:22:10.729Z",
+  "durationMs": 9894,
+  "inputSummary": {
+    "ids": [
+      "k1i44oqb",
+      "k1i44oqc"
+    ],
+    "accounts": [
+      {
+        "profileId": "k1i44oqb",
+        "adAccountId": "2579141585846569"
+      },
+      {
+        "profileId": "k1i44oqc",
+        "adAccountId": "1460994319283048"
+      }
+    ],
+    "targetUserId": "61586347006946",
+    "confirmed": true
+  },
+  "resultSummary": {
+    "accounts": [
+      {
+        "profileId": "k1i44oqb",
+        "profileNo": "2414",
+        "success": true,
+        "outcome": "AD_ACCOUNT_ADMIN_GRANTED",
+        "code": null,
+        "message": "Admin-доступ підтверджено у списку користувачів РК",
+        "adAccountId": "2579141585846569",
+        "targetUserId": "61586347006946",
+        "writeAccepted": true,
+        "verified": true,
+        "role": 1001,
+        "permissions": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          7
+        ],
+        "httpStatus": 200,
+        "verificationHttpStatus": 200,
+        "outcomeUnknown": false,
+        "retryable": false,
+        "operation": "ad-account-share",
+        "attempted": true,
+        "fields": [],
+        "steps": [
+          "Admin-доступ підтверджено у списку користувачів РК"
+        ]
+      },
+      {
+        "profileId": "k1i44oqc",
+        "profileNo": "2415",
+        "success": true,
+        "outcome": "AD_ACCOUNT_ADMIN_GRANTED",
+        "code": null,
+        "message": "Admin-доступ підтверджено у списку користувачів РК",
+        "adAccountId": "1460994319283048",
+        "targetUserId": "61586347006946",
+        "writeAccepted": true,
+        "verified": true,
+        "role": 1001,
+        "permissions": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          7
+        ],
+        "httpStatus": 200,
+        "verificationHttpStatus": 200,
+        "outcomeUnknown": false,
+        "retryable": false,
+        "operation": "ad-account-share",
+        "attempted": true,
+        "fields": [],
+        "steps": [
+          "Admin-доступ підтверджено у списку користувачів РК"
+        ]
+      }
+    ],
+    "targetUserId": "61586347006946"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-share:61586347006946:1460994319283048,2579141585846569"
+  }
+}

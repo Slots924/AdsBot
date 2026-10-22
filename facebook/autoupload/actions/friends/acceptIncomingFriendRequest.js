@@ -10,9 +10,16 @@ export default async function acceptIncomingFriendRequest(fbData, targetId, opti
         validateFriendSession(fbData);
         if (targetUserId === String(fbData.userId)) throw actionError("Не можна прийняти заявку від самого себе", "FACEBOOK_FRIEND_REQUEST_SELF");
         return await fbData.client.run(async () => {
-            const incoming = await loadIncomingFriendRequests(fbData, options);
+            let incoming;
+            let incomingCheckError;
+            try { incoming = await loadIncomingFriendRequests(fbData, options); }
+            catch (error) {
+                if (!options.attemptOnCheckFailure || options.signal?.aborted) throw error;
+                incomingCheckError = friendActionFailure(error, { signal: options.signal, targetUserId });
+                incoming = { requests: [], incomplete: true };
+            }
             const requester = incoming.requests.find((item) => item.id === targetUserId && item.status === "INCOMING_REQUEST");
-            if (!requester) {
+            if (!requester && !options.attemptOnCheckFailure) {
                 throw actionError(incoming.incomplete
                     ? "Список вхідних заявок неповний: неможливо визначити, чи є заявка цього користувача"
                     : "У вхідних заявках немає цього користувача", incoming.incomplete ? "FACEBOOK_INCOMING_REQUESTS_INCOMPLETE" : "FACEBOOK_INCOMING_REQUEST_NOT_FOUND", {
@@ -20,7 +27,8 @@ export default async function acceptIncomingFriendRequest(fbData, targetId, opti
                 });
             }
             const result = await confirmFriendRequest(fbData, targetUserId, options);
-            return { ...result, incomingIncomplete: incoming.incomplete };
+            return { ...result, incomingIncomplete: incoming.incomplete, incomingCheckError,
+                incomingCheckMessage: requester ? "Вхідну заявку знайдено" : "Заявку не знайдено під час перевірки; виконано спробу прийняття" };
         });
     } catch (error) {
         return { ...friendActionFailure(error, { signal: options.signal, targetUserId: targetUserId ?? null }), userId: targetUserId ?? null };

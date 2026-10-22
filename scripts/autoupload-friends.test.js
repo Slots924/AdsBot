@@ -315,6 +315,23 @@ test("відсутній ID у неповному списку не вважає
     }
 });
 
+test("передача пробує прийняти заявку навіть за відсутності її у списку або помилки перевірки", async () => {
+    for (const checkFails of [false, true]) {
+        const { fbData, calls } = await ready(config => {
+            const name = new URLSearchParams(config.data).get("fb_api_req_friendly_name");
+            if (name === "FriendingCometRootContentQuery") {
+                if (checkFails) throw new Error("Помилка перевірки");
+                return response({ data: incoming({ ids: [] }) });
+            }
+            return response(accepted());
+        });
+        const result = await acceptIncomingFriendRequest(fbData, "456", { attemptOnCheckFailure: true });
+        assert.equal(result.success, true);
+        assert.ok(calls.some(call => new URLSearchParams(call.config.data).get("fb_api_req_friendly_name") === "FriendingCometFriendRequestConfirmMutation"));
+        if (checkFails) assert.ok(result.incomingCheckError);
+    }
+});
+
 test("відома заявка в неповному списку може бути прийнята окремо", async () => {
     const { fbData } = await ready((config) => response(new URLSearchParams(config.data).get("fb_api_req_friendly_name") === "FriendingCometRootContentQuery" ? { data: incoming({ hasNextPage: true, count: 4 }) } : accepted()));
     const result = await acceptIncomingFriendRequest(fbData, "456");

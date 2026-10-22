@@ -17,12 +17,45 @@ beforeEach(() => {
         checkAutouploadSessions: vi.fn(() => ok({ taskId: "task1" })),
         sendAutouploadFriendRequests: vi.fn(() => ok({ taskId: "friend-task" })),
         shareAutouploadAdAccounts: vi.fn(() => ok({ taskId: "share-task" })),
+        transferAutouploadPersonalAccounts: vi.fn(() => ok({ taskId: "transfer-task" })),
         controlAutouploadProfile: vi.fn((_profileId, action) => ok({ profileId: "p1", adsPowerOpen: action === "open" })),
     };
 });
 afterEach(() => { cleanup(); delete window.adsBot; });
 
 describe("Автозаливи", () => {
+    it("видалення одного профілю підтверджується, AdsPower початково вимкнений", async () => {
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("button", { name: "Прибрати профіль 12" }));
+        expect(screen.getByRole("checkbox", { name: "Також видалити профілі в AdsPower" })).not.toBeChecked();
+        fireEvent.click(screen.getByRole("button", { name: "Підтвердити" }));
+        await waitFor(() => expect(window.adsBot.mutateAutoupload).toHaveBeenCalledWith({ action: "remove", ids: ["p1"], groupId: "new", deleteAdsPower: false }));
+    });
+    it("видалення в AdsPower передає явний вибір користувача", async () => {
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("button", { name: "Прибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("checkbox", { name: "Також видалити профілі в AdsPower" }));
+        fireEvent.click(screen.getByRole("button", { name: "Підтвердити" }));
+        await waitFor(() => expect(window.adsBot.mutateAutoupload).toHaveBeenCalledWith(expect.objectContaining({ deleteAdsPower: true })));
+    });
+    it("олівець відкриває редагування назви профілю", async () => {
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("button", { name: "Перейменувати профіль 12" }));
+        fireEvent.change(screen.getByLabelText("Назва профілю"), { target: { value: "Нова назва" } });
+        fireEvent.click(screen.getByRole("button", { name: "Підтвердити" }));
+        await waitFor(() => expect(window.adsBot.mutateAutoupload).toHaveBeenCalledWith({ action: "rename-profile", id: "p1", name: "Нова назва" }));
+    });
+    it("передача обирає групу та кінга зі списку без вибору окремих РК", async () => {
+        const assets = { adAccountsState: "loaded", adAccounts: [] };
+        window.adsBot.getAutoupload.mockImplementation(() => ok({ ...state, profiles: [{ ...state.profiles[0], assets }, { profileId: "king", profileNo: "99", name: "King", groupId: "ready", assets }] }));
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("button", { name: "Передати персональні РК кінгу" }));
+        fireEvent.change(screen.getByLabelText("Група кінга"), { target: { value: "ready" } });
+        fireEvent.change(screen.getByLabelText("Профіль кінга"), { target: { value: "king" } });
+        fireEvent.click(screen.getByRole("button", { name: "Додати в друзі та передати РК" }));
+        await waitFor(() => expect(window.adsBot.transferAutouploadPersonalAccounts).toHaveBeenCalledWith({ ids: ["p1"], targetProfileId: "king" }));
+    });
     it("показує точну причину часткового оновлення та мережевий код у деталях", async () => {
         window.adsBot.getAutoupload.mockImplementation(() => ok({ ...state, history: [{ id: "partial", profileId: "p1", profileNo: "12", status: "active", message: "Дані оновлено частково", warnings: [{ scope: "adsManager", stage: "adsManager", status: "network_timeout", code: "PROXY_POOL_EXHAUSTED", networkCode: "ETIMEDOUT", message: "connect ETIMEDOUT [REDACTED]", endpoint: "https://adsmanager.facebook.com/adsmanager/manage/campaigns" }] }] }));
         render(<AutouploadTab />);

@@ -3,7 +3,7 @@ import { adminRole, failure, graphOrigin, isAdmin, requestJson, validateAdAccoun
 import { findFriend } from "./findFriendById.js";
 import { readUsers } from "./getAdAccountUsers.js";
 
-export default async function shareAdAccount(fbData, accountId, targetId, { signal, confirmation, beforeSend } = {}) {
+export default async function shareAdAccount(fbData, accountId, targetId, { signal, confirmation, beforeSend, useCachedAccess = false } = {}) {
     let adAccountId, targetUserId, sent = false, writeAccepted = false;
     try {
         adAccountId = validateAdAccountId(accountId);
@@ -14,13 +14,15 @@ export default async function shareAdAccount(fbData, accountId, targetId, { sign
         validateSession(fbData);
         return await fbData.client.run(async () => {
             signal?.throwIfAborted();
-            const friend = await findFriend(fbData, targetUserId, { signal });
-            if (!friend.found) throw actionError(friend.message, "FACEBOOK_FRIEND_NOT_FOUND", { httpStatus: friend.httpStatus });
-            const existing = await readUsers(fbData, adAccountId, { signal });
-            if (existing.users.some(user => user.id === targetUserId && isAdmin(user))) {
-                return { success: true, outcome: "AD_ACCOUNT_ALREADY_ADMIN", code: null, message: "Користувач уже має підтверджений Admin-доступ", adAccountId, targetUserId, httpStatus: existing.httpStatus, outcomeUnknown: false, retryable: false };
+            if (!useCachedAccess) {
+                const friend = await findFriend(fbData, targetUserId, { signal });
+                if (!friend.found) throw actionError(friend.message, "FACEBOOK_FRIEND_NOT_FOUND", { httpStatus: friend.httpStatus });
+                const existing = await readUsers(fbData, adAccountId, { signal });
+                if (existing.users.some(user => user.id === targetUserId && isAdmin(user))) {
+                    return { success: true, outcome: "AD_ACCOUNT_ALREADY_ADMIN", code: null, message: "Користувач уже має підтверджений Admin-доступ", adAccountId, targetUserId, httpStatus: existing.httpStatus, outcomeUnknown: false, retryable: false };
+                }
+                if (existing.incomplete) throw actionError("Список користувачів РК неповний: неможливо перевірити наявні права перед зміною", "FACEBOOK_AD_ACCOUNT_USERS_INCOMPLETE", { httpStatus: existing.httpStatus });
             }
-            if (existing.incomplete) throw actionError("Список користувачів РК неповний: неможливо перевірити наявні права перед зміною", "FACEBOOK_AD_ACCOUNT_USERS_INCOMPLETE", { httpStatus: existing.httpStatus });
             // Службові flowlet/xref не вигадуються і не копіюються зі старого HAR.
             const form = new URLSearchParams({ __aaid: adAccountId, __activeScenarioIDs: "[]", __activeScenarios: "[]", __interactionsMetadata: "[]",
                 _reqName: "adaccount/users", _reqSrc: "AdsPermissionDialogController", account_id: adAccountId,
@@ -34,6 +36,9 @@ export default async function shareAdAccount(fbData, accountId, targetId, { sign
                 signal, mutation: true, stage: "ad_account_admin_write", headers: { "Content-Type": "application/x-www-form-urlencoded" } });
             if (response.json.success !== true) throw actionError("Facebook не підтвердив призначення Admin", "FACEBOOK_ADMIN_WRITE_NOT_CONFIRMED", { httpStatus: response.httpStatus, outcomeUnknown: true, actionRequired: "check_ad_account_permissions" });
             writeAccepted = true;
+            if (useCachedAccess) return { success: true, outcome: "AD_ACCOUNT_ADMIN_WRITE_ACCEPTED", code: null,
+                message: "Facebook підтвердив надання Admin-доступу", adAccountId, targetUserId,
+                writeAccepted: true, verified: false, httpStatus: response.httpStatus, outcomeUnknown: false, retryable: false };
             let verified;
             try { verified = await readUsers(fbData, adAccountId, { signal }); }
             catch (error) { error.outcomeUnknown = true; if (!error.sessionStatus) error.actionRequired = "check_ad_account_permissions"; throw error; }

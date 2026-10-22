@@ -87,6 +87,24 @@ export default class AutouploadStore {
         });
     }
 
+    addSharedAccount(profileId, account) {
+        return this.change((state) => {
+            const profile = state.profiles.find(item => item.profileId === profileId);
+            if (!profile) throw new Error("Профіль кінга прибрано зі списку");
+            if (!profile.assets.adAccounts.some(item => String(item.accountId) === String(account.accountId))) {
+                profile.assets.adAccounts.push({ ...account });
+            }
+        });
+    }
+
+    renameProfile(profileId, name) {
+        return this.change((state) => {
+            const profile = state.profiles.find(item => item.profileId === profileId);
+            if (!profile) throw new Error("Профіль прибрано зі списку");
+            profile.name = name;
+        });
+    }
+
     record(profileId, result) {
         return this.change((state) => {
             const profile = state.profiles.find((item) => item.profileId === profileId);

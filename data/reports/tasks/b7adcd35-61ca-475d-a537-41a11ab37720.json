@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "id": "b7adcd35-61ca-475d-a537-41a11ab37720",
+  "taskId": "0f777e17-8a52-41a9-bcfd-abad87f5268d",
+  "type": "autoupload-ad-account-share",
+  "title": "Admin-доступ до РК · 2",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T09:20:58.126Z",
+  "startedAt": "2026-10-22T09:20:58.103Z",
+  "finishedAt": "2026-10-22T09:20:58.124Z",
+  "durationMs": 21,
+  "inputSummary": {
+    "ids": [
+      "k1i44oqb",
+      "k1i44oqc"
+    ],
+    "accounts": [
+      {
+        "profileId": "k1i44oqb",
+        "adAccountId": "2579141585846569"
+      },
+      {
+        "profileId": "k1i44oqc",
+        "adAccountId": "1460994319283048"
+      }
+    ],
+    "targetUserId": "61586347006946",
+    "confirmed": true
+  },
+  "resultSummary": {
+    "accounts": [
+      {
+        "profileId": "k1i44oqb",
+        "profileNo": "2414",
+        "success": false,
+        "outcome": "NOT_SENT",
+        "code": "FACEBOOK_SESSION_PREPARATION_FAILED",
+        "message": "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна",
+        "sessionStatus": "error",
+        "retryable": false,
+        "outcomeUnknown": false,
+        "operation": "ad-account-share",
+        "adAccountId": "2579141585846569",
+        "targetUserId": "61586347006946",
+        "attempted": false,
+        "fields": [],
+        "steps": [
+          "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна"
+        ]
+      },
+      {
+        "profileId": "k1i44oqc",
+        "profileNo": "2415",
+        "success": false,
+        "outcome": "NOT_SENT",
+        "code": "FACEBOOK_SESSION_PREPARATION_FAILED",
+        "message": "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна",
+        "sessionStatus": "error",
+        "retryable": false,
+        "outcomeUnknown": false,
+        "operation": "ad-account-share",
+        "adAccountId": "1460994319283048",
+        "targetUserId": "61586347006946",
+        "attempted": false,
+        "fields": [],
+        "steps": [
+          "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна"
+        ]
+      }
+    ],
+    "targetUserId": "61586347006946"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-share:61586347006946:1460994319283048,2579141585846569"
+  }
+}

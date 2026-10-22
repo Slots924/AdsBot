@@ -16,7 +16,7 @@ const errorStatuses = {
 };
 
 export default function AutouploadActionDetails({ entry }) {
-    if (!["friend-request", "ad-account-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
+    if (!["friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
     const detail = entry.diagnostic ?? {};
     const diagnostics = [
         ["Тип збою", errorStatuses[detail.status] ?? detail.status], ["Етап", detail.stage], ["Код мережі", detail.networkCode],
@@ -31,6 +31,8 @@ export default function AutouploadActionDetails({ entry }) {
         {detail.message && detail.message !== entry.message && <p>{detail.message}</p>}
         <dl>{diagnostics.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{String(value)}</dd></div>)}</dl>
         {entry.actionRequired && <p>{requiredActions[entry.actionRequired] || entry.actionRequired}</p>}
+        {entry.incomingCheckMessage && <p>{entry.incomingCheckMessage}</p>}
+        {entry.incomingCheckError && <AutouploadActionDetails entry={{ ...entry.incomingCheckError, operation: "friend-request-accept" }} />}
         {entry.errors?.length > 0 && <ul>{entry.errors.map((error, index) => <li key={index}>{error.message}{error.code != null ? ` · code: ${error.code}` : ""}{error.api_error_code != null ? ` · api_error_code: ${error.api_error_code}` : ""}{error.error_subcode != null ? ` · subcode: ${error.error_subcode}` : ""}</li>)}</ul>}
         {entry.warnings?.map((warning, index) => <div key={index}><AutouploadActionDetails entry={{ message: warning.message, diagnostic: warning }} /></div>)}
     </div>;
