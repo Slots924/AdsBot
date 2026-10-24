@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "id": "4cdfd4ff-e1a7-4dc8-9768-378c1d82021b",
+  "taskId": "b874de8b-e30d-4083-b413-09489b3246da",
+  "type": "campaign",
+  "title": "IE | Creo_1 | 25+ 24/10 12:32",
+  "status": "failed",
+  "createdAt": "2026-10-24T09:33:07.481Z",
+  "startedAt": "2026-10-24T09:32:55.356Z",
+  "finishedAt": "2026-10-24T09:33:07.478Z",
+  "durationMs": 12122,
+  "inputSummary": {
+    "campaignJobId": "06b0d3b6-addf-484b-9853-83f3f67fcd6c",
+    "accountKey": "account-031",
+    "adAccountId": "act_4117069945174376",
+    "campaignName": "IE | Creo_1 | 25+ 24/10 12:32",
+    "templateId": 32,
+    "pageId": "1313316905201651",
+    "postId": "1313316905201651_122112818529498013",
+    "adSetCount": 3,
+    "dailyBudget": 5,
+    "startTime": "2026-10-24T09:32:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120248644946390772",
+      "creativeId": "1080948868091390",
+      "creatives": [
+        {
+          "id": "1080948868091390",
+          "pageId": "1313316905201651",
+          "postId": "1313316905201651_122112818529498013"
+        }
+      ],
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "This business account didn't comply with our Advertising Policies or other standards.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 400,
+      "graphCode": 10,
+      "graphSubcode": 2446325,
+      "graphUserTitle": "Business Account Not Allowed to Advertise",
+      "graphUserMessage": "This business account didn't comply with our Advertising Policies or other standards.",
+      "graphType": "OAuthException",
+      "isTransient": false,
+      "requestId": "9d1209ee-b16e-495a-be47-ef44375d0e84",
+      "traceId": "Ap_gap3FO2iFHZ5tXCXZaes",
+      "metaRequestId": "Ap_gap3FO2iFHZ5tXCXZaes",
+      "endpoint": "/act_4117069945174376/adsets",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "stage": "adset",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "06b0d3b6-addf-484b-9853-83f3f67fcd6c",
+    "accountKey": "account-031",
+    "adAccountId": "act_4117069945174376",
+    "uniqueKey": "campaign-job:06b0d3b6-addf-484b-9853-83f3f67fcd6c"
+  }
+}

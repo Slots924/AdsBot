@@ -18,7 +18,6 @@ import {
 import { errorDetails, unwrap } from "../lib/api.js";
 import { buildPixelUtm } from "../../../services/keitaro/pixelUtm.js";
 import TemplatesTab from "../tabs/TemplatesTab.jsx";
-import SearchSelect from "./SearchSelect.jsx";
 
 
 function localValueInZone(date, timeZone) {
@@ -130,7 +129,7 @@ export default function CampaignCreationWizard({
     const timezone = adAccount.timezoneName || Intl.DateTimeFormat().resolvedOptions().timeZone;
     const [templates, setTemplates] = useState([]);
     const [languages, setLanguages] = useState([]);
-    const [templateQuery, setTemplateQuery] = useState("");
+    const [templateQuery, setTemplateQuery] = useState(() => String(sourcePage?.geo || "").trim().toUpperCase());
     const [templateMenuOpen, setTemplateMenuOpen] = useState(false);
     const [templateEditorVisible, setTemplateEditorVisible] = useState(false);
     const [templateEditorRequest, setTemplateEditorRequest] = useState(0);
@@ -150,9 +149,9 @@ export default function CampaignCreationWizard({
     const [manualName, setManualName] = useState(false);
     const [excludedPosts, setExcludedPosts] = useState([]);
     const selectedBatchPosts = batch?.items.filter((post) => !excludedPosts.includes(post.key)) ?? [];
-    const [overrideTracking, setOverrideTracking] = useState(false);
     const [pixels, setPixels] = useState([]);
     const [pixelsLoading, setPixelsLoading] = useState(false);
+    const [pixelsError, setPixelsError] = useState(null);
     const [savedKeitaroPixels, setSavedKeitaroPixels] = useState([]);
     const [launchStatuses, setLaunchStatuses] = useState(() => ({
         campaign: !createPaused,
@@ -182,6 +181,7 @@ export default function CampaignCreationWizard({
     const jobIdRef = useRef(null);
     const pagesRequest = useRef(0);
     const postsRequest = useRef(0);
+    const pixelsRequest = useRef(0);
     const openedAt = useRef(new Date());
     const templatePickerRef = useRef(null);
 
@@ -367,20 +367,32 @@ export default function CampaignCreationWizard({
         setPostQuery(String(sourcePost.id));
     }, [sourcePost]);
 
-    const loadPixels = async () => {
+    const loadPixels = useCallback(async () => {
+        const requestId = ++pixelsRequest.current;
         setPixelsLoading(true);
+        setPixelsError(null);
+        setPixels([]);
+        setVerified(null);
+        setForm((current) => ({ ...current, pixelId: "", utm: "" }));
         try {
-            setPixels(await unwrap(window.adsBot.getAdPixels(accountKey, adAccount.id)));
+            const nextPixels = await unwrap(window.adsBot.getAdPixels(accountKey, adAccount.id));
+            if (requestId !== pixelsRequest.current) return;
+            setPixels(nextPixels);
+            const pixelId = String(nextPixels[0]?.id ?? "");
+            setForm((current) => ({ ...current, pixelId, utm: buildPixelUtm(pixelId) }));
         } catch (error) {
-            setFailure(errorDetails(error));
+            if (requestId === pixelsRequest.current) setPixelsError(errorDetails(error));
         } finally {
-            setPixelsLoading(false);
+            if (requestId === pixelsRequest.current) setPixelsLoading(false);
         }
-    };
+    }, [accountKey, adAccount.id]);
 
+    const isPostCampaign = Boolean(sourcePage);
     useEffect(() => {
-        if (sourcePage && overrideTracking) loadPixels();
-    }, [sourcePage, overrideTracking, adAccount.id]);
+        if (!isPostCampaign) return;
+        loadPixels();
+        return () => { pixelsRequest.current += 1; };
+    }, [isPostCampaign, loadPixels]);
 
     useEffect(() => {
         let active = true;
@@ -393,6 +405,15 @@ export default function CampaignCreationWizard({
         }).catch(() => {});
         return () => { active = false; };
     }, [defaultPixelId, defaultUtm]);
+
+    useEffect(() => {
+        setForm((current) => {
+            const saved = savedKeitaroPixels.find((pixel) => String(pixel.pixelId) === current.pixelId);
+            return saved && current.utm === buildPixelUtm(current.pixelId)
+                ? { ...current, utm: saved.utm }
+                : current;
+        });
+    }, [savedKeitaroPixels, form.pixelId, form.utm]);
 
     const payload = () => ({
         accountKey,
@@ -437,7 +458,7 @@ export default function CampaignCreationWizard({
     }, [selectedPage?.id]);
 
     useEffect(() => {
-        setTemplateQuery(selectedTemplate ? selectedTemplate.name : "");
+        if (selectedTemplate) setTemplateQuery(selectedTemplate.name);
     }, [selectedTemplate?.id]);
 
     useEffect(() => {
@@ -523,7 +544,8 @@ export default function CampaignCreationWizard({
         && (batch ? !batch.loading && !batch.errors.length && selectedBatchPosts.length > 0 : form.pageId && form.postId.trim())
         && Number.isInteger(Number(form.adSetCount)) && Number(form.adSetCount) > 0 && Number(form.adSetCount) <= 100
         && Number(batch && form.budgetMode === "campaign" ? form.campaignBudget : form.dailyBudget) > 0
-        && form.startTime;
+        && form.startTime
+        && (!isPostCampaign || (!pixelsLoading && !pixelsError && Boolean(form.pixelId)));
     const creationTotal = 2 + (batch ? selectedBatchPosts.length : 1) + Number(form.adSetCount) * (1 + (batch ? selectedBatchPosts.length : 1));
 
     const check = async (event) => {
@@ -726,48 +748,29 @@ export default function CampaignCreationWizard({
                                 </div>
                             </label>
 
-                            <label className="checkbox-line tracking-toggle">
-                                <input
-                                    type="checkbox"
-                                    checked={overrideTracking}
-                                    onChange={(event) => {
-                                        setOverrideTracking(event.target.checked);
-                                        if (!event.target.checked) {
-                                            setForm((current) => ({
-                                                ...current,
-                                                pixelId: defaultPixelId,
-                                                utm: defaultUtm,
-                                            }));
-                                        }
-                                    }}
-                                />
-                                <span>Ввести Pixel і UTM вручну</span>
-                            </label>
-                            {overrideTracking && (
-                                <div className="tracking-editor">
-                                    <label className="field">
-                                        <span>Pixel · пошук за назвою або ID</span>
-                                        <div className="resource-select-row">
-                                            <SearchSelect
-                                                items={pixels}
-                                                value={form.pixelId}
-                                                onChange={(value) => change("pixelId", String(value))}
-                                                getId={(pixel) => String(pixel.id)}
-                                                getTitle={(pixel) => pixel.name || pixel.id}
-                                                getSubtitle={(pixel) => pixel.id}
-                                                placeholder="Оберіть Pixel"
-                                                searchPlaceholder="Назва або ID Pixel…"
-                                                disabled={pixelsLoading}
-                                                ariaLabel="Pixel"
-                                            />
-                                            <button type="button" className="icon-button resource-refresh-button" onClick={loadPixels} disabled={pixelsLoading}>
-                                                <RefreshCw className={pixelsLoading ? "spin" : ""} size={17} />
-                                            </button>
-                                        </div>
-                                    </label>
-                                    <label className="field"><span>UTM</span><textarea rows="3" value={form.utm} onChange={(event) => change("utm", event.target.value)} /></label>
+                            <div className="tracking-editor">
+                                <div className="field campaign-pixel-field">
+                                    <label htmlFor="campaign-pixel">Піксель</label>
+                                    <div className="resource-select-row">
+                                        <select
+                                            id="campaign-pixel"
+                                            aria-label="Pixel"
+                                            aria-busy={pixelsLoading}
+                                            value={form.pixelId}
+                                            onChange={(event) => change("pixelId", event.target.value)}
+                                            disabled={pixelsLoading || !pixels.length}
+                                        >
+                                            {!pixels.length && <option value="">{pixelsLoading ? "Завантажуємо пікселі…" : pixelsError ? "Не вдалося завантажити" : "У цьому РК немає пікселів"}</option>}
+                                            {pixels.map((pixel) => <option key={pixel.id} value={String(pixel.id)}>{pixel.name ? `${pixel.name} · ${pixel.id}` : pixel.id}</option>)}
+                                        </select>
+                                        <button type="button" className="icon-button resource-refresh-button" title="Оновити пікселі" aria-label="Оновити пікселі" onClick={loadPixels} disabled={pixelsLoading}>
+                                            <RefreshCw className={pixelsLoading ? "spin" : ""} size={17} />
+                                        </button>
+                                    </div>
+                                    {pixelsError && <small className="campaign-pixel-error" role="alert">{pixelsError.message}</small>}
                                 </div>
-                            )}
+                                <label className="field"><span>UTM</span><textarea rows="3" value={form.utm} onChange={(event) => change("utm", event.target.value)} /></label>
+                            </div>
 
                             <label className="field launch-start-field">
                                 <span>Старт <b>{timezone}</b></span>

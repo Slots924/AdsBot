@@ -21,6 +21,7 @@ beforeEach(() => {
             ...(pageId === "10" ? [{ id: "10_21", message: "Інший пост https://example.test" }] : []),
         ] })),
         getAdAccounts: vi.fn().mockResolvedValue({ ok: true, data: [{ id: "act_1", status: "active", currency: "USD", timezoneName: "Europe/Kyiv" }] }),
+        getAdPixels: vi.fn().mockResolvedValue({ ok: true, data: [{ id: "30", name: "Pixel" }] }),
         getTemplates: vi.fn().mockResolvedValue({ ok: true, data: [{ id: 1, name: "DE Leads", countryCodes: ["DE"], shareAdSetBudget: true }] }),
         getKeitaroCampaignSettings: vi.fn().mockResolvedValue({ ok: true, data: { pixels: [] } }),
         onCampaignCreationProgress: vi.fn(() => () => {}),

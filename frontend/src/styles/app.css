@@ -1073,6 +1073,9 @@ fieldset.creative-launch-scroll { margin: 0; border: 0; min-width: 0; }
 .resource-select-row { display: flex; align-items: stretch; gap: 8px; }
 .resource-select-row > .select { flex: 1; min-width: 0; }
 .resource-select-row > input { flex: 1; min-width: 0; }
+.resource-select-row > select { flex: 1; min-width: 0; text-overflow: ellipsis; }
+.campaign-pixel-field > label { color: var(--muted); font-size: 12px; }
+.campaign-pixel-error { color: var(--danger, #ef6b73); }
 .keitaro-picker-modal { display: flex; width: min(1440px, calc(100vw - 56px)); max-height: calc(100vh - 56px); flex-direction: column; }
 .keitaro-picker-list { display: grid; flex: 0 1 auto; gap: 7px; max-height: min(560px, calc(100vh - 330px)); min-height: 0; margin-top: 14px; overflow-y: auto; }
 .keitaro-picker-row { display: grid; grid-template-columns: minmax(0, 1fr) 32px; align-items: center; gap: 8px; width: 100%; padding: 6px 8px; border: 1px solid var(--stroke); border-radius: 11px; color: #c8ccda; background: rgba(255,255,255,.025); }
