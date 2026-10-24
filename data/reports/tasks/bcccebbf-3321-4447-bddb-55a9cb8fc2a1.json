@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "id": "bcccebbf-3321-4447-bddb-55a9cb8fc2a1",
+  "taskId": "458ff9b3-e7d0-4596-8539-bc52e83bab45",
+  "type": "comments",
+  "title": "Коментарі вибраними акаунтами · Вручну · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-24T21:49:21.336Z",
+  "startedAt": "2026-10-24T21:49:00.351Z",
+  "finishedAt": "2026-10-24T21:49:21.333Z",
+  "durationMs": 20982,
+  "inputSummary": {
+    "groupIds": [],
+    "profileNos": [
+      "2333"
+    ],
+    "geo": "MANUAL",
+    "creativeName": "Ручні коментарі",
+    "postUrl": "https://www.facebook.com/jenniferlopez/posts/pfbid026iKytfxWSg2utvgPmiTxT55Ph6Rq1xGDTGgVREPKKSFCnGtUrosEMsrRGCzCsSSAl",
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "published": [],
+    "skipped": [],
+    "failedComments": [
+      {
+        "commentId": "1",
+        "actionType": "comment",
+        "reason": "Усі спроби завершилися помилкою: Не вдалося відкрити потрібний Facebook-допис: PAGE_ID_NOT_FOUND",
+        "attempts": 1,
+        "text": "I like girls like you"
+      },
+      {
+        "commentId": "2",
+        "actionType": "comment",
+        "reason": "Закінчилися доступні профілі",
+        "attempts": 0,
+        "text": "can you call me plz"
+      }
+    ],
+    "failedProfiles": [
+      {
+        "profileNo": "2333",
+        "commentId": "1",
+        "stage": "OPEN_POST_VIA_AUTHOR_PAGE",
+        "error": "Не вдалося відкрити потрібний Facebook-допис: PAGE_ID_NOT_FOUND"
+      }
+    ],
+    "excludedProfiles": [],
+    "uncertain": []
+  },
+  "counters": {
+    "published": 0,
+    "skipped": 0,
+    "failedComments": 2,
+    "failedProfiles": 1,
+    "excludedProfiles": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-25_00-49-21-328.md",
+      "kind": "markdown"
+    }
+  ],
+  "metadata": {
+    "profileNos": [
+      "2333"
+    ],
+    "postUrl": "https://www.facebook.com/jenniferlopez/posts/pfbid026iKytfxWSg2utvgPmiTxT55Ph6Rq1xGDTGgVREPKKSFCnGtUrosEMsrRGCzCsSSAl",
+    "manualMode": true
+  }
+}

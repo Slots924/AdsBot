@@ -9,6 +9,7 @@ import { actionFailure } from "../../facebook/autoupload/graphql/errors.js";
 import acceptIncomingFriendRequest from "../../facebook/autoupload/actions/friends/acceptIncomingFriendRequest.js";
 import { safeDiagnosticText } from "../logging/httpDiagnostics.js";
 import changeFacebookName, { validateName } from "../../facebook/autoupload/actions/accounts/changeFacebookName.js";
+import { profileActions, validateProfileAction } from "../../facebook/autoupload/actions/profile/index.js";
 
 export default class AutouploadService {
     #clients = new Map();
@@ -169,8 +170,15 @@ export default class AutouploadService {
     async check(ids, { signal, progress = async () => {} } = {}) {
         return this.#runProfiles(ids, { signal, progress });
     }
-    async changeNames(ids, input, { signal, progress = async () => {} } = {}) {
+    async changeNames(ids, input, context = {}) {
         const name = validateName(input);
+        return this.#runCachedAction(ids, (fbData, options) => this.changeNameFn(fbData, name, options), "profile-name-change", "зміна імені соціального профілю", context);
+    }
+    async runProfileAction(ids, action, input, context = {}) {
+        const normalized = validateProfileAction(action, input);
+        return this.#runCachedAction(ids, (fbData, options) => profileActions[action](fbData, normalized, options), `profile-${action}`, "дія соціального профілю", context);
+    }
+    async #runCachedAction(ids, execute, operation, label, { signal, progress = async () => {} } = {}) {
         const profiles = await this.selected(ids);
         const results = [];
         for (const profile of profiles) {
@@ -180,14 +188,14 @@ export default class AutouploadService {
             this.#running.add(id);
             try {
                 await this.#publish();
-                await progress({ stage: "profile-name-change", completed: results.length, total: profiles.length, message: `№${profile.profileNo}: зміна імені соціального профілю` });
+                await progress({ stage: operation, completed: results.length, total: profiles.length, message: `№${profile.profileNo}: ${label}` });
                 let action;
                 try {
                     const prepared = await this.#prepare(id, { signal, cachedOnly: true }, false);
                     if (!prepared.client) action = { success: false, outcome: "NOT_SENT", message: prepared.result.message, code: "FACEBOOK_SESSION_PREPARATION_FAILED", retryable: false, outcomeUnknown: false };
                     else {
                         this.#clients.set(id, prepared.client);
-                        action = await this.changeNameFn(prepared.client.getFbData(id), name, { signal });
+                        action = await execute(prepared.client.getFbData(id), { signal });
                         if (["login_required", "checkpoint"].includes(action.sessionStatus)) await this.#statusHandler(id)({ status: action.sessionStatus, message: action.message });
                         else if (this.sessionStore) {
                             try { await this.sessionStore.save(id, prepared.client.exportSession()); }
@@ -195,7 +203,7 @@ export default class AutouploadService {
                         }
                     }
                 } catch (error) { action = actionFailure(error); }
-                const entry = { ...action, operation: "profile-name-change", fields: [], steps: [action.message] };
+                const entry = { ...action, operation, fields: [], steps: [action.message] };
                 await this.store.recordAction(id, entry);
                 results.push({ profileId: id, profileNo: profile.profileNo, ...entry });
             } finally {

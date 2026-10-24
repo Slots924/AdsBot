@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "id": "93aa1855-9118-4a6d-8f75-4b6effc9e34f",
+  "taskId": "67087bdf-1fff-4b49-b1ab-aac69bbcd3e9",
+  "type": "autoupload-profile-name-change",
+  "title": "Зміна імені соціального профілю · 1",
+  "status": "completed",
+  "createdAt": "2026-10-24T21:36:27.311Z",
+  "startedAt": "2026-10-24T21:36:13.642Z",
+  "finishedAt": "2026-10-24T21:36:27.307Z",
+  "durationMs": 13665,
+  "inputSummary": {
+    "profileIds": [
+      "k1hj7asg"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1hj7asg",
+        "profileNo": "2333",
+        "success": true,
+        "outcome": "NAME_CHANGED",
+        "message": "Ім’я соціального профілю змінено",
+        "httpStatus": 200,
+        "outcomeUnknown": false,
+        "retryable": false,
+        "operation": "profile-name-change",
+        "fields": [],
+        "steps": [
+          "Ім’я соціального профілю змінено"
+        ]
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-name:k1hj7asg"
+  }
+}

@@ -16,6 +16,9 @@ beforeEach(() => {
         mutateAutoupload: vi.fn(() => ok(structuredClone(state))),
         checkAutouploadSessions: vi.fn(() => ok({ taskId: "task1" })),
         changeAutouploadNames: vi.fn(() => ok({ taskId: "name-task" })),
+        runAutouploadProfileAction: vi.fn(() => ok({ taskId: "profile-task" })),
+        selectImage: vi.fn(() => ok("C:/test/photo.png")),
+        selectImages: vi.fn(() => ok(["C:/test/post.png"])),
         sendAutouploadFriendRequests: vi.fn(() => ok({ taskId: "friend-task" })),
         shareAutouploadAdAccounts: vi.fn(() => ok({ taskId: "share-task" })),
         transferAutouploadPersonalAccounts: vi.fn(() => ok({ taskId: "transfer-task" })),
@@ -25,6 +28,58 @@ beforeEach(() => {
 afterEach(() => { cleanup(); delete window.adsBot; });
 
 describe("Автозаливи", () => {
+    it.each([
+        ["Змінити аватарку", "avatar"], ["Змінити обкладинку", "cover"],
+    ])("%s вибирає фото та запускає HTTP-дію", async (label, action) => {
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("button", { name: "Дії ▾" }));
+        fireEvent.click(screen.getByRole("button", { name: label }));
+        expect(screen.getByRole("button", { name: "Виконати" })).toBeDisabled();
+        fireEvent.click(screen.getByRole("button", { name: "Вибрати фотографію" }));
+        await screen.findByText("photo.png");
+        fireEvent.click(screen.getByRole("button", { name: "Виконати" }));
+        await waitFor(() => expect(window.adsBot.runAutouploadProfileAction).toHaveBeenCalledWith(["p1"], action, { imagePath: "C:/test/photo.png" }));
+    });
+    it("видалення постів потребує підтвердження", async () => {
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("button", { name: "Дії ▾" }));
+        fireEvent.click(screen.getByRole("button", { name: "Видалити пости" }));
+        expect(screen.getByRole("button", { name: "Виконати" })).toBeDisabled();
+        fireEvent.click(screen.getByRole("checkbox", { name: "Підтверджую очищення постів вибраних соціальних профілів" }));
+        fireEvent.click(screen.getByRole("button", { name: "Виконати" }));
+        await waitFor(() => expect(window.adsBot.runAutouploadProfileAction).toHaveBeenCalledWith(["p1"], "clear-posts", { confirmed: true }));
+    });
+    it("фото-пост передає дату й текст", async () => {
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("button", { name: "Дії ▾" }));
+        fireEvent.click(screen.getByRole("button", { name: "Опублікувати фото-пости з датою" }));
+        fireEvent.click(screen.getByRole("button", { name: "Додати фотографії" }));
+        fireEvent.change(await screen.findByLabelText("Дата поста 1"), { target: { value: "2025-01-02" } });
+        fireEvent.change(screen.getByLabelText("Текст поста 1"), { target: { value: "Тест" } });
+        fireEvent.click(screen.getByRole("button", { name: "Виконати" }));
+        await waitFor(() => expect(window.adsBot.runAutouploadProfileAction).toHaveBeenCalledWith(["p1"], "publish-posts", { posts: [{ mediaPaths: ["C:/test/post.png"], targetDate: "2025-01-02", text: "Тест" }] }));
+    });
+    it("Bio та освіта з роботою мають окремі форми", async () => {
+        render(<AutouploadTab />);
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(screen.getByRole("button", { name: "Дії ▾" }));
+        fireEvent.click(screen.getByRole("button", { name: "Змінити Bio" }));
+        fireEvent.change(screen.getByLabelText(/^Bio/), { target: { value: "Тест Bio" } });
+        fireEvent.click(screen.getByRole("button", { name: "Виконати" }));
+        await waitFor(() => expect(window.adsBot.runAutouploadProfileAction).toHaveBeenCalledWith(["p1"], "bio", { value: "Тест Bio" }));
+        await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+        fireEvent.click(screen.getByRole("button", { name: "Дії ▾" }));
+        fireEvent.click(screen.getByRole("button", { name: "Змінити освіту та роботу" }));
+        fireEvent.change(screen.getByLabelText("Навчальний заклад"), { target: { value: "College" } });
+        fireEvent.change(screen.getByLabelText("Компанія"), { target: { value: "Company" } });
+        expect(screen.getByRole("button", { name: "Виконати" })).toBeDisabled();
+        fireEvent.change(screen.getByLabelText("Посада"), { target: { value: "Developer" } });
+        fireEvent.click(screen.getByRole("button", { name: "Виконати" }));
+        await waitFor(() => expect(window.adsBot.runAutouploadProfileAction).toHaveBeenCalledWith(["p1"], "about", { education: "College", work: { company: "Company", position: "Developer" } }));
+    });
     it("меню дій відкриває зміну імені соціального профілю та передає введені дані", async () => {
         render(<AutouploadTab />);
         const actions = screen.getByRole("button", { name: "Дії ▾" });

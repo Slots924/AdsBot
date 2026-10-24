@@ -1,4 +1,5 @@
 import { readFacebookRuntime } from "../../api/runtime.js";
+import { getHttpActionTransport } from "../../api/actionTransport.js";
 const uploadPayloadFields = [
     "av",
     "__aaid",
@@ -55,6 +56,8 @@ export default async function uploadProfilePhoto(page, {
     formParameters = {},
     fileFieldName = "file",
 }) {
+    const transport = getHttpActionTransport(page);
+    if (transport) return transport.uploadPhoto({ endpoint, image, profileId, timeout, queryParameters, formParameters, fileFieldName });
     const runtimeContext = await readFacebookRuntime(page, { surface: "facebook", timeout });
     if (runtimeContext.runtimeError) return { requestError: runtimeContext.runtimeError };
     return page.evaluate(

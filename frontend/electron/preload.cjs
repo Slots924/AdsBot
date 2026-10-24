@@ -164,6 +164,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     mutateAutoupload: (payload) => ipcRenderer.invoke("autoupload:mutate", payload),
     checkAutouploadSessions: (ids) => ipcRenderer.invoke("autoupload:check", { ids }),
     changeAutouploadNames: (ids, name) => ipcRenderer.invoke("autoupload:change-name", { ids, ...name }),
+    runAutouploadProfileAction: (ids, action, input) => ipcRenderer.invoke("autoupload:profile-action", { ids, action, input }),
     sendAutouploadFriendRequests: (ids, targetUserId) => ipcRenderer.invoke("autoupload:friend-request", { ids, targetUserId }),
     shareAutouploadAdAccounts: (payload) => ipcRenderer.invoke("autoupload:share-ad-accounts", payload),
     transferAutouploadPersonalAccounts: (payload) => ipcRenderer.invoke("autoupload:transfer-personal-accounts", payload),

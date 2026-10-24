@@ -1,5 +1,6 @@
 import { postFacebookForm } from "../api/browserRequest.js";
 import { readFacebookRuntime } from "../api/runtime.js";
+import { isFacebookApiContext } from "../api/actionTransport.js";
 const endpoint = "/ajax/bulk-route-definitions/";
 const routingNamespace = "fb_comet";
 const routeName = "comet.fbweb.CometProfileAboutTabRoute";
@@ -31,7 +32,7 @@ function createResult(success, status, data = null, extra = {}) {
 
 // Перевіряє, що action отримав сторінку, runtimeContext і список секцій.
 function validateInput({ page, runtimeContext, sections }) {
-    if (!page || typeof page.evaluate !== "function") {
+    if (!isFacebookApiContext(page)) {
         return "Не передано Puppeteer page";
     }
 

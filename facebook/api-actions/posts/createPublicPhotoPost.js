@@ -99,6 +99,7 @@ function createUploadId() {
 export default async function createPublicPhotoPost({
     page,
     imagePath,
+    text = "",
     attributionId = null,
     timeout,
 }) {
@@ -203,7 +204,7 @@ export default async function createPublicPhotoPost({
             },
             message: {
                 ranges: [],
-                text: "",
+                text: String(text),
             },
             with_tags_ids: null,
             inline_activities: [],

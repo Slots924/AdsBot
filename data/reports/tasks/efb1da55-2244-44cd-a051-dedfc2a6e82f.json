@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "id": "efb1da55-2244-44cd-a051-dedfc2a6e82f",
+  "taskId": "1c44e671-4c95-4302-a42b-7f23ff0d0362",
+  "type": "comments",
+  "title": "Коментарі вибраними акаунтами · Вручну · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-24T21:46:03.146Z",
+  "startedAt": "2026-10-24T21:45:00.567Z",
+  "finishedAt": "2026-10-24T21:46:03.142Z",
+  "durationMs": 62575,
+  "inputSummary": {
+    "groupIds": [],
+    "profileNos": [
+      "2333"
+    ],
+    "geo": "MANUAL",
+    "creativeName": "Ручні коментарі",
+    "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02DyYwNMyFAWGEk1wiKX83PStjj5FSM45St3DcrKYjczFgKWqB8LurfkhriWoqfSygl&id=61595020200460",
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "published": [],
+    "skipped": [],
+    "failedComments": [
+      {
+        "commentId": "1",
+        "actionType": "comment",
+        "reason": "Усі спроби завершилися помилкою: Не вдалося відкрити потрібний Facebook-допис: WRONG_POST_OPENED",
+        "attempts": 1,
+        "text": "Wha are a beauty you are"
+      },
+      {
+        "commentId": "2",
+        "actionType": "comment",
+        "reason": "Закінчилися доступні профілі",
+        "attempts": 0,
+        "text": "love love love heart"
+      }
+    ],
+    "failedProfiles": [
+      {
+        "profileNo": "2333",
+        "commentId": "1",
+        "stage": "OPEN_POST_VIA_AUTHOR_PAGE",
+        "error": "Не вдалося відкрити потрібний Facebook-допис: WRONG_POST_OPENED"
+      }
+    ],
+    "excludedProfiles": [],
+    "uncertain": []
+  },
+  "counters": {
+    "published": 0,
+    "skipped": 0,
+    "failedComments": 2,
+    "failedProfiles": 1,
+    "excludedProfiles": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-25_00-46-03-138.md",
+      "kind": "markdown"
+    }
+  ],
+  "metadata": {
+    "profileNos": [
+      "2333"
+    ],
+    "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02DyYwNMyFAWGEk1wiKX83PStjj5FSM45St3DcrKYjczFgKWqB8LurfkhriWoqfSygl&id=61595020200460",
+    "manualMode": true
+  }
+}

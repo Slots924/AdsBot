@@ -1,3 +1,5 @@
+import { getHttpActionTransport } from "./actionTransport.js";
+
 const surfaces = Object.freeze({
     facebook: { hosts: ["www.facebook.com", "facebook.com"], url: "https://www.facebook.com/" },
     adsManager: { hosts: ["adsmanager.facebook.com"], url: "https://adsmanager.facebook.com/adsmanager/manage/campaigns" },
@@ -57,6 +59,8 @@ export async function ensureFacebookPage(page, {
 
 // Зчитує лише поточний runtime; результат живе в межах одного виклику екшина.
 export async function readFacebookRuntime(page, options = {}) {
+    const transport = getHttpActionTransport(page);
+    if (transport) return transport.readRuntime(options);
     try {
         await ensureFacebookPage(page, options);
         return await page.evaluate(async function readRuntimeInPage({ asyncDtsg }) {

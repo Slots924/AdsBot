@@ -15,6 +15,37 @@
 
 ## Дані та межі модулів
 
+### HTTP-дії соціального профілю
+
+У меню «Дії» доступні аватарка, обкладинка, очищення постів, фото-пости з минулою датою, Bio та освіта/робота. Введені дані застосовуються до кожного вибраного соціального профілю. Для очищення постів потрібне підтвердження у формі. Публікація створює окремий публічний пост для кожного фото, з необов’язковим текстом, після чого змінює його дату на вказану (час 12:00). Якщо зміна дати не вдалася, уже опублікований пост не видаляється автоматично; його ID та стан залишаються в деталях результату.
+
+| Екшен у `facebook/autoupload/actions/profile/` | Перевикористана реалізація |
+| --- | --- |
+| `changeProfilePicture.js` | `api-actions/profile/changeProfilePicture.js`: upload, crop та встановлення фото |
+| `changeCoverPhoto.js` | `api-actions/profile/changeCoverPhoto.js`: upload та встановлення обкладинки |
+| `clearProfilePosts.js` | `api-workflows/profile/clearProfilePosts.js`: читання всіх сторінок Manage Posts, видалення звичайних і приховування системних постів, перевірка залишку |
+| `publishProfilePostsWithDates.js` | `api-workflows/profile/publishProfilePostsWithDates.js`: upload → створення story → зміна дати |
+| `updateBio.js` | `api-actions/updateBio.js`: встановлення або очищення Bio |
+| `updateAbout.js` | `updateEducationField` / `updateWorkField` з `api-workflows/profile/fillProfileAbout.js`: College та робота |
+| `getAboutSectionTokens.js` | `api-actions/getAboutSectionTokens.js`: свіжі токени конкретної секції |
+
+Порядок виконання:
+
+1. IPC `autoupload:profile-action` перевіряє `{ ids, action, input }`, резервує профілі та повертає `{ taskId }`.
+2. `AutouploadService.runProfileAction` відновлює готову базову сесію зі сховища. Відсутня або застаріла сесія завершує дію без запуску браузера; спочатку потрібна перевірка сесії.
+3. `runProfileAction.js` запускає дію в черзі клієнта та створює новий `HttpActionContext` тільки для цього виклику. Контекст через HTTP читає актуальний runtime соціального профілю, звіряє actor із збереженою сесією та використовує cookies, UA й проксі наявного `FacebookWebClient`.
+4. Для Bio `getAboutSectionTokens.js` заново запитує `directory_intro`. Для освіти й роботи він окремо запитує `directory_education` та `directory_work`. `collectionToken`, `sectionToken` і `rawSectionToken` передаються у наступні запити тільки всередині поточної дії. Між діями вони не кешуються та не зберігаються на диск.
+5. Core API-екшени отримують явний HTTP-транспорт через `api/actionTransport.js`. Він виконує form-urlencoded і multipart-запити, тому Puppeteer та відкриття браузера не потрібні. Браузерні виклики цих самих екшенів працюють через попередній транспорт.
+6. У журнал записуються лише статуси, коди помилок, лічильники та ID створених постів. HTML, cookies, токени й сирі GraphQL-відповіді у GUI та звіт не передаються. Часткове виконання не маскується успіхом.
+
+About змінює лише заповнені поля: перший запис College оновлюється або створюється, для роботи спочатку додається новий запис і після успіху видаляється перший попередній. Випадковий fallback для освіти та роботи вимкнено. Bio має окрему дію; порожнє значення очищує Bio. Education mutation не додає `logging_data.nav_chain`.
+
+Дії не отримують додаткових токенів під час загальної перевірки сесії. Для публікацій немає постійного кешу колекцій: кожен запуск заново читає runtime, upload ID створюється для нового фото, story ID береться з відповіді створення, cursor Manage Posts — з поточного читання. Accounts Center залишається окремим контекстом тільки для зміни імені.
+
+Mutation, включно з `useProfileCometEducationExperienceSaveMutationQuery`, не повторюються автоматично при мережевій помилці. Невизначений результат блокує наступні запити поточної дії. Checkpoint або втрата авторизації інвалідують сесію. Перед ручним повтором перевірте фактичний стан профілю.
+
+Локальна перевірка: `npm run test:autoupload`, GUI — `npm --prefix frontend run test -- src/test/autoupload.test.jsx`. Одноразовий живий тест профілю 2333: `node scripts/manual/testAutouploadProfileActions.js --execute-profile-2333`. Він змінює тестовий профіль і відмовляється повторювати запуск, якщо вже є звіт `data/reports/autoupload-profile-2333-live.json`. Режим `--inspect-profile-2333` лише читає стан тестової публікації.
+
 ### Зміна імені соціального профілю
 
 Виберіть профілі → «Дії» → «Змінити ім’я соціального профілю (HTTP)». У модальному вікні вкажіть ім’я, прізвище та за потреби друге ім’я. Введені дані застосовуються до всіх вибраних профілів. Дія змінює особистий Facebook-профіль; назва AdsPower-профілю та назви фанпейджів залишаються окремими даними.

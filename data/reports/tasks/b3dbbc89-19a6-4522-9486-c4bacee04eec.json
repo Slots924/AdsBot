@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "id": "b3dbbc89-19a6-4522-9486-c4bacee04eec",
+  "taskId": "67af8976-7366-4d6f-a9e1-0648e295964c",
+  "type": "comment-reactions",
+  "title": "Реакції під коментарями · 1",
+  "status": "completed",
+  "createdAt": "2026-10-24T21:39:29.133Z",
+  "startedAt": "2026-10-24T21:38:19.451Z",
+  "finishedAt": "2026-10-24T21:39:29.129Z",
+  "durationMs": 69678,
+  "inputSummary": {
+    "profileNos": [
+      "2333"
+    ],
+    "postUrl": "https://www.facebook.com/61595264109247/posts/pfbid02him5FjRyLBgPnWY2jqNXzvZ1K8NuJT9eZ1sz3z1SARjssBeLudnwmdEzQxwuWPAtl",
+    "reactions": {
+      "like": 1,
+      "love": 0,
+      "care": 0
+    },
+    "includeReplies": false,
+    "browserMode": "headless",
+    "disableImages": true
+  },
+  "resultSummary": {
+    "startedAt": "2026-10-24T21:38:19.457Z",
+    "finishedAt": "2026-10-24T21:39:29.128Z",
+    "postUrl": "https://www.facebook.com/61595264109247/posts/pfbid02him5FjRyLBgPnWY2jqNXzvZ1K8NuJT9eZ1sz3z1SARjssBeLudnwmdEzQxwuWPAtl",
+    "reactions": {
+      "like": 1,
+      "love": 0,
+      "care": 0
+    },
+    "includeReplies": false,
+    "concurrency": 1,
+    "profiles": [
+      {
+        "profileNo": "2333",
+        "reaction": "like",
+        "outcome": "success",
+        "stage": "SET_REACTION",
+        "applied": 10,
+        "alreadyReacted": 0,
+        "failed": 0,
+        "commentsFound": 10,
+        "errors": [],
+        "error": null,
+        "cleanupErrors": [],
+        "startedAt": "2026-10-24T21:38:19.458Z",
+        "finishedAt": "2026-10-24T21:39:29.120Z",
+        "workerId": 1
+      }
+    ],
+    "unusedProfiles": [],
+    "unfulfilledReactions": {
+      "like": 0,
+      "love": 0,
+      "care": 0
+    },
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-reaction-report_2026-10-24T21-39-29-128Z.md"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "2333"
+    ],
+    "postUrl": "https://www.facebook.com/61595264109247/posts/pfbid02him5FjRyLBgPnWY2jqNXzvZ1K8NuJT9eZ1sz3z1SARjssBeLudnwmdEzQxwuWPAtl",
+    "reactions": {
+      "like": 1,
+      "love": 0,
+      "care": 0
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "id": "c76bfca5-3ef1-46d9-895d-f52df2d84e65",
+  "taskId": "c0c2db3a-d6ab-46ca-a9b9-b611a36998de",
+  "type": "comments",
+  "title": "Коментарі вибраними акаунтами · Вручну · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-24T21:42:37.715Z",
+  "startedAt": "2026-10-24T21:41:52.054Z",
+  "finishedAt": "2026-10-24T21:42:37.710Z",
+  "durationMs": 45656,
+  "inputSummary": {
+    "groupIds": [],
+    "profileNos": [
+      "2333"
+    ],
+    "geo": "MANUAL",
+    "creativeName": "Ручні коментарі",
+    "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02NbJCX1H3DrLiwsnNNaj6dXukCKjtgMvbuD5rJ4UYFi3FH519ptogXFA67Cn2nEfAl&id=61594925755467",
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "published": [],
+    "skipped": [],
+    "failedComments": [
+      {
+        "commentId": "1",
+        "actionType": "comment",
+        "reason": "Усі спроби завершилися помилкою: Не вдалося опублікувати коментар",
+        "attempts": 1,
+        "text": "Hello everyone here"
+      }
+    ],
+    "failedProfiles": [
+      {
+        "profileNo": "2333",
+        "commentId": "1",
+        "stage": "WRITE_COMMENT",
+        "error": "Не вдалося опублікувати коментар"
+      }
+    ],
+    "excludedProfiles": [],
+    "uncertain": []
+  },
+  "counters": {
+    "published": 0,
+    "skipped": 0,
+    "failedComments": 1,
+    "failedProfiles": 1,
+    "excludedProfiles": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-25_00-42-37-704.md",
+      "kind": "markdown"
+    }
+  ],
+  "metadata": {
+    "profileNos": [
+      "2333"
+    ],
+    "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02NbJCX1H3DrLiwsnNNaj6dXukCKjtgMvbuD5rJ4UYFi3FH519ptogXFA67Cn2nEfAl&id=61594925755467",
+    "manualMode": true
+  }
+}

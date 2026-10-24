@@ -17,6 +17,7 @@ export default function parseWebSession(html) {
         spinR: first(/"__spin_r"\s*:\s*"?(\d+)/),
         spinB: first(/"__spin_b"\s*:\s*"([^"]+)"/),
         spinT: first(/"__spin_t"\s*:\s*"?(\d+)/),
+        cometReq: first(/"__comet_req"\s*:\s*"?(\d+)/, /"comet_env"\s*:\s*"?(\d+)/),
     };
     const missing = requiredSessionFields.filter((field) => !session[field]);
     return { session, missing };

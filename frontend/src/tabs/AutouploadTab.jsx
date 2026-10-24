@@ -5,6 +5,8 @@ import AutouploadFriendRequestModal from "../components/AutouploadFriendRequestM
 import AutouploadShareAccountsModal from "../components/AutouploadShareAccountsModal.jsx";
 import AutouploadActionDetails from "../components/AutouploadActionDetails.jsx";
 import AutouploadTransferModal from "../components/AutouploadTransferModal.jsx";
+import AutouploadProfileActionModal from "../components/AutouploadProfileActionModal.jsx";
+import { autouploadProfileActions } from "../lib/autouploadProfileActions.js";
 import { unwrap } from "../lib/api.js";
 
 const statuses = {
@@ -44,6 +46,7 @@ export default function AutouploadTab({ showToast }) {
     const [transferProfiles, setTransferProfiles] = useState(null);
     const [deleteAdsPower, setDeleteAdsPower] = useState(false);
     const [actionsOpen, setActionsOpen] = useState(false);
+    const [profileAction, setProfileAction] = useState(null);
     const [socialName, setSocialName] = useState({ firstName: "", middleName: "", lastName: "" });
     const actionsRoot = useRef(null);
     useEffect(() => {
@@ -133,7 +136,10 @@ export default function AutouploadTab({ showToast }) {
                     <span>Вибрано: {ids.length}</span>
                     <div className="autoupload-actions" ref={actionsRoot}>
                         <button type="button" className="secondary-button" aria-expanded={actionsOpen} aria-controls="autoupload-actions-list" disabled={busy || !ids.length || checking} onClick={() => setActionsOpen(value => !value)}>Дії ▾</button>
-                        {actionsOpen && !busy && ids.length > 0 && !checking && <div id="autoupload-actions-list" className="autoupload-actions-list"><button type="button" className="secondary-button" onClick={() => { setActionsOpen(false); setSocialName({ firstName: "", middleName: "", lastName: "" }); open({ action: "change-social-name", ids: [...ids], title: "Змінити ім’я соціального профілю через HTTP" }); }}><Pencil size={14} /> Змінити ім’я соціального профілю (HTTP)</button></div>}
+                        {actionsOpen && !busy && ids.length > 0 && !checking && <div id="autoupload-actions-list" className="autoupload-actions-list">
+                            <button type="button" className="secondary-button" onClick={() => { setActionsOpen(false); setSocialName({ firstName: "", middleName: "", lastName: "" }); open({ action: "change-social-name", ids: [...ids], title: "Змінити ім’я соціального профілю через HTTP" }); }}><Pencil size={14} /> Змінити ім’я соціального профілю (HTTP)</button>
+                            {Object.entries(autouploadProfileActions).map(([action, label]) => <button key={action} type="button" className="secondary-button" onClick={() => { setActionsOpen(false); setProfileAction({ action, ids: [...ids] }); }}>{label}</button>)}
+                        </div>}
                     </div>
                     <button className="primary-button" disabled={busy || !ids.length || checking} onClick={() => act(() => unwrap(window.adsBot.checkAutouploadSessions(ids)), "Перевірку сесій поставлено в чергу")}>Перевірити сесію</button>
                     <button className="secondary-button" disabled={busy || !ids.length || checking} onClick={() => setFriendProfiles(visible.filter((profile) => ids.includes(profile.profileId)))}><UserPlus size={16} /> Додати в друзі</button>
@@ -163,6 +169,7 @@ export default function AutouploadTab({ showToast }) {
                 </section>
             </div>
         </div>
+        {profileAction && <AutouploadProfileActionModal {...profileAction} onClose={() => setProfileAction(null)} onQueued={() => { setProfileAction(null); showToast?.("Дію поставлено в чергу. Результат буде в журналі", "success"); }} />}
         {friendProfiles && <AutouploadFriendRequestModal profiles={friendProfiles} onClose={() => setFriendProfiles(null)} onQueued={() => { setFriendProfiles(null); showToast?.("Послідовне надсилання заявок поставлено в чергу", "success"); }} />}
         {shareProfiles && <AutouploadShareAccountsModal profiles={shareProfiles} onClose={() => setShareProfiles(null)} onQueued={() => { setShareProfiles(null); showToast?.("Надання Admin-доступу до вибраних РК поставлено в чергу", "success"); }} />}
         {transferProfiles && <AutouploadTransferModal profiles={transferProfiles} workspace={state} onClose={() => setTransferProfiles(null)} onQueued={() => { setTransferProfiles(null); showToast?.("Передачу персональних РК поставлено в чергу", "success"); }} />}
@@ -180,7 +187,7 @@ export default function AutouploadTab({ showToast }) {
             <div className="inline-actions"><button type="button" className="secondary-button" disabled={busy} onClick={() => setDialog(null)}>Скасувати</button><button className="primary-button" disabled={busy}>{busy ? "Зберігаємо…" : "Підтвердити"}</button></div>
         </form></WorkspaceDialog>}
         {detail && <WorkspaceDialog title="Історія профілю" onClose={() => setDetail(null)}><div className="autoupload-details">
-            {state.history.filter((entry) => entry.profileId === detail).slice(0, 10).map((entry) => <article key={entry.id}><h3>№{entry.profileNo} · {time(entry.checkedAt)} · {entry.operation === "profile-name-change" ? "Зміна імені соціального профілю" : entry.operation === "ad-account-share" ? `Admin-доступ · РК ${entry.adAccountId}` : entry.operation === "friend-request" ? "Заявка в друзі" : entry.operation === "friend-request-accept" ? "Прийняття заявки" : entry.operation === "personal-account-transfer" ? "Передача персональних РК" : "Перевірка сесії"}</h3><AutouploadActionDetails entry={entry} /><ol>{(entry.steps ?? []).map((step, index) => <li key={index}>{step}</li>)}</ol>{entry.fields?.length > 0 && <p>Отримані поля: {entry.fields.join(", ")}</p>}</article>)}
+            {state.history.filter((entry) => entry.profileId === detail).slice(0, 10).map((entry) => <article key={entry.id}><h3>№{entry.profileNo} · {time(entry.checkedAt)} · {autouploadProfileActions[entry.operation?.replace(/^profile-/, "")] || (entry.operation === "profile-name-change" ? "Зміна імені соціального профілю" : entry.operation === "ad-account-share" ? `Admin-доступ · РК ${entry.adAccountId}` : entry.operation === "friend-request" ? "Заявка в друзі" : entry.operation === "friend-request-accept" ? "Прийняття заявки" : entry.operation === "personal-account-transfer" ? "Передача персональних РК" : "Перевірка сесії")}</h3><AutouploadActionDetails entry={entry} /><ol>{(entry.steps ?? []).map((step, index) => <li key={index}>{step}</li>)}</ol>{entry.fields?.length > 0 && <p>Отримані поля: {entry.fields.join(", ")}</p>}</article>)}
             {!state.history.some((entry) => entry.profileId === detail) && <p>Перевірок ще не було.</p>}
         </div></WorkspaceDialog>}
     </section>;

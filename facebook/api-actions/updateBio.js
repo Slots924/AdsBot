@@ -1,5 +1,6 @@
 import { postFacebookForm, parseFacebookJson } from "../api/browserRequest.js";
 import { readFacebookRuntime } from "../api/runtime.js";
+import { isFacebookApiContext } from "../api/actionTransport.js";
 const bioFriendlyName = "ProfileCometBioFieldSaveMutation";
 const bioDocId = "28830271826608945";
 const bioSectionType = "DIRECTORY_BIO";
@@ -30,7 +31,7 @@ function createResult(success, status, data = null, extra = {}) {
 
 // Перевіряє, що всі параметри, необхідні для Bio mutation, передані.
 function validateInput({ page, runtimeContext, collectionToken, sectionToken, value }) {
-    if (!page || typeof page.evaluate !== "function") {
+    if (!isFacebookApiContext(page)) {
         return "Не передано Puppeteer page";
     }
 

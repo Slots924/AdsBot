@@ -14,6 +14,7 @@ import AutouploadStore from "../../services/autoupload/AutouploadStore.js";
 import AutouploadService from "../../services/autoupload/AutouploadService.js";
 import { validateTargetUserId } from "../../facebook/autoupload/actions/friends/sendFriendRequest.js";
 import { validateName } from "../../facebook/autoupload/actions/accounts/changeFacebookName.js";
+import { validateProfileAction } from "../../facebook/autoupload/actions/profile/index.js";
 import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
 
 
@@ -274,6 +275,20 @@ export default function registerIpcHandlers({
             resources: profiles.map(profile => ({ key: `adspower-profile:${profile.profileNo}`, label: `профіль №${profile.profileNo}` })),
             input: { profileIds: selectedIds },
             runner: context => autoupload.changeNames(selectedIds, name, context),
+        });
+        return { taskId: task.id };
+    }));
+    ipcMain.handle("autoupload:profile-action", safeHandler(async ({ ids, action, input } = {}) => {
+        const normalized = validateProfileAction(action, input);
+        const profiles = await autoupload.selected(ids);
+        const selectedIds = profiles.map(profile => profile.profileId);
+        const labels = { avatar: "Аватарка", cover: "Обкладинка", "clear-posts": "Очищення постів", "publish-posts": "Публікація з датою", bio: "Bio", about: "Освіта та робота" };
+        const task = await backgroundTaskManager.enqueue({
+            type: "autoupload-profile-action", name: `${labels[action]} · ${profiles.length}`,
+            uniqueKey: `autoupload-profile:${action}:${[...selectedIds].sort().join(",")}`,
+            resources: profiles.map(profile => ({ key: `adspower-profile:${profile.profileNo}`, label: `профіль №${profile.profileNo}` })),
+            input: { profileIds: selectedIds, action },
+            runner: context => autoupload.runProfileAction(selectedIds, action, normalized, context),
         });
         return { taskId: task.id };
     }));

@@ -4,6 +4,7 @@ const requiredActions = {
     refresh_session: "Оновіть сесію профілю",
     check_friendship_status: "Перевірте стан заявки у Facebook перед новою спробою",
     check_profile_name: "Перевірте ім’я соціального профілю у Facebook перед новою спробою",
+    check_profile_changes: "Перевірте фактичні зміни соціального профілю у Facebook перед повтором",
     check_ad_account_permissions: "Перевірте фактичні права користувача у рекламному кабінеті перед повтором",
     confirm_admin_access: "Підтвердьте надання Admin-доступу до вибраного РК",
 };
@@ -17,13 +18,13 @@ const errorStatuses = {
 };
 
 export default function AutouploadActionDetails({ entry }) {
-    if (!["friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share", "profile-name-change"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
+    if (!entry.operation?.startsWith("profile-") && !["friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
     const detail = entry.diagnostic ?? {};
     const diagnostics = [
         ["Тип збою", errorStatuses[detail.status] ?? detail.status], ["Етап", detail.stage], ["Код мережі", detail.networkCode],
         ["Код запиту", detail.code], ["HTTP запиту", detail.httpStatus], ["Код API запиту", detail.graphCode], ["Підкод API запиту", detail.graphSubcode],
         ["Адреса без параметрів", detail.endpoint], ["Метод", detail.method], ["Тривалість, мс", detail.durationMs],
-        ["Рекламний кабінет", entry.adAccountId], ["Отримувач", entry.targetUserId], ["Результат", entry.outcome], ["Код застосунку", entry.code],
+        ["Рекламний кабінет", entry.adAccountId], ["Отримувач", entry.targetUserId], ["Результат", entry.outcome], ["Екшен", entry.stage], ["Код застосунку", entry.code],
         ["HTTP", entry.httpStatus], ["Код Facebook", entry.graphCode], ["Підкод Facebook", entry.graphSubcode],
         ["API error code", entry.apiErrorCode], ["Тип помилки", entry.graphType], ["Trace ID", entry.traceId], ["Request ID", entry.metaRequestId],
     ].filter(([, value]) => value !== null && value !== undefined && value !== "");
@@ -34,6 +35,9 @@ export default function AutouploadActionDetails({ entry }) {
         {entry.actionRequired && <p>{requiredActions[entry.actionRequired] || entry.actionRequired}</p>}
         {entry.incomingCheckMessage && <p>{entry.incomingCheckMessage}</p>}
         {entry.storageWarning && <p>{entry.storageWarning}</p>}
+        <dl>{[["Видалено постів", entry.deletedCount], ["Приховано постів", entry.hiddenCount], ["Залишилось постів", entry.remainingCount], ["Опубліковано", entry.publishedCount], ["Датовано", entry.backdatedCount]].filter(([, value]) => value != null).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+        {entry.actionSteps && <ul>{Object.entries(entry.actionSteps).map(([key, step]) => <li key={key}>{key === "education" ? "Освіта" : key === "work" ? "Робота" : key}: {step.status}</li>)}</ul>}
+        {entry.postResults?.length > 0 && <ul>{entry.postResults.map((post, index) => <li key={index}>Пост {post.sequence}{post.storyId ? ` · ${post.storyId}` : ""}: {post.createStatus} · дата: {post.backdateStatus || "не змінено"}</li>)}</ul>}
         {entry.incomingCheckError && <AutouploadActionDetails entry={{ ...entry.incomingCheckError, operation: "friend-request-accept" }} />}
         {entry.errors?.length > 0 && <ul>{entry.errors.map((error, index) => <li key={index}>{error.message}{error.code != null ? ` · code: ${error.code}` : ""}{error.api_error_code != null ? ` · api_error_code: ${error.api_error_code}` : ""}{error.error_subcode != null ? ` · subcode: ${error.error_subcode}` : ""}</li>)}</ul>}
         {entry.warnings?.map((warning, index) => <div key={index}><AutouploadActionDetails entry={{ message: warning.message, diagnostic: warning }} /></div>)}

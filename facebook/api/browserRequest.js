@@ -1,4 +1,5 @@
 import { getFacebookSurface, readFacebookRuntime } from "./runtime.js";
+import { getHttpActionTransport, isFacebookApiContext } from "./actionTransport.js";
 
 export const graphqlEndpoint = "/api/graphql/";
 export const defaultTimeoutMs = 30000;
@@ -25,7 +26,7 @@ export function normalizeTimeout(timeout) {
 
 // Перевіряє Page та мінімальний набір спільних Facebook параметрів.
 export function validateMutationInput(page, runtimeContext, { requireAv = true } = {}) {
-    if (!page || typeof page.evaluate !== "function") {
+    if (!isFacebookApiContext(page)) {
         return "Не передано Puppeteer page";
     }
 
@@ -94,6 +95,8 @@ export async function postFacebookForm(page, {
     timeout,
     endpoint = graphqlEndpoint,
 }) {
+    const transport = getHttpActionTransport(page);
+    if (transport) return transport.postForm({ body, friendlyName, timeout, endpoint });
     const surface = getFacebookSurface(page);
     if (!surface) return { requestError: "RUNTIME_UNAVAILABLE" };
     const current = await readFacebookRuntime(page, { surface, timeout });

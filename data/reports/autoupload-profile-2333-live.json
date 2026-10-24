@@ -1,0 +1,151 @@
+{
+  "profileNo": "2333",
+  "startedAt": "2026-10-24T22:02:56.100Z",
+  "actions": [
+    {
+      "action": "avatar",
+      "startedAt": "2026-10-24T22:03:05.268Z",
+      "state": "finished",
+      "finishedAt": "2026-10-24T22:03:29.937Z",
+      "result": {
+        "success": true,
+        "outcome": "CHANGED",
+        "code": null,
+        "message": "Аватарку соціального профілю змінено",
+        "httpStatus": 200,
+        "outcomeUnknown": false,
+        "actionRequired": null,
+        "retryable": false
+      }
+    },
+    {
+      "action": "cover",
+      "startedAt": "2026-10-24T22:03:29.937Z",
+      "state": "finished",
+      "finishedAt": "2026-10-24T22:03:44.577Z",
+      "result": {
+        "success": true,
+        "outcome": "CHANGED",
+        "code": null,
+        "message": "Обкладинку соціального профілю змінено",
+        "httpStatus": 200,
+        "outcomeUnknown": false,
+        "actionRequired": null,
+        "retryable": false
+      }
+    },
+    {
+      "action": "clear-posts",
+      "startedAt": "2026-10-24T22:03:44.578Z",
+      "state": "finished",
+      "finishedAt": "2026-10-24T22:04:04.116Z",
+      "result": {
+        "success": true,
+        "outcome": "CLEARED",
+        "code": null,
+        "message": "Пости соціального профілю очищено",
+        "deletedCount": 0,
+        "hiddenCount": 2,
+        "failedCount": 0,
+        "remainingCount": 0,
+        "httpStatus": null,
+        "outcomeUnknown": false,
+        "actionRequired": null,
+        "retryable": false
+      }
+    },
+    {
+      "action": "publish-posts",
+      "startedAt": "2026-10-24T22:04:04.117Z",
+      "state": "finished",
+      "finishedAt": "2026-10-24T22:04:16.257Z",
+      "result": {
+        "success": false,
+        "outcome": "OUTCOME_UNKNOWN",
+        "code": "FACEBOOK_GRAPHQL_ERROR",
+        "message": "Результат зміни профілю невідомий. Перевірте Facebook перед повтором",
+        "httpStatus": 200,
+        "graphCode": 1357010,
+        "graphSubcode": null,
+        "apiErrorCode": -1,
+        "graphType": null,
+        "graphUserTitle": "Oops!",
+        "graphUserMessage": "Something's gone wrong. We're working to get it fixed as soon as we can.",
+        "traceId": null,
+        "metaRequestId": null,
+        "friendshipStatus": null,
+        "errors": [
+          {
+            "message": "A server error field_exception occured. Check server logs for details.",
+            "code": 1357010,
+            "api_error_code": -1,
+            "error_subcode": null,
+            "type": null,
+            "error_user_title": "Oops!",
+            "error_user_msg": "Something's gone wrong. We're working to get it fixed as soon as we can.",
+            "is_transient": false
+          }
+        ],
+        "isTransient": false,
+        "sessionStatus": null,
+        "actionRequired": "check_profile_changes",
+        "outcomeUnknown": true,
+        "diagnostic": null,
+        "retryable": false
+      }
+    },
+    {
+      "action": "bio",
+      "startedAt": "2026-10-24T22:04:16.257Z",
+      "state": "finished",
+      "finishedAt": "2026-10-24T22:04:27.009Z",
+      "result": {
+        "success": true,
+        "outcome": "UPDATED",
+        "code": null,
+        "message": "Bio соціального профілю оновлено",
+        "httpStatus": 200,
+        "outcomeUnknown": false,
+        "actionRequired": null,
+        "retryable": false
+      }
+    },
+    {
+      "action": "about",
+      "startedAt": "2026-10-24T22:04:27.009Z",
+      "state": "finished",
+      "finishedAt": "2026-10-24T22:05:02.508Z",
+      "result": {
+        "success": true,
+        "outcome": "COMPLETED",
+        "code": null,
+        "message": "Інформацію про освіту та роботу соціального профілю оновлено",
+        "actionSteps": {
+          "education": {
+            "success": true,
+            "status": "ADDED"
+          },
+          "work": {
+            "success": true,
+            "status": "CREATED"
+          }
+        },
+        "httpStatus": null,
+        "outcomeUnknown": false,
+        "actionRequired": null,
+        "retryable": false
+      }
+    }
+  ],
+  "session": {
+    "status": "active",
+    "message": "Facebook відповів. Дані сесії отримано, акаунт підтверджено"
+  },
+  "finishedAt": "2026-10-24T22:05:02.508Z",
+  "inspection": {
+    "success": true,
+    "status": "POSTS_NOT_FOUND",
+    "testPostsFound": 0,
+    "testPostsWithRequestedDate": 0
+  }
+}

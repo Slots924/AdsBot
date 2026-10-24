@@ -37,6 +37,7 @@ export default async function publishProfilePostsWithDates({
         ? posts.map((post) => ({
             imagePath: post?.mediaPaths?.[0] ?? null,
             targetDate: parseTargetDate(post?.targetDate ?? post?.date),
+            text: post?.text ?? "",
         }))
         : [];
     if (
@@ -60,6 +61,7 @@ export default async function publishProfilePostsWithDates({
             const createResult = await createPublicPhotoPost({
                 page,
                 imagePath: post.imagePath,
+                text: post.text,
                 timeout,
             });
             const item = {
