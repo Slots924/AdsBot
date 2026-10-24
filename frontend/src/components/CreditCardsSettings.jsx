@@ -9,6 +9,7 @@ const blankCard = () => ({
     nickname: "",
     cardholderName: "",
     cardNumber: "",
+    securityCode: "",
     expiration: "",
     postalCode: "",
     countryCode: "US",
@@ -41,6 +42,7 @@ export default function CreditCardsSettings({ onError = () => {}, showToast }) {
                 nickname: editor.nickname.trim(),
                 cardholderName: editor.cardholderName.trim(),
                 cardNumber: editor.cardNumber.replace(/[\s-]/g, ""),
+                securityCode: editor.securityCode.trim(),
                 expiration: editor.expiration.trim(),
                 postalCode: editor.postalCode.trim(),
                 countryCode: editor.countryCode.trim().toUpperCase(),
@@ -73,11 +75,12 @@ export default function CreditCardsSettings({ onError = () => {}, showToast }) {
         && editor.cardholderName.trim()
         && (editor.id || /^\d{12,19}$/.test(editor.cardNumber.replace(/[\s-]/g, "")))
         && /^(0[1-9]|1[0-2])\/\d{2}$/.test(editor.expiration.trim())
+        && (!editor.securityCode || /^\d{3,4}$/.test(editor.securityCode))
         && /^[A-Za-z]{2}$/.test(editor.countryCode.trim());
 
     return <div className="credit-card-settings">
         <div className="credit-card-settings-head">
-            <div><h3>Кредитні картки</h3><p>Номер шифрується системним сховищем Electron. CVC вводиться лише під час додавання карти в Meta.</p></div>
+            <div><h3>Кредитні картки</h3><p>Номер і CVV шифруються системним сховищем Electron. Збережений CVV використовується, якщо його не введено в персональному акаунті.</p></div>
             <button type="button" className="primary-button" onClick={() => setEditor(blankCard())}>
                 <Plus size={16} /> Додати картку
             </button>
@@ -101,7 +104,7 @@ export default function CreditCardsSettings({ onError = () => {}, showToast }) {
                     {card.postalCode && <span>ZIP <strong>{card.postalCode}</strong></span>}
                 </div>
                 <div className="credit-card-actions">
-                    <button type="button" className="icon-button" title="Редагувати" onClick={() => setEditor({ ...card, cardNumber: "" })}><Pencil size={15} /></button>
+                    <button type="button" className="icon-button" title="Редагувати" onClick={() => setEditor({ ...card, cardNumber: "", securityCode: "" })}><Pencil size={15} /></button>
                     <button type="button" className="icon-button danger" title="Видалити" onClick={() => remove(card)}><Trash2 size={15} /></button>
                 </div>
             </article>)}
@@ -113,6 +116,7 @@ export default function CreditCardsSettings({ onError = () => {}, showToast }) {
                 <label className="field"><span>Ім’я власника</span><input value={editor.cardholderName} onChange={(event) => setEditor({ ...editor, cardholderName: event.target.value })} /></label>
                 <label className="field wide"><span>Номер картки{editor.id ? " · залиште порожнім, щоб не змінювати" : ""}</span><input inputMode="numeric" autoComplete="off" value={editor.cardNumber} onChange={(event) => setEditor({ ...editor, cardNumber: event.target.value })} /></label>
                 <label className="field"><span>Строк MM/YY</span><input placeholder="09/28" value={editor.expiration} onChange={(event) => setEditor({ ...editor, expiration: event.target.value })} /></label>
+                <label className="field"><span>CVV{editor.hasSecurityCode ? " · залиште порожнім, щоб не змінювати" : " · необов’язково"}</span><input type="password" inputMode="numeric" autoComplete="off" maxLength={4} value={editor.securityCode} onChange={(event) => setEditor({ ...editor, securityCode: event.target.value.replace(/\D/g, "") })} /></label>
                 <label className="field"><span>Поштовий індекс · необов’язково</span><input value={editor.postalCode} onChange={(event) => setEditor({ ...editor, postalCode: event.target.value })} /></label>
                 <label className="field"><span>Країна</span><input maxLength="2" value={editor.countryCode} onChange={(event) => setEditor({ ...editor, countryCode: event.target.value.toUpperCase() })} /></label>
             </div>

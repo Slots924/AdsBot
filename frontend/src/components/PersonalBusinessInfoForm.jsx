@@ -1,11 +1,26 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { LoaderCircle, Pencil, RefreshCw, X } from "lucide-react";
+import { LoaderCircle, Pencil, RefreshCw, Star, X } from "lucide-react";
+import SearchSelect from "./SearchSelect.jsx";
+
+const timezoneOptions = [
+    { id: "Atlantic/Reykjavik", name: "UTC+0 · Рейк’явік, Ісландія", description: "UTC+0 протягом усього року" },
+    { id: "Europe/Kiev", name: "UTC+3 · Київ, Україна", description: "Влітку UTC+3, взимку UTC+2" },
+];
+const defaultTimezone = timezoneOptions[0].id;
+const favoriteTimezoneKey = "adsbot.personalBusiness.favoriteTimezone";
+
+function readFavoriteTimezone() {
+    try {
+        const saved = window.localStorage.getItem(favoriteTimezoneKey);
+        return timezoneOptions.some((option) => option.id === saved) ? saved : defaultTimezone;
+    } catch { return defaultTimezone; }
+}
 
 const defaultBusinessUpdate = {
     street1: "1600 Pennsylvania Avenue NW", street2: "", city: "Washington",
     state: "DC", zip: "20500", countryCode: "US", businessName: "",
-    currency: "USD", timezone: "Europe/Kiev",
+    currency: "USD", timezone: defaultTimezone,
 };
 
 const addressFields = [
@@ -16,7 +31,7 @@ const addressFields = [
     ["zip", "Поштовий індекс", ""],
 ];
 
-function BusinessFields({ value, onChange, busy = false }) {
+function BusinessFields({ value, onChange, busy = false, favoriteTimezone, onFavoriteTimezone }) {
     const set = (key, next) => onChange?.((current) => ({ ...current, [key]: next }));
     return <fieldset className="personal-business-form-body" disabled={busy}>
             <div className="personal-business-form-section">
@@ -27,7 +42,17 @@ function BusinessFields({ value, onChange, busy = false }) {
                 <h5>Валюта та часовий пояс</h5>
                 <div className="personal-business-form-grid">
                     <label className="personal-business-field"><span>Валюта</span><input readOnly={!onChange} value={value.currency} maxLength={3} onChange={(event) => set("currency", event.target.value.toUpperCase())} /></label>
-                    <label className="personal-business-field"><span>Часовий пояс</span><input readOnly={!onChange} value={value.timezone} onChange={(event) => set("timezone", event.target.value)} /></label>
+                    {onChange ? <div className="personal-business-field personal-business-timezone">
+                        <span>Часовий пояс</span>
+                        <SearchSelect items={timezoneOptions} value={value.timezone} onChange={(timezone) => set("timezone", timezone)}
+                            getSubtitle={(option) => option.description} ariaLabel="Часовий пояс" disabled={busy}
+                            searchPlaceholder="Пошук часового поясу…"
+                            renderOptionAction={(option) => <button type="button" className="icon-button personal-business-timezone-star"
+                                aria-label={`За замовчуванням: ${option.name}`} aria-pressed={favoriteTimezone === option.id}
+                                title="Використовувати за замовчуванням" disabled={busy} onClick={() => onFavoriteTimezone(option.id)}>
+                                <Star size={17} fill={favoriteTimezone === option.id ? "currentColor" : "none"} />
+                            </button>} />
+                    </div> : <label className="personal-business-field"><span>Часовий пояс</span><input readOnly value={value.timezone} /></label>}
                 </div>
             </div>
             <div className="personal-business-form-section">
@@ -42,6 +67,12 @@ function BusinessFields({ value, onChange, busy = false }) {
 
 export default function PersonalBusinessInfoForm({ value, onCheck, onSave, busy, ready, checked, refreshError }) {
     const [draft, setDraft] = useState(null);
+    const [favoriteTimezone, setFavoriteTimezone] = useState(readFavoriteTimezone);
+    const chooseFavoriteTimezone = (timezone) => {
+        setFavoriteTimezone(timezone);
+        setDraft((current) => current ? { ...current, timezone } : current);
+        try { window.localStorage.setItem(favoriteTimezoneKey, timezone); } catch {}
+    };
     const canSave = draft && ready && !busy && /^[A-Z]{2}$/.test(draft.countryCode)
         && /^[A-Z]{3}$/.test(draft.currency) && ["timezone", "street1", "city", "state", "zip"]
             .every((key) => String(draft[key] ?? "").trim());
@@ -50,7 +81,7 @@ export default function PersonalBusinessInfoForm({ value, onCheck, onSave, busy,
     return <>
         <div className="personal-business-toolbar">
             <button type="button" className="secondary-button" disabled={!ready || busy} onClick={onCheck}><RefreshCw size={16} /> Перевірити бізнес-інфу</button>
-            <button type="button" className="secondary-button personal-business-update-button" disabled={!ready || busy} onClick={() => setDraft({ ...defaultBusinessUpdate })}><Pencil size={16} /> Оновити бізнес-інфу</button>
+            <button type="button" className="secondary-button personal-business-update-button" disabled={!ready || busy} onClick={() => setDraft({ ...defaultBusinessUpdate, timezone: favoriteTimezone })}><Pencil size={16} /> Оновити бізнес-інфу</button>
         </div>
         <div className="personal-business-form">
             <div className="personal-business-form-heading"><div><h4>Бізнес-інформація</h4><p>Поточні реквізити вибраного рекламного акаунта.</p></div></div>
@@ -71,7 +102,7 @@ export default function PersonalBusinessInfoForm({ value, onCheck, onSave, busy,
                     <div><h2 id="business-editor-title">Оновити бізнес-інфу</h2><p>Дефолтні значення вже заповнені. За потреби відредагуйте їх перед оновленням.</p></div>
                     <button type="button" className="icon-button" aria-label="Закрити редактор бізнес-інформації" disabled={busy} onClick={dismiss}><X size={18} /></button>
                 </div>
-                <BusinessFields value={draft} onChange={setDraft} busy={busy} />
+                <BusinessFields value={draft} onChange={setDraft} busy={busy} favoriteTimezone={favoriteTimezone} onFavoriteTimezone={chooseFavoriteTimezone} />
                 <div className="form-actions">
                     <button type="button" className="secondary-button" disabled={busy} onClick={dismiss}>Скасувати</button>
                     <button type="submit" className="primary-button" disabled={!canSave}>{busy ? <><LoaderCircle className="spin" size={16} /> Оновлення…</> : "Оновити інформацію"}</button>

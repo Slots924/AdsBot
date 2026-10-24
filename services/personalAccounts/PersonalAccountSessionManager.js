@@ -900,7 +900,7 @@ export default class PersonalAccountSessionManager {
                 page: session.page,
                 paymentAccountId: input.adAccountId,
                 cardNumber: card.cardNumber,
-                securityCode: input.securityCode,
+                securityCode: String(input.securityCode ?? "").trim() || card.securityCode,
                 expiration: card.expiration,
                 cardholderName: card.cardholderName,
                 postalCode: card.postalCode,

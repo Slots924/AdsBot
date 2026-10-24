@@ -11,6 +11,7 @@ export default function SearchSelect({
     getSubtitle = (item) => item.id,
     getSearchText,
     getStatus,
+    renderOptionAction,
     multiple = false,
     placeholder = "Оберіть значення",
     searchPlaceholder = "Пошук…",
@@ -92,7 +93,7 @@ export default function SearchSelect({
                         {filtered.map((item) => {
                             const id = getId(item);
                             const optionSubtitle = getSubtitle(item);
-                            return (
+                            const option = (
                                 <button
                                     type="button"
                                     className="select-option"
@@ -124,6 +125,9 @@ export default function SearchSelect({
                                         : String(id) === String(value)) && <Check size={16} />}
                                 </button>
                             );
+                            return renderOptionAction
+                                ? <div className="select-option-row" key={id}>{option}{renderOptionAction(item)}</div>
+                                : option;
                         })}
                     </div>
                 </div>

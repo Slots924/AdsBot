@@ -31,6 +31,10 @@ function normalize(input = {}) {
     const expiration = String(input.expiration ?? "").trim();
     const postalCode = String(input.postalCode ?? "").trim();
     const countryCode = String(input.countryCode ?? "US").trim().toUpperCase();
+    const securityCode = String(input.securityCode ?? "").trim();
+    if (securityCode && !/^\d{3,4}$/.test(securityCode)) {
+        throw cardError("CVV має містити 3 або 4 цифри", "CREDIT_CARD_INVALID");
+    }
     if (!nickname || !cardholderName || !/^\d{12,19}$/.test(cardNumber)
         || !passesLuhn(cardNumber)
         || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiration)
@@ -40,7 +44,7 @@ function normalize(input = {}) {
             "CREDIT_CARD_INVALID"
         );
     }
-    return { nickname, cardholderName, cardNumber, expiration, postalCode, countryCode };
+    return { nickname, cardholderName, cardNumber, expiration, postalCode, countryCode, securityCode };
 }
 
 
@@ -61,6 +65,7 @@ function publicCard(card) {
         postalCode: card.postalCode,
         countryCode: card.countryCode,
         network: card.network,
+        hasSecurityCode: Boolean(card.encryptedSecurityCode),
         last4: card.last4,
         displayNumber: `${card.bin || ""}••••••${card.last4}`,
         createdAt: card.createdAt,
@@ -106,6 +111,7 @@ export default class CreditCardStore {
                 postalCode: value.postalCode,
                 countryCode: value.countryCode,
                 encryptedNumber: this.encrypt(value.cardNumber),
+                encryptedSecurityCode: value.securityCode ? this.encrypt(value.securityCode) : null,
                 bin: value.cardNumber.slice(0, 6),
                 last4: value.cardNumber.slice(-4),
                 network: detectNetwork(value.cardNumber),
@@ -137,6 +143,8 @@ export default class CreditCardStore {
                 postalCode: value.postalCode,
                 countryCode: value.countryCode,
                 encryptedNumber: this.encrypt(value.cardNumber),
+                // Порожнє поле під час редагування залишає збережений CVV без змін.
+                encryptedSecurityCode: value.securityCode ? this.encrypt(value.securityCode) : card.encryptedSecurityCode ?? null,
                 bin: value.cardNumber.slice(0, 6),
                 last4: value.cardNumber.slice(-4),
                 network: detectNetwork(value.cardNumber),
@@ -164,7 +172,10 @@ export default class CreditCardStore {
         return this.#enqueue(async () => {
             const card = (await this.#read()).cards.find((item) => item.id === String(id));
             if (!card) throw cardError("Кредитну карту не знайдено", "CREDIT_CARD_NOT_FOUND");
-            return { ...publicCard(card), cardNumber: this.decrypt(card.encryptedNumber) };
+            return {
+                ...publicCard(card), cardNumber: this.decrypt(card.encryptedNumber),
+                securityCode: card.encryptedSecurityCode ? this.decrypt(card.encryptedSecurityCode) : "",
+            };
         });
     }
 
