@@ -10,6 +10,7 @@ import {
 } from "../config.js";
 import runParallelCommentAccountSetupScenario
     from "../scenarios/runParallelCommentAccountSetupScenario.js";
+import ProfileActivityStore, { profileActivityTypes } from "../services/profile/ProfileActivityStore.js";
 
 
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -191,6 +192,29 @@ try {
     });
     assert.equal(emptyBio.report.profiles[0].outcome, "success");
     assert.equal(receivedBio, "");
+    const activity = new ProfileActivityStore({ databaseFile: ":memory:" });
+    try {
+        for (const actionType of [profileActivityTypes.COMMENT_ACCOUNT_SETUP_UI, profileActivityTypes.COMMENT_ACCOUNT_SETUP_API]) {
+            for (const outcome of ["success", "completed_with_error", "failed", "skipped"]) {
+                await activity.remove(["10"]);
+                await runParallelCommentAccountSetupScenario({
+                    adsPower: { getProfileByNo: async () => profiles[10] },
+                    profileNos: [10], personas: [createPersona("male", "Otto")], geo: "US",
+                    reportsDirectory, logger: { info() {}, warn() {}, error() {}, debug() {} },
+                    profileActivityStore: activity, profileActivityType: actionType,
+                    executeSetup: async () => ({
+                        success: outcome === "success", outcome, profileNo: "10", cleanupErrors: [],
+                    }),
+                });
+                const stats = await activity.list({ bannedOnly: false });
+                if (["success", "completed_with_error"].includes(outcome)) {
+                    const expectedType = actionType === profileActivityTypes.COMMENT_ACCOUNT_SETUP_UI ? "ui" : "api";
+                    assert.equal(stats.items[0].accountType, expectedType);
+                    assert.equal(stats.items[0][expectedType === "ui" ? "commentAccountSetupUiCount" : "commentAccountSetupApiCount"], 1);
+                } else assert.equal(stats.total, 0);
+            }
+        }
+    } finally { activity.db.close(); }
 } finally {
     await rm(reportsDirectory, { recursive: true, force: true });
 }

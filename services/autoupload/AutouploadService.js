@@ -8,6 +8,7 @@ import { validateAdAccountId } from "../../facebook/autoupload/actions/adAccount
 import { actionFailure } from "../../facebook/autoupload/graphql/errors.js";
 import acceptIncomingFriendRequest from "../../facebook/autoupload/actions/friends/acceptIncomingFriendRequest.js";
 import { safeDiagnosticText } from "../logging/httpDiagnostics.js";
+import changeFacebookName, { validateName } from "../../facebook/autoupload/actions/accounts/changeFacebookName.js";
 
 export default class AutouploadService {
     #clients = new Map();
@@ -15,7 +16,8 @@ export default class AutouploadService {
     #browserStates = new Map();
     #browserBusy = new Set();
     #mutating = new Set();
-    constructor({ store, adsPower, profileBrowser, sessionStore, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount, acceptFriendRequestFn = acceptIncomingFriendRequest }) {
+    constructor({ store, adsPower, profileBrowser, sessionStore, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount, acceptFriendRequestFn = acceptIncomingFriendRequest, changeNameFn = changeFacebookName }) {
+        this.changeNameFn = changeNameFn;
         Object.assign(this, { store, adsPower, profileBrowser, sessionStore, onUpdated, checkSession: checkSession ?? (sessionStore ? refreshProfileSession : checkProfileSession), sendFriendRequestFn, shareAdAccountFn, acceptFriendRequestFn });
     }
     #statusHandler(profileId) {
@@ -166,6 +168,42 @@ export default class AutouploadService {
     }
     async check(ids, { signal, progress = async () => {} } = {}) {
         return this.#runProfiles(ids, { signal, progress });
+    }
+    async changeNames(ids, input, { signal, progress = async () => {} } = {}) {
+        const name = validateName(input);
+        const profiles = await this.selected(ids);
+        const results = [];
+        for (const profile of profiles) {
+            if (signal?.aborted) break;
+            const id = profile.profileId;
+            if (this.#running.has(id) || this.#browserBusy.has(id) || this.#mutating.has(id)) throw new Error("Операція над профілем уже виконується");
+            this.#running.add(id);
+            try {
+                await this.#publish();
+                await progress({ stage: "profile-name-change", completed: results.length, total: profiles.length, message: `№${profile.profileNo}: зміна імені соціального профілю` });
+                let action;
+                try {
+                    const prepared = await this.#prepare(id, { signal, cachedOnly: true }, false);
+                    if (!prepared.client) action = { success: false, outcome: "NOT_SENT", message: prepared.result.message, code: "FACEBOOK_SESSION_PREPARATION_FAILED", retryable: false, outcomeUnknown: false };
+                    else {
+                        this.#clients.set(id, prepared.client);
+                        action = await this.changeNameFn(prepared.client.getFbData(id), name, { signal });
+                        if (["login_required", "checkpoint"].includes(action.sessionStatus)) await this.#statusHandler(id)({ status: action.sessionStatus, message: action.message });
+                        else if (this.sessionStore) {
+                            try { await this.sessionStore.save(id, prepared.client.exportSession()); }
+                            catch { action = { ...action, storageWarning: "Не вдалося зберегти оновлену сесію" }; }
+                        }
+                    }
+                } catch (error) { action = actionFailure(error); }
+                const entry = { ...action, operation: "profile-name-change", fields: [], steps: [action.message] };
+                await this.store.recordAction(id, entry);
+                results.push({ profileId: id, profileNo: profile.profileNo, ...entry });
+            } finally {
+                this.#running.delete(id);
+                await this.#publish();
+            }
+        }
+        return { result: { profiles: results }, taskStatus: results.length !== profiles.length || results.some(item => !item.success || item.storageWarning) ? "completed_with_warnings" : "completed" };
     }
     async sendFriendRequests(ids, targetUserId, context = {}) {
         return this.#runProfiles(ids, { ...context, targetUserId: validateTargetUserId(targetUserId) });

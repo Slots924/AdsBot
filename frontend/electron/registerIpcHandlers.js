@@ -13,6 +13,7 @@ import BusinessManagerService from "../../services/gui/BusinessManagerService.js
 import AutouploadStore from "../../services/autoupload/AutouploadStore.js";
 import AutouploadService from "../../services/autoupload/AutouploadService.js";
 import { validateTargetUserId } from "../../facebook/autoupload/actions/friends/sendFriendRequest.js";
+import { validateName } from "../../facebook/autoupload/actions/accounts/changeFacebookName.js";
 import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
 
 
@@ -260,6 +261,19 @@ export default function registerIpcHandlers({
             resources: profiles.map((item) => ({ key: `adspower-profile:${item.profileNo}`, label: `профіль №${item.profileNo}` })),
             input: { profileIds: profiles.map((item) => item.profileId) },
             runner: (context) => autoupload.check(profiles.map((item) => item.profileId), context),
+        });
+        return { taskId: task.id };
+    }));
+    ipcMain.handle("autoupload:change-name", safeHandler(async ({ ids, ...input } = {}) => {
+        const name = validateName(input);
+        const profiles = await autoupload.selected(ids);
+        const selectedIds = profiles.map(profile => profile.profileId);
+        const task = await backgroundTaskManager.enqueue({
+            type: "autoupload-profile-name-change", name: `Зміна імені соціального профілю · ${profiles.length}`,
+            uniqueKey: `autoupload-name:${[...selectedIds].sort().join(",")}`,
+            resources: profiles.map(profile => ({ key: `adspower-profile:${profile.profileNo}`, label: `профіль №${profile.profileNo}` })),
+            input: { profileIds: selectedIds },
+            runner: context => autoupload.changeNames(selectedIds, name, context),
         });
         return { taskId: task.id };
     }));

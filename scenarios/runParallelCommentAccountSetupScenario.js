@@ -273,10 +273,11 @@ export default async function runParallelCommentAccountSetupScenario({
                         ),
                     });
                     report.profiles.push(item);
-                    if (item.outcome === "success" && profileActivityStore && profileActivityType) {
+                    if (["success", "completed_with_error"].includes(item.outcome) && profileActivityStore && profileActivityType) {
                         const write = profileActivityStore.recordSuccessfulAction({
                             profileNo: item.profileNo,
                             actionType: profileActivityType,
+                            outcome: item.outcome,
                             occurredAt: item.finishedAt,
                         }).catch((error) => scenarioLogger.warn(
                             "activity.record-failed",

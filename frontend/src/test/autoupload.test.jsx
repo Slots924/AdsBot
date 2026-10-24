@@ -15,6 +15,7 @@ beforeEach(() => {
         onAutouploadUpdated: vi.fn(() => () => {}),
         mutateAutoupload: vi.fn(() => ok(structuredClone(state))),
         checkAutouploadSessions: vi.fn(() => ok({ taskId: "task1" })),
+        changeAutouploadNames: vi.fn(() => ok({ taskId: "name-task" })),
         sendAutouploadFriendRequests: vi.fn(() => ok({ taskId: "friend-task" })),
         shareAutouploadAdAccounts: vi.fn(() => ok({ taskId: "share-task" })),
         transferAutouploadPersonalAccounts: vi.fn(() => ok({ taskId: "transfer-task" })),
@@ -24,6 +25,19 @@ beforeEach(() => {
 afterEach(() => { cleanup(); delete window.adsBot; });
 
 describe("Автозаливи", () => {
+    it("меню дій відкриває зміну імені соціального профілю та передає введені дані", async () => {
+        render(<AutouploadTab />);
+        const actions = screen.getByRole("button", { name: "Дії ▾" });
+        expect(actions).toBeDisabled();
+        fireEvent.click(await screen.findByRole("checkbox", { name: "Вибрати профіль 12" }));
+        fireEvent.click(actions);
+        fireEvent.click(screen.getByRole("button", { name: "Змінити ім’я соціального профілю (HTTP)" }));
+        fireEvent.change(screen.getByLabelText("Ім’я"), { target: { value: "Test" } });
+        fireEvent.change(screen.getByLabelText("Прізвище"), { target: { value: "User" } });
+        fireEvent.click(screen.getByRole("button", { name: "Підтвердити" }));
+        await waitFor(() => expect(window.adsBot.changeAutouploadNames).toHaveBeenCalledWith(["p1"], { firstName: "Test", middleName: "", lastName: "User" }));
+        await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    });
     it("видалення одного профілю підтверджується, AdsPower початково вимкнений", async () => {
         render(<AutouploadTab />);
         fireEvent.click(await screen.findByRole("button", { name: "Прибрати профіль 12" }));

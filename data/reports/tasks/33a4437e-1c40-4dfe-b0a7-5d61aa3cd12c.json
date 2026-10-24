@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "id": "33a4437e-1c40-4dfe-b0a7-5d61aa3cd12c",
+  "taskId": "75d24989-2a2a-45ab-8512-1ae4beb0ede0",
+  "type": "facebook-api-client-sync",
+  "title": "Синхронізація API-клієнта account-033",
+  "status": "failed",
+  "createdAt": "2026-10-24T12:31:08.119Z",
+  "startedAt": "2026-10-24T12:31:07.774Z",
+  "finishedAt": "2026-10-24T12:31:08.114Z",
+  "durationMs": 340,
+  "inputSummary": {
+    "accountKey": "account-033",
+    "adsPowerProfileNo": "488"
+  },
+  "resultSummary": null,
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Не вдалося отримати профіль 488: Профіль із номером 488 не знайдений",
+      "code": null,
+      "stage": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "httpStatus": null,
+      "requestId": null,
+      "traceId": null,
+      "metaRequestId": null,
+      "endpoint": null,
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": null,
+      "isTransient": false
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "accountKey": "account-033",
+    "uniqueKey": "facebook-api-client-sync:account-033"
+  }
+}

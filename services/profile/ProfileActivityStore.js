@@ -33,7 +33,7 @@ const classifiedProfiles = `WITH classified AS (
         FROM profile_activity_events e
         WHERE e.profile_no = p.profile_no
             AND e.action_type IN ('comment_account_setup_ui', 'comment_account_setup_api')
-            AND e.outcome = 'success'
+            AND e.outcome IN ('success', 'completed_with_error')
             AND (p.is_banned = 0 OR julianday(e.occurred_at) <= julianday(p.banned_at))
         ORDER BY julianday(e.occurred_at) DESC, e.id DESC LIMIT 1
     ), 'regular') AS account_type
