@@ -12,7 +12,7 @@ export default {
         useAnotherProfile: ["Usar otro perfil"],
         logIn: ["Iniciar sesión"],
     },
-    account: { profileButton: ["Cuenta", "Tu perfil"] },
+    account: { profileButton: ["Cuenta", "Tu perfil", "Cuenta, tu perfil"] },
     automatedBehavior: {
         warning: ["Sospechamos que hay un comportamiento automatizado en tu cuenta", "Sospechamos actividad automatizada en tu cuenta"],
         dismiss: ["Cerrar", "Descartar"],

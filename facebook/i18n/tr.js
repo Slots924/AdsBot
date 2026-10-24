@@ -12,7 +12,7 @@ export default {
         useAnotherProfile: ["Başka bir profil kullan"],
         logIn: ["Giriş yap"],
     },
-    account: { profileButton: ["Hesap", "Profilin", "Profiliniz"] },
+    account: { profileButton: ["Hesap", "Profilin", "Profiliniz", "Hesap, profilin", "Hesap, profiliniz"] },
     automatedBehavior: {
         warning: ["Hesabında otomatik davranışlar olduğundan şüpheleniyoruz"],
         dismiss: ["Kapat", "Reddet"],

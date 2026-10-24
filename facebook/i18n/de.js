@@ -12,7 +12,7 @@ export default {
         useAnotherProfile: ["Anderes Profil verwenden"],
         logIn: ["Anmelden"],
     },
-    account: { profileButton: ["Konto", "Dein Profil", "Ihr Profil"] },
+    account: { profileButton: ["Konto", "Dein Profil", "Ihr Profil", "Konto, dein Profil", "Konto, Ihr Profil"] },
     automatedBehavior: {
         warning: ["Wir vermuten automatisiertes Verhalten auf Ihrem Konto", "Wir vermuten automatisiertes Verhalten auf deinem Konto"],
         dismiss: ["Schließen", "Verwerfen"],

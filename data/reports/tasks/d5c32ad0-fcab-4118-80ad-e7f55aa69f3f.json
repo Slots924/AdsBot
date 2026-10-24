@@ -1,0 +1,1110 @@
+{
+  "version": 1,
+  "id": "d5c32ad0-fcab-4118-80ad-e7f55aa69f3f",
+  "taskId": "15a4b76e-70be-488b-ab6a-2b18015be8d2",
+  "type": "account-farm",
+  "title": "Фарм акаунтів (10)",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-23T07:43:55.776Z",
+  "startedAt": "2026-10-23T06:24:08.312Z",
+  "finishedAt": "2026-10-23T07:43:55.772Z",
+  "durationMs": 4787460,
+  "inputSummary": {
+    "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+    "settings": {
+      "workers": 1,
+      "timeoutSeconds": 500,
+      "disableImages": false,
+      "headless": false,
+      "actions": {
+        "feed": {
+          "enabled": true,
+          "count": 10,
+          "minSeconds": 5,
+          "maxSeconds": 15,
+          "upPercent": 10
+        },
+        "openPosts": {
+          "enabled": true,
+          "count": 3,
+          "minSeconds": 5,
+          "maxSeconds": 15
+        },
+        "likePosts": {
+          "enabled": true,
+          "percent": 10,
+          "max": 2
+        },
+        "likeComments": {
+          "enabled": true,
+          "posts": 3,
+          "percent": 10,
+          "max": 2
+        },
+        "groups": {
+          "enabled": true,
+          "count": 2,
+          "posts": 5,
+          "minSeconds": 5,
+          "maxSeconds": 15
+        },
+        "joinGroups": {
+          "enabled": false,
+          "max": 1
+        }
+      }
+    }
+  },
+  "resultSummary": {
+    "id": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+    "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+    "profileNos": [
+      "2402",
+      "2403",
+      "2404",
+      "2405",
+      "2406",
+      "2408",
+      "2410",
+      "2411",
+      "2412",
+      "2413"
+    ],
+    "settings": "[CIRCULAR]",
+    "pool": [
+      {
+        "id": "instant-pot",
+        "name": "Instant Pot Community",
+        "url": "https://www.facebook.com/groups/InstantPotCommunity",
+        "topic": "Кулінарія",
+        "enabled": true,
+        "checkedAt": null
+      },
+      {
+        "id": "easy-chinese-cooking",
+        "name": "Easy Chinese Cooking",
+        "url": "https://www.facebook.com/groups/easychinesecooking",
+        "topic": "Кулінарія",
+        "enabled": true,
+        "checkedAt": null
+      },
+      {
+        "id": "rspb-leeds",
+        "name": "RSPB Leeds Local Group",
+        "url": "https://www.facebook.com/groups/RSPB.Leeds.Local.Group",
+        "topic": "Птахи та природа",
+        "enabled": true,
+        "checkedAt": null
+      }
+    ],
+    "startedAt": "2026-10-23T06:24:08.318Z",
+    "outcome": "completed_with_warnings",
+    "finishedAt": "2026-10-23T07:43:55.772Z",
+    "sessions": [
+      {
+        "id": "2f625f72-80b4-4a64-aee2-76fd7c393c32",
+        "runId": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2402",
+        "worker": 1,
+        "startedAt": "2026-10-23T06:24:08.332Z",
+        "outcome": "timeout",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-23T06:24:19.378Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-23T06:24:22.445Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-23T06:24:22.462Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:24:34.960Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T06:24:50.165Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T06:25:05.636Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T06:25:16.816Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-23T06:26:16.626Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:27:01.209Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "instant-pot",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-23T06:30:01.217Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-23T06:30:01.222Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:30:53.201Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-23T06:30:54.469Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:31:40.091Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-23T06:24:22.467Z",
+        "farmTimeMs": 488299,
+        "updatedAt": "2026-10-23T06:32:31.308Z",
+        "reason": "Вичерпано таймаут акаунта",
+        "farmFinishedAt": "2026-10-23T06:32:30.766Z",
+        "cleanupError": "Не вдалося закрити профіль 2402: Profile is not open",
+        "finishedAt": "2026-10-23T06:32:31.308Z"
+      },
+      {
+        "id": "ce598922-6494-40fa-803f-12c7069c25b6",
+        "runId": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2403",
+        "worker": 1,
+        "startedAt": "2026-10-23T06:32:31.312Z",
+        "outcome": "timeout",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-23T06:32:42.717Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-23T06:32:45.780Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-23T06:32:45.789Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:32:58.915Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T06:33:15.321Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T06:33:22.333Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T06:33:31.241Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "easy-chinese-cooking",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-23T06:34:35.243Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:35:21.440Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "instant-pot",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-23T06:38:21.450Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-23T06:38:21.453Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-23T06:32:45.792Z",
+        "farmTimeMs": 488517,
+        "updatedAt": "2026-10-23T06:40:54.865Z",
+        "reason": "Вичерпано таймаут акаунта",
+        "farmFinishedAt": "2026-10-23T06:40:54.309Z",
+        "cleanupError": "Не вдалося закрити профіль 2403: Profile is not open",
+        "finishedAt": "2026-10-23T06:40:54.865Z"
+      },
+      {
+        "id": "1e455954-66f4-4009-bb79-7e4840b31f8c",
+        "runId": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2404",
+        "worker": 1,
+        "startedAt": "2026-10-23T06:40:54.868Z",
+        "outcome": "timeout",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-23T06:41:05.381Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-23T06:41:08.604Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-23T06:41:08.625Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:42:09.562Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T06:43:18.775Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T06:43:38.103Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T06:43:56.928Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-23T06:44:33.893Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 6,
+            "at": "2026-10-23T06:45:21.691Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 7,
+            "at": "2026-10-23T06:46:17.096Z"
+          },
+          {
+            "action": "feed",
+            "status": "failed",
+            "reason": "Input.dispatchMouseEvent timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.",
+            "at": "2026-10-23T06:49:17.107Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-23T06:41:08.629Z",
+        "farmTimeMs": 489218,
+        "updatedAt": "2026-10-23T06:49:18.395Z",
+        "reason": "Вичерпано таймаут акаунта",
+        "farmFinishedAt": "2026-10-23T06:49:17.847Z",
+        "cleanupError": "Не вдалося закрити профіль 2404: Profile is not open",
+        "finishedAt": "2026-10-23T06:49:18.395Z"
+      },
+      {
+        "id": "8ff9469f-d901-4f24-90e0-40b476f7a74e",
+        "runId": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2405",
+        "worker": 1,
+        "startedAt": "2026-10-23T06:49:18.399Z",
+        "outcome": "failed",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-23T06:49:29.628Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-23T06:49:32.717Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-23T06:49:32.726Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:49:42.976Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-23T06:49:44.576Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:49:59.392Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T06:50:15.468Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T06:50:31.272Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T06:50:39.853Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-23T06:50:55.128Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "rspb-leeds",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-23T06:51:56.188Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-23T06:51:56.194Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:52:10.058Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-23T06:52:11.337Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:52:21.339Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T06:52:34.037Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T06:52:41.566Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T06:52:54.886Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-23T06:53:08.245Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 6,
+            "at": "2026-10-23T06:53:14.219Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 7,
+            "at": "2026-10-23T06:53:24.900Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 8,
+            "at": "2026-10-23T06:53:32.190Z"
+          },
+          {
+            "action": "feed",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-23T06:53:33.721Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-23T06:49:32.729Z",
+        "farmTimeMs": 240995,
+        "updatedAt": "2026-10-23T06:53:35.165Z",
+        "reason": null,
+        "farmFinishedAt": "2026-10-23T06:53:33.724Z",
+        "finishedAt": "2026-10-23T06:53:35.165Z"
+      },
+      {
+        "id": "8014a1e7-d26a-4c41-85f1-39bb7362ef6a",
+        "runId": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2406",
+        "worker": 1,
+        "startedAt": "2026-10-23T06:53:35.169Z",
+        "outcome": "timeout",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-23T06:53:44.920Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-23T06:53:48.006Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-23T06:53:48.017Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "rspb-leeds",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-23T06:54:49.858Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T06:56:50.463Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T06:57:44.173Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "easy-chinese-cooking",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-23T07:00:44.182Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-23T07:00:44.186Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:01:48.210Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-23T07:01:50.302Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-23T06:53:48.021Z",
+        "farmTimeMs": 489580,
+        "updatedAt": "2026-10-23T07:01:58.064Z",
+        "reason": "Вичерпано таймаут акаунта",
+        "farmFinishedAt": "2026-10-23T07:01:57.601Z",
+        "cleanupError": "Не вдалося закрити профіль 2406: Profile is not open",
+        "finishedAt": "2026-10-23T07:01:58.064Z"
+      },
+      {
+        "id": "b8716bd3-096f-4502-a545-6ce3b39b683e",
+        "runId": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2408",
+        "worker": 1,
+        "startedAt": "2026-10-23T07:01:58.068Z",
+        "outcome": "timeout",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-23T07:02:10.404Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-23T07:02:13.518Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-23T07:02:13.526Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:02:26.447Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-23T07:02:27.976Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:02:37.972Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T07:02:49.090Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "easy-chinese-cooking",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-23T07:02:50.857Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:03:10.557Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T07:03:20.411Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T07:03:30.797Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T07:03:43.008Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-23T07:03:51.247Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-23T07:03:51.251Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:04:08.435Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T07:04:17.082Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T07:04:30.935Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T07:04:38.845Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-23T07:04:49.140Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 6,
+            "at": "2026-10-23T07:05:01.297Z"
+          },
+          {
+            "action": "feed",
+            "status": "failed",
+            "reason": "Input.dispatchMouseEvent timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.",
+            "at": "2026-10-23T07:08:01.309Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-23T07:02:13.530Z",
+        "farmTimeMs": 487611,
+        "updatedAt": "2026-10-23T07:10:21.657Z",
+        "reason": "Вичерпано таймаут акаунта",
+        "farmFinishedAt": "2026-10-23T07:10:21.141Z",
+        "cleanupError": "Не вдалося закрити профіль 2408: Profile is not open",
+        "finishedAt": "2026-10-23T07:10:21.657Z"
+      },
+      {
+        "id": "812aae00-6a7f-4ca8-b135-f9b1aab51d0b",
+        "runId": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2410",
+        "worker": 1,
+        "startedAt": "2026-10-23T07:10:21.661Z",
+        "outcome": "timeout",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-23T07:10:31.989Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-23T07:10:35.075Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-23T07:10:35.083Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:10:50.847Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-23T07:10:52.158Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:11:43.189Z"
+          },
+          {
+            "action": "feed",
+            "status": "failed",
+            "reason": "Input.dispatchMouseEvent timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.",
+            "at": "2026-10-23T07:14:43.196Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "rspb-leeds",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-23T07:15:44.432Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:17:31.536Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T07:18:02.409Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T07:18:29.859Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-23T07:10:35.086Z",
+        "farmTimeMs": 489599,
+        "updatedAt": "2026-10-23T07:18:45.009Z",
+        "reason": "Вичерпано таймаут акаунта",
+        "farmFinishedAt": "2026-10-23T07:18:44.685Z",
+        "finishedAt": "2026-10-23T07:18:45.009Z"
+      },
+      {
+        "id": "d735ec36-8f9d-4334-8c07-a3d6dcaff1c0",
+        "runId": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2411",
+        "worker": 1,
+        "startedAt": "2026-10-23T07:18:45.012Z",
+        "outcome": "timeout",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-23T07:18:54.955Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-23T07:18:58.069Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-23T07:18:58.079Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:21:51.395Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T07:25:10.007Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T07:25:55.676Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T07:26:43.483Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-23T07:18:58.083Z",
+        "farmTimeMs": 490151,
+        "updatedAt": "2026-10-23T07:27:08.756Z",
+        "reason": "Вичерпано таймаут акаунта",
+        "farmFinishedAt": "2026-10-23T07:27:08.234Z",
+        "cleanupError": "Не вдалося закрити профіль 2411: Profile is not open",
+        "finishedAt": "2026-10-23T07:27:08.756Z"
+      },
+      {
+        "id": "d1b481e2-a4c6-448a-beb8-75b3435f196e",
+        "runId": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2412",
+        "worker": 1,
+        "startedAt": "2026-10-23T07:27:08.760Z",
+        "outcome": "timeout",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-23T07:27:17.397Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-23T07:27:20.464Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-23T07:27:20.472Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:27:55.866Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T07:28:12.787Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T07:28:20.240Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T07:28:36.903Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-23T07:28:54.860Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:29:07.326Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T07:29:13.740Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T07:29:28.220Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T07:29:35.956Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-23T07:29:44.494Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-23T07:29:44.500Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:29:55.142Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-23T07:29:56.414Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:30:10.526Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-23T07:30:24.229Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-23T07:30:31.708Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-23T07:30:40.912Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-23T07:31:51.868Z"
+          },
+          {
+            "action": "feed",
+            "status": "failed",
+            "reason": "Input.dispatchMouseEvent timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.",
+            "at": "2026-10-23T07:34:51.880Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-23T07:27:20.476Z",
+        "farmTimeMs": 491306,
+        "updatedAt": "2026-10-23T07:35:32.322Z",
+        "reason": "Вичерпано таймаут акаунта",
+        "farmFinishedAt": "2026-10-23T07:35:31.782Z",
+        "cleanupError": "Не вдалося закрити профіль 2412: Profile is not open",
+        "finishedAt": "2026-10-23T07:35:32.322Z"
+      },
+      {
+        "id": "f308a035-7d8c-4d23-9942-9448fe4d24e0",
+        "runId": "df030a10-7baa-4773-9c5a-ca1e00727b5f",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2413",
+        "worker": 1,
+        "startedAt": "2026-10-23T07:35:32.326Z",
+        "outcome": "timeout",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-23T07:35:42.405Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-23T07:35:45.463Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-23T07:35:45.479Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:36:42.317Z"
+          },
+          {
+            "action": "feed",
+            "status": "failed",
+            "reason": "Input.dispatchMouseEvent timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.",
+            "at": "2026-10-23T07:39:42.324Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "rspb-leeds",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-23T07:40:43.445Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-23T07:41:28.187Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-23T07:35:45.484Z",
+        "farmTimeMs": 489841,
+        "updatedAt": "2026-10-23T07:43:55.768Z",
+        "reason": "Вичерпано таймаут акаунта",
+        "farmFinishedAt": "2026-10-23T07:43:55.325Z",
+        "cleanupError": "Не вдалося закрити профіль 2413: Profile is not open",
+        "finishedAt": "2026-10-23T07:43:55.768Z"
+      }
+    ],
+    "unstartedProfileNos": []
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+    "profileNos": [
+      "2402",
+      "2403",
+      "2404",
+      "2405",
+      "2406",
+      "2408",
+      "2410",
+      "2411",
+      "2412",
+      "2413"
+    ],
+    "uniqueKey": "farm:2402,2403,2404,2405,2406,2408,2410,2411,2412,2413"
+  }
+}

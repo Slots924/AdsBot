@@ -93,6 +93,16 @@ try {
         assert.equal(inspect().step, "AUTHENTICATED", `${language}: профіль з іншим регістром`);
         assert.equal(await isReady(page), true, language);
 
+        // Складений напис підтверджено наживо англійською; інші мови перевіряємо на mock-DOM.
+        for (const label of texts.account.profileButton.filter((text) => text.includes(","))) {
+            page = mount([profile(varied(label)), main()]);
+            assert.equal(await isReady(page), true, `${language}: складений напис кнопки`);
+            page = mount([profile(label, { hidden: true }), main()]);
+            assert.equal(await isReady(page), false, `${language}: прихована складена кнопка`);
+            page = mount([profile(`${label}, unknown`), main()]);
+            assert.equal(await isReady(page), false, `${language}: невідповідний складений напис`);
+        }
+
         const create = node("a", { "aria-label": varied(fixture.create) });
         page = mount([create, profile(fixture.profile), main()]);
         assert.equal(inspect().step, "LOGIN", language);

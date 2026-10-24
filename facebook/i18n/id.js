@@ -12,7 +12,7 @@ export default {
         useAnotherProfile: ["Gunakan profil lain"],
         logIn: ["Masuk"],
     },
-    account: { profileButton: ["Akun", "Profil Anda"] },
+    account: { profileButton: ["Akun", "Profil Anda", "Akun, profil Anda"] },
     automatedBehavior: {
         warning: ["Kami mencurigai perilaku otomatis di akun Anda"],
         dismiss: ["Tutup"],

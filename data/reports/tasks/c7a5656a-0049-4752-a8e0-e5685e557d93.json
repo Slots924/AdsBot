@@ -1,0 +1,1805 @@
+{
+  "version": 1,
+  "id": "c7a5656a-0049-4752-a8e0-e5685e557d93",
+  "taskId": "c118a9c7-4d2a-4127-a626-a327a44e2f6e",
+  "type": "account-farm",
+  "title": "Фарм акаунтів (10)",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-22T16:45:18.116Z",
+  "startedAt": "2026-10-22T15:54:36.097Z",
+  "finishedAt": "2026-10-22T16:45:18.114Z",
+  "durationMs": 3042017,
+  "inputSummary": {
+    "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+    "settings": {
+      "workers": 1,
+      "timeoutSeconds": 500,
+      "disableImages": false,
+      "headless": false,
+      "actions": {
+        "feed": {
+          "enabled": true,
+          "count": 10,
+          "minSeconds": 5,
+          "maxSeconds": 15,
+          "upPercent": 10
+        },
+        "openPosts": {
+          "enabled": true,
+          "count": 3,
+          "minSeconds": 5,
+          "maxSeconds": 15
+        },
+        "likePosts": {
+          "enabled": true,
+          "percent": 10,
+          "max": 2
+        },
+        "likeComments": {
+          "enabled": true,
+          "posts": 3,
+          "percent": 10,
+          "max": 2
+        },
+        "groups": {
+          "enabled": true,
+          "count": 2,
+          "posts": 5,
+          "minSeconds": 5,
+          "maxSeconds": 15
+        },
+        "joinGroups": {
+          "enabled": true,
+          "max": 1
+        }
+      }
+    }
+  },
+  "resultSummary": {
+    "id": "b0d70d37-9545-4744-b764-4562327fcf1b",
+    "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+    "profileNos": [
+      "2402",
+      "2403",
+      "2404",
+      "2405",
+      "2406",
+      "2408",
+      "2410",
+      "2411",
+      "2412",
+      "2413"
+    ],
+    "settings": "[CIRCULAR]",
+    "pool": [
+      {
+        "id": "instant-pot",
+        "name": "Instant Pot Community",
+        "url": "https://www.facebook.com/groups/InstantPotCommunity",
+        "topic": "Кулінарія",
+        "enabled": true,
+        "checkedAt": null
+      },
+      {
+        "id": "easy-chinese-cooking",
+        "name": "Easy Chinese Cooking",
+        "url": "https://www.facebook.com/groups/easychinesecooking",
+        "topic": "Кулінарія",
+        "enabled": true,
+        "checkedAt": null
+      },
+      {
+        "id": "rspb-leeds",
+        "name": "RSPB Leeds Local Group",
+        "url": "https://www.facebook.com/groups/RSPB.Leeds.Local.Group",
+        "topic": "Птахи та природа",
+        "enabled": true,
+        "checkedAt": null
+      }
+    ],
+    "startedAt": "2026-10-22T15:54:36.101Z",
+    "outcome": "completed_with_warnings",
+    "finishedAt": "2026-10-22T16:45:18.113Z",
+    "sessions": [
+      {
+        "id": "dbbe589f-364d-46d5-a2b3-65ea9d826bd7",
+        "runId": "b0d70d37-9545-4744-b764-4562327fcf1b",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2402",
+        "worker": 1,
+        "startedAt": "2026-10-22T15:54:36.102Z",
+        "outcome": "completed",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-22T15:54:44.925Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-22T15:54:47.976Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-22T15:54:47.992Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T15:55:07.775Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T15:55:22.474Z"
+          },
+          {
+            "action": "like_comment",
+            "status": "APPLIED",
+            "at": "2026-10-22T15:55:27.936Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T15:55:44.012Z"
+          },
+          {
+            "action": "like_comment",
+            "status": "APPLIED",
+            "at": "2026-10-22T15:55:49.680Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "completed",
+            "at": "2026-10-22T15:55:49.744Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "instant-pot",
+            "status": "skipped",
+            "reason": "Кнопку вступу не знайдено",
+            "at": "2026-10-22T15:55:52.531Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "easy-chinese-cooking",
+            "status": "joined",
+            "attempted": true,
+            "at": "2026-10-22T15:55:59.484Z"
+          },
+          {
+            "action": "joinGroups",
+            "status": "completed",
+            "at": "2026-10-22T15:55:59.486Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T15:56:16.726Z"
+          },
+          {
+            "action": "open_post",
+            "status": "completed",
+            "at": "2026-10-22T15:56:34.514Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T15:56:45.173Z"
+          },
+          {
+            "action": "open_post",
+            "status": "completed",
+            "at": "2026-10-22T15:56:53.508Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T15:57:08.573Z"
+          },
+          {
+            "action": "open_post",
+            "status": "completed",
+            "at": "2026-10-22T15:57:19.859Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "completed",
+            "at": "2026-10-22T15:57:19.892Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T15:57:37.031Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T15:57:44.344Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T15:57:55.202Z"
+          },
+          {
+            "action": "like_post",
+            "status": "completed",
+            "at": "2026-10-22T15:57:59.920Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T15:58:10.039Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T15:58:16.424Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T15:58:26.582Z"
+          },
+          {
+            "action": "like_post",
+            "status": "completed",
+            "at": "2026-10-22T15:58:31.256Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T15:58:43.976Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T15:58:52.273Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T15:58:58.241Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T15:59:11.806Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-22T15:59:11.808Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T15:59:27.087Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T15:59:35.673Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T15:59:50.706Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:00:05.203Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:00:21.335Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 6,
+            "at": "2026-10-22T16:00:30.198Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 7,
+            "at": "2026-10-22T16:00:45.531Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 8,
+            "at": "2026-10-22T16:00:57.709Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 9,
+            "at": "2026-10-22T16:01:08.448Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 10,
+            "at": "2026-10-22T16:01:17.244Z"
+          },
+          {
+            "action": "feed",
+            "status": "completed",
+            "at": "2026-10-22T16:01:17.247Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-22T15:54:47.994Z",
+        "farmTimeMs": 389254,
+        "updatedAt": "2026-10-22T16:01:18.787Z",
+        "reason": null,
+        "farmFinishedAt": "2026-10-22T16:01:17.248Z",
+        "finishedAt": "2026-10-22T16:01:18.787Z"
+      },
+      {
+        "id": "35a1c74c-8824-4f68-807a-419bd0d87d1f",
+        "runId": "b0d70d37-9545-4744-b764-4562327fcf1b",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2403",
+        "worker": 1,
+        "startedAt": "2026-10-22T16:01:18.789Z",
+        "outcome": "failed",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-22T16:01:29.555Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-22T16:01:32.592Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-22T16:01:32.609Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:01:49.253Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:02:01.629Z"
+          },
+          {
+            "action": "like_comment",
+            "status": "APPLIED",
+            "at": "2026-10-22T16:02:07.720Z"
+          },
+          {
+            "action": "like_comment",
+            "status": "APPLIED",
+            "at": "2026-10-22T16:02:09.491Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:02:22.490Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "completed",
+            "at": "2026-10-22T16:02:22.492Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:02:35.537Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:02:48.157Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:02:55.982Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:03:09.635Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:03:19.627Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "rspb-leeds",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-22T16:04:21.371Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-22T16:04:21.374Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:04:37.064Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:04:38.212Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "easy-chinese-cooking",
+            "status": "joined",
+            "attempted": true,
+            "at": "2026-10-22T16:04:44.767Z"
+          },
+          {
+            "action": "joinGroups",
+            "status": "completed",
+            "at": "2026-10-22T16:04:44.769Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:05:05.544Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:05:20.992Z"
+          },
+          {
+            "action": "read_feed",
+            "status": "skipped",
+            "reason": "Недостатньо доступних постів",
+            "visited": 2,
+            "requested": 10,
+            "at": "2026-10-22T16:05:56.068Z"
+          },
+          {
+            "action": "feed",
+            "status": "completed",
+            "at": "2026-10-22T16:05:56.071Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-22T16:01:32.614Z",
+        "farmTimeMs": 263458,
+        "updatedAt": "2026-10-22T16:05:57.327Z",
+        "reason": null,
+        "farmFinishedAt": "2026-10-22T16:05:56.072Z",
+        "finishedAt": "2026-10-22T16:05:57.327Z"
+      },
+      {
+        "id": "d55e76c7-0310-4e0d-8291-86005f500510",
+        "runId": "b0d70d37-9545-4744-b764-4562327fcf1b",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2404",
+        "worker": 1,
+        "startedAt": "2026-10-22T16:05:57.329Z",
+        "outcome": "failed",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-22T16:06:09.219Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-22T16:06:12.331Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-22T16:06:12.348Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:06:24.337Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:06:37.958Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:06:52.100Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:06:59.435Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:07:15.989Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:07:28.601Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "instant-pot",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-22T16:07:30.498Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-22T16:07:30.500Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "easy-chinese-cooking",
+            "status": "joined",
+            "attempted": true,
+            "at": "2026-10-22T16:07:36.640Z"
+          },
+          {
+            "action": "joinGroups",
+            "status": "completed",
+            "at": "2026-10-22T16:07:36.642Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:07:54.978Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:07:56.715Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:08:14.588Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:08:26.306Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:08:42.518Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:08:53.582Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:09:08.847Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 6,
+            "at": "2026-10-22T16:09:18.091Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 7,
+            "at": "2026-10-22T16:09:29.297Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 8,
+            "at": "2026-10-22T16:09:42.521Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 9,
+            "at": "2026-10-22T16:09:54.169Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 10,
+            "at": "2026-10-22T16:10:05.933Z"
+          },
+          {
+            "action": "feed",
+            "status": "completed",
+            "at": "2026-10-22T16:10:05.936Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:10:25.543Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:10:27.230Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-22T16:06:12.351Z",
+        "farmTimeMs": 254881,
+        "updatedAt": "2026-10-22T16:10:28.769Z",
+        "reason": null,
+        "farmFinishedAt": "2026-10-22T16:10:27.232Z",
+        "finishedAt": "2026-10-22T16:10:28.769Z"
+      },
+      {
+        "id": "bdda2070-a245-40c4-b8c6-2b01dc599d01",
+        "runId": "b0d70d37-9545-4744-b764-4562327fcf1b",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2405",
+        "worker": 1,
+        "startedAt": "2026-10-22T16:10:28.771Z",
+        "outcome": "failed",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-22T16:10:38.337Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-22T16:10:41.419Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-22T16:10:41.426Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "rspb-leeds",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-22T16:11:43.334Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:11:52.557Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:12:04.472Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:12:19.020Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:12:29.094Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:12:38.501Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-22T16:12:38.504Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:12:49.871Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:12:59.168Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:13:07.703Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:13:13.593Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:13:29.318Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 6,
+            "at": "2026-10-22T16:13:46.187Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 7,
+            "at": "2026-10-22T16:13:59.487Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 8,
+            "at": "2026-10-22T16:14:13.873Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 9,
+            "at": "2026-10-22T16:14:26.716Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 10,
+            "at": "2026-10-22T16:14:36.085Z"
+          },
+          {
+            "action": "feed",
+            "status": "completed",
+            "at": "2026-10-22T16:14:36.089Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "rspb-leeds",
+            "status": "unknown",
+            "attempted": true,
+            "reason": "Вступ не підтверджено; можлива анкета або недоступність групи",
+            "at": "2026-10-22T16:15:39.317Z"
+          },
+          {
+            "action": "joinGroups",
+            "status": "completed",
+            "at": "2026-10-22T16:15:39.321Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:15:52.681Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:15:54.619Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:16:07.591Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:16:09.190Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-22T16:10:41.428Z",
+        "farmTimeMs": 327765,
+        "updatedAt": "2026-10-22T16:16:10.750Z",
+        "reason": null,
+        "farmFinishedAt": "2026-10-22T16:16:09.193Z",
+        "finishedAt": "2026-10-22T16:16:10.750Z"
+      },
+      {
+        "id": "ad80e946-a1d5-41bb-ad5e-1ea39659c953",
+        "runId": "b0d70d37-9545-4744-b764-4562327fcf1b",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2406",
+        "worker": 1,
+        "startedAt": "2026-10-22T16:16:10.752Z",
+        "outcome": "failed",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-22T16:16:20.731Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-22T16:16:23.801Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-22T16:16:23.808Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:16:41.062Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:16:53.681Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:16:59.875Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "instant-pot",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-22T16:17:01.129Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:17:13.953Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:17:20.753Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:17:33.961Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:17:49.102Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:18:03.631Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-22T16:18:03.634Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:18:45.025Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:18:51.932Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:19:04.201Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:19:18.465Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:19:29.329Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 6,
+            "at": "2026-10-22T16:19:41.509Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 7,
+            "at": "2026-10-22T16:19:55.063Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 8,
+            "at": "2026-10-22T16:20:03.037Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 9,
+            "at": "2026-10-22T16:20:13.546Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 10,
+            "at": "2026-10-22T16:20:20.162Z"
+          },
+          {
+            "action": "feed",
+            "status": "completed",
+            "at": "2026-10-22T16:20:20.167Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "instant-pot",
+            "status": "joined",
+            "attempted": true,
+            "at": "2026-10-22T16:20:27.199Z"
+          },
+          {
+            "action": "joinGroups",
+            "status": "completed",
+            "at": "2026-10-22T16:20:27.201Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:20:41.357Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:20:42.462Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:20:56.294Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:20:58.341Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-22T16:16:23.809Z",
+        "farmTimeMs": 274534,
+        "updatedAt": "2026-10-22T16:20:59.581Z",
+        "reason": null,
+        "farmFinishedAt": "2026-10-22T16:20:58.343Z",
+        "finishedAt": "2026-10-22T16:20:59.581Z"
+      },
+      {
+        "id": "60e9d96d-5c9a-4863-8893-3d2cf48cc8c3",
+        "runId": "b0d70d37-9545-4744-b764-4562327fcf1b",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2408",
+        "worker": 1,
+        "startedAt": "2026-10-22T16:20:59.582Z",
+        "outcome": "failed",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-22T16:21:10.882Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-22T16:21:13.988Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-22T16:21:13.999Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:21:25.672Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:21:27.927Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "rspb-leeds",
+            "status": "unknown",
+            "attempted": true,
+            "reason": "Вступ не підтверджено; можлива анкета або недоступність групи",
+            "at": "2026-10-22T16:22:30.288Z"
+          },
+          {
+            "action": "joinGroups",
+            "status": "completed",
+            "at": "2026-10-22T16:22:30.290Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:22:45.436Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:22:47.762Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:23:04.230Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:23:15.387Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:23:29.324Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:23:39.982Z"
+          },
+          {
+            "action": "feed",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:23:41.441Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "rspb-leeds",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-22T16:24:42.875Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:24:53.716Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:25:06.431Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:25:15.182Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "instant-pot",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-22T16:25:16.378Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-22T16:25:16.380Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-22T16:21:14.001Z",
+        "farmTimeMs": 242380,
+        "updatedAt": "2026-10-22T16:25:17.907Z",
+        "reason": null,
+        "farmFinishedAt": "2026-10-22T16:25:16.381Z",
+        "finishedAt": "2026-10-22T16:25:17.907Z"
+      },
+      {
+        "id": "3d57632c-3e2a-49bd-abd4-dfdf51505474",
+        "runId": "b0d70d37-9545-4744-b764-4562327fcf1b",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2410",
+        "worker": 1,
+        "startedAt": "2026-10-22T16:25:17.909Z",
+        "outcome": "failed",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-22T16:25:30.971Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-22T16:25:34.053Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-22T16:25:34.065Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "rspb-leeds",
+            "status": "skipped",
+            "reason": "Кнопку вступу не знайдено",
+            "at": "2026-10-22T16:25:35.122Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "instant-pot",
+            "status": "joined",
+            "attempted": true,
+            "at": "2026-10-22T16:25:43.557Z"
+          },
+          {
+            "action": "joinGroups",
+            "status": "completed",
+            "at": "2026-10-22T16:25:43.559Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:25:53.225Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:26:07.793Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:26:18.274Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:26:33.272Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:26:48.970Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 6,
+            "at": "2026-10-22T16:27:03.735Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 7,
+            "at": "2026-10-22T16:27:17.842Z"
+          },
+          {
+            "action": "read_feed",
+            "status": "skipped",
+            "reason": "Недостатньо доступних постів",
+            "visited": 7,
+            "requested": 10,
+            "at": "2026-10-22T16:27:48.155Z"
+          },
+          {
+            "action": "feed",
+            "status": "completed",
+            "at": "2026-10-22T16:27:48.157Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "rspb-leeds",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-22T16:28:49.602Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:29:08.360Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:29:20.218Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:29:26.164Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:29:41.001Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:29:52.026Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-22T16:29:52.030Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:30:05.152Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:30:06.218Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:30:25.321Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:30:26.904Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-22T16:25:34.068Z",
+        "farmTimeMs": 292839,
+        "updatedAt": "2026-10-22T16:30:28.380Z",
+        "reason": null,
+        "farmFinishedAt": "2026-10-22T16:30:26.907Z",
+        "finishedAt": "2026-10-22T16:30:28.380Z"
+      },
+      {
+        "id": "52bd5855-3252-42fc-9f90-68c3537de031",
+        "runId": "b0d70d37-9545-4744-b764-4562327fcf1b",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2411",
+        "worker": 1,
+        "startedAt": "2026-10-22T16:30:28.382Z",
+        "outcome": "failed",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-22T16:30:42.195Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-22T16:30:45.284Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-22T16:30:45.293Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:31:01.769Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:31:03.555Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "easy-chinese-cooking",
+            "status": "skipped",
+            "reason": "Кнопку вступу не знайдено",
+            "at": "2026-10-22T16:31:05.306Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "rspb-leeds",
+            "status": "skipped",
+            "reason": "Кнопку вступу не знайдено",
+            "at": "2026-10-22T16:31:06.409Z"
+          },
+          {
+            "action": "join_group",
+            "groupId": "instant-pot",
+            "status": "unknown",
+            "attempted": true,
+            "reason": "Вступ не підтверджено; можлива анкета або недоступність групи",
+            "at": "2026-10-22T16:32:09.054Z"
+          },
+          {
+            "action": "joinGroups",
+            "status": "completed",
+            "at": "2026-10-22T16:32:09.058Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:32:23.363Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:32:35.155Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:32:48.753Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:33:03.690Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:33:11.584Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "rspb-leeds",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-22T16:34:12.636Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-22T16:34:12.638Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:34:27.479Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Корінь відкритого поста не знайдено",
+            "at": "2026-10-22T16:34:28.470Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:34:45.772Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:34:53.757Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:35:05.594Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:35:13.371Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:35:22.918Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 6,
+            "at": "2026-10-22T16:35:34.137Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 7,
+            "at": "2026-10-22T16:35:44.851Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 8,
+            "at": "2026-10-22T16:35:51.769Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 9,
+            "at": "2026-10-22T16:35:59.955Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 10,
+            "at": "2026-10-22T16:36:08.488Z"
+          },
+          {
+            "action": "feed",
+            "status": "completed",
+            "at": "2026-10-22T16:36:08.490Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-22T16:30:45.295Z",
+        "farmTimeMs": 323196,
+        "updatedAt": "2026-10-22T16:36:10.020Z",
+        "reason": null,
+        "farmFinishedAt": "2026-10-22T16:36:08.491Z",
+        "finishedAt": "2026-10-22T16:36:10.020Z"
+      },
+      {
+        "id": "3b02dc84-5236-45ec-8ce5-3f1302b1ddb9",
+        "runId": "b0d70d37-9545-4744-b764-4562327fcf1b",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2412",
+        "worker": 1,
+        "startedAt": "2026-10-22T16:36:10.022Z",
+        "outcome": "check_failed",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "failed",
+            "at": "2026-10-22T16:36:53.094Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": null,
+        "farmTimeMs": 0,
+        "updatedAt": "2026-10-22T16:36:55.103Z",
+        "reason": "loggedIn",
+        "farmFinishedAt": null,
+        "finishedAt": "2026-10-22T16:36:55.103Z"
+      },
+      {
+        "id": "254bcaea-11da-47c3-a559-ee334d3b65ef",
+        "runId": "b0d70d37-9545-4744-b764-4562327fcf1b",
+        "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+        "profileNo": "2413",
+        "worker": 1,
+        "startedAt": "2026-10-22T16:36:55.105Z",
+        "outcome": "timeout",
+        "events": [
+          {
+            "action": "check_login",
+            "status": "completed",
+            "at": "2026-10-22T16:37:05.622Z"
+          },
+          {
+            "action": "check_active",
+            "status": "completed",
+            "at": "2026-10-22T16:37:08.659Z"
+          },
+          {
+            "action": "check_english",
+            "status": "completed",
+            "at": "2026-10-22T16:37:08.666Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:37:24.152Z"
+          },
+          {
+            "action": "open_post",
+            "status": "completed",
+            "at": "2026-10-22T16:37:35.588Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:37:48.330Z"
+          },
+          {
+            "action": "open_post",
+            "status": "completed",
+            "at": "2026-10-22T16:38:04.967Z"
+          },
+          {
+            "action": "openPosts",
+            "status": "failed",
+            "reason": "Waiting failed: 60000ms exceeded",
+            "at": "2026-10-22T16:39:05.833Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:39:19.262Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:39:26.025Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:39:36.383Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:39:46.047Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:39:52.871Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 6,
+            "at": "2026-10-22T16:40:03.690Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 7,
+            "at": "2026-10-22T16:40:17.658Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 8,
+            "at": "2026-10-22T16:40:33.312Z"
+          },
+          {
+            "action": "feed",
+            "status": "failed",
+            "reason": "Waiting failed: 60000ms exceeded",
+            "at": "2026-10-22T16:41:37.191Z"
+          },
+          {
+            "action": "group_feed",
+            "status": "skipped",
+            "groupId": "rspb-leeds",
+            "reason": "Пости групи недоступні",
+            "at": "2026-10-22T16:42:38.122Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:42:55.664Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:43:04.959Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:43:11.673Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 4,
+            "at": "2026-10-22T16:43:25.545Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 5,
+            "at": "2026-10-22T16:43:40.484Z"
+          },
+          {
+            "action": "groups",
+            "status": "completed",
+            "at": "2026-10-22T16:43:40.492Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 1,
+            "at": "2026-10-22T16:43:52.484Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 2,
+            "at": "2026-10-22T16:44:08.915Z"
+          },
+          {
+            "action": "read_post",
+            "status": "completed",
+            "index": 3,
+            "at": "2026-10-22T16:44:23.607Z"
+          },
+          {
+            "action": "likeComments",
+            "status": "completed",
+            "at": "2026-10-22T16:44:26.330Z"
+          }
+        ],
+        "settings": "[CIRCULAR]",
+        "farmStartedAt": "2026-10-22T16:37:08.668Z",
+        "farmTimeMs": 488905,
+        "updatedAt": "2026-10-22T16:45:18.112Z",
+        "reason": "Вичерпано таймаут акаунта",
+        "farmFinishedAt": "2026-10-22T16:45:17.573Z",
+        "cleanupError": "Не вдалося закрити профіль 2413: Profile is not open",
+        "finishedAt": "2026-10-22T16:45:18.112Z"
+      }
+    ],
+    "unstartedProfileNos": []
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "groupId": "39b5f279-ea0f-4d8f-a2d1-a17bf9470e2b",
+    "profileNos": [
+      "2402",
+      "2403",
+      "2404",
+      "2405",
+      "2406",
+      "2408",
+      "2410",
+      "2411",
+      "2412",
+      "2413"
+    ],
+    "uniqueKey": "farm:2402,2403,2404,2405,2406,2408,2410,2411,2412,2413"
+  }
+}
