@@ -25,6 +25,8 @@ import SearchSelect from "./SearchSelect.jsx";
 import SmsPoolPanel from "./SmsPoolPanel.jsx";
 import PersonalBusinessInfoForm from "./PersonalBusinessInfoForm.jsx";
 import PersonalPaymentSources from "./PersonalPaymentSources.jsx";
+import PersonalPaymentCardSelect from "./PersonalPaymentCardSelect.jsx";
+import { isAdAccountActive, sortAdAccounts } from "./AdAccountSelect.jsx";
 import PersonalFanPageEditor from "./PersonalFanPageEditor.jsx";
 import PhoneVerificationNotice from "./PhoneVerificationNotice.jsx";
 import { addCardAndRefreshSources } from "../lib/personalPaymentSources.js";
@@ -79,11 +81,11 @@ const sections = [
 
 
 function AccountSelect({ accounts, value, onChange, disabled = false }) {
-    return <SearchSelect items={accounts} value={value} onChange={onChange} disabled={disabled}
+    return <SearchSelect items={sortAdAccounts(accounts)} value={value} onChange={onChange} disabled={disabled}
         getId={(item) => item.accountId || item.id} getTitle={(item) => item.name || "РК без назви"}
         getSubtitle={(item) => `ID РК: ${item.accountId || item.id}`}
         getSearchText={(item) => `${item.name} ${item.accountId || item.id}`}
-        getStatus={(item) => item.accountStatus === 1 ? "active" : "inactive"}
+        getStatus={(item) => isAdAccountActive(item) ? "active" : "inactive"}
         placeholder="Оберіть РК" searchPlaceholder="Пошук РК…"
         ariaLabel="Рекламний кабінет персонального профілю" className="personal-ad-account-select" />;
 }
@@ -745,7 +747,8 @@ export default function PersonalAccountModal({
                         <div className="personal-section-heading"><div><span className="eyebrow">Billing</span><h3>Додати спосіб оплати</h3><p>Карта читається із зашифрованого локального сховища. Якщо CVV не введено, використовується код зі збереженої картки.</p></div><button type="button" className="secondary-button" disabled={Boolean(busy)} onClick={refreshAccounts}><RefreshCw size={16} /> Оновити РК</button></div>
                         <AccountSelect accounts={accounts} value={adAccountId} onChange={setAdAccountId} disabled={Boolean(busy)} />
                         <PersonalPaymentSources result={paymentSources} loading={paymentSourcesLoading} error={paymentSourcesError} />
-                        <label className="field"><span>Кредитна картка</span><select value={cardId} onChange={(event) => setCardId(event.target.value)}><option value="">Оберіть картку</option>{cards.map((card) => <option key={card.id} value={card.id}>{card.nickname.toUpperCase()} · {card.cardholderName} · {card.network} {card.last4} · {card.expiration}</option>)}</select></label>
+                        <PersonalPaymentCardSelect cards={cards} value={cardId} onChange={setCardId} disabled={Boolean(busy)}
+                            onCreated={(card) => setCards((current) => [...current, card])} onError={onError} showToast={showToast} />
                         {activeCard && <div className="selected-card-summary"><strong>{activeCard.nickname.toUpperCase()}</strong><small>{activeCard.cardholderName} · {activeCard.network} •••• {activeCard.last4} · EXP {activeCard.expiration}{activeCard.postalCode ? ` · ZIP ${activeCard.postalCode}` : ""}</small></div>}
                         <label className="field compact-field"><span>CVV · порожнє поле використовує код картки</span><input type="password" inputMode="numeric" autoComplete="off" maxLength="4" placeholder={activeCard?.hasSecurityCode ? "CVV збережено на картці" : "Введіть CVV"} value={securityCode} onChange={(event) => setSecurityCode(event.target.value.replace(/\D/g, ""))} /></label>
                         <div className="personal-inline-actions">

@@ -3,13 +3,16 @@ import SearchSelect from "./SearchSelect.jsx";
 
 export function sortAdAccounts(accounts = []) {
     return accounts.slice().sort((left, right) => {
-        const statusOrder = Number(right.status === "active")
-            - Number(left.status === "active");
-        return statusOrder || String(left.id).localeCompare(String(right.id), "uk-UA", {
+        const statusOrder = Number(isAdAccountActive(right)) - Number(isAdAccountActive(left));
+        return statusOrder || String(left.accountId || left.id).localeCompare(String(right.accountId || right.id), "uk-UA", {
             numeric: true,
             sensitivity: "base",
         });
     });
+}
+
+export function isAdAccountActive(account) {
+    return account.accountStatus != null ? Number(account.accountStatus) === 1 : account.status === "active";
 }
 
 

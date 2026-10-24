@@ -2040,6 +2040,17 @@ fieldset.creative-launch-scroll { margin: 0; border: 0; min-width: 0; }
 .personal-create-row > .field { min-width: 260px; flex: 1; }
 .compact-field { max-width: 190px; }
 .selected-card-summary { display: grid; gap: 5px; padding: 14px 16px; }
+.personal-payment-card-picker { display: grid; gap: 8px; min-width: 0; }
+.personal-payment-card-label { color: #98a2b6; font-size: 13px; }
+.personal-payment-card-row { display: flex; align-items: stretch; gap: 8px; min-width: 0; }
+.personal-payment-card-select { flex: 1; min-width: 0; }
+.personal-payment-card-select .select-trigger { min-height: 52px; border-color: #3c4659; background: #121824; font-family: inherit; }
+.personal-payment-card-select .select-option { font-family: inherit; }
+.personal-payment-card-select .select-trigger-value, .personal-payment-card-select .select-trigger-value > span { min-width: 0; overflow: hidden; }
+.personal-payment-card-row .personal-payment-card-add { width: 52px; height: 52px; min-width: 52px; padding: 0; flex-shrink: 0; display: grid; place-items: center; border-radius: 10px; border-color: #3c4659; background: #181e2c; }
+.personal-payment-card-add:hover:not(:disabled) { color: #c8bfff; border-color: #8278da; }
+.personal-payment-card-picker .credit-card-editor { padding: 16px; }
+@media (max-width: 480px) { .personal-payment-card-picker .credit-card-form { grid-template-columns: minmax(0, 1fr); } }
 .phone-verification-row { display: grid; grid-template-columns: 36px 76px minmax(150px,1fr) auto minmax(100px,.6fr) auto; align-items: end; gap: 10px; }
 .phone-verification-methods { display: flex; align-items: center; gap: 9px; }
 .phone-verification-method { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 7px 11px; border: 1px solid #343b4c; border-radius: 9px; color: #9ea7bb; background: #181c28; cursor: pointer; font: inherit; font-size: 13px; }

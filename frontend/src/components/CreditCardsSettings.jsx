@@ -16,9 +16,9 @@ const blankCard = () => ({
 });
 
 
-export default function CreditCardsSettings({ onError = () => {}, showToast }) {
+export default function CreditCardsSettings({ onError = () => {}, showToast, editorOnly = false, onSaved, onCancel }) {
     const [cards, setCards] = useState([]);
-    const [editor, setEditor] = useState(null);
+    const [editor, setEditor] = useState(() => editorOnly ? blankCard() : null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
@@ -32,7 +32,12 @@ export default function CreditCardsSettings({ onError = () => {}, showToast }) {
             setLoading(false);
         }
     };
-    useEffect(() => { void load(); }, []);
+    useEffect(() => { if (!editorOnly) void load(); }, []);
+    const dismiss = () => {
+        if (saving) return;
+        setEditor(null);
+        onCancel?.();
+    };
 
     const save = async () => {
         if (saving || !editor) return;
@@ -47,11 +52,13 @@ export default function CreditCardsSettings({ onError = () => {}, showToast }) {
                 postalCode: editor.postalCode.trim(),
                 countryCode: editor.countryCode.trim().toUpperCase(),
             };
-            if (editor.id) await unwrap(window.adsBot.updateCreditCard(editor.id, payload));
-            else await unwrap(window.adsBot.createCreditCard(payload));
+            const saved = await unwrap(editor.id
+                ? window.adsBot.updateCreditCard(editor.id, payload)
+                : window.adsBot.createCreditCard(payload));
             setEditor(null);
-            await load();
+            if (!editorOnly) await load();
             showToast?.(editor.id ? "Картку оновлено" : "Картку додано", "success");
+            onSaved?.(saved);
         } catch (error) {
             onError({ ...errorDetails(error), title: "Не вдалося зберегти картку" });
         } finally {
@@ -79,7 +86,7 @@ export default function CreditCardsSettings({ onError = () => {}, showToast }) {
         && /^[A-Za-z]{2}$/.test(editor.countryCode.trim());
 
     return <div className="credit-card-settings">
-        <div className="credit-card-settings-head">
+        {!editorOnly && <><div className="credit-card-settings-head">
             <div><h3>Кредитні картки</h3><p>Номер і CVV шифруються системним сховищем Electron. Збережений CVV використовується, якщо його не введено в персональному акаунті.</p></div>
             <button type="button" className="primary-button" onClick={() => setEditor(blankCard())}>
                 <Plus size={16} /> Додати картку
@@ -108,9 +115,9 @@ export default function CreditCardsSettings({ onError = () => {}, showToast }) {
                     <button type="button" className="icon-button danger" title="Видалити" onClick={() => remove(card)}><Trash2 size={15} /></button>
                 </div>
             </article>)}
-        </div>
+        </div></>}
         {editor && <div className="credit-card-editor">
-            <div className="credit-card-editor-head"><strong>{editor.id ? "Редагувати картку" : "Нова картка"}</strong><button type="button" className="icon-button" onClick={() => setEditor(null)}><X size={16} /></button></div>
+            <div className="credit-card-editor-head"><strong>{editor.id ? "Редагувати картку" : "Нова картка"}</strong><button type="button" className="icon-button" aria-label="Закрити редактор картки" disabled={saving} onClick={dismiss}><X size={16} /></button></div>
             <div className="credit-card-form">
                 <label className="field"><span>Нікнейм</span><input value={editor.nickname} onChange={(event) => setEditor({ ...editor, nickname: event.target.value })} placeholder="MYRAHA 1" /></label>
                 <label className="field"><span>Ім’я власника</span><input value={editor.cardholderName} onChange={(event) => setEditor({ ...editor, cardholderName: event.target.value })} /></label>
@@ -120,7 +127,7 @@ export default function CreditCardsSettings({ onError = () => {}, showToast }) {
                 <label className="field"><span>Поштовий індекс · необов’язково</span><input value={editor.postalCode} onChange={(event) => setEditor({ ...editor, postalCode: event.target.value })} /></label>
                 <label className="field"><span>Країна</span><input maxLength="2" value={editor.countryCode} onChange={(event) => setEditor({ ...editor, countryCode: event.target.value.toUpperCase() })} /></label>
             </div>
-            <div className="form-actions"><button type="button" className="secondary-button" onClick={() => setEditor(null)}>Скасувати</button><button type="button" className="primary-button" disabled={!valid || saving} onClick={save}>Зберегти</button></div>
+            <div className="form-actions"><button type="button" className="secondary-button" disabled={saving} onClick={dismiss}>Скасувати</button><button type="button" className="primary-button" disabled={!valid || saving} onClick={save}>Зберегти</button></div>
         </div>}
     </div>;
 }
