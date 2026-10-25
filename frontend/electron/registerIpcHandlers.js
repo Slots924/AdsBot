@@ -308,6 +308,16 @@ export default function registerIpcHandlers({
         });
         return { taskId: task.id };
     }));
+    ipcMain.handle("autoupload:fan-pages", safeHandler(async ({ ids } = {}) => {
+        const profiles = await autoupload.selected(ids);
+        if (profiles.length !== 1) throw new Error("Виберіть лише один профіль");
+        return withProfileReservation(profiles[0].profileNo, () => autoupload.listFanPages(ids));
+    }));
+    ipcMain.handle("autoupload:share-fan-page", safeHandler(async (payload = {}) => {
+        const profiles = await autoupload.selected(payload.ids);
+        if (profiles.length !== 1) throw new Error("Виберіть лише один профіль");
+        return withProfileReservation(profiles[0].profileNo, () => autoupload.shareFanPage(payload));
+    }));
     ipcMain.handle("autoupload:share-ad-accounts", safeHandler(async (payload) => {
         const selected = await autoupload.validateShareSelection(payload);
         const input = { ids: selected.profiles.map(profile => profile.profileId), accounts: selected.accounts, targetUserId: selected.targetUserId, confirmed: true };

@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from "react";
 import { X } from "lucide-react";
 
-export default function WorkspaceDialog({ title, children, onClose, busy = false }) {
+export default function WorkspaceDialog({ title, children, onClose, busy = false, className = "" }) {
     const titleId = useId();
     const content = useRef(null);
     const close = useRef(onClose);
@@ -24,7 +24,7 @@ export default function WorkspaceDialog({ title, children, onClose, busy = false
         document.addEventListener("keydown", keydown);
         return () => { document.removeEventListener("keydown", keydown); previous?.focus(); };
     }, []);
-    return <div className="overlay"><div className="modal workspace-dialog" ref={content} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
+    return <div className="overlay"><div className={`modal workspace-dialog ${className}`} ref={content} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
         <button type="button" className="modal-close" aria-label="Закрити" disabled={busy} onClick={onClose}><X size={17} /></button>
         <h2 id={titleId}>{title}</h2>{children}
     </div></div>;

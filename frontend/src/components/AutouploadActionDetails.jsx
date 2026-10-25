@@ -6,6 +6,7 @@ const requiredActions = {
     check_profile_name: "Перевірте ім’я соціального профілю у Facebook перед новою спробою",
     check_profile_changes: "Перевірте фактичні зміни соціального профілю у Facebook перед повтором",
     check_ad_account_permissions: "Перевірте фактичні права користувача у рекламному кабінеті перед повтором",
+    check_page_invites: "Перевірте запрошення та доступи фанки перед повторною спробою",
     confirm_admin_access: "Підтвердьте надання Admin-доступу до вибраного РК",
 };
 
@@ -18,13 +19,13 @@ const errorStatuses = {
 };
 
 export default function AutouploadActionDetails({ entry }) {
-    if (!entry.operation?.startsWith("profile-") && !["friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
+    if (!entry.operation?.startsWith("profile-") && !["friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share", "fan-page-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
     const detail = entry.diagnostic ?? {};
     const diagnostics = [
         ["Тип збою", errorStatuses[detail.status] ?? detail.status], ["Етап", detail.stage], ["Код мережі", detail.networkCode],
         ["Код запиту", detail.code], ["HTTP запиту", detail.httpStatus], ["Код API запиту", detail.graphCode], ["Підкод API запиту", detail.graphSubcode],
         ["Адреса без параметрів", detail.endpoint], ["Метод", detail.method], ["Тривалість, мс", detail.durationMs],
-        ["Рекламний кабінет", entry.adAccountId], ["Отримувач", entry.targetUserId], ["Результат", entry.outcome], ["Екшен", entry.stage], ["Код застосунку", entry.code],
+        ["Рекламний кабінет", entry.adAccountId], ["Фанка", entry.additionalProfileId], ["Назва фанки", entry.pageName], ["Отримувач", entry.targetUserId], ["Результат", entry.outcome], ["Екшен", entry.stage], ["Код застосунку", entry.code],
         ["HTTP", entry.httpStatus], ["Код Facebook", entry.graphCode], ["Підкод Facebook", entry.graphSubcode],
         ["API error code", entry.apiErrorCode], ["Тип помилки", entry.graphType], ["Trace ID", entry.traceId], ["Request ID", entry.metaRequestId],
     ].filter(([, value]) => value !== null && value !== undefined && value !== "");

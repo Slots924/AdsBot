@@ -10,6 +10,8 @@ import acceptIncomingFriendRequest from "../../facebook/autoupload/actions/frien
 import { safeDiagnosticText } from "../logging/httpDiagnostics.js";
 import changeFacebookName, { validateName } from "../../facebook/autoupload/actions/accounts/changeFacebookName.js";
 import { profileActions, validateProfileAction } from "../../facebook/autoupload/actions/profile/index.js";
+import getFanPages from "../../facebook/autoupload/actions/pages/getFanPages.js";
+import grantFanPageAccess from "../../facebook/autoupload/workflows/grantFanPageAccess.js";
 
 export default class AutouploadService {
     #clients = new Map();
@@ -17,7 +19,10 @@ export default class AutouploadService {
     #browserStates = new Map();
     #browserBusy = new Set();
     #mutating = new Set();
-    constructor({ store, adsPower, profileBrowser, sessionStore, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount, acceptFriendRequestFn = acceptIncomingFriendRequest, changeNameFn = changeFacebookName }) {
+    #pageLists = new Map();
+    constructor({ store, adsPower, profileBrowser, sessionStore, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount, acceptFriendRequestFn = acceptIncomingFriendRequest, changeNameFn = changeFacebookName,
+        getFanPagesFn = getFanPages, grantFanPageAccessFn = grantFanPageAccess, checkPageSession = checkProfileSession }) {
+        Object.assign(this, { getFanPagesFn, grantFanPageAccessFn, checkPageSession });
         this.changeNameFn = changeNameFn;
         Object.assign(this, { store, adsPower, profileBrowser, sessionStore, onUpdated, checkSession: checkSession ?? (sessionStore ? refreshProfileSession : checkProfileSession), sendFriendRequestFn, shareAdAccountFn, acceptFriendRequestFn });
     }
@@ -166,6 +171,80 @@ export default class AutouploadService {
         if (profiles.length !== selected.size) throw new Error("Один із вибраних профілів уже прибрано зі списку");
         const byId = new Map(profiles.map((profile) => [profile.profileId, profile]));
         return [...selected].map((id) => byId.get(id));
+    }
+
+    async #withPageProfile(ids, operation) {
+        const profiles = await this.selected(ids);
+        if (profiles.length !== 1) throw new Error("Виберіть лише один профіль для роботи з фанками");
+        const [profile] = profiles;
+        const id = profile.profileId;
+        if (this.#running.has(id) || this.#mutating.has(id) || this.#browserBusy.has(id)) throw new Error("Операція над профілем уже виконується");
+        this.#running.add(id);
+        let client;
+        try {
+            await this.#publish();
+            const cached = await this.#prepare(id, {}, false);
+            client = cached.client;
+            if (!client) {
+                const prepared = await this.checkPageSession({ profileId: id, adsPower: this.adsPower, onSessionStatus: this.#statusHandler(id) });
+                if (!prepared.client) return { success: false, code: "FACEBOOK_SESSION_REQUIRED", message: prepared.result.message };
+                client = prepared.client;
+                await this.store.record(id, prepared.result);
+            }
+            this.#clients.set(id, client);
+            return await operation(profile, client);
+        } finally {
+            if (client && this.sessionStore) {
+                try {
+                    client.validateFbData(client.getFbData(id), { allowPageActor: true });
+                    await this.sessionStore.save(id, client.exportSession());
+                } catch {
+                    this.#clients.delete(id);
+                    await this.sessionStore.remove(id).catch(() => {});
+                }
+            }
+            this.#running.delete(id);
+            await this.#publish();
+        }
+    }
+
+    async listFanPages(ids) {
+        return this.#withPageProfile(ids, async (profile, client) => {
+            this.#pageLists.delete(profile.profileId);
+            const result = await this.getFanPagesFn(client);
+            if (result.success) this.#pageLists.set(profile.profileId, result.pages);
+            return result;
+        });
+    }
+
+    async shareFanPage({ ids, additionalProfileId, targetUserId } = {}) {
+        const targetId = validateTargetUserId(targetUserId);
+        const pageId = String(additionalProfileId ?? "").trim();
+        if (!/^[1-9]\d{0,29}$/.test(pageId)) throw new Error("Вкажіть коректний ID фанки");
+        return this.#withPageProfile(ids, async (profile, client) => {
+            const page = this.#pageLists.get(profile.profileId)?.find(item => item.additionalProfileId === pageId);
+            if (!page) throw new Error("Спочатку отримайте список фанок і виберіть фанку з нього");
+            const credentials = await this.adsPower.getProfileById(profile.profileId);
+            const result = await this.grantFanPageAccessFn(client, { additionalProfileId: pageId, targetUserId: targetId, password: credentials.password });
+            const failures = { SESSION: "Не вдалося перевірити сесію Facebook.", SWITCH: "Не вдалося перемкнутися на фанку.",
+                PERMISSIONS: "Не вдалося прочитати доступи фанки.", ENCRYPT: "Не вдалося підготувати підтвердження пароля.",
+                REAUTH: "Facebook не підтвердив пароль.", INVITE: "Facebook не прийняв запрошення.",
+            };
+            const message = result.success
+                ? result.outcome === "FULL_CONTROL_ALREADY_PRESENT" ? "Користувач уже має повний доступ."
+                    : result.outcome === "INVITE_ALREADY_PENDING" ? "Запрошення вже очікує прийняття."
+                        : result.verified === false ? "Facebook прийняв інвайт. Контрольне читання не завершилося." : "Запрошення з повним доступом надіслано."
+                : result.outcomeUnknown ? "Результат запиту невідомий. Перевірте запрошення перед повторною спробою."
+                    : `${failures[result.stage] || result.message || "Не вдалося надати доступ"}${result.graphCode ? ` · Facebook ${result.graphCode}` : ""}`;
+            const action = { ...result, message, pageName: page.name, operation: "fan-page-share", fields: [], steps: [message],
+                ...(result.outcomeUnknown ? { actionRequired: "check_page_invites" } : {}),
+            };
+            await this.store.recordAction(profile.profileId, action);
+            if (["login_required", "checkpoint"].includes(result.sessionStatus)) {
+                await this.#statusHandler(profile.profileId)({ status: result.sessionStatus, message });
+            }
+            return action;
+        });
     }
     async check(ids, { signal, progress = async () => {} } = {}) {
         return this.#runProfiles(ids, { signal, progress });

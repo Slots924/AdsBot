@@ -253,6 +253,44 @@ button:focus-visible, input:focus-visible {
 .autoupload-share-form label.autoupload-share-confirm { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; line-height: 1.5; cursor: pointer; }
 .autoupload-share-confirm input { flex: 0 0 auto; margin-top: 3px; accent-color: #7562db; }
 .autoupload-share-form > .autoupload-share-note { font-size: 12px; }
+.modal.fan-page-share-dialog { width: min(560px, calc(100vw - 40px)); padding: 26px; }
+.fan-page-share-dialog h2 { margin: 0 0 20px; font-size: 20px; font-weight: 650; letter-spacing: -.025em; }
+.fan-page-share { display: grid; gap: 14px; font-size: 13px; }
+.fan-page-share-context { display: flex; align-items: center; gap: 10px; min-width: 0; padding-bottom: 2px; }
+.fan-page-share-icon { display: grid; place-items: center; flex: 0 0 38px; height: 38px; border: 1px solid rgba(132,114,255,.22); border-radius: 12px; color: #b3a7ff; background: rgba(132,114,255,.1); }
+.fan-page-share-context > div { display: grid; gap: 3px; min-width: 0; }
+.fan-page-share-context strong { font-size: 12px; font-weight: 600; }
+.fan-page-share-context > div > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 11px; }
+.fan-page-share-access { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; margin-left: auto; padding: 6px 8px; border-radius: 7px; color: #b3a7ff; background: rgba(132,114,255,.08); font-size: 10px; }
+.fan-page-share .fan-page-share-load { display: flex; justify-content: center; gap: 8px; width: 100%; min-height: 38px; border-color: rgba(132,114,255,.32); background: rgba(132,114,255,.08); font-size: 12px; }
+.fan-page-share-target { display: grid; gap: 7px; color: #c5c9d7; font-size: 11px; font-weight: 500; }
+.fan-page-share-target input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--stroke); border-radius: 9px; color: var(--text); background: rgba(7,9,16,.5); font-size: 13px; font-variant-numeric: tabular-nums; }
+.fan-page-share-target input::placeholder { color: #646c82; font-size: 12px; }
+.fan-page-share-target input:disabled { opacity: .6; }
+.fan-page-share-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: -6px; color: var(--muted); font-size: 11px; }
+.fan-page-share-heading > span:last-child { min-width: 22px; text-align: center; font-variant-numeric: tabular-nums; }
+.fan-page-share-list { height: 322px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #48415e transparent; border: 1px solid var(--stroke); border-radius: 12px; background: rgba(7,9,16,.28); }
+.fan-page-share-list::-webkit-scrollbar { width: 6px; }
+.fan-page-share-list::-webkit-scrollbar-track { background: transparent; }
+.fan-page-share-list::-webkit-scrollbar-thumb { border-radius: 8px; background: #48415e; }
+.fan-page-share-row { display: flex; align-items: center; gap: 10px; height: 64px; padding: 10px 12px; }
+.fan-page-share-row + .fan-page-share-row { border-top: 1px solid rgba(255,255,255,.055); }
+.fan-page-share-row:hover { background: rgba(132,114,255,.035); }
+.fan-page-share-avatar { position: relative; display: grid; place-items: center; flex: 0 0 36px; height: 36px; overflow: hidden; border: 1px solid var(--stroke); border-radius: 10px; color: #8e84ba; background: rgba(132,114,255,.08); }
+.fan-page-share-avatar img { position: absolute; width: 100%; height: 100%; object-fit: cover; }
+.fan-page-share-name { display: grid; gap: 4px; flex: 1; min-width: 0; }
+.fan-page-share-name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 550; }
+.fan-page-share-name > span { color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; letter-spacing: .015em; }
+.fan-page-share .fan-page-share-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: 0 0 auto; min-width: 103px; height: 31px; min-height: 31px; padding: 0 9px; border-radius: 8px; font-size: 11px; }
+.fan-page-share .fan-page-share-button.is-sent { opacity: 1; color: var(--green); border-color: rgba(69,223,161,.18); background: rgba(69,223,161,.055); }
+.fan-page-share-empty { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 9px; height: 100%; padding: 24px; text-align: center; color: #655e86; }
+.fan-page-share-empty strong { margin-top: 3px; color: #a6adbf; font-size: 12px; font-weight: 500; }
+.fan-page-share-empty > span { color: var(--muted); font-size: 11px; }
+.fan-page-share-feedback { display: flex; align-items: flex-start; gap: 8px; min-height: 48px; padding: 10px 11px; border: 1px solid transparent; border-radius: 9px; color: var(--muted); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
+.fan-page-share-feedback > svg { flex-shrink: 0; margin-top: 1px; }
+.fan-page-share-feedback.is-success { color: var(--green); border-color: rgba(69,223,161,.13); background: rgba(69,223,161,.045); }
+.fan-page-share-feedback.is-error { color: var(--red); border-color: rgba(255,100,124,.13); background: rgba(255,100,124,.045); }
+@media (max-height: 720px) { .fan-page-share-list { height: min(322px, calc(100dvh - 440px)); min-height: 128px; } }
 .proxy-editor-control { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; min-width: 0; }
 .proxy-editor-control input { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .proxy-editor-control .secondary-button { min-height: 51px; padding: 0 14px; font-size: var(--font-control); white-space: nowrap; }

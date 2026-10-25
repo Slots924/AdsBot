@@ -3,6 +3,11 @@ import assert from "node:assert/strict";
 import FacebookWebClient from "../facebook/api/FacebookWebClient.js";
 import getFanPages from "../facebook/autoupload/actions/pages/getFanPages.js";
 import getFacebookAccountId from "../facebook/session/getFacebookAccountId.js";
+import AutouploadService from "../services/autoupload/AutouploadService.js";
+import AutouploadStore from "../services/autoupload/AutouploadStore.js";
+import { mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 
 const accountId = "123";
 const profile = id => ({ id, name: `Profile ${id}`, profile_picture: { uri: `https://example.com/${id}.jpg` } });
@@ -96,4 +101,55 @@ test("скасування не надсилає запитів, читання 
     assert.equal((await getFanPages(page.client)).success, true);
     await page.client.checkSession();
     assert.equal(page.client.getFbData("p1").actorId, "456");
+});
+
+async function serviceFixture(t, overrides = {}) {
+    const directory = await mkdtemp(path.join(os.tmpdir(), "adsbot-page-modal-"));
+    t.after(async () => {
+        assert.equal(path.dirname(path.resolve(directory)), path.resolve(os.tmpdir()));
+        assert.ok(path.basename(directory).startsWith("adsbot-page-modal-"));
+        await rm(directory, { recursive: true, force: true });
+    });
+    const store = new AutouploadStore(path.join(directory, "workspace.json"));
+    await store.add([{ profileId: "p1", profileNo: "1" }, { profileId: "p2", profileNo: "2" }], "new");
+    const client = { validateFbData() {}, getFbData: () => ({}), exportSession: () => ({}) };
+    let suppliedPassword;
+    const service = new AutouploadService({ store, sessionStore: { load: async () => null, save: async () => {}, remove: async () => {} },
+        adsPower: { getProfileById: async () => ({ password: "private-password" }) },
+        checkPageSession: async () => ({ client, result: { status: "active", message: "OK", fields: [] } }),
+        getFanPagesFn: async () => ({ success: true, pages: [{ additionalProfileId: "456", name: "Test page", photoUrl: null }] }),
+        grantFanPageAccessFn: async (_client, input) => { suppliedPassword = input.password; return { success: true, outcome: "INVITE_SENT", additionalProfileId: input.additionalProfileId, targetUserId: input.targetUserId }; },
+        ...overrides,
+    });
+    return { service, store, password: () => suppliedPassword };
+}
+
+test("GUI-сервіс завантажує фанки одного профілю й передає пароль лише backend-workflow", async t => {
+    const value = await serviceFixture(t);
+    await assert.rejects(value.service.listFanPages(["p1", "p2"]), /лише один/);
+    assert.equal((await value.service.listFanPages(["p1"])).pages.length, 1);
+    const result = await value.service.shareFanPage({ ids: ["p1"], additionalProfileId: "456", targetUserId: "789" });
+    assert.equal(result.success, true);
+    assert.equal(value.password(), "private-password");
+    assert.equal((await value.store.snapshot()).history[0].operation, "fan-page-share");
+    assert.ok(!JSON.stringify(await value.store.snapshot()).includes("private-password"));
+});
+
+test("GUI-сервіс відхиляє невалідного отримувача та фанку поза завантаженим списком", async t => {
+    const { service } = await serviceFixture(t);
+    await assert.rejects(service.shareFanPage({ ids: ["p1"], additionalProfileId: "456", targetUserId: "bad" }));
+    await assert.rejects(service.shareFanPage({ ids: ["p1"], additionalProfileId: "456", targetUserId: "789" }), /отримайте список/);
+    await service.listFanPages(["p1"]);
+    await assert.rejects(service.shareFanPage({ ids: ["p1"], additionalProfileId: "999", targetUserId: "789" }), /отримайте список/);
+});
+
+test("GUI-сервіс не допускає двох одночасних операцій над одним профілем", async t => {
+    let complete, started;
+    const ready = new Promise(resolve => { started = resolve; });
+    const { service } = await serviceFixture(t, { getFanPagesFn: async () => { started(); return new Promise(resolve => { complete = resolve; }); } });
+    const request = service.listFanPages(["p1"]);
+    await ready;
+    await assert.rejects(service.listFanPages(["p1"]), /уже виконується/);
+    complete({ success: true, pages: [] });
+    await request;
 });
