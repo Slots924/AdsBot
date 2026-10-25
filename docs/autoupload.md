@@ -65,8 +65,15 @@ ID фанки — саме `additionalProfileId` зі списку переми�
   `FBBrowserPasswordEncryption` і його залежності зі startup JS-ресурсів Facebook.
   CDN-запити йдуть через ту саму проксі без cookies. Модулі виконуються в окремому
   JS-контексті з Web Crypto; завантажений код і пароль не записуються на диск.
+  Ресурси читаються послідовно. Тимчасовий TLS/мережевий обрив GET має ліміт
+  чотири спроби; після TLS close-notify використовується TLS 1.2 зі звичайною
+  перевіркою сертифіката. Це обходить відтворений збій Electron на Facebook CDN.
+  У пам’яті процесу кешуються фабрики модулів за URL до 48 ресурсів, без паролів,
+  токенів або згенерованих криптоключів. Невдале завантаження не кешується.
   Якщо залежності більше не доступні у цих ресурсах, workflow повертає
   `FACEBOOK_ENCRYPTION_MODULE_UNAVAILABLE` до надсилання пароля.
+  Результат невдачі містить безпечний `encryptionDiagnostics`: кількість ресурсів,
+  коди транспортних збоїв, типи помилок розбору та назви відсутніх модулів.
 - `workflows/autoupload/grantProfileFanPageAccess.js` приймає `adsPower`, один із
   `profileId` / `profileNo`, `additionalProfileId`, `targetUserId`, `signal`, `onStage`.
   Готує клієнт наявним `checkProfileSession` і бере пароль із `profile.password`,

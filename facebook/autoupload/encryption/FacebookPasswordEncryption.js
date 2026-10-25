@@ -5,13 +5,18 @@ import { actionError } from "../graphql/errors.js";
 const supportedModule = name => ["FBBrowserPasswordEncryption", "EnvelopeEncryption"].includes(name)
     || /^(tweetnacl(?:-sealedbox-js|-util)?|blakejs)(?:-[\d.]+)?$/.test(name);
 
+// Кеш містить лише фабрики публічних модулів за URL, без паролів, токенів або готових криптоключів.
+const sharedResourceCache = new Map();
+
 // Завантажує актуальні модулі з Facebook CDN; пароль не потрапляє до файлів або журналів.
 export default class FacebookPasswordEncryption {
-    constructor(client, { signal } = {}) {
+    constructor(client, { signal, resourceCache = sharedResourceCache } = {}) {
         this.client = client;
         this.signal = signal;
+        this.resourceCache = resourceCache;
         this.definitions = new Map();
         this.modules = new Map();
+        this.diagnostics = { scriptsTotal: 0, downloaded: 0, downloadFailures: 0, failures: [], captureErrors: [], missingModules: [] };
         this.sandbox = vm.createContext({ window: { crypto: webcrypto }, self: { crypto: webcrypto },
             crypto: webcrypto, Uint8Array, Uint16Array, Uint32Array, Int32Array, Float64Array,
             ArrayBuffer, Promise, atob, btoa, TextEncoder, TextDecoder, Math, Date,
@@ -20,15 +25,20 @@ export default class FacebookPasswordEncryption {
 
     #capture(source) {
         const definitions = this.definitions;
+        const captured = new Map();
         try {
             vm.runInNewContext(source, { self: {}, __d(name, dependencies, factory) {
                 if (supportedModule(name) && Array.isArray(dependencies) && typeof factory === "function") {
-                    definitions.set(name, { dependencies, source: factory.toString() });
+                    const definition = { dependencies, source: factory.toString() };
+                    definitions.set(name, definition);
+                    captured.set(name, definition);
                 }
             } }, { timeout: 3000 });
-        } catch {
+        } catch (error) {
+            this.diagnostics.captureErrors.push(error.name);
             // Деякі пакети мають браузерний bootstrap; уже оголошені модулі залишаються доступними.
         }
+        return captured;
     }
 
     #complete(name, seen = new Set()) {
@@ -42,15 +52,42 @@ export default class FacebookPasswordEncryption {
     async load(scriptUrls) {
         if (this.#complete("FBBrowserPasswordEncryption")) return;
         const urls = [...new Set(scriptUrls ?? [])].slice(0, 24);
-        for (let index = 0; index < urls.length; index += 3) {
+        this.diagnostics.scriptsTotal = urls.length;
+        for (const url of urls) {
             this.signal?.throwIfAborted();
-            const results = await Promise.allSettled(urls.slice(index, index + 3)
-                .map(url => this.client.requestStaticResource(url, { signal: this.signal })));
-            for (const result of results) if (result.status === "fulfilled") this.#capture(result.value);
+            const cached = this.resourceCache.get(url);
+            if (cached) {
+                for (const [name, definition] of cached) this.definitions.set(name, definition);
+            } else {
+                try {
+                    const source = await this.client.requestStaticResource(url, { signal: this.signal });
+                    this.diagnostics.downloaded++;
+                    const errorsBefore = this.diagnostics.captureErrors.length;
+                    const captured = this.#capture(source);
+                    if (this.diagnostics.captureErrors.length === errorsBefore) {
+                        if (this.resourceCache.size >= 48) this.resourceCache.delete(this.resourceCache.keys().next().value);
+                        this.resourceCache.set(url, captured);
+                    }
+                } catch (error) {
+                    this.diagnostics.downloadFailures++;
+                    this.diagnostics.failures.push({ code: error.code ?? null,
+                        httpStatus: error.httpStatus ?? null, networkCode: error.networkCode ?? null });
+                }
+            }
             this.signal?.throwIfAborted();
             if (this.#complete("FBBrowserPasswordEncryption")) return;
         }
-        throw actionError("Не вдалося завантажити модуль шифрування Facebook з усіма залежностями", "FACEBOOK_ENCRYPTION_MODULE_UNAVAILABLE");
+        const missing = new Set();
+        const visit = (name, seen = new Set()) => {
+            if (name === "Promise" || seen.has(name)) return;
+            seen.add(name);
+            const definition = this.definitions.get(name);
+            if (!definition) { missing.add(name); return; }
+            definition.dependencies.forEach(dependency => visit(dependency, seen));
+        };
+        visit("FBBrowserPasswordEncryption");
+        this.diagnostics.missingModules = [...missing];
+        throw actionError("Не вдалося завантажити модуль шифрування Facebook з усіма залежностями", "FACEBOOK_ENCRYPTION_MODULE_UNAVAILABLE", { encryptionDiagnostics: this.diagnostics });
     }
 
     #require = name => {

@@ -249,16 +249,29 @@ export default class FacebookWebClient {
         if (!isFacebookScriptUrl(url)) {
             throw actionError("Непідтримувана адреса JS-ресурсу", "FACEBOOK_RESOURCE_INVALID");
         }
-        try {
-            const response = await this.#http.request({ url, method: "get", signal, timeout: 30000,
-                maxRedirects: 0, maxContentLength: 12 * 1024 * 1024, responseType: "text",
-                headers: { "User-Agent": this.#userAgent, Accept: "application/javascript,*/*;q=0.8" },
-            });
-            if (response.status !== 200) throw new Error();
-            return String(response.data);
-        } catch {
+        let tlsMaxVersion;
+        for (let attempt = 0; attempt < 4; attempt++) {
             signal?.throwIfAborted();
-            throw actionError("Не вдалося завантажити JS-ресурс Facebook", "FACEBOOK_RESOURCE_UNAVAILABLE");
+            try {
+                const response = await this.#http.request({ url, method: "get", signal, timeout: 30000,
+                    ...(tlsMaxVersion ? { tlsMaxVersion } : {}),
+                    maxRedirects: 0, maxContentLength: 12 * 1024 * 1024, responseType: "text",
+                    headers: { "User-Agent": this.#userAgent, Accept: "application/javascript,*/*;q=0.8" },
+                });
+                if (response.status !== 200) throw Object.assign(new Error(), { response });
+                return String(response.data);
+            } catch (error) {
+                signal?.throwIfAborted();
+                const networkCode = error.diagnostic?.networkCode ?? error.code ?? null;
+                // Electron і CDN інколи обривають TLS 1.3; сумісний TLS 1.2 зберігає перевірку сертифікатів.
+                if (["ERR_SSL_SSLV3_ALERT_CLOSE_NOTIFY", "ERR_SSL_UNEXPECTED_EOF_WHILE_READING"].includes(networkCode)) tlsMaxVersion = "TLSv1.2";
+                // Лише GET публічного JS повторюється після тимчасового обриву TLS або сокета.
+                if (attempt < 3 && ["ERR_SSL_SSLV3_ALERT_CLOSE_NOTIFY", "ERR_SSL_UNEXPECTED_EOF_WHILE_READING",
+                    "ECONNRESET", "EPIPE", "ETIMEDOUT", "ECONNABORTED"].includes(networkCode)) continue;
+                throw actionError("Не вдалося завантажити JS-ресурс Facebook", "FACEBOOK_RESOURCE_UNAVAILABLE", {
+                    httpStatus: error.response?.status ?? null, networkCode, attempts: attempt + 1,
+                });
+            }
         }
     }
 

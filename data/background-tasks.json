@@ -2,6 +2,104 @@
   "version": 1,
   "tasks": [
     {
+      "id": "cfcc5c36-53c9-46d1-a2d5-c3deb9fb3376",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1360",
+          "label": "профіль №1360"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1e0e25m"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1e0e25m",
+        "reportId": "5a75a80d-ddc8-4bd7-a810-ef752ffc7840"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1e0e25m",
+            "profileNo": "1360",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook активний; частину даних Ads Manager або активів не оновлено",
+            "accountId": "61579647491304",
+            "actorId": "61595207534512",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq",
+              "accountId"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Ads Manager: Ця дія потребує контексту соца; у сесії активна фанка"
+            ],
+            "assets": {
+              "adAccounts": [],
+              "pages": [],
+              "adAccountsState": "unavailable",
+              "pagesState": "unavailable"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": false,
+              "accessToken": false
+            },
+            "warnings": [
+              {
+                "status": "error",
+                "code": "FACEBOOK_SOCIAL_CONTEXT_REQUIRED",
+                "networkCode": null,
+                "httpStatus": null,
+                "graphCode": null,
+                "graphSubcode": null,
+                "message": "Ця дія потребує контексту соца; у сесії активна фанка",
+                "stage": "adsManager",
+                "endpoint": null,
+                "method": "GET",
+                "durationMs": null,
+                "traceId": null,
+                "scope": "adsManager"
+              }
+            ],
+            "hasWarnings": true
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T14:50:41.762Z",
+      "startedAt": "2026-10-25T14:50:41.770Z",
+      "finishedAt": "2026-10-25T14:50:49.439Z",
+      "updatedAt": "2026-10-25T14:50:49.445Z"
+    },
+    {
       "id": "cb670f31-6fb2-4777-80c3-d21558a732e4",
       "type": "autoupload-profile-action",
       "name": "Публікація з датою · 1",

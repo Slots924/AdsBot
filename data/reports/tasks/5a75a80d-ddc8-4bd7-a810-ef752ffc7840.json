@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "id": "5a75a80d-ddc8-4bd7-a810-ef752ffc7840",
+  "taskId": "cfcc5c36-53c9-46d1-a2d5-c3deb9fb3376",
+  "type": "autoupload-session-check",
+  "title": "Перевірка сесій · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-25T14:50:49.443Z",
+  "startedAt": "2026-10-25T14:50:41.770Z",
+  "finishedAt": "2026-10-25T14:50:49.439Z",
+  "durationMs": 7669,
+  "inputSummary": {
+    "profileIds": [
+      "k1e0e25m"
+    ]
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1e0e25m",
+        "profileNo": "1360",
+        "status": "active",
+        "stage": "facebook",
+        "message": "Facebook активний; частину даних Ads Manager або активів не оновлено",
+        "accountId": "61579647491304",
+        "actorId": "61595207534512",
+        "fields": [
+          "fb_dtsg",
+          "fb_dtsg_ag",
+          "lsd",
+          "jazoest",
+          "sessionID",
+          "FacebookID",
+          "clientRevision",
+          "hsi",
+          "spinR",
+          "spinB",
+          "spinT",
+          "cometReq",
+          "accountId"
+        ],
+        "steps": [
+          "Дані профілю отримано",
+          "Проксі профілю налаштовано",
+          "Cookies отримано",
+          "User-Agent отримано",
+          "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+          "Ads Manager: Ця дія потребує контексту соца; у сесії активна фанка"
+        ],
+        "assets": {
+          "adAccounts": [],
+          "pages": [],
+          "adAccountsState": "unavailable",
+          "pagesState": "unavailable"
+        },
+        "capabilities": {
+          "facebook": true,
+          "adsManager": false,
+          "accessToken": "[REDACTED]"
+        },
+        "warnings": [
+          {
+            "status": "error",
+            "code": "FACEBOOK_SOCIAL_CONTEXT_REQUIRED",
+            "networkCode": null,
+            "httpStatus": null,
+            "graphCode": null,
+            "graphSubcode": null,
+            "message": "Ця дія потребує контексту соца; у сесії активна фанка",
+            "stage": "adsManager",
+            "endpoint": null,
+            "method": "GET",
+            "durationMs": null,
+            "traceId": null,
+            "scope": "adsManager"
+          }
+        ],
+        "hasWarnings": true
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload:k1e0e25m"
+  }
+}

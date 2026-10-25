@@ -235,7 +235,9 @@ export default class AutouploadService {
                     : result.outcome === "INVITE_ALREADY_PENDING" ? "Запрошення вже очікує прийняття."
                         : result.verified === false ? "Facebook прийняв інвайт. Контрольне читання не завершилося." : "Запрошення з повним доступом надіслано."
                 : result.outcomeUnknown ? "Результат запиту невідомий. Перевірте запрошення перед повторною спробою."
-                    : `${failures[result.stage] || result.message || "Не вдалося надати доступ"}${result.graphCode ? ` · Facebook ${result.graphCode}` : ""}`;
+                    : result.code === "FACEBOOK_ENCRYPTION_MODULE_UNAVAILABLE" && result.encryptionDiagnostics?.downloadFailures
+                        ? "Не вдалося завантажити компоненти Facebook через проксі. Перевірте з’єднання та повторіть."
+                        : `${failures[result.stage] || result.message || "Не вдалося надати доступ"}${result.graphCode ? ` · Facebook ${result.graphCode}` : ""}`;
             const action = { ...result, message, pageName: page.name, operation: "fan-page-share", fields: [], steps: [message],
                 ...(result.outcomeUnknown ? { actionRequired: "check_page_invites" } : {}),
             };

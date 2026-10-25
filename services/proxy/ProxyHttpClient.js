@@ -163,11 +163,14 @@ export default class ProxyHttpClient {
 
 
     async #send(config, proxyIndex) {
+        const { tlsMaxVersion, ...requestConfig } = config;
+        if (tlsMaxVersion != null && tlsMaxVersion !== "TLSv1.2") throw new Error("Непідтримуване обмеження версії TLS");
         const proxy = this.#proxies[proxyIndex];
         const proxyAgent = createProxyAgent(proxy);
+        if (tlsMaxVersion) proxyAgent.options.maxVersion = tlsMaxVersion;
 
         const configWithAgent = {
-            ...config,
+            ...requestConfig,
             httpAgent: proxyAgent,
             httpsAgent: proxyAgent,
             proxy: false,

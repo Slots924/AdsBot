@@ -5,6 +5,7 @@ import FacebookPasswordEncryption from "../facebook/autoupload/encryption/Facebo
 import grantFanPageAccess from "../facebook/autoupload/workflows/grantFanPageAccess.js";
 import HttpPageActionContext from "../facebook/autoupload/HttpPageActionContext.js";
 import grantProfileFanPageAccess from "../workflows/autoupload/grantProfileFanPageAccess.js";
+import ProxyHttpClient from "../services/proxy/ProxyHttpClient.js";
 
 const accountId = "100", pageId = "200", targetUserId = "300";
 const scriptUrl = "https://static.xx.fbcdn.net/rsrc.php/v4/y/r/encryption.js";
@@ -73,7 +74,8 @@ function fixture(options = {}) {
 }
 
 const run = (value, options = {}) => grantFanPageAccess(value.client, {
-    additionalProfileId: pageId, targetUserId, password: "private-password", ...options,
+    additionalProfileId: pageId, targetUserId, password: "private-password",
+    encryption: new FacebookPasswordEncryption(value.client, { resourceCache: new Map() }), ...options,
 });
 
 test("повний HTTP-flow перемикає actor, завантажує модуль і надсилає один підтверджений інвайт", async () => {
@@ -199,14 +201,54 @@ test("скасування та некоректні ID не надсилают�
 
 test("модуль шифрування кешується лише в пам'яті та потребує повного дерева залежностей", async () => {
     const value = fixture();
-    const encryption = new FacebookPasswordEncryption(value.client);
+    const resourceCache = new Map();
+    const encryption = new FacebookPasswordEncryption(value.client, { resourceCache });
     const input = { keyId: 1, publicKey: "ab".repeat(32), password: "private-password", scriptUrls: [scriptUrl] };
     assert.match(await encryption.encrypt(input), /^#PWD_BROWSER:5:/);
     await encryption.encrypt(input);
+    await new FacebookPasswordEncryption(value.client, { resourceCache }).encrypt(input);
     assert.equal(value.calls.length, 1);
     const incomplete = fixture({ script: '__d("FBBrowserPasswordEncryption",["MissingDependency"],function(){});' });
-    await assert.rejects(new FacebookPasswordEncryption(incomplete.client).encrypt(input), error => error.code === "FACEBOOK_ENCRYPTION_MODULE_UNAVAILABLE");
+    await assert.rejects(new FacebookPasswordEncryption(incomplete.client, { resourceCache: new Map() }).encrypt(input), error => error.code === "FACEBOOK_ENCRYPTION_MODULE_UNAVAILABLE");
     await assert.rejects(encryption.encrypt({ ...input, keyId: null }), error => error.code === "FACEBOOK_ENCRYPTION_INPUT_INVALID");
+});
+
+test("CDN GET повторюється після TLS-обриву, але має ліміт і не повторює HTTP-помилки", async () => {
+    for (const scenario of ["temporary", "permanent", "http"]) {
+        let attempts = 0;
+        const client = new FacebookWebClient({ userAgent: "Test", cookies: [
+            { name: "c_user", value: accountId, domain: ".facebook.com", path: "/", secure: true },
+            { name: "xs", value: "private-cookie", domain: ".facebook.com", path: "/", secure: true },
+        ], httpClient: { request: async config => {
+            attempts++;
+            assert.equal(config.headers.Cookie, undefined);
+            if (scenario !== "http") assert.equal(config.tlsMaxVersion, attempts > 1 ? "TLSv1.2" : undefined);
+            if (scenario === "http") throw Object.assign(new Error("HTTP failure"), { response: { status: 403 } });
+            if (scenario === "permanent" || attempts < 3) throw Object.assign(new Error("TLS closed"), { code: "ERR_SSL_SSLV3_ALERT_CLOSE_NOTIFY" });
+            return response(script);
+        } } });
+        if (scenario === "temporary") {
+            assert.equal(await client.requestStaticResource(scriptUrl), script);
+            assert.equal(attempts, 3);
+        } else {
+            await assert.rejects(client.requestStaticResource(scriptUrl), error => error.code === "FACEBOOK_RESOURCE_UNAVAILABLE"
+                && (scenario === "http" ? error.httpStatus === 403 : error.networkCode === "ERR_SSL_SSLV3_ALERT_CLOSE_NOTIFY"));
+            assert.equal(attempts, scenario === "permanent" ? 4 : 1);
+        }
+    }
+});
+
+test("TLS-сумісність задається лише конкретному проксі-запиту й не вимикає перевірку сертифікатів", async () => {
+    const calls = [];
+    const client = new ProxyHttpClient({ proxies: [{ id: "test", type: "http", host: "127.0.0.1", port: "1234" }],
+        httpClient: { request: async config => { calls.push(config); return response("OK"); } },
+    });
+    await client.request({ url: scriptUrl, tlsMaxVersion: "TLSv1.2" });
+    await client.request({ url: scriptUrl });
+    assert.equal(calls[0].httpsAgent.options.maxVersion, "TLSv1.2");
+    assert.notEqual(calls[0].httpsAgent.options.rejectUnauthorized, false);
+    assert.equal(calls[0].tlsMaxVersion, undefined);
+    assert.equal(calls[1].httpsAgent.options.maxVersion, undefined);
 });
 
 test("CDN-клієнт відхиляє сторонні адреси, контекст відхиляє сторонні операції", async () => {

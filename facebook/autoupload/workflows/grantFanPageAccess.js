@@ -85,6 +85,7 @@ export default async function grantFanPageAccess(client, {
             });
         return { ...actionFailure(safe), stage, accountId, additionalProfileId: pageId,
             targetUserId: userId, inviteSent, invitePending: null, inviteAttempted,
+            ...(error.code === "FACEBOOK_ENCRYPTION_MODULE_UNAVAILABLE" ? { encryptionDiagnostics: error.encryptionDiagnostics } : {}),
         };
     }
 }
