@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "id": "d5b6a635-7542-4bcb-9835-8f7485f8053e",
+  "taskId": "27fb1116-2645-4a47-a180-149e9ccd04a8",
+  "type": "autoupload-profile-action",
+  "title": "Аватарка · 1",
+  "status": "completed",
+  "createdAt": "2026-10-25T08:09:15.460Z",
+  "startedAt": "2026-10-25T08:09:08.524Z",
+  "finishedAt": "2026-10-25T08:09:15.455Z",
+  "durationMs": 6931,
+  "inputSummary": {
+    "profileIds": [
+      "k1ib017o"
+    ],
+    "action": "avatar"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1ib017o",
+        "profileNo": "2541",
+        "success": true,
+        "outcome": "CHANGED",
+        "code": null,
+        "message": "Аватарку соціального профілю змінено",
+        "httpStatus": 200,
+        "outcomeUnknown": false,
+        "actionRequired": null,
+        "retryable": false,
+        "operation": "profile-avatar",
+        "fields": [],
+        "steps": [
+          "Аватарку соціального профілю змінено"
+        ]
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-profile:avatar:k1ib017o"
+  }
+}

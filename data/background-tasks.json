@@ -2,6 +2,1984 @@
   "version": 1,
   "tasks": [
     {
+      "id": "cb670f31-6fb2-4777-80c3-d21558a732e4",
+      "type": "autoupload-profile-action",
+      "name": "Публікація з датою · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2544",
+          "label": "профіль №2544"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017r"
+        ],
+        "action": "publish-posts"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:publish-posts:k1ib017r",
+        "reportId": "308dc1c5-c8e1-4c65-83b7-151068be597e"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017r",
+            "profileNo": "2544",
+            "success": true,
+            "outcome": "COMPLETED",
+            "code": null,
+            "message": "Фото-пости соціального профілю опубліковано та датовано",
+            "publishedCount": 1,
+            "backdatedCount": 1,
+            "requestedCount": 1,
+            "postResults": [
+              {
+                "sequence": 1,
+                "storyId": "UzpfSTYxNTk1NTE4NDA3MTY1OjEyMjEwMzY0MTQ0NTUxNzI4MA==",
+                "created": true,
+                "backdated": true,
+                "createStatus": "CREATED",
+                "backdateStatus": "BACKDATED"
+              }
+            ],
+            "httpStatus": null,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-publish-posts",
+            "fields": [],
+            "steps": [
+              "Фото-пости соціального профілю опубліковано та датовано"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:10:58.838Z",
+      "startedAt": "2026-10-25T09:10:58.845Z",
+      "finishedAt": "2026-10-25T09:11:06.307Z",
+      "updatedAt": "2026-10-25T09:11:06.314Z"
+    },
+    {
+      "id": "a62e723f-a765-4bcf-bf0a-cb1ae4a26448",
+      "type": "autoupload-profile-action",
+      "name": "Очищення постів · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2544",
+          "label": "профіль №2544"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017r"
+        ],
+        "action": "clear-posts"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:clear-posts:k1ib017r",
+        "reportId": "0ada679a-ea17-4b95-9fa0-9b1845368c8c"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017r",
+            "profileNo": "2544",
+            "success": true,
+            "outcome": "CLEARED",
+            "code": null,
+            "message": "Пости соціального профілю очищено",
+            "deletedCount": 1,
+            "hiddenCount": 2,
+            "failedCount": 0,
+            "remainingCount": 0,
+            "httpStatus": null,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-clear-posts",
+            "fields": [],
+            "steps": [
+              "Пости соціального профілю очищено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:06:41.244Z",
+      "startedAt": "2026-10-25T09:06:41.253Z",
+      "finishedAt": "2026-10-25T09:06:49.971Z",
+      "updatedAt": "2026-10-25T09:06:49.978Z"
+    },
+    {
+      "id": "20516117-ab1e-42e4-8d2f-a17c12c598e6",
+      "type": "autoupload-profile-action",
+      "name": "Обкладинка · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2544",
+          "label": "профіль №2544"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017r"
+        ],
+        "action": "cover"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:cover:k1ib017r",
+        "reportId": "adf38b7a-23a3-40f1-9f8f-16085307a3e3"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017r",
+            "profileNo": "2544",
+            "success": true,
+            "outcome": "CHANGED",
+            "code": null,
+            "message": "Обкладинку соціального профілю змінено",
+            "httpStatus": 200,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-cover",
+            "fields": [],
+            "steps": [
+              "Обкладинку соціального профілю змінено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:06:22.004Z",
+      "startedAt": "2026-10-25T09:06:22.012Z",
+      "finishedAt": "2026-10-25T09:06:27.987Z",
+      "updatedAt": "2026-10-25T09:06:27.997Z"
+    },
+    {
+      "id": "d069cc2b-070f-4388-b117-8c855b1ee990",
+      "type": "autoupload-profile-action",
+      "name": "Аватарка · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2544",
+          "label": "профіль №2544"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017r"
+        ],
+        "action": "avatar"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:avatar:k1ib017r",
+        "reportId": "0e3e720f-be91-498d-8027-dd15d90c8ca6"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017r",
+            "profileNo": "2544",
+            "success": true,
+            "outcome": "CHANGED",
+            "code": null,
+            "message": "Аватарку соціального профілю змінено",
+            "httpStatus": 200,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-avatar",
+            "fields": [],
+            "steps": [
+              "Аватарку соціального профілю змінено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:05:42.453Z",
+      "startedAt": "2026-10-25T09:05:42.461Z",
+      "finishedAt": "2026-10-25T09:05:51.527Z",
+      "updatedAt": "2026-10-25T09:05:51.535Z"
+    },
+    {
+      "id": "a0f3eb6b-3b4c-432b-9b6f-924ef83c4216",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2544",
+          "label": "профіль №2544"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017r"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1ib017r",
+        "reportId": "ef3d1a21-9017-4309-8ffc-8be6ffd400ea"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017r",
+            "profileNo": "2544",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_4363110470619727",
+                  "accountId": "4363110470619727",
+                  "name": "Attila Földesi",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:05:05.235Z",
+      "startedAt": "2026-10-25T09:05:05.244Z",
+      "finishedAt": "2026-10-25T09:05:16.035Z",
+      "updatedAt": "2026-10-25T09:05:16.041Z"
+    },
+    {
+      "id": "445745ae-4c06-4014-8327-d6d68918b54c",
+      "type": "autoupload-profile-action",
+      "name": "Публікація з датою · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2542",
+          "label": "профіль №2542"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017p"
+        ],
+        "action": "publish-posts"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:publish-posts:k1ib017p",
+        "reportId": "e9b65a08-7db2-46bf-8814-6de4ce463b73"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017p",
+            "profileNo": "2542",
+            "success": true,
+            "outcome": "COMPLETED",
+            "code": null,
+            "message": "Фото-пости соціального профілю опубліковано та датовано",
+            "publishedCount": 1,
+            "backdatedCount": 1,
+            "requestedCount": 1,
+            "postResults": [
+              {
+                "sequence": 1,
+                "storyId": "UzpfSTYxNTk1MDgyNzM1MzQ1OjEyMjExNDg5NjA1OTUwMjc1Nw==",
+                "created": true,
+                "backdated": true,
+                "createStatus": "CREATED",
+                "backdateStatus": "BACKDATED"
+              }
+            ],
+            "httpStatus": null,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-publish-posts",
+            "fields": [],
+            "steps": [
+              "Фото-пости соціального профілю опубліковано та датовано"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:04:28.437Z",
+      "startedAt": "2026-10-25T09:04:28.444Z",
+      "finishedAt": "2026-10-25T09:04:35.222Z",
+      "updatedAt": "2026-10-25T09:04:35.229Z"
+    },
+    {
+      "id": "ffde05de-794f-4fe9-87b3-520c8b72e006",
+      "type": "autoupload-profile-action",
+      "name": "Очищення постів · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2542",
+          "label": "профіль №2542"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017p"
+        ],
+        "action": "clear-posts"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:clear-posts:k1ib017p",
+        "reportId": "1645a9b9-31c6-4004-9a03-d7bba2673f9d"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017p",
+            "profileNo": "2542",
+            "success": true,
+            "outcome": "CLEARED",
+            "code": null,
+            "message": "Пости соціального профілю очищено",
+            "deletedCount": 1,
+            "hiddenCount": 2,
+            "failedCount": 0,
+            "remainingCount": 0,
+            "httpStatus": null,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-clear-posts",
+            "fields": [],
+            "steps": [
+              "Пости соціального профілю очищено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:03:34.173Z",
+      "startedAt": "2026-10-25T09:03:34.180Z",
+      "finishedAt": "2026-10-25T09:03:42.488Z",
+      "updatedAt": "2026-10-25T09:03:42.496Z"
+    },
+    {
+      "id": "3ceadc06-8fe2-4427-a144-3ad8efb04b76",
+      "type": "autoupload-profile-action",
+      "name": "Обкладинка · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2542",
+          "label": "профіль №2542"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017p"
+        ],
+        "action": "cover"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:cover:k1ib017p",
+        "reportId": "a1ada5d8-8a63-4c28-84d8-7b85db159adc"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017p",
+            "profileNo": "2542",
+            "success": true,
+            "outcome": "CHANGED",
+            "code": null,
+            "message": "Обкладинку соціального профілю змінено",
+            "httpStatus": 200,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-cover",
+            "fields": [],
+            "steps": [
+              "Обкладинку соціального профілю змінено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:03:05.564Z",
+      "startedAt": "2026-10-25T09:03:05.572Z",
+      "finishedAt": "2026-10-25T09:03:11.729Z",
+      "updatedAt": "2026-10-25T09:03:11.736Z"
+    },
+    {
+      "id": "cd975dee-86b3-44e9-a550-320d89471ab4",
+      "type": "autoupload-profile-action",
+      "name": "Аватарка · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2542",
+          "label": "профіль №2542"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017p"
+        ],
+        "action": "avatar"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:avatar:k1ib017p",
+        "reportId": "abefa9cf-4b11-4164-a9b9-ef47fda56bf7"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017p",
+            "profileNo": "2542",
+            "success": true,
+            "outcome": "CHANGED",
+            "code": null,
+            "message": "Аватарку соціального профілю змінено",
+            "httpStatus": 200,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-avatar",
+            "fields": [],
+            "steps": [
+              "Аватарку соціального профілю змінено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:02:27.108Z",
+      "startedAt": "2026-10-25T09:02:27.117Z",
+      "finishedAt": "2026-10-25T09:02:33.059Z",
+      "updatedAt": "2026-10-25T09:02:33.068Z"
+    },
+    {
+      "id": "84ba225a-2ca7-4c09-bd52-4b54213e5a81",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2542",
+          "label": "профіль №2542"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017p"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1ib017p",
+        "reportId": "992e57a6-ccf1-4168-a76f-5bf2e9b5d351"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017p",
+            "profileNo": "2542",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1615183412963080",
+                  "accountId": "1615183412963080",
+                  "name": "Zsombor Kertész",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:02:04.060Z",
+      "startedAt": "2026-10-25T09:02:04.067Z",
+      "finishedAt": "2026-10-25T09:02:14.942Z",
+      "updatedAt": "2026-10-25T09:02:14.949Z"
+    },
+    {
+      "id": "c0a66d48-c3f6-4ac2-856e-b7267365a53e",
+      "type": "autoupload-profile-action",
+      "name": "Аватарка · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2542",
+          "label": "профіль №2542"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017p"
+        ],
+        "action": "avatar"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:avatar:k1ib017p",
+        "reportId": "b57aed40-a851-45e0-b496-a55275b0d3f7"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017p",
+            "profileNo": "2542",
+            "success": false,
+            "outcome": "NOT_SENT",
+            "message": "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна",
+            "code": "FACEBOOK_SESSION_PREPARATION_FAILED",
+            "retryable": false,
+            "outcomeUnknown": false,
+            "operation": "profile-avatar",
+            "fields": [],
+            "steps": [
+              "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T09:01:55.437Z",
+      "startedAt": "2026-10-25T09:01:55.444Z",
+      "finishedAt": "2026-10-25T09:01:55.469Z",
+      "updatedAt": "2026-10-25T09:01:55.477Z"
+    },
+    {
+      "id": "f13ac435-e93e-467c-9d1e-8db072c13e41",
+      "type": "autoupload-profile-action",
+      "name": "Аватарка · 1",
+      "status": "cancelled",
+      "resources": [
+        {
+          "key": "adspower-profile:2542",
+          "label": "профіль №2542"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017p"
+        ],
+        "action": "avatar"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:avatar:k1ib017p",
+        "reportId": "7fc7a25d-4f89-4774-82a0-066b9500f284"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "cancelled",
+        "message": "Задачу скасовано до запуску"
+      },
+      "result": null,
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:44:29.571Z",
+      "startedAt": null,
+      "finishedAt": "2026-10-25T08:45:04.646Z",
+      "updatedAt": "2026-10-25T08:45:04.654Z"
+    },
+    {
+      "id": "0443793f-8503-497f-b47b-6c0f3a50bd76",
+      "type": "comments",
+      "name": "Коментарі поста · DE · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
+        },
+        {
+          "key": "adspower-group:7887373",
+          "label": "[AT] Austria"
+        },
+        {
+          "key": "adspower-group:7887378",
+          "label": "[CH] Switherland"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "creativeGeo": "DE",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61595264109247/posts/pfbid02x5P2w3jERPtbmEg5F2HsYJ3QSUMoBP2f8kBzTnh2dQcZd2A61JneNYhhaVrkXwsHl",
+        "browserMode": "visible",
+        "disableImages": false,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "language": "",
+        "browserMode": "visible",
+        "disableImages": false,
+        "reportId": "71db5b7c-2a53-4118-b428-a64a5c8aeebc"
+      },
+      "progress": {
+        "completed": 16,
+        "total": 16,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 11,
+        "skipped": 3,
+        "failedComments": 2,
+        "failedProfiles": 0,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "5.1",
+        "currentProfileNo": "189",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-25_10-57-35-477.md",
+        "published": 11,
+        "skipped": 3,
+        "failedComments": 2,
+        "failedProfiles": 0,
+        "excludedProfiles": 3,
+        "fatalError": null,
+        "browserMode": "visible",
+        "disableImages": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:40:43.525Z",
+      "startedAt": "2026-10-25T08:40:43.532Z",
+      "finishedAt": "2026-10-25T08:57:35.484Z",
+      "updatedAt": "2026-10-25T08:57:35.491Z"
+    },
+    {
+      "id": "add35e87-68a0-483e-ade3-87f4679f185d",
+      "type": "campaign",
+      "name": "DE | Creo_1 | 25+ 25/10 10:36",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "764944ff-4980-463f-8dba-ff4c2e2b0cb6"
+      },
+      "metadata": {
+        "campaignJobId": "764944ff-4980-463f-8dba-ff4c2e2b0cb6",
+        "accountKey": "account-048",
+        "adAccountId": "act_1282431624024366",
+        "uniqueKey": "campaign-job:764944ff-4980-463f-8dba-ff4c2e2b0cb6",
+        "reportId": "74d24b94-dea1-4275-bbda-ad61b4cc6e5f"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120253916232930019",
+          "creativeId": "1411294330994144",
+          "creatives": [
+            {
+              "id": "1411294330994144",
+              "pageId": "1284807618060555",
+              "postId": "1284807618060555_122109762723508803"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120253916233380019",
+              "name": "DE | Creo_1 | 25+ 25/10 10:36 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120253916234150019",
+              "name": "DE | Creo_1 | 25+ 25/10 10:36 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120253916235480019",
+              "name": "DE | Creo_1 | 25+ 25/10 10:36 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120253916237080019",
+              "name": "DE | Creo_1 | 25+ 25/10 10:36 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120253916238340019",
+              "name": "DE | Creo_1 | 25+ 25/10 10:36 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120253916233940019",
+              "name": "DE | Creo_1 | 25+ 25/10 10:36 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120253916234580019",
+              "name": "DE | Creo_1 | 25+ 25/10 10:36 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "120253916236830019",
+              "name": "DE | Creo_1 | 25+ 25/10 10:36 | AD 03"
+            },
+            {
+              "index": 3,
+              "creativeIndex": 0,
+              "id": "120253916238020019",
+              "name": "DE | Creo_1 | 25+ 25/10 10:36 | AD 04"
+            },
+            {
+              "index": 4,
+              "creativeIndex": 0,
+              "id": "120253916238920019",
+              "name": "DE | Creo_1 | 25+ 25/10 10:36 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "764944ff-4980-463f-8dba-ff4c2e2b0cb6",
+        "campaignId": "120253916232930019",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:37:01.745Z",
+      "startedAt": "2026-10-25T08:37:01.752Z",
+      "finishedAt": "2026-10-25T08:37:54.249Z",
+      "updatedAt": "2026-10-25T08:37:54.256Z"
+    },
+    {
+      "id": "ff9b40a6-5416-48fa-a45f-21df9751c451",
+      "type": "publication",
+      "name": "Публікація · DE · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-048",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/0jjho5",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Downloads\\DE (5)_19d94b32fbf_19e06242954.png",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\photo_2026-03-30_00-02-20_19d59c867d4_19d94b382f9_19daeb83ac0.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": false,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-048",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "1",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "1fcd1360-caa6-4a44-bd49-cf1f33b6243f"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-048",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/0jjho5",
+        "postId": "1284807618060555_122109762723508803",
+        "permalinkUrl": "https://www.facebook.com/61595264109247/posts/pfbid02x5P2w3jERPtbmEg5F2HsYJ3QSUMoBP2f8kBzTnh2dQcZd2A61JneNYhhaVrkXwsHl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:36:22.471Z",
+      "startedAt": "2026-10-25T08:36:22.484Z",
+      "finishedAt": "2026-10-25T08:36:29.796Z",
+      "updatedAt": "2026-10-25T08:36:29.803Z"
+    },
+    {
+      "id": "a946f899-025d-4216-81fa-181b188afc61",
+      "type": "comments",
+      "name": "Коментарі вибраними акаунтами · Вручну · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "AdsPower 2541"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "2541"
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02NbJCX1H3DrLiwsnNNaj6dXukCKjtgMvbuD5rJ4UYFi3FH519ptogXFA67Cn2nEfAl&id=61594925755467",
+        "manualMode": true,
+        "manualComments": "love you girl like from me",
+        "creativeGeo": "",
+        "creativeName": "",
+        "siteUrl": "",
+        "browserMode": "visible",
+        "disableImages": false,
+        "concurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "2541"
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02NbJCX1H3DrLiwsnNNaj6dXukCKjtgMvbuD5rJ4UYFi3FH519ptogXFA67Cn2nEfAl&id=61594925755467",
+        "manualMode": true,
+        "reportId": "e6d6c078-f541-4101-8263-4fd384ae7ea7"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "published": 1,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "1",
+        "currentProfileNo": "2541",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-25_10-20-13-533.md",
+        "published": 1,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "excludedProfiles": 0,
+        "fatalError": null,
+        "browserMode": "visible",
+        "disableImages": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:19:18.243Z",
+      "startedAt": "2026-10-25T08:19:18.251Z",
+      "finishedAt": "2026-10-25T08:20:13.538Z",
+      "updatedAt": "2026-10-25T08:20:13.543Z"
+    },
+    {
+      "id": "b333eb9c-0f88-4397-b587-c73601bb179d",
+      "type": "comments",
+      "name": "Коментарі вибраними акаунтами · Вручну · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "AdsPower 2541"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "2541"
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid021ANoPCzucGgx5MhNGybRLD9G5b1KjaGxbRcFqZc18Qib6EA4UMLvBZftyY91qJ6ol&id=61581860459304",
+        "manualMode": true,
+        "manualComments": "so beauty",
+        "creativeGeo": "",
+        "creativeName": "",
+        "siteUrl": "",
+        "browserMode": "visible",
+        "disableImages": false,
+        "concurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "2541"
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid021ANoPCzucGgx5MhNGybRLD9G5b1KjaGxbRcFqZc18Qib6EA4UMLvBZftyY91qJ6ol&id=61581860459304",
+        "manualMode": true,
+        "reportId": "5895dcfa-5704-43b3-8c1a-e7e0d86d289c"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "published": 1,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "1",
+        "currentProfileNo": "2541",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-25_10-18-39-401.md",
+        "published": 1,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "excludedProfiles": 0,
+        "fatalError": null,
+        "browserMode": "visible",
+        "disableImages": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:17:44.227Z",
+      "startedAt": "2026-10-25T08:17:44.235Z",
+      "finishedAt": "2026-10-25T08:18:39.406Z",
+      "updatedAt": "2026-10-25T08:18:39.411Z"
+    },
+    {
+      "id": "04841668-b0a9-4c3b-a2d4-3635b8b9670f",
+      "type": "comments",
+      "name": "Коментарі вибраними акаунтами · Вручну · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "AdsPower 2541"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "2541"
+        ],
+        "postUrl": "https://www.facebook.com/61581860459304/posts/pfbid034i1zJNdGTaZuB3S1gKMFiEim2v34vq3sGvQms3cSWXLZ5yGb5Nb1w6deTLykdjYyl",
+        "manualMode": true,
+        "manualComments": "beauty",
+        "creativeGeo": "",
+        "creativeName": "",
+        "siteUrl": "",
+        "browserMode": "visible",
+        "disableImages": false,
+        "concurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "2541"
+        ],
+        "postUrl": "https://www.facebook.com/61581860459304/posts/pfbid034i1zJNdGTaZuB3S1gKMFiEim2v34vq3sGvQms3cSWXLZ5yGb5Nb1w6deTLykdjYyl",
+        "manualMode": true,
+        "reportId": "2069576f-39a6-43df-83da-f2cbf3cd95e4"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 0,
+        "skipped": 0,
+        "failedComments": 1,
+        "failedProfiles": 1,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "1",
+        "currentProfileNo": "2541",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-25_10-16-05-410.md",
+        "published": 0,
+        "skipped": 0,
+        "failedComments": 1,
+        "failedProfiles": 1,
+        "excludedProfiles": 0,
+        "fatalError": null,
+        "browserMode": "visible",
+        "disableImages": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:15:40.851Z",
+      "startedAt": "2026-10-25T08:15:40.857Z",
+      "finishedAt": "2026-10-25T08:16:05.414Z",
+      "updatedAt": "2026-10-25T08:16:05.422Z"
+    },
+    {
+      "id": "9204480c-f5a4-4bd2-9c53-007539a1b977",
+      "type": "comments",
+      "name": "Коментарі вибраними акаунтами · Вручну · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "AdsPower 2541"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "2541"
+        ],
+        "postUrl": "https://www.facebook.com/61581860459304/posts/pfbid034i1zJNdGTaZuB3S1gKMFiEim2v34vq3sGvQms3cSWXLZ5yGb5Nb1w6deTLykdjYyl",
+        "manualMode": true,
+        "manualComments": "such a girl here love it so much =)",
+        "creativeGeo": "",
+        "creativeName": "",
+        "siteUrl": "",
+        "browserMode": "visible",
+        "disableImages": false,
+        "concurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "2541"
+        ],
+        "postUrl": "https://www.facebook.com/61581860459304/posts/pfbid034i1zJNdGTaZuB3S1gKMFiEim2v34vq3sGvQms3cSWXLZ5yGb5Nb1w6deTLykdjYyl",
+        "manualMode": true,
+        "reportId": "5d90f681-23b0-4a19-9531-365e5df6d21d"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 0,
+        "skipped": 0,
+        "failedComments": 1,
+        "failedProfiles": 1,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "1",
+        "currentProfileNo": "2541",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-25_10-14-53-937.md",
+        "published": 0,
+        "skipped": 0,
+        "failedComments": 1,
+        "failedProfiles": 1,
+        "excludedProfiles": 0,
+        "fatalError": null,
+        "browserMode": "visible",
+        "disableImages": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:14:20.995Z",
+      "startedAt": "2026-10-25T08:14:21.002Z",
+      "finishedAt": "2026-10-25T08:14:53.943Z",
+      "updatedAt": "2026-10-25T08:14:53.949Z"
+    },
+    {
+      "id": "8f977a01-e9cb-4bb9-ac10-87657757774f",
+      "type": "autoupload-profile-action",
+      "name": "Публікація з датою · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "профіль №2541"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017o"
+        ],
+        "action": "publish-posts"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:publish-posts:k1ib017o",
+        "reportId": "a08a37a2-5442-4ac8-8388-979a46acc2ba"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017o",
+            "profileNo": "2541",
+            "success": true,
+            "outcome": "COMPLETED",
+            "code": null,
+            "message": "Фото-пости соціального профілю опубліковано та датовано",
+            "publishedCount": 1,
+            "backdatedCount": 1,
+            "requestedCount": 1,
+            "postResults": [
+              {
+                "sequence": 1,
+                "storyId": "UzpfSTYxNTk1MjkyMDM2MTExOjEyMjEwODkwNzgwNzUwOTczNA==",
+                "created": true,
+                "backdated": true,
+                "createStatus": "CREATED",
+                "backdateStatus": "BACKDATED"
+              }
+            ],
+            "httpStatus": null,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-publish-posts",
+            "fields": [],
+            "steps": [
+              "Фото-пости соціального профілю опубліковано та датовано"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:10:55.736Z",
+      "startedAt": "2026-10-25T08:10:55.742Z",
+      "finishedAt": "2026-10-25T08:11:04.403Z",
+      "updatedAt": "2026-10-25T08:11:04.410Z"
+    },
+    {
+      "id": "0668b55c-ad20-4f08-a2da-3a5702aa06e0",
+      "type": "autoupload-profile-action",
+      "name": "Очищення постів · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "профіль №2541"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017o"
+        ],
+        "action": "clear-posts"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:clear-posts:k1ib017o",
+        "reportId": "1bdf1e2d-b38c-440f-97b2-9f596af17b50"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017o",
+            "profileNo": "2541",
+            "success": true,
+            "outcome": "CLEARED",
+            "code": null,
+            "message": "Пости соціального профілю очищено",
+            "deletedCount": 1,
+            "hiddenCount": 2,
+            "failedCount": 0,
+            "remainingCount": 0,
+            "httpStatus": null,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-clear-posts",
+            "fields": [],
+            "steps": [
+              "Пости соціального профілю очищено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:10:02.015Z",
+      "startedAt": "2026-10-25T08:10:02.021Z",
+      "finishedAt": "2026-10-25T08:10:12.094Z",
+      "updatedAt": "2026-10-25T08:10:12.100Z"
+    },
+    {
+      "id": "82ca44b8-46f9-4f6a-9226-1abcb28d216d",
+      "type": "autoupload-profile-action",
+      "name": "Обкладинка · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "профіль №2541"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017o"
+        ],
+        "action": "cover"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:cover:k1ib017o",
+        "reportId": "572e5cc2-729d-4efc-a649-79d7e511477e"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017o",
+            "profileNo": "2541",
+            "success": true,
+            "outcome": "CHANGED",
+            "code": null,
+            "message": "Обкладинку соціального профілю змінено",
+            "httpStatus": 200,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-cover",
+            "fields": [],
+            "steps": [
+              "Обкладинку соціального профілю змінено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:09:35.335Z",
+      "startedAt": "2026-10-25T08:09:35.341Z",
+      "finishedAt": "2026-10-25T08:09:41.996Z",
+      "updatedAt": "2026-10-25T08:09:42.003Z"
+    },
+    {
+      "id": "27fb1116-2645-4a47-a180-149e9ccd04a8",
+      "type": "autoupload-profile-action",
+      "name": "Аватарка · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "профіль №2541"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017o"
+        ],
+        "action": "avatar"
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-profile:avatar:k1ib017o",
+        "reportId": "d5b6a635-7542-4bcb-9835-8f7485f8053e"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017o",
+            "profileNo": "2541",
+            "success": true,
+            "outcome": "CHANGED",
+            "code": null,
+            "message": "Аватарку соціального профілю змінено",
+            "httpStatus": 200,
+            "outcomeUnknown": false,
+            "actionRequired": null,
+            "retryable": false,
+            "operation": "profile-avatar",
+            "fields": [],
+            "steps": [
+              "Аватарку соціального профілю змінено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:09:08.518Z",
+      "startedAt": "2026-10-25T08:09:08.524Z",
+      "finishedAt": "2026-10-25T08:09:15.455Z",
+      "updatedAt": "2026-10-25T08:09:15.462Z"
+    },
+    {
+      "id": "5b879ccb-ba06-4e53-9056-cffcdc95684a",
+      "type": "autoupload-profile-name-change",
+      "name": "Зміна імені соціального профілю · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "профіль №2541"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017o"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-name:k1ib017o",
+        "reportId": "8251b197-7d99-48ba-ad43-0a0ce670da8a"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017o",
+            "profileNo": "2541",
+            "success": true,
+            "outcome": "NAME_CHANGED",
+            "message": "Ім’я соціального профілю змінено",
+            "httpStatus": 200,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "operation": "profile-name-change",
+            "fields": [],
+            "steps": [
+              "Ім’я соціального профілю змінено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:08:05.327Z",
+      "startedAt": "2026-10-25T08:08:05.333Z",
+      "finishedAt": "2026-10-25T08:08:11.725Z",
+      "updatedAt": "2026-10-25T08:08:11.732Z"
+    },
+    {
+      "id": "c2a6cd03-c6c7-4c32-9fae-b7e940ca1a2a",
+      "type": "autoupload-profile-name-change",
+      "name": "Зміна імені соціального профілю · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2544",
+          "label": "профіль №2544"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017r"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-name:k1ib017r",
+        "reportId": "16665bb8-6a15-4c29-bcfa-893dce6dedf4"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017r",
+            "profileNo": "2544",
+            "success": true,
+            "outcome": "NAME_CHANGED",
+            "message": "Ім’я соціального профілю змінено",
+            "httpStatus": 200,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "operation": "profile-name-change",
+            "fields": [],
+            "steps": [
+              "Ім’я соціального профілю змінено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:07:34.134Z",
+      "startedAt": "2026-10-25T08:07:34.141Z",
+      "finishedAt": "2026-10-25T08:07:39.526Z",
+      "updatedAt": "2026-10-25T08:07:39.533Z"
+    },
+    {
+      "id": "30d6d9d4-2856-441e-b2cd-754df27c3e12",
+      "type": "autoupload-profile-name-change",
+      "name": "Зміна імені соціального профілю · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2542",
+          "label": "профіль №2542"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017p"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-name:k1ib017p",
+        "reportId": "02f9f239-713d-41af-8875-3d7898932563"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017p",
+            "profileNo": "2542",
+            "success": true,
+            "outcome": "NAME_CHANGED",
+            "message": "Ім’я соціального профілю змінено",
+            "httpStatus": 200,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "operation": "profile-name-change",
+            "fields": [],
+            "steps": [
+              "Ім’я соціального профілю змінено"
+            ]
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:06:55.455Z",
+      "startedAt": "2026-10-25T08:06:55.461Z",
+      "finishedAt": "2026-10-25T08:07:01.147Z",
+      "updatedAt": "2026-10-25T08:07:01.154Z"
+    },
+    {
+      "id": "f580f99a-5517-4c7d-8c89-c6162d882ce3",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "профіль №2541"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017o"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1ib017o",
+        "reportId": "0cf42074-3b4d-45e3-86d9-dca81ba67f1c"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017o",
+            "profileNo": "2541",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook активний; частину даних Ads Manager або активів не оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Ads Manager: [REDACTED]072448:error:[REDACTED]00003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY:..\\..\\third_party\\boringssl\\src\\ssl\\tls_record.cc:489:SSL alert number 0\n"
+            ],
+            "assets": {
+              "adAccounts": [],
+              "pages": [],
+              "adAccountsState": "unavailable",
+              "pagesState": "unavailable"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": false,
+              "accessToken": false
+            },
+            "warnings": [
+              {
+                "status": "network_error",
+                "code": "PROXY_POOL_EXHAUSTED",
+                "networkCode": "ERR_SSL_SSLV3_ALERT_CLOSE_NOTIFY",
+                "httpStatus": null,
+                "graphCode": null,
+                "graphSubcode": null,
+                "message": "[REDACTED]072448:error:[REDACTED]00003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY:..\\..\\third_party\\boringssl\\src\\ssl\\tls_record.cc:489:SSL alert number 0\n",
+                "stage": "adsManager",
+                "endpoint": "https://adsmanager.facebook.com/adsmanager/manage/campaigns",
+                "method": "GET",
+                "durationMs": 1881,
+                "traceId": null,
+                "scope": "adsManager"
+              }
+            ],
+            "hasWarnings": true
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:05:07.903Z",
+      "startedAt": "2026-10-25T08:05:07.910Z",
+      "finishedAt": "2026-10-25T08:05:16.222Z",
+      "updatedAt": "2026-10-25T08:05:16.228Z"
+    },
+    {
+      "id": "ad0efc9a-1635-416b-bde3-4005292bc5e4",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 3",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2541",
+          "label": "профіль №2541"
+        },
+        {
+          "key": "adspower-profile:2542",
+          "label": "профіль №2542"
+        },
+        {
+          "key": "adspower-profile:2544",
+          "label": "профіль №2544"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1ib017o",
+          "k1ib017p",
+          "k1ib017r"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1ib017o,k1ib017p,k1ib017r",
+        "reportId": "dd9edf52-c75e-45c9-bb5a-d8ad6f477d76"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1ib017o",
+            "profileNo": "2541",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Facebook активний; частину даних Ads Manager або активів не оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Ads Manager: [REDACTED]072448:error:[REDACTED]00003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY:..\\..\\third_party\\boringssl\\src\\ssl\\tls_record.cc:489:SSL alert number 0\n"
+            ],
+            "assets": {
+              "adAccounts": [],
+              "pages": [],
+              "adAccountsState": "unavailable",
+              "pagesState": "unavailable"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": false,
+              "accessToken": false
+            },
+            "warnings": [
+              {
+                "status": "network_error",
+                "code": "PROXY_POOL_EXHAUSTED",
+                "networkCode": "ERR_SSL_SSLV3_ALERT_CLOSE_NOTIFY",
+                "httpStatus": null,
+                "graphCode": null,
+                "graphSubcode": null,
+                "message": "[REDACTED]072448:error:[REDACTED]00003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY:..\\..\\third_party\\boringssl\\src\\ssl\\tls_record.cc:489:SSL alert number 0\n",
+                "stage": "adsManager",
+                "endpoint": "https://adsmanager.facebook.com/adsmanager/manage/campaigns",
+                "method": "GET",
+                "durationMs": 2177,
+                "traceId": null,
+                "scope": "adsManager"
+              }
+            ],
+            "hasWarnings": true
+          },
+          {
+            "profileId": "k1ib017p",
+            "profileNo": "2542",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1615183412963080",
+                  "accountId": "1615183412963080",
+                  "name": "Natalia Ungulova",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          },
+          {
+            "profileId": "k1ib017r",
+            "profileNo": "2544",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_4363110470619727",
+                  "accountId": "4363110470619727",
+                  "name": "Kristina Bogdanova",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-25T08:04:19.646Z",
+      "startedAt": "2026-10-25T08:04:19.653Z",
+      "finishedAt": "2026-10-25T08:04:49.255Z",
+      "updatedAt": "2026-10-25T08:04:49.262Z"
+    },
+    {
       "id": "c09747c5-f710-40b9-a609-69e5b91f8d15",
       "type": "comments",
       "name": "Коментарі вибраними акаунтами · Вручну · 1",

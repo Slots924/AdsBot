@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "id": "2069576f-39a6-43df-83da-f2cbf3cd95e4",
+  "taskId": "04841668-b0a9-4c3b-a2d4-3635b8b9670f",
+  "type": "comments",
+  "title": "Коментарі вибраними акаунтами · Вручну · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-25T08:16:05.419Z",
+  "startedAt": "2026-10-25T08:15:40.857Z",
+  "finishedAt": "2026-10-25T08:16:05.414Z",
+  "durationMs": 24557,
+  "inputSummary": {
+    "groupIds": [],
+    "profileNos": [
+      "2541"
+    ],
+    "geo": "MANUAL",
+    "creativeName": "Ручні коментарі",
+    "postUrl": "https://www.facebook.com/61581860459304/posts/pfbid034i1zJNdGTaZuB3S1gKMFiEim2v34vq3sGvQms3cSWXLZ5yGb5Nb1w6deTLykdjYyl",
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "published": [],
+    "skipped": [],
+    "failedComments": [
+      {
+        "commentId": "1",
+        "actionType": "comment",
+        "reason": "Усі спроби завершилися помилкою: Не вдалося відкрити потрібний Facebook-допис: WRONG_POST_OPENED",
+        "attempts": 1,
+        "text": "beauty"
+      }
+    ],
+    "failedProfiles": [
+      {
+        "profileNo": "2541",
+        "commentId": "1",
+        "stage": "OPEN_POST_VIA_AUTHOR_PAGE",
+        "error": "Не вдалося відкрити потрібний Facebook-допис: WRONG_POST_OPENED"
+      }
+    ],
+    "excludedProfiles": [],
+    "uncertain": []
+  },
+  "counters": {
+    "published": 0,
+    "skipped": 0,
+    "failedComments": 1,
+    "failedProfiles": 1,
+    "excludedProfiles": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-25_10-16-05-410.md",
+      "kind": "markdown"
+    }
+  ],
+  "metadata": {
+    "profileNos": [
+      "2541"
+    ],
+    "postUrl": "https://www.facebook.com/61581860459304/posts/pfbid034i1zJNdGTaZuB3S1gKMFiEim2v34vq3sGvQms3cSWXLZ5yGb5Nb1w6deTLykdjYyl",
+    "manualMode": true
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "id": "5d90f681-23b0-4a19-9531-365e5df6d21d",
+  "taskId": "9204480c-f5a4-4bd2-9c53-007539a1b977",
+  "type": "comments",
+  "title": "Коментарі вибраними акаунтами · Вручну · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-25T08:14:53.948Z",
+  "startedAt": "2026-10-25T08:14:21.002Z",
+  "finishedAt": "2026-10-25T08:14:53.943Z",
+  "durationMs": 32941,
+  "inputSummary": {
+    "groupIds": [],
+    "profileNos": [
+      "2541"
+    ],
+    "geo": "MANUAL",
+    "creativeName": "Ручні коментарі",
+    "postUrl": "https://www.facebook.com/61581860459304/posts/pfbid034i1zJNdGTaZuB3S1gKMFiEim2v34vq3sGvQms3cSWXLZ5yGb5Nb1w6deTLykdjYyl",
+    "browserMode": "visible",
+    "disableImages": false
+  },
+  "resultSummary": {
+    "published": [],
+    "skipped": [],
+    "failedComments": [
+      {
+        "commentId": "1",
+        "actionType": "comment",
+        "reason": "Усі спроби завершилися помилкою: Не вдалося відкрити потрібний Facebook-допис: WRONG_POST_OPENED",
+        "attempts": 1,
+        "text": "such a girl here love it so much =)"
+      }
+    ],
+    "failedProfiles": [
+      {
+        "profileNo": "2541",
+        "commentId": "1",
+        "stage": "OPEN_POST_VIA_AUTHOR_PAGE",
+        "error": "Не вдалося відкрити потрібний Facebook-допис: WRONG_POST_OPENED"
+      }
+    ],
+    "excludedProfiles": [],
+    "uncertain": []
+  },
+  "counters": {
+    "published": 0,
+    "skipped": 0,
+    "failedComments": 1,
+    "failedProfiles": 1,
+    "excludedProfiles": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-25_10-14-53-937.md",
+      "kind": "markdown"
+    }
+  ],
+  "metadata": {
+    "profileNos": [
+      "2541"
+    ],
+    "postUrl": "https://www.facebook.com/61581860459304/posts/pfbid034i1zJNdGTaZuB3S1gKMFiEim2v34vq3sGvQms3cSWXLZ5yGb5Nb1w6deTLykdjYyl",
+    "manualMode": true
+  }
+}

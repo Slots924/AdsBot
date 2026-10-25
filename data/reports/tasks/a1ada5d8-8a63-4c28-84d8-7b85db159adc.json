@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "id": "a1ada5d8-8a63-4c28-84d8-7b85db159adc",
+  "taskId": "3ceadc06-8fe2-4427-a144-3ad8efb04b76",
+  "type": "autoupload-profile-action",
+  "title": "Обкладинка · 1",
+  "status": "completed",
+  "createdAt": "2026-10-25T09:03:11.734Z",
+  "startedAt": "2026-10-25T09:03:05.572Z",
+  "finishedAt": "2026-10-25T09:03:11.729Z",
+  "durationMs": 6157,
+  "inputSummary": {
+    "profileIds": [
+      "k1ib017p"
+    ],
+    "action": "cover"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1ib017p",
+        "profileNo": "2542",
+        "success": true,
+        "outcome": "CHANGED",
+        "code": null,
+        "message": "Обкладинку соціального профілю змінено",
+        "httpStatus": 200,
+        "outcomeUnknown": false,
+        "actionRequired": null,
+        "retryable": false,
+        "operation": "profile-cover",
+        "fields": [],
+        "steps": [
+          "Обкладинку соціального профілю змінено"
+        ]
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-profile:cover:k1ib017p"
+  }
+}

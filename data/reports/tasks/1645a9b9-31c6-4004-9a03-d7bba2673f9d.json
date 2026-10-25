@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "id": "1645a9b9-31c6-4004-9a03-d7bba2673f9d",
+  "taskId": "ffde05de-794f-4fe9-87b3-520c8b72e006",
+  "type": "autoupload-profile-action",
+  "title": "Очищення постів · 1",
+  "status": "completed",
+  "createdAt": "2026-10-25T09:03:42.493Z",
+  "startedAt": "2026-10-25T09:03:34.180Z",
+  "finishedAt": "2026-10-25T09:03:42.488Z",
+  "durationMs": 8308,
+  "inputSummary": {
+    "profileIds": [
+      "k1ib017p"
+    ],
+    "action": "clear-posts"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1ib017p",
+        "profileNo": "2542",
+        "success": true,
+        "outcome": "CLEARED",
+        "code": null,
+        "message": "Пости соціального профілю очищено",
+        "deletedCount": 1,
+        "hiddenCount": 2,
+        "failedCount": 0,
+        "remainingCount": 0,
+        "httpStatus": null,
+        "outcomeUnknown": false,
+        "actionRequired": null,
+        "retryable": false,
+        "operation": "profile-clear-posts",
+        "fields": [],
+        "steps": [
+          "Пости соціального профілю очищено"
+        ]
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-profile:clear-posts:k1ib017p"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "id": "308dc1c5-c8e1-4c65-83b7-151068be597e",
+  "taskId": "cb670f31-6fb2-4777-80c3-d21558a732e4",
+  "type": "autoupload-profile-action",
+  "title": "Публікація з датою · 1",
+  "status": "completed",
+  "createdAt": "2026-10-25T09:11:06.312Z",
+  "startedAt": "2026-10-25T09:10:58.845Z",
+  "finishedAt": "2026-10-25T09:11:06.307Z",
+  "durationMs": 7462,
+  "inputSummary": {
+    "profileIds": [
+      "k1ib017r"
+    ],
+    "action": "publish-posts"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1ib017r",
+        "profileNo": "2544",
+        "success": true,
+        "outcome": "COMPLETED",
+        "code": null,
+        "message": "Фото-пости соціального профілю опубліковано та датовано",
+        "publishedCount": 1,
+        "backdatedCount": 1,
+        "requestedCount": 1,
+        "postResults": [
+          {
+            "sequence": 1,
+            "storyId": "UzpfSTYxNTk1NTE4NDA3MTY1OjEyMjEwMzY0MTQ0NTUxNzI4MA==",
+            "created": true,
+            "backdated": true,
+            "createStatus": "CREATED",
+            "backdateStatus": "BACKDATED"
+          }
+        ],
+        "httpStatus": null,
+        "outcomeUnknown": false,
+        "actionRequired": null,
+        "retryable": false,
+        "operation": "profile-publish-posts",
+        "fields": [],
+        "steps": [
+          "Фото-пости соціального профілю опубліковано та датовано"
+        ]
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-profile:publish-posts:k1ib017r"
+  }
+}

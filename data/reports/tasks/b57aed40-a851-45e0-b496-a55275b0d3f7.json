@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "id": "b57aed40-a851-45e0-b496-a55275b0d3f7",
+  "taskId": "c0a66d48-c3f6-4ac2-856e-b7267365a53e",
+  "type": "autoupload-profile-action",
+  "title": "Аватарка · 1",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-25T09:01:55.474Z",
+  "startedAt": "2026-10-25T09:01:55.444Z",
+  "finishedAt": "2026-10-25T09:01:55.469Z",
+  "durationMs": 25,
+  "inputSummary": {
+    "profileIds": [
+      "k1ib017p"
+    ],
+    "action": "avatar"
+  },
+  "resultSummary": {
+    "profiles": [
+      {
+        "profileId": "k1ib017p",
+        "profileNo": "2542",
+        "success": false,
+        "outcome": "NOT_SENT",
+        "message": "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна",
+        "code": "FACEBOOK_SESSION_PREPARATION_FAILED",
+        "retryable": false,
+        "outcomeUnknown": false,
+        "operation": "profile-avatar",
+        "fields": [],
+        "steps": [
+          "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна"
+        ]
+      }
+    ]
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "uniqueKey": "autoupload-profile:avatar:k1ib017p"
+  }
+}

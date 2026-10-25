@@ -1,6 +1,6 @@
 # Facebook browser API: runtime замість перехоплених запитів
 
-API-екшини приймають Puppeteer `page` і параметри бізнес-операції. Workflow не передає `commonPayload`, CSRF-параметри чи access token. Підтримки старого контракту та fallback на перехоплення немає.
+Усі браузерні API-екшени приймають Puppeteer `page` і параметри бізнес-операції та отримують актуальні службові параметри й токени з runtime сторінки. Workflow не передає `generalPayload` / `commonPayload`, CSRF-параметри чи access token. Перехоплення запитів для отримання службових параметрів не використовується.
 
 ```js
 await changeProfilePicture({ page, imagePath });
