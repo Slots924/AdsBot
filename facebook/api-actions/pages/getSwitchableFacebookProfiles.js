@@ -1,4 +1,5 @@
 import { readFacebookRuntime } from "../../api/runtime.js";
+import { getHttpActionTransport, isFacebookApiContext } from "../../api/actionTransport.js";
 import {
     createResult,
     hasGraphqlErrors,
@@ -35,9 +36,9 @@ export default async function getSwitchableFacebookProfiles({
     const missingField = requiredFields.find((field) => (
         runtimeContext?.[field] === undefined || runtimeContext[field] === null
     ));
-    if (!page || typeof page.evaluate !== "function" || !runtimeContext || missingField) {
+    if (!isFacebookApiContext(page) || !runtimeContext || runtimeContext.runtimeError || missingField) {
         return createResult(false, getSwitchableFacebookProfilesStatuses.INVALID_INPUT, null, {
-            error: !page || typeof page.evaluate !== "function"
+            error: !isFacebookApiContext(page)
                 ? "Не передано Puppeteer page"
                 : (missingField
                     ? `У runtimeContext відсутнє поле ${missingField}`
@@ -46,7 +47,7 @@ export default async function getSwitchableFacebookProfiles({
     }
 
     try {
-        const scale = await page.evaluate(() => window.devicePixelRatio || 1);
+        const scale = getHttpActionTransport(page) ? 1 : await page.evaluate(() => window.devicePixelRatio || 1);
         const body = new URLSearchParams({
             av: String(runtimeContext.av),
             __user: String(runtimeContext.__user),
@@ -120,6 +121,11 @@ export default async function getSwitchableFacebookProfiles({
         }).filter(Boolean);
         return createResult(true, getSwitchableFacebookProfilesStatuses.PROFILES_FETCHED, profiles, {
             actorId: actor?.id == null ? null : String(actor.id),
+            currentActor: actor?.id == null ? null : {
+                id: String(actor.id),
+                name: actor.name == null ? null : String(actor.name),
+                photoUrl: actor.profile_picture?.uri ?? null,
+            },
             count: profiles.length,
             httpStatus: response.statusCode,
         });

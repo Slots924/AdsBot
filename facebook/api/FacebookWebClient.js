@@ -3,6 +3,7 @@ import { CookieJar } from "tough-cookie";
 import FacebookGraphApi from "./FacebookGraphApi.js";
 import ProxyHttpClient from "../../services/proxy/ProxyHttpClient.js";
 import parseWebSession from "../session/parseWebSession.js";
+import getFacebookAccountId from "../session/getFacebookAccountId.js";
 import { actionError } from "../autoupload/graphql/errors.js";
 import describeHttpError from "../../services/logging/httpDiagnostics.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
@@ -31,7 +32,7 @@ export default class FacebookWebClient {
         this.#http = httpClient ?? new ProxyHttpClient({ proxies: [proxy] });
         this.#jar = cookieJar ? CookieJar.deserializeSync(cookieJar) : createFacebookCookieJar(cookies);
         const initial = this.#jar.getCookiesSync(homeUrl);
-        this.#expectedId = initial.find((cookie) => cookie.key === "c_user")?.value;
+        this.#expectedId = getFacebookAccountId(initial);
         if (!/^\d+$/.test(this.#expectedId ?? "") || !initial.some((cookie) => cookie.key === "xs" && cookie.value)) {
             throw failure("У збережених cookies немає чинних c_user та xs. Потрібна авторизація у профілі", "login_required");
         }
@@ -182,6 +183,29 @@ export default class FacebookWebClient {
         if (/\/(login|recover)(\/|\.|$)/i.test(url.pathname) || /id=["']login_form["']/.test(html)) {
             throw failure("Facebook потребує повторної авторизації", "login_required");
         }
+    }
+
+    // Читає контекст для запитів списку, не змінюючи перевірену сесію соціального профілю.
+    async readActorContext({ signal } = {}) {
+        const response = await this.request({ signal, mutation: false });
+        const { session, missing } = parseWebSession(response.data);
+        const source = String(response.data).replace(/&quot;/g, '"');
+        const accountId = source.match(/"ACCOUNT_ID"\s*:\s*"(\d+)"/)?.[1];
+        const cookieAccountId = getFacebookAccountId(this.#jar.getCookiesSync(homeUrl));
+        if (accountId !== this.#expectedId || cookieAccountId !== this.#expectedId) {
+            throw actionError("Контекст Facebook не відповідає власнику cookies", "FACEBOOK_SESSION_MISMATCH");
+        }
+        if (missing.length || !session.lsd) {
+            throw actionError("Не вдалося прочитати актуальний контекст Facebook", "FACEBOOK_SESSION_FIELDS_MISSING");
+        }
+        return {
+            accountId,
+            actorId: session.FacebookID,
+            runtime: {
+                av: session.FacebookID, __user: session.FacebookID, __a: "1",
+                fb_dtsg: session.fb_dtsg, lsd: session.lsd, jazoest: session.jazoest,
+            },
+        };
     }
 
     checkSession({ signal } = {}) {
