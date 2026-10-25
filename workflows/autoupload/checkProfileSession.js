@@ -35,7 +35,8 @@ export default async function checkProfileSession({ profileId, adsPower, signal,
         const client = createClient({ cookies, userAgent, proxy, onSessionStatus });
         const result = await client.checkSession({ signal });
         await note(result.message);
-        return { client, result: { status: "active", stage, message: result.message, fields: result.fields, steps } };
+        return { client, result: { status: "active", stage, message: result.message,
+            accountId: result.accountId, actorId: result.actorId, fields: result.fields, steps } };
     } catch (error) {
         if (signal?.aborted) throw error;
         const messages = {

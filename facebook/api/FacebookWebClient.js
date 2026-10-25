@@ -40,7 +40,9 @@ export default class FacebookWebClient {
 
     static restore(snapshot, options = {}) {
         const client = new FacebookWebClient({ ...snapshot, ...options });
-        if (!snapshot.session || String(snapshot.session.FacebookID) !== client.#expectedId || !Number.isFinite(Date.parse(snapshot.checkedAt))) {
+        const savedAccountId = snapshot.session?.accountId ?? snapshot.session?.FacebookID;
+        if (!snapshot.session || String(savedAccountId) !== client.#expectedId
+            || !/^[1-9]\d*$/.test(String(snapshot.session.FacebookID ?? "")) || !Number.isFinite(Date.parse(snapshot.checkedAt))) {
             throw actionError("Збережена сесія не відповідає профілю. Запустіть нову перевірку", "FACEBOOK_SESSION_MISMATCH");
         }
         client.#session = Object.freeze({ ...snapshot.session });
@@ -99,14 +101,18 @@ export default class FacebookWebClient {
 
     getFbData(profileId) {
         if (!this.#session) throw actionError("Спочатку перевірте сесію Facebook", "FACEBOOK_SESSION_REQUIRED");
-        return Object.freeze({ profileId, userId: this.#expectedId, session: this.#session, client: this });
+        return Object.freeze({ profileId, userId: this.#expectedId, accountId: this.#expectedId,
+            actorId: this.#session.FacebookID, session: this.#session, client: this });
     }
 
-    validateFbData(fbData) {
+    validateFbData(fbData, { allowPageActor = false } = {}) {
         if (fbData?.client !== this || fbData.session !== this.#session || String(fbData.userId) !== this.#expectedId) {
             throw actionError("Сесія була оновлена або належить іншому профілю", "FACEBOOK_SESSION_MISMATCH", { actionRequired: "refresh_session" });
         }
         if (Date.now() - this.#sessionCheckedAt > 15 * 60_000) throw actionError("Підготуйте актуальну сесію Facebook", "FACEBOOK_SESSION_EXPIRED", { actionRequired: "refresh_session" });
+        if (!allowPageActor && String(this.#session.FacebookID) !== this.#expectedId) {
+            throw actionError("Ця дія потребує контексту соца; у сесії активна фанка", "FACEBOOK_SOCIAL_CONTEXT_REQUIRED");
+        }
     }
 
     async request({ url = homeUrl, method = "get", data, signal, headers = {}, mutation = !["get", "head"].includes(String(method).toLowerCase()), allowHttpErrors = false, asFetch = false }) {
@@ -185,17 +191,31 @@ export default class FacebookWebClient {
         }
     }
 
+    // Власник сесії та поточний actor можуть відрізнятися, коли вибрана фанка.
+    #readSessionIdentity(response, { requireAccount = false } = {}) {
+        const { session, missing } = parseWebSession(response.data);
+        if (missing.length) throw failure(`Не отримано поля сесії: ${missing.join(", ")}`);
+        const source = String(response.data).replace(/&quot;/g, '"');
+        const accountId = source.match(/"ACCOUNT_ID"\s*:\s*"(\d+)"/)?.[1];
+        const currentCookies = this.#jar.getCookiesSync(homeUrl);
+        if (getFacebookAccountId(currentCookies) !== this.#expectedId) {
+            throw failure("Cookies відповіді належать іншому акаунту");
+        }
+        if (!currentCookies.some(cookie => cookie.key === "xs" && cookie.value)) {
+            throw failure("Facebook скинув сесію. Потрібна повторна авторизація", "login_required");
+        }
+        if ((accountId && accountId !== this.#expectedId)
+            || ((requireAccount || session.FacebookID !== this.#expectedId) && accountId !== this.#expectedId)) {
+            throw actionError("Контекст Facebook не відповідає власнику cookies", "FACEBOOK_SESSION_MISMATCH", { sessionStatus: "error" });
+        }
+        return { session, accountId: accountId ?? this.#expectedId };
+    }
+
     // Читає контекст для запитів списку, не змінюючи перевірену сесію соціального профілю.
     async readActorContext({ signal } = {}) {
         const response = await this.request({ signal, mutation: false });
-        const { session, missing } = parseWebSession(response.data);
-        const source = String(response.data).replace(/&quot;/g, '"');
-        const accountId = source.match(/"ACCOUNT_ID"\s*:\s*"(\d+)"/)?.[1];
-        const cookieAccountId = getFacebookAccountId(this.#jar.getCookiesSync(homeUrl));
-        if (accountId !== this.#expectedId || cookieAccountId !== this.#expectedId) {
-            throw actionError("Контекст Facebook не відповідає власнику cookies", "FACEBOOK_SESSION_MISMATCH");
-        }
-        if (missing.length || !session.lsd) {
+        const { session, accountId } = this.#readSessionIdentity(response, { requireAccount: true });
+        if (!session.lsd) {
             throw actionError("Не вдалося прочитати актуальний контекст Facebook", "FACEBOOK_SESSION_FIELDS_MISSING");
         }
         return {
@@ -211,23 +231,16 @@ export default class FacebookWebClient {
     checkSession({ signal } = {}) {
         return this.run(async () => {
             this.#session = null;
-            let response;
-            try { response = await this.request({ signal }); }
-            catch (error) {
-                if (signal?.aborted) throw signal.reason ?? error;
-                if (error.sessionStatus) throw error;
-                throw error;
-            }
-            const { session, missing } = parseWebSession(response.data);
-            if (missing.length) throw failure(`Не отримано поля сесії: ${missing.join(", ")}`);
-            if (session.FacebookID !== this.#expectedId) throw failure("Facebook повернув інший акаунт; перевірте активний профіль");
-            const currentCookies = this.#jar.getCookiesSync(homeUrl);
-            const currentId = currentCookies.find((cookie) => cookie.key === "c_user")?.value;
-            if (currentId !== this.#expectedId) throw failure("Cookies відповіді належать іншому акаунту");
-            if (!currentCookies.some((cookie) => cookie.key === "xs" && cookie.value)) throw failure("Facebook скинув сесію. Потрібна повторна авторизація", "login_required");
-            this.#session = Object.freeze(session);
+            this.#adsManager = null;
+            this.#sessionCheckedAt = 0;
+            const response = await this.request({ signal });
+            const { session, accountId } = this.#readSessionIdentity(response);
+            // Зберігає фактичного actor і власника сесії без перемикання контексту.
+            this.#session = Object.freeze({ ...session, accountId });
             this.#sessionCheckedAt = Date.now();
-            return { fields: Object.keys(session).filter((key) => session[key]), message: "Facebook відповів. Дані сесії отримано, акаунт підтверджено" };
+            return { accountId, actorId: session.FacebookID,
+                fields: Object.keys(this.#session).filter((key) => this.#session[key]),
+                message: "Facebook відповів. Дані сесії отримано, акаунт підтверджено" };
         });
     }
 }

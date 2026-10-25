@@ -39,7 +39,7 @@ export default class AutouploadService {
                     if (!saved) throw new Error();
                     client = FacebookWebClient.restore(saved, { onSessionStatus });
                 }
-                client.validateFbData(client.getFbData(profileId));
+                client.validateFbData(client.getFbData(profileId), { allowPageActor: true });
                 return { client, result: { status: "active", message: "Використано збережену сесію Facebook", fields: [], steps: ["Сесію прочитано з локального сховища"] } };
             } catch {
                 return { client: null, result: { status: "error", message: "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна", fields: [], steps: ["Потрібна нова перевірка профілю"] } };

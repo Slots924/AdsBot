@@ -94,5 +94,6 @@ test("скасування не надсилає запитів, читання 
     assert.equal(value.calls.length, 0);
     const page = fixture({ actorId: "456" });
     assert.equal((await getFanPages(page.client)).success, true);
-    await assert.rejects(() => page.client.checkSession(), /інший акаунт/);
+    await page.client.checkSession();
+    assert.equal(page.client.getFbData("p1").actorId, "456");
 });

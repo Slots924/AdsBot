@@ -9,12 +9,86 @@ import AutouploadStore from "../services/autoupload/AutouploadStore.js";
 import AutouploadService from "../services/autoupload/AutouploadService.js";
 import FacebookWebClient from "../facebook/api/FacebookWebClient.js";
 import refreshProfileSession from "../workflows/autoupload/refreshProfileSession.js";
+import getAdsManagerSession from "../facebook/autoupload/actions/getAdsManagerSession.js";
+import HttpActionContext from "../facebook/autoupload/HttpActionContext.js";
+import buildForm from "../facebook/autoupload/graphql/buildForm.js";
+import sendFriendRequest from "../facebook/autoupload/actions/friends/sendFriendRequest.js";
 import { extractFacebookAccessTokenFromHtml } from "../facebook/api/browserCredentials.js";
 
 const fakeToken = `EAAB${"x".repeat(50)}`;
 const html = 'DTSGInitialData",[],{"token":"fake-dtsg"} LSD",[],{"token":"fake-lsd"} <input name="jazoest" value="2123"> {"sessionId":"fake-session","actorID":"123","client_revision":456}';
 const cookies = ["c_user", "xs"].map((name) => ({ name, value: name === "c_user" ? "123" : "fake-xs", domain: ".facebook.com", path: "/", session: true, secure: true }));
 const proxy = { id: "test", type: "http", host: "127.0.0.1", port: "1234" };
+
+function pageSessionFixture({ owner = "123" } = {}) {
+    const originalCookies = [...cookies, { name: "i_user", value: "789", domain: ".facebook.com", path: "/", session: true, secure: true }];
+    const calls = [];
+    const socialHtml = `${html} {"ACCOUNT_ID":"123","__spin_r":456,"__spin_b":"trunk","__spin_t":789,"comet_env":15}`;
+    const client = new FacebookWebClient({ cookies: originalCookies, userAgent: "Test-UA", proxy, httpClient: { request: async config => {
+        calls.push(config);
+        const onPage = /(?:^|;\s*)i_user=789(?:;|$)/.test(config.headers.Cookie);
+        const data = onPage
+            ? `${socialHtml.replace('"actorID":"123"', '"actorID":"789"').replace('"ACCOUNT_ID":"123"', `"ACCOUNT_ID":"${owner}"`).replaceAll("fake-dtsg", "page-dtsg")}`
+            : config.url.includes("adsmanager.") ? `${socialHtml}<script>{"accessToken":"${fakeToken}"}</script>` : socialHtml;
+        return { status: 200, headers: {}, data };
+    } } });
+    return { client, calls, originalCookies };
+}
+
+test("checkSession зберігає actor фанки й токени без видалення i_user та додаткового GET", async t => {
+    const { client, calls, originalCookies } = pageSessionFixture();
+    const result = await client.checkSession();
+    assert.equal(result.accountId, "123");
+    assert.equal(result.actorId, "789");
+    const fbData = client.getFbData("p1");
+    assert.equal(fbData.userId, "123");
+    assert.equal(fbData.accountId, "123");
+    assert.equal(fbData.actorId, "789");
+    assert.equal(fbData.session.FacebookID, "789");
+    assert.equal(fbData.session.fb_dtsg, "page-dtsg");
+    assert.equal(calls.length, 1);
+    assert.ok(calls.every(config => config.method === "get"));
+    assert.equal(originalCookies.find(cookie => cookie.name === "i_user").value, "789");
+    assert.equal(client.exportSession().cookieJar.cookies.find(cookie => cookie.key === "i_user").value, "789");
+    const { sessionStore } = await fixture(t);
+    await sessionStore.save("p1", client.exportSession());
+    const restored = FacebookWebClient.restore(await sessionStore.load("p1"));
+    assert.equal(restored.getFbData("p1").session.FacebookID, "789");
+    restored.validateFbData(restored.getFbData("p1"), { allowPageActor: true });
+    assert.throws(() => restored.validateFbData(restored.getFbData("p1")), error => error.code === "FACEBOOK_SOCIAL_CONTEXT_REQUIRED");
+});
+
+test("чужий ACCOUNT_ID відхиляється без зміни контексту", async () => {
+    const { client, calls } = pageSessionFixture({ owner: "999" });
+    await assert.rejects(client.checkSession(), error => error.code === "FACEBOOK_SESSION_MISMATCH");
+    assert.equal(calls.length, 1);
+    assert.throws(() => client.getFbData("p1"));
+});
+
+test("соціальні дії відхиляють контекст фанки до запитів операцій", async () => {
+    const { client, calls } = pageSessionFixture();
+    await client.checkSession();
+    const fbData = client.getFbData("p1");
+    assert.throws(() => buildForm(fbData, { friendlyName: "TestQuery", docId: "1", variables: {} }));
+    await assert.rejects(new HttpActionContext(fbData).readRuntime(), error => error.code === "FACEBOOK_SOCIAL_CONTEXT_REQUIRED");
+    assert.equal((await sendFriendRequest(fbData, "456")).code, "FACEBOOK_SOCIAL_CONTEXT_REQUIRED");
+    await assert.rejects(getAdsManagerSession(fbData), error => error.code === "FACEBOOK_SOCIAL_CONTEXT_REQUIRED");
+    assert.equal(calls.length, 1);
+});
+
+test("сервіс відновлює кешовану сесію фанки та повертає помилку контексту без повторної перевірки", async t => {
+    const { store, sessionStore } = await fixture(t);
+    const { client } = pageSessionFixture();
+    await client.checkSession();
+    await store.add([{ profileId: "p1", profileNo: "1", name: "Test" }], "new");
+    await sessionStore.save("p1", client.exportSession());
+    const service = new AutouploadService({ store, sessionStore, checkSession: async () => {
+        throw new Error("Повторна перевірка не потрібна");
+    } });
+    const result = await service.sendFriendRequests(["p1"], "456");
+    assert.equal(result.result.profiles[0].code, "FACEBOOK_SOCIAL_CONTEXT_REQUIRED");
+    assert.equal((await sessionStore.load("p1")).session.FacebookID, "789");
+});
 async function fixture(t) {
     const directory = await mkdtemp(path.join(os.tmpdir(), "adsbot-sessions-"));
     t.after(async () => {
