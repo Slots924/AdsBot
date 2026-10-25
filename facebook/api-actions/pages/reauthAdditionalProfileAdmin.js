@@ -1,4 +1,5 @@
 import { readFacebookRuntime } from "../../api/runtime.js";
+import { adminPermissionsQuery, adminReauthMutation } from "../../api/pages/adminAccessOperations.js";
 import {
     createResult,
     hasGraphqlErrors,
@@ -8,10 +9,6 @@ import {
 } from "../../api/browserRequest.js";
 
 
-const reauthFriendlyName = "ProfilePlusMarkReauthedMutation";
-const reauthDocId = "24066063156313418";
-const encryptionQueryFriendlyName = "CometProfilePlusAdminPermissionsRootQuery";
-const encryptionQueryDocId = "28986292094287748";
 
 
 export const reauthAdditionalProfileAdminStatuses = Object.freeze({
@@ -37,14 +34,14 @@ async function submitReauthInPage(page, {
     timeout,
 }) {
     return page.evaluate(
-        async ({ payload, profileId, plaintextPassword, timeoutMs }) => {
+        async ({ payload, profileId, plaintextPassword, timeoutMs, operations }) => {
             const getEncryptionKeys = async () => {
                 const response = await fetch("/api/graphql/", {
                     method: "POST",
                     credentials: "include",
                     headers: {
                         "content-type": "application/x-www-form-urlencoded",
-                        "x-fb-friendly-name": "CometProfilePlusAdminPermissionsRootQuery",
+                        "x-fb-friendly-name": operations.query.friendlyName,
                         "x-fb-lsd": String(payload.lsd),
                     },
                     body: new URLSearchParams({
@@ -56,9 +53,9 @@ async function submitReauthInPage(page, {
                         lsd: String(payload.lsd),
                         __comet_req: String(payload.__comet_req),
                         fb_api_caller_class: "RelayModern",
-                        fb_api_req_friendly_name: "CometProfilePlusAdminPermissionsRootQuery",
+                        fb_api_req_friendly_name: operations.query.friendlyName,
                         server_timestamps: "true",
-                        doc_id: "28986292094287748",
+                        doc_id: operations.query.docId,
                         variables: JSON.stringify({
                             scale: window.devicePixelRatio || 1,
                         }),
@@ -124,9 +121,9 @@ async function submitReauthInPage(page, {
                     lsd: String(payload.lsd),
                     __comet_req: String(payload.__comet_req),
                     fb_api_caller_class: "RelayModern",
-                    fb_api_req_friendly_name: "ProfilePlusMarkReauthedMutation",
+                    fb_api_req_friendly_name: operations.reauth.friendlyName,
                     server_timestamps: "true",
-                    doc_id: "24066063156313418",
+                    doc_id: operations.reauth.docId,
                     variables: JSON.stringify({
                         input: {
                             password: { sensitive_string_value: encryptedPassword },
@@ -144,7 +141,7 @@ async function submitReauthInPage(page, {
                     credentials: "include",
                     headers: {
                         "content-type": "application/x-www-form-urlencoded",
-                        "x-fb-friendly-name": "ProfilePlusMarkReauthedMutation",
+                        "x-fb-friendly-name": operations.reauth.friendlyName,
                         "x-fb-lsd": String(payload.lsd),
                     },
                     body: parameters.toString(),
@@ -168,6 +165,7 @@ async function submitReauthInPage(page, {
             profileId: additionalProfileId,
             plaintextPassword: password,
             timeoutMs: timeout,
+            operations: { query: adminPermissionsQuery, reauth: adminReauthMutation },
         }
     );
 }

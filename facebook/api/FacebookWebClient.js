@@ -4,6 +4,7 @@ import FacebookGraphApi from "./FacebookGraphApi.js";
 import ProxyHttpClient from "../../services/proxy/ProxyHttpClient.js";
 import parseWebSession from "../session/parseWebSession.js";
 import getFacebookAccountId from "../session/getFacebookAccountId.js";
+import parseScriptUrls, { isFacebookScriptUrl } from "../session/parseScriptUrls.js";
 import { actionError } from "../autoupload/graphql/errors.js";
 import describeHttpError from "../../services/logging/httpDiagnostics.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
@@ -91,6 +92,13 @@ export default class FacebookWebClient {
 
     // JSON-відповіді API також можуть повідомляти про втрату авторизації.
     async invalidateSession(error) { await this.#handleSessionStatus(error); }
+
+    // Після початку перемикання старі токени не можна використовувати до підтвердження нового actor.
+    invalidateActorContext() {
+        this.#session = null;
+        this.#adsManager = null;
+        this.#sessionCheckedAt = 0;
+    }
 
     // Серіалізує дії одного клієнта, щоб вони не змінювали сесію одночасно.
     run(action) {
@@ -212,27 +220,51 @@ export default class FacebookWebClient {
     }
 
     // Читає контекст для запитів списку, не змінюючи перевірену сесію соціального профілю.
-    async readActorContext({ signal } = {}) {
-        const response = await this.request({ signal, mutation: false });
+    async readActorContext({ signal, url = homeUrl, updateSession = false } = {}) {
+        if (updateSession) this.invalidateActorContext();
+        const response = await this.request({ url, signal, mutation: false });
         const { session, accountId } = this.#readSessionIdentity(response, { requireAccount: true });
         if (!session.lsd) {
             throw actionError("Не вдалося прочитати актуальний контекст Facebook", "FACEBOOK_SESSION_FIELDS_MISSING");
         }
+        if (updateSession) {
+            this.#session = Object.freeze({ ...session, accountId });
+            this.#sessionCheckedAt = Date.now();
+        }
         return {
             accountId,
             actorId: session.FacebookID,
+            scriptUrls: parseScriptUrls(response.data),
             runtime: {
                 av: session.FacebookID, __user: session.FacebookID, __a: "1",
                 fb_dtsg: session.fb_dtsg, lsd: session.lsd, jazoest: session.jazoest,
+                __comet_req: session.cometReq, __spin_r: session.spinR,
+                __spin_b: session.spinB, __spin_t: session.spinT,
             },
         };
     }
 
+    // Завантажує публічний JS через ту саму проксі, не передаючи cookies або токени.
+    async requestStaticResource(url, { signal } = {}) {
+        if (!isFacebookScriptUrl(url)) {
+            throw actionError("Непідтримувана адреса JS-ресурсу", "FACEBOOK_RESOURCE_INVALID");
+        }
+        try {
+            const response = await this.#http.request({ url, method: "get", signal, timeout: 30000,
+                maxRedirects: 0, maxContentLength: 12 * 1024 * 1024, responseType: "text",
+                headers: { "User-Agent": this.#userAgent, Accept: "application/javascript,*/*;q=0.8" },
+            });
+            if (response.status !== 200) throw new Error();
+            return String(response.data);
+        } catch {
+            signal?.throwIfAborted();
+            throw actionError("Не вдалося завантажити JS-ресурс Facebook", "FACEBOOK_RESOURCE_UNAVAILABLE");
+        }
+    }
+
     checkSession({ signal } = {}) {
         return this.run(async () => {
-            this.#session = null;
-            this.#adsManager = null;
-            this.#sessionCheckedAt = 0;
+            this.invalidateActorContext();
             const response = await this.request({ signal });
             const { session, accountId } = this.#readSessionIdentity(response);
             // Зберігає фактичного actor і власника сесії без перемикання контексту.

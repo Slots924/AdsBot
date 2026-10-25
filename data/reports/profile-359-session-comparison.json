@@ -1,0 +1,111 @@
+{
+  "profileNo": "359",
+  "profileId": "k1829rp5",
+  "checkedAt": "2026-10-25T10:52:57.347Z",
+  "method": "isolated_http_cookie_contexts",
+  "summaries": [
+    {
+      "mode": "social",
+      "status": "active",
+      "accountId": "61580111776897",
+      "actorId": "61580111776897",
+      "capabilities": {
+        "facebook": true,
+        "adsManager": true,
+        "accessToken": true
+      },
+      "assets": {
+        "adAccountsState": "loaded",
+        "pagesState": "loaded",
+        "adAccountsCount": 3,
+        "pagesCount": 13
+      },
+      "warnings": [],
+      "switcher": {
+        "success": true,
+        "count": 12
+      }
+    },
+    {
+      "mode": "page",
+      "status": "active",
+      "accountId": "61580111776897",
+      "actorId": "61594925755467",
+      "capabilities": {
+        "facebook": true,
+        "adsManager": false,
+        "accessToken": false
+      },
+      "assets": {
+        "adAccountsState": "unavailable",
+        "pagesState": "unavailable",
+        "adAccountsCount": 0,
+        "pagesCount": 0
+      },
+      "warnings": [
+        {
+          "scope": "adsManager",
+          "code": "FACEBOOK_SOCIAL_CONTEXT_REQUIRED"
+        }
+      ],
+      "switcher": {
+        "success": true,
+        "count": 12
+      }
+    }
+  ],
+  "sessionFields": {
+    "fb_dtsg": "different",
+    "fb_dtsg_ag": "different",
+    "lsd": "different",
+    "jazoest": "different",
+    "sessionID": "same",
+    "FacebookID": "different",
+    "clientRevision": "same",
+    "hsi": "different",
+    "spinR": "same",
+    "spinB": "same",
+    "spinT": "different",
+    "cometReq": "same",
+    "accountId": "same"
+  },
+  "cookies": {
+    "c_user": "same",
+    "datr": "same",
+    "dpr": "same",
+    "fr": "only_social",
+    "i_user": "only_page",
+    "presence": "same",
+    "ps_l": "same",
+    "ps_n": "same",
+    "sb": "same",
+    "wd": "same",
+    "xs": "same"
+  },
+  "cookieMetadata": {
+    "expires": "different",
+    "maxAge": "different",
+    "secure": "different",
+    "httpOnly": "different",
+    "sameSite": "different",
+    "hostOnly": "different",
+    "creation": "different",
+    "lastAccessed": "different"
+  },
+  "topLevel": {
+    "version": "same",
+    "userAgent": "same",
+    "proxy": "same",
+    "checkedAt": "different",
+    "adsManager": "only_social"
+  },
+  "sameFinalPageIds": true,
+  "sessionFile": {
+    "sameFilename": true,
+    "encryptedContents": "different",
+    "decodedContents": "different",
+    "mainGuiFilePresent": false,
+    "mainGuiFileUnchanged": true,
+    "temporaryStoreRemovedAfterCheck": true
+  }
+}

@@ -44,6 +44,55 @@ GUI до нового екшену поки не підключено.
 
 Перевірка: `node --test scripts/autoupload-pages.test.js`.
 
+### HTTP-workflow видачі повного доступу до фанки
+
+`facebook/autoupload/workflows/grantFanPageAccess.js` експортує
+`grantFanPageAccess(client, { additionalProfileId, targetUserId, password, signal, onStage })`.
+Це HTTP-flow без Puppeteer; сесія залишається у фактичному контексті вибраної фанки.
+
+Послідовність: читання сесії → перемикання через наявний API-екшен, якщо потрібно →
+підтвердження actor → читання доступів → шифрування → reauth → інвайт → контрольне читання.
+Уже наявний повний доступ або запрошення пропускають шифрування та mutation видачі доступу.
+ID фанки — саме `additionalProfileId` зі списку перемикання, а не довільний Graph Page ID.
+
+- `HttpPageActionContext` централізує runtime і transport чотирьох GraphQL-операцій;
+  зміна actor оновлює стан HTTP-клієнта, не записуючи cookies в AdsPower.
+- `actions/pages/` містить `switchToFanPage`, `getFanPageAdminPermissions`,
+  `reauthFanPageAdmin`, `inviteFanPageAdmin`. Перемикання й інвайт перевикористовують
+  браузерні API-екшени через явний HTTP-транспорт.
+- `encryption/FacebookPasswordEncryption` завантажує актуальний
+  `FBBrowserPasswordEncryption` і його залежності зі startup JS-ресурсів Facebook.
+  CDN-запити йдуть через ту саму проксі без cookies. Модулі виконуються в окремому
+  JS-контексті з Web Crypto; завантажений код і пароль не записуються на диск.
+  Якщо залежності більше не доступні у цих ресурсах, workflow повертає
+  `FACEBOOK_ENCRYPTION_MODULE_UNAVAILABLE` до надсилання пароля.
+- `workflows/autoupload/grantProfileFanPageAccess.js` приймає `adsPower`, один із
+  `profileId` / `profileNo`, `additionalProfileId`, `targetUserId`, `signal`, `onStage`.
+  Готує клієнт наявним `checkProfileSession` і бере пароль із `profile.password`,
+  як «Персональні акаунти». Зовнішні інтеграції не входять до Facebook-workflow.
+
+Публічний результат містить `success`, `outcome`, `stage`, `accountId`,
+`additionalProfileId`, `targetUserId`, `inviteSent`, `invitePending`, `outcomeUnknown`.
+Контрольне читання додає `verified` і `hasFullControl`. `INVITE_SENT` означає
+прийняття запрошення Facebook, а не його прийняття користувачем.
+`INVITE_ALREADY_PENDING` та `FULL_CONTROL_ALREADY_PRESENT` не створюють нового інвайту.
+
+Після таймауту інвайту виконується лише контрольне читання. Знайдене запрошення або
+повний доступ дають `INVITE_CONFIRMED`; інакше зберігається невизначений результат
+без повторної mutation. Якщо Facebook уже підтвердив надсилання, але контрольне
+читання не вдалося, результат залишається `INVITE_SENT` з `verified: false`.
+Сирі помилки, пароль, зашифрований пароль і токени не входять до результатів чи логів.
+
+Ручний запуск, який може надіслати інвайт із повним доступом:
+
+```text
+node scripts/manual/grantFanPageAccess.js --profile-no NUMBER --page-id ADDITIONAL_PROFILE_ID --target-user-id USER_ID
+```
+
+Замість `--profile-no` можна передати `--profile-id`. Скрипт друкує тільки етапи
+та безпечний результат. GUI й автоматичне збереження сесії до цього workflow
+поки не підключені. Перевірка: `node --test scripts/autoupload-page-access.test.js`.
+
 ### Робота у вкладці
 
 1. У вкладці «Акаунти під коментарі» виберіть профілі та натисніть «Додати до автозаливів».

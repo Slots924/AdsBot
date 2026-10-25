@@ -1,4 +1,5 @@
 import { readFacebookRuntime } from "../../api/runtime.js";
+import { adminInviteMutation } from "../../api/pages/adminAccessOperations.js";
 import {
     buildMutationBody,
     createResult,
@@ -10,8 +11,7 @@ import {
 } from "../../api/browserRequest.js";
 
 
-const inviteFriendlyName = "ProfilePlusCoreAppAdminInviteMutation";
-const inviteDocId = "27622438327347937";
+const { friendlyName: inviteFriendlyName, docId: inviteDocId } = adminInviteMutation;
 
 
 export const inviteAdditionalProfileAdminStatuses = Object.freeze({

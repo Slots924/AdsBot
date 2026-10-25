@@ -1,0 +1,58 @@
+{
+  "profileNo": "1360",
+  "additionalProfileId": "61594925755467",
+  "targetUserId": "61592094266464",
+  "startedAt": "2026-10-25T11:10:28.536Z",
+  "stages": [
+    {
+      "stage": "initial_context",
+      "accountId": "61579647491304",
+      "actorId": "61595207534512",
+      "passwordPresent": true
+    },
+    {
+      "stage": "switch_mutation",
+      "success": true,
+      "status": "SWITCH_REQUEST_ACCEPTED"
+    },
+    {
+      "stage": "page_context_confirmed",
+      "actorId": "61594925755467"
+    },
+    {
+      "stage": "permissions_read",
+      "pageName": "Márton Szilágyi",
+      "pendingInviteForTarget": false,
+      "existingFullControlForTarget": false
+    },
+    {
+      "stage": "password_encrypted",
+      "module": "FBBrowserPasswordEncryption"
+    },
+    {
+      "stage": "reauth",
+      "success": true
+    },
+    {
+      "stage": "invite",
+      "success": true,
+      "status": "INVITE_SENT",
+      "httpStatus": 200,
+      "adminType": null
+    },
+    {
+      "stage": "verification",
+      "pendingInviteForTarget": true,
+      "fullControlForTarget": false,
+      "targetInDirectAdminsOrInvites": false
+    }
+  ],
+  "success": true,
+  "outcome": "INVITE_SENT",
+  "verification": {
+    "pendingInviteForTarget": true,
+    "fullControlForTarget": false,
+    "targetInDirectAdminsOrInvites": false
+  },
+  "finishedAt": "2026-10-25T11:10:48.535Z"
+}

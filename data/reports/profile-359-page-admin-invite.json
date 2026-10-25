@@ -1,0 +1,74 @@
+{
+  "profileNo": "359",
+  "additionalProfileId": "61594925755467",
+  "targetUserId": "61592094266464",
+  "startedAt": "2026-10-25T11:04:09.923Z",
+  "stages": [
+    {
+      "stage": "initial_context",
+      "accountId": "61580111776897",
+      "actorId": "61580111776897",
+      "passwordPresent": true
+    },
+    {
+      "stage": "switch_mutation",
+      "success": true,
+      "status": "SWITCH_REQUEST_ACCEPTED"
+    },
+    {
+      "stage": "page_context_confirmed",
+      "actorId": "61594925755467"
+    },
+    {
+      "stage": "permissions_read",
+      "pageName": "Márton Szilágyi",
+      "canManagePermissions": null,
+      "pendingInviteForTarget": false,
+      "existingFullControlForTarget": false
+    },
+    {
+      "stage": "password_encrypted",
+      "module": "FBBrowserPasswordEncryption",
+      "passwordExposed": false
+    },
+    {
+      "stage": "reauth",
+      "success": true
+    },
+    {
+      "stage": "invite",
+      "success": false,
+      "status": "ERROR",
+      "httpStatus": null,
+      "adminType": null,
+      "permissions": null
+    },
+    {
+      "stage": "stopped",
+      "code": "FACEBOOK_GRAPHQL_ERROR",
+      "type": "Error",
+      "httpStatus": 200,
+      "graphCode": 1675030,
+      "graphSubcode": null,
+      "apiErrorCode": -1,
+      "outcomeUnknown": false
+    }
+  ],
+  "success": false,
+  "failure": {
+    "code": "FACEBOOK_GRAPHQL_ERROR",
+    "type": "Error",
+    "httpStatus": 200,
+    "graphCode": 1675030,
+    "graphSubcode": null,
+    "apiErrorCode": -1,
+    "outcomeUnknown": false
+  },
+  "finishedAt": "2026-10-25T11:04:25.279Z",
+  "verification": {
+    "actorId": "61594925755467",
+    "pendingInviteForTarget": false,
+    "fullControlForTarget": false,
+    "targetInDirectAdminsOrInvites": false
+  }
+}
