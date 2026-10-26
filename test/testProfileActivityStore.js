@@ -7,8 +7,8 @@ import ProfileActivityStore, { profileActivityTypes as types } from "../services
 const store = new ProfileActivityStore({ databaseFile: ":memory:" });
 const setup = (profileNo, actionType, occurredAt, outcome = "success") => store.recordSuccessfulAction({ profileNo, actionType, occurredAt, outcome });
 try {
-    await setup("mixed", types.COMMENT_ACCOUNT_SETUP_UI, "2026-01-01T10:00:00Z");
-    await setup("mixed", types.COMMENT_ACCOUNT_SETUP_API, "2026-01-02T10:00:00Z");
+    await setup("mixed", types.COMMENT_ACCOUNT_SETUP_API, "2026-01-01T10:00:00Z");
+    await setup("mixed", types.COMMENT_ACCOUNT_SETUP_UI, "2026-01-02T10:00:00Z");
     await setup("mixed", types.COMMENT_TASK, "2026-01-03T10:00:00Z");
     await setup("mixed", types.COMMENT_TASK, "2026-01-04T10:00:00Z");
     await setup("mixed", types.COMMENT_REACTIONS_TASK, "2026-01-04T10:00:00Z", "completed_with_warnings");
@@ -24,8 +24,14 @@ try {
 
     const all = await store.list({ bannedOnly: false });
     assert.equal(all.items.find((item) => item.profileNo === "mixed").accountType, "api");
-    assert.equal(all.items.find((item) => item.profileNo === "live").accountType, "ui");
-    assert.equal(all.items.find((item) => item.profileNo === "mixed").commentAccountSetupUiCount, 2);
+    assert.equal(all.items.find((item) => item.profileNo === "live").accountType, "api");
+    assert.equal(store.db.prepare("SELECT COUNT(*) AS n FROM profile_activity_events WHERE profile_no = 'mixed' AND action_type = 'comment_account_setup_ui'").get().n, 2);
+    await setup("http", types.COMMENT_ACCOUNT_SETUP_AUTOUPLOAD, "2026-01-01T10:00:00Z", "completed_with_error");
+    await setup("http", types.COMMENT_ACCOUNT_SETUP_UI, "2026-01-02T10:00:00Z");
+    assert.equal((await store.list({ bannedOnly: false })).items.find(item => item.profileNo === "http").accountType, "autoupload");
+    await setup("ui-first", types.COMMENT_ACCOUNT_SETUP_UI, "2026-01-01T10:00:00Z");
+    await setup("ui-first", types.COMMENT_ACCOUNT_SETUP_API, "2026-01-02T10:00:00Z");
+    assert.equal((await store.list({ bannedOnly: false })).items.find(item => item.profileNo === "ui-first").accountType, "ui");
     assert.equal(all.items.find((item) => item.profileNo === "mixed").totalTargetActions, 4);
     assert.equal(all.items.find((item) => item.profileNo === "live").totalTargetActions, 0);
     const api = all.comparison.groups.find((group) => group.accountType === "api");
@@ -83,6 +89,11 @@ try {
         ALTER TABLE profile_activity DROP COLUMN adspower_group_name;
         ALTER TABLE profile_activity DROP COLUMN track_adspower_group;
         UPDATE profile_activity SET total_target_actions = 2;`);
+    legacy.db.exec(`ALTER TABLE profile_activity DROP COLUMN creation_type_id;
+        ALTER TABLE profile_activity ADD COLUMN comment_account_setup_ui_count INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE profile_activity ADD COLUMN comment_account_setup_api_count INTEGER NOT NULL DEFAULT 0;
+        UPDATE profile_activity SET comment_account_setup_ui_count = 1;
+        UPDATE profile_activity SET comment_account_setup_api_count = 1 WHERE profile_no = 'old';`);
     legacy.db.close();
     legacy = null;
     migrated = new ProfileActivityStore({ databaseFile });
@@ -92,6 +103,12 @@ try {
         { profile_no: "banned-old", group_id: "1", group_name: "Поточна" },
         { profile_no: "fresh", group_id: "2", group_name: "Нова" },
     ]);
+    const migratedItems = (await migrated.list({ bannedOnly: false })).items;
+    assert.equal(migratedItems.find(item => item.profileNo === "old").accountType, "api");
+    assert.equal(migratedItems.find(item => item.profileNo === "idle").accountType, "ui");
+    assert.ok(!migrated.db.prepare("PRAGMA table_info(profile_activity)").all().some(column => column.name.includes("setup_")));
+    // Інформативний тип залишається доступним для ручного виправлення.
+    migrated.db.prepare("UPDATE profile_activity SET creation_type_id = 'autoupload' WHERE profile_no = 'idle'").run();
     assert.equal((await migrated.list({ bannedOnly: false })).items.find((item) => item.profileNo === "old").adsPowerGroupName, null);
     await migrated.recordSuccessfulAction({ profileNo: "old", actionType: types.COMMENT_TASK });
     assert.equal((await migrated.list({ bannedOnly: false })).items.find((item) => item.profileNo === "old").adsPowerGroupName, "Поточна");

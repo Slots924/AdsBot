@@ -7,36 +7,29 @@ import FarmStore from "../farming/FarmStore.js";
 export const profileActivityTypes = Object.freeze({
     COMMENT_ACCOUNT_SETUP_UI: "comment_account_setup_ui",
     COMMENT_ACCOUNT_SETUP_API: "comment_account_setup_api",
+    COMMENT_ACCOUNT_SETUP_AUTOUPLOAD: "comment_account_setup_autoupload",
     COMMENT_TASK: "comment_task",
     COMMENT_REACTIONS_TASK: "comment_reactions_task",
 });
 
 
 const counterColumns = Object.freeze({
-    [profileActivityTypes.COMMENT_ACCOUNT_SETUP_UI]: "comment_account_setup_ui_count",
-    [profileActivityTypes.COMMENT_ACCOUNT_SETUP_API]: "comment_account_setup_api_count",
     [profileActivityTypes.COMMENT_TASK]: "comment_task_count",
     [profileActivityTypes.COMMENT_REACTIONS_TASK]: "comment_reactions_task_count",
 });
 
-const accountTypes = ["regular", "ui", "api"];
+const creationTypes = Object.freeze({
+    [profileActivityTypes.COMMENT_ACCOUNT_SETUP_UI]: "ui",
+    [profileActivityTypes.COMMENT_ACCOUNT_SETUP_API]: "api",
+    [profileActivityTypes.COMMENT_ACCOUNT_SETUP_AUTOUPLOAD]: "autoupload",
+});
+const accountTypes = ["regular", "ui", "api", "autoupload"];
 const comparisonTasks = [
     { key: profileActivityTypes.COMMENT_TASK, label: "Комент-задачі, середнє" },
     { key: profileActivityTypes.COMMENT_REACTIONS_TASK, label: "Лайк-задачі, середнє" },
 ];
-
-// Для забанених профілів тип фіксується за останнім оформленням до першого бану.
 const classifiedProfiles = `WITH classified AS (
-    SELECT p.*, COALESCE((
-        SELECT CASE e.action_type
-            WHEN 'comment_account_setup_ui' THEN 'ui' ELSE 'api' END
-        FROM profile_activity_events e
-        WHERE e.profile_no = p.profile_no
-            AND e.action_type IN ('comment_account_setup_ui', 'comment_account_setup_api')
-            AND e.outcome IN ('success', 'completed_with_error')
-            AND (p.is_banned = 0 OR julianday(e.occurred_at) <= julianday(p.banned_at))
-        ORDER BY julianday(e.occurred_at) DESC, e.id DESC LIMIT 1
-    ), 'regular') AS account_type
+    SELECT p.*, COALESCE(p.creation_type_id, 'regular') AS account_type
     FROM profile_activity p
 )`;
 
@@ -61,8 +54,6 @@ function toProfile(row) {
         adsPowerGroupId: row.adspower_group_id,
         adsPowerGroupName: row.adspower_group_name,
         bannedAt: row.banned_at,
-        commentAccountSetupUiCount: Number(row.comment_account_setup_ui_count),
-        commentAccountSetupApiCount: Number(row.comment_account_setup_api_count),
         commentTaskCount: Number(row.comment_task_count),
         commentReactionsTaskCount: Number(row.comment_reactions_task_count),
         totalTargetActions: Number(row.total_target_actions),
@@ -91,12 +82,17 @@ export default class ProfileActivityStore {
             this.db.exec(`
                 PRAGMA journal_mode = WAL;
                 PRAGMA foreign_keys = ON;
+                CREATE TABLE IF NOT EXISTS account_creation_types (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL
+                );
+                INSERT OR IGNORE INTO account_creation_types (id, name)
+                    VALUES ('ui', 'ЮА'), ('api', 'API'), ('autoupload', 'Автоаплоад');
                 CREATE TABLE IF NOT EXISTS profile_activity (
                     profile_no TEXT PRIMARY KEY,
                     is_banned INTEGER NOT NULL DEFAULT 0,
                     banned_at TEXT,
-                    comment_account_setup_ui_count INTEGER NOT NULL DEFAULT 0,
-                    comment_account_setup_api_count INTEGER NOT NULL DEFAULT 0,
+                    creation_type_id TEXT REFERENCES account_creation_types(id),
                     comment_task_count INTEGER NOT NULL DEFAULT 0,
                     comment_reactions_task_count INTEGER NOT NULL DEFAULT 0,
                     total_target_actions INTEGER NOT NULL DEFAULT 0,
@@ -118,6 +114,30 @@ export default class ProfileActivityStore {
                     ON profile_activity_events(profile_no, occurred_at DESC);
             `);
             const columns = new Set(this.db.prepare("PRAGMA table_info(profile_activity)").all().map((column) => column.name));
+            if (!columns.has("creation_type_id")) {
+                // Одноразове перенесення: за наявності обох способів перевагу має API.
+                this.db.exec("BEGIN IMMEDIATE");
+                try {
+                    this.db.exec("ALTER TABLE profile_activity ADD COLUMN creation_type_id TEXT REFERENCES account_creation_types(id)");
+                    const apiCount = columns.has("comment_account_setup_api_count") ? "p.comment_account_setup_api_count > 0 OR" : "";
+                    const uiCount = columns.has("comment_account_setup_ui_count") ? "p.comment_account_setup_ui_count > 0 OR" : "";
+                    this.db.exec(`UPDATE profile_activity AS p SET creation_type_id = CASE
+                        WHEN ${apiCount} EXISTS (SELECT 1 FROM profile_activity_events e
+                            WHERE e.profile_no = p.profile_no AND e.action_type = 'comment_account_setup_api'
+                                AND e.outcome IN ('success', 'completed_with_error', 'completed_with_warnings')) THEN 'api'
+                        WHEN ${uiCount} EXISTS (SELECT 1 FROM profile_activity_events e
+                            WHERE e.profile_no = p.profile_no AND e.action_type = 'comment_account_setup_ui'
+                                AND e.outcome IN ('success', 'completed_with_error', 'completed_with_warnings')) THEN 'ui'
+                        ELSE NULL END`);
+                    for (const column of ["comment_account_setup_ui_count", "comment_account_setup_api_count"]) {
+                        if (columns.has(column)) this.db.exec(`ALTER TABLE profile_activity DROP COLUMN ${column}`);
+                    }
+                    this.db.exec("COMMIT");
+                } catch (error) {
+                    this.db.exec("ROLLBACK");
+                    throw error;
+                }
+            }
             if (!columns.has("adspower_group_id")) this.db.exec("ALTER TABLE profile_activity ADD COLUMN adspower_group_id TEXT");
             if (!columns.has("adspower_group_name")) this.db.exec("ALTER TABLE profile_activity ADD COLUMN adspower_group_name TEXT");
             if (!columns.has("track_adspower_group")) {
@@ -175,7 +195,9 @@ export default class ProfileActivityStore {
     async recordSuccessfulAction({ profileNo, actionType, outcome = "success", occurredAt = new Date().toISOString() } = {}) {
         const normalizedProfileNo = normalizeProfileNo(profileNo);
         const column = counterColumns[actionType];
-        if (!normalizedProfileNo || !column) return false;
+        const creationType = creationTypes[actionType];
+        if (!normalizedProfileNo || (!column && !creationType)) return false;
+        if (!["success", "completed_with_error", "completed_with_warnings"].includes(outcome)) return false;
         await this.initialize();
         const group = this.profileGroups.get(normalizedProfileNo);
         const taskIncrement = [profileActivityTypes.COMMENT_TASK, profileActivityTypes.COMMENT_REACTIONS_TASK].includes(actionType) ? 1 : 0;
@@ -196,12 +218,13 @@ export default class ProfileActivityStore {
             `).run(group?.id ?? null, group?.name ?? null, normalizedProfileNo);
             this.db.prepare(`
                 UPDATE profile_activity SET
-                    ${column} = ${column} + 1,
+                    ${column ? `${column} = ${column} + 1,` : ""}
+                    creation_type_id = COALESCE(creation_type_id, ?),
                     total_target_actions = total_target_actions + ${taskIncrement},
                     last_target_action_at = ?,
                     updated_at = ?
                 WHERE profile_no = ?
-            `).run(occurredAt, occurredAt, normalizedProfileNo);
+            `).run(creationType ?? null, occurredAt, occurredAt, normalizedProfileNo);
             this.db.prepare(`
                 INSERT INTO profile_activity_events (profile_no, action_type, outcome, occurred_at)
                 VALUES (?, ?, ?, ?)

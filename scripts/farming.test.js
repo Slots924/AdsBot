@@ -26,6 +26,8 @@ test("групи незалежні від AdsPower, перенесення пе
     const f = await fixture();
     try {
         await f.activity.recordSuccessfulAction({ profileNo: "1", actionType: profileActivityTypes.COMMENT_TASK });
+        await f.activity.recordSuccessfulAction({ profileNo: "1", actionType: profileActivityTypes.COMMENT_ACCOUNT_SETUP_AUTOUPLOAD });
+        await f.activity.recordSuccessfulAction({ profileNo: "1", actionType: profileActivityTypes.COMMENT_ACCOUNT_SETUP_API });
         await f.activity.markBanned("1");
         const run = await f.store.createRun(f.a.id, f.members, normalizeFarmSettings(), []);
         for (const [id, start, end] of [["s1", "2026-10-01T10:00:00Z", "2026-10-01T10:01:00Z"], ["s2", "2026-10-03T10:00:00Z", "2026-10-03T10:02:00Z"]]) {
@@ -34,6 +36,7 @@ test("групи незалежні від AdsPower, перенесення пе
         }
         await f.store.saveSession({ id: "s3", runId: run.id, profileNo: "1", farmTimeMs: 0, outcome: "check_failed" });
         let member = (await f.store.members(f.a.id))[0];
+        assert.equal(member.accountType, "autoupload");
         assert.equal(member.farmSessionCount, 2);
         assert.equal(member.farmTimeMs, 180000);
         assert.equal(member.farmPeriodMs, 172920000);
@@ -42,6 +45,7 @@ test("групи незалежні від AdsPower, перенесення пе
         const groups = await f.store.groups();
         assert.equal(groups.find((g) => g.id === f.a.id).totals.commentTaskCount, 0);
         assert.equal(groups.find((g) => g.id === f.b.id).totals.commentTaskCount, 1);
+        assert.equal(groups.find((g) => g.id === f.b.id).creationTypeCounts.autoupload, 1);
         assert.equal(groups.find((g) => g.id === f.b.id).bannedPercent, 100);
         assert.equal((await f.store.history(f.a.id)).runs[0].id, run.id);
         assert.equal((await f.store.history(f.b.id)).memberships[0].from_group, f.a.id);
@@ -74,7 +78,7 @@ test("налаштування та пул валідуються, кандид�
         assert.equal((await f.store.settings()).workers, 2);
         await f.activity.recordSuccessfulAction({ profileNo: "1", actionType: profileActivityTypes.COMMENT_ACCOUNT_SETUP_API });
         f.store.initialize();
-        assert.equal((await f.store.members(f.a.id))[0].setupApiCount, 1);
+        assert.equal((await f.store.members(f.a.id))[0].accountType, "api");
         await assert.rejects(f.store.savePool([{ name: "a", url: "https://www.facebook.com/groups/a" }, { name: "b", url: "https://facebook.com/groups/a/" }]), /повторні/);
     } finally { f.close(); }
 });

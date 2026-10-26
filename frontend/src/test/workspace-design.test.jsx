@@ -246,6 +246,27 @@ describe("Дизайн workspace фанпейджів", () => {
         );
     });
 
+    it.each([false, true])("передає збережений ID поста лише для його початкового URL (URL змінено: %s)", async (changeUrl) => {
+        render(<PagesTab
+            selectedAccount={{ accountKey: "client", status: "active" }}
+            pages={[{ id: "10", name: "Deutschland Page", geo: "HU", creativeName: "1", isFavorite: true }]}
+            adAccounts={[]}
+            groups={[{ groupId: "hu-group", groupName: "Comments [HU]" }]}
+            selectedPageId="10" setSelectedPageId={vi.fn()} onPagesChange={vi.fn()}
+            onRefresh={vi.fn()} settings={settings} onError={vi.fn()} showToast={vi.fn()}
+        />);
+        await screen.findByText("Post");
+        fireEvent.click(screen.getByRole("button", { name: "Закоментити", exact: true }));
+        if (changeUrl) fireEvent.change(screen.getByLabelText("Посилання на пост"), {
+            target: { value: "https://www.facebook.com/10/posts/pfbid-other" },
+        });
+        fireEvent.click(screen.getByRole("button", { name: "У чергу" }));
+        await waitFor(() => expect(window.adsBot.runCommentingCampaign).toHaveBeenCalledOnce());
+        const payload = window.adsBot.runCommentingCampaign.mock.calls[0][0];
+        if (changeUrl) expect(payload).not.toHaveProperty("postId");
+        else expect(payload.postId).toBe("10_20");
+    });
+
     it("дозволяє опублікувати об’яву й автоматично прокоментувати її", async () => {
         render(
             <PagesTab
@@ -384,8 +405,14 @@ describe("Дизайн workspace фанпейджів", () => {
         expect(screen.queryByText("Disabled name")).not.toBeInTheDocument();
     });
 
-    it("відкриває нове автозаповнене вікно кампанії для вибраного поста", async () => {
+    it("блокує кампанію без пікселя і ставить її в чергу після вибору пікселя", async () => {
         const showToast = vi.fn();
+        window.adsBot.getAdPixels
+            .mockResolvedValueOnce({ ok: true, data: [] })
+            .mockResolvedValue({ ok: true, data: [
+                { id: "30", name: "Перший піксель" },
+                { id: "31", name: "Другий піксель" },
+            ] });
         render(
             <PagesTab
                 selectedAccount={{ accountKey: "client", status: "active" }}
@@ -425,9 +452,33 @@ describe("Дизайн workspace фанпейджів", () => {
         expect(screen.getByText("Джерело реклами")).toBeInTheDocument();
         expect(screen.getAllByText("10_20").length).toBeGreaterThan(0);
         expect(screen.getByText("act_1")).toBeInTheDocument();
-        fireEvent.click(screen.getByRole("button", { name: "Поставити в чергу" }));
 
-        await waitFor(() => expect(window.adsBot.startCampaignCreation).toHaveBeenCalled());
+        await screen.findByRole("option", { name: "У цьому РК немає пікселів" });
+        const pixelSelect = screen.getByRole("combobox", { name: "Pixel" });
+        const submit = screen.getByRole("button", { name: "Поставити в чергу" });
+        expect(pixelSelect).toHaveValue("");
+        expect(pixelSelect).toBeDisabled();
+        expect(submit).toBeDisabled();
+        fireEvent.click(submit);
+        expect(window.adsBot.preflightCampaignCreation).not.toHaveBeenCalled();
+        expect(window.adsBot.startCampaignCreation).not.toHaveBeenCalled();
+
+        fireEvent.click(screen.getByRole("button", { name: "Оновити пікселі" }));
+        await screen.findByRole("option", { name: "Другий піксель · 31" });
+        expect(window.adsBot.getAdPixels).toHaveBeenLastCalledWith("client", "act_1");
+        expect(pixelSelect).toBeEnabled();
+        fireEvent.change(pixelSelect, { target: { value: "31" } });
+        expect(pixelSelect).toHaveValue("31");
+        expect(screen.getByLabelText("UTM").value).toContain("&pixel=31&");
+        expect(submit).toBeEnabled();
+        fireEvent.click(submit);
+
+        await waitFor(() => expect(window.adsBot.startCampaignCreation).toHaveBeenCalledOnce());
+        expect(window.adsBot.preflightCampaignCreation).toHaveBeenCalledOnce();
+        expect(window.adsBot.preflightCampaignCreation.mock.calls[0][0]).toMatchObject({
+            pixelId: "31",
+            utm: expect.stringContaining("&pixel=31&"),
+        });
         expect(window.adsBot.startCampaignCreation.mock.calls[0][0]).toMatchObject({
             accountKey: "client",
             adAccountId: "act_1",
@@ -435,8 +486,8 @@ describe("Дизайн workspace фанпейджів", () => {
             campaignName: expect.stringMatching(/^DE \| Creo_1 \| 21\+ \d{2}\/\d{2} \d{2}:\d{2}$/),
             pageId: "10",
             postId: "10_20",
-            pixelId: "30",
-            utm: "utm_source=adsbot",
+            pixelId: "31",
+            utm: expect.stringContaining("&pixel=31&"),
         });
         expect(showToast).toHaveBeenCalledWith("Кампанію поставлено в чергу", "success");
     });

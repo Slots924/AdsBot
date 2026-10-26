@@ -210,7 +210,7 @@ try {
                 if (["success", "completed_with_error"].includes(outcome)) {
                     const expectedType = actionType === profileActivityTypes.COMMENT_ACCOUNT_SETUP_UI ? "ui" : "api";
                     assert.equal(stats.items[0].accountType, expectedType);
-                    assert.equal(stats.items[0][expectedType === "ui" ? "commentAccountSetupUiCount" : "commentAccountSetupApiCount"], 1);
+                    assert.equal(activity.db.prepare("SELECT COUNT(*) AS n FROM profile_activity_events").get().n, 1);
                 } else assert.equal(stats.total, 0);
             }
         }

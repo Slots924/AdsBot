@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FolderOpen, X } from "lucide-react";
 
 import GeoSelect from "./GeoSelect.jsx";
+import AccountCreationType from "./AccountCreationType.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 
 
@@ -25,7 +26,8 @@ export default function CreateCommentAccountsModal({
         femaleCount: "0",
         photosDirectory: "",
         profileNameNote: "",
-        useApiRequests: false,
+        creationType: "ui",
+        actionDelaySeconds: "30",
         checkGender: true,
         operations: {
             changeName: true,
@@ -41,6 +43,7 @@ export default function CreateCommentAccountsModal({
     const geo = String(draft.geo ?? "").trim().toUpperCase();
     const maleCount = Number(draft.maleCount);
     const femaleCount = Number(draft.femaleCount);
+    const isAutoupload = draft.creationType === "autoupload";
     const needsPhotos = draft.operations.changeAvatar
         || draft.operations.changeCover
         || draft.operations.publishPosts;
@@ -50,7 +53,9 @@ export default function CreateCommentAccountsModal({
         && maleCount >= 0
         && femaleCount >= 0
         && maleCount + femaleCount > 0
-        && (!needsPhotos || draft.photosDirectory);
+        && (!needsPhotos || draft.photosDirectory)
+        && (!isAutoupload || (draft.actionDelaySeconds !== "" && Number.isFinite(Number(draft.actionDelaySeconds))
+            && Number(draft.actionDelaySeconds) >= 0 && Number(draft.actionDelaySeconds) <= 86400));
 
     const setOperation = (operation, enabled) => {
         setDraft((current) => ({
@@ -99,9 +104,11 @@ export default function CreateCommentAccountsModal({
                 femaleCount,
                 photosDirectory: draft.photosDirectory,
                 profileNameNote: draft.profileNameNote.trim(),
-                useApiRequests: draft.useApiRequests,
+                creationType: draft.creationType,
+                actionDelaySeconds: Number(draft.actionDelaySeconds),
                 checkGender: draft.checkGender,
-                operations: draft.operations,
+                operations: { ...draft.operations, fillAbout: !isAutoupload && draft.operations.fillAbout,
+                    deleteBio: !isAutoupload && draft.operations.deleteBio },
                 browserMode: settings.accountSetupBrowserMode,
                 commentWorkerConcurrency: settings.accountSetupWorkerConcurrency,
                 commentWorkerProxyIds: settings.accountSetupWorkerProxyIds,
@@ -131,17 +138,22 @@ export default function CreateCommentAccountsModal({
                         </span>
                     ))}
                 </div>
-                <label className="checkbox-line compact account-setup-api-toggle">
-                    <input
-                        type="checkbox"
-                        checked={draft.useApiRequests}
-                        onChange={(event) => setDraft((current) => ({
-                            ...current,
-                            useApiRequests: event.target.checked,
-                        }))}
-                    />
-                    <span>Використовувати API-запити</span>
-                </label>
+                <fieldset className="account-creation-choice">
+                    <legend>Тип створення</legend>
+                    <div className="account-creation-options">
+                        {["ui", "api", "autoupload"].map(type => <label key={type}
+                            className={`account-creation-option account-creation-option-${type} ${draft.creationType === type ? "selected" : ""}`}>
+                            <input type="radio" name="creationType" value={type} checked={draft.creationType === type}
+                                onChange={() => setDraft(current => ({ ...current, creationType: type }))} />
+                            <AccountCreationType type={type} />
+                        </label>)}
+                    </div>
+                </fieldset>
+                {isAutoupload && <label className="field account-creation-delay">
+                    <span id="account-creation-delay-label">Вкажіть затримку між запитами</span>
+                    <div className="account-creation-delay-input"><input aria-labelledby="account-creation-delay-label" type="number" min="0" max="86400" step="1" required
+                        value={draft.actionDelaySeconds} onChange={event => setDraft(current => ({ ...current, actionDelaySeconds: event.target.value }))} /><span>с</span></div>
+                </label>}
                 <div className="creative-fields-row">
                     <label className="field geo-field">
                         <span>Цільова країна</span>
@@ -193,8 +205,8 @@ export default function CreateCommentAccountsModal({
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.changeCover} onChange={(event) => setOperation("changeCover", event.target.checked)} /><span>Змінити обкладинку</span></label>
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.deletePosts} onChange={(event) => setOperation("deletePosts", event.target.checked)} /><span>Видалити старі пости</span></label>
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.publishPosts} onChange={(event) => setOperation("publishPosts", event.target.checked)} /><span>Опублікувати фото-пости</span></label>
-                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.fillAbout} onChange={(event) => setOperation("fillAbout", event.target.checked)} /><span>Заповнити інформацію About</span></label>
-                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.deleteBio} disabled={!draft.operations.fillAbout} onChange={(event) => setOperation("deleteBio", event.target.checked)} /><span>Видалити bio</span></label>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={!isAutoupload && draft.operations.fillAbout} disabled={isAutoupload} onChange={(event) => setOperation("fillAbout", event.target.checked)} /><span>Заповнити інформацію About</span></label>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={!isAutoupload && draft.operations.deleteBio} disabled={isAutoupload || !draft.operations.fillAbout} onChange={(event) => setOperation("deleteBio", event.target.checked)} /><span>Видалити bio</span></label>
                     </section>
                     <p className="settings-hint">Якщо поле країни не вибране, використовується цільова країна.</p>
                     <div className="form-grid">
@@ -204,15 +216,15 @@ export default function CreateCommentAccountsModal({
                         </label>
                         <label className="field">
                             <span>Компанії</span>
-                            <GeoSelect disabled={!draft.operations.fillAbout} layout="list" countries={countries} value={draft.companiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для компаній" onChange={(value) => setDraft((current) => ({ ...current, companiesGeo: value }))} />
+                            <GeoSelect disabled={isAutoupload || !draft.operations.fillAbout} layout="list" countries={countries} value={draft.companiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для компаній" onChange={(value) => setDraft((current) => ({ ...current, companiesGeo: value }))} />
                         </label>
                         <label className="field">
                             <span>Професії</span>
-                            <GeoSelect disabled={!draft.operations.fillAbout} layout="list" countries={countries} value={draft.professionsGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для професій" onChange={(value) => setDraft((current) => ({ ...current, professionsGeo: value }))} />
+                            <GeoSelect disabled={isAutoupload || !draft.operations.fillAbout} layout="list" countries={countries} value={draft.professionsGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для професій" onChange={(value) => setDraft((current) => ({ ...current, professionsGeo: value }))} />
                         </label>
                         <label className="field">
                             <span>Навчання</span>
-                            <GeoSelect disabled={!draft.operations.fillAbout} layout="list" countries={countries} value={draft.universitiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для навчання" onChange={(value) => setDraft((current) => ({ ...current, universitiesGeo: value }))} />
+                            <GeoSelect disabled={isAutoupload || !draft.operations.fillAbout} layout="list" countries={countries} value={draft.universitiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для навчання" onChange={(value) => setDraft((current) => ({ ...current, universitiesGeo: value }))} />
                         </label>
                     </div>
                 </details>

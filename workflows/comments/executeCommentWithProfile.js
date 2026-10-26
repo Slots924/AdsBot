@@ -19,6 +19,7 @@ export default async function executeCommentWithProfile({
     adsPower,
     profile,
     postUrl,
+    postId = null,
     comment,
     parentComment = null,
     browserMode = "visible",
@@ -217,6 +218,7 @@ export default async function executeCommentWithProfile({
         result.stage = "OPEN_POST_VIA_AUTHOR_PAGE";
         result.postOpen = await openFacebookPostViaAuthorPage(page, {
             postUrl,
+            expectedPostId: postId,
             logger,
         });
 

@@ -12,6 +12,7 @@ import runParallelCommentAccountSetupScenario
     from "../../scenarios/runParallelCommentAccountSetupScenario.js";
 import executeCommentAccountApiSetupWithProfile
     from "../../workflows/accounts/executeCommentAccountApiSetupWithProfile.js";
+import executeCommentAccountAutouploadSetupWithProfile from "../../workflows/accounts/executeCommentAccountAutouploadSetupWithProfile.js";
 import runCommentReactionsScenario
     from "../../scenarios/runCommentReactionsScenario.js";
 import runCommentAccountHealthScenario
@@ -715,6 +716,8 @@ export default class AdsBotGuiService {
         professionsGeo,
         photosDirectory,
         useApiRequests = false,
+        creationType = useApiRequests ? "api" : "ui",
+        actionDelaySeconds = 30,
         checkGender = true,
         profileNameNote = "",
         operations = {},
@@ -737,6 +740,11 @@ export default class AdsBotGuiService {
             );
         }
 
+        if (!["ui", "api", "autoupload"].includes(creationType)) throw createGuiError("Невідомий тип створення акаунта", "GUI_VALIDATION_ERROR");
+        const delaySeconds = Number(actionDelaySeconds);
+        if (creationType === "autoupload" && (!Number.isFinite(delaySeconds) || delaySeconds < 0 || delaySeconds > 86400)) {
+            throw createGuiError("Вкажіть затримку від 0 до 86400 секунд", "GUI_VALIDATION_ERROR");
+        }
         const provider = new CommentAccountProfileData();
         await onProgress?.({
             stage: "personas",
@@ -757,8 +765,8 @@ export default class AdsBotGuiService {
             changeCover: operations.changeCover !== false,
             deletePosts: operations.deletePosts !== false,
             publishPosts: operations.publishPosts !== false,
-            fillAbout: operations.fillAbout !== false,
-            deleteBio: operations.deleteBio !== false,
+            fillAbout: creationType !== "autoupload" && operations.fillAbout !== false,
+            deleteBio: creationType !== "autoupload" && operations.deleteBio !== false,
         };
         const personas = generated.profiles.map((profile) => ({
             gender: profile.gender,
@@ -785,9 +793,12 @@ export default class AdsBotGuiService {
             signal,
             onProgress,
             reportsDirectory: this.reportsDirectory,
-            executeSetup: useApiRequests
+            executeSetup: creationType === "autoupload"
+                ? executeCommentAccountAutouploadSetupWithProfile
+                : creationType === "api"
                 ? executeCommentAccountApiSetupWithProfile
                 : undefined,
+            actionDelaySeconds: delaySeconds,
             profileNameNote,
             skipNameChange: !normalizedOperations.changeName,
             checkGender,
@@ -798,7 +809,9 @@ export default class AdsBotGuiService {
             skipFillAbout: !normalizedOperations.fillAbout,
             skipBio: !normalizedOperations.deleteBio,
             profileActivityStore: this.#profileActivityStore,
-            profileActivityType: useApiRequests
+            profileActivityType: creationType === "autoupload"
+                ? profileActivityTypes.COMMENT_ACCOUNT_SETUP_AUTOUPLOAD
+                : creationType === "api"
                 ? profileActivityTypes.COMMENT_ACCOUNT_SETUP_API
                 : profileActivityTypes.COMMENT_ACCOUNT_SETUP_UI,
         });
@@ -905,13 +918,13 @@ export default class AdsBotGuiService {
 
 
     async runParallelComments({
-        groupIds, comments, geo, creativeName, postUrl,
+        groupIds, comments, geo, creativeName, postUrl, postId = null,
         browserMode = "visible", disableImages = false,
         concurrency = 5, workerProxies = null, onProxyUnavailable = null,
         signal, onProgress,
     }) {
         return this.#runParallelCommentingScenario({
-            adsPower: this.adsPower, groupIds, comments, geo, creativeName, postUrl,
+            adsPower: this.adsPower, groupIds, comments, geo, creativeName, postUrl, postId,
             browserMode, disableImages, concurrency, workerProxies, onProxyUnavailable,
             signal, onProgress,
             logger: this.logger,
@@ -977,7 +990,7 @@ export default class AdsBotGuiService {
             browserMode: report.browserMode,
             disableImages: report.disableImages,
             reportDetails: {
-                inputSummary: { groupIds: report.groupIds, profileNos: report.profileNos, geo: report.geo, creativeName: report.creativeName, postUrl: report.postUrl, browserMode: report.browserMode, disableImages: report.disableImages },
+                inputSummary: { groupIds: report.groupIds, profileNos: report.profileNos, geo: report.geo, creativeName: report.creativeName, postUrl: report.postUrl, postId: report.postId, browserMode: report.browserMode, disableImages: report.disableImages },
                 resultSummary: { published: report.published, skipped: report.skipped, failedComments: report.failedComments, failedProfiles: report.failedProfiles, excludedProfiles, uncertain: report.interrupted ? report.failedComments : [] },
                 counters: { published: report.published.length, skipped: report.skipped.length, failedComments: report.failedComments.length, failedProfiles: report.failedProfiles.length, excludedProfiles: excludedProfiles.length },
                 warnings: report.cleanupWarnings,

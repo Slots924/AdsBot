@@ -149,6 +149,7 @@ export default async function runParallelCommentAccountSetupScenario({
     checkGender = true,
     profileActivityStore = null,
     profileActivityType = null,
+    actionDelaySeconds = 30,
 } = {}) {
     const workerLimit = normalizeConcurrency(concurrency);
     const requiresPhotoSet = !skipAvatarChange
@@ -386,6 +387,7 @@ export default async function runParallelCommentAccountSetupScenario({
                         profile,
                         persona,
                         photoSet,
+                        actionDelaySeconds,
                         skipNameChange,
                         skipAvatarChange,
                         skipCoverChange,

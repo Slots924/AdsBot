@@ -1158,7 +1158,7 @@ export default function registerIpcHandlers({
                             const response = await guiService.runParallelComments({
                                 groupIds: draft.groupIds, comments: prepared.comments,
                                 geo: creativeGeo, creativeName: draft.creativeName,
-                                postUrl: post.permalinkUrl, browserMode: draft.browserMode,
+                                postUrl: post.permalinkUrl, postId: post.postId, browserMode: draft.browserMode,
                                 disableImages: draft.disableImages, concurrency: draft.commentWorkerConcurrency,
                                 workerProxies,
                                 onProxyUnavailable: createProxyUnavailableHandler({
@@ -2449,6 +2449,7 @@ export default function registerIpcHandlers({
                             creativeName: input.creativeName,
                             siteUrl: input.siteUrl,
                             postUrl: post.permalinkUrl,
+                            postId: post.postId,
                             browserMode: input.commentBrowserMode,
                             disableImages: input.commentDisableImages,
                             // Для опублікованого поста зберігаємо вкладеність реплаїв.
@@ -2552,6 +2553,7 @@ export default function registerIpcHandlers({
                     creativeName: payload.creativeName,
                     siteUrl: payload.siteUrl,
                     postUrl: payload.postUrl,
+                    postId: payload.postId ?? null,
                     browserMode,
                     disableImages,
                     commentTarget,
@@ -2695,6 +2697,8 @@ export default function registerIpcHandlers({
             };
             const photosDirectory = String(payload.photosDirectory ?? "").trim();
             const useApiRequests = payload.useApiRequests === true;
+            const creationType = payload.creationType ?? (useApiRequests ? "api" : "ui");
+            const actionDelaySeconds = payload.actionDelaySeconds ?? 30;
             const checkGender = payload.checkGender !== false;
             const profileNameNote = String(payload.profileNameNote ?? "").replace(/\s+/g, " ").trim();
             const operations = {
@@ -2720,6 +2724,8 @@ export default function registerIpcHandlers({
                     ...profileDataSources,
                     photosDirectory,
                     useApiRequests,
+                    creationType,
+                    actionDelaySeconds,
                     profileNameNote,
                     checkGender,
                     operations,
@@ -2731,6 +2737,8 @@ export default function registerIpcHandlers({
                     geo,
                     browserMode,
                     useApiRequests,
+                    creationType,
+                    actionDelaySeconds,
                 },
                 runner: async ({ signal, progress, waitForAction }) => {
                     const workerProxies = await resolveWorkerProxies(
@@ -2745,6 +2753,8 @@ export default function registerIpcHandlers({
                         ...profileDataSources,
                         photosDirectory,
                         useApiRequests,
+                        creationType,
+                        actionDelaySeconds,
                         profileNameNote,
                         checkGender,
                         operations,

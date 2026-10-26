@@ -100,11 +100,11 @@ const report = {
 
 const markdown = buildCommentAccountSetupMarkdown(report);
 assert.match(markdown, /Успішно \| 1/);
-assert.match(markdown, /Завершено з помилкою \| 1/);
+assert.match(markdown, /Успішно з попередженнями \| 1/);
 assert.match(markdown, /Не вдалося \| 1/);
 assert.match(markdown, /Пропущено \| 1/);
 assert.match(markdown, /Профіль 10 — успішно/);
-assert.match(markdown, /Профіль 11 — завершено з помилкою/);
+assert.match(markdown, /Профіль 11 — успішно з попередженнями/);
 assert.match(markdown, /Аватарка \| Не вдалося — INVALID_IMAGE/);
 assert.match(markdown, /Профіль має тег Change Name Error/);
 assert.match(markdown, /Fallback \| education, work/);

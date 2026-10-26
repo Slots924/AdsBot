@@ -63,7 +63,7 @@ function outcomeLabel(outcome) {
         case "success":
             return "успішно";
         case "completed_with_error":
-            return "завершено з помилкою";
+            return "успішно з попередженнями";
         case "failed":
             return "не вдалося";
         case "skipped":
@@ -195,6 +195,21 @@ function buildProfileSection(item) {
         lines.push("", `Журнал браузера: ${escapeText(item.browserTracePath)}`);
     }
     if (problem) lines.push("", `> Причина: ${escapeText(problem)}`);
+    const diagnostics = Object.entries(steps).filter(([key, step]) => step?.diagnostic || step?.items || /^post\d+$/.test(key));
+    if (diagnostics.length) {
+        const labels = { session: "Сесія", name: "Ім’я", avatar: "Аватарка", cover: "Обкладинка", deletePosts: "Видалення постів", failure: "Зупинка" };
+        lines.push("", createTable(["Крок", "Результат", "Причина / відповідь Facebook", "Коди"], diagnostics
+            .filter(([key]) => key !== "posts")
+            .map(([key, step]) => {
+                const diagnostic = step.diagnostic ?? {};
+                const codes = [diagnostic.code, diagnostic.httpStatus != null ? `HTTP ${diagnostic.httpStatus}` : null,
+                    diagnostic.graphCode != null ? `FB ${diagnostic.graphCode}` : null,
+                    diagnostic.graphSubcode != null ? `subcode ${diagnostic.graphSubcode}` : null].filter(Boolean).join("; ");
+                const message = [diagnostic.message, diagnostic.graphUserTitle, diagnostic.graphUserMessage,
+                    ...(diagnostic.errors ?? []).map(error => error.message)].filter(Boolean).join("; ");
+                return [labels[key] ?? key.replace(/^post(\d+)$/, "Пост $1"), step.skipped ? "Пропущено" : step.ok ? "Виконано" : "Помилка", message || step.error || step.reason || "—", codes || "—"];
+            })));
+    }
 
     return lines.join("\n");
 }
@@ -210,7 +225,7 @@ export function buildCommentAccountSetupMarkdown(report) {
     const skipped = profiles.filter((item) => item.outcome === "skipped");
     const summaryRows = [
         ["Успішно", succeeded.length],
-        ["Завершено з помилкою", completedWithError.length],
+        ["Успішно з попередженнями", completedWithError.length],
         ["Не вдалося", failed.length],
         ["Пропущено", skipped.length],
     ];
@@ -263,7 +278,7 @@ export function buildCommentAccountSetupMarkdown(report) {
     } else {
         const groups = [
             ["Не вдалося", "failed"],
-            ["Завершено з помилкою", "completed_with_error"],
+            ["Успішно з попередженнями", "completed_with_error"],
             ["Пропущено", "skipped"],
             ["Успішно", "success"],
         ];

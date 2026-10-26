@@ -4,22 +4,22 @@ import describeHttpError from "../../services/logging/httpDiagnostics.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
 
 // Дані авторизації залишаються всередині клієнта й не входять до результату задачі.
-export default async function checkProfileSession({ profileId, adsPower, signal, onSessionStatus, onStage = () => {}, createClient = (options) => new FacebookWebClient(options) }) {
+export default async function checkProfileSession({ profileId, profile: suppliedProfile, proxy: suppliedProxy, adsPower, signal, onSessionStatus, onStage = () => {}, createClient = (options) => new FacebookWebClient(options) }) {
     const steps = [];
     let stage = "profile";
     let privateProxy;
     const note = async (message) => { steps.push(message); await onStage(message); };
     try {
         signal?.throwIfAborted();
-        const profile = await adsPower.getProfileById(profileId);
+        const profile = suppliedProfile ?? await adsPower.getProfileById(profileId);
         signal?.throwIfAborted();
         await note("Дані профілю отримано");
         stage = "proxy";
         let config = profile.user_proxy_config;
-        if ((!config?.proxy_host || !config?.proxy_port) && profile.fbcc_proxy_acc_id) {
+        if (!suppliedProxy && (!config?.proxy_host || !config?.proxy_port) && profile.fbcc_proxy_acc_id) {
             config = await adsPower.getProxyById(profile.fbcc_proxy_acc_id);
         }
-        const proxy = { ...normalizeProxy(config), id: `adspower-profile-${profileId}` };
+        const proxy = suppliedProxy ?? { ...normalizeProxy(config), id: `adspower-profile-${profileId}` };
         privateProxy = proxy;
         await note("Проксі профілю налаштовано");
         stage = "cookies";

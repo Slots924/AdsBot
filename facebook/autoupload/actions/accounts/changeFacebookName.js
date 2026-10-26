@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import requestGraphql from "../../graphql/request.js";
-import { actionError, actionFailure } from "../../graphql/errors.js";
+import { actionError, actionFailure, safeGraphText } from "../../graphql/errors.js";
 import parseWebSession from "../../../session/parseWebSession.js";
 
 export function validateName(input = {}) {
@@ -12,7 +12,29 @@ export function validateName(input = {}) {
 }
 
 // Повторює запити соціального профілю з api-actions/accounts через збережену HTTP-сесію.
-export default async function changeFacebookName(fbData, input, { signal, beforeSend } = {}) {
+export async function prepareNameContext(fbData, { signal } = {}) {
+    fbData.client.validateFbData(fbData);
+    const home = await fbData.client.request({ url: "https://accountscenter.facebook.com/profiles/", signal, mutation: false });
+    const { session } = parseWebSession(home.data);
+    if (session.FacebookID !== String(fbData.userId)) throw actionError("Не вдалося підтвердити поточний соціальний профіль в Accounts Center", "FACEBOOK_SESSION_MISMATCH");
+    if (!session.fb_dtsg || !session.lsd) throw actionError("Не вдалося прочитати сесію Accounts Center", "FACEBOOK_SESSION_FIELDS_MISSING", { actionRequired: "refresh_session" });
+    if (!session.jazoest) session.jazoest = `2${[...session.fb_dtsg].reduce((sum, char) => sum + char.charCodeAt(0), 0)}`;
+    return session;
+}
+
+export default async function changeFacebookName(fbData, input, options = {}) {
+    try {
+        validateName(input);
+        if (typeof fbData?.client?.run !== "function") throw actionError("Спочатку перевірте сесію Facebook", "FACEBOOK_SESSION_REQUIRED");
+        const session = options.session ?? await fbData.client.run(() => prepareNameContext(fbData, options));
+        return await executeNameChange(fbData, input, { ...options, session });
+    } catch (error) {
+        return actionFailure(error);
+    }
+}
+
+// Виконує зміну з підготовленою сесією Accounts Center без повторного читання сторінки.
+export async function executeNameChange(fbData, input, { signal, beforeSend, session } = {}) {
     let sent = false;
     try {
         const name = validateName(input);
@@ -20,8 +42,7 @@ export default async function changeFacebookName(fbData, input, { signal, before
         return await fbData.client.run(async () => {
             fbData.client.validateFbData(fbData);
             const userId = String(fbData.userId);
-            const home = await fbData.client.request({ url: "https://accountscenter.facebook.com/profiles/", signal, mutation: false });
-            const { session } = parseWebSession(home.data);
+            if (!session) throw actionError("Контекст Accounts Center не підготовлений", "FACEBOOK_SESSION_REQUIRED");
             if (session.FacebookID !== userId) throw actionError("Не вдалося підтвердити поточний соціальний профіль в Accounts Center", "FACEBOOK_SESSION_MISMATCH");
             if (!session.fb_dtsg || !session.lsd) throw actionError("Не вдалося прочитати сесію Accounts Center", "FACEBOOK_SESSION_FIELDS_MISSING", { actionRequired: "refresh_session" });
             if (!session.jazoest) session.jazoest = `2${[...session.fb_dtsg].reduce((sum, char) => sum + char.charCodeAt(0), 0)}`;
@@ -50,14 +71,16 @@ export default async function changeFacebookName(fbData, input, { signal, before
             }, { mutation: true, beforeSend: async () => { await beforeSend?.(); signal?.throwIfAborted(); sent = true; } });
             const update = result.chunks.map(chunk => chunk.data?.fxim_update_identity_name).find(Boolean);
             if (!update) throw actionError("Facebook не підтвердив зміну імені. Перевірте ім’я перед повтором", "FACEBOOK_NAME_NOT_CONFIRMED", { outcomeUnknown: true });
-            if (update.error != null) throw actionError("Facebook відхилив зміну імені соціального профілю", "FACEBOOK_NAME_REJECTED");
+            if (update.error != null) throw actionError("Facebook відхилив зміну імені соціального профілю", "FACEBOOK_NAME_REJECTED", {
+                graphUserMessage: safeGraphText(typeof update.error === "string" ? update.error : update.error.message ?? update.error.description ?? "", session) || null,
+            });
             return { success: true, outcome: "NAME_CHANGED", message: "Ім’я соціального профілю змінено", httpStatus: result.httpStatus, outcomeUnknown: false, retryable: false };
         });
     } catch (error) {
         const failure = actionFailure(error);
         if (sent && failure.code !== "FACEBOOK_NAME_REJECTED") failure.outcomeUnknown = true;
         if (failure.actionRequired === "refresh_incoming_requests") failure.actionRequired = "refresh_session";
-        if (failure.outcomeUnknown) Object.assign(failure, { outcome: "OUTCOME_UNKNOWN", actionRequired: "check_profile_name", message: "Результат зміни імені невідомий. Перевірте ім’я соціального профілю перед повтором" });
+        if (failure.outcomeUnknown) Object.assign(failure, { outcome: "OUTCOME_UNKNOWN", actionRequired: "check_profile_name" });
         return failure;
     }
 }

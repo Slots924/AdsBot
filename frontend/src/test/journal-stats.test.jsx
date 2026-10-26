@@ -8,7 +8,7 @@ beforeEach(() => {
         getLogScopes: vi.fn().mockResolvedValue({ ok: true, data: [] }),
         getLogs: vi.fn().mockResolvedValue({ ok: true, data: { items: [], nextCursor: null } }),
         getProfileActivity: vi.fn().mockResolvedValue({ ok: true, data: {
-            items: [{ profileNo: "mock-profile", isBanned: true, accountType: "api", adsPowerGroupName: "Тестова група", commentAccountSetupApiCount: 2, commentAccountSetupUiCount: 3 }],
+            items: [{ profileNo: "mock-profile", isBanned: true, accountType: "api", adsPowerGroupName: "Тестова група" }],
             total: 1, totalPages: 1,
             comparison: {
                 tasks: [{ key: "comment_task", label: "Комент-задачі, середнє" }],
@@ -19,7 +19,7 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-it("показує тільки останній тип, фільтрує акаунти та передає період порівняння", async () => {
+it("показує тип створення, фільтрує акаунти та передає період порівняння", async () => {
     render(<JournalTab onError={vi.fn()} showToast={vi.fn()} />);
     fireEvent.click(screen.getByRole("button", { name: "Статистика" }));
     await screen.findByText("mock-profile");
@@ -30,11 +30,12 @@ it("показує тільки останній тип, фільтрує ака
     const headers = within(row.closest("table")).getAllByRole("columnheader").map((item) => item.textContent);
     expect(headers.indexOf("Група AdsPower")).toBe(headers.indexOf("Бан") - 1);
     expect(headers).toContain("Всього задач");
-    expect(within(row).getByLabelText("Оформлено через API")).toBeInTheDocument();
-    expect(within(row).queryByLabelText("Оформлено через UI")).not.toBeInTheDocument();
+    expect(within(row).getByTitle("Тип створення: API")).toBeInTheDocument();
+    expect(headers).toContain("Тип створення");
+    expect(headers).not.toContain("API акаунти");
     expect(screen.getByText("1,5")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("checkbox", { name: "Звичайні акаунти" }));
-    await waitFor(() => expect(window.adsBot.getProfileActivity).toHaveBeenLastCalledWith(expect.objectContaining({ includedAccountTypes: ["ui", "api"], page: 1 })));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Без типу акаунти" }));
+    await waitFor(() => expect(window.adsBot.getProfileActivity).toHaveBeenLastCalledWith(expect.objectContaining({ includedAccountTypes: ["ui", "api", "autoupload"], page: 1 })));
     fireEvent.change(screen.getByLabelText("Період бану"), { target: { value: "30" } });
     await waitFor(() => expect(window.adsBot.getProfileActivity).toHaveBeenLastCalledWith(expect.objectContaining({ comparisonDateFrom: expect.any(String), comparisonDateTo: expect.any(String) })));
     fireEvent.change(screen.getByLabelText("Період бану"), { target: { value: "custom" } });

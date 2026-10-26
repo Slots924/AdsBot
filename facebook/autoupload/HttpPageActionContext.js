@@ -10,10 +10,10 @@ const operations = new Set([
 
 // Один контекст обслуговує послідовний workflow доступу до однієї фанки.
 export default class HttpPageActionContext {
-    constructor(client, { signal } = {}) {
+    constructor(client, { signal, identity = null } = {}) {
         this.client = client;
         this.signal = signal;
-        this.identity = null;
+        this.identity = identity;
         this.failure = null;
         this.writeBlocked = false;
         this[httpActionTransport] = this;

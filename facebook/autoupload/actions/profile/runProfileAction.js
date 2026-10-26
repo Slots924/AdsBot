@@ -10,7 +10,9 @@ export default async function runProfileAction(fbData, options, execute, message
     try {
         if (typeof fbData?.client?.run !== "function") throw actionError("Спочатку перевірте сесію Facebook", "FACEBOOK_SESSION_REQUIRED");
         return await fbData.client.run(async () => {
-            context = new HttpActionContext(fbData, options);
+            context = options.context ?? new HttpActionContext(fbData, options);
+            context.beginAction(fbData);
+            await context.prepare();
             const result = await execute(context);
             Object.assign(summary, Object.fromEntries(counts.filter(key => Number.isFinite(result[key])).map(key => [key, result[key]])));
             if (result.steps) summary.actionSteps = Object.fromEntries(Object.entries(result.steps).map(([key, step]) => [key, { success: step.success === true, status: step.status }]));
@@ -25,7 +27,7 @@ export default async function runProfileAction(fbData, options, execute, message
         const primary = context?.failure ?? error;
         const failure = { ...actionFailure(primary), ...summary, stage: primary.actionStage ?? null };
         if (failure.actionRequired === "refresh_incoming_requests") failure.actionRequired = "refresh_session";
-        if (failure.outcomeUnknown) Object.assign(failure, { outcome: "OUTCOME_UNKNOWN", actionRequired: "check_profile_changes", message: "Результат зміни профілю невідомий. Перевірте Facebook перед повтором" });
+        if (failure.outcomeUnknown) Object.assign(failure, { outcome: "OUTCOME_UNKNOWN", actionRequired: "check_profile_changes" });
         return failure;
     }
 }

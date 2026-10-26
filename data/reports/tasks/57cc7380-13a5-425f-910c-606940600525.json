@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "id": "57cc7380-13a5-425f-910c-606940600525",
+  "taskId": "b9077033-cf56-48eb-adc3-f5f85766064c",
+  "type": "account-setup",
+  "title": "Акаунти під коментарі · DE · 2",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-10-26T11:55:05.184Z",
+  "startedAt": "2026-10-26T11:49:47.416Z",
+  "finishedAt": "2026-10-26T11:55:05.179Z",
+  "durationMs": 317763,
+  "inputSummary": {
+    "profileNos": [
+      "2400",
+      "2401"
+    ],
+    "geo": "DE",
+    "maleCount": 2,
+    "femaleCount": 0,
+    "namesGeo": "DE",
+    "companiesGeo": "DE",
+    "universitiesGeo": "DE",
+    "professionsGeo": "DE",
+    "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE",
+    "useApiRequests": false,
+    "creationType": "autoupload",
+    "actionDelaySeconds": 30,
+    "profileNameNote": "AU30",
+    "checkGender": true,
+    "operations": {
+      "changeName": true,
+      "changeAvatar": true,
+      "changeCover": true,
+      "deletePosts": true,
+      "publishPosts": true,
+      "fillAbout": false
+    },
+    "browserMode": "headless",
+    "commentWorkerProxyIds": "[REDACTED]"
+  },
+  "resultSummary": {
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-10-26_13-55-05-177.md",
+    "fatalError": null,
+    "success": 1,
+    "completedWithError": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "2400",
+      "2401"
+    ],
+    "geo": "DE",
+    "browserMode": "headless",
+    "useApiRequests": false,
+    "creationType": "autoupload",
+    "actionDelaySeconds": 30
+  }
+}

@@ -3,23 +3,46 @@ import parseWebSession from "../session/parseWebSession.js";
 import parseResponse from "./graphql/parseResponse.js";
 import { actionError } from "./graphql/errors.js";
 
-// Один контекст живе лише під час однієї дії одного соціального профілю.
+// Контекст обслуговує окрему дію або послідовний workflow одного соціального профілю.
 export default class HttpActionContext {
     #runtime;
     #blocked;
-    constructor(fbData, { signal } = {}) {
+    constructor(fbData, { signal, session = null } = {}) {
         this.fbData = fbData;
         this.signal = signal;
         this.writeCount = 0;
         this.failure = null;
         this[httpActionTransport] = this;
+        if (session) this.#runtime = this.#fromSession(session);
+    }
+    #fromSession(session) {
+        if (session.FacebookID !== String(this.fbData.userId)) throw actionError("Контекст належить іншому профілю", "FACEBOOK_SESSION_MISMATCH");
+        const runtime = {
+            av: String(this.fbData.userId), __user: String(this.fbData.userId), __a: "1",
+            fb_dtsg: session.fb_dtsg, lsd: session.lsd,
+            jazoest: session.jazoest || `2${[...String(session.fb_dtsg ?? "")].reduce((sum, char) => sum + char.charCodeAt(0), 0)}`,
+            __rev: session.clientRevision, __spin_r: session.spinR, __spin_b: session.spinB,
+            __spin_t: session.spinT, __hsi: session.hsi, __comet_req: session.cometReq,
+        };
+        if (["fb_dtsg", "lsd", "__rev", "__spin_r", "__spin_b", "__spin_t", "__comet_req"].some(key => !runtime[key])) {
+            throw actionError("Недостатньо параметрів HTTP-сесії", "FACEBOOK_SESSION_FIELDS_MISSING");
+        }
+        return runtime;
+    }
+    beginAction(fbData) {
+        this.#check();
+        if (fbData.client !== this.fbData.client || fbData.session !== this.fbData.session) {
+            throw actionError("Контекст сесії змінився", "FACEBOOK_SESSION_MISMATCH");
+        }
+        this.failure = null;
+        this.writeCount = 0;
     }
     #check() {
         this.signal?.throwIfAborted();
         if (this.#blocked) throw this.#blocked;
         this.fbData.client.validateFbData(this.fbData);
     }
-    async readRuntime({ surface = "facebook" } = {}) {
+    async prepare({ surface = "facebook" } = {}) {
         this.#check();
         if (surface !== "facebook") throw actionError("Ця дія підтримує лише соціальний Facebook-профіль", "FACEBOOK_SURFACE_INVALID");
         if (!this.#runtime) {
@@ -28,21 +51,15 @@ export default class HttpActionContext {
             if (session.FacebookID !== String(this.fbData.userId)) throw actionError("Сторінка належить іншому Facebook-профілю", "FACEBOOK_SESSION_MISMATCH");
             if (!session.fb_dtsg || !session.lsd) throw actionError("Не вдалося прочитати актуальні токени профілю", "FACEBOOK_SESSION_FIELDS_MISSING", { actionRequired: "refresh_session" });
             const saved = this.fbData.session;
-            this.#runtime = {
-                av: String(this.fbData.userId), __user: String(this.fbData.userId), __a: "1",
-                fb_dtsg: session.fb_dtsg, lsd: session.lsd,
-                jazoest: session.jazoest || `2${[...session.fb_dtsg].reduce((sum, char) => sum + char.charCodeAt(0), 0)}`,
-                __rev: session.clientRevision || saved.clientRevision,
-                __spin_r: session.spinR || saved.spinR, __spin_b: session.spinB || saved.spinB,
-                __spin_t: session.spinT || saved.spinT, __hsi: session.hsi || saved.hsi,
-                __comet_req: session.cometReq || saved.cometReq,
-            };
-            const missing = ["__rev", "__spin_r", "__spin_b", "__spin_t", "__comet_req"].filter(key => !this.#runtime[key]);
-            if (missing.length) {
-                this.#runtime = null;
-                throw actionError("Недостатньо параметрів HTTP-сесії. Оновіть сесію профілю", "FACEBOOK_SESSION_FIELDS_MISSING", { actionRequired: "refresh_session" });
-            }
+            this.#runtime = this.#fromSession({ ...saved,
+                ...Object.fromEntries(Object.entries(session).filter(([, value]) => value != null && value !== "")),
+            });
         }
+        return this.#runtime;
+    }
+    async readRuntime({ surface = "facebook" } = {}) {
+        this.#check();
+        if (surface !== "facebook" || !this.#runtime) throw actionError("Контекст HTTP-дії не підготовлений", "FACEBOOK_SESSION_REQUIRED");
         return this.#runtime;
     }
     #remember(error, mutation, sent) {

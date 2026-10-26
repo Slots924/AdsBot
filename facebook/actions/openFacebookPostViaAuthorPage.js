@@ -1,6 +1,9 @@
 import openPageWithoutPopups from "./openPageWithoutPopups.js";
 import { clickUntilConfirmed } from "../browser/confirmedClick.js";
 import isPostAvailable from "../post/checks/isPostAvailable.js";
+import readOpenedPostIdentity, {
+    normalizeFacebookNumericPostId,
+} from "../post/readOpenedPostIdentity.js";
 
 
 export const firstAuthorPagePostSelector = '[aria-posinset="1"]';
@@ -24,6 +27,7 @@ export const facebookPostViaAuthorPageStatuses = Object.freeze({
     FIRST_POST_NOT_FOUND: "FIRST_POST_NOT_FOUND",
     DATE_LINK_NOT_FOUND: "DATE_LINK_NOT_FOUND",
     POST_NOT_OPENED: "POST_NOT_OPENED",
+    POST_ID_NOT_RESOLVED: "POST_ID_NOT_RESOLVED",
     WRONG_POST_OPENED: "WRONG_POST_OPENED",
     ERROR: "ERROR",
 });
@@ -207,23 +211,27 @@ export default async function openFacebookPostViaAuthorPage(
     page,
     {
         postUrl,
+        expectedPostId = null,
         timeout = 15000,
         logger = console,
     } = {}
 ) {
     const pageId = extractFacebookAuthorPageId(postUrl);
     const postId = extractFacebookPostId(postUrl);
+    const numericPostId = normalizeFacebookNumericPostId(expectedPostId ?? postId);
     const result = {
         success: false,
         status: facebookPostViaAuthorPageStatuses.ERROR,
         pageId,
         postId,
+        expectedPostId: numericPostId,
         authorPageUrl: pageId
             ? `https://www.facebook.com/profile.php?id=${pageId}`
             : null,
         dateLink: null,
         finalUrl: null,
         openedPostId: null,
+        openedPostUrlId: null,
         error: null,
     };
 
@@ -247,6 +255,11 @@ export default async function openFacebookPostViaAuthorPage(
                 "Не вдалося отримати Facebook ID поста з посилання",
                 "POST_ID_NOT_FOUND"
             );
+        }
+
+        if (expectedPostId !== null && !numericPostId) {
+            result.status = facebookPostViaAuthorPageStatuses.INVALID_INPUT;
+            throw createError("Некоректний числовий ID очікуваного допису", "EXPECTED_POST_ID_INVALID");
         }
 
         logStep(logger, "Відкриваємо сторінку автора", {
@@ -281,7 +294,7 @@ export default async function openFacebookPostViaAuthorPage(
         logStep(logger, "Клікаємо посилання часу й дати", {
             selector: dateLink.selector,
             clickableSelector,
-            confirm: `Facebook ID ${postId} у URL`,
+            confirm: "URL Facebook-допису; після відкриття окремо звіряємо ID",
         });
         await clickUntilConfirmed(page, {
             target: { selector: clickableSelector },
@@ -304,11 +317,34 @@ export default async function openFacebookPostViaAuthorPage(
         }
 
         result.finalUrl = page.url();
-        result.openedPostId = extractFacebookPostId(result.finalUrl);
-        if (!doesFacebookPostUrlMatch(result.finalUrl, postId)) {
+        result.openedPostUrlId = extractFacebookPostId(result.finalUrl);
+        if (numericPostId) {
+            try {
+                const identity = await readOpenedPostIdentity(page, { timeout });
+                result.openedPostId = identity?.postId ?? null;
+                if (!result.openedPostId) throw new Error("ID відкритого поста відсутній");
+            } catch {
+                result.status = facebookPostViaAuthorPageStatuses.POST_ID_NOT_RESOLVED;
+                throw createError(
+                    "Не вдалося визначити числовий ID відкритого допису",
+                    "FACEBOOK_AUTHOR_PAGE_POST_ID_NOT_RESOLVED"
+                );
+            }
+        } else {
+            // Для ручних URL без збереженого числового ID залишаємо перевірку URL.
+            result.openedPostId = result.openedPostUrlId;
+        }
+        logStep(logger, "Звіряємо ID відкритого допису", {
+            expectedPostId: numericPostId ?? postId,
+            openedPostId: result.openedPostId,
+            openedPostUrlId: result.openedPostUrlId,
+        });
+        if (numericPostId
+            ? result.openedPostId !== numericPostId
+            : !doesFacebookPostUrlMatch(result.finalUrl, postId)) {
             result.status = facebookPostViaAuthorPageStatuses.WRONG_POST_OPENED;
             throw createError(
-                "Відкрито не той допис: Facebook ID у URL не збігається з переданим",
+                "Відкрито не той допис: ID відкритого поста не збігається з очікуваним",
                 "FACEBOOK_AUTHOR_PAGE_WRONG_POST_OPENED"
             );
         }
@@ -332,6 +368,9 @@ export default async function openFacebookPostViaAuthorPage(
             status: result.status,
             code: error?.code ?? null,
             message: error.message,
+            expectedPostId: numericPostId ?? postId,
+            openedPostId: result.openedPostId,
+            openedPostUrlId: result.openedPostUrlId,
         });
     }
 

@@ -119,7 +119,7 @@ export default class FarmStore {
             const first = started.map((s) => s.farmStartedAt).sort()[0] ?? null;
             const last = started.map((s) => s.farmFinishedAt ?? s.farmStartedAt).sort().at(-1) ?? null;
             return { ...decode(row), groupId: row.group_id, isBanned: Boolean(activity?.is_banned), bannedAt: activity?.banned_at,
-                setupUiCount: activity?.comment_account_setup_ui_count ?? 0, setupApiCount: activity?.comment_account_setup_api_count ?? 0,
+                accountType: activity?.creation_type_id ?? "regular",
                 commentTaskCount: activity?.comment_task_count ?? 0, reactionTaskCount: activity?.comment_reactions_task_count ?? 0,
                 farmSessionCount: started.length, farmTimeMs: started.reduce((sum, s) => sum + (s.farmTimeMs ?? 0), 0),
                 farmFirstAt: first, farmLastAt: last, farmPeriodMs: first ? Math.max(0, Date.parse(last) - Date.parse(first)) : null,
@@ -131,11 +131,12 @@ export default class FarmStore {
         return Promise.all(rows.map(async (row) => {
             const members = await this.members(row.id);
             const sum = (key) => members.reduce((total, member) => total + Number(member[key] ?? 0), 0);
-            const totals = Object.fromEntries(["setupUiCount", "setupApiCount", "commentTaskCount", "reactionTaskCount", "farmSessionCount", "farmTimeMs"].map((key) => [key, sum(key)]));
+            const totals = Object.fromEntries(["commentTaskCount", "reactionTaskCount", "farmSessionCount", "farmTimeMs"].map((key) => [key, sum(key)]));
             const first = members.map((m) => m.farmFirstAt).filter(Boolean).sort()[0] ?? null;
             const last = members.map((m) => m.farmLastAt).filter(Boolean).sort().at(-1) ?? null;
             return { id: row.id, name: row.name, notes: row.notes, count: members.length, banned: members.filter((m) => m.isBanned).length,
                 bannedPercent: members.length ? members.filter((m) => m.isBanned).length / members.length * 100 : 0,
+                creationTypeCounts: Object.fromEntries(["ui", "api", "autoupload", "regular"].map(type => [type, members.filter(member => member.accountType === type).length])),
                 totals, averages: Object.fromEntries(Object.entries(totals).map(([key, value]) => [key, members.length ? value / members.length : 0])),
                 outcomes: Object.fromEntries(["completed", "timeout", "failed", "cancelled", "interrupted", "running", "check_failed", "skipped"].map((key) => [key, members.reduce((count, member) => count + member.outcomes[key], 0)])),
                 farmFirstAt: first, farmLastAt: last, farmPeriodMs: first ? Date.parse(last) - Date.parse(first) : null };

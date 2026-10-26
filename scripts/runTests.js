@@ -17,6 +17,7 @@ const backendSuites = {
     ],
     all: [
         "scripts/farming.test.js",
+        "scripts/comment-account-autoupload.test.js",
         "test/testFanPageEditorData.js",
         "test/testProfileLaunchChecks.js",
         "test/testFacebookGraphDiagnosticsMock.js",

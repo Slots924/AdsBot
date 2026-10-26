@@ -1,7 +1,7 @@
+import AccountCreationType from "../components/AccountCreationType.jsx";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
-    Check,
     Download,
     FileText,
     LoaderCircle,
@@ -33,8 +33,7 @@ const profileStatColumns = [
     ["profileNo", "№ профілю"],
     ["adsPowerGroupName", "Група AdsPower"],
     ["isBanned", "Бан"],
-    ["commentAccountSetupApiCount", "API акаунти"],
-    ["commentAccountSetupUiCount", "UI акаунти"],
+    ["accountType", "Тип створення"],
     ["commentTaskCount", "Комент-задачі"],
     ["commentReactionsTaskCount", "Лайк-задачі"],
     ["totalTargetActions", "Всього задач"],
@@ -42,7 +41,7 @@ const profileStatColumns = [
     ["updatedAt", "Остання зміна"],
 ];
 const profileStatSettingsKey = "adsbot.profile-stat-columns";
-const accountTypeLabels = { regular: "Звичайні", ui: "UI", api: "API" };
+const accountTypeLabels = { regular: "Без типу", ui: "ЮА", api: "API", autoupload: "Автоаплоад" };
 
 function comparisonDates(range, from, to) {
     if (range === "all") return {};
@@ -152,7 +151,7 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
     const [columnSettingsOpen, setColumnSettingsOpen] = useState(false);
     const [profileStatColumnsState, setProfileStatColumnsState] = useState(readProfileStatColumns);
     const [draggedColumnKey, setDraggedColumnKey] = useState(null);
-    const [includedAccountTypes, setIncludedAccountTypes] = useState(["regular", "ui", "api"]);
+    const [includedAccountTypes, setIncludedAccountTypes] = useState(["regular", "ui", "api", "autoupload"]);
     const [comparison, setComparison] = useState(null);
     const [comparisonRange, setComparisonRange] = useState("all");
     const [comparisonFrom, setComparisonFrom] = useState("");
@@ -406,8 +405,8 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
                         {visibleProfileStatColumns.map((column) => <th key={column.key} draggable onDragStart={() => setDraggedColumnKey(column.key)} onDragOver={(event) => event.preventDefault()} onDrop={() => { moveProfileStatColumn(draggedColumnKey, column.key); setDraggedColumnKey(null); }} title="Перетягніть, щоб змінити порядок">{profileStatLabel(column.key)}</th>)}
                     </tr></thead>
                     <tbody>{profileStats.map((item) => <tr key={item.profileNo} className={item.isBanned ? "profile-stat-banned" : undefined}><td><input type="checkbox" checked={selectedProfileNos.includes(item.profileNo)} onChange={(event) => setSelectedProfileNos((current) => event.target.checked ? [...new Set([...current, item.profileNo])] : current.filter((profileNo) => profileNo !== item.profileNo))} /></td>
-                        {visibleProfileStatColumns.map((column) => <td key={column.key}>{["commentAccountSetupApiCount", "commentAccountSetupUiCount"].includes(column.key)
-                            ? (item.accountType === (column.key === "commentAccountSetupApiCount" ? "api" : "ui") ? <Check className="profile-stat-check" size={18} aria-label={`Оформлено через ${accountTypeLabels[item.accountType]}`} /> : "—")
+                        {visibleProfileStatColumns.map((column) => <td key={column.key}>{column.key === "accountType"
+                            ? <AccountCreationType type={item.accountType} />
                             : column.key === "isBanned" ? (item.isBanned ? <span className="profile-stat-ban-badge">Забанено</span> : "—")
                                 : column.key === "adsPowerGroupName" ? (item.adsPowerGroupName || item.adsPowerGroupId || "—")
                                     : column.key.endsWith("At") ? formatStatDate(item[column.key]) : item[column.key]}</td>)}
@@ -430,7 +429,7 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
                 </div>
                 {comparisonRangeInvalid ? <p role="alert" className="error">Дата «Від» має бути не пізніше дати «До».</p> : comparison && <div className="profile-stats-table-wrap" aria-busy={loading}>
                     <table className="profile-stats-table profile-stats-comparison-table"><thead><tr><th>Тип акаунта</th><th>Забанено</th>{comparison.tasks.map((task) => <th key={task.key}>{task.label}</th>)}</tr></thead>
-                        <tbody>{comparison.groups.map((group) => <tr key={group.accountType}><td>{accountTypeLabels[group.accountType]}</td><td>{group.bannedCount}</td>{comparison.tasks.map((task) => <td key={task.key}>{group.averages[task.key] == null ? "—" : group.averages[task.key].toLocaleString("uk-UA", { maximumFractionDigits: 2 })}</td>)}</tr>)}</tbody>
+                        <tbody>{comparison.groups.map((group) => <tr key={group.accountType}><td>{group.accountType === "regular" ? "Без типу" : <AccountCreationType type={group.accountType} />}</td><td>{group.bannedCount}</td>{comparison.tasks.map((task) => <td key={task.key}>{group.averages[task.key] == null ? "—" : group.averages[task.key].toLocaleString("uk-UA", { maximumFractionDigits: 2 })}</td>)}</tr>)}</tbody>
                     </table>
                 </div>}
             </section>}

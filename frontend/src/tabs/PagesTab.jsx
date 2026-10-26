@@ -549,6 +549,9 @@ function CommentModal({
                 creativeGeo: draft.language || draft.geo,
                 accountKey,
                 commentTarget,
+                ...(!isAd && post && draft.postUrl.trim() === String(post.permalinkUrl ?? "").trim()
+                    ? { postId: post.id ?? post.postId }
+                    : {}),
                 browserMode: settings.commentBrowserMode,
                 disableImages: settings.commentDisableImages,
                 commentWorkerConcurrency: settings.commentWorkerConcurrency,

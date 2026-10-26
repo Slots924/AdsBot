@@ -173,9 +173,9 @@ describe("GUI helpers", () => {
             />
         );
         await waitFor(() => expect(window.adsBot.getCountries).toHaveBeenCalled());
-        expect(screen.getByRole("checkbox", {
-            name: "Використовувати API-запити",
-        })).not.toBeChecked();
+        expect(screen.getByRole("radio", {
+            name: "ЮА",
+        })).toBeChecked();
         fireEvent.click(screen.getByRole("button", { name: "Цільова країна" }));
         const options = within(
             document.querySelector(".geo-select-list .select-options")
@@ -225,6 +225,13 @@ describe("GUI helpers", () => {
         });
         expect(onPhotosDirectoryChange).toHaveBeenCalledWith("C:/photos/CZ");
         window.adsBot.runCommentAccountSetup = vi.fn().mockResolvedValue({ ok: true, data: {} });
+        fireEvent.click(screen.getByRole("radio", { name: "Автоаплоад" }));
+        const delay = screen.getByLabelText("Вкажіть затримку між запитами");
+        expect(delay).toHaveValue(30);
+        fireEvent.change(delay, { target: { value: "42" } });
+        fireEvent.click(screen.getByText("Розширені налаштування"));
+        expect(screen.getByRole("checkbox", { name: "Заповнити інформацію About" })).toBeDisabled();
+        expect(screen.getByRole("checkbox", { name: "Видалити bio" })).toBeDisabled();
         const note = screen.getByLabelText("Помітка до імені AdsPower (необов’язково)");
         expect(note).toHaveValue("");
         expect(note).not.toBeRequired();
@@ -233,7 +240,8 @@ describe("GUI helpers", () => {
         fireEvent.click(within(document.querySelector(".geo-select-list .select-options")).getByRole("button", { name: "CZ" }));
         fireEvent.click(screen.getByRole("button", { name: "У чергу" }));
         await waitFor(() => expect(window.adsBot.runCommentAccountSetup).toHaveBeenCalledWith(
-            expect.objectContaining({ profileNameNote: "моя група" })
+            expect.objectContaining({ profileNameNote: "моя група", creationType: "autoupload", actionDelaySeconds: 42,
+                operations: expect.objectContaining({ fillAbout: false, deleteBio: false }) })
         ));
     });
 
