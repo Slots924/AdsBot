@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "id": "3704569b-3d34-4da0-9200-7cd966684f24",
+  "taskId": "ef180bcb-4be4-4dc8-997c-cd7958b204de",
+  "type": "campaign",
+  "title": "US | Creo_4 | 40+ Android 26/10 11:44",
+  "status": "failed",
+  "createdAt": "2026-10-26T09:44:37.782Z",
+  "startedAt": "2026-10-26T09:44:23.525Z",
+  "finishedAt": "2026-10-26T09:44:37.776Z",
+  "durationMs": 14251,
+  "inputSummary": {
+    "campaignJobId": "43d986f2-c810-4059-b73c-94767044e11e",
+    "accountKey": "account-049",
+    "adAccountId": "act_1135046968979037",
+    "campaignName": "US | Creo_4 | 40+ Android 26/10 11:44",
+    "templateId": 22,
+    "pageId": "793374197197941",
+    "postId": "793374197197941_122146339545053986",
+    "adSetCount": 3,
+    "dailyBudget": 5,
+    "startTime": "2026-10-26T09:44:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120252953872600130",
+      "creativeId": "1193972623294988",
+      "creatives": [
+        {
+          "id": "1193972623294988",
+          "pageId": "793374197197941",
+          "postId": "793374197197941_122146339545053986"
+        }
+      ],
+      "adSets": [],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "You have been temporarily blocked from performing this action.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 10,
+      "graphSubcode": 2859015,
+      "graphUserTitle": "Your account is restricted right now",
+      "graphUserMessage": "You have been temporarily blocked from performing this action.",
+      "graphType": "FacebookApiException",
+      "isTransient": false,
+      "requestId": "008c6116-af2f-4b9f-9bc3-60931fa25786",
+      "traceId": "AWyovVm2SUQ8fy4VRFNqA8o",
+      "metaRequestId": "AWyovVm2SUQ8fy4VRFNqA8o",
+      "endpoint": "/act_1135046968979037/adsets",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "stage": "adset",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "43d986f2-c810-4059-b73c-94767044e11e",
+    "accountKey": "account-049",
+    "adAccountId": "act_1135046968979037",
+    "uniqueKey": "campaign-job:43d986f2-c810-4059-b73c-94767044e11e"
+  }
+}
