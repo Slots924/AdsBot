@@ -230,8 +230,8 @@ describe("GUI helpers", () => {
         expect(delay).toHaveValue(30);
         fireEvent.change(delay, { target: { value: "42" } });
         fireEvent.click(screen.getByText("Розширені налаштування"));
-        expect(screen.getByRole("checkbox", { name: "Заповнити інформацію About" })).toBeDisabled();
-        expect(screen.getByRole("checkbox", { name: "Видалити bio" })).toBeDisabled();
+        expect(screen.getByRole("checkbox", { name: "Заповнити інформацію About" })).toBeEnabled();
+        expect(screen.getByRole("checkbox", { name: "Видалити bio" })).toBeEnabled();
         const note = screen.getByLabelText("Помітка до імені AdsPower (необов’язково)");
         expect(note).toHaveValue("");
         expect(note).not.toBeRequired();
@@ -241,7 +241,7 @@ describe("GUI helpers", () => {
         fireEvent.click(screen.getByRole("button", { name: "У чергу" }));
         await waitFor(() => expect(window.adsBot.runCommentAccountSetup).toHaveBeenCalledWith(
             expect.objectContaining({ profileNameNote: "моя група", creationType: "autoupload", actionDelaySeconds: 42,
-                operations: expect.objectContaining({ fillAbout: false, deleteBio: false }) })
+                operations: expect.objectContaining({ fillAbout: true, deleteBio: true }) })
         ));
     });
 

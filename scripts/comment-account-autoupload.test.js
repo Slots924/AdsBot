@@ -31,6 +31,7 @@ async function fixture(t, overrides = {}, flags = {}) {
         adsPower: {}, profile: { profile_id: "test", profile_no: "10" },
         persona: { firstName: "Test", lastName: "User", gender: "male" },
         photoSet: { path: directory, files }, random: () => 0.5,
+        skipFillAbout: true,
         actions: {
             checkProfileSession: async () => { events.push("session"); return { client: {}, result: { message: "Активний" } }; },
             prepareSocialContext: async () => ({ fbData: {}, context: {} }),
@@ -59,12 +60,14 @@ test("HTTP-оформлення чекає між логічними діями,
         "delete", 30000, "post", "date", 30000, "post", "date", "rename", "gender"]);
 });
 
-test("невдала зміна імені ставить тег та зупиняє всі подальші дії", async t => {
+test("невдала зміна імені ставить тег та дозволяє незалежні дії", async t => {
     const failure = { success: false, code: "FACEBOOK_NAME_REJECTED", message: "Відмова Facebook", graphUserMessage: "Зачекайте 60 днів" };
     const { result, events } = await fixture(t, { changeName: async () => failure });
     assert.equal(result.outcome, "failed");
     assert.match(result.error, /60 днів/);
-    assert.deepEqual(events, ["session", "accounts-center", "name-error-tag"]);
+    assert.ok(events.includes("name-error-tag"));
+    assert.ok(events.includes("avatar") && events.includes("post"));
+    assert.ok(!events.includes("rename"));
 });
 
 test("неактивні cookies не запускають зміни та не призначають стать", async t => {
@@ -142,6 +145,68 @@ function httpFixture(initialActor = "123") {
         } } });
     return { client, calls };
 }
+
+test("About пропускає порожнє біо без паузи, роботу змінює разом і завершує освітою", async t => {
+    for (const emptyBio of [true, false]) {
+        const changes = [];
+        const mutate = async (_, input, options) => {
+            await options.beforeMutation();
+            if (input.work) changes.push("company", "position");
+            else changes.push(input.education ? "education" : "bio");
+            return success;
+        };
+        const { result, events } = await fixture(t, {
+            updateBio: emptyBio ? async () => ({ ...success, skipped: true, outcome: "ALREADY_EMPTY" }) : mutate,
+            updateAbout: mutate,
+        }, { skipFillAbout: false, skipAvatarChange: true, skipCoverChange: true,
+            skipDeletePosts: true, skipPublishPosts: true,
+            persona: { firstName: "Test", lastName: "User", gender: "male",
+                work: { company: "Company", position: "Position" }, education: "College" } });
+        assert.equal(result.outcome, "success");
+        assert.deepEqual(changes, emptyBio ? ["company", "position", "education"] : ["bio", "company", "position", "education"]);
+        assert.equal(events.filter(event => typeof event === "number").length, emptyBio ? 2 : 3);
+        assert.deepEqual(events.slice(-2), ["rename", "gender"]);
+        assert.equal(result.steps.about.fields.bio.skipped, emptyBio);
+    }
+});
+
+test("винятки видалення та публікації не заважають наступним етапам і зберігаються у звіті", async t => {
+    const { actionError } = await import("../facebook/autoupload/graphql/errors.js");
+    let posts = 0;
+    const { result } = await fixture(t, {
+        deletePosts: async () => { throw actionError("Facebook заборонив видалення", "FACEBOOK_GRAPHQL_ERROR"); },
+        publishPosts: async () => {
+            if (posts++ === 0) throw actionError("Facebook заборонив публікацію", "FACEBOOK_GRAPHQL_ERROR");
+            return success;
+        },
+        updateBio: async () => ({ ...success, skipped: true }),
+        updateAbout: async () => success,
+    }, { skipFillAbout: false, persona: { firstName: "Test", lastName: "User",
+        work: { company: "Company", position: "Position" }, education: "College" } });
+    assert.equal(result.outcome, "completed_with_error");
+    assert.equal(posts, 2);
+    assert.equal(result.steps.post2.ok, true);
+    assert.equal(result.steps.about.fields.education.success, true);
+    const markdown = buildCommentAccountSetupMarkdown({ profiles: [result], startedAt: new Date(), finishedAt: new Date() });
+    assert.match(markdown, /Facebook заборонив видалення/);
+    assert.match(markdown, /Facebook заборонив публікацію/);
+});
+
+test("помилка роботи не заважає освіті та зберігає коди Facebook у текстовому звіті", async t => {
+    const { result } = await fixture(t, {
+        updateBio: async () => ({ ...success, skipped: true }),
+        updateAbout: async (_, input) => input.work ? { success: false, outcome: "NOT_CONFIRMED",
+            message: "Помилка роботи", graphUserMessage: "Компанія недоступна", graphCode: 100,
+            httpStatus: 200, code: "FACEBOOK_GRAPHQL_ERROR" } : success,
+    }, { skipFillAbout: false, persona: { firstName: "Test", lastName: "User",
+        work: { company: "Company", position: "Position" }, education: "College" } });
+    assert.equal(result.outcome, "completed_with_error");
+    assert.equal(result.steps.about.fields.work.success, false);
+    assert.equal(result.steps.about.fields.education.success, true);
+    const markdown = buildCommentAccountSetupMarkdown({ profiles: [result], startedAt: new Date(), finishedAt: new Date() });
+    assert.match(markdown, /Компанія недоступна/);
+    assert.match(markdown, /FB 100/);
+});
 
 test("соц використовує перший GET, фанка потребує лише перемикання та оновлення контексту", async () => {
     for (const actor of ["123", "999"]) {

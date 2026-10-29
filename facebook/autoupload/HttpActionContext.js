@@ -36,6 +36,7 @@ export default class HttpActionContext {
         }
         this.failure = null;
         this.writeCount = 0;
+        this.beforeMutation = null;
     }
     #check() {
         this.signal?.throwIfAborted();
@@ -82,6 +83,7 @@ export default class HttpActionContext {
             }
             const url = new URL(endpoint, "https://www.facebook.com");
             if (url.origin !== "https://www.facebook.com" || !["/api/graphql/", "/ajax/bulk-route-definitions/"].includes(url.pathname)) throw actionError("Непідтримувана адреса екшена", "FACEBOOK_ENDPOINT_INVALID");
+            if (mutation && this.writeCount === 0) await this.beforeMutation?.();
             this.signal?.throwIfAborted();
             sent = true;
             if (mutation) this.writeCount += 1;
@@ -96,7 +98,7 @@ export default class HttpActionContext {
                         throw actionError("Facebook не повернув підтвердження зміни профілю", "FACEBOOK_PROFILE_WRITE_NOT_CONFIRMED", { outcomeUnknown: true, actionRequired: "check_profile_changes" });
                     }
                 }
-                catch (error) { if (mutation) error.outcomeUnknown = true; throw error; }
+                catch (error) { if (mutation && error.code !== "FACEBOOK_GRAPHQL_ERROR") error.outcomeUnknown = true; throw error; }
             } else if (response.status < 200 || response.status >= 300) throw actionError(`Facebook повернув HTTP ${response.status}`, "FACEBOOK_HTTP_ERROR", { httpStatus: response.status });
             return { ok: response.status >= 200 && response.status < 300, statusCode: response.status, body: response.data };
         } catch (error) {

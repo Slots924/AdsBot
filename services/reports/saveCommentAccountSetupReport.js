@@ -196,8 +196,12 @@ function buildProfileSection(item) {
     }
     if (problem) lines.push("", `> Причина: ${escapeText(problem)}`);
     const diagnostics = Object.entries(steps).filter(([key, step]) => step?.diagnostic || step?.items || /^post\d+$/.test(key));
+    for (const [field, step] of Object.entries(steps.about?.fields ?? {})) {
+        if (step.diagnostic) diagnostics.push([field, { ...step, ok: step.success }]);
+    }
     if (diagnostics.length) {
-        const labels = { session: "Сесія", name: "Ім’я", avatar: "Аватарка", cover: "Обкладинка", deletePosts: "Видалення постів", failure: "Зупинка" };
+        const labels = { session: "Сесія", name: "Ім’я", avatar: "Аватарка", cover: "Обкладинка", deletePosts: "Видалення постів", failure: "Зупинка",
+            bio: "Біо", work: "Робота", education: "Освіта" };
         lines.push("", createTable(["Крок", "Результат", "Причина / відповідь Facebook", "Коди"], diagnostics
             .filter(([key]) => key !== "posts")
             .map(([key, step]) => {

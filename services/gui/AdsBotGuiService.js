@@ -765,8 +765,8 @@ export default class AdsBotGuiService {
             changeCover: operations.changeCover !== false,
             deletePosts: operations.deletePosts !== false,
             publishPosts: operations.publishPosts !== false,
-            fillAbout: creationType !== "autoupload" && operations.fillAbout !== false,
-            deleteBio: creationType !== "autoupload" && operations.deleteBio !== false,
+            fillAbout: operations.fillAbout !== false,
+            deleteBio: operations.deleteBio !== false,
         };
         const personas = generated.profiles.map((profile) => ({
             gender: profile.gender,

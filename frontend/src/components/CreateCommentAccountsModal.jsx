@@ -107,8 +107,7 @@ export default function CreateCommentAccountsModal({
                 creationType: draft.creationType,
                 actionDelaySeconds: Number(draft.actionDelaySeconds),
                 checkGender: draft.checkGender,
-                operations: { ...draft.operations, fillAbout: !isAutoupload && draft.operations.fillAbout,
-                    deleteBio: !isAutoupload && draft.operations.deleteBio },
+                operations: { ...draft.operations },
                 browserMode: settings.accountSetupBrowserMode,
                 commentWorkerConcurrency: settings.accountSetupWorkerConcurrency,
                 commentWorkerProxyIds: settings.accountSetupWorkerProxyIds,
@@ -205,8 +204,8 @@ export default function CreateCommentAccountsModal({
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.changeCover} onChange={(event) => setOperation("changeCover", event.target.checked)} /><span>Змінити обкладинку</span></label>
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.deletePosts} onChange={(event) => setOperation("deletePosts", event.target.checked)} /><span>Видалити старі пости</span></label>
                         <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.publishPosts} onChange={(event) => setOperation("publishPosts", event.target.checked)} /><span>Опублікувати фото-пости</span></label>
-                        <label className="checkbox-line compact"><input type="checkbox" checked={!isAutoupload && draft.operations.fillAbout} disabled={isAutoupload} onChange={(event) => setOperation("fillAbout", event.target.checked)} /><span>Заповнити інформацію About</span></label>
-                        <label className="checkbox-line compact"><input type="checkbox" checked={!isAutoupload && draft.operations.deleteBio} disabled={isAutoupload || !draft.operations.fillAbout} onChange={(event) => setOperation("deleteBio", event.target.checked)} /><span>Видалити bio</span></label>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.fillAbout} onChange={(event) => setOperation("fillAbout", event.target.checked)} /><span>Заповнити інформацію About</span></label>
+                        <label className="checkbox-line compact"><input type="checkbox" checked={draft.operations.deleteBio} disabled={!draft.operations.fillAbout} onChange={(event) => setOperation("deleteBio", event.target.checked)} /><span>Видалити bio</span></label>
                     </section>
                     <p className="settings-hint">Якщо поле країни не вибране, використовується цільова країна.</p>
                     <div className="form-grid">
@@ -216,15 +215,15 @@ export default function CreateCommentAccountsModal({
                         </label>
                         <label className="field">
                             <span>Компанії</span>
-                            <GeoSelect disabled={isAutoupload || !draft.operations.fillAbout} layout="list" countries={countries} value={draft.companiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для компаній" onChange={(value) => setDraft((current) => ({ ...current, companiesGeo: value }))} />
+                            <GeoSelect disabled={!draft.operations.fillAbout} layout="list" countries={countries} value={draft.companiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для компаній" onChange={(value) => setDraft((current) => ({ ...current, companiesGeo: value }))} />
                         </label>
                         <label className="field">
                             <span>Професії</span>
-                            <GeoSelect disabled={isAutoupload || !draft.operations.fillAbout} layout="list" countries={countries} value={draft.professionsGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для професій" onChange={(value) => setDraft((current) => ({ ...current, professionsGeo: value }))} />
+                            <GeoSelect disabled={!draft.operations.fillAbout} layout="list" countries={countries} value={draft.professionsGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для професій" onChange={(value) => setDraft((current) => ({ ...current, professionsGeo: value }))} />
                         </label>
                         <label className="field">
                             <span>Навчання</span>
-                            <GeoSelect disabled={isAutoupload || !draft.operations.fillAbout} layout="list" countries={countries} value={draft.universitiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для навчання" onChange={(value) => setDraft((current) => ({ ...current, universitiesGeo: value }))} />
+                            <GeoSelect disabled={!draft.operations.fillAbout} layout="list" countries={countries} value={draft.universitiesGeo} placeholder={geo || "Як цільова країна"} ariaLabel="Країна для навчання" onChange={(value) => setDraft((current) => ({ ...current, universitiesGeo: value }))} />
                         </label>
                     </div>
                 </details>

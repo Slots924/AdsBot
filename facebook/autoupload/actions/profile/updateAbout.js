@@ -15,6 +15,8 @@ export default function updateAbout(fbData, { education, work }, options = {}) {
             steps.work = await updateWorkField({ page, tokens, work, replaceExisting: true, allowFallback: false, beforeAction });
         }
         const success = Object.keys(steps).length > 0 && Object.values(steps).every(step => step.success);
-        return { success, status: success ? "COMPLETED" : "PARTIAL", steps };
+        return { success, status: success ? "COMPLETED" : "PARTIAL", steps,
+            error: Object.entries(steps).filter(([, step]) => !step.success)
+                .map(([key, step]) => `${key}: ${step.error || step.status}`).join("; ") || null };
     }, "Інформацію про освіту та роботу соціального профілю оновлено");
 }

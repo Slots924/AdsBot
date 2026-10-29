@@ -78,6 +78,61 @@ test("Bio щоразу отримує власні свіжі collection та se
     assert.equal(calls.filter(call => call.config.method === "get").length, 2);
 });
 
+test("очищення Bio читає значення і чекає тільки перед фактичною mutation", async () => {
+    for (const bio of ["", "Old Bio", null]) {
+        let waits = 0;
+        let writes = 0;
+        const { fbData } = await fixture(config => {
+            const form = formOf(config);
+            if (config.url.includes("bulk-route-definitions")) {
+                const route = form.get("route_urls[0]");
+                return response({ payload: { payloads: { [route]: { result: { exports: { rootView: {
+                    props: { collectionToken: "collection", sectionToken: "section", rawSectionToken: "raw" },
+                } } } } } } });
+            }
+            if (form.get("fb_api_req_friendly_name").endsWith("Query")) {
+                return response({ data: { user: { about_app_sections: { nodes: [{ activeCollections: { nodes: [{
+                    style_renderer: { profile_field_sections: bio === null ? [] : [{ field_section_type: "directory_bio",
+                        profile_fields: { nodes: [{ title: { text: bio } }] } }] },
+                }] } }] } } } });
+            }
+            writes++;
+            return response({ data: { profile_field_save: { id: "123" } } });
+        });
+        const result = await profileActions.bio(fbData, { value: "" }, {
+            skipIfEmpty: true, beforeMutation: async () => { waits++; },
+        });
+        assert.equal(result.success, bio !== null);
+        assert.equal(writes, bio ? 1 : 0);
+        assert.equal(waits, writes);
+        if (bio === "") assert.equal(result.skipped, true);
+        if (bio === null) assert.equal(result.code, "FACEBOOK_BIO_READ_FAILED");
+    }
+});
+
+test("відмова GraphQL зберігає текст Facebook та дозволяє наступну незалежну дію", async () => {
+    const { default: HttpActionContext } = await import("../facebook/autoupload/HttpActionContext.js");
+    let writes = 0;
+    const { fbData } = await fixture(config => {
+        const form = formOf(config);
+        if (config.url.includes("bulk-route-definitions")) {
+            const route = form.get("route_urls[0]");
+            return response({ payload: { payloads: { [route]: { result: { exports: { rootView: {
+                props: { collectionToken: "collection", sectionToken: "section" },
+            } } } } } } });
+        }
+        return ++writes === 1 ? response({ errors: [{ code: 100, message: "Facebook rejected Bio" }] })
+            : response({ data: { profile_field_save: { id: "123" } } });
+    });
+    const context = new HttpActionContext(fbData);
+    const failed = await profileActions.bio(fbData, { value: "Bio" }, { context });
+    assert.equal(failed.success, false);
+    assert.equal(failed.outcomeUnknown, false);
+    assert.equal(failed.graphCode, 100);
+    assert.match(failed.message, /Facebook rejected Bio/);
+    assert.equal((await profileActions.bio(fbData, { value: "New Bio" }, { context })).success, true);
+});
+
 test("публікація передає текст і фото, а потім змінює дату створеного story", async t => {
     const imagePath = await image(t);
     const operations = [];

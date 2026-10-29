@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "id": "96af420b-d5ba-4033-b3f8-2921a552695d",
+  "taskId": "2359d10f-148b-45a7-b714-816d14883854",
+  "type": "campaign",
+  "title": "HU | Creo_193 | 25+ 26/10 16:09",
+  "status": "failed",
+  "createdAt": "2026-10-26T16:11:00.221Z",
+  "startedAt": "2026-10-26T16:09:53.340Z",
+  "finishedAt": "2026-10-26T16:11:00.217Z",
+  "durationMs": 66877,
+  "inputSummary": {
+    "campaignJobId": "2d1de2a9-7c58-441d-ab27-05e78437d975",
+    "accountKey": "account-059",
+    "adAccountId": "act_1129476906167115",
+    "campaignName": "HU | Creo_193 | 25+ 26/10 16:09",
+    "templateId": 30,
+    "pageId": "807655665767419",
+    "postId": "807655665767419_122150100051062015",
+    "adSetCount": 3,
+    "dailyBudget": 5,
+    "startTime": "2026-10-26T16:09:00.000Z",
+    "createPaused": true,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "52523841450916",
+      "creativeId": "4526824500927622",
+      "creatives": [
+        {
+          "id": "4526824500927622",
+          "pageId": "807655665767419",
+          "postId": "807655665767419_122150100051062015"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "52523841469516",
+          "name": "HU | Creo_193 | 25+ 26/10 16:09 | AS 01"
+        },
+        {
+          "index": 1,
+          "id": "52523841490516",
+          "name": "HU | Creo_193 | 25+ 26/10 16:09 | AS 02"
+        }
+      ],
+      "ads": [
+        {
+          "index": 0,
+          "creativeIndex": 0,
+          "id": "52523841485116",
+          "name": "HU | Creo_193 | 25+ 26/10 16:09 | AD 01"
+        },
+        {
+          "index": 1,
+          "creativeIndex": 0,
+          "id": "52523841503516",
+          "name": "HU | Creo_193 | 25+ 26/10 16:09 | AD 02"
+        }
+      ]
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "Не вдалося визначити, чи Meta застосувала зміну. Не повторюйте операцію до ручної перевірки Ads Manager.",
+      "code": "FACEBOOK_WRITE_OUTCOME_UNKNOWN",
+      "httpStatus": null,
+      "graphCode": null,
+      "graphSubcode": null,
+      "graphUserTitle": null,
+      "graphUserMessage": null,
+      "graphType": null,
+      "isTransient": false,
+      "requestId": "eaa6be15-9a25-4f60-b2d9-d6e97c644f51",
+      "traceId": null,
+      "metaRequestId": null,
+      "endpoint": "/act_1129476906167115/adsets",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": true,
+      "reason": null,
+      "stage": "adset",
+      "itemIndex": 2,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "2d1de2a9-7c58-441d-ab27-05e78437d975",
+    "accountKey": "account-059",
+    "adAccountId": "act_1129476906167115",
+    "uniqueKey": "campaign-job:2d1de2a9-7c58-441d-ab27-05e78437d975"
+  }
+}

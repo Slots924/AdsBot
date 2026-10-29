@@ -1,4 +1,2258 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "682a7d48-acab-43e2-a1b3-07ee45b35825",
+      "type": "comments",
+      "name": "Коментарі поста · DE · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
+        },
+        {
+          "key": "adspower-group:7887373",
+          "label": "[AT] Austria"
+        },
+        {
+          "key": "adspower-group:7887378",
+          "label": "[CH] Switherland"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "creativeGeo": "DE",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/100091704729643/posts/pfbid0s8hxHD1QEontfwtyqGwRASCbLufSVzr6dYkpkWXwMsaJZ5s8tfgEEEucTXd4WwRjl",
+        "postId": "106759929055828_1059666703766811",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "58ce41df-09d2-4b25-963b-1b301cff069b"
+      },
+      "progress": {
+        "completed": 16,
+        "total": 16,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 14,
+        "skipped": 1,
+        "failedComments": 1,
+        "failedProfiles": 1,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "2.1.1",
+        "currentProfileNo": "238",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-29_11-54-22-154.md",
+        "published": 14,
+        "skipped": 1,
+        "failedComments": 1,
+        "failedProfiles": 1,
+        "excludedProfiles": 0,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-29T09:31:20.359Z",
+      "startedAt": "2026-10-29T09:31:20.361Z",
+      "finishedAt": "2026-10-29T09:54:22.158Z",
+      "updatedAt": "2026-10-29T09:54:22.161Z"
+    },
+    {
+      "id": "ea53ab84-54e4-4ddd-88a5-b5063a2414f8",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта bm-001",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1441",
+          "label": "AdsPower №1441"
+        }
+      ],
+      "input": {
+        "accountKey": "bm-001",
+        "adsPowerProfileNo": "1441"
+      },
+      "metadata": {
+        "accountKey": "bm-001",
+        "uniqueKey": "facebook-api-client-sync:bm-001",
+        "reportId": "8a8364f1-c908-458c-9944-ba8a7c1fe236"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "bm-001",
+        "adsPowerProfileNo": "1441",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-29T09:28:59.079Z",
+      "startedAt": "2026-10-29T09:28:59.082Z",
+      "finishedAt": "2026-10-29T09:29:19.848Z",
+      "updatedAt": "2026-10-29T09:29:19.851Z"
+    },
+    {
+      "id": "c5c9dea7-2540-4aad-901e-649b0438e9cf",
+      "type": "publication",
+      "name": "Публікація · DE · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-064",
+        "pageId": "106759929055828",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/0jjho5",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Downloads\\DE V2.png"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-064",
+        "pageId": "106759929055828",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "1",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "dcca85ca-a598-47ae-ab36-9c3dd089c061"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-064",
+        "pageId": "106759929055828",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/0jjho5",
+        "postId": "106759929055828_1059666703766811",
+        "permalinkUrl": "https://www.facebook.com/100091704729643/posts/pfbid0s8hxHD1QEontfwtyqGwRASCbLufSVzr6dYkpkWXwMsaJZ5s8tfgEEEucTXd4WwRjl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-28T16:16:25.053Z",
+      "startedAt": "2026-10-28T16:16:25.056Z",
+      "finishedAt": "2026-10-28T16:16:32.877Z",
+      "updatedAt": "2026-10-28T16:16:32.879Z"
+    },
+    {
+      "id": "beeea89a-9e7d-405b-a511-6a87ea550702",
+      "type": "page-rebuild",
+      "name": "Пересетаплення фанпейджа · 106759929055828",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-page:account-064:106759929055828",
+          "label": "фанпейджа 106759929055828"
+        }
+      ],
+      "input": {
+        "accountKey": "account-064",
+        "pageId": "106759929055828",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\1.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\760566420_122101859385413512_2124363438533877778_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\760620694_122101859913413512_3266162988344480675_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\761546672_122101860219413512_1842967651833529189_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\762553405_122101860489413512_4276474847541696709_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\762600600_122101860351413512_4268732902063792248_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\763925848_122101860657413512_8223271984076290018_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE\\Skyf\\6\\764006337_122101860135413512_6939071310635721340_n.jpg"
+        ],
+        "pageCreatedAt": "2025-10-10",
+        "preserveDates": false
+      },
+      "metadata": {
+        "accountKey": "account-064",
+        "pageId": "106759929055828",
+        "uniqueKey": "page-rebuild:account-064:106759929055828",
+        "reportId": "7bff2524-080d-41c9-9a16-bc795dce42e9"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "current": 6,
+        "count": 6
+      },
+      "result": {
+        "pageId": "106759929055828",
+        "avatar": {
+          "file": "1.jpg",
+          "photoId": "1059660643767417"
+        },
+        "cover": {
+          "file": "760620694_122101859913413512_3266162988344480675_n.jpg",
+          "photoId": "1059660860434062"
+        },
+        "cleanup": {
+          "deletedPostIds": [],
+          "deletedPhotoIds": [],
+          "hiddenPostIds": []
+        },
+        "publications": [
+          {
+            "file": "760566420_122101859385413512_2124363438533877778_n.jpg",
+            "photoId": "1059660997100715",
+            "postId": "106759929055828_1059661053767376",
+            "backdatedTime": "2025-11-23T00:00:00.000Z"
+          },
+          {
+            "file": "761546672_122101860219413512_1842967651833529189_n.jpg",
+            "photoId": "1059661153767366",
+            "postId": "106759929055828_1059661210434027",
+            "backdatedTime": "2025-12-07T00:00:00.000Z"
+          },
+          {
+            "file": "762553405_122101860489413512_4276474847541696709_n.jpg",
+            "photoId": "1059661293767352",
+            "postId": "106759929055828_1059661337100681",
+            "backdatedTime": "2025-12-18T00:00:00.000Z"
+          },
+          {
+            "file": "762600600_122101860351413512_4268732902063792248_n.jpg",
+            "photoId": "1059661443767337",
+            "postId": "106759929055828_1059661507100664",
+            "backdatedTime": "2026-01-02T00:00:00.000Z"
+          },
+          {
+            "file": "763925848_122101860657413512_8223271984076290018_n.jpg",
+            "photoId": "1059661617100653",
+            "postId": "106759929055828_1059661667100648",
+            "backdatedTime": "2026-07-19T00:00:00.000Z"
+          },
+          {
+            "file": "764006337_122101860135413512_6939071310635721340_n.jpg",
+            "photoId": "1059661777100637",
+            "postId": "106759929055828_1059661827100632",
+            "backdatedTime": "2026-08-20T00:00:00.000Z"
+          }
+        ],
+        "warnings": [
+          {
+            "stage": "delete-photo",
+            "objectId": "105536425846515",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-photo",
+            "objectId": "105533939180097",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          },
+          {
+            "stage": "delete-post",
+            "objectId": "106759929055828_105536425846515",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) This post wasn't created by the application"
+          }
+        ],
+        "resumed": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-28T16:09:13.390Z",
+      "startedAt": "2026-10-28T16:09:13.392Z",
+      "finishedAt": "2026-10-28T16:10:25.829Z",
+      "updatedAt": "2026-10-28T16:10:25.832Z"
+    },
+    {
+      "id": "39cdaf0d-53d1-459e-b7f9-ef0129801ef9",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-064",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1441",
+          "label": "AdsPower №1441"
+        }
+      ],
+      "input": {
+        "accountKey": "account-064",
+        "adsPowerProfileNo": "1441"
+      },
+      "metadata": {
+        "accountKey": "account-064",
+        "uniqueKey": "facebook-api-client-sync:account-064",
+        "reportId": "3ea1cfd9-d700-4ea9-a4a7-255540a7be53"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-064",
+        "adsPowerProfileNo": "1441",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-28T15:48:12.779Z",
+      "startedAt": "2026-10-28T15:48:12.781Z",
+      "finishedAt": "2026-10-28T15:48:32.228Z",
+      "updatedAt": "2026-10-28T15:48:32.231Z"
+    },
+    {
+      "id": "b0b5bd54-9ebc-4da3-a45d-75e6e80d17de",
+      "type": "comment-reactions",
+      "name": "Реакції під коментарями · 21",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:112",
+          "label": "AdsPower 112"
+        },
+        {
+          "key": "adspower-profile:254",
+          "label": "AdsPower 254"
+        },
+        {
+          "key": "adspower-profile:348",
+          "label": "AdsPower 348"
+        },
+        {
+          "key": "adspower-profile:629",
+          "label": "AdsPower 629"
+        },
+        {
+          "key": "adspower-profile:1378",
+          "label": "AdsPower 1378"
+        },
+        {
+          "key": "adspower-profile:1385",
+          "label": "AdsPower 1385"
+        },
+        {
+          "key": "adspower-profile:1390",
+          "label": "AdsPower 1390"
+        },
+        {
+          "key": "adspower-profile:1418",
+          "label": "AdsPower 1418"
+        },
+        {
+          "key": "adspower-profile:1444",
+          "label": "AdsPower 1444"
+        },
+        {
+          "key": "adspower-profile:1882",
+          "label": "AdsPower 1882"
+        },
+        {
+          "key": "adspower-profile:1990",
+          "label": "AdsPower 1990"
+        },
+        {
+          "key": "adspower-profile:1991",
+          "label": "AdsPower 1991"
+        },
+        {
+          "key": "adspower-profile:1992",
+          "label": "AdsPower 1992"
+        },
+        {
+          "key": "adspower-profile:1993",
+          "label": "AdsPower 1993"
+        },
+        {
+          "key": "adspower-profile:1994",
+          "label": "AdsPower 1994"
+        },
+        {
+          "key": "adspower-profile:2032",
+          "label": "AdsPower 2032"
+        },
+        {
+          "key": "adspower-profile:2033",
+          "label": "AdsPower 2033"
+        },
+        {
+          "key": "adspower-profile:2044",
+          "label": "AdsPower 2044"
+        },
+        {
+          "key": "adspower-profile:2050",
+          "label": "AdsPower 2050"
+        },
+        {
+          "key": "adspower-profile:2055",
+          "label": "AdsPower 2055"
+        },
+        {
+          "key": "adspower-profile:2238",
+          "label": "AdsPower 2238"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "112",
+          "254",
+          "348",
+          "629",
+          "1378",
+          "1385",
+          "1390",
+          "1418",
+          "1444",
+          "1882",
+          "1990",
+          "1991",
+          "1992",
+          "1993",
+          "1994",
+          "2032",
+          "2033",
+          "2044",
+          "2050",
+          "2055",
+          "2238"
+        ],
+        "postUrl": "https://www.facebook.com/share/p/1AJrh1t8Xs/",
+        "reactions": {
+          "like": 5,
+          "love": 3,
+          "care": 3
+        },
+        "includeReplies": false,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "metadata": {
+        "profileNos": [
+          "112",
+          "254",
+          "348",
+          "629",
+          "1378",
+          "1385",
+          "1390",
+          "1418",
+          "1444",
+          "1882",
+          "1990",
+          "1991",
+          "1992",
+          "1993",
+          "1994",
+          "2032",
+          "2033",
+          "2044",
+          "2050",
+          "2055",
+          "2238"
+        ],
+        "postUrl": "https://www.facebook.com/share/p/1AJrh1t8Xs/",
+        "reactions": {
+          "like": 5,
+          "love": 3,
+          "care": 3
+        },
+        "reportId": "4554284a-1878-4a57-8f59-9a1f591fde9a"
+      },
+      "progress": {
+        "completed": 21,
+        "total": 21,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "currentProfileNo": "2238",
+        "workerId": 1
+      },
+      "result": {
+        "startedAt": "2026-10-28T13:19:50.136Z",
+        "finishedAt": "2026-10-28T13:34:51.777Z",
+        "postUrl": "https://www.facebook.com/share/p/1AJrh1t8Xs/",
+        "reactions": {
+          "like": 5,
+          "love": 3,
+          "care": 3
+        },
+        "includeReplies": false,
+        "concurrency": 1,
+        "profiles": [
+          {
+            "profileNo": "112",
+            "reaction": "like",
+            "outcome": "success",
+            "stage": "SET_REACTION",
+            "applied": 12,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 12,
+            "errors": [],
+            "error": null,
+            "cleanupErrors": [],
+            "startedAt": "2026-10-28T13:19:50.136Z",
+            "finishedAt": "2026-10-28T13:21:05.453Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "254",
+            "reaction": "like",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:21:05.458Z",
+            "finishedAt": "2026-10-28T13:21:27.308Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "348",
+            "reaction": "like",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:21:27.310Z",
+            "finishedAt": "2026-10-28T13:21:46.765Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "629",
+            "reaction": "like",
+            "outcome": "success",
+            "stage": "SET_REACTION",
+            "applied": 12,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 12,
+            "errors": [],
+            "error": null,
+            "cleanupErrors": [],
+            "startedAt": "2026-10-28T13:21:46.766Z",
+            "finishedAt": "2026-10-28T13:22:58.566Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1378",
+            "reaction": "like",
+            "outcome": "success",
+            "stage": "SET_REACTION",
+            "applied": 12,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 12,
+            "errors": [],
+            "error": null,
+            "cleanupErrors": [],
+            "startedAt": "2026-10-28T13:22:58.569Z",
+            "finishedAt": "2026-10-28T13:24:22.061Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1385",
+            "reaction": "like",
+            "outcome": "success",
+            "stage": "SET_REACTION",
+            "applied": 12,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 12,
+            "errors": [],
+            "error": null,
+            "cleanupErrors": [],
+            "startedAt": "2026-10-28T13:24:22.064Z",
+            "finishedAt": "2026-10-28T13:25:52.085Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1390",
+            "reaction": "like",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:25:52.088Z",
+            "finishedAt": "2026-10-28T13:26:21.077Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1418",
+            "reaction": "like",
+            "outcome": "success",
+            "stage": "SET_REACTION",
+            "applied": 12,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 12,
+            "errors": [],
+            "error": null,
+            "cleanupErrors": [],
+            "startedAt": "2026-10-28T13:26:21.078Z",
+            "finishedAt": "2026-10-28T13:27:44.265Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1444",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "ADSPOWER_READY",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "AdsPower-профіль не готовий до роботи",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:27:44.268Z",
+            "finishedAt": "2026-10-28T13:27:55.764Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1882",
+            "reaction": "love",
+            "outcome": "completed_with_warnings",
+            "stage": "SET_REACTION",
+            "applied": 11,
+            "alreadyReacted": 0,
+            "failed": 1,
+            "commentsFound": 12,
+            "errors": [
+              {
+                "commentId": "1604852257330725",
+                "reason": "VERIFICATION_FAILED"
+              }
+            ],
+            "error": null,
+            "cleanupErrors": [],
+            "startedAt": "2026-10-28T13:27:55.765Z",
+            "finishedAt": "2026-10-28T13:29:41.245Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1990",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:29:41.248Z",
+            "finishedAt": "2026-10-28T13:30:05.178Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1991",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:30:05.180Z",
+            "finishedAt": "2026-10-28T13:30:23.856Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1992",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:30:23.857Z",
+            "finishedAt": "2026-10-28T13:30:42.622Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1993",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:30:42.624Z",
+            "finishedAt": "2026-10-28T13:31:07.069Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "1994",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:31:07.071Z",
+            "finishedAt": "2026-10-28T13:31:27.210Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "2032",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:31:27.212Z",
+            "finishedAt": "2026-10-28T13:31:46.208Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "2033",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:31:46.210Z",
+            "finishedAt": "2026-10-28T13:32:06.910Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "2044",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:32:06.912Z",
+            "finishedAt": "2026-10-28T13:32:27.843Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "2050",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:32:27.844Z",
+            "finishedAt": "2026-10-28T13:32:50.259Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "2055",
+            "reaction": "love",
+            "outcome": "failed",
+            "stage": "OPEN_FACEBOOK",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Facebook-акаунт неактивний",
+            "cleanupErrors": [],
+            "aborted": false,
+            "startedAt": "2026-10-28T13:32:50.261Z",
+            "finishedAt": "2026-10-28T13:33:14.501Z",
+            "workerId": 1
+          },
+          {
+            "profileNo": "2238",
+            "reaction": "love",
+            "outcome": "completed_with_warnings",
+            "stage": "SET_REACTION",
+            "applied": 9,
+            "alreadyReacted": 0,
+            "failed": 3,
+            "commentsFound": 12,
+            "errors": [
+              {
+                "commentId": "1662322395684053",
+                "reason": "VERIFICATION_FAILED"
+              },
+              {
+                "commentId": "1447567444023456",
+                "reason": "VERIFICATION_FAILED"
+              },
+              {
+                "commentId": "1177029971321347",
+                "reason": "VERIFICATION_FAILED"
+              }
+            ],
+            "error": null,
+            "cleanupErrors": [],
+            "startedAt": "2026-10-28T13:33:14.502Z",
+            "finishedAt": "2026-10-28T13:34:51.774Z",
+            "workerId": 1
+          }
+        ],
+        "unusedProfiles": [],
+        "unfulfilledReactions": {
+          "like": 0,
+          "love": 1,
+          "care": 3
+        },
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-reaction-report_2026-10-28T13-34-51-777Z.md"
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-28T13:19:50.133Z",
+      "startedAt": "2026-10-28T13:19:50.134Z",
+      "finishedAt": "2026-10-28T13:34:51.778Z",
+      "updatedAt": "2026-10-28T13:34:51.781Z"
+    },
+    {
+      "id": "eb97d337-27cf-4fc5-bd21-790213009f9e",
+      "type": "comment-reactions",
+      "name": "Реакції під коментарями · 21",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "adspower-profile:112",
+          "label": "AdsPower 112"
+        },
+        {
+          "key": "adspower-profile:254",
+          "label": "AdsPower 254"
+        },
+        {
+          "key": "adspower-profile:348",
+          "label": "AdsPower 348"
+        },
+        {
+          "key": "adspower-profile:629",
+          "label": "AdsPower 629"
+        },
+        {
+          "key": "adspower-profile:1378",
+          "label": "AdsPower 1378"
+        },
+        {
+          "key": "adspower-profile:1385",
+          "label": "AdsPower 1385"
+        },
+        {
+          "key": "adspower-profile:1390",
+          "label": "AdsPower 1390"
+        },
+        {
+          "key": "adspower-profile:1418",
+          "label": "AdsPower 1418"
+        },
+        {
+          "key": "adspower-profile:1444",
+          "label": "AdsPower 1444"
+        },
+        {
+          "key": "adspower-profile:1882",
+          "label": "AdsPower 1882"
+        },
+        {
+          "key": "adspower-profile:1990",
+          "label": "AdsPower 1990"
+        },
+        {
+          "key": "adspower-profile:1991",
+          "label": "AdsPower 1991"
+        },
+        {
+          "key": "adspower-profile:1992",
+          "label": "AdsPower 1992"
+        },
+        {
+          "key": "adspower-profile:1993",
+          "label": "AdsPower 1993"
+        },
+        {
+          "key": "adspower-profile:1994",
+          "label": "AdsPower 1994"
+        },
+        {
+          "key": "adspower-profile:2032",
+          "label": "AdsPower 2032"
+        },
+        {
+          "key": "adspower-profile:2033",
+          "label": "AdsPower 2033"
+        },
+        {
+          "key": "adspower-profile:2044",
+          "label": "AdsPower 2044"
+        },
+        {
+          "key": "adspower-profile:2050",
+          "label": "AdsPower 2050"
+        },
+        {
+          "key": "adspower-profile:2055",
+          "label": "AdsPower 2055"
+        },
+        {
+          "key": "adspower-profile:2238",
+          "label": "AdsPower 2238"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "112",
+          "254",
+          "348",
+          "629",
+          "1378",
+          "1385",
+          "1390",
+          "1418",
+          "1444",
+          "1882",
+          "1990",
+          "1991",
+          "1992",
+          "1993",
+          "1994",
+          "2032",
+          "2033",
+          "2044",
+          "2050",
+          "2055",
+          "2238"
+        ],
+        "postUrl": "https://www.facebook.com/61595281571591/posts/pfbid07ag9ho4yXuJMhfrRPJESvciNztZ69q86iVVpT1CsE5XyYwhGCDXFCX69LBwK3u1Cl",
+        "reactions": {
+          "like": 5,
+          "love": 3,
+          "care": 3
+        },
+        "includeReplies": false,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "metadata": {
+        "profileNos": [
+          "112",
+          "254",
+          "348",
+          "629",
+          "1378",
+          "1385",
+          "1390",
+          "1418",
+          "1444",
+          "1882",
+          "1990",
+          "1991",
+          "1992",
+          "1993",
+          "1994",
+          "2032",
+          "2033",
+          "2044",
+          "2050",
+          "2055",
+          "2238"
+        ],
+        "postUrl": "https://www.facebook.com/61595281571591/posts/pfbid07ag9ho4yXuJMhfrRPJESvciNztZ69q86iVVpT1CsE5XyYwhGCDXFCX69LBwK3u1Cl",
+        "reactions": {
+          "like": 5,
+          "love": 3,
+          "care": 3
+        },
+        "reportId": "a1b728b3-a481-4ebe-b873-90796e03a162"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 21,
+        "stage": "interrupted",
+        "message": "Задачу перервано",
+        "currentProfileNo": "112",
+        "workerId": 1
+      },
+      "result": {
+        "startedAt": "2026-10-28T13:19:04.305Z",
+        "finishedAt": "2026-10-28T13:19:18.285Z",
+        "postUrl": "https://www.facebook.com/61595281571591/posts/pfbid07ag9ho4yXuJMhfrRPJESvciNztZ69q86iVVpT1CsE5XyYwhGCDXFCX69LBwK3u1Cl",
+        "reactions": {
+          "like": 5,
+          "love": 3,
+          "care": 3
+        },
+        "includeReplies": false,
+        "concurrency": 1,
+        "profiles": [
+          {
+            "profileNo": "112",
+            "reaction": "like",
+            "outcome": "failed",
+            "stage": "CHECK_PROXY",
+            "applied": 0,
+            "alreadyReacted": 0,
+            "failed": 0,
+            "commentsFound": 0,
+            "errors": [],
+            "error": "Задачу реакцій перервано",
+            "cleanupErrors": [],
+            "aborted": true,
+            "startedAt": "2026-10-28T13:19:04.305Z",
+            "finishedAt": "2026-10-28T13:19:18.282Z",
+            "workerId": 1
+          }
+        ],
+        "unusedProfiles": [
+          "254",
+          "348",
+          "629",
+          "1378",
+          "1385",
+          "1390",
+          "1418",
+          "1444",
+          "1882",
+          "1990",
+          "1991",
+          "1992",
+          "1993",
+          "1994",
+          "2032",
+          "2033",
+          "2044",
+          "2050",
+          "2055",
+          "2238"
+        ],
+        "unfulfilledReactions": {
+          "like": 5,
+          "love": 3,
+          "care": 3
+        },
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-reaction-report_2026-10-28T13-19-18-285Z.md"
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-28T13:19:04.301Z",
+      "startedAt": "2026-10-28T13:19:04.303Z",
+      "finishedAt": "2026-10-28T13:19:18.286Z",
+      "updatedAt": "2026-10-28T13:19:18.288Z"
+    },
+    {
+      "id": "6fe315e3-0c92-4650-8515-232bbccb650e",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-060",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:340",
+          "label": "AdsPower №340"
+        }
+      ],
+      "input": {
+        "accountKey": "account-060",
+        "adsPowerProfileNo": "340"
+      },
+      "metadata": {
+        "accountKey": "account-060",
+        "uniqueKey": "facebook-api-client-sync:account-060",
+        "reportId": "95ee72ba-e640-4ae7-8d53-a1f0985389bd"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-060",
+        "adsPowerProfileNo": "340",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-28T13:04:36.374Z",
+      "startedAt": "2026-10-28T13:04:36.376Z",
+      "finishedAt": "2026-10-28T13:04:59.087Z",
+      "updatedAt": "2026-10-28T13:04:59.090Z"
+    },
+    {
+      "id": "e119a9d3-0ab2-4896-87ea-3af601c68544",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-055",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2545",
+          "label": "AdsPower №2545"
+        }
+      ],
+      "input": {
+        "accountKey": "account-055",
+        "adsPowerProfileNo": "2545"
+      },
+      "metadata": {
+        "accountKey": "account-055",
+        "uniqueKey": "facebook-api-client-sync:account-055",
+        "reportId": "66835ffc-8959-4cd8-bc24-c5e579d5d3f6"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-055",
+        "adsPowerProfileNo": "2545",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-28T11:29:06.930Z",
+      "startedAt": "2026-10-28T11:29:06.932Z",
+      "finishedAt": "2026-10-28T11:29:27.010Z",
+      "updatedAt": "2026-10-28T11:29:27.012Z"
+    },
+    {
+      "id": "35e4de07-4771-4e19-a7b3-1f0c571435ad",
+      "type": "comments",
+      "name": "Коментарі поста · NO · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-group:7726182",
+          "label": "[NO] Norway"
+        },
+        {
+          "key": "adspower-group:7726187",
+          "label": "[SE] Sweden"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7726182",
+          "7726187"
+        ],
+        "geo": "NO",
+        "creativeGeo": "NO",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61590538720642/posts/pfbid02VptDZMtTY9ugFfErz2x7dcFUkbyfqQA2AQPr9Bh4j2MVEk3afGjzRMVzZJoeGNkFl",
+        "postId": "1224516964068769_122152312797351290",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7726182",
+          "7726187"
+        ],
+        "geo": "NO",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "5da9400f-173b-4100-9f1a-9f5b090c1b67"
+      },
+      "progress": {
+        "completed": 16,
+        "total": 16,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 10,
+        "skipped": 3,
+        "failedComments": 3,
+        "failedProfiles": 0,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "5.1",
+        "currentProfileNo": "718",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-27_20-31-58-502.md",
+        "published": 10,
+        "skipped": 3,
+        "failedComments": 3,
+        "failedProfiles": 0,
+        "excludedProfiles": 6,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T18:06:58.088Z",
+      "startedAt": "2026-10-27T18:17:36.361Z",
+      "finishedAt": "2026-10-27T18:31:58.505Z",
+      "updatedAt": "2026-10-27T18:31:58.506Z"
+    },
+    {
+      "id": "26d60ff0-b043-4e6c-affd-c1e979a7a8c5",
+      "type": "comments",
+      "name": "Коментарі поста · NO · 138",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-group:7726182",
+          "label": "[NO] Norway"
+        },
+        {
+          "key": "adspower-group:7726187",
+          "label": "[SE] Sweden"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7726182",
+          "7726187"
+        ],
+        "geo": "NO",
+        "creativeGeo": "NO",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61581614170670/posts/pfbid02UzPqbNnXLubkcdgVhN8wDu2H67JSz4Q69FX3gAsaRPVMQrcx51NfW4z1CP87mGk3l",
+        "postId": "836661696194690_122168060343053805",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7726182",
+          "7726187"
+        ],
+        "geo": "NO",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "051ca301-e18a-49a3-87c6-0a2cb67eae35"
+      },
+      "progress": {
+        "completed": 10,
+        "total": 10,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 8,
+        "skipped": 0,
+        "failedComments": 2,
+        "failedProfiles": 0,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "2.1",
+        "currentProfileNo": "1105",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-27_20-17-36-356.md",
+        "published": 8,
+        "skipped": 0,
+        "failedComments": 2,
+        "failedProfiles": 0,
+        "excludedProfiles": 6,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T18:06:49.321Z",
+      "startedAt": "2026-10-27T18:06:49.322Z",
+      "finishedAt": "2026-10-27T18:17:36.358Z",
+      "updatedAt": "2026-10-27T18:17:36.359Z"
+    },
+    {
+      "id": "a537b872-dad6-4af1-ab1c-701ad38377d5",
+      "type": "campaign",
+      "name": "NO | Creo_1 | 30+ 27/10 18:04",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "7fa8307e-f4e0-4ca1-9d42-65898604c61e"
+      },
+      "metadata": {
+        "campaignJobId": "7fa8307e-f4e0-4ca1-9d42-65898604c61e",
+        "accountKey": "account-061",
+        "adAccountId": "act_1439238017188797",
+        "uniqueKey": "campaign-job:7fa8307e-f4e0-4ca1-9d42-65898604c61e",
+        "reportId": "9201e43b-c450-476a-b682-4673aba29124"
+      },
+      "progress": {
+        "completed": 9,
+        "total": 9,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120255385725170699",
+          "creativeId": "1621938412752117",
+          "creatives": [
+            {
+              "id": "1621938412752117",
+              "pageId": "1224516964068769",
+              "postId": "1224516964068769_122152312797351290"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120255385726700699",
+              "name": "NO | Creo_1 | 30+ 27/10 18:04 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120255385728820699",
+              "name": "NO | Creo_1 | 30+ 27/10 18:04 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120255385735990699",
+              "name": "NO | Creo_1 | 30+ 27/10 18:04 | AS 03"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120255385728320699",
+              "name": "NO | Creo_1 | 30+ 27/10 18:04 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120255385733190699",
+              "name": "NO | Creo_1 | 30+ 27/10 18:04 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "120255385738360699",
+              "name": "NO | Creo_1 | 30+ 27/10 18:04 | AD 03"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "7fa8307e-f4e0-4ca1-9d42-65898604c61e",
+        "campaignId": "120255385725170699",
+        "warnings": [
+          "Ad set 1: Meta не підтвердила очікувані DSA beneficiary/payor",
+          "Ad set 2: Meta не підтвердила очікувані DSA beneficiary/payor",
+          "Ad set 3: Meta не підтвердила очікувані DSA beneficiary/payor"
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T18:04:50.259Z",
+      "startedAt": "2026-10-27T18:04:50.260Z",
+      "finishedAt": "2026-10-27T18:05:33.740Z",
+      "updatedAt": "2026-10-27T18:05:33.742Z"
+    },
+    {
+      "id": "1d887bfd-30a1-420b-a6c5-bacd66f309b8",
+      "type": "campaign",
+      "name": "NO | Creo_138 | 30+ 27/10 18:02",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "7a56dd6f-9dae-4d38-ac0f-5cc758e5d849"
+      },
+      "metadata": {
+        "campaignJobId": "7a56dd6f-9dae-4d38-ac0f-5cc758e5d849",
+        "accountKey": "account-061",
+        "adAccountId": "act_1439238017188797",
+        "uniqueKey": "campaign-job:7a56dd6f-9dae-4d38-ac0f-5cc758e5d849",
+        "reportId": "b69df570-8c4e-401b-9494-a66d21f9d12a"
+      },
+      "progress": {
+        "completed": 9,
+        "total": 9,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120255385702280699",
+          "creativeId": "1045573758504237",
+          "creatives": [
+            {
+              "id": "1045573758504237",
+              "pageId": "836661696194690",
+              "postId": "836661696194690_122168060343053805"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120255385703380699",
+              "name": "NO | Creo_138 | 30+ 27/10 18:02 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120255385705130699",
+              "name": "NO | Creo_138 | 30+ 27/10 18:02 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120255385706900699",
+              "name": "NO | Creo_138 | 30+ 27/10 18:02 | AS 03"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120255385704440699",
+              "name": "NO | Creo_138 | 30+ 27/10 18:02 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120255385706540699",
+              "name": "NO | Creo_138 | 30+ 27/10 18:02 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "120255385707840699",
+              "name": "NO | Creo_138 | 30+ 27/10 18:02 | AD 03"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "7a56dd6f-9dae-4d38-ac0f-5cc758e5d849",
+        "campaignId": "120255385702280699",
+        "warnings": [
+          "Ad set 1: Meta не підтвердила очікувані DSA beneficiary/payor",
+          "Ad set 2: Meta не підтвердила очікувані DSA beneficiary/payor",
+          "Ad set 3: Meta не підтвердила очікувані DSA beneficiary/payor"
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T18:02:47.717Z",
+      "startedAt": "2026-10-27T18:03:08.703Z",
+      "finishedAt": "2026-10-27T18:03:49.385Z",
+      "updatedAt": "2026-10-27T18:03:49.388Z"
+    },
+    {
+      "id": "5407e94b-6f48-4109-8b64-4dce1a787103",
+      "type": "publication",
+      "name": "Публікація · NO · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-061",
+        "pageId": "1224516964068769",
+        "geo": "NO",
+        "language": "",
+        "creativeGeo": "NO",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/r58d36",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Downloads\\W1 NO.png",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\photo_2026-03-30_00-02-20_19d59c867d4_19d94b382f9_19daeb83ac0.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-061",
+        "pageId": "1224516964068769",
+        "geo": "NO",
+        "language": "",
+        "creativeName": "1",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "40282a84-5640-4b89-a69d-29fcd19a8a1c"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-061",
+        "pageId": "1224516964068769",
+        "geo": "NO",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/r58d36",
+        "postId": "1224516964068769_122152312797351290",
+        "permalinkUrl": "https://www.facebook.com/61590538720642/posts/pfbid02VptDZMtTY9ugFfErz2x7dcFUkbyfqQA2AQPr9Bh4j2MVEk3afGjzRMVzZJoeGNkFl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T18:01:30.471Z",
+      "startedAt": "2026-10-27T18:01:30.473Z",
+      "finishedAt": "2026-10-27T18:03:08.700Z",
+      "updatedAt": "2026-10-27T18:03:08.702Z"
+    },
+    {
+      "id": "cea41289-8300-4666-a4b2-d82ed9248831",
+      "type": "publication",
+      "name": "Публікація · NO · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-061",
+        "pageId": "836661696194690",
+        "geo": "NO",
+        "language": "",
+        "creativeGeo": "NO",
+        "creativeName": "138",
+        "siteUrl": "https://love-in-hurt.club/4v324c",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\14.jpeg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-061",
+        "pageId": "836661696194690",
+        "geo": "NO",
+        "language": "",
+        "creativeName": "138",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "e04699f1-3597-4670-983a-201ca03aa1a5"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-061",
+        "pageId": "836661696194690",
+        "geo": "NO",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "https://love-in-hurt.club/4v324c",
+        "postId": "836661696194690_122168060343053805",
+        "permalinkUrl": "https://www.facebook.com/61581614170670/posts/pfbid02UzPqbNnXLubkcdgVhN8wDu2H67JSz4Q69FX3gAsaRPVMQrcx51NfW4z1CP87mGk3l",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T17:52:47.198Z",
+      "startedAt": "2026-10-27T17:52:47.200Z",
+      "finishedAt": "2026-10-27T17:52:54.182Z",
+      "updatedAt": "2026-10-27T17:52:54.183Z"
+    },
+    {
+      "id": "a226c1ea-9ed1-4836-874f-92e421205a1d",
+      "type": "comments",
+      "name": "Коментарі поста · CH · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-group:7887378",
+          "label": "[CH] Switherland"
+        },
+        {
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
+        },
+        {
+          "key": "adspower-group:7887373",
+          "label": "[AT] Austria"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7887378",
+          "7887375",
+          "7887373"
+        ],
+        "geo": "CH",
+        "creativeGeo": "CH",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61582439301822/posts/pfbid0FSQjamDbTezYFCNhzERCF6Baq67azLJsoG2zrzinUzEf2hW45FCUfyJCYssaoMGcl",
+        "postId": "829881460205047_122157113331081310",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7887378",
+          "7887375",
+          "7887373"
+        ],
+        "geo": "CH",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "7ef236e2-380a-40f2-9744-203a2cb4fc16"
+      },
+      "progress": {
+        "completed": 10,
+        "total": 10,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "published": 10,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "2.2",
+        "currentProfileNo": "1521",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-27_18-41-58-972.md",
+        "published": 10,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "excludedProfiles": 0,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T16:28:33.793Z",
+      "startedAt": "2026-10-27T16:28:33.794Z",
+      "finishedAt": "2026-10-27T16:41:58.974Z",
+      "updatedAt": "2026-10-27T16:41:58.976Z"
+    },
+    {
+      "id": "f15d3c85-648f-4a24-bb4d-556e605ec92d",
+      "type": "campaign",
+      "name": "CH | Creo_138 | 25+ 27/10 16:14",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "8a1c47df-a188-4f02-9dec-3456b92aaa65"
+      },
+      "metadata": {
+        "campaignJobId": "8a1c47df-a188-4f02-9dec-3456b92aaa65",
+        "accountKey": "account-063",
+        "adAccountId": "act_811307624605858",
+        "uniqueKey": "campaign-job:8a1c47df-a188-4f02-9dec-3456b92aaa65",
+        "reportId": "663e568e-af10-4ce9-b571-fd6745f742d1"
+      },
+      "progress": {
+        "completed": 9,
+        "total": 9,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120250644747520277",
+          "creativeId": "1140401342003382",
+          "creatives": [
+            {
+              "id": "1140401342003382",
+              "pageId": "829881460205047",
+              "postId": "829881460205047_122157113331081310"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120250644749230277",
+              "name": "CH | Creo_138 | 25+ 27/10 16:14 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120250644751100277",
+              "name": "CH | Creo_138 | 25+ 27/10 16:14 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120250644752470277",
+              "name": "CH | Creo_138 | 25+ 27/10 16:14 | AS 03"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120250644750320277",
+              "name": "CH | Creo_138 | 25+ 27/10 16:14 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120250644751810277",
+              "name": "CH | Creo_138 | 25+ 27/10 16:14 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "120250644753690277",
+              "name": "CH | Creo_138 | 25+ 27/10 16:14 | AD 03"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "8a1c47df-a188-4f02-9dec-3456b92aaa65",
+        "campaignId": "120250644747520277",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T16:14:48.336Z",
+      "startedAt": "2026-10-27T16:14:48.337Z",
+      "finishedAt": "2026-10-27T16:15:29.047Z",
+      "updatedAt": "2026-10-27T16:15:29.049Z"
+    },
+    {
+      "id": "4bb477c5-1acb-4ffc-9f86-0339e3bd671d",
+      "type": "publication",
+      "name": "Публікація · CH · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-063",
+        "pageId": "829881460205047",
+        "geo": "CH",
+        "language": "",
+        "creativeGeo": "CH",
+        "creativeName": "138",
+        "siteUrl": "https://love-in-hurt.club/v9sx60",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\14.jpeg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-063",
+        "pageId": "829881460205047",
+        "geo": "CH",
+        "language": "",
+        "creativeName": "138",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "6421fe41-b2f6-4ae3-895d-cd1082d0a602"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-063",
+        "pageId": "829881460205047",
+        "geo": "CH",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "https://love-in-hurt.club/v9sx60",
+        "postId": "829881460205047_122157113331081310",
+        "permalinkUrl": "https://www.facebook.com/61582439301822/posts/pfbid0FSQjamDbTezYFCNhzERCF6Baq67azLJsoG2zrzinUzEf2hW45FCUfyJCYssaoMGcl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T16:11:58.350Z",
+      "startedAt": "2026-10-27T16:11:58.351Z",
+      "finishedAt": "2026-10-27T16:13:25.697Z",
+      "updatedAt": "2026-10-27T16:13:25.699Z"
+    },
+    {
+      "id": "06ece6d2-4d32-45ca-bb3a-94735bff67e3",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 829881460205047_122151973287081310",
+      "status": "failed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-063",
+        "pageId": "829881460205047",
+        "postId": "829881460205047_122151973287081310"
+      },
+      "metadata": {
+        "accountKey": "account-063",
+        "pageId": "829881460205047",
+        "reportId": "f03d1946-5a47-439d-bc94-3a2049592307"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "failed",
+        "message": "Unsupported delete request. Object with ID '82988[REDACTED]460205047_[REDACTED]22[REDACTED]5[REDACTED]97328708[REDACTED]3[REDACTED]0' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api"
+      },
+      "result": null,
+      "error": {
+        "message": "Unsupported delete request. Object with ID '82988[REDACTED]460205047_[REDACTED]22[REDACTED]5[REDACTED]97328708[REDACTED]3[REDACTED]0' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "httpStatus": null,
+        "requestId": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "endpoint": null,
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": null,
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-10-27T16:08:56.835Z",
+      "startedAt": "2026-10-27T16:08:56.837Z",
+      "finishedAt": "2026-10-27T16:08:57.940Z",
+      "updatedAt": "2026-10-27T16:08:57.942Z"
+    },
+    {
+      "id": "0aaf60d3-f131-476c-ba35-33c99ce92fc8",
+      "type": "comments",
+      "name": "Коментарі поста · NZ · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-group:7617732",
+          "label": "[AU] Australia"
+        },
+        {
+          "key": "adspower-group:7705877",
+          "label": "[USA] America"
+        },
+        {
+          "key": "adspower-group:7617734",
+          "label": "[CA] Canada"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7617732",
+          "7705877",
+          "7617734"
+        ],
+        "geo": "NZ",
+        "creativeGeo": "NZ",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61579356425616/posts/pfbid0P4AYTnm4Z3vaRXDjhtQ7ATXPMVNpohNW745fEZ9MW8yCb21APiQLGsUCLkqEiisEl",
+        "postId": "734023826464284_122191721816978547",
+        "browserMode": "headless",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7617732",
+          "7705877",
+          "7617734"
+        ],
+        "geo": "NZ",
+        "language": "",
+        "browserMode": "headless",
+        "disableImages": true,
+        "reportId": "7d60dbc0-6ea5-4495-9662-785599580062"
+      },
+      "progress": {
+        "completed": 10,
+        "total": 10,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "published": 10,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "2.2",
+        "currentProfileNo": "120",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-10-27_18-04-47-292.md",
+        "published": 10,
+        "skipped": 0,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "excludedProfiles": 3,
+        "fatalError": null,
+        "browserMode": "headless",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T15:51:28.339Z",
+      "startedAt": "2026-10-27T15:51:28.340Z",
+      "finishedAt": "2026-10-27T16:04:47.296Z",
+      "updatedAt": "2026-10-27T16:04:47.299Z"
+    },
+    {
+      "id": "de79a99a-cb01-4bd7-9c2d-130dde84c166",
+      "type": "campaign",
+      "name": "NZ | Creo_138 | 25+ 27/10 15:41",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "34ebbdbd-a47d-4352-a49e-c19e8ee036c9"
+      },
+      "metadata": {
+        "campaignJobId": "34ebbdbd-a47d-4352-a49e-c19e8ee036c9",
+        "accountKey": "account-062",
+        "adAccountId": "act_1373410084871241",
+        "uniqueKey": "campaign-job:34ebbdbd-a47d-4352-a49e-c19e8ee036c9",
+        "reportId": "5015a024-c299-43f2-a04b-303659a5eb5e"
+      },
+      "progress": {
+        "completed": 9,
+        "total": 9,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120255907088720054",
+          "creativeId": "997741772598373",
+          "creatives": [
+            {
+              "id": "997741772598373",
+              "pageId": "734023826464284",
+              "postId": "734023826464284_122191721816978547"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120255907090150054",
+              "name": "NZ | Creo_138 | 25+ 27/10 15:41 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120255907091670054",
+              "name": "NZ | Creo_138 | 25+ 27/10 15:41 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120255907092860054",
+              "name": "NZ | Creo_138 | 25+ 27/10 15:41 | AS 03"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120255907091340054",
+              "name": "NZ | Creo_138 | 25+ 27/10 15:41 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120255907092610054",
+              "name": "NZ | Creo_138 | 25+ 27/10 15:41 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "120255907093910054",
+              "name": "NZ | Creo_138 | 25+ 27/10 15:41 | AD 03"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "34ebbdbd-a47d-4352-a49e-c19e8ee036c9",
+        "campaignId": "120255907088720054",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T15:41:56.641Z",
+      "startedAt": "2026-10-27T15:41:56.642Z",
+      "finishedAt": "2026-10-27T15:42:40.451Z",
+      "updatedAt": "2026-10-27T15:42:40.453Z"
+    },
+    {
+      "id": "6af7a9fc-6e34-4969-9c80-40f9cbe635b4",
+      "type": "publication",
+      "name": "Публікація · NZ · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-062",
+        "pageId": "734023826464284",
+        "geo": "NZ",
+        "language": "",
+        "creativeGeo": "NZ",
+        "creativeName": "138",
+        "siteUrl": "https://love-in-hurt.club/4f1flb",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\Go to summer outfit & destination☀️✨......#dancer #model #athlete #teenmodel #teendancer #dancer.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\Go to summer outfit & destination☀️✨......#dancer #model #athlete #teenmodel #teendancer #dancer (1).jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "headless",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-062",
+        "pageId": "734023826464284",
+        "geo": "NZ",
+        "language": "",
+        "creativeName": "138",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "b0ae511e-a7b7-49a0-90d3-1d5784b50b3b"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-062",
+        "pageId": "734023826464284",
+        "geo": "NZ",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "https://love-in-hurt.club/4f1flb",
+        "postId": "734023826464284_122191721816978547",
+        "permalinkUrl": "https://www.facebook.com/61579356425616/posts/pfbid0P4AYTnm4Z3vaRXDjhtQ7ATXPMVNpohNW745fEZ9MW8yCb21APiQLGsUCLkqEiisEl",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-10-27T15:39:51.461Z",
+      "startedAt": "2026-10-27T15:39:51.462Z",
+      "finishedAt": "2026-10-27T15:41:10.771Z",
+      "updatedAt": "2026-10-27T15:41:10.772Z"
+    }
+  ]
 }

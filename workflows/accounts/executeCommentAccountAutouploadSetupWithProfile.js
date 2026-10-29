@@ -6,6 +6,8 @@ import changeProfilePicture from "../../facebook/autoupload/actions/profile/chan
 import changeCoverPhoto from "../../facebook/autoupload/actions/profile/changeCoverPhoto.js";
 import clearProfilePosts from "../../facebook/autoupload/actions/profile/clearProfilePosts.js";
 import publishProfilePostsWithDates from "../../facebook/autoupload/actions/profile/publishProfilePostsWithDates.js";
+import updateBio from "../../facebook/autoupload/actions/profile/updateBio.js";
+import updateAbout from "../../facebook/autoupload/actions/profile/updateAbout.js";
 import { actionFailure } from "../../facebook/autoupload/graphql/errors.js";
 import { classifyPhotoFiles, renamePhotoSet } from "../../services/accounts/photoSets.js";
 import createRandomPostDates from "../../services/accounts/randomPostDates.js";
@@ -24,6 +26,7 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
     const { adsPower, profile, persona, photoSet, profileNameNote = "", signal, logger = console,
         random = Math.random, actionDelaySeconds = 30, skipNameChange = false,
         skipAvatarChange = false, skipCoverChange = false, skipDeletePosts = false, skipPublishPosts = false,
+        skipFillAbout = false, skipBio = false,
         actions = {} } = options;
     const profileNo = String(profile.profile_no);
     const adsPowerName = buildAdsPowerProfileName(persona);
@@ -31,21 +34,14 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
         renamedPhotoFolder: null, success: false, outcome: "failed", stage: "SESSION", error: null,
         steps: createEmptySteps(), cleanupErrors: [], nameChanged: false, aborted: false };
     for (const key of Object.keys(result.steps)) result.steps[key] = createStep({ skipped: true, reason: "Ще не виконано" });
-    result.steps.about = createStep({ skipped: true, reason: "Недоступно для автоаплоаду" });
     let previousAction = false;
     let blocked = null;
     let ready = false;
     let client;
     let fbData;
     let context;
-    const waitBeforeAction = async () => {
-        signal?.throwIfAborted();
-        if (previousAction) {
-            const milliseconds = Math.max(0, Number(actionDelaySeconds) + random() * 10 - 5) * 1000;
-            await (actions.wait ?? ((ms) => delay(ms, undefined, { signal })))(milliseconds);
-        }
-        signal?.throwIfAborted();
-        // Тривалий сценарій оновлює прострочений контекст до наступного запису, без повторення mutation.
+    const refreshContext = async () => {
+        // Оновлення сесії виконується поза чергою окремої HTTP-дії.
         if (client && !actions.prepareSocialContext) {
             try { client.validateFbData(fbData); }
             catch (error) {
@@ -54,6 +50,15 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
                 ({ fbData, context } = await prepareSocialContext(client, profile.profile_id, { signal }));
             }
         }
+    };
+    const waitBeforeAction = async ({ refresh = true } = {}) => {
+        signal?.throwIfAborted();
+        if (previousAction) {
+            const milliseconds = Math.max(0, Number(actionDelaySeconds) + random() * 10 - 5) * 1000;
+            await (actions.wait ?? ((ms) => delay(ms, undefined, { signal })))(milliseconds);
+        }
+        signal?.throwIfAborted();
+        if (refresh) await refreshContext();
         previousAction = true;
     };
     const record = (key, value) => {
@@ -62,6 +67,13 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
             detail: value.success ? value.message : null, error, diagnostic: value });
         if (stopsWorkflow(value)) blocked = error || "Подальші дії зупинено";
         return value;
+    };
+    const attemptAction = async execute => {
+        try { return await execute(); }
+        catch (error) {
+            signal?.throwIfAborted();
+            return actionFailure(error);
+        }
     };
     const finalizeOutcome = () => {
         if (result.aborted || (!skipNameChange && !result.nameChanged) || (!result.nameChanged && result.error)) {
@@ -110,7 +122,6 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
                 result.error = result.steps.name.error;
                 try { await (actions.markChangeNameError ?? markProfileAsChangeNameError)(adsPower, profile); }
                 catch (error) { result.cleanupErrors.push(error.message); }
-                return result;
             }
         }
         const classified = classifyPhotoFiles(photoSet?.files ?? []);
@@ -140,7 +151,7 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
         else {
             result.stage = "DELETE_POSTS";
             await waitBeforeAction();
-            record("deletePosts", await (actions.deletePosts ?? clearProfilePosts)(fbData, {}, { signal, context }));
+            record("deletePosts", await attemptAction(() => (actions.deletePosts ?? clearProfilePosts)(fbData, {}, { signal, context })));
         }
         const postFiles = classified.all.filter(file => !usedPaths.has(file));
         if (skipPublishPosts || blocked || !postFiles.length) result.steps.posts = createStep({ skipped: true, reason: blocked || (skipPublishPosts ? "Дію вимкнено" : "Немає фото для постів") });
@@ -155,8 +166,8 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
                 }
                 await waitBeforeAction();
                 // Створення та датування одного поста виконуються разом, без затримки між ними.
-                const value = await (actions.publishPosts ?? publishProfilePostsWithDates)(fbData,
-                    { posts: [{ mediaPaths: [file], targetDate: dates[index] }] }, { signal, context });
+                const value = await attemptAction(() => (actions.publishPosts ?? publishProfilePostsWithDates)(fbData,
+                    { posts: [{ mediaPaths: [file], targetDate: dates[index] }] }, { signal, context }));
                 items.push({ sequence: index + 1, targetDate: dates[index], ...value });
                 record(`post${index + 1}`, value);
             }
@@ -164,6 +175,38 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
                 detail: `Пости: ${items.filter(item => item.success).length}/${postFiles.length}`,
                 error: items.some(item => !item.success) || items.length !== postFiles.length ? "Не всі пости створено та датовано" : null,
                 items });
+        }
+        if (skipFillAbout || blocked) {
+            result.steps.about = createStep({ skipped: true, reason: blocked || "About пропущено" });
+        } else {
+            const fields = {};
+            for (const [key, input, enabled, action] of [
+                ["bio", { value: "" }, !skipBio, actions.updateBio ?? updateBio],
+                ["work", { work: persona.work }, Boolean(persona.work?.company && persona.work?.position), actions.updateAbout ?? updateAbout],
+                ["education", { education: persona.education }, Boolean(persona.education), actions.updateAbout ?? updateAbout],
+            ]) {
+                if (!enabled || blocked) {
+                    fields[key] = { success: !blocked, skipped: true, status: "SKIPPED", error: blocked, reason: blocked || "Поле пропущено" };
+                    continue;
+                }
+                result.stage = `UPDATE_${key.toUpperCase()}`;
+                const value = await attemptAction(async () => {
+                    await refreshContext();
+                    return action(fbData, input, {
+                        signal, context, skipIfEmpty: true,
+                        beforeMutation: () => waitBeforeAction({ refresh: false }),
+                    });
+                });
+                const error = value.success ? null : [value.message, value.graphUserMessage].filter(Boolean).join(": ");
+                fields[key] = { success: value.success === true, skipped: value.skipped === true,
+                    status: value.outcome, error, diagnostic: value };
+                if (stopsWorkflow(value)) blocked = error || "Подальші дії зупинено";
+            }
+            const ok = Object.values(fields).every(field => field.success);
+            result.steps.about = createStep({ ok, status: ok ? "COMPLETED" : "PARTIAL", fields,
+                error: Object.entries(fields).filter(([, field]) => !field.success)
+                    .map(([key, field]) => `${key}: ${field.error || field.status}`).join("; ") || null,
+                detail: "Біо, робота та освіта" });
         }
     } catch (error) {
         result.aborted = signal?.aborted || error.name === "AbortError";
