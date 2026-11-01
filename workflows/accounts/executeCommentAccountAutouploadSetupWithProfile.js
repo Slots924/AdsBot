@@ -34,6 +34,13 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
         renamedPhotoFolder: null, success: false, outcome: "failed", stage: "SESSION", error: null,
         steps: createEmptySteps(), cleanupErrors: [], nameChanged: false, aborted: false };
     for (const key of Object.keys(result.steps)) result.steps[key] = createStep({ skipped: true, reason: "Ще не виконано" });
+    const log = message => logger.info?.(message);
+    const logStep = (label, step, successText) => {
+        if (step.skipped) log(`- ${label}: пропущено (${step.reason || "дію вимкнено"})`);
+        else if (step.ok) log(`- ${successText}`);
+        else log(`- ${label}: не вдалося — ${step.error || "причину не вказано"}`);
+    };
+    log(`\n\nАкаунт №${profileNo} — ${adsPowerName}`);
     let previousAction = false;
     let blocked = null;
     let ready = false;
@@ -65,6 +72,15 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
         const error = value.success ? null : [value.message, value.graphUserMessage].filter(Boolean).join(": ");
         result.steps[key] = createStep({ ok: value.success === true, status: value.outcome,
             detail: value.success ? value.message : null, error, diagnostic: value });
+        const labels = { name: ["Ім’я", "Ім’я змінено"], deletePosts: ["Видалення постів", "Пости очищено"] };
+        if (labels[key]) {
+            let successText = labels[key][1];
+            if (key === "deletePosts" && Number.isFinite(value.deletedCount)) {
+                successText = `Видалено постів: ${value.deletedCount}`;
+                if (value.hiddenCount) successText += `, приховано системних: ${value.hiddenCount}`;
+            }
+            logStep(labels[key][0], result.steps[key], successText);
+        }
         if (stopsWorkflow(value)) blocked = error || "Подальші дії зупинено";
         return value;
     };
@@ -124,6 +140,7 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
                 catch (error) { result.cleanupErrors.push(error.message); }
             }
         }
+        if (skipNameChange) logStep("Ім’я", result.steps.name, "Ім’я змінено");
         const classified = classifyPhotoFiles(photoSet?.files ?? []);
         const usedPaths = new Set();
         const fallbackPool = [...classified.rest];
@@ -133,6 +150,7 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
         ]) {
             if (skip || blocked) {
                 result.steps[key] = createStep({ skipped: true, reason: blocked || "Дію вимкнено" });
+                logStep(key === "avatar" ? "Аватар" : "Обкладинка", result.steps[key], "");
                 continue;
             }
             result.stage = key === "avatar" ? "CHANGE_AVATAR" : "CHANGE_COVER";
@@ -145,6 +163,8 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
                         error: { message: [value.message, value.graphUserMessage].filter(Boolean).join(": ") } };
                 } });
             result.steps[key] = attempt.step;
+            logStep(key === "avatar" ? "Аватар" : "Обкладинка", attempt.step,
+                key === "avatar" ? "Аватар змінено" : "Обкладинку змінено");
             if (attempt.unusedCandidate && !fallbackPool.includes(attempt.unusedCandidate)) fallbackPool.push(attempt.unusedCandidate);
         }
         if (skipDeletePosts || blocked) result.steps.deletePosts = createStep({ skipped: true, reason: blocked || "Дію вимкнено" });
@@ -153,6 +173,7 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
             await waitBeforeAction();
             record("deletePosts", await attemptAction(() => (actions.deletePosts ?? clearProfilePosts)(fbData, {}, { signal, context })));
         }
+        if (result.steps.deletePosts.skipped) logStep("Видалення постів", result.steps.deletePosts, "");
         const postFiles = classified.all.filter(file => !usedPaths.has(file));
         if (skipPublishPosts || blocked || !postFiles.length) result.steps.posts = createStep({ skipped: true, reason: blocked || (skipPublishPosts ? "Дію вимкнено" : "Немає фото для постів") });
         else {
@@ -175,6 +196,14 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
                 detail: `Пости: ${items.filter(item => item.success).length}/${postFiles.length}`,
                 error: items.some(item => !item.success) || items.length !== postFiles.length ? "Не всі пости створено та датовано" : null,
                 items });
+        }
+        if (result.steps.posts.skipped) logStep("Публікація постів", result.steps.posts, "");
+        else {
+            const items = result.steps.posts.items;
+            log(`- Опубліковано постів: ${items.filter(item => item.success).length}/${postFiles.length}`);
+            for (const item of items.filter(item => !item.success)) {
+                log(`  Пост №${item.sequence}: не вдалося — ${[item.message, item.graphUserMessage].filter(Boolean).join(": ") || "причину не вказано"}`);
+            }
         }
         if (skipFillAbout || blocked) {
             result.steps.about = createStep({ skipped: true, reason: blocked || "About пропущено" });
@@ -202,12 +231,23 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
                     status: value.outcome, error, diagnostic: value };
                 if (stopsWorkflow(value)) blocked = error || "Подальші дії зупинено";
             }
+            for (const [key, label, successText] of [
+                ["bio", "Біо", "Біо очищено"], ["work", "Робота", "Роботу змінено"],
+                ["education", "Освіта", "Освіту змінено"],
+            ]) {
+                const field = fields[key];
+                const alreadyEmpty = key === "bio" && field.success && field.status === "ALREADY_EMPTY";
+                const fallback = field.diagnostic?.actionSteps?.[key]?.fallback;
+                logStep(label, { ...field, ok: field.success, skipped: field.skipped && !alreadyEmpty },
+                    alreadyEmpty ? "Біо вже порожнє" : `${successText}${fallback ? " (запасним способом)" : ""}`);
+            }
             const ok = Object.values(fields).every(field => field.success);
             result.steps.about = createStep({ ok, status: ok ? "COMPLETED" : "PARTIAL", fields,
                 error: Object.entries(fields).filter(([, field]) => !field.success)
                     .map(([key, field]) => `${key}: ${field.error || field.status}`).join("; ") || null,
                 detail: "Біо, робота та освіта" });
         }
+        if (result.steps.about.skipped) logStep("Біо, робота та освіта", result.steps.about, "");
     } catch (error) {
         result.aborted = signal?.aborted || error.name === "AbortError";
         const failure = actionFailure(error);
@@ -222,6 +262,15 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
             updateName: actions.updateProfileName ?? ((id, name) => adsPower.updateProfileName(id, name)),
             markGender: actions.markGender ?? markProfileGender, renameFolder: actions.renamePhotoSet ?? renamePhotoSet });
         else finalizeOutcome();
+        if (result.error) log(`- Помилка: ${result.error}`);
+        for (const [key, label] of [["adsPowerRename", "Назва профілю AdsPower"], ["genderTag", "Тег статі"],
+            ["photoFolderRename", "Папка фото"], ["adsPowerNote", "Примітка профілю"]]) {
+            const step = result.steps[key];
+            if (step && !step.ok && !step.skipped) logStep(label, step, "");
+        }
+        for (const error of result.cleanupErrors) log(`- Додаткова помилка: ${error}`);
+        const outcome = { success: "успіх", completed_with_error: "успіх з попередженнями", failed: "невдача" }[result.outcome];
+        log(`Акаунт №${profileNo} завершено: ${outcome}`);
     }
     return result;
 }

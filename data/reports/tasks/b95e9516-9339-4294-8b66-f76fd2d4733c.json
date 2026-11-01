@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "id": "b95e9516-9339-4294-8b66-f76fd2d4733c",
+  "taskId": "8bdcee4a-74a2-4cda-9d87-2cc4136185e5",
+  "type": "campaign",
+  "title": "DE | Creo_4 | 25+ 31/10 15:35",
+  "status": "failed",
+  "createdAt": "2026-10-31T12:36:06.408Z",
+  "startedAt": "2026-10-31T12:35:50.293Z",
+  "finishedAt": "2026-10-31T12:36:06.405Z",
+  "durationMs": 16112,
+  "inputSummary": {
+    "campaignJobId": "1890f64b-3838-4733-8bd6-49be28674d8f",
+    "accountKey": "account-064",
+    "adAccountId": "act_992958336430516",
+    "campaignName": "DE | Creo_4 | 25+ 31/10 15:35",
+    "templateId": 31,
+    "pageId": "1272886725918152",
+    "postId": "1272886725918152_122112527337503197",
+    "adSetCount": 3,
+    "dailyBudget": 20,
+    "startTime": "2026-10-31T12:35:00.000Z",
+    "createPaused": false,
+    "createAdSetsPaused": false,
+    "createAdsPaused": false,
+    "creativeMode": "post"
+  },
+  "resultSummary": {
+    "objects": {
+      "campaignId": "120252695510330105",
+      "creativeId": "1454542623454495",
+      "creatives": [
+        {
+          "id": "1454542623454495",
+          "pageId": "1272886725918152",
+          "postId": "1272886725918152_122112527337503197"
+        }
+      ],
+      "adSets": [
+        {
+          "index": 0,
+          "id": "120252695511120105",
+          "name": "DE | Creo_4 | 25+ 31/10 15:35 | AS 01"
+        }
+      ],
+      "ads": []
+    }
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [
+    {
+      "message": "The Page or app this ad is promoting doesn't match the one specified during ad account creation.",
+      "code": "FACEBOOK_API_ERROR",
+      "httpStatus": 500,
+      "graphCode": 100,
+      "graphSubcode": 1815645,
+      "graphUserTitle": "Mismatching promotable object",
+      "graphUserMessage": "The Page or app this ad is promoting doesn't match the one specified during ad account creation.",
+      "graphType": "FacebookApiException",
+      "isTransient": false,
+      "requestId": "cbf57b7a-a979-4619-861b-302651783863",
+      "traceId": "AQLs3iTRnRU7VNRdlQz9Tix",
+      "metaRequestId": "AQLs3iTRnRU7VNRdlQz9Tix",
+      "endpoint": "/act_992958336430516/ads",
+      "actionRequired": null,
+      "retryable": false,
+      "outcomeUnknown": false,
+      "reason": null,
+      "stage": "ad",
+      "itemIndex": 0,
+      "createdObjects": "[CIRCULAR]",
+      "jobId": null
+    }
+  ],
+  "artifacts": [],
+  "metadata": {
+    "campaignJobId": "1890f64b-3838-4733-8bd6-49be28674d8f",
+    "accountKey": "account-064",
+    "adAccountId": "act_992958336430516",
+    "uniqueKey": "campaign-job:1890f64b-3838-4733-8bd6-49be28674d8f"
+  }
+}

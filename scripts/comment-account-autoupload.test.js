@@ -241,3 +241,35 @@ test("ім’я, аватар та обкладинка перевикорист
     }
     assert.equal(calls.filter(call => call.method === "get").length, 2);
 });
+
+
+test("консольний журнал показує етапи, причину помилки та підсумок", async t => {
+    const lines = [];
+    const { result } = await fixture(t, {
+        deletePosts: async () => ({ ...success, deletedCount: 6, hiddenCount: 1 }),
+        changeCover: async () => ({ success: false, message: "Фото недоступне" }),
+        updateBio: async () => ({ ...success, skipped: true, outcome: "ALREADY_EMPTY" }),
+        updateAbout: async (_, input) => input.work
+            ? { ...success, actionSteps: { work: { fallback: true } } } : success,
+    }, { logger: { info: line => lines.push(line) }, skipFillAbout: false,
+        persona: { firstName: "Test", lastName: "User", work: { company: "Company", position: "Position" }, education: "College" } });
+    assert.equal(result.outcome, "completed_with_error");
+    const output = lines.join("\n");
+    assert.match(output, /Акаунт №10/);
+    assert.match(output, /Ім’я змінено/);
+    assert.match(output, /Обкладинка: не вдалося — Фото недоступне/);
+    assert.match(output, /Видалено постів: 6, приховано системних: 1/);
+    assert.match(output, /Опубліковано постів: 3\/3/);
+    assert.match(output, /Біо вже порожнє/);
+    assert.match(output, /Роботу змінено \(запасним способом\)/);
+    assert.match(output, /Освіту змінено/);
+    assert.match(output, /Акаунт №10 завершено: успіх з попередженнями/);
+});
+
+test("консольний журнал завершується при помилці сесії", async t => {
+    const lines = [];
+    await fixture(t, { checkProfileSession: async () => ({ client: null, result: { message: "Сесію завершено" } }) },
+        { logger: { info: line => lines.push(line) } });
+    assert.match(lines.join("\n"), /Сесію завершено/);
+    assert.match(lines.join("\n"), /Акаунт №10 завершено: невдача/);
+});

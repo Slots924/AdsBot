@@ -16,7 +16,7 @@ export default async function runProfileAction(fbData, options, execute, message
             await context.prepare();
             const result = await execute(context);
             Object.assign(summary, Object.fromEntries(counts.filter(key => Number.isFinite(result[key])).map(key => [key, result[key]])));
-            if (result.steps) summary.actionSteps = Object.fromEntries(Object.entries(result.steps).map(([key, step]) => [key, { success: step.success === true, status: step.status, error: step.error ? safeGraphText(step.error, fbData.session) : null }]));
+            if (result.steps) summary.actionSteps = Object.fromEntries(Object.entries(result.steps).map(([key, step]) => [key, { success: step.success === true, status: step.status, fallback: Boolean(step.fallback), error: step.error ? safeGraphText(step.error, fbData.session) : null }]));
             if (result.items) summary.postResults = result.items.map(item => ({ sequence: item.sequence, storyId: item.storyId, created: item.created, backdated: item.backdated, createStatus: item.createStatus, backdateStatus: item.backdateStatus }));
             if (context.failure) throw context.failure;
             return { success: result.success === true, outcome: result.status, code: result.success ? null : "FACEBOOK_PROFILE_ACTION_INCOMPLETE",
