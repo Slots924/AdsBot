@@ -2,6 +2,87 @@
   "version": 1,
   "tasks": [
     {
+      "id": "85ea24b6-75d3-4f42-a9ae-945494454872",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · DE · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2576",
+          "label": "AdsPower 2576"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "2576"
+        ],
+        "geo": "DE",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "namesGeo": "DE",
+        "companiesGeo": "DE",
+        "universitiesGeo": "DE",
+        "professionsGeo": "DE",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\DE",
+        "useApiRequests": false,
+        "creationType": "autoupload",
+        "actionDelaySeconds": 20,
+        "profileNameNote": "AU20-about",
+        "checkGender": true,
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "headless",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "2576"
+        ],
+        "geo": "DE",
+        "browserMode": "headless",
+        "useApiRequests": false,
+        "creationType": "autoupload",
+        "actionDelaySeconds": 20,
+        "reportId": "7f599415-e8ed-4a32-947b-935008e67cda"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 0,
+        "currentProfileNo": "2576",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-11-01_12-02-07-593.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-01T09:58:27.009Z",
+      "startedAt": "2026-11-01T09:58:27.010Z",
+      "finishedAt": "2026-11-01T10:02:07.596Z",
+      "updatedAt": "2026-11-01T10:02:07.598Z"
+    },
+    {
       "id": "75b3b222-c841-4e53-b184-5785557a48f9",
       "type": "comment-account-health",
       "name": "Перевірка акаунтів під коментарі · 10",

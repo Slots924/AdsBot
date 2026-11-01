@@ -79,22 +79,26 @@ test("Bio щоразу отримує власні свіжі collection та se
 });
 
 test("очищення Bio читає значення і чекає тільки перед фактичною mutation", async () => {
-    for (const bio of ["", "Old Bio", null]) {
+    for (const bio of ["", "Old Bio", null, undefined]) {
         let waits = 0;
         let writes = 0;
+        let tokenRequests = 0;
         const { fbData } = await fixture(config => {
             const form = formOf(config);
             if (config.url.includes("bulk-route-definitions")) {
+                tokenRequests++;
                 const route = form.get("route_urls[0]");
                 return response({ payload: { payloads: { [route]: { result: { exports: { rootView: {
                     props: { collectionToken: "collection", sectionToken: "section", rawSectionToken: "raw" },
                 } } } } } } });
             }
             if (form.get("fb_api_req_friendly_name").endsWith("Query")) {
-                return response({ data: { user: { about_app_sections: { nodes: [{ activeCollections: { nodes: [{
-                    style_renderer: { profile_field_sections: bio === null ? [] : [{ field_section_type: "directory_bio",
-                        profile_fields: { nodes: [{ title: { text: bio } }] } }] },
-                }] } }] } } } });
+                assert.equal(form.get("fb_api_req_friendly_name"), "ProfileCometBioTextEditorPrivacyIconQuery");
+                assert.equal(form.get("doc_id"), "23931151619841616");
+                assert.deepEqual(JSON.parse(form.get("variables")), { id: "123" });
+                return response({ data: { user: { profile_intro_card: {
+                    bio: bio === undefined ? undefined : bio === null ? null : { text: bio },
+                } } } });
             }
             writes++;
             return response({ data: { profile_field_save: { id: "123" } } });
@@ -102,12 +106,30 @@ test("очищення Bio читає значення і чекає тільк�
         const result = await profileActions.bio(fbData, { value: "" }, {
             skipIfEmpty: true, beforeMutation: async () => { waits++; },
         });
-        assert.equal(result.success, bio !== null);
+        assert.equal(result.success, bio !== undefined);
         assert.equal(writes, bio ? 1 : 0);
+        assert.equal(tokenRequests, writes);
         assert.equal(waits, writes);
-        if (bio === "") assert.equal(result.skipped, true);
-        if (bio === null) assert.equal(result.code, "FACEBOOK_BIO_READ_FAILED");
+        if (bio === "" || bio === null) assert.equal(result.skipped, true);
+        if (bio === undefined) assert.equal(result.code, "FACEBOOK_BIO_READ_FAILED");
     }
+});
+
+test("помилка запиту читання Bio зупиняє очищення без mutation та паузи", async () => {
+    const { fbData, calls } = await fixture(config => {
+        assert.equal(formOf(config).get("fb_api_req_friendly_name"), "ProfileCometBioTextEditorPrivacyIconQuery");
+        return response({ errors: [{ code: 100, message: "Bio query rejected" }] });
+    });
+    let waits = 0;
+    const result = await profileActions.bio(fbData, { value: "" }, {
+        skipIfEmpty: true, beforeMutation: async () => { waits++; },
+    });
+    assert.equal(result.success, false);
+    assert.equal(result.code, "FACEBOOK_GRAPHQL_ERROR");
+    assert.equal(result.graphCode, 100);
+    assert.equal(result.outcomeUnknown, false);
+    assert.equal(waits, 0);
+    assert.equal(calls.filter(call => call.config.method === "post").length, 1);
 });
 
 test("відмова GraphQL зберігає текст Facebook та дозволяє наступну незалежну дію", async () => {
