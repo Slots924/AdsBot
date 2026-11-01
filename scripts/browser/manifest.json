@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "CRM — без примусових сповіщень",
+  "version": "1.0.0",
+  "description": "Прибирає вікно обов'язкових сповіщень лише на crm.we-can.xyz.",
+  "content_scripts": [
+    {
+      "matches": ["https://crm.we-can.xyz/*"],
+      "js": ["crm-no-push-gate.user.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

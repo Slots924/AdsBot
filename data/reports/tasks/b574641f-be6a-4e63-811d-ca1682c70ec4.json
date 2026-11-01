@@ -1,0 +1,228 @@
+{
+  "version": 1,
+  "id": "b574641f-be6a-4e63-811d-ca1682c70ec4",
+  "taskId": "e27553fc-58f4-4a4b-9df2-95c058892768",
+  "type": "comment-account-health",
+  "title": "Перевірка акаунтів під коментарі · 15",
+  "status": "completed_with_warnings",
+  "createdAt": "2026-11-01T14:58:17.417Z",
+  "startedAt": "2026-11-01T14:54:39.912Z",
+  "finishedAt": "2026-11-01T14:58:17.415Z",
+  "durationMs": 217503,
+  "inputSummary": {
+    "profileNos": [
+      "250",
+      "252",
+      "1576",
+      "1871",
+      "1876",
+      "1877",
+      "1879",
+      "1956",
+      "2404",
+      "2405",
+      "2406",
+      "2410",
+      "2411",
+      "2412",
+      "2413"
+    ]
+  },
+  "resultSummary": {
+    "startedAt": "2026-11-01T14:54:39.914Z",
+    "finishedAt": "2026-11-01T14:58:17.408Z",
+    "profileNos": [
+      "250",
+      "252",
+      "1576",
+      "1871",
+      "1876",
+      "1877",
+      "1879",
+      "1956",
+      "2404",
+      "2405",
+      "2406",
+      "2410",
+      "2411",
+      "2412",
+      "2413"
+    ],
+    "profiles": [
+      {
+        "profileNo": "250",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "checkedAt": "2026-11-01T14:54:55.135Z",
+        "duration": "15 с"
+      },
+      {
+        "profileNo": "252",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "checkedAt": "2026-11-01T14:55:11.071Z",
+        "duration": "15 с"
+      },
+      {
+        "profileNo": "1576",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "checkedAt": "2026-11-01T14:55:26.672Z",
+        "duration": "15 с"
+      },
+      {
+        "profileNo": "1871",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "checkedAt": "2026-11-01T14:55:43.486Z",
+        "duration": "16 с"
+      },
+      {
+        "profileNo": "1876",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "checkedAt": "2026-11-01T14:55:55.889Z",
+        "duration": "12 с"
+      },
+      {
+        "profileNo": "1877",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "checkedAt": "2026-11-01T14:56:15.646Z",
+        "duration": "19 с"
+      },
+      {
+        "profileNo": "1879",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "checkedAt": "2026-11-01T14:56:33.147Z",
+        "duration": "17 с"
+      },
+      {
+        "profileNo": "1956",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "checkedAt": "2026-11-01T14:56:46.964Z",
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "2404",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "checkedAt": "2026-11-01T14:56:59.597Z",
+        "duration": "12 с"
+      },
+      {
+        "profileNo": "2405",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "checkedAt": "2026-11-01T14:57:12.834Z",
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "2406",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "checkedAt": "2026-11-01T14:57:25.887Z",
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "2410",
+        "outcome": "working",
+        "login": "OK",
+        "active": "OK",
+        "english": "OK",
+        "error": null,
+        "checkedAt": "2026-11-01T14:57:38.226Z",
+        "duration": "12 с"
+      },
+      {
+        "profileNo": "2411",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "checkedAt": "2026-11-01T14:57:50.680Z",
+        "duration": "12 с"
+      },
+      {
+        "profileNo": "2412",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "checkedAt": "2026-11-01T14:58:04.057Z",
+        "duration": "13 с"
+      },
+      {
+        "profileNo": "2413",
+        "outcome": "banned",
+        "login": "OK",
+        "active": "FAIL",
+        "english": "—",
+        "error": "Facebook state: BANNED",
+        "checkedAt": "2026-11-01T14:58:17.405Z",
+        "duration": "13 с"
+      }
+    ],
+    "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-health-report_2026-11-01T14-58-17-408Z.md"
+  },
+  "counters": {},
+  "warnings": [],
+  "errors": [],
+  "artifacts": [],
+  "metadata": {
+    "profileNos": [
+      "250",
+      "252",
+      "1576",
+      "1871",
+      "1876",
+      "1877",
+      "1879",
+      "1956",
+      "2404",
+      "2405",
+      "2406",
+      "2410",
+      "2411",
+      "2412",
+      "2413"
+    ]
+  }
+}
