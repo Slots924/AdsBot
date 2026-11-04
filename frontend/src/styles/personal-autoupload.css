@@ -1,0 +1,19 @@
+.personal-http-layer { z-index: 191; }
+.personal-api-settings { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: end; }
+.personal-api-settings > .field { min-width: 0; }
+.personal-hub-selectors { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.personal-manual-open { align-self: flex-start; margin-top: 6px; }
+.personal-fp-hub .personal-inline-actions { align-items: end; }
+.personal-fp-hub .personal-inline-actions .field { max-width: 180px; }
+.personal-fp-hub .fan-page-share-list { max-height: 48vh; overflow: auto; }
+.personal-fp-hub .fan-page-share-feedback { min-height: 32px; }
+.personal-http-layer .personal-profile-combined { padding: 20px; border-radius: 14px; }
+.personal-http-layer .personal-account-title h2 { font-size: 19px; }
+.personal-http-layer .personal-account-nav button.active { box-shadow: inset 3px 0 0 #a593ff; }
+@media (max-width: 850px) {
+    .personal-hub-selectors { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .personal-hub-selectors > button { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+    .personal-api-settings, .personal-hub-selectors { grid-template-columns: minmax(0, 1fr); }
+}

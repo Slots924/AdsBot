@@ -61,6 +61,32 @@ export default class FacebookWebClient {
 
     setAdsManagerSession(value) { this.#adsManager = value; }
 
+    // Облікові дані доступні лише backend для збереження API-клієнта.
+    getApiCredentials(fbData) {
+        this.getAdsManagerData(fbData);
+        return { userAgent: this.#userAgent, accessToken: this.#adsManager.accessToken,
+            cookie: this.#jar.getCookieStringSync(homeUrl) };
+    }
+
+    async requestGraph(fbData, path, params, { mutation = false, signal } = {}) {
+        this.getAdsManagerData(fbData);
+        if (!/^(?:act_\d+|me)(?:\/[a-z_]+)?$/.test(path)) throw actionError("Непідтримуваний шлях Graph API", "FACEBOOK_ENDPOINT_INVALID");
+        const query = new URLSearchParams(params);
+        const response = await this.request({ url: `https://graph.facebook.com/v26.0/${path}${mutation ? "" : `?${query}`}`,
+            method: mutation ? "post" : "get", data: mutation ? query.toString() : undefined,
+            mutation, signal, asFetch: true, allowHttpErrors: true,
+            headers: { Authorization: `Bearer ${this.#adsManager.accessToken}`, ...(mutation ? { "Content-Type": "application/x-www-form-urlencoded" } : {}) },
+        });
+        let data;
+        try { data = typeof response.data === "string" ? JSON.parse(response.data) : response.data; }
+        catch { throw actionError("Graph API повернув некоректну відповідь", "FACEBOOK_RESPONSE_INVALID", { outcomeUnknown: mutation }); }
+        if (response.status < 200 || response.status >= 300 || data?.error) throw actionError(
+            data?.error?.error_user_msg || data?.error?.message || `Graph API: HTTP ${response.status}`, "FACEBOOK_GRAPH_ERROR",
+            { graphCode: data?.error?.code, graphSubcode: data?.error?.error_subcode, httpStatus: response.status });
+        if (!data || typeof data !== "object" || Array.isArray(data)) throw actionError("Graph API не повернув даних", "FACEBOOK_RESPONSE_INVALID", { outcomeUnknown: mutation });
+        return data;
+    }
+
     getAdsManagerData(fbData) {
         this.validateFbData(fbData);
         if (!this.#adsManager?.session || String(this.#adsManager.session.FacebookID) !== this.#expectedId) {
@@ -125,6 +151,20 @@ export default class FacebookWebClient {
         }
     }
 
+    async #requestWeb(config, mutation) {
+        let tlsMaxVersion;
+        for (let attempt = 0; attempt < 3; attempt++) {
+            config.signal?.throwIfAborted();
+            try { return await requestWithTrace(this.#http, { ...config, ...(tlsMaxVersion ? { tlsMaxVersion } : {}) }, { retryOnConnectionError: !mutation }); }
+            catch (error) {
+                config.signal?.throwIfAborted();
+                const code = error.diagnostic?.networkCode || error.code;
+                if (mutation || attempt === 2 || !["ERR_SSL_SSLV3_ALERT_CLOSE_NOTIFY", "ERR_SSL_UNEXPECTED_EOF_WHILE_READING", "ECONNRESET", "EPIPE", "ETIMEDOUT", "ECONNABORTED"].includes(code)) throw error;
+                if (code.startsWith("ERR_SSL_")) tlsMaxVersion = "TLSv1.2";
+            }
+        }
+    }
+
     async request({ url = homeUrl, method = "get", data, signal, headers = {}, mutation = !["get", "head"].includes(String(method).toLowerCase()), allowHttpErrors = false, asFetch = false }) {
         signal?.throwIfAborted();
         let target = new URL(url, homeUrl);
@@ -136,7 +176,7 @@ export default class FacebookWebClient {
             }
             let response;
             const navigation = !asFetch && ["get", "head"].includes(String(requestMethod).toLowerCase());
-            try { response = await requestWithTrace(this.#http, {
+            try { response = await this.#requestWeb({
                 method: requestMethod, url: target.href, data: requestData, signal,
                 timeout: 30000, maxRedirects: 0, responseType: "text", maxContentLength: 15 * 1024 * 1024,
                 validateStatus: () => true,
@@ -152,7 +192,7 @@ export default class FacebookWebClient {
                     "User-Agent": this.#userAgent,
                     Cookie: this.#jar.getCookieStringSync(target.href),
                 },
-            }, { retryOnConnectionError: !mutation }); }
+            }, mutation); }
             catch (error) {
                 error.diagnostic = describeHttpError(error, { url: target.href, method: requestMethod, session: this.#session ?? {}, proxy: this.#proxy });
                 getLogger("autoupload.http").error("autoupload.http.failed", error.diagnostic.message, error.diagnostic);

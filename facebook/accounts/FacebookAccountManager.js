@@ -227,7 +227,8 @@ export default class FacebookAccountManager {
             const store = await this.#read();
             this.#migrateAccounts(store);
             const accountKey = nextInternalAccountKey(store, this.keyPrefix);
-            const name = normalizeAccountName(input.name);
+            const name = normalizeAccountName(input.autoPersonalName
+                ? `P${accountKey.match(/-(\d+)$/)[1]}${input.personalNameSuffix || ""}` : input.name);
             if (!name) {
                 throw createAccountError(
                     "Вкажіть назву API-клієнта",
@@ -268,6 +269,16 @@ export default class FacebookAccountManager {
             if (this.kind !== "api" && !store.primaryAccountKey) store.primaryAccountKey = accountKey;
             await this.#write(store);
             return safeAccount(account, store.primaryAccountKey);
+        });
+    }
+
+    async nextPersonalName() {
+        return this.#enqueue(async () => {
+            const store = await this.#read();
+            this.#migrateAccounts(store);
+            const number = Math.max(Number(store.nextAccountNumber) || 1,
+                ...store.accounts.map(account => Number(String(account.accountKey).match(/-(\d+)$/)?.[1] || 0) + 1));
+            return `P${String(number).padStart(3, "0")}`;
         });
     }
 

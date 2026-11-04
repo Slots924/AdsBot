@@ -20,6 +20,10 @@ async function refreshProfileSessionImpl(options) {
         await getAdsManagerSession(client.getFbData(options.profileId), { signal: options.signal });
         Object.assign(result.capabilities, { adsManager: true, accessToken: true });
         await note("Сесію Ads Manager та access token отримано");
+        if (options.loadAssets === false) {
+            result.message = "Сесію Ads Manager підготовлено";
+            return prepared;
+        }
         const api = client.createGraphApi();
         const load = async (label, stateKey, operation, select) => {
             options.signal?.throwIfAborted();

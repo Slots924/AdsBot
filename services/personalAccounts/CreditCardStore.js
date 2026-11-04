@@ -172,10 +172,14 @@ export default class CreditCardStore {
         return this.#enqueue(async () => {
             const card = (await this.#read()).cards.find((item) => item.id === String(id));
             if (!card) throw cardError("Кредитну карту не знайдено", "CREDIT_CARD_NOT_FOUND");
-            return {
-                ...publicCard(card), cardNumber: this.decrypt(card.encryptedNumber),
-                securityCode: card.encryptedSecurityCode ? this.decrypt(card.encryptedSecurityCode) : "",
-            };
+            try {
+                return {
+                    ...publicCard(card), cardNumber: this.decrypt(card.encryptedNumber),
+                    securityCode: card.encryptedSecurityCode ? this.decrypt(card.encryptedSecurityCode) : "",
+                };
+            } catch {
+                throw Object.assign(cardError("Не вдалося прочитати карту через системне сховище. Запустіть перевірку зі звичайного GUI", "CREDIT_CARD_DECRYPTION_FAILED"), { stage: "CARD_READ" });
+            }
         });
     }
 

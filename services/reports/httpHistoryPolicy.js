@@ -3,7 +3,7 @@ import parseWebSession from "../../facebook/session/parseWebSession.js";
 import { extractFacebookAccessTokenFromHtml } from "../../facebook/api/browserCredentials.js";
 
 const hidden = "[REDACTED]";
-const secretKey = /token|cookie|authorization|password|passwd|secret|api.?key|proxy|fb_dtsg|(?:^|-)lsd$|^(jazoest|session_?id|xs|datr|sb|c_user|public_key|key_id)$/i;
+const secretKey = /token|cookie|authorization|password|passwd|secret|api.?key|proxy|fb_dtsg|(?:^|-)lsd$|^(jazoest|session_?id|xs|datr|sb|c_user|public_key|key_id|card_data|credit_card_number|card_number|cardNumber|pan|cvv|csc|securityCode|sensitive_string_value|authData|secretPayload)$/i;
 
 // Очищення історії не обрізає відповіді, масиви або вкладені GraphQL-дані.
 export function cleanHistory(value, secrets = [], seen = new WeakSet()) {
@@ -41,7 +41,7 @@ export function historyUrl(value) {
 
 function decodeBody(value) {
     if (typeof value !== "string") return value;
-    const text = value.replace(/^for\s*\(;;\);\s*/, "");
+    const text = value.replace(/^\s*for\s*\(\s*;;\s*\);\s*/, "");
     try { return JSON.parse(text); } catch {}
     const chunks = text.split(/\r?\n/).filter(line => line.trim());
     if (chunks.length > 1) {
@@ -75,10 +75,12 @@ export function responseSnapshot(response, config) {
     const data = response.data;
     const text = typeof data === "string" ? data : "";
     const type = String(response.headers?.["content-type"] ?? response.headers?.["Content-Type"] ?? "");
-    const html = /html/i.test(type) || /^\s*</.test(text)
-        || (!/graphql|\/api\//i.test(String(config.url)) && /DTSGInitialData|"actorID"|"accessToken"/.test(text));
-    const script = /javascript|ecmascript/i.test(type) || /\.js(?:[?#]|$)|fbcdn\.net\/rsrc\.php\//i.test(String(config.url));
     let body = decodeBody(data);
+    // Facebook інколи позначає JSON-відмову як text/html; її текст потрібен у звіті.
+    const structured = body !== null && typeof body === "object" && !Buffer.isBuffer(body);
+    const html = !structured && (/html/i.test(type) || /^\s*</.test(text)
+        || (!/graphql|\/api\//i.test(String(config.url)) && /DTSGInitialData|"actorID"|"accessToken"/.test(text)));
+    const script = /javascript|ecmascript/i.test(type) || /\.js(?:[?#]|$)|fbcdn\.net\/rsrc\.php\//i.test(String(config.url));
     if (html) {
         const { session, missing } = parseWebSession(text);
         body = { kind: "html", bodyOmitted: true, bytes: Buffer.byteLength(text),

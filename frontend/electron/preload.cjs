@@ -159,6 +159,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("campaigns:create-job", { jobId }),
     cleanupCampaignCreation: (jobId) =>
         ipcRenderer.invoke("campaigns:create-cleanup", { jobId }),
+    personalAutoupload: (action, input = {}) => ipcRenderer.invoke("personal-autoupload:action", { ...input, action }),
+    getNextPersonalApiName: () => ipcRenderer.invoke("personal-account:next-api-name"),
     getAutoupload: (options = {}) => ipcRenderer.invoke("autoupload:get", options),
     controlAutouploadProfile: (profileId, action) => ipcRenderer.invoke("autoupload:profile", { profileId, action }),
     mutateAutoupload: (payload) => ipcRenderer.invoke("autoupload:mutate", payload),

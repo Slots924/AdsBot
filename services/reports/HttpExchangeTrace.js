@@ -65,7 +65,8 @@ export async function withHttpAction(name, execute, metadata = {}) {
             result = await execute();
             await scope.journal.append({ event: "action.finished", actionId: scope.actionId, action: name,
                 at: new Date().toISOString(), ...scope.metadata,
-                result: cleanHistory({ success: result?.success, outcome: result?.outcome, code: result?.code, message: result?.message,
+                result: cleanHistory({ success: result?.success, status: result?.status, graphCode: result?.graphCode,
+                    outcome: result?.outcome, code: result?.code, message: result?.message,
                     outcomeUnknown: result?.outcomeUnknown, stage: result?.stage, sessionFieldsFound: result?.fields,
                     adsManagerPrepared: result?.hasAdsManagerSession, credentialObtained: result?.hasAccessToken }, [...scope.secrets]) });
             return result && typeof result === "object" ? { ...result, actionId: scope.actionId, exchanges: scope.exchanges,

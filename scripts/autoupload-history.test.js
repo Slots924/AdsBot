@@ -25,6 +25,15 @@ const cookies = [{ name: "c_user", value: "123", domain: ".facebook.com", path: 
 const reply = (data, status = 200, headers = {}) => ({ data, status, headers });
 const createClient = request => new FacebookWebClient({ cookies, userAgent: "History-Test", httpClient: { request } });
 
+test("JSON-відмова з Content-Type text/html зберігає серверний код і текст без credentials", () => {
+    const response = reply('for (;;);{"error":1533002,"errorDescription":"Test rejection","access_token":"private-test-token"}', 200, { "content-type": "text/html; charset=utf-8" });
+    const snapshot = cleanHistory(responseSnapshot(response, { url: "https://adsmanager.facebook.com/api/graphql/" }));
+    assert.equal(snapshot.body.error, 1533002);
+    assert.equal(snapshot.body.errorDescription, "Test rejection");
+    assert.equal(snapshot.body.bodyOmitted, undefined);
+    assert.ok(!JSON.stringify(snapshot).includes("private-test-token"));
+});
+
 async function temporary(t) {
     const directory = await mkdtemp(path.join(os.tmpdir(), "adsbot-http-history-"));
     t.after(async () => {

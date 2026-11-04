@@ -1,0 +1,1655 @@
+[
+  {
+    "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yJ/r/ZYt8bAQTYTh.js",
+    "bytes": 306238,
+    "definitions": [
+      {
+        "name": "ExecutionEnvironment",
+        "dependencies": []
+      },
+      {
+        "name": "BootloaderDocumentInserter",
+        "dependencies": [
+          "ExecutionEnvironment"
+        ]
+      },
+      {
+        "name": "Env",
+        "dependencies": []
+      },
+      {
+        "name": "fb-error-lite",
+        "dependencies": []
+      },
+      {
+        "name": "sprintf",
+        "dependencies": []
+      },
+      {
+        "name": "invariant",
+        "dependencies": [
+          "Env",
+          "fb-error-lite",
+          "sprintf"
+        ]
+      },
+      {
+        "name": "ArbiterToken",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "performance",
+        "dependencies": []
+      },
+      {
+        "name": "performanceNow",
+        "dependencies": [
+          "performance"
+        ]
+      },
+      {
+        "name": "removeFromArray",
+        "dependencies": []
+      },
+      {
+        "name": "fb-error",
+        "dependencies": [
+          "performanceNow",
+          "removeFromArray"
+        ]
+      },
+      {
+        "name": "ErrorGuard",
+        "dependencies": [
+          "fb-error"
+        ]
+      },
+      {
+        "name": "CallbackDependencyManager",
+        "dependencies": [
+          "ErrorGuard"
+        ]
+      },
+      {
+        "name": "EventSubscription",
+        "dependencies": []
+      },
+      {
+        "name": "EmitterSubscription",
+        "dependencies": [
+          "EventSubscription"
+        ]
+      },
+      {
+        "name": "EventSubscriptionVendor",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "FBLogger",
+        "dependencies": [
+          "fb-error"
+        ]
+      },
+      {
+        "name": "emptyFunction",
+        "dependencies": []
+      },
+      {
+        "name": "BaseEventEmitter",
+        "dependencies": [
+          "EmitterSubscription",
+          "ErrorGuard",
+          "EventSubscriptionVendor",
+          "FBLogger",
+          "emptyFunction"
+        ]
+      },
+      {
+        "name": "EventEmitter",
+        "dependencies": [
+          "BaseEventEmitter"
+        ]
+      },
+      {
+        "name": "EventEmitterWithHolding",
+        "dependencies": []
+      },
+      {
+        "name": "EventHolder",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "Arbiter",
+        "dependencies": [
+          "invariant",
+          "ArbiterToken",
+          "CallbackDependencyManager",
+          "ErrorGuard",
+          "EventEmitter",
+          "EventEmitterWithHolding",
+          "EventHolder"
+        ]
+      },
+      {
+        "name": "objectValues",
+        "dependencies": []
+      },
+      {
+        "name": "BootloaderEvents",
+        "dependencies": [
+          "Arbiter",
+          "objectValues"
+        ]
+      },
+      {
+        "name": "SimpleHook",
+        "dependencies": []
+      },
+      {
+        "name": "performanceAbsoluteNowOnAdjust",
+        "dependencies": [
+          "SimpleHook"
+        ]
+      },
+      {
+        "name": "performanceAbsoluteNow",
+        "dependencies": [
+          "performance",
+          "performanceAbsoluteNowOnAdjust"
+        ]
+      },
+      {
+        "name": "BootloaderEventsManager",
+        "dependencies": [
+          "CallbackDependencyManager",
+          "performanceAbsoluteNow"
+        ]
+      },
+      {
+        "name": "nullthrows",
+        "dependencies": []
+      },
+      {
+        "name": "BootloaderPreloader",
+        "dependencies": [
+          "invariant",
+          "BootloaderDocumentInserter",
+          "ErrorGuard",
+          "ExecutionEnvironment",
+          "FBLogger",
+          "nullthrows"
+        ]
+      },
+      {
+        "name": "BootloaderRetryTracker",
+        "dependencies": [
+          "ErrorGuard",
+          "performanceAbsoluteNow"
+        ]
+      },
+      {
+        "name": "requireCond",
+        "dependencies": []
+      },
+      {
+        "name": "Promise",
+        "dependencies": [
+          "cr:6640"
+        ]
+      },
+      {
+        "name": "$InternalEnum",
+        "dependencies": []
+      },
+      {
+        "name": "RequireDeferredFactoryEvent",
+        "dependencies": [
+          "$InternalEnum"
+        ]
+      },
+      {
+        "name": "ifRequired",
+        "dependencies": []
+      },
+      {
+        "name": "ifRequireable",
+        "dependencies": [
+          "ifRequired"
+        ]
+      },
+      {
+        "name": "ErrorPubSub",
+        "dependencies": [
+          "fb-error"
+        ]
+      },
+      {
+        "name": "PromiseAnnotate",
+        "dependencies": []
+      },
+      {
+        "name": "asyncToGeneratorRuntime",
+        "dependencies": [
+          "Promise"
+        ]
+      },
+      {
+        "name": "getErrorSafe",
+        "dependencies": [
+          "fb-error"
+        ]
+      },
+      {
+        "name": "promiseDone",
+        "dependencies": [
+          "ErrorPubSub",
+          "PromiseAnnotate",
+          "asyncToGeneratorRuntime",
+          "getErrorSafe"
+        ]
+      },
+      {
+        "name": "requireWeak",
+        "dependencies": []
+      },
+      {
+        "name": "RequireDeferredReference",
+        "dependencies": [
+          "CallbackDependencyManager",
+          "Promise",
+          "RequireDeferredFactoryEvent",
+          "ifRequireable",
+          "ifRequired",
+          "performanceNow",
+          "promiseDone",
+          "requireWeak"
+        ]
+      },
+      {
+        "name": "RDRequireDeferredReference",
+        "dependencies": [
+          "RequireDeferredReference"
+        ]
+      },
+      {
+        "name": "requireDeferred",
+        "dependencies": [
+          "RDRequireDeferredReference"
+        ]
+      },
+      {
+        "name": "BootloaderUsageLoggerUtils",
+        "dependencies": [
+          "SiteData",
+          "requireDeferred"
+        ]
+      },
+      {
+        "name": "clearInterval",
+        "dependencies": [
+          "cr:7385"
+        ]
+      },
+      {
+        "name": "isEmpty",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "setIntervalAcrossTransitions",
+        "dependencies": [
+          "cr:7389"
+        ]
+      },
+      {
+        "name": "CSSPoller",
+        "dependencies": [
+          "CSSLoaderConfig",
+          "FBLogger",
+          "clearInterval",
+          "getErrorSafe",
+          "isEmpty",
+          "setIntervalAcrossTransitions"
+        ]
+      },
+      {
+        "name": "CircularBuffer",
+        "dependencies": [
+          "FBLogger"
+        ]
+      },
+      {
+        "name": "ResourceTypes",
+        "dependencies": []
+      },
+      {
+        "name": "TimingAnnotations",
+        "dependencies": []
+      },
+      {
+        "name": "BaseDeserializePHPQueryData",
+        "dependencies": []
+      },
+      {
+        "name": "flattenPHPQueryData",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "PHPQuerySerializer",
+        "dependencies": [
+          "BaseDeserializePHPQueryData",
+          "flattenPHPQueryData"
+        ]
+      },
+      {
+        "name": "PHPQuerySerializerNoEncoding",
+        "dependencies": [
+          "BaseDeserializePHPQueryData",
+          "flattenPHPQueryData"
+        ]
+      },
+      {
+        "name": "ReloadPage",
+        "dependencies": [
+          "Env",
+          "ifRequireable"
+        ]
+      },
+      {
+        "name": "PHPStrictQuerySerializer",
+        "dependencies": [
+          "PHPQuerySerializer",
+          "flattenPHPQueryData"
+        ]
+      },
+      {
+        "name": "URIRFC3986",
+        "dependencies": []
+      },
+      {
+        "name": "URISchemes",
+        "dependencies": [
+          "$InternalEnum"
+        ]
+      },
+      {
+        "name": "err",
+        "dependencies": [
+          "fb-error"
+        ]
+      },
+      {
+        "name": "isSameOrigin",
+        "dependencies": []
+      },
+      {
+        "name": "setHostSubdomain",
+        "dependencies": []
+      },
+      {
+        "name": "URIAbstractBase",
+        "dependencies": [
+          "invariant",
+          "FBLogger",
+          "PHPStrictQuerySerializer",
+          "URIRFC3986",
+          "URISchemes",
+          "err",
+          "isSameOrigin",
+          "setHostSubdomain"
+        ]
+      },
+      {
+        "name": "URIBase",
+        "dependencies": [
+          "ExecutionEnvironment",
+          "PHPQuerySerializerNoEncoding",
+          "URIAbstractBase",
+          "URISchemes",
+          "UriNeedRawQuerySVChecker",
+          "err",
+          "getErrorSafe"
+        ]
+      },
+      {
+        "name": "UriNeedRawQuerySVChecker",
+        "dependencies": [
+          "PHPQuerySerializer",
+          "URIBase",
+          "UriNeedRawQuerySVConfig"
+        ]
+      },
+      {
+        "name": "isFacebookURI",
+        "dependencies": []
+      },
+      {
+        "name": "memoize",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "justknobx",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "memoizeInstrumentation",
+        "dependencies": [
+          "ExecutionEnvironment",
+          "FBLogger",
+          "err",
+          "justknobx"
+        ]
+      },
+      {
+        "name": "memoizeStringOnly",
+        "dependencies": [
+          "memoizeInstrumentation"
+        ]
+      },
+      {
+        "name": "unqualifyURI",
+        "dependencies": []
+      },
+      {
+        "name": "URI",
+        "dependencies": [
+          "Env",
+          "FBLogger",
+          "PHPQuerySerializer",
+          "PHPQuerySerializerNoEncoding",
+          "ReloadPage",
+          "URIBase",
+          "UriNeedRawQuerySVChecker",
+          "cr:1078",
+          "cr:1080",
+          "ifRequired",
+          "isFacebookURI",
+          "memoize",
+          "memoizeStringOnly",
+          "unqualifyURI"
+        ]
+      },
+      {
+        "name": "ResourceTimingsStore",
+        "dependencies": [
+          "CircularBuffer",
+          "ResourceTypes",
+          "TimingAnnotations",
+          "URI",
+          "performanceAbsoluteNow"
+        ]
+      },
+      {
+        "name": "TimeSlice",
+        "dependencies": [
+          "cr:1126"
+        ]
+      },
+      {
+        "name": "CSSLoader",
+        "dependencies": [
+          "CSSLoaderConfig",
+          "CSSPoller",
+          "ResourceTimingsStore",
+          "TimeSlice",
+          "ifRequired"
+        ]
+      },
+      {
+        "name": "ClientConsistencyEventEmitter",
+        "dependencies": [
+          "BaseEventEmitter"
+        ]
+      },
+      {
+        "name": "ClientConsistency",
+        "dependencies": [
+          "ClientConsistencyEventEmitter",
+          "FBLogger",
+          "SiteData",
+          "requireWeak"
+        ]
+      },
+      {
+        "name": "BitMap",
+        "dependencies": []
+      },
+      {
+        "name": "HasteBitMap",
+        "dependencies": [
+          "BitMap"
+        ]
+      },
+      {
+        "name": "HasteResourceIndexUtil",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "ErrorMetadata",
+        "dependencies": [
+          "fb-error"
+        ]
+      },
+      {
+        "name": "JSResourceEvents",
+        "dependencies": [
+          "performanceAbsoluteNow"
+        ]
+      },
+      {
+        "name": "JSResourceReferenceImpl",
+        "dependencies": [
+          "BootloaderEvents",
+          "ErrorMetadata",
+          "JSResourceEvents",
+          "Promise",
+          "PromiseAnnotate",
+          "err",
+          "ifRequireable",
+          "ifRequired"
+        ]
+      },
+      {
+        "name": "MakeHasteTranslationsMap",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "GHLDetectionUtilsPreludeSafe",
+        "dependencies": [
+          "ExecutionEnvironment",
+          "FBLogger"
+        ]
+      },
+      {
+        "name": "BanzaiLazyQueue",
+        "dependencies": [
+          "SimpleHook"
+        ]
+      },
+      {
+        "name": "gkx",
+        "dependencies": [
+          "invariant",
+          "BanzaiLazyQueue",
+          "ExecutionEnvironment",
+          "emptyFunction"
+        ]
+      },
+      {
+        "name": "GHLDetectionUtils",
+        "dependencies": [
+          "GHLDetectionUtilsPreludeSafe",
+          "gkx"
+        ]
+      },
+      {
+        "name": "GHLNetworkLayer",
+        "dependencies": [
+          "FBLogger",
+          "GHLDetectionUtils",
+          "GHLDetectionUtilsPreludeSafe",
+          "err",
+          "gkx"
+        ]
+      },
+      {
+        "name": "getSameOriginTransport",
+        "dependencies": [
+          "ExecutionEnvironment",
+          "FBLogger",
+          "GHLDetectionUtils",
+          "GHLDetectionUtilsPreludeSafe",
+          "GHLNetworkLayer",
+          "err",
+          "getErrorSafe",
+          "gkx",
+          "justknobx"
+        ]
+      },
+      {
+        "name": "MakeHasteTranslations",
+        "dependencies": [
+          "BootloaderConfig",
+          "BootloaderRetryTracker",
+          "ExecutionEnvironment",
+          "FBLogger",
+          "MakeHasteTranslationsMap",
+          "Promise",
+          "TimeSlice",
+          "err",
+          "fb-error",
+          "getErrorSafe",
+          "getSameOriginTransport",
+          "promiseDone"
+        ]
+      },
+      {
+        "name": "clearTimeout",
+        "dependencies": [
+          "cr:3725"
+        ]
+      },
+      {
+        "name": "setTimeout",
+        "dependencies": [
+          "cr:4344"
+        ]
+      },
+      {
+        "name": "NetworkHeartbeat",
+        "dependencies": [
+          "clearTimeout",
+          "getSameOriginTransport",
+          "setTimeout"
+        ]
+      },
+      {
+        "name": "NetworkStatusImpl",
+        "dependencies": [
+          "NetworkHeartbeat",
+          "justknobx",
+          "performanceNow"
+        ]
+      },
+      {
+        "name": "NetworkStatusSham",
+        "dependencies": []
+      },
+      {
+        "name": "NetworkStatus",
+        "dependencies": [
+          "NetworkStatusImpl",
+          "NetworkStatusSham",
+          "gkx"
+        ]
+      },
+      {
+        "name": "ResourceHasher",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "ServerJsRuntimeEnvironment",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "__debug",
+        "dependencies": []
+      },
+      {
+        "name": "fetch",
+        "dependencies": []
+      },
+      {
+        "name": "objectKeys",
+        "dependencies": []
+      },
+      {
+        "name": "qex",
+        "dependencies": [
+          "invariant",
+          "BanzaiLazyQueue"
+        ]
+      },
+      {
+        "name": "setTimeoutAcrossTransitions",
+        "dependencies": [
+          "cr:7391"
+        ]
+      },
+      {
+        "name": "Bootloader",
+        "dependencies": [
+          "invariant",
+          "BootloaderConfig",
+          "BootloaderDocumentInserter",
+          "BootloaderEndpoint",
+          "BootloaderEvents",
+          "BootloaderEventsManager",
+          "BootloaderPreloader",
+          "BootloaderRetryTracker",
+          "BootloaderUsageLoggerUtils",
+          "CSSLoader",
+          "ClientConsistency",
+          "ErrorPubSub",
+          "ExecutionEnvironment",
+          "FBLogger",
+          "HasteBitMap",
+          "HasteResourceIndexUtil",
+          "JSResourceReferenceImpl",
+          "MakeHasteTranslations",
+          "NetworkStatus",
+          "RequireDeferredReference",
+          "ResourceHasher",
+          "ResourceTimingsStore",
+          "ServerJsRuntimeEnvironment",
+          "SiteData",
+          "TimeSlice",
+          "__debug",
+          "clearTimeout",
+          "cr:696703",
+          "err",
+          "fb-error",
+          "fetch",
+          "getErrorSafe",
+          "gkx",
+          "ifRequireable",
+          "ifRequired",
+          "nullthrows",
+          "objectKeys",
+          "objectValues",
+          "performanceAbsoluteNow",
+          "performanceNow",
+          "promiseDone",
+          "qex",
+          "requireDeferred",
+          "setTimeoutAcrossTransitions"
+        ]
+      },
+      {
+        "name": "CSRFGuard",
+        "dependencies": []
+      },
+      {
+        "name": "ImmediateImplementation",
+        "dependencies": [
+          "ImmediateImplementationExperiments"
+        ]
+      },
+      {
+        "name": "clearImmediatePolyfill",
+        "dependencies": [
+          "ImmediateImplementation"
+        ]
+      },
+      {
+        "name": "clearImmediate",
+        "dependencies": [
+          "clearImmediatePolyfill"
+        ]
+      },
+      {
+        "name": "currentCometRouterInstance",
+        "dependencies": []
+      },
+      {
+        "name": "pushViewToRouteInfo",
+        "dependencies": []
+      },
+      {
+        "name": "getTopMostRouteInfo",
+        "dependencies": [
+          "pushViewToRouteInfo"
+        ]
+      },
+      {
+        "name": "getTopMostRoute",
+        "dependencies": [
+          "getTopMostRouteInfo"
+        ]
+      },
+      {
+        "name": "CurrentCanonicalRoute",
+        "dependencies": [
+          "currentCometRouterInstance",
+          "getTopMostRoute"
+        ]
+      },
+      {
+        "name": "isCdnURI",
+        "dependencies": []
+      },
+      {
+        "name": "isInstagramURI",
+        "dependencies": []
+      },
+      {
+        "name": "isMessengerDotComURI",
+        "dependencies": []
+      },
+      {
+        "name": "isMetaDotComURI",
+        "dependencies": []
+      },
+      {
+        "name": "isOculusDotComURI",
+        "dependencies": []
+      },
+      {
+        "name": "isWorkplaceDotComURI",
+        "dependencies": []
+      },
+      {
+        "name": "DTSGUtils",
+        "dependencies": [
+          "SprinkleConfig",
+          "isCdnURI",
+          "isFacebookURI",
+          "isInstagramURI",
+          "isMessengerDotComURI",
+          "isMetaDotComURI",
+          "isOculusDotComURI",
+          "isWorkplaceDotComURI"
+        ]
+      },
+      {
+        "name": "HasteBitMapName",
+        "dependencies": []
+      },
+      {
+        "name": "ge",
+        "dependencies": []
+      },
+      {
+        "name": "replaceTransportMarkers",
+        "dependencies": [
+          "BanzaiLazyQueue",
+          "ge",
+          "memoize"
+        ]
+      },
+      {
+        "name": "ServerJSDefine",
+        "dependencies": [
+          "BitMap",
+          "replaceTransportMarkers"
+        ]
+      },
+      {
+        "name": "StaticSiteData",
+        "dependencies": []
+      },
+      {
+        "name": "Alea",
+        "dependencies": []
+      },
+      {
+        "name": "Random",
+        "dependencies": [
+          "Alea",
+          "ServerNonce"
+        ]
+      },
+      {
+        "name": "WebSessionDefaultTimeoutMs",
+        "dependencies": []
+      },
+      {
+        "name": "CookieConsent",
+        "dependencies": [
+          "InitialCookieConsent"
+        ]
+      },
+      {
+        "name": "isQuotaExceededError",
+        "dependencies": []
+      },
+      {
+        "name": "WebStorage",
+        "dependencies": [
+          "CookieConsent",
+          "FBLogger",
+          "err",
+          "getErrorSafe",
+          "isQuotaExceededError"
+        ]
+      },
+      {
+        "name": "WebSession",
+        "dependencies": [
+          "FBLogger",
+          "Random",
+          "WebSessionDefaultTimeoutMs",
+          "WebStorage"
+        ]
+      },
+      {
+        "name": "asyncParams",
+        "dependencies": []
+      },
+      {
+        "name": "getAsyncParamsForProfiling",
+        "dependencies": [
+          "SiteData"
+        ]
+      },
+      {
+        "name": "getAsyncParamsFromCurrentPageURI",
+        "dependencies": []
+      },
+      {
+        "name": "CSSCore",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "isSocialPlugin",
+        "dependencies": [
+          "CSSCore",
+          "ExecutionEnvironment"
+        ]
+      },
+      {
+        "name": "uniqueRequestID",
+        "dependencies": []
+      },
+      {
+        "name": "getAsyncParams",
+        "dependencies": [
+          "CometPersistQueryParams",
+          "CurrentCanonicalRoute",
+          "CurrentUserInitialData",
+          "DTSGUtils",
+          "Env",
+          "GetAsyncParamsExtraData",
+          "HasteBitMap",
+          "HasteBitMapName",
+          "JSErrorLoggingConfig",
+          "LSD",
+          "ServerJSDefine",
+          "SiteData",
+          "SprinkleConfig",
+          "StaticSiteData",
+          "WebConnectionClassServerGuess",
+          "WebSession",
+          "asyncParams",
+          "cr:8959",
+          "cr:8960",
+          "getAsyncParamsForProfiling",
+          "getAsyncParamsFromCurrentPageURI",
+          "isSocialPlugin",
+          "objectValues",
+          "requireWeak",
+          "uniqueRequestID"
+        ]
+      },
+      {
+        "name": "setImmediatePolyfill",
+        "dependencies": [
+          "invariant",
+          "ImmediateImplementation",
+          "PromiseUsePolyfillSetImmediateGK"
+        ]
+      },
+      {
+        "name": "setImmediateAcrossTransitions",
+        "dependencies": [
+          "TimeSlice",
+          "setImmediatePolyfill"
+        ]
+      },
+      {
+        "name": "BootloaderEndpoint",
+        "dependencies": [
+          "AdsManagerReadRegions",
+          "Bootloader",
+          "BootloaderEndpointConfig",
+          "BootloaderEvents",
+          "CSRFGuard",
+          "FBLogger",
+          "HasteResponse",
+          "TimeSlice",
+          "clearImmediate",
+          "fb-error",
+          "getAsyncParams",
+          "getSameOriginTransport",
+          "gkx",
+          "performanceAbsoluteNow",
+          "setImmediateAcrossTransitions"
+        ]
+      },
+      {
+        "name": "MetaConfigMap",
+        "dependencies": []
+      },
+      {
+        "name": "QPLHasteSupportDataStorage",
+        "dependencies": []
+      },
+      {
+        "name": "bx",
+        "dependencies": [
+          "FBLogger"
+        ]
+      },
+      {
+        "name": "getFalcoLogPolicy_DO_NOT_USE",
+        "dependencies": [
+          "FBLogger"
+        ]
+      },
+      {
+        "name": "ix",
+        "dependencies": [
+          "invariant"
+        ]
+      },
+      {
+        "name": "HasteSupportData",
+        "dependencies": [
+          "ix",
+          "MetaConfigMap",
+          "QPLHasteSupportDataStorage",
+          "bx",
+          "getFalcoLogPolicy_DO_NOT_USE",
+          "gkx",
+          "justknobx",
+          "qex"
+        ]
+      },
+      {
+        "name": "Parent",
+        "dependencies": [
+          "CSSCore"
+        ]
+      },
+      {
+        "name": "ContextualComponent",
+        "dependencies": [
+          "Parent"
+        ]
+      },
+      {
+        "name": "ServerJS",
+        "dependencies": [
+          "ContextualComponent",
+          "ErrorGuard",
+          "HasteBitMap",
+          "HasteResourceIndexUtil",
+          "ServerJSDefine",
+          "__debug",
+          "err",
+          "ge",
+          "getErrorSafe",
+          "replaceTransportMarkers"
+        ]
+      },
+      {
+        "name": "HasteResponse",
+        "dependencies": [
+          "Bootloader",
+          "BootloaderConfig",
+          "BootloaderEvents",
+          "ClientConsistency",
+          "ClientConsistencyEventEmitter",
+          "HasteSupportData",
+          "ServerJS",
+          "TimeSlice",
+          "__debug",
+          "fb-error",
+          "performanceAbsoluteNow"
+        ]
+      },
+      {
+        "name": "DTSG",
+        "dependencies": [
+          "invariant",
+          "DTSGInitialData"
+        ]
+      },
+      {
+        "name": "DTSG_ASYNC",
+        "dependencies": [
+          "DTSGInitData"
+        ]
+      },
+      {
+        "name": "SchedulerFeatureFlags",
+        "dependencies": []
+      },
+      {
+        "name": "Scheduler-dev.classic",
+        "dependencies": [
+          "SchedulerFeatureFlags"
+        ]
+      },
+      {
+        "name": "Scheduler-profiling.classic",
+        "dependencies": [
+          "SchedulerFeatureFlags"
+        ]
+      },
+      {
+        "name": "nativeRequestAnimationFrame",
+        "dependencies": []
+      },
+      {
+        "name": "requestAnimationFramePolyfill",
+        "dependencies": [
+          "ExecutionEnvironment",
+          "nativeRequestAnimationFrame",
+          "performanceNow"
+        ]
+      },
+      {
+        "name": "SchedulerFb-Internals_DO_NOT_USE",
+        "dependencies": [
+          "Scheduler-dev.classic",
+          "Scheduler-profiling.classic",
+          "ifRequireable",
+          "requestAnimationFramePolyfill"
+        ]
+      },
+      {
+        "name": "JSScheduler",
+        "dependencies": [
+          "SchedulerFb-Internals_DO_NOT_USE"
+        ]
+      },
+      {
+        "name": "createCancelableFunction",
+        "dependencies": [
+          "emptyFunction"
+        ]
+      },
+      {
+        "name": "unexpectedUseInComet",
+        "dependencies": [
+          "FBLogger",
+          "gkx"
+        ]
+      },
+      {
+        "name": "RunComet",
+        "dependencies": [
+          "ExecutionEnvironment",
+          "FBLogger",
+          "createCancelableFunction",
+          "emptyFunction",
+          "getErrorSafe",
+          "gkx",
+          "setTimeout",
+          "unexpectedUseInComet"
+        ]
+      },
+      {
+        "name": "RunWWW",
+        "dependencies": [
+          "cr:925100"
+        ]
+      },
+      {
+        "name": "IntervalTrackingBoundedBuffer",
+        "dependencies": [
+          "CircularBuffer",
+          "ErrorPubSub",
+          "err"
+        ]
+      },
+      {
+        "name": "TimeSliceSham",
+        "dependencies": [
+          "Env",
+          "ErrorGuard",
+          "IntervalTrackingBoundedBuffer"
+        ]
+      },
+      {
+        "name": "setTimeoutCometInternals",
+        "dependencies": [
+          "JSScheduler"
+        ]
+      },
+      {
+        "name": "clearIntervalComet",
+        "dependencies": [
+          "setTimeoutCometInternals"
+        ]
+      },
+      {
+        "name": "clearIntervalWWW",
+        "dependencies": [
+          "cr:1003267"
+        ]
+      },
+      {
+        "name": "clearTimeoutComet",
+        "dependencies": [
+          "setTimeoutCometInternals"
+        ]
+      },
+      {
+        "name": "clearTimeoutWWW",
+        "dependencies": [
+          "cr:806696"
+        ]
+      },
+      {
+        "name": "clearTimeoutWWWOrMobile",
+        "dependencies": [
+          "cr:7386"
+        ]
+      },
+      {
+        "name": "setIntervalAcrossTransitionsWWW",
+        "dependencies": [
+          "cr:896462"
+        ]
+      },
+      {
+        "name": "setIntervalComet",
+        "dependencies": [
+          "JSScheduler",
+          "setTimeoutCometInternals"
+        ]
+      },
+      {
+        "name": "setIntervalWWW",
+        "dependencies": [
+          "cr:896461"
+        ]
+      },
+      {
+        "name": "setTimeoutAcrossTransitionsWWW",
+        "dependencies": [
+          "cr:986633"
+        ]
+      },
+      {
+        "name": "setTimeoutComet",
+        "dependencies": [
+          "JSScheduler",
+          "setTimeoutCometInternals"
+        ]
+      },
+      {
+        "name": "setTimeoutWWW",
+        "dependencies": [
+          "cr:807042"
+        ]
+      },
+      {
+        "name": "setTimeoutWWWOrMobile",
+        "dependencies": [
+          "cr:7390"
+        ]
+      },
+      {
+        "name": "CometPreludeCriticalRequireConds",
+        "dependencies": [
+          "DTSG",
+          "DTSG_ASYNC",
+          "JSScheduler",
+          "RunComet",
+          "RunWWW",
+          "TimeSliceSham",
+          "clearIntervalComet",
+          "clearIntervalWWW",
+          "clearTimeoutComet",
+          "clearTimeoutWWW",
+          "clearTimeoutWWWOrMobile",
+          "setIntervalAcrossTransitionsWWW",
+          "setIntervalComet",
+          "setIntervalWWW",
+          "setTimeoutAcrossTransitionsWWW",
+          "setTimeoutComet",
+          "setTimeoutWWW",
+          "setTimeoutWWWOrMobile"
+        ]
+      },
+      {
+        "name": "CometResourceScheduler",
+        "dependencies": [
+          "Bootloader",
+          "ErrorGuard"
+        ]
+      },
+      {
+        "name": "DeferredJSResourceScheduler",
+        "dependencies": [
+          "Bootloader",
+          "CometResourceScheduler",
+          "JSScheduler"
+        ]
+      },
+      {
+        "name": "unstable_server-external-runtime-exp",
+        "dependencies": [
+          "Promise"
+        ]
+      },
+      {
+        "name": "ReactDOMServerExternalRuntime",
+        "dependencies": [
+          "ExecutionEnvironment",
+          "unstable_server-external-runtime-exp"
+        ]
+      },
+      {
+        "name": "Run",
+        "dependencies": [
+          "cr:310"
+        ]
+      },
+      {
+        "name": "ScheduledApplyEach",
+        "dependencies": [
+          "JSScheduler"
+        ]
+      },
+      {
+        "name": "ScheduledServerJS",
+        "dependencies": [
+          "JSScheduler",
+          "ScheduledApplyEach",
+          "ServerJS"
+        ]
+      },
+      {
+        "name": "ScheduledServerJSDefine",
+        "dependencies": [
+          "JSScheduler",
+          "ServerJSDefine"
+        ]
+      },
+      {
+        "name": "ScheduledServerJSWithCSS",
+        "dependencies": [
+          "Bootloader",
+          "JSScheduler",
+          "ScheduledServerJS"
+        ]
+      },
+      {
+        "name": "performanceNavigationStart",
+        "dependencies": [
+          "performance"
+        ]
+      },
+      {
+        "name": "bootstrapWebSession",
+        "dependencies": [
+          "WebSession",
+          "WebSessionDefaultTimeoutMs",
+          "performanceNavigationStart"
+        ]
+      },
+      {
+        "name": "cx",
+        "dependencies": []
+      },
+      {
+        "name": "shouldDisableAnimations",
+        "dependencies": [
+          "ExecutionEnvironment"
+        ]
+      },
+      {
+        "name": "maybeDisableAnimations",
+        "dependencies": [
+          "cx",
+          "shouldDisableAnimations"
+        ]
+      },
+      {
+        "name": "qplAnnotationsIntServerJS",
+        "dependencies": []
+      },
+      {
+        "name": "qplAnnotationsStringServerJS",
+        "dependencies": []
+      },
+      {
+        "name": "qplTagServerJS",
+        "dependencies": []
+      },
+      {
+        "name": "UserTimingUtils.shared",
+        "dependencies": [
+          "UserTimingUtils",
+          "asyncToGeneratorRuntime",
+          "performance"
+        ]
+      },
+      {
+        "name": "UserTimingUtils",
+        "dependencies": [
+          "UserTimingUtils.shared",
+          "performance",
+          "performanceNow"
+        ]
+      },
+      {
+        "name": "nowServerJS",
+        "dependencies": []
+      },
+      {
+        "name": "qplTimingsServerJS",
+        "dependencies": [
+          "UserTimingUtils",
+          "nowServerJS",
+          "performanceNow"
+        ]
+      },
+      {
+        "name": "hyperionGlobals",
+        "dependencies": []
+      },
+      {
+        "name": "hyperionHook",
+        "dependencies": []
+      },
+      {
+        "name": "hyperionCore",
+        "dependencies": [
+          "Promise",
+          "__debug",
+          "hyperionGlobals",
+          "hyperionHook"
+        ]
+      },
+      {
+        "name": "hyperionDOM",
+        "dependencies": [
+          "hyperionCore",
+          "hyperionGlobals"
+        ]
+      },
+      {
+        "name": "Hyperion",
+        "dependencies": [
+          "Env",
+          "ExecutionEnvironment",
+          "hyperionCore",
+          "hyperionDOM"
+        ]
+      },
+      {
+        "name": "cancelAnimationFramePolyfill",
+        "dependencies": []
+      },
+      {
+        "name": "cancelAnimationFrame",
+        "dependencies": [
+          "cancelAnimationFramePolyfill"
+        ]
+      },
+      {
+        "name": "TimerStorage",
+        "dependencies": []
+      },
+      {
+        "name": "requestAnimationFrameAcrossTransitions",
+        "dependencies": [
+          "TimeSlice",
+          "requestAnimationFramePolyfill"
+        ]
+      },
+      {
+        "name": "requestAnimationFrame",
+        "dependencies": [
+          "TimeSlice",
+          "TimerStorage",
+          "requestAnimationFrameAcrossTransitions"
+        ]
+      },
+      {
+        "name": "setInterval",
+        "dependencies": [
+          "cr:7388"
+        ]
+      },
+      {
+        "name": "replaceNativeTimer",
+        "dependencies": [
+          "Hyperion",
+          "cancelAnimationFrame",
+          "clearInterval",
+          "clearTimeout",
+          "requestAnimationFrame",
+          "setInterval",
+          "setTimeout"
+        ]
+      },
+      {
+        "name": "CometPreludeCritical",
+        "dependencies": [
+          "Bootloader",
+          "CometPreludeCriticalRequireConds",
+          "CometResourceScheduler",
+          "DeferredJSResourceScheduler",
+          "Env",
+          "HasteResponse",
+          "HasteSupportData",
+          "JSScheduler",
+          "ReactDOMServerExternalRuntime",
+          "Run",
+          "ScheduledApplyEach",
+          "ScheduledServerJS",
+          "ScheduledServerJSDefine",
+          "ScheduledServerJSWithCSS",
+          "ServerJS",
+          "bootstrapWebSession",
+          "maybeDisableAnimations",
+          "qplAnnotationsIntServerJS",
+          "qplAnnotationsStringServerJS",
+          "qplTagServerJS",
+          "qplTimingsServerJS",
+          "replaceNativeTimer"
+        ]
+      },
+      {
+        "name": "ErrorGuardState",
+        "dependencies": [
+          "fb-error"
+        ]
+      },
+      {
+        "name": "ErrorNormalizeUtils",
+        "dependencies": [
+          "fb-error"
+        ]
+      },
+      {
+        "name": "ErrorSerializer",
+        "dependencies": [
+          "fb-error"
+        ]
+      },
+      {
+        "name": "ErrorUtils",
+        "dependencies": [
+          "ErrorGuard",
+          "ErrorGuardState",
+          "ErrorNormalizeUtils",
+          "ErrorPubSub",
+          "ErrorSerializer",
+          "getErrorSafe"
+        ]
+      },
+      {
+        "name": "GHLTypenameRestore",
+        "dependencies": []
+      },
+      {
+        "name": "json5",
+        "dependencies": []
+      },
+      {
+        "name": "GHLServerJSParse",
+        "dependencies": [
+          "FBLogger",
+          "GHLDetectionUtilsPreludeSafe",
+          "GHLTypenameRestore",
+          "getErrorSafe",
+          "json5"
+        ]
+      },
+      {
+        "name": "ServerJSPayloadListener",
+        "dependencies": [
+          "FBLogger",
+          "GHLServerJSParse",
+          "GHLTypenameRestore",
+          "ServerJS",
+          "err",
+          "getErrorSafe"
+        ]
+      },
+      {
+        "name": "ServerJSPayloadListener_NEW",
+        "dependencies": [
+          "FBLogger",
+          "GHLTypenameRestore",
+          "ServerJS",
+          "err",
+          "getErrorSafe"
+        ]
+      },
+      {
+        "name": "Visibility",
+        "dependencies": [
+          "BaseEventEmitter",
+          "ExecutionEnvironment",
+          "TimeSlice"
+        ]
+      },
+      {
+        "name": "VisibilityListener",
+        "dependencies": [
+          "Visibility",
+          "performanceNow"
+        ]
+      },
+      {
+        "name": "CometPreludeRunWhenReady",
+        "dependencies": [
+          "ErrorUtils",
+          "ServerJSPayloadListener",
+          "ServerJSPayloadListener_NEW",
+          "VisibilityListener"
+        ]
+      },
+      {
+        "name": "CometPrelude",
+        "dependencies": [
+          "CometPreludeCritical",
+          "CometPreludeRunWhenReady"
+        ]
+      }
+    ],
+    "definesModuleLoader": true,
+    "prefix": ";/*FB_PKG_DELIM*/\n\n\"use strict\";(function(){var e=typeof globalThis!=\"undefined\"&&globalThis||typeof self!=\"undefined\"&&self||typeof global!=\"undefined\"&&global;if(typeof e.AbortController!=\"undefined\")return;function t(){return typeof Event!=\"undefined\"}function n(e){return t()?new Event(e):{type:e}}function r(){if(typeof DOMException!=\"undefined\")return new DOMException(\"signal is aborted without reason\",\"AbortError\");var e=new Error(\"signal is aborted without reason\");return e.name=\"AbortError\",e}var o=(function(){function e(){this.__listeners=new Map}return e.prototype=Object.create(Object.prototype),e.prototype.addEventListener=function(e,t,n){if(arguments.length<2)throw new TypeError(\"TypeError: Failed to execute 'addEventListener' on 'CustomEventTarget': 2 arguments required, but only \"+arguments.length+\" present.\");var r=this.__listeners,o=e.toString();r.has(o)||r.set(o,new Map);var a=r.get(o);a.has(t)||a.set(t,n)},e.prototype.removeEventListener=function(e,t,n){if(arguments.length<2)throw new TypeError(\"TypeError: Failed to execute 'addEventListener' on 'CustomEventTarget': 2 arguments required, but only \"+arguments.length+\" present.\");var r=this.__listeners,o=e.toString()"
+  }
+]

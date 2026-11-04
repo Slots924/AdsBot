@@ -171,6 +171,7 @@ export default function CommentAccountsTab({
     groups,
     refreshVersion = 0,
     onOpenPersonalAccount = () => {},
+    onOpenPersonalAutoupload = () => {},
     onGroupsChange,
     favoriteGroupIds,
     onFavoriteGroupIdsChange,
@@ -390,6 +391,7 @@ export default function CommentAccountsTab({
                 <div className="inline-actions">
                     <button type="button" className="secondary-button" disabled={!selectedProfiles.length} onClick={() => setAutouploadOpen(true)}>Додати до автозаливів</button>
                     <button type="button" className="secondary-button" disabled={!selectedProfiles.length} onClick={() => setFarmOpen(true)}>Додати до групи фарму</button>
+                    <button type="button" className="secondary-button" onClick={() => onOpenPersonalAutoupload(selectedProfiles[0] || null)}><UserRoundCog size={16} /> Персональні автоаплоад</button>
                     <button
                         type="button"
                         className="secondary-button"

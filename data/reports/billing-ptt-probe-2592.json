@@ -1,0 +1,198 @@
+{
+  "downloaded": 1,
+  "failures": [],
+  "definitions": [
+    {
+      "name": "BillingActivateCreditCardView.react",
+      "dependencies": [
+        "BillingWizardExternalSite.react",
+        "react",
+        "react-compiler-runtime"
+      ]
+    },
+    {
+      "name": "BillingActivateCreditCardScreen.react",
+      "dependencies": [
+        "fbt",
+        "BillingActivateCreditCardView.react",
+        "BillingErrorUtils",
+        "BillingWizardRootUPLogger",
+        "BillingWizardWrapper.react",
+        "err",
+        "react",
+        "react-compiler-runtime"
+      ]
+    },
+    {
+      "name": "BillingActivateCreditCardStateQuery_facebookRelayOperation",
+      "dependencies": []
+    },
+    {
+      "name": "BillingActivateCreditCardStateQuery.graphql",
+      "dependencies": [
+        "BillingActivateCreditCardStateQuery_facebookRelayOperation"
+      ]
+    },
+    {
+      "name": "BillingActivateCreditCardState",
+      "dependencies": [
+        "fbt",
+        "BillingActivateCreditCardScreen.react",
+        "BillingActivateCreditCardStateQuery.graphql",
+        "BillingPaymentMethodDisplayUtils",
+        "BillingWizardDisplayState",
+        "asyncToGeneratorRuntime",
+        "react"
+      ]
+    },
+    {
+      "name": "FBPayBase64URL",
+      "dependencies": [
+        "err"
+      ]
+    },
+    {
+      "name": "FBPayAuthLibraryUtils",
+      "dependencies": [
+        "FBPayBase64URL",
+        "FBPayUPLSessionIDGenerator",
+        "Promise",
+        "ServerTime",
+        "asyncToGeneratorRuntime",
+        "gkx",
+        "justknobx",
+        "requireDeferred"
+      ]
+    },
+    {
+      "name": "FBPayAuthLibraryCommon",
+      "dependencies": [
+        "FBLogger",
+        "FBPayAuthLibraryUtils",
+        "FBPayBase64URL",
+        "FBPayUPLSessionIDGenerator",
+        "Promise",
+        "asyncToGeneratorRuntime",
+        "first",
+        "flattenArray",
+        "getErrorSafe",
+        "promiseDone",
+        "requireDeferred",
+        "uuidv4"
+      ]
+    },
+    {
+      "name": "FBPayCometBase64URL",
+      "dependencies": []
+    },
+    {
+      "name": "PaymentsCometGetServerEncryptionKeyMutation_facebookRelayOperation",
+      "dependencies": []
+    },
+    {
+      "name": "PaymentsCometGetServerEncryptionKeyMutation.graphql",
+      "dependencies": [
+        "PaymentsCometGetServerEncryptionKeyMutation_facebookRelayOperation"
+      ]
+    },
+    {
+      "name": "PaymentsCometGetServerEncryptionKey",
+      "dependencies": [
+        "CometRelay",
+        "PaymentsCometGetServerEncryptionKeyMutation.graphql"
+      ]
+    },
+    {
+      "name": "PaymentsCometTransactionHubStrings",
+      "dependencies": [
+        "fbt"
+      ]
+    },
+    {
+      "name": "FBPayGetServerEncryptionKeyMutation",
+      "dependencies": [
+        "CometRelayErrorHandling",
+        "PaymentsCometGetServerEncryptionKey",
+        "PaymentsCometTransactionHubStrings",
+        "RelayFBEnvironment",
+        "emptyFunction",
+        "err"
+      ]
+    },
+    {
+      "name": "FBPayGetWalletServerEncryptionKeyMutation_facebookRelayOperation",
+      "dependencies": []
+    },
+    {
+      "name": "FBPayGetWalletServerEncryptionKeyMutation.graphql",
+      "dependencies": [
+        "FBPayGetWalletServerEncryptionKeyMutation_facebookRelayOperation"
+      ]
+    },
+    {
+      "name": "FBPayGetWalletServerEncryptionKeyMutation",
+      "dependencies": [
+        "CometRelay",
+        "FBPayGetWalletServerEncryptionKeyMutation.graphql",
+        "PaymentsCometTransactionHubStrings",
+        "err",
+        "react-compiler-runtime"
+      ]
+    },
+    {
+      "name": "GetServerEncryptionKey",
+      "dependencies": [
+        "FBPayAuthLibraryCommon",
+        "FBPayGetServerEncryptionKeyMutation",
+        "Promise",
+        "promiseDone",
+        "uuidv4"
+      ]
+    },
+    {
+      "name": "PaymentsCometServerEncryptionKeyCacheContext",
+      "dependencies": [
+        "react"
+      ]
+    },
+    {
+      "name": "usePaymentsCometGetServerEncryptionKeyMutation",
+      "dependencies": [
+        "CometRelay",
+        "FBPayGetServerEncryptionKeyMutation",
+        "PaymentsCometServerEncryptionKeyCacheContext",
+        "react",
+        "react-compiler-runtime"
+      ]
+    },
+    {
+      "name": "getPTTUtils",
+      "dependencies": [
+        "CometRelay",
+        "FBPayAuthLibraryCommon",
+        "FBPayCometBase64URL",
+        "FBPayGetWalletServerEncryptionKeyMutation",
+        "GetServerEncryptionKey",
+        "PaymentsCometServerEncryptionKeyCacheContext",
+        "PaymentsCometTransactionHubStrings",
+        "asyncToGeneratorRuntime",
+        "justknobx",
+        "promiseDone",
+        "react",
+        "react-compiler-runtime",
+        "setTimeout",
+        "usePaymentsCometGetServerEncryptionKeyMutation",
+        "uuidv4"
+      ]
+    },
+    {
+      "name": "modularGeneratePTT",
+      "dependencies": [
+        "PlatformTrustTokenUPLLogger",
+        "PlatformTrustTokenUPLLoggerUtils",
+        "getPTTUtils",
+        "promiseDone"
+      ]
+    }
+  ]
+}

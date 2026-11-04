@@ -1,0 +1,11 @@
+// Явні ресурси перевіреного HTTP-шляху. Кожне визначення перевіряється у завантаженому файлі.
+export default Object.freeze([
+    {
+        url: "https://static.xx.fbcdn.net/rsrc.php/v4i_7f4/yF/l/en_US-j/h3HOuOUbu8H.js",
+        moduleNames: ["BillingSaveCardCredentialStateMutation.graphql", "BillingSaveCardCredentialStateMutation_facebookRelayOperation"],
+    },
+    {
+        url: "https://static.xx.fbcdn.net/rsrc.php/v4iwCk4/y8/l/en_US-j/exOW1LxQ-4T.js",
+        moduleNames: ["BillingCheckRiskStateQuery.graphql", "BillingCheckRiskStateQuery_facebookRelayOperation"],
+    },
+]);

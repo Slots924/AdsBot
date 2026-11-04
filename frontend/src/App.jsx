@@ -105,6 +105,7 @@ export default function App() {
     const [hydrated, setHydrated] = useState(false);
     const [modal, setModal] = useState(null);
     const [personalDialog, setPersonalDialog] = useState(null);
+    const [personalHttpDialog, setPersonalHttpDialog] = useState(null);
     const [commentProfilesRefreshVersion, setCommentProfilesRefreshVersion] = useState(0);
     const [toast, setToast] = useState(null);
 
@@ -418,6 +419,7 @@ export default function App() {
                         key="comment-accounts"
                         refreshVersion={commentProfilesRefreshVersion}
                         onOpenPersonalAccount={(profile) => setPersonalDialog({ profile, bmKey: null })}
+                        onOpenPersonalAutoupload={(profile) => setPersonalHttpDialog({ profile })}
                         groups={groups}
                         onGroupsChange={setGroups}
                         favoriteGroupIds={favoriteGroupIds}
@@ -496,6 +498,7 @@ export default function App() {
         <Modal modal={modal} onClose={() => setModal(null)}/>
         {personalDialog && <PersonalAccountModal
             profile={personalDialog.profile}
+            openRequest={personalDialog}
             initialBmKey={personalDialog.bmKey}
             businessManagers={accounts.filter((account) => account.kind === "bm" && !account.archived)}
             groups={groups}
@@ -508,6 +511,10 @@ export default function App() {
             onError={setModal}
             showToast={showToast}
         />}
+        {personalHttpDialog && <PersonalAccountModal mode="http" profile={personalHttpDialog.profile} openRequest={personalHttpDialog} groups={groups}
+            onRefreshGroups={async () => setGroups(await unwrap(window.adsBot.refreshAdsPowerGroups()))}
+            onProfileChanged={async () => { setGroups(await unwrap(window.adsBot.refreshAdsPowerGroups())); setCommentProfilesRefreshVersion(current => current + 1); await loadAccounts(true); }}
+            onClose={() => setPersonalHttpDialog(null)} onError={setModal} showToast={showToast} />}
         {settingsOpen && <SettingsModal scale={uiScale} onScaleChange={async (value) => setUiScale(await unwrap(window.adsBot.setUiScale(value)))} createCampaignsPaused={createCampaignsPaused} onCreateCampaignsPausedChange={setCreateCampaignsPaused} createAdSetsPaused={createAdSetsPaused} onCreateAdSetsPausedChange={setCreateAdSetsPaused} createAdsPaused={createAdsPaused} onCreateAdsPausedChange={setCreateAdsPaused} commentWorkerConcurrency={commentWorkerConcurrency} onCommentWorkerConcurrencyChange={setCommentWorkerConcurrency} commentWorkerProxyIds={commentWorkerProxyIds} onCommentWorkerProxyIdsChange={setCommentWorkerProxyIds} defaultPixelId={defaultPixelId} onDefaultPixelIdChange={setDefaultPixelId} defaultUtm={defaultUtm} onDefaultUtmChange={setDefaultUtm} commentBrowserMode={commentBrowserMode} onCommentBrowserModeChange={setCommentBrowserMode} commentDisableImages={commentDisableImages} onCommentDisableImagesChange={setCommentDisableImages} accountSetupWorkerConcurrency={accountSetupWorkerConcurrency} onAccountSetupWorkerConcurrencyChange={setAccountSetupWorkerConcurrency} accountSetupWorkerProxyIds={accountSetupWorkerProxyIds} onAccountSetupWorkerProxyIdsChange={setAccountSetupWorkerProxyIds} accountSetupBrowserMode={accountSetupBrowserMode} onAccountSetupBrowserModeChange={setAccountSetupBrowserMode} reactionWorkerConcurrency={reactionWorkerConcurrency} onReactionWorkerConcurrencyChange={setReactionWorkerConcurrency} reactionWorkerProxyIds={reactionWorkerProxyIds} onReactionWorkerProxyIdsChange={setReactionWorkerProxyIds} reactionBrowserMode={reactionBrowserMode} onReactionBrowserModeChange={setReactionBrowserMode} reactionDisableImages={reactionDisableImages} onReactionDisableImagesChange={setReactionDisableImages} apiClientsBrowserMode={apiClientsBrowserMode} onApiClientsBrowserModeChange={setApiClientsBrowserMode} apiClientsDisableImages={apiClientsDisableImages} onApiClientsDisableImagesChange={setApiClientsDisableImages} apiClientsAutoRefresh={apiClientsAutoRefresh} onApiClientsAutoRefreshChange={setApiClientsAutoRefresh} logLevel={logLevel} onLogLevelChange={async (value) => setLogLevel(await unwrap(window.adsBot.setLogLevel(value)))} proxies={proxies} proxiesLoading={proxiesLoading} onCreateProxy={createProxy} onUpdateProxy={updateProxy} onDeleteProxy={deleteProxy} onGetProxy={getProxy} onCheckProxy={checkProxy} onCheckProxyConfig={checkProxyConfig} onRefreshProxyIp={refreshProxyIp} keitaroAvailableGroupIds={keitaroAvailableGroupIds} onKeitaroAvailableGroupIdsChange={setKeitaroAvailableGroupIds} keitaroConcurrency={keitaroConcurrency} onKeitaroConcurrencyChange={setKeitaroConcurrency} showToast={showToast} onError={setModal} onClose={() => setSettingsOpen(false)}/>}<Toast toast={toast}/>
     </div>;
 }

@@ -1,6 +1,9 @@
 import { readFacebookAccessToken } from "../../api/browserCredentials.js";
+import { getHttpActionTransport } from "../../api/actionTransport.js";
 // Виконує читання Graph API у браузері поточної Facebook-сесії.
 export default async function readAdAccountFields({ page, adAccountId, fieldGroups, timeout = 60000 }) {
+    const transport = getHttpActionTransport(page);
+    if (transport?.readFields) return transport.readFields(adAccountId, fieldGroups);
     const accessToken = await readFacebookAccessToken(page);
     const token = String(accessToken ?? "").trim();
     const accountId = String(adAccountId ?? "").replace(/^act_/, "").trim();

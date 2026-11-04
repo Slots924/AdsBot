@@ -12,6 +12,7 @@ import { getProfileProxyService } from "../../services/proxy/AdsPowerProfileProx
 import BusinessManagerService from "../../services/gui/BusinessManagerService.js";
 import AutouploadStore from "../../services/autoupload/AutouploadStore.js";
 import AutouploadService from "../../services/autoupload/AutouploadService.js";
+import PersonalAutouploadSessionManager from "../../services/personalAccounts/PersonalAutouploadSessionManager.js";
 import { validateTargetUserId } from "../../facebook/autoupload/actions/friends/sendFriendRequest.js";
 import { validateName } from "../../facebook/autoupload/actions/accounts/changeFacebookName.js";
 import { validateProfileAction } from "../../facebook/autoupload/actions/profile/index.js";
@@ -195,6 +196,32 @@ export default function registerIpcHandlers({
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
+    const personalHttp = new PersonalAutouploadSessionManager({
+        adsPower: guiService.adsPower, sessionStore: autouploadSessionStore, creditCardStore,
+        facebookAccountManager, reportManager, reloadFacebookBackend: () => guiService.reloadFacebookBackend(),
+    });
+    ipcMain.handle("personal-autoupload:action", safeHandler(async ({ action, ...input }) => {
+        if (action === "start") return personalHttp.start(input);
+        if (action === "get") return personalHttp.get(input.sessionId);
+        if (action === "open") {
+            if (!/^\d+$/.test(String(input.profileNo))) throw new Error("Вкажіть номер профілю");
+            return guiService.openAdsPowerProfile(input.profileNo);
+        }
+        if (["disconnect", "close"].includes(action)) await smsPoolPhoneVerificationManager?.stop(input.sessionId);
+        const result = await personalHttp.execute(action, input);
+        if (action === "api.create") sendRendererEvent("accounts:api-client-created", { accountKey: result.account?.accountKey ?? null });
+        return result;
+    }));
+    ipcMain.handle("personal-account:next-api-name", safeHandler(() => facebookAccountManager.nextPersonalName()));
+    if (smsPoolPhoneVerificationManager) {
+        const browserSessions = smsPoolPhoneVerificationManager.personalAccountSessionManager;
+        smsPoolPhoneVerificationManager.personalAccountSessionManager = {
+            requestPhoneCode: (sessionId, input) => String(sessionId).startsWith("http-")
+                ? personalHttp.execute("phone.request", { sessionId, ...input }) : browserSessions.requestPhoneCode(sessionId, input),
+            submitPhoneCode: (sessionId, input) => String(sessionId).startsWith("http-")
+                ? personalHttp.execute("phone.submit", { sessionId, ...input }) : browserSessions.submitPhoneCode(sessionId, input),
+        };
+    }
     registerFarmIpcHandlers({ ipcMain, safeHandler, profileActivityStore, guiService, backgroundTaskManager });
     const startingProfiles = new Set();
     const withProfileReservation = async (profileNo, action) => {

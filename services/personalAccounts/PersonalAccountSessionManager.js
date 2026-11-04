@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { billingRuntimeModuleChunks, buildBillingPaymentSettingsUrl } from "../../facebook/api/billingResources.js";
 
 import puppeteer from "puppeteer-core";
 
@@ -58,7 +59,6 @@ const profileUrl = "https://www.facebook.com/me";
 const adsManagerUrl = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
 const businessManagerSettingsUrl = "https://business.facebook.com/latest/settings";
 const adAccountSettingsPath = "/adsmanager/manage/ad_account_settings/ad_account_setup";
-const billingPaymentSettingsPath = "/adsmanager/billing_hub/payment_settings/";
 const personalAccountLaunchOptions = Object.freeze({
     browserMode: "visible",
     restoreLastOpenedTabs: false,
@@ -76,41 +76,6 @@ const billingCardRuntimeModules = [
     "BillingCreditCardTypes",
     "BillingCreditCardNumber",
 ];
-const frontierPaymentCardModules = [
-    "FrontierPMAmericanExpressCard",
-    "FrontierPMDinersClubCard",
-    "FrontierPMDiscoverCard",
-    "FrontierPMJCBCard",
-    "FrontierPMMastercardCard",
-    "FrontierPMVisaCard",
-];
-const billingRuntimeModuleChunks = Object.freeze([
-    {
-        name: "BillingProtectedString",
-        url: "https://static.xx.fbcdn.net/rsrc.php/v4i-sZ4/yN/l/en_GB-j/_Xc03kAy42K.js",
-        moduleNames: ["BillingProtectedString"],
-    },
-    {
-        name: "FrontierPM card assets",
-        url: "https://static.xx.fbcdn.net/rsrc.php/v4iMLq4/y2/l/en_GB-j/hXHc1K_nBLw.js",
-        moduleNames: frontierPaymentCardModules,
-    },
-    {
-        name: "BillingCreditCardUtils",
-        url: "https://static.xx.fbcdn.net/rsrc.php/v4iSwq4/yu/l/en_GB-j/HAismX0HAm7.js",
-        moduleNames: ["BillingCreditCardUtils"],
-    },
-    {
-        name: "BillingSaveCardCredentialStateMutation.graphql",
-        url: "https://static.xx.fbcdn.net/rsrc.php/v4i3dl4/yH/l/en_GB-j/j2_ypcBNBxs.js",
-        moduleNames: ["BillingSaveCardCredentialStateMutation.graphql"],
-    },
-    {
-        name: "BillingCheckRiskStateQuery.graphql",
-        url: "https://static.xx.fbcdn.net/rsrc.php/v4i38S4/ys/l/en_GB-j/e50AF4rQD_S.js",
-        moduleNames: ["BillingCheckRiskStateQuery.graphql"],
-    },
-]);
 const billingIxAssets = Object.freeze({
     "883711": {
         sprited: 2,
@@ -1005,11 +970,12 @@ export default class PersonalAccountSessionManager {
 
     createApiProfile(sessionId, input) {
         return this.#perform(sessionId, "api_profile.create", async (session) => {
+            if (session.apiCreated) return session.apiCreated;
             await this.#ensureAccessToken(session);
             const card = input.cardId
                 ? await this.creditCardStore.getForUse(input.cardId)
                 : null;
-            const baseName = String(input.name ?? "").trim();
+            let baseName = String(input.name ?? "").trim();
             if (!baseName) throw sessionError("Вкажіть назву API-профілю", "API_PROFILE_NAME_REQUIRED");
             const name = card
                 ? `${baseName} (${card.nickname} ${card.last4})`
@@ -1018,17 +984,31 @@ export default class PersonalAccountSessionManager {
             session.accessToken = accessToken;
             const account = await this.facebookAccountManager.create({
                 name,
+                autoPersonalName: input.autoName === true,
+                personalNameSuffix: card ? ` (${card.nickname} ${card.last4})` : "",
                 adsPowerProfileNo: session.profileNo,
                 userAgent,
                 accessToken,
                 cookie: cookies,
             });
-            await this.reloadFacebookBackend();
+            if (input.autoName) baseName = `P${account.accountKey.match(/-(\d+)$/)[1]}`;
+            session.apiCreated = { account, adsPowerProfileName: session.profileName };
+            let profileUpdateWarning = null;
+            try { await this.reloadFacebookBackend(); }
+            catch { profileUpdateWarning = "API-клієнт збережено; оновіть список акаунтів"; }
             if (session.profileId) {
-                await this.adsPower.updateProfileName(session.profileId, baseName);
-                session.profileName = baseName;
+                try {
+                    await this.adsPower.updateProfileName(session.profileId, baseName);
+                    session.profileName = baseName;
+                    if (input.groupId) await this.adsPower.updateProfileGroup(session.profileId, input.groupId);
+                } catch {
+                    session.apiCreated = { account, adsPowerProfileName: session.profileName,
+                        profileUpdateWarning: "API-клієнт створено; назву або групу AdsPower потрібно застосувати вручну" };
+                    return session.apiCreated;
+                }
             }
-            return { account, adsPowerProfileName: baseName };
+            session.apiCreated = { account, adsPowerProfileName: baseName, groupId: input.groupId, profileUpdateWarning };
+            return session.apiCreated;
         });
     }
 
@@ -1327,14 +1307,7 @@ export default class PersonalAccountSessionManager {
             );
         }
 
-        const targetUrl = new URL(
-            billingPaymentSettingsPath,
-            "https://adsmanager.facebook.com"
-        );
-        targetUrl.searchParams.set("nav_entry_point", "ads_ecosystem_navigation_menu");
-        targetUrl.searchParams.set("placement", "ads_manager");
-        targetUrl.searchParams.set("asset_id", normalizedAdAccountId);
-        targetUrl.searchParams.set("payment_account_id", normalizedAdAccountId);
+        const targetUrl = new URL(buildBillingPaymentSettingsUrl(normalizedAdAccountId));
 
         await this.#ensureAdsManager(session, normalizedAdAccountId);
         await ensureFacebookPage(session.page, {
