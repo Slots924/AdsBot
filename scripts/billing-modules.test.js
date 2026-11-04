@@ -10,6 +10,14 @@ const resourceUrl = () => `https://static.xx.fbcdn.net/rsrc.php/v4/test/${random
 const manifest = payload => `<script type="application/json">${JSON.stringify(payload)}</script>`;
 const loaderFor = requestStaticResource => new FacebookBillingModules({ requestStaticResource }, { retryDelayMs: 0 });
 
+test("браузерний сервіс персональних акаунтів імпортується з Billing-ресурсами", async () => {
+    const { default: Manager } = await import("../services/personalAccounts/PersonalAccountSessionManager.js");
+    assert.equal(typeof Manager, "function");
+    const { billingRuntimeModuleChunks } = await import("../facebook/api/billingResources.js");
+    assert.ok(billingRuntimeModuleChunks.length > 0);
+    assert.ok(billingRuntimeModuleChunks.every(chunk => chunk.name && chunk.url && chunk.moduleNames.length));
+});
+
 test("тимчасові збої мають обмежені повтори", async () => {
     let calls = 0;
     const loader = loaderFor(async () => {
