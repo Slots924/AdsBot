@@ -1,3 +1,4 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import { randomUUID } from "node:crypto";
 import requestGraphql from "../../graphql/request.js";
 import { actionError } from "../../graphql/errors.js";
@@ -10,7 +11,7 @@ export const friendRequestMutation = Object.freeze({
     docId: "28548786588082329",
 });
 
-export default async function sendFriendRequest(fbData, targetId, { signal, beforeSend } = {}) {
+async function sendFriendRequestImpl(fbData, targetId, { signal, beforeSend } = {}) {
     let targetUserId;
     let sent = false;
     try {
@@ -42,3 +43,5 @@ export default async function sendFriendRequest(fbData, targetId, { signal, befo
         return friendActionFailure(error, { sent, signal, targetUserId: targetUserId ?? null });
     }
 }
+
+export default tracedAction("sendFriendRequest", sendFriendRequestImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

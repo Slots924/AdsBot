@@ -1,3 +1,4 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import requestGraphql from "../../graphql/request.js";
 import { actionError, actionFailure } from "../../graphql/errors.js";
 import { validateFriendSession } from "./common.js";
@@ -44,7 +45,7 @@ export async function loadIncomingFriendRequests(fbData, { signal, source = "aut
     }
 }
 
-export default async function getIncomingFriendRequests(fbData, options = {}) {
+async function getIncomingFriendRequestsImpl(fbData, options = {}) {
     try {
         validateFriendSession(fbData);
         return await fbData.client.run(() => loadIncomingFriendRequests(fbData, options));
@@ -53,3 +54,5 @@ export default async function getIncomingFriendRequests(fbData, options = {}) {
         return { ...incomingRequestsFailure(error), totalCount: null, loadedCount: 0, hasNextPage: null, incomplete: true, requests: [], diagnostics: error.incomingDiagnostics ?? [] };
     }
 }
+
+export default tracedAction("getIncomingFriendRequests", getIncomingFriendRequestsImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

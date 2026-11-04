@@ -1,3 +1,4 @@
+import { withHttpWorkflow } from "../../../services/reports/HttpExchangeTrace.js";
 import HttpPageActionContext from "../HttpPageActionContext.js";
 import FacebookPasswordEncryption from "../encryption/FacebookPasswordEncryption.js";
 import switchToFanPage from "../actions/pages/switchToFanPage.js";
@@ -7,7 +8,7 @@ import inviteFanPageAdmin from "../actions/pages/inviteFanPageAdmin.js";
 import { actionError, actionFailure } from "../graphql/errors.js";
 
 // Усі зміни виконуються послідовно; невизначена mutation ніколи не повторюється автоматично.
-export default async function grantFanPageAccess(client, {
+async function grantFanPageAccessImpl(client, {
     additionalProfileId, targetUserId, password, signal, onStage = () => {},
     encryption = new FacebookPasswordEncryption(client, { signal }),
 } = {}) {
@@ -88,4 +89,8 @@ export default async function grantFanPageAccess(client, {
             ...(error.code === "FACEBOOK_ENCRYPTION_MODULE_UNAVAILABLE" ? { encryptionDiagnostics: error.encryptionDiagnostics } : {}),
         };
     }
+}
+
+export default function grantFanPageAccess(...args) {
+    return withHttpWorkflow("grantFanPageAccess", () => grantFanPageAccessImpl(...args));
 }

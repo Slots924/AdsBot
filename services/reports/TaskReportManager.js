@@ -3,6 +3,7 @@ import { mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promise
 import path from "node:path";
 
 import { sanitize } from "../logging/AppLogger.js";
+import { historyReferences, readHttpHistory, buildHttpHistoryMarkdown } from "./httpHistoryReport.js";
 
 
 function summarizeInput(input = {}) {
@@ -40,7 +41,7 @@ function markdown(report) {
     if (report.errors?.length) {
         lines.push("", "## Помилки", "", "```json", JSON.stringify(report.errors, null, 2), "```");
     }
-    return `${lines.join("\n")}\n`;
+    return `${lines.join("\n")}\n${buildHttpHistoryMarkdown(report.httpHistoryEvents ?? [])}`;
 }
 
 
@@ -48,21 +49,23 @@ export default class TaskReportManager {
     #operation = Promise.resolve();
 
 
-    constructor({ reportsDirectory = "./data/reports/tasks" } = {}) {
+    constructor({ reportsDirectory = "./data/reports/tasks", httpHistoryDirectory = path.resolve(reportsDirectory, "../http") } = {}) {
         this.reportsDirectory = path.resolve(reportsDirectory);
+        this.httpHistoryDirectory = path.resolve(httpHistoryDirectory);
     }
 
 
-    createFromTask(task, details = {}) {
+    createFromTask(task, details = {}, { reportId = null } = {}) {
         return this.#enqueue(async () => {
+            const previous = reportId ? await this.get(reportId) : null;
             const report = sanitize({
                 version: 1,
-                id: randomUUID(),
+                id: reportId ?? randomUUID(),
                 taskId: task.id,
                 type: task.type,
                 title: task.name,
                 status: task.status,
-                createdAt: new Date().toISOString(),
+                createdAt: previous?.createdAt ?? new Date().toISOString(),
                 startedAt: task.startedAt,
                 finishedAt: task.finishedAt,
                 durationMs: task.startedAt && task.finishedAt
@@ -76,12 +79,30 @@ export default class TaskReportManager {
                 artifacts: details.artifacts ?? [],
                 metadata: task.metadata ?? {},
             });
+            // Посилання обробляються окремо: загальний sanitizer сприймає повтор того самого об'єкта як цикл.
+            report.httpHistories = historyReferences({ task, details }).map(reference => sanitize({ ...reference }));
             await mkdir(this.reportsDirectory, { recursive: true });
-            const target = path.join(this.reportsDirectory, `${report.id}.json`);
+            const target = this.#file(report.id);
             const temporary = `${target}.tmp`;
             await writeFile(temporary, `${JSON.stringify(report, null, 2)}\n`, "utf8");
             await rename(temporary, target);
             return structuredClone(report);
+        });
+    }
+
+
+    recoverInterrupted() {
+        return this.#enqueue(async () => {
+            const reports = await this.#readAll();
+            for (const report of reports.filter(item => item.status === "running" && !item.taskId)) {
+                report.status = "interrupted";
+                report.finishedAt = new Date().toISOString();
+                report.errors = [...(report.errors ?? []), { code: "HTTP_ACTION_INTERRUPTED_BY_RESTART",
+                    message: "Застосунок завершився до збереження підсумку дії. Перевірте HTTP-історію перед повтором" }];
+                const target = this.#file(report.id);
+                await writeFile(`${target}.tmp`, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+                await rename(`${target}.tmp`, target);
+            }
         });
     }
 
@@ -111,9 +132,13 @@ export default class TaskReportManager {
     }
 
 
-    async get(id) {
+    async get(id, { includeHttpHistory = false } = {}) {
         try {
-            return JSON.parse(await readFile(this.#file(id), "utf8"));
+            const report = JSON.parse(await readFile(this.#file(id), "utf8"));
+            if (includeHttpHistory) {
+                report.httpHistoryEvents = (await Promise.all((report.httpHistories ?? []).map(reference => readHttpHistory(reference, this.httpHistoryDirectory)))).flat();
+            }
+            return report;
         } catch (error) {
             if (error.code === "ENOENT") return null;
             throw error;
@@ -128,7 +153,7 @@ export default class TaskReportManager {
 
 
     async exportMarkdown(id, targetFile) {
-        const report = await this.get(id);
+        const report = await this.get(id, { includeHttpHistory: true });
         if (!report) throw Object.assign(new Error("Звіт не знайдено"), { code: "REPORT_NOT_FOUND" });
         await writeFile(targetFile, markdown(report), "utf8");
         return targetFile;

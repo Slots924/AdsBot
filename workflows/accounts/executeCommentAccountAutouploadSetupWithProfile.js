@@ -1,3 +1,4 @@
+import { withHttpWorkflow } from "../../services/reports/HttpExchangeTrace.js";
 import { setTimeout as delay } from "node:timers/promises";
 import checkProfileSession from "../autoupload/checkProfileSession.js";
 import prepareSocialContext from "../../facebook/autoupload/workflows/prepareSocialContext.js";
@@ -22,7 +23,7 @@ const stopsWorkflow = result => Boolean(result.outcomeUnknown || result.sessionS
     || ["FACEBOOK_SESSION_MISMATCH", "FACEBOOK_SOCIAL_CONTEXT_REQUIRED", "FACEBOOK_SESSION_FIELDS_MISSING", "FACEBOOK_SESSION_EXPIRED"].includes(result.code));
 
 // Затримка відбувається перед наступною логічною дією, без очікування після останньої.
-export default async function executeCommentAccountAutouploadSetupWithProfile(options = {}) {
+async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {}) {
     const { adsPower, profile, persona, photoSet, profileNameNote = "", signal, logger = console,
         random = Math.random, actionDelaySeconds = 30, skipNameChange = false,
         skipAvatarChange = false, skipCoverChange = false, skipDeletePosts = false, skipPublishPosts = false,
@@ -273,4 +274,10 @@ export default async function executeCommentAccountAutouploadSetupWithProfile(op
         log(`Акаунт №${profileNo} завершено: ${outcome}`);
     }
     return result;
+}
+
+export default function executeCommentAccountAutouploadSetupWithProfile(...args) {
+    return withHttpWorkflow("executeCommentAccountAutouploadSetupWithProfile", () => executeCommentAccountAutouploadSetupWithProfileImpl(...args), {
+        metadata: { profileId: args[0]?.profile?.profile_id, profileNo: args[0]?.profile?.profile_no },
+    });
 }

@@ -1,5 +1,6 @@
 import { finishedStatuses } from "./BackgroundTaskJournal.js";
 import { sanitize } from "../logging/AppLogger.js";
+import { withHttpWorkflow } from "../reports/HttpExchangeTrace.js";
 
 
 function safeError(error) {
@@ -293,11 +294,17 @@ export default class BackgroundTaskManager {
                     reject,
                 });
             });
-            const invokeRunner = () => runtime.runner({
+            const invokeRunner = () => withHttpWorkflow(task.type, () => runtime.runner({
                 signal: runtime.controller.signal,
                 progress,
                 waitForAction,
                 task: publicTask(current),
+            }), { directory: this.reportManager?.httpHistoryDirectory,
+                enabled: task.type.startsWith("autoupload") || task.input?.creationType === "autoupload",
+                metadata: { taskId: task.id, taskType: task.type },
+                onStart: async httpHistory => {
+                    current = await this.journal.update(task.id, { metadata: { ...current.metadata, httpHistory } });
+                },
             });
             const output = this.logger?.runWithContext
                 ? await this.logger.runWithContext({
@@ -323,12 +330,16 @@ export default class BackgroundTaskManager {
                     message: status === "interrupted" ? "Задачу перервано" : "Задачу завершено",
                 },
             });
+            if (output?.httpHistory) {
+                current = await this.journal.update(task.id, { metadata: { ...current.metadata, httpHistory: output.httpHistory } });
+            }
             current = await this.#attachReport(current, output?.reportDetails);
             this.logger?.info("task.finished", "Фонову задачу завершено", {
                 taskId: task.id,
                 status,
             });
         } catch (error) {
+            if (error.httpHistory) current = await this.journal.update(task.id, { metadata: { ...current.metadata, httpHistory: error.httpHistory } });
             const interrupted = runtime.controller.signal.aborted || error?.name === "AbortError";
             const partialResult = error?.result ?? (error?.report ? {
                 reportPath: error.report.reportPath ?? null,

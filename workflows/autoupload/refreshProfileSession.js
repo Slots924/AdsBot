@@ -1,3 +1,4 @@
+import { withHttpWorkflow } from "../../services/reports/HttpExchangeTrace.js";
 import checkProfileSession from "./checkProfileSession.js";
 import getAdsManagerSession from "../../facebook/autoupload/actions/getAdsManagerSession.js";
 import { actionFailure } from "../../facebook/autoupload/graphql/errors.js";
@@ -5,7 +6,7 @@ import describeHttpError from "../../services/logging/httpDiagnostics.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
 
 // Одна повна перевірка оновлює сесії й активи; секрети не потрапляють у result.
-export default async function refreshProfileSession(options) {
+async function refreshProfileSessionImpl(options) {
     const prepared = await checkProfileSession(options);
     const { client, result } = prepared;
     const assets = { adAccounts: [], pages: [], adAccountsState: "unavailable", pagesState: "unavailable" };
@@ -55,4 +56,12 @@ export default async function refreshProfileSession(options) {
     result.hasWarnings = result.warnings.length > 0;
     result.message = result.hasWarnings ? "Facebook активний; частину даних Ads Manager або активів не оновлено" : "Акаунт перевірено, сесії та активи оновлено";
     return { client, result };
+}
+
+export default async function refreshProfileSession(...args) {
+    const prepared = await withHttpWorkflow("refreshProfileSession", () => refreshProfileSessionImpl(...args), {
+        metadata: { profileId: args[0]?.profileId },
+    });
+    if (prepared.httpHistory) prepared.result = { ...prepared.result, httpHistory: prepared.httpHistory };
+    return prepared;
 }

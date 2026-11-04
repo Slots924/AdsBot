@@ -1,9 +1,10 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import { actionError } from "../../graphql/errors.js";
 import { validateTargetUserId, validateFriendSession, friendActionFailure } from "./common.js";
 import { loadIncomingFriendRequests } from "./getIncomingFriendRequests.js";
 import { confirmFriendRequest } from "./acceptFriendRequest.js";
 
-export default async function acceptIncomingFriendRequest(fbData, targetId, options = {}) {
+async function acceptIncomingFriendRequestImpl(fbData, targetId, options = {}) {
     let targetUserId;
     try {
         targetUserId = validateTargetUserId(targetId);
@@ -34,3 +35,5 @@ export default async function acceptIncomingFriendRequest(fbData, targetId, opti
         return { ...friendActionFailure(error, { signal: options.signal, targetUserId: targetUserId ?? null }), userId: targetUserId ?? null };
     }
 }
+
+export default tracedAction("acceptIncomingFriendRequest", acceptIncomingFriendRequestImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

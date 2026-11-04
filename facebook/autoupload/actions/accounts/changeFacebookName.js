@@ -1,3 +1,4 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import { randomUUID } from "node:crypto";
 import requestGraphql from "../../graphql/request.js";
 import { actionError, actionFailure, safeGraphText } from "../../graphql/errors.js";
@@ -22,7 +23,7 @@ export async function prepareNameContext(fbData, { signal } = {}) {
     return session;
 }
 
-export default async function changeFacebookName(fbData, input, options = {}) {
+async function changeFacebookNameImpl(fbData, input, options = {}) {
     try {
         validateName(input);
         if (typeof fbData?.client?.run !== "function") throw actionError("Спочатку перевірте сесію Facebook", "FACEBOOK_SESSION_REQUIRED");
@@ -34,7 +35,7 @@ export default async function changeFacebookName(fbData, input, options = {}) {
 }
 
 // Виконує зміну з підготовленою сесією Accounts Center без повторного читання сторінки.
-export async function executeNameChange(fbData, input, { signal, beforeSend, session } = {}) {
+async function executeNameChangeImpl(fbData, input, { signal, beforeSend, session } = {}) {
     let sent = false;
     try {
         const name = validateName(input);
@@ -84,3 +85,7 @@ export async function executeNameChange(fbData, input, { signal, beforeSend, ses
         return failure;
     }
 }
+
+export default tracedAction("changeFacebookName", changeFacebookNameImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));
+
+export const executeNameChange = tracedAction("executeNameChange", executeNameChangeImpl, fbData => ({ profileId: fbData?.profileId ?? null }));

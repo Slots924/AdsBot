@@ -1,9 +1,10 @@
+import { withHttpWorkflow } from "../../services/reports/HttpExchangeTrace.js";
 import grantFanPageAccess from "../../facebook/autoupload/workflows/grantFanPageAccess.js";
 import checkProfileSession from "./checkProfileSession.js";
 import { actionError, actionFailure } from "../../facebook/autoupload/graphql/errors.js";
 
 // AdsPower залишається зовнішньою інтеграцією: Facebook-workflow отримує лише клієнт і пароль.
-export default async function grantProfileFanPageAccess({
+async function grantProfileFanPageAccessImpl({
     adsPower, profileId, profileNo, additionalProfileId, targetUserId, signal, onStage,
 } = {}) {
     try {
@@ -25,4 +26,10 @@ export default async function grantProfileFanPageAccess({
     } catch {
         return { ...actionFailure(actionError("Не вдалося підготувати профіль AdsPower", signal?.aborted ? "TASK_INTERRUPTED" : "ADSPOWER_PROFILE_PREPARATION_FAILED")), stage: "PROFILE" };
     }
+}
+
+export default function grantProfileFanPageAccess(...args) {
+    return withHttpWorkflow("grantProfileFanPageAccess", () => grantProfileFanPageAccessImpl(...args), {
+        metadata: { profileId: args[0]?.profileId, profileNo: args[0]?.profileNo },
+    });
 }

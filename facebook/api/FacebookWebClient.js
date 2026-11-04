@@ -8,6 +8,7 @@ import parseScriptUrls, { isFacebookScriptUrl } from "../session/parseScriptUrls
 import { actionError } from "../autoupload/graphql/errors.js";
 import describeHttpError from "../../services/logging/httpDiagnostics.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
+import { requestWithTrace, withHttpAction } from "../../services/reports/HttpExchangeTrace.js";
 
 const homeUrl = "https://www.facebook.com/";
 const isFacebook = (host) => host === "facebook.com" || host.endsWith(".facebook.com");
@@ -80,7 +81,8 @@ export default class FacebookWebClient {
         if (!this.#adsManager?.accessToken) throw actionError("Потрібна нова перевірка Ads Manager", "ADS_MANAGER_SESSION_REQUIRED");
         return new FacebookGraphApi({ accountKey: `autoupload-${this.#expectedId}`, facebookUserId: this.#expectedId,
             accessToken: this.#adsManager.accessToken, userAgent: this.#userAgent,
-            cookie: this.#jar.getCookieStringSync("https://graph.facebook.com/"), proxyHttpClient: this.#http });
+            cookie: this.#jar.getCookieStringSync("https://graph.facebook.com/"),
+            proxyHttpClient: { request: (config, options) => requestWithTrace(this.#http, config, options) } });
     }
 
     async #handleSessionStatus(error) {
@@ -134,7 +136,7 @@ export default class FacebookWebClient {
             }
             let response;
             const navigation = !asFetch && ["get", "head"].includes(String(requestMethod).toLowerCase());
-            try { response = await this.#http.request({
+            try { response = await requestWithTrace(this.#http, {
                 method: requestMethod, url: target.href, data: requestData, signal,
                 timeout: 30000, maxRedirects: 0, responseType: "text", maxContentLength: 15 * 1024 * 1024,
                 validateStatus: () => true,
@@ -253,7 +255,7 @@ export default class FacebookWebClient {
         for (let attempt = 0; attempt < 4; attempt++) {
             signal?.throwIfAborted();
             try {
-                const response = await this.#http.request({ url, method: "get", signal, timeout: 30000,
+                const response = await requestWithTrace(this.#http, { url, method: "get", signal, timeout: 30000,
                     ...(tlsMaxVersion ? { tlsMaxVersion } : {}),
                     maxRedirects: 0, maxContentLength: 12 * 1024 * 1024, responseType: "text",
                     headers: { "User-Agent": this.#userAgent, Accept: "application/javascript,*/*;q=0.8" },
@@ -276,7 +278,7 @@ export default class FacebookWebClient {
     }
 
     checkSession({ signal } = {}) {
-        return this.run(async () => {
+        return withHttpAction("checkSession", () => this.run(async () => {
             this.invalidateActorContext();
             const response = await this.request({ signal });
             const { session, accountId } = this.#readSessionIdentity(response);
@@ -286,6 +288,6 @@ export default class FacebookWebClient {
             return { accountId, actorId: session.FacebookID,
                 fields: Object.keys(this.#session).filter((key) => this.#session[key]),
                 message: "Facebook відповів. Дані сесії отримано, акаунт підтверджено" };
-        });
+        }), { accountId: this.#expectedId });
     }
 }

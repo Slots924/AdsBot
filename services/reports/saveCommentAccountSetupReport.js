@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { historyReferences, readHttpHistory, buildHttpHistoryMarkdown } from "./httpHistoryReport.js";
 
 
 function escapeCell(value) {
@@ -194,6 +195,7 @@ function buildProfileSection(item) {
     if (item.browserTracePath) {
         lines.push("", `Журнал браузера: ${escapeText(item.browserTracePath)}`);
     }
+    if (item.httpHistory) lines.push("", `HTTP-історія Facebook: ${escapeText(item.httpHistory.path)}`);
     if (problem) lines.push("", `> Причина: ${escapeText(problem)}`);
     const diagnostics = Object.entries(steps).filter(([key, step]) => step?.diagnostic || step?.items || /^post\d+$/.test(key));
     for (const [field, step] of Object.entries(steps.about?.fields ?? {})) {
@@ -304,7 +306,8 @@ export function buildCommentAccountSetupMarkdown(report) {
 
 export default async function saveCommentAccountSetupReport(
     report,
-    reportsDirectory = "./data/reports"
+    reportsDirectory = "./data/reports",
+    { httpHistoryDirectory = path.resolve(reportsDirectory, "http") } = {}
 ) {
     const absoluteDirectory = path.resolve(reportsDirectory);
     const fileName =
@@ -312,9 +315,10 @@ export default async function saveCommentAccountSetupReport(
     const reportPath = path.join(absoluteDirectory, fileName);
 
     await mkdir(absoluteDirectory, { recursive: true });
+    const histories = await Promise.all(historyReferences(report).map(reference => readHttpHistory(reference, httpHistoryDirectory)));
     await writeFile(
         reportPath,
-        buildCommentAccountSetupMarkdown(report),
+        buildCommentAccountSetupMarkdown(report) + buildHttpHistoryMarkdown(histories.flat()),
         "utf8"
     );
 

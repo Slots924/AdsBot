@@ -1,9 +1,10 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import updateCoreBio from "../../../api-actions/updateBio.js";
 import getAboutSectionTokens from "./getAboutSectionTokens.js";
 import runProfileAction from "./runProfileAction.js";
 import getBio from "./getBio.js";
 
-export default function updateBio(fbData, { value }, options = {}) {
+function updateBioImpl(fbData, { value }, options = {}) {
     return runProfileAction(fbData, options, async page => {
         if (options.skipIfEmpty && value === "" && !(await getBio(page)).trim()) {
             return { success: true, status: "ALREADY_EMPTY", skipped: true };
@@ -12,3 +13,5 @@ export default function updateBio(fbData, { value }, options = {}) {
         return updateCoreBio({ page, ...tokens, value });
     }, "Bio соціального профілю оновлено");
 }
+
+export default tracedAction("updateBio", updateBioImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

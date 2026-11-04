@@ -1,4 +1,5 @@
 import AccountCreationType from "../components/AccountCreationType.jsx";
+import HttpHistoryTimeline from "../components/HttpHistoryTimeline.jsx";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -438,7 +439,10 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
                 <button className="modal-close" onClick={() => { setSelectedLog(null); setSelectedReport(null); setSelectedWorkflowReport(null); }}><X size={17} /></button>
                 <span className="eyebrow">{selectedWorkflowReport ? "Markdown report" : selectedReport ? "Task report" : selectedLog?.scope}</span>
                 <h2>{selectedWorkflowReport?.title || selectedReport?.title || selectedLog?.message}</h2>
-                {selectedWorkflowReport ? <MarkdownPreview content={selectedWorkflowReport.content} /> : <pre>{JSON.stringify(selectedReport || selectedLog, null, 2)}</pre>}
+                {selectedWorkflowReport ? <MarkdownPreview content={selectedWorkflowReport.content} /> : <>
+                    <pre>{JSON.stringify(selectedReport ? { ...selectedReport, httpHistoryEvents: undefined } : selectedLog, null, 2)}</pre>
+                    <HttpHistoryTimeline events={selectedReport?.httpHistoryEvents} />
+                </>}
                 <div className="form-actions">
                     {selectedReport?.taskId && <button className="secondary-button" onClick={() => onOpenTask(selectedReport.taskId)}>Відкрити задачу</button>}
                     {selectedReport && <button className="secondary-button danger" onClick={deleteReport}><Trash2 size={15} /> Видалити</button>}

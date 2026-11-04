@@ -166,6 +166,7 @@ async function createWindow() {
     taskReportManager = new TaskReportManager({
         reportsDirectory: appPaths.taskReports,
     });
+    await taskReportManager.recoverInterrupted();
 
     const createCreativeManager = () => new CreativeManager({
         countriesFile: appPaths.countries,

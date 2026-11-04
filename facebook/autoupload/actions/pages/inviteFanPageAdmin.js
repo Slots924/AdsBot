@@ -1,7 +1,8 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import inviteAdditionalProfileAdmin from "../../../api-actions/pages/inviteAdditionalProfileAdmin.js";
 import { actionError } from "../../graphql/errors.js";
 
-export default async function inviteFanPageAdmin(context, additionalProfileId, targetUserId) {
+async function inviteFanPageAdminImpl(context, additionalProfileId, targetUserId) {
     context.requireActor(additionalProfileId);
     const result = await inviteAdditionalProfileAdmin({ page: context, additionalProfileId, targetUserId });
     if (!result.success) throw context.failure ?? actionError("Facebook не підтвердив надсилання інвайту", "FACEBOOK_INVITE_NOT_CONFIRMED", {
@@ -9,3 +10,5 @@ export default async function inviteFanPageAdmin(context, additionalProfileId, t
     });
     return result;
 }
+
+export default tracedAction("inviteFanPageAdmin", inviteFanPageAdminImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

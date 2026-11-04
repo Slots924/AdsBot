@@ -16,6 +16,7 @@ const backendSuites = {
         "test/testCampaignTemplateManager.js",
     ],
     all: [
+        "scripts/autoupload-history.test.js",
         "scripts/farming.test.js",
         "scripts/comment-account-autoupload.test.js",
         "test/testFanPageEditorData.js",

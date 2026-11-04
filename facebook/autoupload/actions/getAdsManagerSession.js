@@ -1,9 +1,10 @@
+import { tracedAction } from "../../../services/reports/HttpExchangeTrace.js";
 import parseWebSession from "../../session/parseWebSession.js";
 import { extractFacebookAccessTokenFromHtml } from "../../api/browserCredentials.js";
 import { actionError } from "../graphql/errors.js";
 
 // Токен залишається у приватному стані клієнта; зовні повертаються лише ознаки наявності.
-export default async function getAdsManagerSession(fbData, { signal } = {}) {
+async function getAdsManagerSessionImpl(fbData, { signal } = {}) {
     return fbData.client.run(async () => {
         fbData.client.validateFbData(fbData);
         const response = await fbData.client.request({ url: "https://adsmanager.facebook.com/adsmanager/manage/campaigns", signal });
@@ -15,3 +16,5 @@ export default async function getAdsManagerSession(fbData, { signal } = {}) {
         return { hasAdsManagerSession: true, hasAccessToken: true };
     });
 }
+
+export default tracedAction("getAdsManagerSession", getAdsManagerSessionImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

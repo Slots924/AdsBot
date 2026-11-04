@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { unwrap } from "../lib/api.js";
+
 const requiredActions = {
     authenticate_account: "Увійдіть у Facebook у профілі AdsPower",
     confirm_account: "Пройдіть підтвердження акаунта у Facebook",
@@ -19,7 +22,8 @@ const errorStatuses = {
 };
 
 export default function AutouploadActionDetails({ entry }) {
-    if (!entry.operation?.startsWith("profile-") && !["friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share", "fan-page-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
+    const [historyError, setHistoryError] = useState("");
+    if (!entry.httpHistory && !entry.operation?.startsWith("profile-") && !["friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share", "fan-page-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
     const detail = entry.diagnostic ?? {};
     const diagnostics = [
         ["Тип збою", errorStatuses[detail.status] ?? detail.status], ["Етап", detail.stage], ["Код мережі", detail.networkCode],
@@ -36,6 +40,15 @@ export default function AutouploadActionDetails({ entry }) {
         {entry.actionRequired && <p>{requiredActions[entry.actionRequired] || entry.actionRequired}</p>}
         {entry.incomingCheckMessage && <p>{entry.incomingCheckMessage}</p>}
         {entry.storageWarning && <p>{entry.storageWarning}</p>}
+        {entry.httpHistory && <div>
+            <p>HTTP-запитів у журналі: {entry.httpHistory.requestCount}</p>
+            <button type="button" className="secondary-button" onClick={() => {
+                setHistoryError("");
+                unwrap(window.adsBot.openLocalPath(entry.httpHistory.path)).catch(error => setHistoryError(error.message));
+            }}>Відкрити HTTP-історію Facebook</button>
+            {historyError && <p>{historyError}</p>}
+            {entry.httpHistory.storageWarning && <p>{entry.httpHistory.storageWarning}</p>}
+        </div>}
         <dl>{[["Видалено постів", entry.deletedCount], ["Приховано постів", entry.hiddenCount], ["Залишилось постів", entry.remainingCount], ["Опубліковано", entry.publishedCount], ["Датовано", entry.backdatedCount]].filter(([, value]) => value != null).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
         {entry.actionSteps && <ul>{Object.entries(entry.actionSteps).map(([key, step]) => <li key={key}>{key === "education" ? "Освіта" : key === "work" ? "Робота" : key}: {step.status}</li>)}</ul>}
         {entry.postResults?.length > 0 && <ul>{entry.postResults.map((post, index) => <li key={index}>Пост {post.sequence}{post.storyId ? ` · ${post.storyId}` : ""}: {post.createStatus} · дата: {post.backdateStatus || "не змінено"}</li>)}</ul>}

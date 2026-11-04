@@ -1,3 +1,5 @@
+import { traceHttpRequest } from "../reports/HttpExchangeTrace.js";
+import { randomUUID } from "node:crypto";
 import axios from "axios";
 
 import checkProxy from "./checkProxy.js";
@@ -127,6 +129,7 @@ function createRequestOutcomeUnknownError() {
 
 
 export default class ProxyHttpClient {
+    supportsExchangeTrace = true;
     #proxies;
 
 
@@ -162,7 +165,7 @@ export default class ProxyHttpClient {
     }
 
 
-    async #send(config, proxyIndex) {
+    async #send(config, proxyIndex, trace) {
         const { tlsMaxVersion, ...requestConfig } = config;
         if (tlsMaxVersion != null && tlsMaxVersion !== "TLSv1.2") throw new Error("Непідтримуване обмеження версії TLS");
         const proxy = this.#proxies[proxyIndex];
@@ -176,7 +179,7 @@ export default class ProxyHttpClient {
             proxy: false,
         };
         const startedAt = Date.now();
-        try { return await this.httpClient.request(configWithAgent); }
+        try { return await traceHttpRequest(config, () => this.httpClient.request(configWithAgent), trace); }
         catch (error) {
             error.diagnostic = describeHttpError(error, { config, proxy, durationMs: Date.now() - startedAt });
             throw error;
@@ -252,11 +255,12 @@ export default class ProxyHttpClient {
         }
 
         const failedProxyIndex = this.activeProxyIndex;
+        const requestGroupId = randomUUID();
         let diagnostic;
         const startedAt = Date.now();
 
         try {
-            return await this.#send(config, failedProxyIndex);
+            return await this.#send(config, failedProxyIndex, { requestGroupId, attempt: 1 });
         } catch (error) {
             diagnostic = describeHttpError(error, { config, proxy: this.#proxies[failedProxyIndex], durationMs: Date.now() - startedAt });
             error.diagnostic = diagnostic;
@@ -279,7 +283,7 @@ export default class ProxyHttpClient {
         try { await this.#switchProxy(failedProxyIndex); }
         catch (error) { error.diagnostic = diagnostic; throw error; }
 
-        return this.#send(config, this.activeProxyIndex);
+        return this.#send(config, this.activeProxyIndex, { requestGroupId, attempt: 2 });
     }
 
 

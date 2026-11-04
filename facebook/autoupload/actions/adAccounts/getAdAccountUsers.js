@@ -1,3 +1,4 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import { actionError } from "../../graphql/errors.js";
 import { failure, graphOrigin, isAdmin, requestJson, validateAdAccountId, validateSession } from "./common.js";
 
@@ -16,7 +17,7 @@ export async function readUsers(fbData, adAccountId, { signal } = {}) {
         users: users.map(user => ({ ...user, isAdmin: isAdmin(user) })), incomplete: Boolean(json.users.paging?.next), httpStatus, outcomeUnknown: false, retryable: false };
 }
 
-export default async function getAdAccountUsers(fbData, accountId, options = {}) {
+async function getAdAccountUsersImpl(fbData, accountId, options = {}) {
     let adAccountId;
     try {
         adAccountId = validateAdAccountId(accountId);
@@ -24,3 +25,5 @@ export default async function getAdAccountUsers(fbData, accountId, options = {})
         return await fbData.client.run(() => readUsers(fbData, adAccountId, options));
     } catch (error) { return failure(error, { signal: options.signal, adAccountId: adAccountId ?? null }); }
 }
+
+export default tracedAction("getAdAccountUsers", getAdAccountUsersImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

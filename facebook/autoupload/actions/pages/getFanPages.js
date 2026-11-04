@@ -1,9 +1,10 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import getSwitchableFacebookProfiles from "../../../api-actions/pages/getSwitchableFacebookProfiles.js";
 import HttpProfileReadContext from "../../HttpProfileReadContext.js";
 import { actionError, actionFailure } from "../../graphql/errors.js";
 
 // Об'єднує доступні профілі з поточним actor та прибирає власника сесії й дублікати.
-export default async function getFanPages(client, { signal } = {}) {
+async function getFanPagesImpl(client, { signal } = {}) {
     try {
         return await client.run(async () => {
             const identity = await client.readActorContext({ signal });
@@ -38,3 +39,5 @@ export default async function getFanPages(client, { signal } = {}) {
         return actionFailure(error);
     }
 }
+
+export default tracedAction("getFanPages", getFanPagesImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

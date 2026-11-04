@@ -1,3 +1,4 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import { randomUUID } from "node:crypto";
 import requestGraphql from "../../graphql/request.js";
 import { actionError } from "../../graphql/errors.js";
@@ -37,7 +38,7 @@ export async function confirmFriendRequest(fbData, targetId, { signal, beforeSen
     }
 }
 
-export default async function acceptFriendRequest(fbData, targetId, options = {}) {
+async function acceptFriendRequestImpl(fbData, targetId, options = {}) {
     try {
         validateFriendSession(fbData);
         return await fbData.client.run(() => confirmFriendRequest(fbData, targetId, options));
@@ -45,3 +46,5 @@ export default async function acceptFriendRequest(fbData, targetId, options = {}
         return friendActionFailure(error, { signal: options.signal });
     }
 }
+
+export default tracedAction("acceptFriendRequest", acceptFriendRequestImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

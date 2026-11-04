@@ -1,3 +1,4 @@
+import { withHttpWorkflow, currentHttpHistory } from "../reports/HttpExchangeTrace.js";
 import { profileIds } from "./AutouploadStore.js";
 import checkProfileSession from "../../workflows/autoupload/checkProfileSession.js";
 import refreshProfileSession from "../../workflows/autoupload/refreshProfileSession.js";
@@ -20,11 +21,40 @@ export default class AutouploadService {
     #browserBusy = new Set();
     #mutating = new Set();
     #pageLists = new Map();
-    constructor({ store, adsPower, profileBrowser, sessionStore, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount, acceptFriendRequestFn = acceptIncomingFriendRequest, changeNameFn = changeFacebookName,
+    constructor({ store, adsPower, profileBrowser, sessionStore, reportManager, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount, acceptFriendRequestFn = acceptIncomingFriendRequest, changeNameFn = changeFacebookName,
         getFanPagesFn = getFanPages, grantFanPageAccessFn = grantFanPageAccess, checkPageSession = checkProfileSession }) {
-        Object.assign(this, { getFanPagesFn, grantFanPageAccessFn, checkPageSession });
+        Object.assign(this, { reportManager, getFanPagesFn, grantFanPageAccessFn, checkPageSession });
         this.changeNameFn = changeNameFn;
         Object.assign(this, { store, adsPower, profileBrowser, sessionStore, onUpdated, checkSession: checkSession ?? (sessionStore ? refreshProfileSession : checkProfileSession), sendFriendRequestFn, shareAdAccountFn, acceptFriendRequestFn });
+    }
+    async #runReported(name, execute) {
+        if (currentHttpHistory() || !this.reportManager) return withHttpWorkflow(name, execute);
+        const startedAt = new Date().toISOString();
+        const titles = { listFanPages: "Список фанок", shareFanPage: "Надання доступу до фанки", check: "Перевірка сесії" };
+        const task = { id: null, type: `autoupload-${name}`, name: titles[name] ?? name, startedAt, input: {} };
+        let liveReportId = null;
+        const save = async (value, error) => {
+            try {
+                const report = await this.reportManager.createFromTask({ ...task, finishedAt: new Date().toISOString(),
+                    status: error ? "failed" : value?.success === false || value?.httpHistory?.storageWarning ? "completed_with_warnings" : value?.taskStatus ?? "completed",
+                    result: value?.result ?? value, error: error ? { code: error.code ?? null, message: "Дія автозаливу завершилася помилкою" } : null,
+                    metadata: { httpHistory: value?.httpHistory ?? error?.httpHistory } }, {}, { reportId: liveReportId });
+                return report.id;
+            } catch { return null; }
+        };
+        try {
+            const result = await withHttpWorkflow(name, execute, { directory: this.reportManager.httpHistoryDirectory,
+                onStart: async httpHistory => {
+                    const report = await this.reportManager.createFromTask({ ...task, status: "running", metadata: { httpHistory } });
+                    liveReportId = report.id;
+                },
+            });
+            const reportId = await save(result);
+            return { ...result, reportId, ...(!reportId ? { storageWarning: "Не вдалося створити звіт дії" } : {}) };
+        } catch (error) {
+            await save(error.result, error);
+            throw error;
+        }
     }
     #statusHandler(profileId) {
         return async ({ status, message }) => {
@@ -208,7 +238,10 @@ export default class AutouploadService {
         }
     }
 
-    async listFanPages(ids) {
+    listFanPages(...args) {
+        return this.#runReported("listFanPages", () => this.#listFanPages(...args));
+    }
+    async #listFanPages(ids) {
         return this.#withPageProfile(ids, async (profile, client) => {
             this.#pageLists.delete(profile.profileId);
             const result = await this.getFanPagesFn(client);
@@ -217,7 +250,10 @@ export default class AutouploadService {
         });
     }
 
-    async shareFanPage({ ids, additionalProfileId, targetUserId } = {}) {
+    shareFanPage(...args) {
+        return this.#runReported("shareFanPage", () => this.#shareFanPage(...args));
+    }
+    async #shareFanPage({ ids, additionalProfileId, targetUserId } = {}) {
         const targetId = validateTargetUserId(targetUserId);
         const pageId = String(additionalProfileId ?? "").trim();
         if (!/^[1-9]\d{0,29}$/.test(pageId)) throw new Error("Вкажіть коректний ID фанки");
@@ -248,14 +284,23 @@ export default class AutouploadService {
             return action;
         });
     }
-    async check(ids, { signal, progress = async () => {} } = {}) {
+    check(...args) {
+        return this.#runReported("check", () => this.#check(...args));
+    }
+    async #check(ids, { signal, progress = async () => {} } = {}) {
         return this.#runProfiles(ids, { signal, progress });
     }
-    async changeNames(ids, input, context = {}) {
+    changeNames(...args) {
+        return this.#runReported("changeNames", () => this.#changeNames(...args));
+    }
+    async #changeNames(ids, input, context = {}) {
         const name = validateName(input);
         return this.#runCachedAction(ids, (fbData, options) => this.changeNameFn(fbData, name, options), "profile-name-change", "зміна імені соціального профілю", context);
     }
-    async runProfileAction(ids, action, input, context = {}) {
+    runProfileAction(...args) {
+        return this.#runReported("runProfileAction", () => this.#runProfileAction(...args));
+    }
+    async #runProfileAction(ids, action, input, context = {}) {
         const normalized = validateProfileAction(action, input);
         return this.#runCachedAction(ids, (fbData, options) => profileActions[action](fbData, normalized, options), `profile-${action}`, "дія соціального профілю", context);
     }
@@ -294,7 +339,10 @@ export default class AutouploadService {
         }
         return { result: { profiles: results }, taskStatus: results.length !== profiles.length || results.some(item => !item.success || item.storageWarning) ? "completed_with_warnings" : "completed" };
     }
-    async sendFriendRequests(ids, targetUserId, context = {}) {
+    sendFriendRequests(...args) {
+        return this.#runReported("sendFriendRequests", () => this.#sendFriendRequests(...args));
+    }
+    async #sendFriendRequests(ids, targetUserId, context = {}) {
         return this.#runProfiles(ids, { ...context, targetUserId: validateTargetUserId(targetUserId) });
     }
     async validateTransfer({ ids, targetProfileId } = {}) {
@@ -306,7 +354,10 @@ export default class AutouploadService {
         }
         return { profiles, target };
     }
-    async transferPersonalAccounts(input, { signal, progress = async () => {} } = {}) {
+    transferPersonalAccounts(...args) {
+        return this.#runReported("transferPersonalAccounts", () => this.#transferPersonalAccounts(...args));
+    }
+    async #transferPersonalAccounts(input, { signal, progress = async () => {} } = {}) {
         const { profiles, target } = await this.validateTransfer(input);
         const locked = [...profiles, target].map(profile => profile.profileId);
         if (locked.some(id => this.#running.has(id) || this.#browserBusy.has(id) || this.#mutating.has(id))) throw new Error("Операція над одним із профілів уже виконується");
@@ -407,7 +458,10 @@ export default class AutouploadService {
         });
         return { profiles: profiles.filter(profile => selection.some(item => item.profileId === profile.profileId)), accounts: selection, targetUserId: targetId, confirmed: true };
     }
-    async shareAdAccounts(input, { signal, progress = async () => {} } = {}) {
+    shareAdAccounts(...args) {
+        return this.#runReported("shareAdAccounts", () => this.#shareAdAccounts(...args));
+    }
+    async #shareAdAccounts(input, { signal, progress = async () => {} } = {}) {
         const { profiles, accounts, targetUserId } = await this.validateShareSelection(input);
         const results = [];
         for (const profile of profiles) {

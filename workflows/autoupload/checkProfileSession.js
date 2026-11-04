@@ -1,10 +1,11 @@
+import { withHttpWorkflow } from "../../services/reports/HttpExchangeTrace.js";
 import FacebookWebClient from "../../facebook/api/FacebookWebClient.js";
 import normalizeProxy from "../../services/proxy/normalizeProxy.js";
 import describeHttpError from "../../services/logging/httpDiagnostics.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
 
 // Дані авторизації залишаються всередині клієнта й не входять до результату задачі.
-export default async function checkProfileSession({ profileId, profile: suppliedProfile, proxy: suppliedProxy, adsPower, signal, onSessionStatus, onStage = () => {}, createClient = (options) => new FacebookWebClient(options) }) {
+async function checkProfileSessionImpl({ profileId, profile: suppliedProfile, proxy: suppliedProxy, adsPower, signal, onSessionStatus, onStage = () => {}, createClient = (options) => new FacebookWebClient(options) }) {
     const steps = [];
     let stage = "profile";
     let privateProxy;
@@ -51,4 +52,12 @@ export default async function checkProfileSession({ profileId, profile: supplied
         getLogger("autoupload.session").error("autoupload.session.failed", message, { ...diagnostic, profileId });
         return { client: null, result: { status: error.sessionStatus ?? "error", errorStatus: diagnostic.status, stage, message, diagnostic, fields: [], steps: [...steps, message] } };
     }
+}
+
+export default async function checkProfileSession(...args) {
+    const prepared = await withHttpWorkflow("checkProfileSession", () => checkProfileSessionImpl(...args), {
+        metadata: { profileId: args[0]?.profileId ?? args[0]?.profile?.profile_id, profileNo: args[0]?.profile?.profile_no },
+    });
+    if (prepared.httpHistory) prepared.result = { ...prepared.result, httpHistory: prepared.httpHistory };
+    return prepared;
 }

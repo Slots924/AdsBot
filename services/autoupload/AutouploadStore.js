@@ -1,6 +1,7 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { compactHttpHistory, currentHttpHistory } from "../reports/HttpExchangeTrace.js";
 
 const initial = () => ({ version: 1, groups: [{ id: "new", name: "Нові" }], profiles: [], history: [] });
 export const profileIds = (value) => {
@@ -156,6 +157,7 @@ export default class AutouploadStore {
     }
 
     recordAction(profileId, result) {
+        if (currentHttpHistory()) result = { ...compactHttpHistory(result), httpHistory: currentHttpHistory() };
         return this.change((state) => {
             const profile = state.profiles.find((item) => item.profileId === profileId);
             if (!profile) return;

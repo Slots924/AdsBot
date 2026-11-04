@@ -1,9 +1,10 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import { actionError } from "../../graphql/errors.js";
 import { adminRole, failure, graphOrigin, isAdmin, requestJson, validateAdAccountId, validateSession, validateTargetUserId } from "./common.js";
 import { findFriend } from "./findFriendById.js";
 import { readUsers } from "./getAdAccountUsers.js";
 
-export default async function shareAdAccount(fbData, accountId, targetId, { signal, confirmation, beforeSend, useCachedAccess = false } = {}) {
+async function shareAdAccountImpl(fbData, accountId, targetId, { signal, confirmation, beforeSend, useCachedAccess = false } = {}) {
     let adAccountId, targetUserId, sent = false, writeAccepted = false;
     try {
         adAccountId = validateAdAccountId(accountId);
@@ -50,3 +51,5 @@ export default async function shareAdAccount(fbData, accountId, targetId, { sign
         });
     } catch (error) { return { ...failure(error, { sent, signal, adAccountId: adAccountId ?? null, targetUserId: targetUserId ?? null }), writeAccepted }; }
 }
+
+export default tracedAction("shareAdAccount", shareAdAccountImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

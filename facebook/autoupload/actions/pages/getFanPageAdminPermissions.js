@@ -1,3 +1,4 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import { adminPermissionsQuery } from "../../../api/pages/adminAccessOperations.js";
 import { actionError } from "../../graphql/errors.js";
 
@@ -8,7 +9,7 @@ function containsUserId(value, userId) {
         (["id", "user_id", "admin_id"].includes(key) && String(item) === userId) || containsUserId(item, userId));
 }
 
-export default async function getFanPageAdminPermissions(context, additionalProfileId, targetUserId) {
+async function getFanPageAdminPermissionsImpl(context, additionalProfileId, targetUserId) {
     context.requireActor(additionalProfileId);
     const { chunks } = await context.graphql({ ...adminPermissionsQuery, variables: { scale: 1 } });
     const actor = chunks.find(chunk => chunk.data?.viewer?.actor)?.data.viewer.actor;
@@ -23,3 +24,5 @@ export default async function getFanPageAdminPermissions(context, additionalProf
         encryptionKeys: actor.public_key_and_id_for_encryption ?? null,
     };
 }
+
+export default tracedAction("getFanPageAdminPermissions", getFanPageAdminPermissionsImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

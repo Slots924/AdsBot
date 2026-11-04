@@ -1,3 +1,4 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import { randomUUID } from "node:crypto";
 import { actionError } from "../../graphql/errors.js";
 import { failure, managerOrigin, requestJson, validateSession, validateTargetUserId } from "./common.js";
@@ -19,7 +20,7 @@ export async function findFriend(fbData, targetUserId, { signal } = {}) {
         found: Boolean(friend), friend, loadedCount: json.payload.entries.length, httpStatus, outcomeUnknown: false, retryable: false };
 }
 
-export default async function findFriendById(fbData, targetId, options = {}) {
+async function findFriendByIdImpl(fbData, targetId, options = {}) {
     let targetUserId;
     try {
         targetUserId = validateTargetUserId(targetId);
@@ -27,3 +28,5 @@ export default async function findFriendById(fbData, targetId, options = {}) {
         return await fbData.client.run(() => findFriend(fbData, targetUserId, options));
     } catch (error) { return failure(error, { signal: options.signal, targetUserId: targetUserId ?? null }); }
 }
+
+export default tracedAction("findFriendById", findFriendByIdImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));

@@ -20,6 +20,9 @@ data/logs/manual-recovery/
 data/reports/*.md
 data/reports/facebook-name-change-report_*.json
 data/reports/personal-accounts/
+# Локальні HTTP-історії та звіти задач із даними профілів.
+**/data/reports/http/
+**/data/reports/tasks/
 
 # Реальні Facebook-токени та проксі
 data/facebookApi/accounts.json

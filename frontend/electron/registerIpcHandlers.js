@@ -221,6 +221,7 @@ export default function registerIpcHandlers({
         adsPower: guiService.adsPower,
         profileBrowser: guiService,
         sessionStore: autouploadSessionStore,
+        reportManager,
         onUpdated: (state) => sendRendererEvent("autoupload:updated", state),
     });
     ipcMain.handle("autoupload:get", safeHandler(async ({ refreshBrowserStates = false } = {}) => {
@@ -2853,7 +2854,7 @@ export default function registerIpcHandlers({
     ipcMain.handle(
         "reports:get",
         safeHandler(async ({ reportId }) => {
-            const report = await reportManager.get(reportId);
+            const report = await reportManager.get(reportId, { includeHttpHistory: true });
             if (!report) throw Object.assign(new Error("Звіт не знайдено"), { code: "REPORT_NOT_FOUND" });
             return report;
         })

@@ -1,8 +1,9 @@
+import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import { updateEducationField, updateWorkField } from "../../../api-workflows/profile/fillProfileAbout.js";
 import getAboutSectionTokens from "./getAboutSectionTokens.js";
 import runProfileAction from "./runProfileAction.js";
 
-export default function updateAbout(fbData, { education, work }, options = {}) {
+function updateAboutImpl(fbData, { education, work }, options = {}) {
     return runProfileAction(fbData, options, async page => {
         const steps = {};
         const beforeAction = () => options.signal?.throwIfAborted();
@@ -20,3 +21,5 @@ export default function updateAbout(fbData, { education, work }, options = {}) {
                 .map(([key, step]) => `${key}: ${step.error || step.status}`).join("; ") || null };
     }, "Інформацію про освіту та роботу соціального профілю оновлено");
 }
+
+export default tracedAction("updateAbout", updateAboutImpl, value => ({ profileId: value?.profileId ?? value?.fbData?.profileId ?? null }));
