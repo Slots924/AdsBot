@@ -2,8 +2,10 @@ import { useRef, useState } from "react";
 import { AlertCircle, CheckCircle2, Download, Image, LoaderCircle, Share2, ShieldCheck } from "lucide-react";
 import WorkspaceDialog from "./WorkspaceDialog.jsx";
 import { unwrap } from "../lib/api.js";
+import useFanPageAccessRequest from "./useFanPageAccessRequest.jsx";
 
 export default function AutouploadShareFanPageModal({ profile, onClose }) {
+    const accessRequest = useFanPageAccessRequest();
     const [pages, setPages] = useState([]);
     const [loaded, setLoaded] = useState(false);
     const [target, setTarget] = useState("");
@@ -28,13 +30,13 @@ export default function AutouploadShareFanPageModal({ profile, onClose }) {
         if (locked.current || !validTarget) return;
         locked.current = true; setOperation(page.additionalProfileId); setFeedback(null);
         try {
-            const result = await unwrap(window.adsBot.shareAutouploadFanPage({ ids: [profile.profileId], additionalProfileId: page.additionalProfileId, targetUserId: targetId }));
+            const result = await accessRequest.send({ ids: [profile.profileId], additionalProfileId: page.additionalProfileId, targetUserId: targetId });
             setFeedback({ success: result.success, message: `${page.name || "Фанка"} · ${result.message}` });
             if (result.success || result.outcomeUnknown) setResults(current => ({ ...current, [`${targetId}:${page.additionalProfileId}`]: result }));
         } catch (error) { setFeedback({ success: false, message: error.message }); }
         finally { locked.current = false; setOperation(null); }
     };
-    return <WorkspaceDialog title="Пошарити фанку" className="fan-page-share-dialog" busy={busy} onClose={onClose}>
+    return <><WorkspaceDialog title="Пошарити фанку" className="fan-page-share-dialog" busy={busy} onClose={onClose}>
         <div className="fan-page-share">
             <div className="fan-page-share-context"><span className="fan-page-share-icon"><Share2 size={19} /></span><div><strong>Профіль №{profile.profileNo}</strong><span>{profile.name || "Без назви"}</span></div><span className="fan-page-share-access"><ShieldCheck size={13} /> Повний доступ</span></div>
             <button type="button" className="secondary-button fan-page-share-load" disabled={busy} onClick={load}>{operation === "list" ? <LoaderCircle className="spin" size={15} /> : <Download size={15} />}{operation === "list" ? "Отримуємо фанки…" : "Отримати список фанок"}</button>
@@ -59,5 +61,5 @@ export default function AutouploadShareFanPageModal({ profile, onClose }) {
                 {feedback ? <>{feedback.success ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}<span>{feedback.message}</span></> : <span>{busy && operation !== "list" ? "Надаємо доступ. Вікно залишиться відкритим." : "Пошарте потрібні фанки по черзі — вікно залишиться відкритим."}</span>}
             </div>
         </div>
-    </WorkspaceDialog>;
+    </WorkspaceDialog>{accessRequest.dialog}</>;
 }

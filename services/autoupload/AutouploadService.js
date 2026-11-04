@@ -253,7 +253,7 @@ export default class AutouploadService {
     shareFanPage(...args) {
         return this.#runReported("shareFanPage", () => this.#shareFanPage(...args));
     }
-    async #shareFanPage({ ids, additionalProfileId, targetUserId } = {}) {
+    async #shareFanPage({ ids, additionalProfileId, targetUserId, password } = {}) {
         const targetId = validateTargetUserId(targetUserId);
         const pageId = String(additionalProfileId ?? "").trim();
         if (!/^[1-9]\d{0,29}$/.test(pageId)) throw new Error("Вкажіть коректний ID фанки");
@@ -261,7 +261,7 @@ export default class AutouploadService {
             const page = this.#pageLists.get(profile.profileId)?.find(item => item.additionalProfileId === pageId);
             if (!page) throw new Error("Спочатку отримайте список фанок і виберіть фанку з нього");
             const credentials = await this.adsPower.getProfileById(profile.profileId);
-            const result = await this.grantFanPageAccessFn(client, { additionalProfileId: pageId, targetUserId: targetId, password: credentials.password });
+            const result = await this.grantFanPageAccessFn(client, { additionalProfileId: pageId, targetUserId: targetId, password: password ?? credentials.password });
             const failures = { SESSION: "Не вдалося перевірити сесію Facebook.", SWITCH: "Не вдалося перемкнутися на фанку.",
                 PERMISSIONS: "Не вдалося прочитати доступи фанки.", ENCRYPT: "Не вдалося підготувати підтвердження пароля.",
                 REAUTH: "Facebook не підтвердив пароль.", INVITE: "Facebook не прийняв запрошення.",
@@ -271,6 +271,8 @@ export default class AutouploadService {
                     : result.outcome === "INVITE_ALREADY_PENDING" ? "Запрошення вже очікує прийняття."
                         : result.verified === false ? "Facebook прийняв інвайт. Контрольне читання не завершилося." : "Запрошення з повним доступом надіслано."
                 : result.outcomeUnknown ? "Результат запиту невідомий. Перевірте запрошення перед повторною спробою."
+                    : result.code === "FACEBOOK_PASSWORD_REQUIRED"
+                        ? "У профілі FP HUB в AdsPower відсутній пароль Facebook. Введіть пароль для надання доступу."
                     : result.code === "FACEBOOK_ENCRYPTION_MODULE_UNAVAILABLE" && result.encryptionDiagnostics?.downloadFailures
                         ? "Не вдалося завантажити компоненти Facebook через проксі. Перевірте з’єднання та повторіть."
                         : `${failures[result.stage] || result.message || "Не вдалося надати доступ"}${result.graphCode ? ` · Facebook ${result.graphCode}` : ""}`;

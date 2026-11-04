@@ -130,6 +130,37 @@ it("зупинка FP HUB під час затримки не надсилає �
     expect(screen.getByRole("status")).toHaveTextContent("Чергу зупинено");
 });
 
+it("FP HUB запитує відсутній пароль і продовжує чергу після введення", async () => {
+    window.adsBot.shareAutouploadFanPage = vi.fn()
+        .mockImplementationOnce(() => ok({ success: false, code: "FACEBOOK_PASSWORD_REQUIRED" }))
+        .mockImplementation(() => ok({ success: true, message: "Запрошення надіслано" }));
+    await openHub();
+    fireEvent.click(screen.getByRole("button", { name: "Пошарити всі" }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(screen.getByRole("dialog", { name: "Не вказано пароль Facebook" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Повторити з цим паролем" })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("Пароль Facebook"), { target: { value: "manual-test-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Повторити з цим паролем" }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(window.adsBot.shareAutouploadFanPage).toHaveBeenNthCalledWith(2, { ids: ["hub"], additionalProfileId: "1", targetUserId: "123", password: "manual-test-password" });
+    expect(screen.queryByLabelText("Пароль Facebook")).not.toBeInTheDocument();
+    await act(async () => { await vi.advanceTimersByTimeAsync(10000); });
+    expect(window.adsBot.shareAutouploadFanPage).toHaveBeenCalledTimes(3);
+});
+
+it("скасування введення пароля FP HUB не повторює запит і зупиняє чергу", async () => {
+    window.adsBot.shareAutouploadFanPage = vi.fn(() => ok({ success: false, code: "FACEBOOK_PASSWORD_REQUIRED" }));
+    await openHub();
+    fireEvent.click(screen.getByRole("button", { name: "Пошарити всі" }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    fireEvent.change(screen.getByLabelText("Пароль Facebook"), { target: { value: "discarded-test-password" } });
+    fireEvent.keyDown(document, { key: "Escape" });
+    await act(async () => { await vi.advanceTimersByTimeAsync(20000); });
+    expect(window.adsBot.shareAutouploadFanPage).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("скасовано");
+});
+
 it("невизначений результат FP HUB припиняє чергу й блокує повтор цієї фанки", async () => {
     window.adsBot.shareAutouploadFanPage = vi.fn(() => Promise.resolve({ ok: false, error: { message: "Перевірте результат", outcomeUnknown: true } }));
     await openHub();

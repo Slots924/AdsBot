@@ -13,6 +13,7 @@ export default function WorkspaceDialog({ title, children, onClose, busy = false
         const focusable = () => [...content.current.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex="0"]')];
         (focusable()[0] ?? content.current).focus();
         const keydown = (event) => {
+            if ([...document.querySelectorAll('[role="dialog"][aria-modal="true"]')].at(-1) !== content.current) return;
             if (event.key === "Escape" && !busyRef.current) close.current();
             if (event.key !== "Tab") return;
             const items = focusable();

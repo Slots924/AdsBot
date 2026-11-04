@@ -143,6 +143,27 @@ test("GUI-сервіс відхиляє невалідного отримува�
     await assert.rejects(service.shareFanPage({ ids: ["p1"], additionalProfileId: "999", targetUserId: "789" }), /отримайте список/);
 });
 
+test("GUI-сервіс пояснює відсутній пароль FP HUB замість помилки читання доступів", async t => {
+    const { service, store } = await serviceFixture(t, {
+        grantFanPageAccessFn: async () => ({ success: false, code: "FACEBOOK_PASSWORD_REQUIRED", stage: "PERMISSIONS", inviteAttempted: false }),
+    });
+    await service.listFanPages(["p1"]);
+    const result = await service.shareFanPage({ ids: ["p1"], additionalProfileId: "456", targetUserId: "789" });
+    assert.equal(result.success, false);
+    assert.equal(result.inviteAttempted, false);
+    assert.match(result.message, /FP HUB.*AdsPower.*пароль Facebook/);
+    assert.equal((await store.snapshot()).history[0].message, result.message);
+});
+
+test("введений пароль передається workflow замість збереженого й не потрапляє до історії", async t => {
+    const value = await serviceFixture(t);
+    await value.service.listFanPages(["p1"]);
+    const result = await value.service.shareFanPage({ ids: ["p1"], additionalProfileId: "456", targetUserId: "789", password: "manual-test-password" });
+    assert.equal(result.success, true);
+    assert.equal(value.password(), "manual-test-password");
+    assert.ok(!JSON.stringify([result, await value.store.snapshot()]).includes("manual-test-password"));
+});
+
 test("GUI-сервіс не допускає двох одночасних операцій над одним профілем", async t => {
     let complete, started;
     const ready = new Promise(resolve => { started = resolve; });

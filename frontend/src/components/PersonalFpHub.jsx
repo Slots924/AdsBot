@@ -3,8 +3,10 @@ import { CheckCircle2, Download, Image, LoaderCircle, Share2, Square } from "luc
 import { unwrap } from "../lib/api.js";
 import FavoriteGroupSelect from "./FavoriteGroupSelect.jsx";
 import SearchSelect from "./SearchSelect.jsx";
+import useFanPageAccessRequest from "./useFanPageAccessRequest.jsx";
 
 export default function PersonalFpHub({ targetUserId, setParentBusy, parentBusy = "" }) {
+    const accessRequest = useFanPageAccessRequest();
     const [workspace, setWorkspace] = useState({ groups: [], profiles: [] });
     const [groupId, setGroupId] = useState("");
     const [profileId, setProfileId] = useState("");
@@ -41,7 +43,7 @@ export default function PersonalFpHub({ targetUserId, setParentBusy, parentBusy 
     const shareOne = async page => {
         setBusy(page.additionalProfileId);
         let value;
-        try { value = await unwrap(window.adsBot.shareAutouploadFanPage({ ids: [profileId], additionalProfileId: page.additionalProfileId, targetUserId })); }
+        try { value = await accessRequest.send({ ids: [profileId], additionalProfileId: page.additionalProfileId, targetUserId }, { signal: controller.current?.signal }); }
         catch (error) {
             if (error.outcomeUnknown) setResults(current => ({ ...current, [key(page)]: { outcomeUnknown: true } }));
             throw error;
@@ -74,7 +76,7 @@ export default function PersonalFpHub({ targetUserId, setParentBusy, parentBusy 
         } catch (error) { setMessage(error.message); }
         finally { locked.current = false; setBusy(""); controller.current = null; }
     };
-    return <section className="personal-section fan-page-share personal-fp-hub">
+    return <><section className="personal-section fan-page-share personal-fp-hub">
         <div className="personal-section-heading"><div><span className="eyebrow">FP HUB</span><h3>Доступ до фанпейджів</h3><p>Отримувач: {targetUserId || "спочатку запустіть персональний профіль"}</p></div></div>
         <div className="personal-hub-selectors">
             <FavoriteGroupSelect groups={workspace.groups} value={groupId} onChange={value => { setGroupId(value); setProfileId(""); setPages([]); }}
@@ -91,12 +93,12 @@ export default function PersonalFpHub({ targetUserId, setParentBusy, parentBusy 
         <div className="fan-page-share-list">{pages.map(page => {
             const result = results[key(page)];
             return <div className="fan-page-share-row" key={page.additionalProfileId}>
-                <span className="fan-page-share-avatar"><Image size={17} /></span><div className="fan-page-share-name"><strong>{page.name || "Без назви"}</strong><span>{page.additionalProfileId}</span></div>
+                <span className="fan-page-share-avatar"><Image size={17} />{page.photoUrl && <img src={page.photoUrl} alt="" referrerPolicy="no-referrer" onError={event => { event.currentTarget.style.display = "none"; }} />}</span><div className="fan-page-share-name"><strong>{page.name || "Без назви"}</strong><span>{page.additionalProfileId}</span></div>
                 <button type="button" className="secondary-button" disabled={Boolean(busy) || unavailable || !validTarget || Boolean(result)} onClick={() => share([page])}>
                     {busy === page.additionalProfileId ? <LoaderCircle className="spin" size={14} /> : result?.success ? <CheckCircle2 size={14} /> : <Share2 size={14} />}
                     {result?.outcomeUnknown ? "Перевірте стан" : result?.outcome === "FULL_CONTROL_ALREADY_PRESENT" ? "Є доступ" : result?.success ? "Очікує" : "Пошарити"}</button>
             </div>;
         })}{!pages.length && <p className="personal-empty">Оберіть профіль і завантажте список фанок.</p>}</div>
         <p role="status" className="fan-page-share-feedback">{message}</p>
-    </section>;
+    </section>{accessRequest.dialog}</>;
 }
