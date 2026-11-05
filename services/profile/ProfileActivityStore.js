@@ -9,11 +9,13 @@ export const profileActivityTypes = Object.freeze({
     COMMENT_ACCOUNT_SETUP_API: "comment_account_setup_api",
     COMMENT_ACCOUNT_SETUP_AUTOUPLOAD: "comment_account_setup_autoupload",
     COMMENT_TASK: "comment_task",
+    MANUAL_COMMENT: "manual_comment",
     COMMENT_REACTIONS_TASK: "comment_reactions_task",
 });
 
 
 const counterColumns = Object.freeze({
+    [profileActivityTypes.MANUAL_COMMENT]: "manual_comment_count",
     [profileActivityTypes.COMMENT_TASK]: "comment_task_count",
     [profileActivityTypes.COMMENT_REACTIONS_TASK]: "comment_reactions_task_count",
 });
@@ -25,6 +27,7 @@ const creationTypes = Object.freeze({
 });
 const accountTypes = ["regular", "ui", "api", "autoupload"];
 const comparisonTasks = [
+    { key: profileActivityTypes.MANUAL_COMMENT, label: "Ручні коментарі, середнє" },
     { key: profileActivityTypes.COMMENT_TASK, label: "Комент-задачі, середнє" },
     { key: profileActivityTypes.COMMENT_REACTIONS_TASK, label: "Лайк-задачі, середнє" },
 ];
@@ -55,6 +58,7 @@ function toProfile(row) {
         adsPowerGroupName: row.adspower_group_name,
         bannedAt: row.banned_at,
         commentTaskCount: Number(row.comment_task_count),
+        manualCommentCount: Number(row.manual_comment_count ?? 0),
         commentReactionsTaskCount: Number(row.comment_reactions_task_count),
         totalTargetActions: Number(row.total_target_actions),
         lastTargetActionAt: row.last_target_action_at,
@@ -114,6 +118,8 @@ export default class ProfileActivityStore {
                     ON profile_activity_events(profile_no, occurred_at DESC);
             `);
             const columns = new Set(this.db.prepare("PRAGMA table_info(profile_activity)").all().map((column) => column.name));
+            if (!columns.has("manual_comment_count")) this.db.exec("ALTER TABLE profile_activity ADD COLUMN manual_comment_count INTEGER NOT NULL DEFAULT 0");
+            this.db.exec("CREATE TABLE IF NOT EXISTS profile_action_keys (event_key TEXT PRIMARY KEY)");
             if (!columns.has("creation_type_id")) {
                 // Одноразове перенесення: за наявності обох способів перевагу має API.
                 this.db.exec("BEGIN IMMEDIATE");
@@ -146,8 +152,8 @@ export default class ProfileActivityStore {
                 this.db.exec("UPDATE profile_activity SET track_adspower_group = 0");
             }
             this.db.exec(`UPDATE profile_activity
-                SET total_target_actions = comment_task_count + comment_reactions_task_count
-                WHERE total_target_actions != comment_task_count + comment_reactions_task_count`);
+                SET total_target_actions = comment_task_count + comment_reactions_task_count + manual_comment_count
+                WHERE total_target_actions != comment_task_count + comment_reactions_task_count + manual_comment_count`);
             this.farm.initialize();
             return this;
         })();
@@ -192,7 +198,7 @@ export default class ProfileActivityStore {
     }
 
 
-    async recordSuccessfulAction({ profileNo, actionType, outcome = "success", occurredAt = new Date().toISOString() } = {}) {
+    async recordSuccessfulAction({ profileNo, actionType, outcome = "success", occurredAt = new Date().toISOString(), eventKey = null } = {}) {
         const normalizedProfileNo = normalizeProfileNo(profileNo);
         const column = counterColumns[actionType];
         const creationType = creationTypes[actionType];
@@ -200,9 +206,13 @@ export default class ProfileActivityStore {
         if (!["success", "completed_with_error", "completed_with_warnings"].includes(outcome)) return false;
         await this.initialize();
         const group = this.profileGroups.get(normalizedProfileNo);
-        const taskIncrement = [profileActivityTypes.COMMENT_TASK, profileActivityTypes.COMMENT_REACTIONS_TASK].includes(actionType) ? 1 : 0;
+        const taskIncrement = column ? 1 : 0;
         this.db.exec("BEGIN IMMEDIATE");
         try {
+            if (eventKey && !this.db.prepare("INSERT OR IGNORE INTO profile_action_keys (event_key) VALUES (?)").run(eventKey).changes) {
+                this.db.exec("COMMIT");
+                return false;
+            }
             this.db.prepare(`
                 INSERT INTO profile_activity (profile_no, created_at, updated_at, adspower_group_id, adspower_group_name)
                 VALUES (?, ?, ?, ?, ?)

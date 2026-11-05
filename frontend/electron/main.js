@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, net, protocol, safeStorage, shell } from "electron";
+import { app, BrowserWindow, clipboard, dialog, ipcMain, net, protocol, safeStorage, shell } from "electron";
 import { config as loadEnv } from "dotenv";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -298,6 +298,7 @@ async function createWindow() {
     });
 
     registerIpcHandlers({
+        copyText: (text) => clipboard.writeText(text),
         crm,
         autouploadSessionStore,
         ipcMain,

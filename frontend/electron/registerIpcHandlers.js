@@ -1,6 +1,7 @@
 import { isUnavailableCampaign, clearUnavailableCampaignStatistics, visibleCampaigns } from "../../services/campaigns/campaignVisibility.js";
 import { readdir, readFile, stat } from "node:fs/promises";
 import registerFarmIpcHandlers from "./registerFarmIpcHandlers.js";
+import ManualCommentSessionManager from "../../services/gui/ManualCommentSessionManager.js";
 import path from "node:path";
 
 import { appPaths } from "./paths.js";
@@ -197,9 +198,14 @@ export default function registerIpcHandlers({
     spendTaskCoordinator,
     spendScheduler,
     profileActivityStore,
+    copyText = () => { throw new Error("Буфер обміну недоступний"); },
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
+    const manualComments = new ManualCommentSessionManager({
+        guiService, activityStore: profileActivityStore, copyText,
+    });
+    ipcMain.handle("manual-comments:action", safeHandler(({ action, ...input }) => manualComments.execute(action, input)));
     ipcMain.handle("crm:settings-get", safeHandler(() => crm.getSettings()));
     ipcMain.handle("crm:settings-save", safeHandler((payload) => crm.saveSettings(payload)));
     ipcMain.handle("crm:campaigns-list", safeHandler(() => crm.getCampaigns()));

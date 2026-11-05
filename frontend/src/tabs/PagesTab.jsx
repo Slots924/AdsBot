@@ -26,6 +26,7 @@ import GeoSelect from "../components/GeoSelect.jsx";
 import ImageListDropzone from "../components/ImageListDropzone.jsx";
 import CrmCampaignPickerModal from "../components/CrmCampaignPickerModal.jsx";
 import MultiSelect from "../components/MultiSelect.jsx";
+import ManualCommentsModal from "../components/ManualCommentsModal.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import { findGroupForGeo } from "../lib/groups.js";
 
@@ -531,6 +532,7 @@ function CommentModal({
     settings, onClose, onQueued, onError,
 }) {
     const isAd = commentTarget === "ad";
+    const [manualOpen, setManualOpen] = useState(false);
     const defaultGroup = findGroupForGeo(groups, page.geo);
     const [draft, setDraft] = useState({
         geo: page.geo || "",
@@ -561,9 +563,14 @@ function CommentModal({
             onError(errorDetails(error));
         }
     };
+    if (manualOpen) return <ManualCommentsModal
+        contextKey={JSON.stringify([accountKey, page.id || page.pageId, post?.id || post?.postId || draft.postUrl, commentTarget])}
+        initialDraft={draft} countries={countries} groups={groups}
+        onClose={onClose} onBack={() => setManualOpen(false)} />;
     return (
         <div className="overlay">
             <form className="modal action-modal" onSubmit={submit}>
+                <button type="button" className="secondary-button comment-manual-button" onClick={() => setManualOpen(true)}><ExternalLink size={14} /> Вручну</button>
                 <button type="button" className="modal-close" onClick={onClose}>
                     <X size={17} />
                 </button>

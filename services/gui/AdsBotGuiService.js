@@ -934,15 +934,21 @@ export default class AdsBotGuiService {
     }
 
 
-    async runParallelCommentingCampaign(options = {}) {
+    async prepareCommentingComments(options = {}) {
         if (!this.#creativeManager) this.#creativeManager = this.#creativeManagerFactory();
         const creativeGeo = options.creativeGeo || options.geo;
         const creative = await this.#creativeManager.getCreative(creativeGeo, options.creativeName);
-        const comments = prepareCommentsForCampaign({
+        return prepareCommentsForCampaign({
             creative,
             siteUrl: options.siteUrl ?? "",
             flattenReplies: options.commentTarget === "ad",
         });
+    }
+
+
+    async runParallelCommentingCampaign(options = {}) {
+        const creativeGeo = options.creativeGeo || options.geo;
+        const comments = await this.prepareCommentingComments(options);
         const response = await this.runParallelComments({ ...options, geo: creativeGeo, comments });
         const report = response.report;
         return this.#summarizeCommentingReport(report);

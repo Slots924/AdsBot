@@ -36,6 +36,7 @@ const profileStatColumns = [
     ["isBanned", "Бан"],
     ["accountType", "Тип створення"],
     ["commentTaskCount", "Комент-задачі"],
+    ["manualCommentCount", "Ручні коментарі"],
     ["commentReactionsTaskCount", "Лайк-задачі"],
     ["totalTargetActions", "Всього задач"],
     ["lastTargetActionAt", "Остання дія"],
