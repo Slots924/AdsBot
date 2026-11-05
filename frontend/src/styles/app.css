@@ -1705,6 +1705,40 @@ fieldset.creative-launch-scroll { margin: 0; border: 0; min-width: 0; }
 .keitaro-campaign-editor .primary-button:hover:not(:disabled), .keitaro-campaign-editor .secondary-button:hover { border-color: #696969; background: #3a3a3a; }
 .keitaro-campaign-editor .primary-button:disabled { border-color: #393939; color: #777; background: #292929; }
 @media (max-width: 900px) { .keitaro-campaign-editor { width: calc(100vw - 16px); } .keitaro-campaign-layout { grid-template-columns: 1fr; } .campaign-main-column { border-right: 0; border-bottom: 1px solid #414141; } }
+
+.crm-campaign-editor { width: min(940px, calc(100vw - 48px)); max-height: calc(100vh - 34px); background: #222; border-color: #3b3b3b; border-radius: 8px; }
+.crm-campaign-head { display: flex; align-items: center; justify-content: space-between; min-height: 70px; padding: 14px 22px; border-bottom: 1px solid #3b3b3b; }
+.crm-campaign-head h2 { margin: 0; font-size: 18px; color: #eee; }
+.crm-campaign-body { overflow: auto; min-height: 0; padding: 18px 22px; }
+.crm-campaign-section { padding: 16px; margin-bottom: 14px; border: 1px solid #3c3c3c; border-radius: 14px; }
+.crm-campaign-section h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; color: #e6e6e6; font-size: 14px; font-weight: 700; }
+.crm-campaign-section h3 > span { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 27px; border-radius: 8px; color: #b5b5b5; background: #373737; font-size: 13px; }
+.crm-source-list { display: flex; flex-wrap: wrap; gap: 10px; }
+.crm-source { display: inline-flex; align-items: center; gap: 9px; min-width: 132px; min-height: 44px; padding: 7px 9px; border: 1px solid #404040; border-radius: 10px; color: #e1e1e1; background: #242424; font-size: 14px; cursor: pointer; }
+.crm-source.active { border-color: #42b94e; background: #25352a; }
+.crm-source-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; color: white; background: #1877f2; font-weight: 800; font-size: 18px; }
+.crm-source-check { margin-left: auto; color: #4cc45b; font-weight: 800; }
+.crm-campaign-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+.crm-campaign-editor .field { display: flex; flex-direction: column; gap: 7px; margin: 0; min-width: 0; }
+.crm-campaign-editor .field > span { color: #b9b9b9; font-size: 13px; font-weight: 600; }
+.crm-campaign-editor .field input, .crm-campaign-editor .field select, .crm-campaign-editor .resource-select-row select { width: 100%; min-width: 0; height: 40px; padding: 0 12px; border: 1px solid #424242; border-radius: 6px; color: #e6e6e6; background: #1c1c1c; font-size: 14px; }
+.crm-campaign-editor .field input:focus, .crm-campaign-editor .field select:focus { outline: 1px solid #5d9d64; border-color: #5d9d64; }
+.crm-flow-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+.crm-flow-heading h3 { margin: 0; }
+.crm-filter-toggle { display: inline-flex; align-items: center; gap: 9px; color: #b8b8b8; font-size: 12px; cursor: pointer; }
+.crm-filter-toggle input { position: absolute; opacity: 0; }
+.crm-toggle-track { position: relative; width: 44px; height: 24px; border-radius: 20px; background: #555; transition: background .15s; }
+.crm-toggle-track::after { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: white; content: ""; transition: transform .15s; }
+.crm-filter-toggle input:checked + .crm-toggle-track { background: #42b94e; }
+.crm-filter-toggle input:checked + .crm-toggle-track::after { transform: translateX(20px); }
+.crm-filter-toggle input:focus-visible + .crm-toggle-track { outline: 2px solid #a6dca9; outline-offset: 2px; }
+.crm-campaign-section .resource-select-row { margin-bottom: 10px; gap: 10px; }
+.crm-campaign-section .secondary-button + .field { margin-top: 14px; }
+.crm-campaign-hint { margin: 0; color: #aaa; font-size: 12px; line-height: 1.5; }
+.crm-campaign-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 22px; border-top: 1px solid #3b3b3b; }
+.crm-campaign-editor .crm-submit { border-color: #48ac50; color: #fff; background: #48ac50; font-weight: 700; }
+.crm-campaign-editor .crm-submit:hover:not(:disabled) { border-color: #56bd5e; background: #56bd5e; }
+@media (max-width: 600px) { .crm-campaign-editor { width: calc(100vw - 16px); } .crm-campaign-body { padding: 14px; } .crm-campaign-grid { grid-template-columns: 1fr; } .crm-flow-heading { flex-wrap: wrap; } }
 .keitaro-meta .primary-button { margin-left: auto; }
 .spend-page { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 1500px; min-height: 100%; margin: 0 auto; padding: 22px; }
 .spend-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }

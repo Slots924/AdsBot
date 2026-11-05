@@ -5,7 +5,7 @@ import CrmCampaignCreateModal from "./CrmCampaignCreateModal.jsx";
 
 export default function CrmCampaignPickerModal({ geo = "", creativeName = "", onSelect, onClose, onError }) {
     const [campaigns, setCampaigns] = useState([]);
-    const [query, setQuery] = useState(geo);
+    const [query, setQuery] = useState(() => geo.trim() ? `${geo.trim().toUpperCase()} | ` : "");
     const [selected, setSelected] = useState("");
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
