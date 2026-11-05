@@ -24,7 +24,7 @@ import CampaignCreationWizard from "../components/CampaignCreationWizard.jsx";
 import CreativeLaunchModal from "../components/CreativeLaunchModal.jsx";
 import GeoSelect from "../components/GeoSelect.jsx";
 import ImageListDropzone from "../components/ImageListDropzone.jsx";
-import KeitaroCampaignPickerModal from "../components/KeitaroCampaignPickerModal.jsx";
+import CrmCampaignPickerModal from "../components/CrmCampaignPickerModal.jsx";
 import MultiSelect from "../components/MultiSelect.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import { findGroupForGeo } from "../lib/groups.js";
@@ -496,7 +496,7 @@ function PublicationModal({
                 </div>
             </form>
             {keitaroPickerOpen && (
-                <KeitaroCampaignPickerModal
+                <CrmCampaignPickerModal
                     geo={draft.geo}
                     creativeName={draft.creativeName}
                     availableGroupIds={settings.keitaroAvailableGroupIds ?? []}

@@ -202,6 +202,10 @@ export default function registerIpcHandlers({
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
     ipcMain.handle("crm:settings-get", safeHandler(() => crm.getSettings()));
     ipcMain.handle("crm:settings-save", safeHandler((payload) => crm.saveSettings(payload)));
+    ipcMain.handle("crm:campaigns-list", safeHandler(() => crm.getCampaigns()));
+    ipcMain.handle("crm:campaign-form", safeHandler(() => crm.getCampaignForm()));
+    ipcMain.handle("crm:campaign-geo-options", safeHandler(({ geo }) => crm.getCampaignGeoOptions(geo)));
+    ipcMain.handle("crm:campaign-create", safeHandler((payload) => crm.createCampaign(payload)));
     const personalHttp = new PersonalAutouploadSessionManager({
         adsPower: guiService.adsPower, sessionStore: autouploadSessionStore, creditCardStore,
         facebookAccountManager, reportManager, reloadFacebookBackend: () => guiService.reloadFacebookBackend(),

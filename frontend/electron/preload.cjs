@@ -373,6 +373,10 @@ contextBridge.exposeInMainWorld("adsBot", {
     getSpendSettings: () => ipcRenderer.invoke("spend:settings-get"),
     getCrmSettings: () => ipcRenderer.invoke("crm:settings-get"),
     saveCrmSettings: (payload) => ipcRenderer.invoke("crm:settings-save", payload),
+    getCrmCampaigns: () => ipcRenderer.invoke("crm:campaigns-list"),
+    getCrmCampaignForm: () => ipcRenderer.invoke("crm:campaign-form"),
+    getCrmCampaignGeoOptions: (geo) => ipcRenderer.invoke("crm:campaign-geo-options", { geo }),
+    createCrmCampaign: (payload) => ipcRenderer.invoke("crm:campaign-create", payload),
     saveSpendSettings: (payload) =>
         ipcRenderer.invoke("spend:settings-save", payload),
     startSpendCollection: () => ipcRenderer.invoke("spend:collect-start"),

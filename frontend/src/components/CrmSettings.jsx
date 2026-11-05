@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { errorDetails, unwrap } from "../lib/api.js";
 
-const empty = { login: "", password: "", session: "" };
+const empty = { login: "", password: "", session: "", token: "", cookies: "", userAgent: "" };
 
 export default function CrmSettings({ onError = () => {}, showToast }) {
     const [values, setValues] = useState(empty);
@@ -26,7 +26,13 @@ export default function CrmSettings({ onError = () => {}, showToast }) {
     const save = async () => {
         setSaving(true);
         try {
-            const result = await unwrap(window.adsBot.saveCrmSettings(values));
+            const authFields = ["session", "token", "cookies"];
+            const changedAuthFields = authFields.filter((key) => values[key] !== saved[key]);
+            const next = { ...values };
+            if (changedAuthFields.length === 1) {
+                for (const key of authFields) if (key !== changedAuthFields[0]) next[key] = "";
+            }
+            const result = await unwrap(window.adsBot.saveCrmSettings(next));
             setValues(result); setSaved(result); setEditing(false); setVisible({});
             showToast?.("Налаштування CRM збережено");
         } catch (error) {
@@ -39,7 +45,11 @@ export default function CrmSettings({ onError = () => {}, showToast }) {
     return <section className="scale-setting">
         <h3>CRM</h3>
         <p>Усі поля необов'язкові.</p>
-        {[["login", "Логін"], ["password", "Пароль"], ["session", "Сесія"]].map(([key, label]) =>
+        <label className="field"><span>User-Agent</span>
+            <input aria-label="User-Agent" type="text" value={values.userAgent} disabled={!editing || saving}
+                onChange={(event) => setValues({ ...values, userAgent: event.target.value })} />
+        </label>
+        {[["login", "Логін"], ["password", "Пароль"], ["session", "Сесія"], ["token", "Токен"], ["cookies", "Cookies"]].map(([key, label]) =>
             <label className="field" key={key}>
                 <span>{label}</span>
                 <div style={{ display: "flex", gap: 8 }}>
