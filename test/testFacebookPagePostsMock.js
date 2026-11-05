@@ -44,12 +44,19 @@ const api = new FacebookGraphApi({
                 if (config.params.fields !== "id,message,is_published") {
                     assert.match(config.params.fields, /comments\.filter\(stream\)\.limit\(0\)\.summary\(true\)/);
                     assert.match(config.params.fields, /reactions\.limit\(0\)\.summary\(true\)/);
+                    for (const type of ["LIKE", "LOVE", "CARE", "HAHA", "WOW", "SAD", "ANGRY"]) {
+                        assert.ok(config.params.fields.includes(`reactions.type(${type}).limit(0).summary(true).as(reactions_${type.toLowerCase()})`));
+                    }
                 }
                 assert.equal(config.params.limit, 5);
                 assert.equal("after" in config.params, false);
                 return { data: { data: [
                     post("20", "2026-08-20T10:00:00+0000", {
                         reactions: { summary: { total_count: 12 } },
+                        reactions_like: { summary: { total_count: 8 } },
+                        reactions_love: { summary: { total_count: 3 } },
+                        reactions_care: { summary: { total_count: 1 } },
+                        reactions_angry: { summary: { total_count: 0 } },
                         comments: { summary: { total_count: 30 } },
                         attachments: { data: [{ url: "https://example.test/attachment" }] },
                     }),
@@ -65,7 +72,10 @@ const api = new FacebookGraphApi({
                 assert.equal(config.params.limit, 25);
                 assert.equal(config.params.filter, "stream");
                 assert.equal(config.params.after, "cursor");
-                return { data: { data: [{ id: "1", message: "Reply", parent: { id: "2", from: { name: "Parent" } }, reactions: { summary: { total_count: 4 } } }],
+                assert.ok(config.params.fields.includes("reactions.type(LOVE).limit(0).summary(true).as(reactions_love)"));
+                assert.ok(config.params.fields.includes("reactions.type(CARE).limit(0).summary(true).as(reactions_care)"));
+                return { data: { data: [{ id: "1", message: "Reply", parent: { id: "2", from: { name: "Parent" } }, reactions: { summary: { total_count: 4 } },
+                    reactions_like: { summary: { total_count: 1 } }, reactions_love: { summary: { total_count: 3 } } }],
                     paging: { next: "https://graph.facebook.com/next?access_token=page-secret", cursors: { after: "next-cursor" } } } };
             }
             throw new Error(`Неочікуваний mock-запит: ${config.method} ${path}`);
@@ -78,10 +88,14 @@ assert.deepEqual(posts.map((item) => item.id), ["10_21", "10_20"]);
 assert.equal(posts[0].message, "x".repeat(600) + " https://example.test/late");
 assert.equal(posts[1].reactionCount, 12);
 assert.equal(posts[1].commentCount, 30);
+assert.deepEqual(posts[1].reactionCounts, { LIKE: 8, LOVE: 3, CARE: 1, HAHA: null, WOW: null, SAD: null, ANGRY: 0 });
+assert.equal(posts[0].reactionCounts.LIKE, null);
 assert.equal(requests.some((request) => request.url.endsWith("/comments")), false);
 const discussion = await api.getPagePostComments({ pageId: "10", postId: "10_20", after: "cursor" });
 assert.equal(discussion.comments[0].parentId, "2");
 assert.equal(discussion.comments[0].reactionCount, 4);
+assert.equal(discussion.comments[0].reactionCounts.LIKE, 1);
+assert.equal(discussion.comments[0].reactionCounts.LOVE, 3);
 assert.equal(discussion.nextCursor, "next-cursor");
 assert.equal(JSON.stringify(discussion).includes("page-secret"), false);
 await assert.rejects(api.getPagePostComments({ pageId: "10", postId: "11_20" }), { code: "PAGE_POST_ID_INVALID" });

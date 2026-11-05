@@ -99,6 +99,18 @@ const campaignDatePresets = new Set([
     "maximum",
 ]);
 
+const reactionTypes = ["LIKE", "LOVE", "CARE", "HAHA", "WOW", "SAD", "ANGRY"];
+const reactionSummaryFields = [
+    "reactions.limit(0).summary(true)",
+    ...reactionTypes.map((type) => `reactions.type(${type}).limit(0).summary(true).as(reactions_${type.toLowerCase()})`),
+].join(",");
+
+function normalizeReactionCounts(object) {
+    return Object.fromEntries(reactionTypes.map((type) => [
+        type, object?.[`reactions_${type.toLowerCase()}`]?.summary?.total_count ?? null,
+    ]));
+}
+
 const campaignPostFields = [
     "id",
     "message",
@@ -107,7 +119,7 @@ const campaignPostFields = [
     "is_published",
     "status_type",
     "full_picture",
-    "reactions.limit(0).summary(true)",
+    reactionSummaryFields,
     "comments.filter(stream).limit(0).summary(true)",
     "attachments{media_type,url,unshimmed_url,target,media{image{src}},subattachments{url,unshimmed_url,target}}",
 ].join(",");
@@ -185,6 +197,7 @@ function normalizePagePost(post) {
         ),
         type: post?.status_type ?? attachment?.media_type ?? null,
         reactionCount: post?.reactions?.summary?.total_count ?? null,
+        reactionCounts: normalizeReactionCounts(post),
         commentCount: post?.comments?.summary?.total_count ?? null,
     };
 }
@@ -1784,7 +1797,7 @@ export default class FacebookGraphApi {
         const page = await this.getFanPageById(normalizedPageId);
         if (!page) throw createValidationError("Немає доступу до фанпейджі", "PAGE_POSTS_ACCESS_DENIED");
         const data = await this.#request(`/${normalizedPostId}/comments`, {
-            fields: "id,from,message,created_time,parent{id,from},attachment,reactions.limit(0).summary(true)",
+            fields: `id,from,message,created_time,parent{id,from},attachment,${reactionSummaryFields}`,
             filter: "stream",
             order: "chronological",
             limit: 25,
@@ -1800,6 +1813,7 @@ export default class FacebookGraphApi {
                 parentAuthor: comment.parent?.from?.name ?? null,
                 attachmentType: comment.attachment?.type ?? null,
                 reactionCount: comment.reactions?.summary?.total_count ?? null,
+                reactionCounts: normalizeReactionCounts(comment),
             })),
             nextCursor: data?.paging?.next ? data.paging.cursors?.after ?? null : null,
         };

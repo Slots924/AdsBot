@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, LoaderCircle, MessageSquareText, ThumbsUp } from "lucide-react";
+import { ChevronDown, ChevronUp, LoaderCircle, MessageSquareText } from "lucide-react";
 import { unwrap } from "../lib/api.js";
+import ReactionCounts from "./ReactionCounts.jsx";
 
 const count = (value) => value == null ? "—" : Number(value).toLocaleString("uk-UA");
 
@@ -53,7 +54,7 @@ export default function PagePostDiscussion({ accountKey, pageId, post, disabled 
 
     return <div className="page-post-discussion">
         <div className="page-post-engagement">
-            <span title="Кількість реакцій"><ThumbsUp size={14} />{count(post.reactionCount)} реакцій</span>
+            <ReactionCounts counts={post.reactionCounts} total={post.reactionCount} />
             <span title="Кількість коментарів разом із відповідями"><MessageSquareText size={14} />{count(post.commentCount)} коментарів</span>
             <button type="button" className="page-discussion-toggle" aria-expanded={expanded}
                 disabled={disabled} onClick={() => {
@@ -72,7 +73,7 @@ export default function PagePostDiscussion({ accountKey, pageId, post, disabled 
                     {comment.createdTime && <time dateTime={comment.createdTime}>{new Date(comment.createdTime).toLocaleString("uk-UA")}</time>}
                 </div>
                 <p>{comment.message || (comment.attachmentType ? "Вкладення" : "Без тексту")}</p>
-                <span className="page-comment-reactions"><ThumbsUp size={12} />{count(comment.reactionCount)} реакцій</span>
+                <div className="page-comment-reactions"><ReactionCounts counts={comment.reactionCounts} total={comment.reactionCount} /></div>
             </div>)}
             {loading && <span className="page-discussion-status" role="status"><LoaderCircle size={15} className="spin" />Завантаження коментарів…</span>}
             {error && <div className="page-discussion-error" role="alert">{error}</div>}
