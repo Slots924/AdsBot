@@ -9,7 +9,9 @@ const reactionTypes = [
 ];
 
 export default function ReactionCounts({ counts, total }) {
-    const visible = reactionTypes.filter(([type]) => Number(counts?.[type]) > 0);
+    const visible = reactionTypes
+        .filter(([type]) => Number(counts?.[type]) > 0)
+        .sort(([left], [right]) => Number(counts[right]) - Number(counts[left]));
     const formattedTotal = total == null ? "—" : Number(total).toLocaleString("uk-UA");
     return <span className="reaction-counts" role="group" aria-label="Реакції">
         {visible.length ? visible.map(([type, emoji, label]) => {

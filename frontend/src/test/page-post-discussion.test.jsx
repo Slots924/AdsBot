@@ -15,6 +15,9 @@ it("показує типи реакцій окремо на пості, ком�
         reactionCounts: { LIKE: 4, LOVE: 2, CARE: 1, HAHA: 1, WOW: 1, SAD: 1, ANGRY: 2 },
     }} />);
     const postReactions = screen.getByRole("group", { name: "Реакції" });
+    expect([...postReactions.children].map((item) => item.getAttribute("aria-label"))).toEqual([
+        "Подобається: 4", "Любов: 2", "Злість: 2", "Турбота: 1", "Ха-ха: 1", "Ого: 1", "Сум: 1",
+    ]);
     for (const label of ["Подобається: 4", "Любов: 2", "Турбота: 1", "Ха-ха: 1", "Ого: 1", "Сум: 1", "Злість: 2"]) {
         expect(within(postReactions).getByLabelText(label)).toBeInTheDocument();
     }
@@ -26,6 +29,8 @@ it("показує типи реакцій окремо на пості, ком�
     const reply = screen.getByText("Текст 2").closest(".is-reply");
     expect(within(reply).getByLabelText("Турбота: 1")).toBeInTheDocument();
     expect(within(reply).getByLabelText("Злість: 2")).toBeInTheDocument();
+    expect([...within(reply).getByRole("group", { name: "Реакції" }).children]
+        .map((item) => item.getAttribute("aria-label"))).toEqual(["Злість: 2", "Турбота: 1"]);
 });
 
 it("не показує нульові реакції й підтримує старий кеш без розподілу", () => {
