@@ -271,6 +271,10 @@ export default class FacebookBackendService {
         return this.#getFacebookApiClient(accountKey).duplicateAdSet(input);
     }
 
+    async deleteAdSet(accountKey, input) {
+        return this.#getFacebookApiClient(accountKey).deleteAdSet(input);
+    }
+
     async getAdCampaignInsights(accountKey, adAccountId, datePreset = "today", campaignIds, context = null) {
         return this.#getFacebookApiClient(accountKey)
             .getAdCampaignInsights(adAccountId, datePreset, campaignIds, context);

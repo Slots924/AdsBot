@@ -493,6 +493,11 @@ export default class AdsBotGuiService {
         return this.#facebookBackend.duplicateAdSet(accountKey, input);
     }
 
+    async deleteAdSet(accountKey, input) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.deleteAdSet(accountKey, input);
+    }
+
 
     async getAdCampaignStatistics(
         accountKey,

@@ -2205,6 +2205,8 @@ export default function registerIpcHandlers({
     );
     ipcMain.handle("adsets:read", safeHandler((input) => adSetService.read(input)));
     ipcMain.handle("adsets:refresh", safeHandler((input) => adSetService.refresh(input)));
+    ipcMain.handle("adsets:statistics-refresh", safeHandler((input) => adSetService.refreshStatistics(input)));
+    ipcMain.handle("adsets:delete", safeHandler((input) => adSetService.delete(input)));
     ipcMain.handle("adsets:duplicate", safeHandler((input) => adSetService.duplicate(input)));
     ipcMain.handle(
         "campaigns:statistics-refresh",

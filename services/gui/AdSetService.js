@@ -1,4 +1,6 @@
 const minute = 60_000;
+const deleted = (row) => ["DELETED", "ARCHIVED"].includes(row.status) || ["DELETED", "ARCHIVED"].includes(row.effectiveStatus);
+const due = (now, timestamp, interval) => !Number.isFinite(Date.parse(timestamp)) || now.getTime() - Date.parse(timestamp) >= interval;
 const metrics = (row = {}) => {
     const spend = Number(row.spend ?? 0);
     const impressions = Number(row.impressions ?? 0);
@@ -26,41 +28,61 @@ export default class AdSetService {
         const statistics = snapshot?.statistics?.[context.rangeKey] ?? snapshot?.lastStatistics;
         const byId = statistics?.byId ?? {};
         return {
-            adSets: (snapshot?.adSets ?? []).map((row) => ({ ...row, ...byId[row.id] })),
+            adSets: (snapshot?.adSets ?? []).map((row) => ({ ...row, ...byId[row.id], ...(deleted(row) ? { spend: null, leads: null, costPerLead: null, cpm: null, ctr: null } : {}) })),
             context, cacheHit: Boolean(snapshot?.listUpdatedAt), listUpdatedAt: snapshot?.listUpdatedAt ?? null,
             statisticsUpdatedAt: statistics?.updatedAt ?? null,
             statisticsStale: Boolean(statistics && statistics.context.rangeKey !== context.rangeKey),
+            listError: snapshot?.listError ?? null,
             refreshError: snapshot?.listError ?? snapshot?.statisticsErrors?.[context.rangeKey] ?? null,
         };
     }
 
-    async #exclusive(input, operation) {
+    #exclusive(input, operation, background = false) {
         const key = String(input.adAccountId);
-        // У межах РК запити йдуть послідовно, без сплесків при розгортанні кількох кампаній.
-        const previous = this.#pending.get(key) ?? Promise.resolve();
-        const pending = previous.catch(() => {}).then(operation);
-        this.#pending.set(key, pending);
-        try { return await pending; } finally { if (this.#pending.get(key) === pending) this.#pending.delete(key); }
+        let queue = this.#pending.get(key);
+        if (!queue) {
+            queue = { foreground: [], background: [], running: false };
+            this.#pending.set(key, queue);
+        }
+        return new Promise((resolve, reject) => {
+            queue[background ? "background" : "foreground"].push({ operation, resolve, reject });
+            if (!queue.running) {
+                queue.running = true;
+                setTimeout(() => this.#drain(key, queue), 0);
+            }
+        });
+    }
+
+    async #drain(key, queue) {
+        // Статистика не випереджає списки інших кампаній, які вже очікують у черзі РК.
+        while (queue.foreground.length || queue.background.length) {
+            const task = queue.foreground.shift() ?? queue.background.shift();
+            try { task.resolve(await task.operation()); } catch (error) { task.reject(error); }
+        }
+        this.#pending.delete(key);
     }
 
     refresh(input) {
-        return this.#exclusive(input, () => this.#refresh(input));
+        return this.#exclusive(input, () => this.#refreshList(input));
     }
 
-    async #refresh(input) {
-        const context = await this.#context(input);
-        let snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
-        const due = (timestamp, interval) => !Number.isFinite(Date.parse(timestamp)) || this.now().getTime() - Date.parse(timestamp) >= interval;
+    refreshStatistics(input) {
+        return this.#exclusive(input, () => this.#refreshStatistics(input), true);
+    }
+
+    async #refreshList(input) {
+        const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
         const save = () => this.cache.setAdSetSnapshot(input.adAccountId, input.campaignId, snapshot);
-        if (due(snapshot.listAttemptedAt ?? snapshot.listUpdatedAt, minute)) {
+        if (due(this.now(), snapshot.listAttemptedAt ?? snapshot.listUpdatedAt, minute)) {
             snapshot.listAttemptedAt = this.now().toISOString();
             await save();
             try {
                 const rows = await this.guiService.getCampaignAdSets(input.accountKey, input.campaignId);
                 if (!Array.isArray(rows)) throw new Error("Некоректна відповідь списку адсетів");
                 const incoming = new Map(rows.map((row) => [String(row.id), row]));
+                const previous = new Map((snapshot.adSets ?? []).map((row) => [String(row.id), row]));
                 snapshot.adSets = [
-                    ...rows.map((row) => ({ ...row, missingFromLatestRead: false })),
+                    ...rows.map((row) => ({ ...row, missingFromLatestRead: false, ...(previous.get(String(row.id))?.deletedLocally ? { status: "DELETED", effectiveStatus: "DELETED", deletedLocally: true } : {}) })),
                     ...(snapshot.adSets ?? []).filter((row) => !incoming.has(String(row.id))).map((row) => ({ ...row, missingFromLatestRead: true })),
                 ];
                 snapshot.listUpdatedAt = this.now().toISOString();
@@ -68,15 +90,22 @@ export default class AdSetService {
             } catch (error) { snapshot.listError = this.serializeError(error); }
             await save();
         }
+        return this.read(input);
+    }
+
+    async #refreshStatistics(input) {
+        const context = await this.#context(input);
+        const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
+        const save = () => this.cache.setAdSetSnapshot(input.adAccountId, input.campaignId, snapshot);
         const range = context.rangeKey;
-        if (!snapshot.listError && snapshot.adSets?.some((row) => !row.missingFromLatestRead)
-            && due(snapshot.statisticsAttempts?.[range] ?? snapshot.statistics?.[range]?.updatedAt, 15 * minute)) {
+        if (!snapshot.listError && snapshot.adSets?.some((row) => !row.missingFromLatestRead && !deleted(row))
+            && due(this.now(), snapshot.statisticsAttempts?.[range] ?? snapshot.statistics?.[range]?.updatedAt, 15 * minute)) {
             snapshot.statisticsAttempts = { ...snapshot.statisticsAttempts, [range]: this.now().toISOString() };
             await save();
             try {
                 const rows = await this.guiService.getCampaignAdSetInsights(input.accountKey, input.campaignId, input.datePreset ?? "today", context);
                 if (!Array.isArray(rows)) throw new Error("Некоректна відповідь статистики адсетів");
-                const byId = Object.fromEntries(snapshot.adSets.filter((row) => !row.missingFromLatestRead).map((row) => [row.id, metrics()]));
+                const byId = Object.fromEntries(snapshot.adSets.filter((row) => !row.missingFromLatestRead && !deleted(row)).map((row) => [row.id, metrics()]));
                 for (const row of rows) byId[row.adset_id] = metrics(row);
                 const statistics = { context, updatedAt: this.now().toISOString(), byId };
                 snapshot.statistics = { ...snapshot.statistics, [range]: statistics };
@@ -88,6 +117,24 @@ export default class AdSetService {
             await save();
         }
         return this.read(input);
+    }
+
+    delete(input) {
+        return this.#exclusive(input, async () => {
+            const result = await this.guiService.deleteAdSet(input.accountKey, input);
+            try {
+                const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
+                const rows = snapshot.adSets ?? [];
+                const previous = rows.find((row) => String(row.id) === String(input.adSetId));
+                const removed = { ...previous, ...result, id: String(input.adSetId), status: "DELETED", effectiveStatus: "DELETED", deletedLocally: true };
+                await this.cache.setAdSetSnapshot(input.adAccountId, input.campaignId, {
+                    ...snapshot, adSets: [...rows.filter((row) => String(row.id) !== String(input.adSetId)), removed],
+                });
+                return { ...result, data: await this.read(input) };
+            } catch {
+                return { ...result, cacheError: { message: "Адсет видалено, але не вдалося оновити кеш. Перевірте Ads Manager." } };
+            }
+        });
     }
 
     async duplicate(input) {

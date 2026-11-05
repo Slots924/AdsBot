@@ -22,7 +22,7 @@ try {
     await window.webContents.executeJavaScript('document.querySelector(".campaign-expand-button").click()');
     await wait(800);
     await writeFile(path.join(output, "adsets-wide.png"), (await window.webContents.capturePage()).toPNG());
-    const checks = await window.webContents.executeJavaScript(`({ rows: document.querySelectorAll('.adset-row').length, documentOverflow: document.documentElement.scrollWidth > innerWidth, hidden: document.visibilityState, buttons: document.querySelectorAll('.adset-copy-button').length })`);
+    const checks = await window.webContents.executeJavaScript(`({ rows: document.querySelectorAll('.adset-row').length, documentOverflow: document.documentElement.scrollWidth > innerWidth, hidden: document.visibilityState, buttons: document.querySelectorAll('.adset-copy-button').length, deleteButtons: document.querySelectorAll('.adset-actions .campaign-delete-button').length, actionsFit: [...document.querySelectorAll('.adset-actions')].every(cell => { const row = cell.closest('.adset-row').getBoundingClientRect(); const rect = cell.getBoundingClientRect(); return rect.right <= row.right; }) })`);
     await window.webContents.executeJavaScript('document.querySelector(".adset-copy-button").click()');
     await wait(200);
     await writeFile(path.join(output, "duplicate-wide.png"), (await window.webContents.capturePage()).toPNG());
@@ -33,7 +33,7 @@ try {
     await window.webContents.executeJavaScript('document.querySelector("[role=dialog] .modal-close").click()');
     await wait(300);
     await writeFile(path.join(output, "adsets-compact.png"), (await window.webContents.capturePage()).toPNG());
-    if (checks.rows !== 2 || checks.documentOverflow || !modal.fits || !modal.switchEnabled || errors.length) throw new Error(JSON.stringify({ checks, modal, errors }));
+    if (checks.rows !== 2 || checks.documentOverflow || checks.deleteButtons !== 2 || !checks.actionsFit || !modal.fits || !modal.switchEnabled || errors.length) throw new Error(JSON.stringify({ checks, modal, errors }));
     console.log(JSON.stringify({ visible: window.isVisible(), checks, modal, errors, screenshots: output }));
 } catch (error) { console.error(error); process.exitCode = 1; }
 finally { window?.destroy(); app.quit(); }

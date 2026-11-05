@@ -15,6 +15,11 @@ export default function AdSetsShowcase() {
     window.adsBot = {
         getAdAccounts: () => ok([account]), getAdCampaigns: () => ok(campaigns), refreshAdCampaignData: () => ok(campaigns),
         getCampaignAdSets: () => ok(data), refreshCampaignAdSets: () => ok(data),
+        refreshCampaignAdSetStatistics: () => ok(data),
+        deleteAdSet: ({ adSetId }) => {
+            data = { ...data, adSets: data.adSets.map((row) => row.id === adSetId ? { ...row, status: "DELETED", effectiveStatus: "DELETED", spend: null, leads: null, costPerLead: null, cpm: null, ctr: null } : row) };
+            return ok({ id: adSetId, status: "DELETED", data });
+        },
         duplicateAdSet: (input) => {
             const copies = Array.from({ length: input.count }, (_, index) => ({ ...data.adSets[0], id: `demo-${index}`, name: `Копія ${index + 1}`, status: input.createActive ? "ACTIVE" : "PAUSED", effectiveStatus: input.createActive ? "IN_PROCESS" : "PAUSED" }));
             data = { ...data, adSets: [...data.adSets, ...copies] };

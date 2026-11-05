@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Copy, LoaderCircle, X } from "lucide-react";
+import { Copy, LoaderCircle, Trash2, X } from "lucide-react";
 import { unwrap } from "../lib/api.js";
 import { localValueInZone, zonedValueToIso } from "../lib/accountTime.js";
 import { budgetFromMinorUnits } from "../../../facebook/services/campaigns/CampaignBudget.js";
@@ -11,7 +11,8 @@ const statuses = {
     ACTIVE: "Активний", PAUSED: "Пауза", CAMPAIGN_PAUSED: "Кампанія на паузі", ADSET_PAUSED: "Адсет на паузі",
     PENDING_REVIEW: "На перевірці", DISAPPROVED: "Відхилено", WITH_ISSUES: "Є проблеми", DELETED: "Видалено", ARCHIVED: "В архіві", IN_PROCESS: "Обробка", PENDING_BILLING_INFO: "Потрібна оплата",
 };
-const unavailable = (row) => ["DELETED", "ARCHIVED"].includes(row.status) || row.missingFromLatestRead || row.setupIncomplete;
+const removed = (row) => ["DELETED", "ARCHIVED"].includes(row.status) || ["DELETED", "ARCHIVED"].includes(row.effectiveStatus);
+const unavailable = (row) => removed(row) || row.missingFromLatestRead || row.setupIncomplete;
 
 function DuplicateAdSetModal({ row, input, account, onClose, onComplete }) {
     const zone = account.timezoneName;
@@ -77,31 +78,62 @@ function DuplicateAdSetModal({ row, input, account, onClose, onComplete }) {
 export default function CampaignAdSets({ campaignId, accountKey, account, datePreset, refreshToken, canWrite }) {
     const [data, setData] = useState(null);
     const [busy, setBusy] = useState(false);
+    const [statisticsBusy, setStatisticsBusy] = useState(false);
+    const [deletingIds, setDeletingIds] = useState(() => new Set());
     const [error, setError] = useState("");
     const [duplicate, setDuplicate] = useState(null);
     const sequence = useRef(0);
+    const deletedIds = useRef(new Set());
+    const pendingDeletes = useRef(new Set());
     const input = { accountKey, adAccountId: account.id, campaignId, datePreset };
     const key = JSON.stringify(input);
+    const applyData = (next) => setData({ ...next, adSets: next.adSets.map((row) => deletedIds.current.has(String(row.id)) ? { ...row, status: "DELETED", effectiveStatus: "DELETED", spend: null, leads: null, costPerLead: null, cpm: null, ctr: null } : row) });
     useEffect(() => {
         const request = ++sequence.current;
         let alive = true;
         setBusy(true);
+        setStatisticsBusy(false);
         setError("");
         (async () => {
             try {
                 const cached = await unwrap(window.adsBot.getCampaignAdSets(input));
-                if (alive && sequence.current === request) setData(cached);
+                if (!alive || sequence.current !== request) return;
+                applyData(cached);
                 const fresh = await unwrap(window.adsBot.refreshCampaignAdSets(input));
-                if (alive && sequence.current === request) setData(fresh);
+                if (!alive || sequence.current !== request) return;
+                applyData(fresh);
+                setBusy(false);
+                if (fresh.listError || !fresh.adSets.some((row) => !removed(row) && !row.missingFromLatestRead)) return;
+                setStatisticsBusy(true);
+                const statistics = await unwrap(window.adsBot.refreshCampaignAdSetStatistics(input));
+                if (alive && sequence.current === request) applyData(statistics);
             } catch (failure) { if (alive) setError(failure.message); }
-            finally { if (alive) setBusy(false); }
+            finally { if (alive) { setBusy(false); setStatisticsBusy(false); } }
         })();
         return () => { alive = false; };
     }, [key, refreshToken]);
+    const deleteRow = async (row) => {
+        const id = String(row.id);
+        if (pendingDeletes.current.has(id) || !window.confirm(`Видалити адсет «${row.name}»? Цю дію не можна скасувати.`)) return;
+        pendingDeletes.current.add(id);
+        setDeletingIds(new Set(pendingDeletes.current));
+        setError("");
+        try {
+            const result = await unwrap(window.adsBot.deleteAdSet({ ...input, adSetId: row.id }));
+            deletedIds.current.add(id);
+            if (result.data) applyData(result.data);
+            else setData((current) => ({ ...current, adSets: current.adSets.map((item) => String(item.id) === id ? { ...item, status: "DELETED", effectiveStatus: "DELETED", spend: null, leads: null, costPerLead: null, cpm: null, ctr: null } : item) }));
+            if (result.cacheError) setError(result.cacheError.message);
+        } catch (failure) { setError(failure.message); }
+        finally {
+            pendingDeletes.current.delete(id);
+            setDeletingIds(new Set(pendingDeletes.current));
+        }
+    };
     const rows = data?.adSets ?? [];
     const timestamp = (date) => date ? new Date(date).toLocaleString("uk-UA", { timeZone: account.timezoneName || "Europe/Kyiv", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "ще немає";
     return <section className="campaign-adsets" aria-label="Адсети кампанії">
-        <div className="adsets-caption"><strong>Адсети <span>{rows.length}</span></strong><small>{busy && <LoaderCircle className="spin" size={12} />}Статуси: {timestamp(data?.listUpdatedAt)} · Статистика: {timestamp(data?.statisticsUpdatedAt)}{data?.statisticsStale ? " · попередній період" : ""}</small></div>
+        <div className="adsets-caption"><strong>Адсети <span>{rows.length}</span></strong><small>{(busy || statisticsBusy) && <LoaderCircle className="spin" size={12} />}Статуси: {timestamp(data?.listUpdatedAt)} · Статистика: {timestamp(data?.statisticsUpdatedAt)}{statisticsBusy ? " · оновлюється" : ""}{data?.statisticsStale ? " · попередній період" : ""}</small></div>
         {(error || data?.refreshError) && <div className="notice danger">{error || data.refreshError.message}. Показано збережені дані.</div>}
         {!rows.length && <div className="adsets-empty">{busy ? "Завантажуємо адсети…" : data?.cacheHit ? "У кампанії немає адсетів." : "Збережених адсетів ще немає. Оновіть після відновлення доступу."}</div>}
         {rows.length > 0 && <div className="adsets-scroll"><div className="adsets-table">
@@ -110,9 +142,12 @@ export default function CampaignAdSets({ campaignId, accountKey, account, datePr
                 <div className="adset-identity"><strong title={row.name}>{row.name}</strong><small>{row.id} · {row.campaignBudget ? "Бюджет кампанії" : `${money(budgetAmount(row, account.currency), account.currency)}${Number(row.lifetimeBudget) > 0 ? " на весь термін" : " / день"}`}</small><small title={row.optimizationGoal || ""}>Старт: {timestamp(row.startTime)}{row.endTime ? ` · До: ${timestamp(row.endTime)}` : ""}{row.missingFromLatestRead ? " · Збережена копія" : ""}</small></div>
                 <span className={`adset-status ${row.effectiveStatus === "ACTIVE" ? "active" : ""}`} title={row.effectiveStatus}>{row.setupIncomplete ? "Потрібна перевірка" : statuses[row.effectiveStatus] || row.effectiveStatus || "Невідомий"}</span>
                 <strong>{row.leads ?? "—"}</strong><strong>{money(row.spend, account.currency)}</strong><span>{money(row.costPerLead, account.currency)}</span><span>{money(row.cpm, account.currency)}</span><span>{row.ctr == null ? "—" : `${Number(row.ctr).toFixed(2)}%`}</span>
-                <button type="button" className="icon-button adset-copy-button" title="Дублювати адсет" aria-label={`Дублювати адсет ${row.name}`} disabled={!canWrite || unavailable(row)} onClick={() => setDuplicate(row)}><Copy size={15} /></button>
+                <span className="adset-actions">{!removed(row) && <>
+                    <button type="button" className="icon-button adset-copy-button" title="Дублювати адсет" aria-label={`Дублювати адсет ${row.name}`} disabled={!canWrite || unavailable(row) || deletingIds.has(String(row.id))} onClick={() => setDuplicate(row)}><Copy size={15} /></button>
+                    <button type="button" className="campaign-delete-button" title="Видалити адсет" aria-label={`Видалити адсет ${row.name}`} disabled={!canWrite || row.missingFromLatestRead || deletingIds.has(String(row.id))} onClick={() => deleteRow(row)}>{deletingIds.has(String(row.id)) ? <LoaderCircle className="spin" size={15} /> : <Trash2 size={15} />}</button>
+                </>}</span>
             </div>)}
         </div></div>}
-        {duplicate && <DuplicateAdSetModal row={duplicate} input={input} account={account} onClose={() => setDuplicate(null)} onComplete={async () => setData(await unwrap(window.adsBot.getCampaignAdSets(input)))} />}
+        {duplicate && <DuplicateAdSetModal row={duplicate} input={input} account={account} onClose={() => setDuplicate(null)} onComplete={async () => applyData(await unwrap(window.adsBot.getCampaignAdSets(input)))} />}
     </section>;
 }

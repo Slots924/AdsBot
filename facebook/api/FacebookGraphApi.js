@@ -352,7 +352,7 @@ export default class FacebookGraphApi {
     }
 
 
-    async #getAll(pathname, params = {}, { requireComplete = false } = {}) {
+    async #getAll(pathname, params = {}, { requireComplete = false, identityField = "id" } = {}) {
         const items = [];
         let after = null;
         const seenCursors = new Set();
@@ -364,7 +364,7 @@ export default class FacebookGraphApi {
             });
 
             if (requireComplete && (!Array.isArray(data?.data)
-                || data.data.some((item) => !item || typeof item !== "object" || !String(item.id ?? "").trim()))) {
+                || data.data.some((item) => !item || typeof item !== "object" || !String(item[identityField] ?? "").trim()))) {
                 throw Object.assign(new Error("Facebook повернув некоректний список кампаній"), { code: "FACEBOOK_CAMPAIGN_LIST_INVALID" });
             }
             if (Array.isArray(data?.data)) {
@@ -999,7 +999,20 @@ export default class FacebookGraphApi {
             fields: "adset_id,spend,impressions,clicks,ctr,cpm,actions", level: "adset",
             ...(context?.timeRange ? { time_range: JSON.stringify(context.timeRange) } : { date_preset: datePreset }),
             limit: 100,
-        }, { requireComplete: true });
+        }, { requireComplete: true, identityField: "adset_id" });
+    }
+
+    /** Позначає адсет видаленим після перевірки його належності до кампанії та РК. */
+    async deleteAdSet({ adAccountId, campaignId, adSetId }) {
+        const accountId = normalizeAdAccountId(adAccountId);
+        const parentId = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");
+        const id = normalizeObjectId(adSetId, "ADSET_ID_INVALID", "ID адсету");
+        const source = await this.#request(`/${id}`, { fields: "id,account_id,campaign_id" });
+        if (`act_${source.account_id}` !== accountId || String(source.campaign_id) !== parentId) {
+            throw createValidationError("Адсет не належить вибраній кампанії або РК", "ADSET_PARENT_INVALID");
+        }
+        await this.#writeObject(`/${id}`, { status: "DELETED" });
+        return { id, status: "DELETED", effectiveStatus: "DELETED" };
     }
 
     /** Копіює разом з оголошеннями; бюджет налаштовує до активації. */

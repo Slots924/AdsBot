@@ -1,6 +1,6 @@
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import CampaignAdSets from "../components/CampaignAdSets.jsx";
 import AdAccountsTab from "../tabs/AdAccountsTab.jsx";
 
@@ -11,11 +11,58 @@ const data = { cacheHit: true, adSets: [row], listUpdatedAt: "2026-11-06T10:00:0
 const setup = () => {
     window.adsBot = {
         getCampaignAdSets: vi.fn(() => ok(data)), refreshCampaignAdSets: vi.fn(() => ok(data)),
+        refreshCampaignAdSetStatistics: vi.fn(() => window.adsBot.getCampaignAdSets()),
+        deleteAdSet: vi.fn(() => ok({ id: row.id, status: "DELETED", data: { ...data, adSets: [{ ...row, status: "DELETED", effectiveStatus: "DELETED", spend: null, leads: null }] } })),
         duplicateAdSet: vi.fn(() => ok({ copies: [{ id: "4" }] })),
     };
 };
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 describe("Адсети кампанії", () => {
+    it("показує список до завершення статистики, зберігаючи старі показники", async () => {
+        setup();
+        let finish;
+        window.adsBot.refreshCampaignAdSetStatistics.mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+        render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" refreshToken={0} canWrite />);
+        expect(await screen.findByText("Основний адсет")).toBeInTheDocument();
+        await waitFor(() => expect(finish).toBeTypeOf("function"));
+        expect(screen.getByText(/оновлюється/)).toBeInTheDocument();
+        expect(screen.getByText("2")).toBeInTheDocument();
+        await act(async () => finish({ ok: true, data: { ...data, adSets: [{ ...row, leads: 7 }] } }));
+        expect(screen.getByText("7")).toBeInTheDocument();
+    });
+    it("оновлює статистику після попередньої помилки її перевірки", async () => {
+        setup();
+        window.adsBot.refreshCampaignAdSets.mockImplementation(() => ok({ ...data, listError: null, refreshError: { code: "FACEBOOK_CAMPAIGN_LIST_INVALID", message: "Попередня помилка статистики" } }));
+        render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" refreshToken={0} canWrite />);
+        await waitFor(() => expect(window.adsBot.refreshCampaignAdSetStatistics).toHaveBeenCalledTimes(1));
+    });
+    it("підтверджує видалення і не повертає видалений стан через запізнілу статистику", async () => {
+        setup();
+        let finish;
+        window.adsBot.refreshCampaignAdSetStatistics.mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+        const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+        render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" refreshToken={0} canWrite />);
+        const button = await screen.findByRole("button", { name: "Видалити адсет Основний адсет" });
+        await waitFor(() => expect(finish).toBeTypeOf("function"));
+        fireEvent.click(button);
+        expect(window.adsBot.deleteAdSet).not.toHaveBeenCalled();
+        confirm.mockReturnValue(true);
+        fireEvent.click(button);
+        expect(await screen.findByText("Видалено")).toBeInTheDocument();
+        expect(window.adsBot.deleteAdSet).toHaveBeenCalledWith(expect.objectContaining({ adSetId: "3", campaignId: "2", adAccountId: "act_1" }));
+        await act(async () => finish({ ok: true, data }));
+        expect(screen.getByText("Видалено")).toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Дублювати адсет Основний адсет" })).not.toBeInTheDocument();
+    });
+    it("не змінює адсет у разі помилки видалення", async () => {
+        setup();
+        vi.spyOn(window, "confirm").mockReturnValue(true);
+        window.adsBot.deleteAdSet.mockResolvedValue({ ok: false, error: { message: "Немає дозволу видаляти" } });
+        render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" refreshToken={0} canWrite />);
+        fireEvent.click(await screen.findByRole("button", { name: "Видалити адсет Основний адсет" }));
+        expect(await screen.findByText(/Немає дозволу/)).toBeInTheDocument();
+        expect(screen.getByText("Активний")).toBeInTheDocument();
+    });
     it("зберігає видимі дані при помилці токена та відкриває діалог з активним перемикачем", async () => {
         setup();
         window.adsBot.refreshCampaignAdSets.mockRejectedValue(new Error("Токен недійсний"));

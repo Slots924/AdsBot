@@ -685,7 +685,8 @@ button:focus-visible, input:focus-visible {
 .adsets-caption small { display: flex; align-items: center; gap: 6px; color: #858da2; font-size: 10px; }
 .adsets-scroll { overflow-x: auto; border: 1px solid rgba(255,255,255,.07); border-radius: 9px; background: rgba(8,10,18,.3); }
 .adsets-table { min-width: 750px; }
-.adset-grid { display: grid; grid-template-columns: minmax(200px,2fr) minmax(100px,1fr) 65px 90px 90px 80px 60px 30px; align-items: center; gap: 10px; padding: 9px 12px; }
+.adset-grid { display: grid; grid-template-columns: minmax(200px,2fr) minmax(100px,1fr) 65px 90px 90px 80px 60px 66px; align-items: center; gap: 10px; padding: 9px 12px; }
+.adset-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
 .adset-table-head { color: #7e879d; font-size: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
 .adset-row { min-height: 65px; border-bottom: 1px solid rgba(255,255,255,.045); color: #b3bbcd; font-size: 11px; }
 .adset-row:last-child { border-bottom: 0; }
