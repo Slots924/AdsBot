@@ -107,6 +107,8 @@ const campaignPostFields = [
     "is_published",
     "status_type",
     "full_picture",
+    "reactions.limit(0).summary(true)",
+    "comments.filter(stream).limit(0).summary(true)",
     "attachments{media_type,url,unshimmed_url,target,media{image{src}},subattachments{url,unshimmed_url,target}}",
 ].join(",");
 
@@ -182,6 +184,8 @@ function normalizePagePost(post) {
             attachment?.media?.image?.src ?? post?.full_picture
         ),
         type: post?.status_type ?? attachment?.media_type ?? null,
+        reactionCount: post?.reactions?.summary?.total_count ?? null,
+        commentCount: post?.comments?.summary?.total_count ?? null,
     };
 }
 
@@ -1765,6 +1769,40 @@ export default class FacebookGraphApi {
             },
         });
         return this.#cachePostPictures(posts);
+    }
+
+
+    async getPagePostComments({ pageId, postId, after } = {}) {
+        const normalizedPageId = normalizeObjectId(pageId, "PAGE_ID_INVALID", "ID фанпейджі");
+        const normalizedPostId = String(postId ?? "").trim();
+        if (!/^\d+_\d+$/.test(normalizedPostId) || !normalizedPostId.startsWith(`${normalizedPageId}_`)) {
+            throw createValidationError("Пост не належить вибраній фанпейджі", "PAGE_POST_ID_INVALID");
+        }
+        if (after !== undefined && (typeof after !== "string" || !after || after.length > 4096)) {
+            throw createValidationError("Некоректний курсор коментарів", "PAGE_COMMENTS_CURSOR_INVALID");
+        }
+        const page = await this.getFanPageById(normalizedPageId);
+        if (!page) throw createValidationError("Немає доступу до фанпейджі", "PAGE_POSTS_ACCESS_DENIED");
+        const data = await this.#request(`/${normalizedPostId}/comments`, {
+            fields: "id,from,message,created_time,parent{id,from},attachment,reactions.limit(0).summary(true)",
+            filter: "stream",
+            order: "chronological",
+            limit: 25,
+            ...(after ? { after } : {}),
+        }, { accessToken: page.pageAccessToken });
+        return {
+            comments: (Array.isArray(data?.data) ? data.data : []).map((comment) => ({
+                id: String(comment.id),
+                author: String(comment.from?.name ?? "Користувач Facebook"),
+                message: String(comment.message ?? ""),
+                createdTime: comment.created_time ?? null,
+                parentId: comment.parent?.id ? String(comment.parent.id) : null,
+                parentAuthor: comment.parent?.from?.name ?? null,
+                attachmentType: comment.attachment?.type ?? null,
+                reactionCount: comment.reactions?.summary?.total_count ?? null,
+            })),
+            nextCursor: data?.paging?.next ? data.paging.cursors?.after ?? null : null,
+        };
     }
 
 

@@ -298,6 +298,11 @@ export default class FacebookBackendService {
     }
 
 
+    async getPagePostComments(accountKey, options) {
+        return this.#getFacebookApiClient(accountKey).getPagePostComments(options);
+    }
+
+
     async getPagePostsSignature(accountKey, options) {
         return this.#getFacebookApiClient(accountKey)
             .getPagePostsSignature(options);

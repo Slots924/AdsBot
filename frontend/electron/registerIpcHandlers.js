@@ -1941,6 +1941,10 @@ export default function registerIpcHandlers({
         return cached?.value ?? posts;
     }));
     ipcMain.handle(
+        "pages:post-comments",
+        safeHandler((payload) => guiService.getPagePostComments(payload))
+    );
+    ipcMain.handle(
         "pages:posts-signature",
         safeHandler((payload) => guiService.getPagePostsSignature(payload))
     );

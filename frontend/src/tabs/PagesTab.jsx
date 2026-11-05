@@ -27,6 +27,7 @@ import ImageListDropzone from "../components/ImageListDropzone.jsx";
 import CrmCampaignPickerModal from "../components/CrmCampaignPickerModal.jsx";
 import MultiSelect from "../components/MultiSelect.jsx";
 import ManualCommentsModal from "../components/ManualCommentsModal.jsx";
+import PagePostDiscussion from "../components/PagePostDiscussion.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import { findGroupForGeo } from "../lib/groups.js";
 
@@ -754,6 +755,7 @@ export default function PagesTab({
     showToast,
 }) {
     const [posts, setPosts] = useState([]);
+    const [discussionVersion, setDiscussionVersion] = useState(0);
     const [loading, setLoading] = useState(false);
     const [listRefreshing, setListRefreshing] = useState(false);
     const [selectedRefreshing, setSelectedRefreshing] = useState(false);
@@ -804,6 +806,7 @@ export default function PagesTab({
 
     const loadPosts = async (force = false) => {
         if (!selected) return;
+        setDiscussionVersion((value) => value + 1);
         const pageId = String(selected.id);
         const requestId = ++postsRequestId.current;
         setLoading(true);
@@ -917,6 +920,7 @@ export default function PagesTab({
 
     const refreshSelectedFanpage = async () => {
         if (!selected || selectedRefreshing) return;
+        setDiscussionVersion((value) => value + 1);
         const pageId = String(selected.id);
         const requestId = ++postsRequestId.current;
         setSelectedRefreshing(true);
@@ -1236,6 +1240,9 @@ export default function PagesTab({
                                                         </>
                                                     )}
                                                 </div>
+                                                <PagePostDiscussion key={`${accountKey}:${selected.id}:${post.id}:${discussionVersion}`}
+                                                    accountKey={accountKey} pageId={selected.id} post={post}
+                                                    disabled={loading || selectedRefreshing} />
                                                 <div className="post-actions">
                                                     <button onClick={async () => {
                                                         if (!window.confirm("Видалити цей пост?")) return;

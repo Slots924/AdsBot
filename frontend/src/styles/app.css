@@ -455,6 +455,20 @@ button:focus-visible, input:focus-visible {
 .page-actions { margin: 18px 0 12px; flex-wrap: wrap; }
 .danger-button { display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 13px; border: 1px solid rgba(255,100,124,.25); border-radius: 10px; color: #ff9aaa; background: rgba(255,100,124,.07); cursor: pointer; }
 .page-post-list { display: grid; gap: 9px; }
+.page-post-engagement { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; color: var(--text-muted, #929bad); font-size: var(--font-caption); }
+.page-post-engagement > span, .page-comment-reactions, .page-discussion-status { display: inline-flex; align-items: center; gap: 5px; }
+.page-discussion-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 5px 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.page-discussion-toggle:hover { color: var(--text, #e7eaf1); }
+.page-discussion-toggle:disabled { opacity: .45; cursor: default; }
+.page-post-comments { display: grid; gap: 12px; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--stroke); font-size: var(--font-caption); }
+.page-post-comment { min-width: 0; }
+.page-post-comment.is-reply { margin-left: 18px; padding-left: 12px; border-left: 2px solid var(--stroke); }
+.page-comment-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.page-comment-heading time, .page-comment-reactions, .page-discussion-status { color: #929bad; font-size: var(--font-caption); }
+.page-post-card .page-post-comment p { display: block; overflow: visible; white-space: pre-wrap; overflow-wrap: anywhere; -webkit-line-clamp: unset; }
+.page-post-card .page-comment-parent { display: block; margin-bottom: 4px; color: #929bad; }
+.page-discussion-error { color: #f09a9a; overflow-wrap: anywhere; }
+.page-post-comments > .page-discussion-toggle { justify-self: start; color: #aab9df; }
 .page-post-card { display: grid; grid-template-columns: 86px minmax(0,1fr); gap: 12px; padding: 11px; border: 1px solid var(--stroke); border-radius: 13px; background: rgba(255,255,255,.02); }
 .page-post-card img, .post-thumb-placeholder { width: 86px; height: 72px; object-fit: cover; border-radius: 9px; background: rgba(255,255,255,.05); }
 .page-post-card p { display: -webkit-box; margin: 6px 0; overflow: hidden; color: #b7bdca; font-size: var(--font-body); line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }

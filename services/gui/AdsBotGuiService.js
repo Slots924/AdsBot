@@ -540,6 +540,12 @@ export default class AdsBotGuiService {
     }
 
 
+    async getPagePostComments({ accountKey, ...options } = {}) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getPagePostComments(accountKey, options);
+    }
+
+
     async getPagePostsSignature({ accountKey, pageId, limit = 5 } = {}) {
         await this.#assertActiveAccount(accountKey);
         return this.#facebookBackend.getPagePostsSignature(accountKey, {

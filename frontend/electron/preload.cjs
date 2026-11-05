@@ -67,6 +67,7 @@ contextBridge.exposeInMainWorld("adsBot", {
             pageId,
             force,
         }),
+    getPagePostComments: (options) => ipcRenderer.invoke("pages:post-comments", options),
     getPagePostsSignature: (accountKey, pageId) =>
         ipcRenderer.invoke("pages:posts-signature", { accountKey, pageId }),
     refreshSelectedFanPage: (accountKey, pageId) =>
