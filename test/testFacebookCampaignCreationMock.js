@@ -225,10 +225,7 @@ const creative = requests.find((request) => (
     && !isValidate(request)
 ));
 const degrees = JSON.parse(creative.data.get("degrees_of_freedom_spec"));
-assert.equal(
-    degrees.creative_features_spec.standard_enhancements.enroll_status,
-    "OPT_OUT"
-);
+assert.equal(Object.hasOwn(degrees.creative_features_spec, "standard_enhancements"), false);
 assert.equal(degrees.creative_features_spec.enhance_cta.enroll_status, "OPT_OUT");
 assert.equal(degrees.creative_features_spec.product_browsing.enroll_status, "OPT_OUT");
 assert.equal(degrees.creative_features_spec.multi_photo_to_video.enroll_status, "OPT_OUT");

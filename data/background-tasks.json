@@ -2,6 +2,193 @@
   "version": 1,
   "tasks": [
     {
+      "id": "02bd403e-1fc5-4df1-b943-c2450224cbd4",
+      "type": "campaign",
+      "name": "test",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "9e1c86b7-0077-4f80-9e08-a7169c1462d1"
+      },
+      "metadata": {
+        "campaignJobId": "9e1c86b7-0077-4f80-9e08-a7169c1462d1",
+        "accountKey": "account-068",
+        "adAccountId": "act_823573256754721",
+        "uniqueKey": "campaign-job:9e1c86b7-0077-4f80-9e08-a7169c1462d1",
+        "reportId": "f6cb6640-457f-4a43-aec9-f1102e0a7081"
+      },
+      "progress": {
+        "completed": 2,
+        "total": 5,
+        "stage": "failed",
+        "message": "Including standard enhancements field in creative has been deprecated. Please choose to set individual features instead. Learn more here: https://fburl.com/hyth50xo",
+        "objects": {
+          "campaignId": "120249409239980775",
+          "creativeId": null,
+          "creatives": [],
+          "adSets": [],
+          "ads": []
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "Including standard enhancements field in creative has been deprecated. Please choose to set individual features instead. Learn more here: https://fburl.com/hyth50xo",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": "creative",
+        "graphCode": 100,
+        "graphSubcode": 3858504,
+        "httpStatus": 400,
+        "requestId": "a71b7c48-8fe7-47f4-9524-c187c60d7c67",
+        "traceId": "AqM4wrysPfz5ySyHgflcB2L",
+        "metaRequestId": "AqM4wrysPfz5ySyHgflcB2L",
+        "endpoint": "/act_823573256754721/adcreatives",
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": "Creative should not include standard enhancements",
+        "graphUserMessage": "Including standard enhancements field in creative has been deprecated. Please choose to set individual features instead. Learn more here: https://fburl.com/hyth50xo",
+        "graphType": "OAuthException",
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-05T16:56:08.607Z",
+      "startedAt": "2026-11-05T16:56:08.609Z",
+      "finishedAt": "2026-11-05T16:56:18.566Z",
+      "updatedAt": "2026-11-05T16:56:18.569Z"
+    },
+    {
+      "id": "d2625bb5-095c-4e36-9b24-142131587836",
+      "type": "campaign",
+      "name": "test",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "e03d6bd3-4569-41eb-b5ba-3a6c537109dc"
+      },
+      "metadata": {
+        "campaignJobId": "e03d6bd3-4569-41eb-b5ba-3a6c537109dc",
+        "accountKey": "account-068",
+        "adAccountId": "act_823573256754721",
+        "uniqueKey": "campaign-job:e03d6bd3-4569-41eb-b5ba-3a6c537109dc",
+        "reportId": "55b74eae-5d4b-4b35-ba75-b05f746b28d9"
+      },
+      "progress": {
+        "completed": 2,
+        "total": 5,
+        "stage": "failed",
+        "message": "Including standard enhancements field in creative has been deprecated. Please choose to set individual features instead. Learn more here: https://fburl.com/hyth50xo",
+        "objects": {
+          "campaignId": "120249409226100775",
+          "creativeId": null,
+          "creatives": [],
+          "adSets": [],
+          "ads": []
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "Including standard enhancements field in creative has been deprecated. Please choose to set individual features instead. Learn more here: https://fburl.com/hyth50xo",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": "creative",
+        "graphCode": 100,
+        "graphSubcode": 3858504,
+        "httpStatus": 400,
+        "requestId": "70d6bd1b-480d-4bf9-94fb-068a30954ef6",
+        "traceId": "AVXxTE57ckIyrpDHXoUTxsH",
+        "metaRequestId": "AVXxTE57ckIyrpDHXoUTxsH",
+        "endpoint": "/act_823573256754721/adcreatives",
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": "Creative should not include standard enhancements",
+        "graphUserMessage": "Including standard enhancements field in creative has been deprecated. Please choose to set individual features instead. Learn more here: https://fburl.com/hyth50xo",
+        "graphType": "OAuthException",
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-05T16:54:56.411Z",
+      "startedAt": "2026-11-05T16:54:56.413Z",
+      "finishedAt": "2026-11-05T16:55:07.831Z",
+      "updatedAt": "2026-11-05T16:55:07.834Z"
+    },
+    {
+      "id": "39bec1be-313d-4ebe-a1cc-55cbe6b038ab",
+      "type": "campaign",
+      "name": "DE | Creo_138 | 25+ 05/11 16:32",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "141ee121-fce8-44e2-8c6c-3f559b5dbf12"
+      },
+      "metadata": {
+        "campaignJobId": "141ee121-fce8-44e2-8c6c-3f559b5dbf12",
+        "accountKey": "account-064",
+        "adAccountId": "act_992958336430516",
+        "uniqueKey": "campaign-job:141ee121-fce8-44e2-8c6c-3f559b5dbf12",
+        "reportId": "25fa4165-7e12-4f3f-8a35-b6e345969858"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120252780988370105",
+          "creativeId": "2149948915899349",
+          "creatives": [
+            {
+              "id": "2149948915899349",
+              "pageId": "114245201640307",
+              "postId": "114245201640307_1057155190692825"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120252780989800105",
+              "name": "DE | Creo_138 | 25+ 05/11 16:32 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120252780991100105",
+              "name": "DE | Creo_138 | 25+ 05/11 16:32 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "141ee121-fce8-44e2-8c6c-3f559b5dbf12",
+        "campaignId": "120252780988370105",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-05T13:32:49.950Z",
+      "startedAt": "2026-11-05T13:32:49.952Z",
+      "finishedAt": "2026-11-05T13:33:13.343Z",
+      "updatedAt": "2026-11-05T13:33:13.346Z"
+    },
+    {
       "id": "d4b67d76-a619-4f27-8af6-4837b13abc7d",
       "type": "publication",
       "name": "Публікація · DE · 138",

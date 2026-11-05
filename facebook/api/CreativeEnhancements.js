@@ -2,7 +2,7 @@
 // Щоб додати нове покращення, достатньо додати його ключ сюди: він
 // автоматично піде в OPT_OUT-запит і в перевірку після створення реклами.
 export const CREATIVE_ENHANCEMENT_CATALOG = Object.freeze([
-    "standard_enhancements", "advantage_plus_creative",
+    "advantage_plus_creative",
     "adapt_to_placement", "add_text_overlay", "audio", "carousel_to_video",
     "cv_transformation", "image_animation", "image_auto_crop",
     "image_background_gen", "image_brightness_and_contrast",
