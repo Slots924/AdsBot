@@ -1,5 +1,16 @@
 # Автозаливи
 
+## Оновлення access token API-клієнтів і БМ
+
+Кнопка з ключем праворуч від синхронізації AdsPower запускає фонову HTTP-задачу.
+`services/accounts/refreshFacebookAccessToken.js` використовує збережені cookies і
+User-Agent клієнта та його режим проксі. Екшен `getAdsManagerSession` із
+`refreshSession: true` читає HTML Ads Manager одним GET (крім переходів і повторів
+після мережевих збоїв), перевіряє власника сесії та отримує EAAB-токен.
+Браузер, домашня сторінка Facebook і списки активів не завантажуються.
+Оновлюється лише access token; при помилці попередній токен зберігається.
+HTTP-історія приєднується до звіту задачі без значень токенів та cookies.
+
 ## Оформлення комент-акаунтів
 
 `workflows/accounts/executeCommentAccountAutouploadSetupWithProfile.js` працює

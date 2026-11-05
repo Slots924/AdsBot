@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import {
     Bot,
     CloudDownload,
+    KeyRound,
     LoaderCircle,
     Pencil,
     Play,
@@ -154,9 +155,11 @@ export default function Sidebar({
     onSetPrimary = async () => {},
     onOpenPersonalAccount = () => {},
     onSync = async () => {},
+    onRefreshAccessToken = async () => {},
     onOpenProfile = async () => {},
     onCloseProfile = async () => {},
     syncingAccountKeys = [],
+    refreshingTokenAccountKeys = [],
     onError,
     standalone = false,
 }) {
@@ -203,6 +206,17 @@ export default function Sidebar({
             await onCheck(account.accountKey);
         } catch (error) {
             onError({ ...errorDetails(error), title: "Не вдалося перевірити API-клієнт" });
+        } finally {
+            setBusyKey(null);
+        }
+    };
+    const refreshAccessToken = async (event, account) => {
+        event.stopPropagation();
+        setBusyKey(account.accountKey);
+        try {
+            await onRefreshAccessToken(account.accountKey);
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося оновити access token" });
         } finally {
             setBusyKey(null);
         }
@@ -267,12 +281,17 @@ export default function Sidebar({
                                 {(account.kind === "bm" || account.kind === "system") && <button type="button" className={`icon-button account-primary-button ${account.isPrimary ? "active" : ""}`} title={account.isPrimary ? "Основний клієнт" : "Зробити основним"} aria-label={account.isPrimary ? "Основний клієнт" : "Зробити основним"} disabled={account.isPrimary || busyKey === account.accountKey} onClick={(event) => { event.stopPropagation(); setBusyKey(account.accountKey); Promise.resolve(onSetPrimary(account.accountKey)).catch((error) => onError({ ...errorDetails(error), title: "Не вдалося обрати основного клієнта" })).finally(() => setBusyKey(null)); }}><Star size={14} fill={account.isPrimary ? "currentColor" : "none"} /></button>}
                                 {account.kind !== "system" && (() => {
                                     const syncing = syncingAccountKeys.includes(account.accountKey);
+                                    const refreshing = refreshingTokenAccountKeys.includes(account.accountKey);
                                     const unavailable = !account.adsPowerProfileNo;
-                                    return <button type="button" className="icon-button" title={unavailable ? "Додайте номер профілю AdsPower" : "Синхронізувати з AdsPower"} disabled={busyKey === account.accountKey || syncing || account.archived || unavailable} onClick={(event) => sync(event, account)}>{busyKey === account.accountKey || syncing ? <LoaderCircle className="spin" size={13} /> : <CloudDownload size={13} />}</button>;
+                                    const disabled = busyKey === account.accountKey || syncing || refreshing || account.archived;
+                                    return <span className="account-sync-actions">
+                                        <button type="button" className="icon-button" title={unavailable ? "Додайте номер профілю AdsPower" : "Синхронізувати з AdsPower"} disabled={disabled || unavailable} onClick={(event) => sync(event, account)}>{syncing ? <LoaderCircle className="spin" size={13} /> : <CloudDownload size={13} />}</button>
+                                        <button type="button" className="icon-button" aria-label="Оновити access token" title={!account.hasCookie || !account.hasUserAgent ? "Спочатку додайте cookies та User-Agent або синхронізуйте з AdsPower" : "Оновити access token через проксі"} disabled={disabled || !account.hasCookie || !account.hasUserAgent} onClick={(event) => refreshAccessToken(event, account)}>{refreshing ? <LoaderCircle className="spin" size={13} /> : <KeyRound size={13} />}</button>
+                                    </span>;
                                 })()}
                                 {account.kind !== "system" && account.adsPowerProfileNo && (account.adsPowerOpen ? <button type="button" className="icon-button danger" title="Профіль відкритий — закрити" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onCloseProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Power size={13} />}</button> : <button type="button" className="icon-button" title="Відкрити AdsPower-профіль" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onOpenProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Play size={13} />}</button>)}
                                 <button type="button" className="icon-button" title="Редагувати" onClick={(event) => { event.stopPropagation(); setEditor({ mode: "edit", ...account }); }}><Pencil size={13} /></button>
-                                <button type="button" className="icon-button danger" title="Видалити API-клієнта" disabled={busyKey === account.accountKey} onClick={(event) => removeAccount(event, account)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <X size={13} />}</button>
+                                <button type="button" className="icon-button danger account-delete-button" title="Видалити API-клієнта" disabled={busyKey === account.accountKey} onClick={(event) => removeAccount(event, account)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <X size={13} />}</button>
                             </span>
                         </motion.div>
                     ))}

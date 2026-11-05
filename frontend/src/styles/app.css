@@ -347,9 +347,11 @@ button:focus-visible, input:focus-visible {
 .account-card-check { position: absolute; top: 9px; right: 8px; width: 32px; min-width: 32px; height: 32px; padding: 0; }
 .account-card-tools { position: absolute; top: 50px; right: 8px; display: grid; grid-template-columns: repeat(2, 32px); gap: 8px; width: 72px; }
 .account-card-tools .icon-button { width: 32px; min-width: 32px; height: 32px; padding: 0; }
-.account-card-tools .icon-button:nth-child(1) { order: -2; }
-.account-card-tools .icon-button:nth-child(2) { order: -3; }
-.account-card-tools .icon-button:nth-child(3) { order: -1; }
+.account-card-tools > .account-primary-button { order: -3; }
+.account-card-tools > .account-personal-button { order: -2; }
+.account-card-tools > .account-delete-button { grid-column: 2; }
+.account-sync-actions { display: flex; gap: inherit; grid-column: 1 / -1; order: -1; }
+.accounts-tab-sidebar .kind-bm .account-card { min-height: 208px; }
 .account-editor { width: min(610px, calc(100vw - 40px)); }
 .account-editor { max-height: min(860px, calc(100dvh - 40px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .account-kind-picker { display: flex; flex-wrap: nowrap; gap: 5px; margin: 10px 14px 12px; padding: 4px; border: 1px solid var(--stroke); border-radius: 12px; background: rgba(3, 5, 12, .4); }

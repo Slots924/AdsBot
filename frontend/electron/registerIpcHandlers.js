@@ -17,6 +17,9 @@ import { validateTargetUserId } from "../../facebook/autoupload/actions/friends/
 import { validateName } from "../../facebook/autoupload/actions/accounts/changeFacebookName.js";
 import { validateProfileAction } from "../../facebook/autoupload/actions/profile/index.js";
 import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
+import refreshFacebookAccessToken from "../../services/accounts/refreshFacebookAccessToken.js";
+import ProfileProxyHttpClient from "../../services/proxy/ProfileProxyHttpClient.js";
+import ProxyHttpClient from "../../services/proxy/ProxyHttpClient.js";
 
 
 function safeMessage(value) {
@@ -1292,6 +1295,42 @@ export default function registerIpcHandlers({
                 name: account.name,
                 adsPowerOpen,
             };
+        })
+    );
+    ipcMain.handle(
+        "accounts:refresh-access-token",
+        safeHandler(async ({ accountKey }) => {
+            const manager = managerForAccount(accountKey);
+            const account = await manager.get(accountKey);
+            if (account.kind === "system" || account.archived) throw new Error("Оновлення токена доступне для активних API-клієнтів і БМ");
+            const task = await backgroundTaskManager.enqueue({
+                type: "facebook-access-token-refresh",
+                name: `Оновлення access token ${account.accountKey}`,
+                uniqueKey: `facebook-access-token-refresh:${account.accountKey}`,
+                resources: [{ key: `facebook-account:${account.accountKey}`, label: account.accountKey },
+                    ...(account.adsPowerProfileNo ? [{ key: `adspower-profile:${account.adsPowerProfileNo}`, label: `AdsPower №${account.adsPowerProfileNo}` }] : [])],
+                input: { accountKey: account.accountKey },
+                metadata: { accountKey: account.accountKey },
+                runner: async ({ signal, progress }) => {
+                    await progress({ stage: "ads-manager", message: "Отримуємо актуальний токен з Ads Manager через проксі" });
+                    const current = await manager.get(account.accountKey);
+                    if (current.archived) throw new Error("Клієнта архівовано");
+                    const mode = getAccountProxyMode(current);
+                    const httpClient = mode === "profile"
+                        ? new ProfileProxyHttpClient({ accountKey: current.accountKey, profileProxyService: profileProxyServices[current.kind ?? "api"] })
+                        : new ProxyHttpClient({ proxies: mode === "bound"
+                            ? [await proxyManager.getById(current.proxyId)]
+                            : await Promise.all((await proxyManager.list()).filter((proxy) => proxy.type !== "no_proxy" && proxy.isPublic !== false)
+                                .map((proxy) => proxyManager.getById(proxy.id))) });
+                    const result = await refreshFacebookAccessToken({ accountKey: current.accountKey, accountManager: manager,
+                        httpClient, signal, directory: reportManager.httpHistoryDirectory });
+                    await guiService.reloadFacebookBackend();
+                    const { httpHistory, taskStatus, ...summary } = result;
+                    return { result: summary, httpHistory, taskStatus,
+                        reportDetails: { inputSummary: { accountKey: current.accountKey }, resultSummary: summary } };
+                },
+            });
+            return { taskId: task.id, task };
         })
     );
     ipcMain.handle(

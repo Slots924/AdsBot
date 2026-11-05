@@ -3,6 +3,15 @@ import { Cookie, CookieJar } from "tough-cookie";
 // Зберігає атрибути cookies та відкидає сторонні домени.
 export default function createFacebookCookieJar(cookies) {
     const jar = new CookieJar();
+    if (typeof cookies === "string") {
+        for (const pair of cookies.split(";")) {
+            const cookie = Cookie.parse(pair.trim());
+            if (!cookie) continue;
+            Object.assign(cookie, { domain: "facebook.com", path: "/", hostOnly: false, secure: true });
+            jar.setCookieSync(cookie, "https://www.facebook.com/", { ignoreError: true });
+        }
+        return jar;
+    }
     for (const item of cookies ?? []) {
         const domain = String(item.domain ?? "").replace(/^\./, "").toLowerCase();
         if (domain !== "facebook.com" && !domain.endsWith(".facebook.com")) continue;

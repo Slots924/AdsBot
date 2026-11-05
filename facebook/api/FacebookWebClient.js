@@ -61,6 +61,16 @@ export default class FacebookWebClient {
 
     setAdsManagerSession(value) { this.#adsManager = value; }
 
+    // Готує сесію з уже отриманого HTML без додаткового завантаження Facebook.
+    acceptSessionResponse(response, profileId) {
+        const { session, accountId } = this.#readSessionIdentity(response);
+        this.#session = Object.freeze({ ...session, accountId });
+        this.#sessionCheckedAt = Date.now();
+        const fbData = this.getFbData(profileId);
+        this.validateFbData(fbData);
+        return fbData;
+    }
+
     // Облікові дані доступні лише backend для збереження API-клієнта.
     getApiCredentials(fbData) {
         this.getAdsManagerData(fbData);

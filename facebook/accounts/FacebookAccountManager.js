@@ -361,6 +361,17 @@ export default class FacebookAccountManager {
         });
     }
 
+    // Секрети призначені лише для backend HTTP-клієнта, не для IPC або логів.
+    async getHttpCredentials(accountKey) {
+        return this.#enqueue(async () => {
+            const store = await this.#read();
+            const key = normalizeAccountKey(accountKey).toLowerCase();
+            const account = store.accounts.find((item) => String(item.accountKey).toLowerCase() === key);
+            if (!account) throw createAccountError("API-клієнт не знайдено", "FACEBOOK_ACCOUNT_NOT_FOUND");
+            return { cookie: account.cookie, userAgent: account.userAgent };
+        });
+    }
+
     async get(accountKey) {
         return this.#enqueue(async () => {
             const store = await this.#read();

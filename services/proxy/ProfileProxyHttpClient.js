@@ -1,6 +1,7 @@
 import ProxyHttpClient from "./ProxyHttpClient.js";
 
 export default class ProfileProxyHttpClient {
+    supportsExchangeTrace = true;
     #snapshot;
     #client;
 

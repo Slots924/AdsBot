@@ -15,6 +15,8 @@ export default function AccountsTab({
     onSetPrimaryAccount,
     onOpenPersonalAccount,
     onSyncAccount,
+    onRefreshAccessToken,
+    refreshingTokenAccountKeys = [],
     onOpenAccountProfile,
     onCloseAccountProfile,
     syncingAccountKeys = [],
@@ -49,6 +51,8 @@ export default function AccountsTab({
                     onSetPrimary={onSetPrimaryAccount}
                     onOpenPersonalAccount={onOpenPersonalAccount}
                     onSync={onSyncAccount}
+                    onRefreshAccessToken={onRefreshAccessToken}
+                    refreshingTokenAccountKeys={refreshingTokenAccountKeys}
                     onOpenProfile={onOpenAccountProfile}
                     onCloseProfile={onCloseAccountProfile}
                     syncingAccountKeys={syncingAccountKeys}

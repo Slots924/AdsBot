@@ -4,10 +4,11 @@ import { extractFacebookAccessTokenFromHtml } from "../../api/browserCredentials
 import { actionError } from "../graphql/errors.js";
 
 // Токен залишається у приватному стані клієнта; зовні повертаються лише ознаки наявності.
-async function getAdsManagerSessionImpl(fbData, { signal } = {}) {
+async function getAdsManagerSessionImpl(fbData, { signal, refreshSession = false } = {}) {
     return fbData.client.run(async () => {
-        fbData.client.validateFbData(fbData);
+        if (!refreshSession) fbData.client.validateFbData(fbData);
         const response = await fbData.client.request({ url: "https://adsmanager.facebook.com/adsmanager/manage/campaigns", signal });
+        if (refreshSession) fbData = fbData.client.acceptSessionResponse(response, fbData.profileId);
         const { session } = parseWebSession(response.data);
         if (String(session.FacebookID) !== String(fbData.userId)) throw actionError("Ads Manager не підтвердив поточний акаунт", "ADS_MANAGER_ACCOUNT_MISMATCH");
         const accessToken = extractFacebookAccessTokenFromHtml(response.data, { prefix: "EAAB" });
