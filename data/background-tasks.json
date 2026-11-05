@@ -2,6 +2,71 @@
   "version": 1,
   "tasks": [
     {
+      "id": "860bd98b-189d-40c7-a073-9f3ed3a09a4e",
+      "type": "campaign",
+      "name": "test",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "7642c5c5-5a43-48dc-b6a4-e64331db5e09"
+      },
+      "metadata": {
+        "campaignJobId": "7642c5c5-5a43-48dc-b6a4-e64331db5e09",
+        "accountKey": "account-068",
+        "adAccountId": "act_823573256754721",
+        "uniqueKey": "campaign-job:7642c5c5-5a43-48dc-b6a4-e64331db5e09",
+        "reportId": "0d316478-4088-481e-bbfa-f1da5bc8d456"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120249409332190775",
+          "creativeId": "1795225398349107",
+          "creatives": [
+            {
+              "id": "1795225398349107",
+              "pageId": "771628746042789",
+              "postId": "771628746042789_122147023359070732"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120249409334350775",
+              "name": "test | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120249409336340775",
+              "name": "test | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "7642c5c5-5a43-48dc-b6a4-e64331db5e09",
+        "campaignId": "120249409332190775",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-05T17:03:06.802Z",
+      "startedAt": "2026-11-05T17:03:06.804Z",
+      "finishedAt": "2026-11-05T17:03:31.279Z",
+      "updatedAt": "2026-11-05T17:03:31.284Z"
+    },
+    {
       "id": "02bd403e-1fc5-4df1-b943-c2450224cbd4",
       "type": "campaign",
       "name": "test",

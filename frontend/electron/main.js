@@ -318,6 +318,7 @@ async function createWindow() {
         pagePreferencesStore,
         remoteDataCacheStore,
         creativeLaunchJournal,
+        creativeManager: createCreativeManager(),
         countryCatalog,
         languageCatalog,
         campaignCreationJournal,

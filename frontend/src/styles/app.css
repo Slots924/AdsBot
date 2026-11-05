@@ -411,7 +411,9 @@ button:focus-visible, input:focus-visible {
 .skeleton::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.06) 50%, transparent 80%); transform: translateX(-100%); animation: shimmer 1.5s infinite; }
 
 .workspace { min-width: 0; display: grid; grid-template-rows: 67px minmax(0, 1fr) auto; overflow: hidden; }
-.tabs { display: flex; align-items: center; gap: 5px; padding: 13px 24px; border-bottom: 1px solid var(--stroke); background: rgba(9,11,18,.58); backdrop-filter: blur(20px); }
+.tabs { display: flex; align-items: center; gap: 5px; padding: 10px 24px; overflow-x: auto; scrollbar-width: thin; border-bottom: 1px solid var(--stroke); background: rgba(9,11,18,.58); backdrop-filter: blur(20px); }
+.tabs > button, .tabs > .active-profile { flex-shrink: 0; white-space: nowrap; }
+.tabs { scrollbar-color: #35394b transparent; overflow-y: hidden; }
 .tabs > button { position: relative; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 15px; border: 0; border-radius: 11px; background: transparent; color: #747b90; cursor: pointer; transition: color .2s; }
 .tabs > button > * { position: relative; z-index: 1; }
 .tabs > button:hover, .tabs > button.active { color: #f3f4ff; }

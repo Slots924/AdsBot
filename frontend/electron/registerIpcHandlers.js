@@ -175,6 +175,7 @@ export default function registerIpcHandlers({
     pagePreferencesStore,
     remoteDataCacheStore,
     creativeLaunchJournal,
+    creativeManager,
     countryCatalog,
     languageCatalog,
     campaignCreationJournal,
@@ -202,6 +203,11 @@ export default function registerIpcHandlers({
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
+    ipcMain.handle("creatives:list", safeHandler(() => creativeManager.list()));
+    ipcMain.handle("creatives:original", safeHandler(({ name }) => creativeManager.readOriginal(name)));
+    ipcMain.handle("creatives:save-original", safeHandler((payload) => creativeManager.saveOriginal(payload)));
+    ipcMain.handle("creatives:variant", safeHandler(({ geo, name }) => creativeManager.readVariant(geo, name)));
+    ipcMain.handle("creatives:save-variant", safeHandler((payload) => creativeManager.saveVariant(payload)));
     const manualComments = new ManualCommentSessionManager({
         guiService, activityStore: profileActivityStore, copyText,
     });

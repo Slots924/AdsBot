@@ -13,6 +13,11 @@ function subscribe(channel, callback) {
 
 
 contextBridge.exposeInMainWorld("adsBot", {
+    getCreatives: () => ipcRenderer.invoke("creatives:list"),
+    getCreativeOriginal: (name) => ipcRenderer.invoke("creatives:original", { name }),
+    saveCreativeOriginal: (payload) => ipcRenderer.invoke("creatives:save-original", payload),
+    getCreativeVariant: (name, geo) => ipcRenderer.invoke("creatives:variant", { name, geo }),
+    saveCreativeVariant: (payload) => ipcRenderer.invoke("creatives:save-variant", payload),
     bmRequest: (payload) => ipcRenderer.invoke("bm:request", payload),
     onBMProgress: (callback) => subscribe("bm:progress", callback),
     getAccounts: () => ipcRenderer.invoke("accounts:list"),

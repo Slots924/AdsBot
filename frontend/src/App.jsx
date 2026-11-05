@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BadgeDollarSign, BarChart3, Bot, BookOpen, CircleDollarSign, MessageSquare, PanelsTopLeft, Settings } from "lucide-react";
+import { BadgeDollarSign, BarChart3, Bot, BookOpen, CircleDollarSign, FileText, MessageSquare, PanelsTopLeft, Settings } from "lucide-react";
+import CreativesTab from "./tabs/CreativesTab.jsx";
 import BackgroundTaskPanel from "./components/BackgroundTaskPanel.jsx";
 import LogPanel from "./components/LogPanel.jsx";
 import { Modal, Toast } from "./components/Overlay.jsx";
@@ -22,6 +23,7 @@ const tabs = [
     { id: "accounts", label: "API-клієнти", icon: Bot },
     { id: "ads", label: "Рекламні кабінети", icon: BadgeDollarSign },
     { id: "pages", label: "Фанпейджі", icon: PanelsTopLeft },
+    { id: "creatives", label: "Креативи", icon: FileText },
     { id: "comment-accounts", label: "Акаунти під коментарі", icon: MessageSquare },
     { id: "farm", label: "Фарм акаунтів", icon: Bot },
     { id: "autoupload", label: "Автозаливи", icon: Bot },
@@ -410,6 +412,7 @@ export default function App() {
                 {activeTab === "ads" && <AdsWorkspaceTab key="ads" adsSubtab={adsSubtab} onSubtabChange={setAdsSubtab} selectedAccount={selectedAccount} workspaceAccounts={workspace.adAccounts} onWorkspaceAccountsChange={updateWorkspaceAccounts} onError={setModal} showToast={showToast} addLog={addLog} selectedId={selectedAdAccountId} setSelectedId={setSelectedAdAccountId} createCampaignsPaused={createCampaignsPaused} createAdSetsPaused={createAdSetsPaused} createAdsPaused={createAdsPaused} defaultPixelId={defaultPixelId} defaultUtm={defaultUtm} keitaroAvailableGroupIds={keitaroAvailableGroupIds}/>}
                 {activeTab === "bm" && <BusinessManagerTab accounts={accounts} selectedAccountKey={selectedAccountKey} />}
                 {activeTab === "autoupload" && <AutouploadTab showToast={showToast} />}
+                {activeTab === "creatives" && <CreativesTab showToast={showToast} />}
                 {activeTab === "farm" && <FarmAccountsTab groups={groups} showToast={showToast} />}
                 {activeTab === "pages" && (
                     <PagesTab

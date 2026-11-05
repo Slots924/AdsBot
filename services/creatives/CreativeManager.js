@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import GrokClient from "../llm/grok/GrokClient.js";
@@ -232,6 +232,75 @@ export default class CreativeManager {
             context.key,
             () => this.#createCreative(context)
         );
+    }
+
+
+    async list() {
+        const readEntries = async (directory) => {
+            try { return await readdir(directory, { withFileTypes: true }); }
+            catch (error) { if (error.code === "ENOENT") return []; throw error; }
+        };
+        const [originals, variants] = await Promise.all([
+            readEntries(this.originalsDirectory), readEntries(this.creativesDirectory),
+        ]);
+        const items = new Map();
+        const item = (name) => {
+            if (!items.has(name)) items.set(name, { name, hasOriginal: false, countries: [] });
+            return items.get(name);
+        };
+        for (const entry of originals) {
+            const match = entry.isFile() && /^([A-Za-z0-9_-]{1,100})\.txt$/.exec(entry.name);
+            if (match) item(match[1]).hasOriginal = true;
+        }
+        for (const entry of variants) {
+            const match = entry.isFile() && /^([A-Z]{2}) ([A-Za-z0-9_-]{1,100})\.json$/.exec(entry.name);
+            if (match) item(match[2]).countries.push(match[1]);
+        }
+        return [...items.values()].map((value) => ({ ...value, countries: value.countries.sort() }))
+            .sort((a, b) => a.name.localeCompare(b.name, "en", { numeric: true }));
+    }
+
+
+    async readOriginal(name) {
+        return { name: normalizeName(name), text: await this.#readOriginal(
+            path.join(this.originalsDirectory, `${normalizeName(name)}.txt`)
+        ) };
+    }
+
+
+    async saveOriginal({ name, text, create = false }) {
+        const normalizedName = normalizeName(name);
+        if (typeof text !== "string" || !text.trim()) {
+            throw createCreativeError("Введіть текст оригіналу", "CREATIVE_VALIDATION_ERROR");
+        }
+        await mkdir(this.originalsDirectory, { recursive: true });
+        if (!create) await this.readOriginal(normalizedName);
+        try {
+            await writeFile(path.join(this.originalsDirectory, `${normalizedName}.txt`), text, {
+                encoding: "utf8", flag: create ? "wx" : "w",
+            });
+        } catch (error) {
+            if (error.code === "EEXIST") throw createCreativeError("Креатив з такою назвою вже існує", "CREATIVE_ALREADY_EXISTS");
+            throw error;
+        }
+        return { name: normalizedName, text };
+    }
+
+
+    async readVariant(geo, name) {
+        const context = await this.#resolveCreative(geo, name);
+        const creative = await this.#readSavedCreative(context.targetFile);
+        if (!creative) throw createCreativeError("Версію для цієї країни не знайдено", "CREATIVE_NOT_FOUND");
+        return creative;
+    }
+
+
+    async saveVariant({ geo, name, creative }) {
+        const context = await this.#resolveCreative(geo, name);
+        validateCreative(creative, "CREATIVE_VALIDATION_ERROR", "Перевірте структуру креативу та коментарів");
+        await mkdir(this.creativesDirectory, { recursive: true });
+        await writeFile(context.targetFile, `${JSON.stringify(creative, null, 2)}\n`, "utf8");
+        return creative;
     }
 
 
