@@ -6,6 +6,8 @@ import path from "node:path";
 import FacebookWebClient from "../facebook/api/FacebookWebClient.js";
 import { profileActions, validateProfileAction } from "../facebook/autoupload/actions/profile/index.js";
 import createTestProfileImage from "./helpers/createTestProfileImage.js";
+import { withHttpWorkflow } from "../services/reports/HttpExchangeTrace.js";
+import { readHttpHistory } from "../services/reports/httpHistoryReport.js";
 
 const html = 'DTSGInitialData",[],{"token":"mock-dtsg"} LSD",[],{"token":"mock-lsd"} <input name="jazoest" value="2123"> {"sessionId":"mock-session","actorID":"123","client_revision":456,"__spin_r":456,"__spin_b":"trunk","__spin_t":789,"comet_env":15}';
 const cookies = ["c_user", "xs"].map(name => ({ name, value: name === "c_user" ? "123" : "mock-xs", domain: ".facebook.com", path: "/", secure: true }));
@@ -234,7 +236,26 @@ test("невдала зміна дати зберігає ID вже опублі
     assert.equal(result.publishedCount, 1);
     assert.equal(result.backdatedCount, 0);
     assert.equal(result.postResults[0].storyId, "created-story");
+    assert.equal(result.postResults[0].failedStage, "BACKDATE");
     assert.equal(creations, 1);
+});
+
+test("відсутній storyId зберігається в журналі як непідтверджене створення, без запиту зміни дати", async t => {
+    const imagePath = await image(t);
+    const { fbData, calls } = await fixture(config => config.data instanceof FormData
+        ? response({ payload: { photoID: "555" } }) : response({ data: { story_create: { story: null } } }));
+    const directory = path.dirname(imagePath);
+    const result = await withHttpWorkflow("post-confirmation", () => profileActions["publish-posts"](fbData,
+        { posts: [{ mediaPaths: [imagePath], targetDate: "2025-01-02" }] }), { directory });
+    assert.equal(result.success, false);
+    assert.equal(result.postResults[0].failedStage, "CREATE_CONFIRMATION");
+    assert.equal(calls.filter(call => formOf(call.config).get("fb_api_req_friendly_name") === "ProfileCometBackdateStoryMutation").length, 0);
+    const events = await readHttpHistory(result.httpHistory, directory);
+    const action = events.find(event => event.event === "action.finished" && event.action === "publishProfilePostsWithDates");
+    assert.equal(action.result.postResults[0].failedStage, "CREATE_CONFIRMATION");
+    assert.ok(action.result.postResults[0].error.includes("storyId"));
+    const upload = events.find(event => event.event === "request.finished" && event.request.body?.farr);
+    assert.equal(upload.request.body.farr.bodyOmitted, true);
 });
 
 test("валідація захищає від порожньої дії, некоректної дати та непідтвердженого видалення", () => {

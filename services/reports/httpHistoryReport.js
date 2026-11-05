@@ -39,7 +39,7 @@ export function buildHttpHistoryMarkdown(events) {
     if (!events.length) return "";
     const completed = new Set(events.filter(event => event.event === "request.finished").map(event => event.requestId));
     const sections = ["", "## Історія HTTP-запитів Facebook", "",
-        "HTML сторінок і JavaScript замінено діагностичними підсумками. Значення credentials приховано.", ""];
+        "API-запити й відповіді записано повністю після приховування credentials. Службові сторінки сесії й токенів та статичні JS-ресурси замінено діагностичними підсумками. Байти файлів не записуються.", ""];
     let sequence = 0;
     for (const event of events) {
         if (event.event === "request.started" && completed.has(event.requestId)) continue;

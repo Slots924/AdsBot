@@ -2,6 +2,596 @@
   "version": 1,
   "tasks": [
     {
+      "id": "70c94b6a-7466-408f-8412-9b1a17072f81",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · HU · 1",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2520",
+          "label": "AdsPower 2520"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "2520"
+        ],
+        "geo": "HU",
+        "maleCount": 1,
+        "femaleCount": 0,
+        "namesGeo": "HU",
+        "companiesGeo": "HU",
+        "universitiesGeo": "HU",
+        "professionsGeo": "HU",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
+        "useApiRequests": false,
+        "creationType": "autoupload",
+        "actionDelaySeconds": 5,
+        "profileNameNote": "5M2",
+        "checkGender": true,
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "headless",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "2520"
+        ],
+        "geo": "HU",
+        "browserMode": "headless",
+        "useApiRequests": false,
+        "creationType": "autoupload",
+        "actionDelaySeconds": 5,
+        "httpHistory": {
+          "id": "be07cfe6-3d9b-4a33-941e-9ee7d7b9b44b",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\be07cfe6-3d9b-4a33-941e-9ee7d7b9b44b.jsonl",
+          "requestCount": 18,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "1ec4483d-ec4b-4942-ba9f-36af8a26db60"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 1,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 0,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 0,
+        "currentProfileNo": "2520",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-11-05_12-16-03-462.md",
+        "fatalError": null,
+        "success": 0,
+        "completedWithError": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-05T10:14:59.714Z",
+      "startedAt": "2026-11-05T10:14:59.716Z",
+      "finishedAt": "2026-11-05T10:16:03.488Z",
+      "updatedAt": "2026-11-05T10:16:03.491Z"
+    },
+    {
+      "id": "ea6ab78d-3f68-49f3-bf68-dda5627efe53",
+      "type": "account-setup",
+      "name": "Акаунти під коментарі · HU · 5",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:2395",
+          "label": "AdsPower 2395"
+        },
+        {
+          "key": "adspower-profile:2519",
+          "label": "AdsPower 2519"
+        },
+        {
+          "key": "adspower-profile:2520",
+          "label": "AdsPower 2520"
+        },
+        {
+          "key": "adspower-profile:2525",
+          "label": "AdsPower 2525"
+        },
+        {
+          "key": "adspower-profile:2526",
+          "label": "AdsPower 2526"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "2395",
+          "2519",
+          "2520",
+          "2525",
+          "2526"
+        ],
+        "geo": "HU",
+        "maleCount": 5,
+        "femaleCount": 0,
+        "namesGeo": "HU",
+        "companiesGeo": "HU",
+        "universitiesGeo": "HU",
+        "professionsGeo": "HU",
+        "photosDirectory": "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\HU",
+        "useApiRequests": false,
+        "creationType": "autoupload",
+        "actionDelaySeconds": 5,
+        "profileNameNote": "5M2",
+        "checkGender": true,
+        "operations": {
+          "changeName": true,
+          "changeAvatar": true,
+          "changeCover": true,
+          "deletePosts": true,
+          "publishPosts": true,
+          "fillAbout": true
+        },
+        "browserMode": "headless",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "profileNos": [
+          "2395",
+          "2519",
+          "2520",
+          "2525",
+          "2526"
+        ],
+        "geo": "HU",
+        "browserMode": "headless",
+        "useApiRequests": false,
+        "creationType": "autoupload",
+        "actionDelaySeconds": 5,
+        "httpHistory": {
+          "id": "351fce93-e2dd-4692-ac37-3f339a66daec",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\351fce93-e2dd-4692-ac37-3f339a66daec.jsonl",
+          "requestCount": 129,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "e0560b3a-521f-4a49-bd05-eb16ac74affa"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "success": 2,
+        "completedWithError": 2,
+        "failed": 1,
+        "skipped": 0,
+        "currentProfileNo": "2526",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-setup-report_2026-11-05_12-12-52-033.md",
+        "fatalError": null,
+        "success": 2,
+        "completedWithError": 2,
+        "failed": 1,
+        "skipped": 0
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-05T10:04:54.777Z",
+      "startedAt": "2026-11-05T10:04:54.779Z",
+      "finishedAt": "2026-11-05T10:12:52.303Z",
+      "updatedAt": "2026-11-05T10:12:52.306Z"
+    },
+    {
+      "id": "0c2487f0-a69c-4958-836c-a36e49510895",
+      "type": "comment-account-health",
+      "name": "Перевірка акаунтів під коментарі · 13",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-profile:1722",
+          "label": "AdsPower 1722"
+        },
+        {
+          "key": "adspower-profile:1773",
+          "label": "AdsPower 1773"
+        },
+        {
+          "key": "adspower-profile:2519",
+          "label": "AdsPower 2519"
+        },
+        {
+          "key": "adspower-profile:2525",
+          "label": "AdsPower 2525"
+        },
+        {
+          "key": "adspower-profile:2526",
+          "label": "AdsPower 2526"
+        },
+        {
+          "key": "adspower-profile:2532",
+          "label": "AdsPower 2532"
+        },
+        {
+          "key": "adspower-profile:2534",
+          "label": "AdsPower 2534"
+        },
+        {
+          "key": "adspower-profile:2546",
+          "label": "AdsPower 2546"
+        },
+        {
+          "key": "adspower-profile:2547",
+          "label": "AdsPower 2547"
+        },
+        {
+          "key": "adspower-profile:2548",
+          "label": "AdsPower 2548"
+        },
+        {
+          "key": "adspower-profile:2549",
+          "label": "AdsPower 2549"
+        },
+        {
+          "key": "adspower-profile:2550",
+          "label": "AdsPower 2550"
+        },
+        {
+          "key": "adspower-profile:2551",
+          "label": "AdsPower 2551"
+        }
+      ],
+      "input": {
+        "profileNos": [
+          "1722",
+          "1773",
+          "2519",
+          "2525",
+          "2526",
+          "2532",
+          "2534",
+          "2546",
+          "2547",
+          "2548",
+          "2549",
+          "2550",
+          "2551"
+        ]
+      },
+      "metadata": {
+        "profileNos": [
+          "1722",
+          "1773",
+          "2519",
+          "2525",
+          "2526",
+          "2532",
+          "2534",
+          "2546",
+          "2547",
+          "2548",
+          "2549",
+          "2550",
+          "2551"
+        ],
+        "reportId": "add2c164-6f8a-4985-ab2c-ec927a40f9d1"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "currentProfileNo": "2551"
+      },
+      "result": {
+        "startedAt": "2026-11-05T09:57:09.364Z",
+        "finishedAt": "2026-11-05T10:02:17.851Z",
+        "profileNos": [
+          "1722",
+          "1773",
+          "2519",
+          "2525",
+          "2526",
+          "2532",
+          "2534",
+          "2546",
+          "2547",
+          "2548",
+          "2549",
+          "2550",
+          "2551"
+        ],
+        "profiles": [
+          {
+            "profileNo": "1722",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T09:58:02.729Z",
+            "duration": "53 с"
+          },
+          {
+            "profileNo": "1773",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T09:58:18.314Z",
+            "duration": "15 с"
+          },
+          {
+            "profileNo": "2519",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T09:58:35.800Z",
+            "duration": "17 с"
+          },
+          {
+            "profileNo": "2525",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T09:58:48.173Z",
+            "duration": "12 с"
+          },
+          {
+            "profileNo": "2526",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T09:59:25.345Z",
+            "duration": "37 с"
+          },
+          {
+            "profileNo": "2532",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T09:59:40.299Z",
+            "duration": "14 с"
+          },
+          {
+            "profileNo": "2534",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T09:59:54.348Z",
+            "duration": "14 с"
+          },
+          {
+            "profileNo": "2546",
+            "outcome": "inactive",
+            "login": "OK",
+            "active": "FAIL",
+            "english": "—",
+            "error": "Facebook state: UNKNOWN",
+            "checkedAt": "2026-11-05T10:00:07.448Z",
+            "duration": "13 с"
+          },
+          {
+            "profileNo": "2547",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T10:00:33.050Z",
+            "duration": "25 с"
+          },
+          {
+            "profileNo": "2548",
+            "outcome": "inactive",
+            "login": "OK",
+            "active": "FAIL",
+            "english": "—",
+            "error": "Facebook state: UNKNOWN",
+            "checkedAt": "2026-11-05T10:00:46.336Z",
+            "duration": "13 с"
+          },
+          {
+            "profileNo": "2549",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T10:01:01.396Z",
+            "duration": "15 с"
+          },
+          {
+            "profileNo": "2550",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T10:01:39.488Z",
+            "duration": "38 с"
+          },
+          {
+            "profileNo": "2551",
+            "outcome": "working",
+            "login": "OK",
+            "active": "OK",
+            "english": "OK",
+            "error": null,
+            "checkedAt": "2026-11-05T10:02:17.849Z",
+            "duration": "38 с"
+          }
+        ],
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\comment-account-health-report_2026-11-05T10-02-17-851Z.md"
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-05T09:57:09.359Z",
+      "startedAt": "2026-11-05T09:57:09.362Z",
+      "finishedAt": "2026-11-05T10:02:17.852Z",
+      "updatedAt": "2026-11-05T10:02:17.854Z"
+    },
+    {
+      "id": "8aa2fe11-96c7-4590-b8f5-5444463c514f",
+      "type": "campaign",
+      "name": "HU | Creo_138 | 25+ 05/11 09:38",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "c93c83b2-0c0c-491a-b29b-e1a7ab746e40"
+      },
+      "metadata": {
+        "campaignJobId": "c93c83b2-0c0c-491a-b29b-e1a7ab746e40",
+        "accountKey": "account-065",
+        "adAccountId": "act_1663248192162663",
+        "uniqueKey": "campaign-job:c93c83b2-0c0c-491a-b29b-e1a7ab746e40",
+        "reportId": "6bfcbcf1-c715-4697-8523-60b8a3e5edf9"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120249985568770644",
+          "creativeId": "1751117955992466",
+          "creatives": [
+            {
+              "id": "1751117955992466",
+              "pageId": "842986062231301",
+              "postId": "842986062231301_122169241143069632"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120249985570820644",
+              "name": "HU | Creo_138 | 25+ 05/11 09:38 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120249985572380644",
+              "name": "HU | Creo_138 | 25+ 05/11 09:38 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "c93c83b2-0c0c-491a-b29b-e1a7ab746e40",
+        "campaignId": "120249985568770644",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-05T09:39:18.704Z",
+      "startedAt": "2026-11-05T09:39:18.705Z",
+      "finishedAt": "2026-11-05T09:40:04.134Z",
+      "updatedAt": "2026-11-05T09:40:04.138Z"
+    },
+    {
+      "id": "dde0d28b-aadc-4d2b-84a0-cd721cc6fa1f",
+      "type": "campaign",
+      "name": "AT | Creo_1 | 25+ 05/11 12:34",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "435592e2-1516-4df7-a3d3-0e7b7936b27d"
+      },
+      "metadata": {
+        "campaignJobId": "435592e2-1516-4df7-a3d3-0e7b7936b27d",
+        "accountKey": "account-064",
+        "adAccountId": "act_992958336430516",
+        "uniqueKey": "campaign-job:435592e2-1516-4df7-a3d3-0e7b7936b27d",
+        "reportId": "8c0e522d-b56d-42bb-a08d-5959abd788d1"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120252776761600105",
+          "creativeId": "2891457337893806",
+          "creatives": [
+            {
+              "id": "2891457337893806",
+              "pageId": "100206846366821",
+              "postId": "100206846366821_1081843904829573"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120252776763800105",
+              "name": "AT | Creo_1 | 25+ 05/11 12:34 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120252776765150105",
+              "name": "AT | Creo_1 | 25+ 05/11 12:34 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "435592e2-1516-4df7-a3d3-0e7b7936b27d",
+        "campaignId": "120252776761600105",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-05T09:34:24.910Z",
+      "startedAt": "2026-11-05T09:34:24.911Z",
+      "finishedAt": "2026-11-05T09:34:52.925Z",
+      "updatedAt": "2026-11-05T09:34:52.929Z"
+    },
+    {
       "id": "a919893c-6a2c-45da-b651-28e7c0bf9ea3",
       "type": "facebook-access-token-refresh",
       "name": "Оновлення access token account-065",

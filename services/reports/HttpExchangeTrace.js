@@ -68,6 +68,10 @@ export async function withHttpAction(name, execute, metadata = {}) {
                 result: cleanHistory({ success: result?.success, status: result?.status, graphCode: result?.graphCode,
                     outcome: result?.outcome, code: result?.code, message: result?.message,
                     outcomeUnknown: result?.outcomeUnknown, stage: result?.stage, sessionFieldsFound: result?.fields,
+                    error: result?.error, graphUserMessage: result?.graphUserMessage, graphSubcode: result?.graphSubcode,
+                    httpStatus: result?.httpStatus, actionRequired: result?.actionRequired,
+                    postResults: result?.postResults, actionSteps: result?.actionSteps,
+                    publishedCount: result?.publishedCount, backdatedCount: result?.backdatedCount, requestedCount: result?.requestedCount,
                     adsManagerPrepared: result?.hasAdsManagerSession, credentialObtained: result?.hasAccessToken }, [...scope.secrets]) });
             return result && typeof result === "object" ? { ...result, actionId: scope.actionId, exchanges: scope.exchanges,
                 ...(currentHttpHistory() ? { httpHistory: currentHttpHistory() } : {}) } : result;
@@ -75,7 +79,12 @@ export async function withHttpAction(name, execute, metadata = {}) {
             error.actionId = scope.actionId;
             error.exchanges = scope.exchanges;
             await scope.journal.append({ event: "action.failed", actionId: scope.actionId, action: name,
-                at: new Date().toISOString(), ...scope.metadata, code: error.code ?? null });
+                at: new Date().toISOString(), ...scope.metadata,
+                error: cleanHistory({ name: error.name, code: error.code ?? null,
+                    message: error.safeFacebookError || error.sessionStatus ? error.message : "Не вдалося виконати екшен",
+                    stage: error.actionStage ?? error.stage, graphCode: error.graphCode, graphSubcode: error.graphSubcode,
+                    httpStatus: error.httpStatus, outcomeUnknown: error.outcomeUnknown, sessionStatus: error.sessionStatus }, [...scope.secrets]),
+                code: error.code ?? null });
             throw error;
         }
     });
@@ -126,13 +135,15 @@ export async function traceHttpRequest(config, execute, { attempt = 1, requestGr
     const clean = value => cleanHistory(value, [...scope.secrets]);
     scope.journal.requests++;
     const base = { requestId, requestGroupId, attempt, sequence: scope.journal.requests, actionId: scope.actionId,
-        parentActionId: scope.parent?.actionId ?? null, action: scope.name, ...scope.metadata };
+        parentActionId: scope.parent?.actionId ?? null, action: scope.name,
+        operation: config.headers?.["X-FB-Friendly-Name"] ?? config.headers?.["x-fb-friendly-name"]
+            ?? request.body?.fb_api_req_friendly_name ?? null, ...scope.metadata };
     // Намір записується до мережевого виклику, відповідь — до запуску парсера екшену.
     await scope.journal.append({ event: "request.started", ...base, at: new Date(started).toISOString(), request: clean(request) });
     let response, error;
     try { response = await execute(); }
     catch (caught) { error = caught; response = caught.response; }
-    const snapshot = response ? responseSnapshot(response, config) : null;
+    const snapshot = response ? responseSnapshot(response, config, scope.secrets) : null;
     collectSecrets(snapshot, scope.secrets);
     const exchange = clean({ ...base, startedAt: new Date(started).toISOString(), durationMs: Date.now() - started,
         request, response: snapshot,

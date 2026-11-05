@@ -38,12 +38,12 @@ async function addCreditCard(client, { profileId, adAccountId, card, signal, res
     signal?.throwIfAborted();
     if (page.writeBlocked) throw actionError("Перевірте результат попередньої дії перед повтором", "FACEBOOK_WRITE_OUTCOME_UNKNOWN", { outcomeUnknown: true });
     const billingUrl = buildBillingPaymentSettingsUrl(id);
-    const response = await client.request({ url: billingUrl, signal });
+    const response = await client.request({ url: billingUrl, signal, historyPurpose: "runtime" });
     const modules = new FacebookBillingModules(client, { signal });
     modules.readManifest(response.data);
     await modules.loadRoots(["FBPayAuthLibraryCommon", "FBPayAuthLibraryUtils", "FBPayBase64URL", "PaymentsCometGetServerEncryptionKeyMutation.graphql", "BillingSaveCardCredentialStateMutation.graphql", "BillingCheckRiskStateQuery.graphql"], {
         resourceHints, resources,
-        refreshManifest: async () => (await client.request({ url: billingUrl, signal })).data,
+        refreshManifest: async () => (await client.request({ url: billingUrl, signal, historyPurpose: "runtime" })).data,
     });
     // Mutation дозволяється лише після отримання справжнього PTT від модулів Meta.
     const crypto = modules.require("FBPayAuthLibraryCommon");

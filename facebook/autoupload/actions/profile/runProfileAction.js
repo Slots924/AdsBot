@@ -17,7 +17,12 @@ export default async function runProfileAction(fbData, options, execute, message
             const result = await execute(context);
             Object.assign(summary, Object.fromEntries(counts.filter(key => Number.isFinite(result[key])).map(key => [key, result[key]])));
             if (result.steps) summary.actionSteps = Object.fromEntries(Object.entries(result.steps).map(([key, step]) => [key, { success: step.success === true, status: step.status, fallback: Boolean(step.fallback), error: step.error ? safeGraphText(step.error, fbData.session) : null }]));
-            if (result.items) summary.postResults = result.items.map(item => ({ sequence: item.sequence, storyId: item.storyId, created: item.created, backdated: item.backdated, createStatus: item.createStatus, backdateStatus: item.backdateStatus }));
+            if (result.items) summary.postResults = result.items.map(item => ({ sequence: item.sequence, storyId: item.storyId,
+                created: item.created, backdated: item.backdated, createStatus: item.createStatus, backdateStatus: item.backdateStatus,
+                failedStage: !item.created ? (/^UPLOAD/.test(item.createStatus ?? "") ? "UPLOAD" : "CREATE")
+                    : !item.storyId ? "CREATE_CONFIRMATION" : !item.backdated ? "BACKDATE" : null,
+                ...(!item.storyId && item.created ? { error: "Facebook не повернув storyId створеного поста; зміну дати не виконували" } : {}),
+            }));
             if (context.failure) throw context.failure;
             return { success: result.success === true, outcome: result.status, code: result.success ? null : "FACEBOOK_PROFILE_ACTION_INCOMPLETE",
                 message: result.success ? message : `${message}: операцію не завершено (${result.status})`, ...summary,

@@ -34,6 +34,114 @@ test("JSON-відмова з Content-Type text/html зберігає серве�
     assert.ok(!JSON.stringify(snapshot).includes("private-test-token"));
 });
 
+test("API з JavaScript Content-Type зберігає повний JSON і початковий текст, включно з невалідною відповіддю", () => {
+    const config = { url: "https://www.facebook.com/api/graphql/" };
+    for (const source of ['for (;;);{"data":{"value":"ok"}}', '{"data":{"first":true}}\n{"errors":[{"message":"denied"}]}', 'for (;;);{invalid-json']) {
+        const snapshot = responseSnapshot(reply(source, 200, { "content-type": "text/javascript; charset=utf-8" }), config);
+        assert.equal(snapshot.rawBody, source);
+        assert.equal(snapshot.body.bodyOmitted, undefined);
+    }
+    const snapshot = responseSnapshot(reply('{"data":{"value":"ok"}}', 200, { "content-type": "application/javascript" }), config);
+    assert.equal(snapshot.body.data.value, "ok");
+});
+
+test("HTML-відмова API залишається повністю, службова сторінка визначається призначенням запиту", async t => {
+    const directory = await temporary(t);
+    const source = html.replace("</html>", '<div>Unusual failure</div></html>');
+    const result = await withHttpWorkflow("html-policy", async () => {
+        await traceHttpRequest({ url: "https://www.facebook.com/api/graphql/", method: "post" }, async () => reply(source, 500, { "content-type": "text/html" }));
+        return { success: false };
+    }, { directory });
+    const event = (await readHttpHistory(result.httpHistory, directory)).find(item => item.event === "request.finished");
+    assert.ok(event.response.rawBody.includes("Unusual failure"));
+    for (const secret of ["private-dtsg", "private-lsd", "private-session"]) assert.ok(!JSON.stringify(event).includes(secret));
+    const service = responseSnapshot(reply(source), { url: "https://www.facebook.com/", historyPurpose: "session" });
+    assert.equal(service.body.bodyOmitted, true);
+    assert.equal(service.rawBody, undefined);
+    assert.equal(service.body.formatMatched, true);
+    const missing = responseSnapshot(reply('<html><form id="login_form"></form><a href="/consent/">Continue</a></html>'), { historyPurpose: "access-token" });
+    assert.equal(missing.body.formatMatched, false);
+    assert.equal(missing.body.loginFormFound, true);
+    assert.equal(missing.body.consentFound, true);
+    assert.ok(missing.body.extraction.missingRequiredFields.includes("fb_dtsg"));
+});
+
+test("початкові тіла запиту й відповіді приховують вкладені та URL-encoded credentials", async t => {
+    const directory = await temporary(t);
+    const secret = 'private/value + "quoted"';
+    const data = new URLSearchParams({ variables: JSON.stringify({ access_token: secret, value: "keep" }) }).toString();
+    const result = await withHttpWorkflow("raw-secrets", async () => {
+        await traceHttpRequest({ url: "https://www.facebook.com/api/graphql/", method: "post", data }, async () => reply(JSON.stringify({ data: { access_token: secret, description: secret, value: "keep" } })));
+        return { success: true };
+    }, { directory });
+    const events = await readHttpHistory(result.httpHistory, directory);
+    const event = events.find(item => item.event === "request.finished");
+    assert.equal(event.request.body.variables.value, "keep");
+    assert.ok(event.request.rawBody.includes("keep"));
+    assert.ok(event.response.rawBody.includes("keep"));
+    const saved = await readFile(result.httpHistory.path, "utf8");
+    for (const value of [secret, encodeURIComponent(secret), JSON.stringify(secret).slice(1, -1)]) assert.ok(!saved.includes(value));
+});
+
+test("фото, двійкові дані й повторювані файлові поля зберігаються лише як метадані", async t => {
+    const form = new FormData();
+    form.append("file", new Blob(["first-image"], { type: "image/png" }), "first.png");
+    form.append("file", new Blob(["second-image"], { type: "image/png" }), "second.png");
+    form.append("caption", "keep");
+    const snapshot = requestSnapshot({ data: form });
+    assert.equal(snapshot.body.file.length, 2);
+    assert.equal(snapshot.body.file[1].name, "second.png");
+    assert.equal(snapshot.body.caption, "keep");
+    assert.ok(!JSON.stringify(snapshot).includes("second-image"));
+    assert.equal(responseSnapshot(reply("image-bytes", 200, { "content-type": "image/jpeg" }), {}).rawBody, undefined);
+    assert.equal(requestSnapshot({ data: "image-bytes", headers: { "Content-Type": "image/jpeg" } }).rawBody, undefined);
+    assert.equal(cleanHistory(Buffer.from("image-bytes")).kind, "binary");
+    assert.equal(cleanHistory({ image_data: "aGVsbG8=" }).image_data, "[FILE OMITTED]");
+    assert.ok(!cleanHistory("data:image/png;base64,aGVsbG8=").includes("aGVsbG8="));
+    assert.ok(!cleanHistory('"data:image\\/png;base64,aGVsbG8="').includes("aGVsbG8="));
+    const directory = await temporary(t);
+    const result = await withHttpWorkflow("image-policy", async () => {
+        await traceHttpRequest({ url: "https://www.facebook.com/api/graphql/", data: '{"image_base64":"cGhvdG8tYnl0ZXM=","caption":"keep"}' }, async () => reply('{"photo_base64":"cGhvdG8tYnl0ZXM="}'));
+        return { success: true };
+    }, { directory });
+    assert.ok(!(await readFile(result.httpHistory.path, "utf8")).includes("cGhvdG8tYnl0ZXM="));
+});
+
+test("результат екшену зберігає конкретний етап поста, лічильники та помилки About", async t => {
+    const directory = await temporary(t);
+    const result = await withHttpWorkflow("setup-diagnostics", () => withHttpAction("publishProfilePostsWithDates", async () => {
+        await traceHttpRequest({ url: "https://www.facebook.com/api/graphql/", headers: { "X-FB-Friendly-Name": "ProfileCometBackdateStoryMutation" } }, async () => reply('{"errors":[{"message":"denied"}]}'));
+        return { success: false, publishedCount: 1, backdatedCount: 0, requestedCount: 1,
+            postResults: [{ sequence: 1, storyId: "story-1", created: true, backdated: false, failedStage: "BACKDATE", backdateStatus: "GRAPHQL_ERROR" }],
+            actionSteps: { education: { success: false, status: "COLLEGE_NOT_FOUND" } }, graphUserMessage: "denied" };
+    }), { directory });
+    const events = await readHttpHistory(result.httpHistory, directory);
+    const action = events.find(item => item.event === "action.finished");
+    assert.equal(action.result.postResults[0].failedStage, "BACKDATE");
+    assert.equal(action.result.publishedCount, 1);
+    assert.equal(action.result.actionSteps.education.status, "COLLEGE_NOT_FOUND");
+    assert.equal(events.find(item => item.event === "request.finished").operation, "ProfileCometBackdateStoryMutation");
+});
+
+test("перенаправлення службової сторінки й помилка витягування сесії залишають діагностику без HTML", async t => {
+    const directory = await temporary(t);
+    const client = createClient(async config => config.url === "https://www.facebook.com/"
+        ? reply("", 302, { location: "/session-page" }) : reply('<html><form id="login_form"></form></html>', 200, { "content-type": "text/html" }));
+    let failure;
+    try { await withHttpWorkflow("session-redirect", () => client.checkSession(), { directory }); }
+    catch (error) { failure = error; }
+    assert.ok(failure?.httpHistory);
+    const events = await readHttpHistory(failure.httpHistory, directory);
+    const requests = events.filter(event => event.event === "request.finished");
+    assert.equal(requests.length, 2);
+    assert.equal(requests[0].response.status, 302);
+    assert.equal(requests[0].response.headers.location, "/session-page");
+    assert.equal(requests[1].request.purpose, "session");
+    assert.equal(requests[1].response.body.loginFormFound, true);
+    assert.ok(requests.every(event => event.response.rawBody === undefined));
+    assert.ok(events.find(event => event.event === "action.failed").error.message.includes("авторизації"));
+});
+
 async function temporary(t) {
     const directory = await mkdtemp(path.join(os.tmpdir(), "adsbot-http-history-"));
     t.after(async () => {

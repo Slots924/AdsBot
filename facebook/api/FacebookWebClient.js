@@ -175,7 +175,7 @@ export default class FacebookWebClient {
         }
     }
 
-    async request({ url = homeUrl, method = "get", data, signal, headers = {}, mutation = !["get", "head"].includes(String(method).toLowerCase()), allowHttpErrors = false, asFetch = false }) {
+    async request({ url = homeUrl, method = "get", data, signal, headers = {}, mutation = !["get", "head"].includes(String(method).toLowerCase()), allowHttpErrors = false, asFetch = false, historyPurpose = "api" }) {
         signal?.throwIfAborted();
         let target = new URL(url, homeUrl);
         let requestMethod = method;
@@ -187,7 +187,7 @@ export default class FacebookWebClient {
             let response;
             const navigation = !asFetch && ["get", "head"].includes(String(requestMethod).toLowerCase());
             try { response = await this.#requestWeb({
-                method: requestMethod, url: target.href, data: requestData, signal,
+                method: requestMethod, url: target.href, data: requestData, signal, historyPurpose,
                 timeout: 30000, maxRedirects: 0, responseType: "text", maxContentLength: 15 * 1024 * 1024,
                 validateStatus: () => true,
                 headers: {
@@ -274,7 +274,7 @@ export default class FacebookWebClient {
     // Читає контекст для запитів списку, не змінюючи перевірену сесію соціального профілю.
     async readActorContext({ signal, url = homeUrl, updateSession = false } = {}) {
         if (updateSession) this.invalidateActorContext();
-        const response = await this.request({ url, signal, mutation: false });
+        const response = await this.request({ url, signal, mutation: false, historyPurpose: "session" });
         const { session, accountId } = this.#readSessionIdentity(response, { requireAccount: true });
         if (!session.lsd) {
             throw actionError("Не вдалося прочитати актуальний контекст Facebook", "FACEBOOK_SESSION_FIELDS_MISSING");
@@ -305,7 +305,7 @@ export default class FacebookWebClient {
         for (let attempt = 0; attempt < 4; attempt++) {
             signal?.throwIfAborted();
             try {
-                const response = await requestWithTrace(this.#http, { url, method: "get", signal, timeout: 30000,
+                const response = await requestWithTrace(this.#http, { url, method: "get", signal, timeout: 30000, historyPurpose: "static-resource",
                     ...(tlsMaxVersion ? { tlsMaxVersion } : {}),
                     maxRedirects: 0, maxContentLength: 12 * 1024 * 1024, responseType: "text",
                     headers: { "User-Agent": this.#userAgent, Accept: "application/javascript,*/*;q=0.8" },
@@ -330,7 +330,7 @@ export default class FacebookWebClient {
     checkSession({ signal } = {}) {
         return withHttpAction("checkSession", () => this.run(async () => {
             this.invalidateActorContext();
-            const response = await this.request({ signal });
+            const response = await this.request({ signal, historyPurpose: "session" });
             const { session, accountId } = this.#readSessionIdentity(response);
             // Зберігає фактичного actor і власника сесії без перемикання контексту.
             this.#session = Object.freeze({ ...session, accountId });

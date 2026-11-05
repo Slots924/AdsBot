@@ -15,7 +15,7 @@ export function validateName(input = {}) {
 // Повторює запити соціального профілю з api-actions/accounts через збережену HTTP-сесію.
 export async function prepareNameContext(fbData, { signal } = {}) {
     fbData.client.validateFbData(fbData);
-    const home = await fbData.client.request({ url: "https://accountscenter.facebook.com/profiles/", signal, mutation: false });
+    const home = await fbData.client.request({ url: "https://accountscenter.facebook.com/profiles/", signal, mutation: false, historyPurpose: "session" });
     const { session } = parseWebSession(home.data);
     if (session.FacebookID !== String(fbData.userId)) throw actionError("Не вдалося підтвердити поточний соціальний профіль в Accounts Center", "FACEBOOK_SESSION_MISMATCH");
     if (!session.fb_dtsg || !session.lsd) throw actionError("Не вдалося прочитати сесію Accounts Center", "FACEBOOK_SESSION_FIELDS_MISSING", { actionRequired: "refresh_session" });

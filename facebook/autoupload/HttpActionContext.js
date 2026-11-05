@@ -47,7 +47,7 @@ export default class HttpActionContext {
         this.#check();
         if (surface !== "facebook") throw actionError("Ця дія підтримує лише соціальний Facebook-профіль", "FACEBOOK_SURFACE_INVALID");
         if (!this.#runtime) {
-            const response = await this.fbData.client.request({ url: `https://www.facebook.com/profile.php?id=${this.fbData.userId}`, signal: this.signal, mutation: false });
+            const response = await this.fbData.client.request({ url: `https://www.facebook.com/profile.php?id=${this.fbData.userId}`, signal: this.signal, mutation: false, historyPurpose: "session" });
             const { session } = parseWebSession(response.data);
             if (session.FacebookID !== String(this.fbData.userId)) throw actionError("Сторінка належить іншому Facebook-профілю", "FACEBOOK_SESSION_MISMATCH");
             if (!session.fb_dtsg || !session.lsd) throw actionError("Не вдалося прочитати актуальні токени профілю", "FACEBOOK_SESSION_FIELDS_MISSING", { actionRequired: "refresh_session" });

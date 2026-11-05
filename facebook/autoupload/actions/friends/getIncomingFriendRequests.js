@@ -35,7 +35,7 @@ export async function loadIncomingFriendRequests(fbData, { signal, source = "aut
     }
     signal?.throwIfAborted();
     try {
-        const response = await fbData.client.request({ url: "https://www.facebook.com/friends", method: "get", signal });
+        const response = await fbData.client.request({ url: "https://www.facebook.com/friends", method: "get", signal, historyPurpose: "runtime" });
         const result = normalizeIncomingViewers(parseIncomingHtml(response.data), fbData.session);
         return { success: true, outcome: "INCOMING_REQUESTS_LOADED", code: null, message: "Вхідні заявки отримано", source: "html",
             ...result, httpStatus: response.status, diagnostics, outcomeUnknown: false, retryable: false };

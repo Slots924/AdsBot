@@ -7,7 +7,7 @@ import { actionError } from "../graphql/errors.js";
 async function getAdsManagerSessionImpl(fbData, { signal, refreshSession = false } = {}) {
     return fbData.client.run(async () => {
         if (!refreshSession) fbData.client.validateFbData(fbData);
-        const response = await fbData.client.request({ url: "https://adsmanager.facebook.com/adsmanager/manage/campaigns", signal });
+        const response = await fbData.client.request({ url: "https://adsmanager.facebook.com/adsmanager/manage/campaigns", signal, historyPurpose: "access-token" });
         if (refreshSession) fbData = fbData.client.acceptSessionResponse(response, fbData.profileId);
         const { session } = parseWebSession(response.data);
         if (String(session.FacebookID) !== String(fbData.userId)) throw actionError("Ads Manager не підтвердив поточний акаунт", "ADS_MANAGER_ACCOUNT_MISMATCH");
