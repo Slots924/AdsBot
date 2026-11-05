@@ -44,6 +44,7 @@ import PersonalAccountSessionManager
 import SmsPoolPhoneVerificationManager
     from "../../services/personalAccounts/SmsPoolPhoneVerificationManager.js";
 import SmsPool from "../../classes/SmsPool.js";
+import CRM from "../../classes/CRM.js";
 import { appPaths } from "./paths.js";
 import registerIpcHandlers from "./registerIpcHandlers.js";
 import createSecretStorage from "./secretStorage.js";
@@ -181,6 +182,7 @@ async function createWindow() {
     bmAccountManager = new FacebookAccountManager({ accountsFile: appPaths.businessManagers, kind: "bm" });
     systemUserManager = new FacebookAccountManager({ accountsFile: appPaths.systemUsers, kind: "system" });
     const secretStorage = createSecretStorage(safeStorage);
+    const crm = new CRM({ settingsFile: appPaths.crmSettings, ...secretStorage });
     const autouploadSessionStore = new AutouploadSessionStore({ directory: appPaths.autouploadSessions, ...secretStorage });
     const creditCardStore = new CreditCardStore({
         cardsFile: appPaths.creditCards,
@@ -296,6 +298,7 @@ async function createWindow() {
     });
 
     registerIpcHandlers({
+        crm,
         autouploadSessionStore,
         ipcMain,
         dialog,

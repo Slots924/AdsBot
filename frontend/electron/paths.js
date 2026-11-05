@@ -50,6 +50,7 @@ export const appPaths = {
     taskReports: path.join(projectRoot, "data/reports/tasks"),
     personalAccountReports: path.join(projectRoot, "data/reports/personal-accounts"),
     creditCards: path.join(projectRoot, "data/credit-cards.json"),
+    crmSettings: path.join(projectRoot, "data/local-secrets/crm.json"),
     logs: path.join(projectRoot, "data/logs"),
     renderer: path.join(frontendRoot, "dist/index.html"),
     preload: path.join(electronDirectory, "preload.cjs"),

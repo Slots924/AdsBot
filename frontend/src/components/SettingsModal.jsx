@@ -22,6 +22,7 @@ import WorkerProxyPicker from "./WorkerProxyPicker.jsx";
 import KeitaroCampaignSettings from "./KeitaroCampaignSettings.jsx";
 import SpendSettings from "./SpendSettings.jsx";
 import CreditCardsSettings from "./CreditCardsSettings.jsx";
+import CrmSettings from "./CrmSettings.jsx";
 
 
 const minimumScale = 80;
@@ -210,6 +211,9 @@ export default function SettingsModal({
                         >
                             <ListChecks size={15} /> Keitaro
                         </button>
+                        <button type="button" className={tab === "crm" ? "active" : ""} onClick={() => setTab("crm")}>
+                            <ListChecks size={15} /> CRM
+                        </button>
                         <button
                             type="button"
                             className={tab === "api-clients" ? "active" : ""}
@@ -233,6 +237,7 @@ export default function SettingsModal({
                         </button>
                     </nav>
                     <div className="settings-body" ref={settingsBodyRef}>
+                        {tab === "crm" && <CrmSettings onError={onError} showToast={showToast} />}
                         {tab === "credit-cards" && (
                             <CreditCardsSettings onError={onError} showToast={showToast} />
                         )}

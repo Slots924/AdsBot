@@ -162,6 +162,7 @@ function createSafeHandler(handler, logger = null) {
 
 
 export default function registerIpcHandlers({
+    crm,
     autouploadSessionStore,
     ipcMain,
     dialog,
@@ -199,6 +200,8 @@ export default function registerIpcHandlers({
     getWindow,
 }) {
     const safeHandler = (handler) => createSafeHandler(handler, logger?.child("ipc"));
+    ipcMain.handle("crm:settings-get", safeHandler(() => crm.getSettings()));
+    ipcMain.handle("crm:settings-save", safeHandler((payload) => crm.saveSettings(payload)));
     const personalHttp = new PersonalAutouploadSessionManager({
         adsPower: guiService.adsPower, sessionStore: autouploadSessionStore, creditCardStore,
         facebookAccountManager, reportManager, reloadFacebookBackend: () => guiService.reloadFacebookBackend(),
