@@ -27,10 +27,11 @@ export default class AutouploadService {
         this.changeNameFn = changeNameFn;
         Object.assign(this, { store, adsPower, profileBrowser, sessionStore, onUpdated, checkSession: checkSession ?? (sessionStore ? refreshProfileSession : checkProfileSession), sendFriendRequestFn, shareAdAccountFn, acceptFriendRequestFn });
     }
+    runReported(name, execute) { return this.#runReported(name, execute); }
     async #runReported(name, execute) {
         if (currentHttpHistory() || !this.reportManager) return withHttpWorkflow(name, execute);
         const startedAt = new Date().toISOString();
-        const titles = { listFanPages: "Список фанок", shareFanPage: "Надання доступу до фанки", check: "Перевірка сесії" };
+        const titles = { listFanPages: "Список фанок", shareFanPage: "Надання доступу до фанки", check: "Перевірка сесії", refreshAccessToken: "Оновлення access token" };
         const task = { id: null, type: `autoupload-${name}`, name: titles[name] ?? name, startedAt, input: {} };
         let liveReportId = null;
         const save = async (value, error) => {

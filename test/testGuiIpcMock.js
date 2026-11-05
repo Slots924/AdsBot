@@ -1025,6 +1025,26 @@ const sharedPosts = (await remoteDataCacheStore.getPosts("other-client", "10")).
 assert.match(sharedPosts[0].thumbnailUrl, /^adsbot-cache:\/\/image\//);
 assert.equal(rendererEvents.filter((item) => item.channel === "pages:posts-cache-updated").at(-1).payload.post.thumbnailUrl, sharedPosts[0].thumbnailUrl);
 
+// Оновлення починається в IPC одразу, не створює задачі й відхиляє дубль.
+const queueSizeBeforeTokenRefresh = enqueuedOptions.length;
+facebookAccountManager.get = async () => ({ accountKey: "fp_hub", kind: "api", proxyMode: "bound", proxyId: "proxy-001" });
+let rejectTokenCredentials;
+facebookAccountManager.getHttpCredentials = () => new Promise((_resolve, reject) => { rejectTokenCredentials = reject; });
+const immediateTokenRefresh = handlers.get("accounts:refresh-access-token")({}, { accountKey: "fp_hub" });
+while (!rejectTokenCredentials) await new Promise((resolve) => setImmediate(resolve));
+assert.equal(enqueuedOptions.length, queueSizeBeforeTokenRefresh);
+const duplicateTokenRefresh = await handlers.get("accounts:refresh-access-token")({}, { accountKey: "fp_hub" });
+assert.equal(duplicateTokenRefresh.ok, false);
+assert.match(duplicateTokenRefresh.error.message, /вже оновлюється/);
+rejectTokenCredentials(Object.assign(new Error("Тестова відмова до HTTP"), { code: "TOKEN_REFRESH_TEST" }));
+const immediateTokenResult = await immediateTokenRefresh;
+assert.equal(immediateTokenResult.ok, false);
+assert.equal(immediateTokenResult.error.code, "TOKEN_REFRESH_TEST");
+facebookAccountManager.getHttpCredentials = async () => { throw Object.assign(new Error("Повторна спроба"), { code: "TOKEN_REFRESH_RETRY_TEST" }); };
+const retryTokenResult = await handlers.get("accounts:refresh-access-token")({}, { accountKey: "fp_hub" });
+assert.equal(retryTokenResult.error.code, "TOKEN_REFRESH_RETRY_TEST");
+assert.equal(enqueuedOptions.length, queueSizeBeforeTokenRefresh);
+
 console.log("Mock-перевірка GUI IPC пройшла успішно");
 
 } finally { await rm(cacheDirectory, { recursive: true, force: true }); }

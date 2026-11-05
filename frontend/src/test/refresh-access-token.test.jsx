@@ -18,7 +18,7 @@ it.each(["api", "bm"])("оновлює токен %s окремою кнопко
     expect(onSelect).not.toHaveBeenCalled();
 });
 
-it("блокує повторне оновлення токена під час задачі", () => {
+it("блокує повторне оновлення токена під час запиту", () => {
     render(<Sidebar accounts={[{ accountKey: "test", kind: "api", hasCookie: true, hasUserAgent: true }]}
         refreshingTokenAccountKeys={["test"]} onError={vi.fn()} />);
     expect(screen.getByRole("button", { name: "Оновити access token" })).toBeDisabled();

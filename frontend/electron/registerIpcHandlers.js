@@ -1297,22 +1297,17 @@ export default function registerIpcHandlers({
             };
         })
     );
+    const refreshingAccessTokens = new Set();
     ipcMain.handle(
         "accounts:refresh-access-token",
         safeHandler(async ({ accountKey }) => {
             const manager = managerForAccount(accountKey);
             const account = await manager.get(accountKey);
             if (account.kind === "system" || account.archived) throw new Error("Оновлення токена доступне для активних API-клієнтів і БМ");
-            const task = await backgroundTaskManager.enqueue({
-                type: "facebook-access-token-refresh",
-                name: `Оновлення access token ${account.accountKey}`,
-                uniqueKey: `facebook-access-token-refresh:${account.accountKey}`,
-                resources: [{ key: `facebook-account:${account.accountKey}`, label: account.accountKey },
-                    ...(account.adsPowerProfileNo ? [{ key: `adspower-profile:${account.adsPowerProfileNo}`, label: `AdsPower №${account.adsPowerProfileNo}` }] : [])],
-                input: { accountKey: account.accountKey },
-                metadata: { accountKey: account.accountKey },
-                runner: async ({ signal, progress }) => {
-                    await progress({ stage: "ads-manager", message: "Отримуємо актуальний токен з Ads Manager через проксі" });
+            if (refreshingAccessTokens.has(account.accountKey)) throw new Error("Токен цього клієнта вже оновлюється");
+            refreshingAccessTokens.add(account.accountKey);
+            try {
+                return await autoupload.runReported("refreshAccessToken", async () => {
                     const current = await manager.get(account.accountKey);
                     if (current.archived) throw new Error("Клієнта архівовано");
                     const mode = getAccountProxyMode(current);
@@ -1323,14 +1318,19 @@ export default function registerIpcHandlers({
                             : await Promise.all((await proxyManager.list()).filter((proxy) => proxy.type !== "no_proxy" && proxy.isPublic !== false)
                                 .map((proxy) => proxyManager.getById(proxy.id))) });
                     const result = await refreshFacebookAccessToken({ accountKey: current.accountKey, accountManager: manager,
-                        httpClient, signal, directory: reportManager.httpHistoryDirectory });
+                        httpClient, directory: reportManager.httpHistoryDirectory });
                     await guiService.reloadFacebookBackend();
+                    const accountStatus = await guiService.checkAccount(current.accountKey);
+                    sendRendererEvent("accounts:facebook-status", { accountKey: current.accountKey, accountStatus });
                     const { httpHistory, taskStatus, ...summary } = result;
-                    return { result: summary, httpHistory, taskStatus,
-                        reportDetails: { inputSummary: { accountKey: current.accountKey }, resultSummary: summary } };
-                },
-            });
-            return { taskId: task.id, task };
+                    summary.accountStatus = accountStatus;
+                    return { ...summary, httpHistory,
+                        taskStatus: accountStatus.status === "active" ? taskStatus : "completed_with_warnings",
+                    };
+                });
+            } finally {
+                refreshingAccessTokens.delete(account.accountKey);
+            }
         })
     );
     ipcMain.handle(

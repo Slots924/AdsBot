@@ -2,6 +2,124 @@
   "version": 1,
   "tasks": [
     {
+      "id": "a919893c-6a2c-45da-b651-28e7c0bf9ea3",
+      "type": "facebook-access-token-refresh",
+      "name": "Оновлення access token account-065",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-account:account-065",
+          "label": "account-065"
+        },
+        {
+          "key": "adspower-profile:2594",
+          "label": "AdsPower №2594"
+        }
+      ],
+      "input": {
+        "accountKey": "account-065"
+      },
+      "metadata": {
+        "accountKey": "account-065",
+        "uniqueKey": "facebook-access-token-refresh:account-065",
+        "httpHistory": {
+          "id": "9890b7e3-3546-4cc9-91c1-be0cd435f55f",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\9890b7e3-3546-4cc9-91c1-be0cd435f55f.jsonl",
+          "requestCount": 2,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "75a7e85c-156b-4e36-af9e-292d0ec9c5d9"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-065",
+        "accessTokenUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-05T09:22:15.568Z",
+      "startedAt": "2026-11-05T09:22:15.570Z",
+      "finishedAt": "2026-11-05T09:22:27.142Z",
+      "updatedAt": "2026-11-05T09:22:27.146Z"
+    },
+    {
+      "id": "68f1d866-9591-4bb3-9538-272e6713743e",
+      "type": "facebook-access-token-refresh",
+      "name": "Оновлення access token account-062",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-account:account-062",
+          "label": "account-062"
+        },
+        {
+          "key": "adspower-profile:118",
+          "label": "AdsPower №118"
+        }
+      ],
+      "input": {
+        "accountKey": "account-062"
+      },
+      "metadata": {
+        "accountKey": "account-062",
+        "uniqueKey": "facebook-access-token-refresh:account-062",
+        "httpHistory": {
+          "id": "8b537e97-3e0c-4e6c-9380-ecf20ead1310",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\8b537e97-3e0c-4e6c-9380-ecf20ead1310.jsonl",
+          "requestCount": 1,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "76e849b7-e747-4414-a82b-b8f9311fcb05"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "failed",
+        "message": "Facebook потребує підтвердження акаунта"
+      },
+      "result": {
+        "httpHistory": {
+          "id": "8b537e97-3e0c-4e6c-9380-ecf20ead1310",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\8b537e97-3e0c-4e6c-9380-ecf20ead1310.jsonl",
+          "requestCount": 1,
+          "format": "jsonl",
+          "version": 1
+        }
+      },
+      "error": {
+        "message": "Facebook потребує підтвердження акаунта",
+        "code": null,
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "httpStatus": null,
+        "requestId": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "endpoint": null,
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": null,
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-05T09:21:57.033Z",
+      "startedAt": "2026-11-05T09:21:57.035Z",
+      "finishedAt": "2026-11-05T09:21:57.600Z",
+      "updatedAt": "2026-11-05T09:21:57.602Z"
+    },
+    {
       "id": "a350429f-2dc7-43f2-aef5-1fa8c5962900",
       "type": "comment-account-health",
       "name": "Перевірка акаунтів під коментарі · 13",

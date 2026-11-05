@@ -77,6 +77,7 @@ export default function App() {
     const [keitaroOffersGrouped, setKeitaroOffersGrouped] = useState(false);
     const [logs, setLogs] = useState([]);
     const [tasks, setTasks] = useState([]);
+    const [refreshingTokenAccountKeys, setRefreshingTokenAccountKeys] = useState([]);
     const [uiScale, setUiScale] = useState(1.3);
     const [createCampaignsPaused, setCreateCampaignsPaused] = useState(true);
     const [createAdSetsPaused, setCreateAdSetsPaused] = useState(true);
@@ -158,11 +159,6 @@ export default function App() {
                 return next.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             });
             if (event.type === "updated" && ["completed", "completed_with_warnings"].includes(event.task?.status)) {
-                if (event.task.type === "facebook-access-token-refresh") {
-                    setAccounts((current) => current.map((account) => account.accountKey === event.task.result?.accountKey
-                        ? { ...account, hasAccessToken: true } : account));
-                    showToast("Access token оновлено", "success");
-                }
                 if (event.task.type === "facebook-api-client-sync") {
                     setAccounts((current) => current.map((account) => (
                         account.accountKey === event.task.result?.accountKey
@@ -355,13 +351,17 @@ export default function App() {
         showToast("Синхронізацію API-клієнта додано до черги", "success");
     };
     const refreshAccessToken = async (key) => {
-        const result = await unwrap(window.adsBot.refreshAccountAccessToken(key));
-        setTasks((current) => [result.task, ...current.filter((task) => task.id !== result.task.id)]);
-        showToast("Оновлення access token додано до черги", "success");
+        setRefreshingTokenAccountKeys((current) => [...new Set([...current, key])]);
+        try {
+            const result = await unwrap(window.adsBot.refreshAccountAccessToken(key));
+            setAccounts((current) => current.map((account) => account.accountKey === key
+                ? { ...account, ...result.accountStatus, name: account.name, hasAccessToken: true } : account));
+            const active = result.accountStatus?.status === "active";
+            showToast(active ? "Access token оновлено · API-клієнт активний" : "Токен оновлено, але активність API-клієнта не підтверджена", active ? "success" : "warning");
+        } finally {
+            setRefreshingTokenAccountKeys((current) => current.filter((item) => item !== key));
+        }
     };
-    const refreshingTokenAccountKeys = tasks
-        .filter((task) => task.type === "facebook-access-token-refresh" && ["queued", "running"].includes(task.status))
-        .map((task) => task.metadata?.accountKey).filter(Boolean);
     const syncingApiClientKeys = tasks
         .filter((task) => task.type === "facebook-api-client-sync" && ["queued", "running"].includes(task.status))
         .map((task) => task.metadata?.accountKey)
