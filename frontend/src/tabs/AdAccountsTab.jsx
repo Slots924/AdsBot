@@ -1,9 +1,11 @@
+import CampaignAdSets from "../components/CampaignAdSets.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, Reorder, useDragControls } from "framer-motion";
 import {
     AlertCircle,
     BadgeDollarSign,
     Check,
+    ChevronRight,
     CircleMinus,
     CirclePlus,
     Copy,
@@ -245,7 +247,8 @@ function CampaignStateToggle({ campaign, pending, onToggle }) {
 }
 
 
-function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, onRename, dragControls, reorderable = false }) {
+function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, onRename, dragControls, reorderable = false, adSetsContext }) {
+    const [expanded, setExpanded] = useState(false);
     const deleted = isDeletedCampaign(campaign);
     const permanentlyDeleted = isPermanentlyDeletedCampaign(campaign);
     const unavailable = deleted || permanentlyDeleted;
@@ -263,6 +266,7 @@ function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, o
             <span className="campaign-name">
                 <span className="campaign-name-main">
                     <CampaignStateToggle campaign={campaign} pending={pending} onToggle={onToggle} />
+                    {!unavailable && <button type="button" className={`campaign-expand-button ${expanded ? "expanded" : ""}`} aria-label={`${expanded ? "Згорнути" : "Розгорнути"} кампанію ${campaign.name}`} aria-expanded={expanded} onClick={() => setExpanded((current) => !current)}><ChevronRight size={15} /></button>}
                     <strong>{campaign.name}</strong>
                     {!unavailable && <button type="button" className="campaign-rename-button" aria-label={`Перейменувати кампанію ${campaign.name}`} title="Перейменувати кампанію" disabled={pending} onClick={() => onRename(campaign)}><Pencil size={14} /></button>}
                 </span>
@@ -279,6 +283,7 @@ function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, o
             <span className="campaign-actions">
                 {!unavailable && <button type="button" className="campaign-delete-button" aria-label={`Видалити кампанію ${campaign.name}`} title="Видалити кампанію" disabled={pending} onClick={() => onDelete(campaign)}>{pending ? <LoaderCircle className="spin" size={15} /> : <Trash2 size={15} />}</button>}
             </span>
+            {expanded && !unavailable && adSetsContext && <CampaignAdSets key={`${adSetsContext.accountKey}::${adSetsContext.account.id}::${campaign.id}`} campaignId={campaign.id} {...adSetsContext} />}
         </>
     );
 
@@ -293,7 +298,7 @@ function SortableCampaignRow(props) {
 }
 
 
-function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignIds, onToggle, onDelete, onRename, onReorder }) {
+function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignIds, onToggle, onDelete, onRename, onReorder, adSetsContext }) {
     if (!entry || (entry.status === "loading" && !entry.data)) {
         return (
             <div className="campaign-table-card">
@@ -349,9 +354,9 @@ function CampaignTable({ entry, currency, onRetry, showDeleted, pendingCampaignI
                 </div>
             )}
             <Reorder.Group as="div" axis="y" className="campaign-list" values={activeCampaigns.map((campaign) => String(campaign.id))} onReorder={onReorder}>
-                {activeCampaigns.map((campaign, index) => <SortableCampaignRow key={campaign.id} campaign={campaign} index={index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} onRename={onRename} />)}
+                {activeCampaigns.map((campaign, index) => <SortableCampaignRow key={campaign.id} campaign={campaign} index={index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} onRename={onRename} adSetsContext={adSetsContext} />)}
                 {showDeleted && deletedCampaigns.length > 0 && <div className="campaign-deleted-divider">Видалені кампанії</div>}
-                {showDeleted && deletedCampaigns.map((campaign, index) => <CampaignRow key={campaign.id} campaign={campaign} index={activeCampaigns.length + index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} onRename={onRename} />)}
+                {showDeleted && deletedCampaigns.map((campaign, index) => <CampaignRow key={campaign.id} campaign={campaign} index={activeCampaigns.length + index} currency={currency} pending={pendingCampaignIds.has(String(campaign.id))} onToggle={onToggle} onDelete={onDelete} onRename={onRename} adSetsContext={adSetsContext} />)}
             </Reorder.Group>
         </div>
     );
@@ -382,6 +387,7 @@ export default function AdAccountsTab({
     const [datePreset, setDatePreset] = useState("today");
     const [campaignCache, setCampaignCache] = useState({});
     const [campaignsRefreshing, setCampaignsRefreshing] = useState(false);
+    const [adSetRefreshToken, setAdSetRefreshToken] = useState(0);
     const [renameEditor, setRenameEditor] = useState(null);
     const [renaming, setRenaming] = useState(false);
     const [campaignRenameEditor, setCampaignRenameEditor] = useState(null);
@@ -805,6 +811,7 @@ export default function AdAccountsTab({
         const now = Date.now();
         if (now - (lastCampaignRefreshAt.current[key] ?? 0) < 5_000) return;
         lastCampaignRefreshAt.current[key] = now;
+        setAdSetRefreshToken((current) => current + 1);
         setCampaignsRefreshing(true);
         try {
             const data = await unwrap(window.adsBot.refreshAdCampaignData(
@@ -1040,6 +1047,7 @@ export default function AdAccountsTab({
                             {selected.accessUnavailable && <div className="notice">Цей РК відсутній в останньому списку доступу API-клієнта. Показано збережені дані.</div>}
 
                             <CampaignTable
+                                adSetsContext={{ accountKey, account: selected, datePreset, refreshToken: adSetRefreshToken, canWrite: accountActive && selected.status === "active" }}
                                 entry={currentCampaignEntry}
                                 currency={selected.currency}
                                 showDeleted={showDeletedCampaigns}

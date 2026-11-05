@@ -5,6 +5,10 @@ const zeroDecimalCurrencies = new Set([
     "PYG", "RWF", "UGX", "VND", "VUV", "XAF", "XOF", "XPF",
 ]);
 
+export function budgetFromMinorUnits(value, currency) {
+    return Number(value) / (zeroDecimalCurrencies.has(String(currency).toUpperCase()) ? 1 : 100);
+}
+
 export function budgetToMinorUnits(value, currency) {
     const amount = Number(value);
     if (!Number.isFinite(amount) || amount <= 0) {

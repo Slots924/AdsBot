@@ -107,6 +107,9 @@ contextBridge.exposeInMainWorld("adsBot", {
             enabled,
             includeDeleted,
         }),
+    getCampaignAdSets: (input) => ipcRenderer.invoke("adsets:read", input),
+    refreshCampaignAdSets: (input) => ipcRenderer.invoke("adsets:refresh", input),
+    duplicateAdSet: (input) => ipcRenderer.invoke("adsets:duplicate", input),
     getAdCampaigns: (accountKey, adAccountId, datePreset, force = false, includeDeleted = false) =>
         ipcRenderer.invoke("campaigns:list", {
             accountKey,

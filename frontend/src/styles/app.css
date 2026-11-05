@@ -674,6 +674,48 @@ button:focus-visible, input:focus-visible {
 .campaign-row { min-height: 52px; padding: 7px 13px; border-bottom: 1px solid rgba(255,255,255,.055); color: #aeb4c1; font-size: var(--font-meta); }
 .campaign-list > .campaign-row:last-child { border-bottom: 0; }
 .campaign-row:hover { background: rgba(132,114,255,.045); }
+.campaign-expand-button { flex: 0 0 auto; display: inline-flex; padding: 3px; border: 0; border-radius: 5px; color: #aeb4c1; background: transparent; cursor: pointer; }
+.campaign-expand-button:hover { background: rgba(132,114,255,.15); color: #c2baff; }
+.campaign-expand-button svg { transition: transform .15s; }
+.campaign-expand-button.expanded svg { transform: rotate(90deg); }
+.campaign-adsets { grid-column: 1 / -1; min-width: 0; padding: 12px 0 4px 28px; }
+.adsets-caption { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.adsets-caption > strong { color: #d2caff; font-size: 12px; }
+.adsets-caption > strong span { margin-left: 5px; color: #858da2; font-weight: 500; }
+.adsets-caption small { display: flex; align-items: center; gap: 6px; color: #858da2; font-size: 10px; }
+.adsets-scroll { overflow-x: auto; border: 1px solid rgba(255,255,255,.07); border-radius: 9px; background: rgba(8,10,18,.3); }
+.adsets-table { min-width: 750px; }
+.adset-grid { display: grid; grid-template-columns: minmax(200px,2fr) minmax(100px,1fr) 65px 90px 90px 80px 60px 30px; align-items: center; gap: 10px; padding: 9px 12px; }
+.adset-table-head { color: #7e879d; font-size: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.adset-row { min-height: 65px; border-bottom: 1px solid rgba(255,255,255,.045); color: #b3bbcd; font-size: 11px; }
+.adset-row:last-child { border-bottom: 0; }
+.adset-identity { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.adset-identity strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #e1e4ef; font-weight: 600; }
+.adset-identity small { color: #7f899f; font-size: 10px; overflow-wrap: anywhere; }
+.adset-status { font-size: 10px; color: #d6b87b; }
+.adset-status.active { color: #67d8a6; }
+.adset-copy-button { color: #b3a6ff; }
+.adsets-empty { padding: 12px 0; color: #7f899f; font-size: 12px; }
+.adset-duplicate-modal { width: min(480px, calc(100vw - 32px)); }
+.adset-duplicate-modal fieldset { margin: 18px 0 0; padding: 0; border: 0; min-width: 0; }
+.adset-duplicate-fields { display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; margin-bottom: 14px; }
+.adset-source-name { overflow-wrap: anywhere; }
+.adset-now-button { margin: 8px 0 0; padding: 0; border: 0; color: #b7aaff; background: transparent; cursor: pointer; font-size: 12px; }
+.adset-launch-hint { font-size: 12px; line-height: 1.6; }
+.adset-budget-total { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,.08); color: #929cb2; font-size: 12px; }
+.adset-budget-total strong { color: #dfdbff; }
+@media (max-width: 1000px) { .campaign-adsets { padding-left: 0; } .adsets-caption { flex-wrap: wrap; } }
+@media (max-width: 1250px) {
+    .ad-account-main .ad-detail header { flex-wrap: wrap; gap: 14px; }
+    .ad-account-main .ad-detail-identity { flex-basis: 100%; }
+    .ad-account-main .ad-detail-actions { flex-wrap: wrap; }
+    .ad-account-main .campaign-heading { flex-wrap: wrap; }
+    .ad-account-main .campaign-heading > div:first-child { flex-shrink: 0; }
+    .ad-account-main .campaign-heading .eyebrow { white-space: nowrap; }
+    .campaign-table-card { overflow-x: auto; }
+    .campaign-table-card > .campaign-table-head, .campaign-table-card > .campaign-list { min-width: 900px; }
+    .campaign-table-card .campaign-grid { grid-template-columns: 22px 26px minmax(180px,1.7fr) 90px 50px 90px 95px 85px 65px 30px; gap: 8px; }
+}
 .campaign-row.pending { opacity: .48; pointer-events: none; }
 .campaign-row.deleted { color: #666d7d; background: rgba(255,255,255,.015); }
 .campaign-row.deleted .campaign-name strong, .campaign-row.deleted strong { color: #777f90; }

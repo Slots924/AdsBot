@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { budgetToMinorUnits } from "../services/campaigns/CampaignBudget.js";
 import { createValidationError, normalizeAdAccountId, normalizeObjectId, requireCreatedObjectId } from "./validation.js";
 import { summarizeGraphRequest, summarizeGraphResponse } from "./graphDiagnostics.js";
 import { redactString } from "../../services/logging/AppLogger.js";
@@ -972,6 +973,84 @@ export default class FacebookGraphApi {
             id: campaign.id, name: campaign.name ?? "Без назви",
             status: campaign.status ?? null, effectiveStatus: campaign.effective_status ?? null,
         };
+    }
+
+    /** Отримує повний список адсетів без важкої статистики. */
+    async getCampaignAdSets(campaignId) {
+        const id = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");
+        const rows = await this.#getAll(`/${id}/adsets`, {
+            fields: "id,name,status,effective_status,daily_budget,lifetime_budget,start_time,end_time,optimization_goal,billing_event,campaign{id,daily_budget,lifetime_budget}",
+            limit: 100,
+        }, { requireComplete: true });
+        return rows.map((row) => ({
+            id: row.id, name: row.name, status: row.status, effectiveStatus: row.effective_status,
+            dailyBudget: row.daily_budget ?? null, lifetimeBudget: row.lifetime_budget ?? null,
+            campaignBudget: Number(row.campaign?.daily_budget) > 0 || Number(row.campaign?.lifetime_budget) > 0,
+            startTime: row.start_time ?? null, endTime: row.end_time ?? null,
+            optimizationGoal: row.optimization_goal ?? null, billingEvent: row.billing_event ?? null,
+        }));
+    }
+
+    /** Статистика лише вибраної кампанії за зафіксованими датами РК. */
+    async getCampaignAdSetInsights(campaignId, datePreset, context) {
+        const id = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");
+        if (!campaignDatePresets.has(datePreset)) throw createValidationError("Непідтримуваний період", "FACEBOOK_INSIGHTS_DATE_PRESET_INVALID");
+        return this.#getAll(`/${id}/insights`, {
+            fields: "adset_id,spend,impressions,clicks,ctr,cpm,actions", level: "adset",
+            ...(context?.timeRange ? { time_range: JSON.stringify(context.timeRange) } : { date_preset: datePreset }),
+            limit: 100,
+        }, { requireComplete: true });
+    }
+
+    /** Копіює разом з оголошеннями; бюджет налаштовує до активації. */
+    async duplicateAdSet({ adAccountId, campaignId, adSetId, count, budget, startTime = null, createActive = true }) {
+        const accountId = normalizeAdAccountId(adAccountId);
+        const id = normalizeObjectId(adSetId, "ADSET_ID_INVALID", "ID адсету");
+        const parentId = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");
+        if (!Number.isInteger(count) || count < 1 || count > 50) throw createValidationError("Кількість копій: від 1 до 50", "ADSET_COUNT_INVALID");
+        if (typeof createActive !== "boolean") throw createValidationError("Некоректний стан адсетів", "ADSET_STATUS_INVALID");
+        const source = await this.#request(`/${id}`, { fields: "id,name,account_id,campaign{id,daily_budget,lifetime_budget},daily_budget,lifetime_budget,end_time" });
+        if (`act_${source.account_id}` !== accountId || String(source.campaign?.id) !== parentId) throw createValidationError("Адсет не належить вибраній кампанії або РК", "ADSET_PARENT_INVALID");
+        const account = await this.#request(`/${accountId}`, { fields: "currency" });
+        const campaignBudget = Number(source.campaign.daily_budget) > 0 || Number(source.campaign.lifetime_budget) > 0;
+        const budgetField = Number(source.lifetime_budget) > 0 ? "lifetime_budget" : "daily_budget";
+        const minor = campaignBudget ? null : budgetToMinorUnits(budget, account.currency);
+        if (minor !== null && (!Number.isSafeInteger(Number(minor)) || Number(minor) < 1)) throw createValidationError("Некоректний бюджет", "ADSET_BUDGET_INVALID");
+        const scheduled = startTime !== null;
+        if (scheduled && (!Number.isFinite(Date.parse(startTime)) || Date.parse(startTime) <= Date.now())) throw createValidationError("Вкажіть майбутній час запуску", "ADSET_START_INVALID");
+        if (source.end_time && Date.parse(source.end_time) <= (scheduled ? Date.parse(startTime) : Date.now())) throw createValidationError("Термін дії адсету завершився або закінчується до вибраного старту", "ADSET_END_INVALID");
+        const copies = [];
+        try {
+            for (let index = 0; index < count; index += 1) {
+                const result = await this.#writeObject(`/${id}/copies`, {
+                    campaign_id: parentId, deep_copy: true, status_option: "PAUSED",
+                    start_time: scheduled ? startTime : new Date().toISOString(),
+                });
+                const copiedId = result.copied_adset_id;
+                if (!copiedId) throw Object.assign(new Error("Meta не повернула ID копії. Перевірте Ads Manager перед повтором."), { outcomeUnknown: true });
+                const copy = { id: String(copiedId), name: `${source.name} — копія ${index + 1}`, status: "PAUSED", effectiveStatus: "PAUSED", campaignBudget, setupIncomplete: true,
+                    dailyBudget: source.daily_budget ?? null, lifetimeBudget: source.lifetime_budget ?? null,
+                    startTime: scheduled ? startTime : new Date().toISOString(), endTime: source.end_time ?? null };
+                copies.push(copy);
+                await this.#writeObject(`/${copiedId}`, { name: copy.name, ...(minor ? { [budgetField]: minor } : {}) });
+                if (minor) {
+                    copy.dailyBudget = budgetField === "daily_budget" ? minor : null;
+                    copy.lifetimeBudget = budgetField === "lifetime_budget" ? minor : null;
+                }
+                // Оголошення активуємо, поки батьківський адсет ще на паузі.
+                const ads = await this.#getAll(`/${copiedId}/ads`, { fields: "id", limit: 100 }, { requireComplete: true });
+                for (const ad of ads) await this.#writeObject(`/${ad.id}`, { status: "ACTIVE" });
+                if (createActive) {
+                    await this.#writeObject(`/${copiedId}`, { status: "ACTIVE" });
+                    copy.status = "ACTIVE";
+                    copy.effectiveStatus = "IN_PROCESS";
+                }
+                copy.setupIncomplete = false;
+            }
+            return { copies };
+        } catch (error) {
+            return { copies, error: { message: redactSensitiveText(error.message), code: error.code ?? null, outcomeUnknown: Boolean(error.outcomeUnknown) } };
+        }
     }
 
 

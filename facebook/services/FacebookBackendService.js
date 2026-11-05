@@ -259,6 +259,18 @@ export default class FacebookBackendService {
         return this.#getFacebookApiClient(accountKey).getAdCampaign(campaignId);
     }
 
+    async getCampaignAdSets(accountKey, campaignId) {
+        return this.#getFacebookApiClient(accountKey).getCampaignAdSets(campaignId);
+    }
+
+    async getCampaignAdSetInsights(accountKey, campaignId, datePreset, context) {
+        return this.#getFacebookApiClient(accountKey).getCampaignAdSetInsights(campaignId, datePreset, context);
+    }
+
+    async duplicateAdSet(accountKey, input) {
+        return this.#getFacebookApiClient(accountKey).duplicateAdSet(input);
+    }
+
     async getAdCampaignInsights(accountKey, adAccountId, datePreset = "today", campaignIds, context = null) {
         return this.#getFacebookApiClient(accountKey)
             .getAdCampaignInsights(adAccountId, datePreset, campaignIds, context);

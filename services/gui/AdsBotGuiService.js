@@ -478,6 +478,21 @@ export default class AdsBotGuiService {
         return this.#facebookBackend.getAdCampaign(accountKey, campaignId);
     }
 
+    async getCampaignAdSets(accountKey, campaignId) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getCampaignAdSets(accountKey, campaignId);
+    }
+
+    async getCampaignAdSetInsights(accountKey, campaignId, datePreset, context) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getCampaignAdSetInsights(accountKey, campaignId, datePreset, context);
+    }
+
+    async duplicateAdSet(accountKey, input) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.duplicateAdSet(accountKey, input);
+    }
+
 
     async getAdCampaignStatistics(
         accountKey,

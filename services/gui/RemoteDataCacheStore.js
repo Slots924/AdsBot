@@ -22,6 +22,7 @@ function emptyStore() {
         postRevisions: {},
         revisions: { workspace: 0 },
         businessManagers: {},
+        adSets: {},
     };
 }
 
@@ -143,6 +144,18 @@ export default class RemoteDataCacheStore {
 
     async getBusinessData(key) {
         return safeClone((await this.#read()).businessManagers[normalizedPart(key, "CACHE_BUSINESS_KEY_REQUIRED")] ?? null);
+    }
+
+    async getAdSetSnapshot(adAccountId, campaignId) {
+        const key = JSON.stringify([String(adAccountId), String(campaignId)]);
+        return safeClone((await this.#read()).adSets[key]?.value ?? null);
+    }
+
+    setAdSetSnapshot(adAccountId, campaignId, value) {
+        return this.#update((store) => {
+            const key = JSON.stringify([String(adAccountId), String(campaignId)]);
+            store.adSets[key] = cacheEntry(value);
+        });
     }
 
     setBusinessData(key, value) {
@@ -507,7 +520,7 @@ export default class RemoteDataCacheStore {
         for (const key of Object.keys(emptyStore()).filter((key) => key !== "version")) {
             if (parsed[key] !== undefined && !object(parsed[key])) throw new SyntaxError("Пошкоджена структура кешу");
         }
-        for (const key of ["workspaces", "posts", "campaigns", "statistics", "lastStatistics", "pages", "adAccounts"]) {
+        for (const key of ["workspaces", "posts", "campaigns", "statistics", "lastStatistics", "pages", "adAccounts", "adSets"]) {
             for (const entry of Object.values(parsed[key] ?? {})) {
                 if (!object(entry) || (key === "posts" ? !Array.isArray(entry.value) : !object(entry.value))) throw new SyntaxError("Пошкоджений запис кешу");
                 if (key === "campaigns" && !Array.isArray(entry.value.campaigns)) throw new SyntaxError("Пошкоджений список кампаній");

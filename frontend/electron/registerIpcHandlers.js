@@ -11,6 +11,7 @@ import prepareAccountProfileProxy from "../../services/proxy/prepareAccountProfi
 import { getAccountProxyMode, normalizeAccountProxySettings } from "../../services/proxy/accountProxyMode.js";
 import { getProfileProxyService } from "../../services/proxy/AdsPowerProfileProxy.js";
 import BusinessManagerService from "../../services/gui/BusinessManagerService.js";
+import AdSetService from "../../services/gui/AdSetService.js";
 import AutouploadStore from "../../services/autoupload/AutouploadStore.js";
 import AutouploadService from "../../services/autoupload/AutouploadService.js";
 import PersonalAutouploadSessionManager from "../../services/personalAccounts/PersonalAutouploadSessionManager.js";
@@ -258,6 +259,7 @@ export default function registerIpcHandlers({
     const adAccountRefreshTimes = new Map();
     const adAccountRefreshResults = new Map();
     const campaignRefreshTimes = new Map();
+    const adSetService = new AdSetService({ cache: remoteDataCacheStore, guiService, serializeError });
     let adsPowerStateRefresh = null;
     const sendRendererEvent = (channel, payload) => {
         const window = getWindow();
@@ -2201,6 +2203,9 @@ export default function registerIpcHandlers({
             return readCachedCampaigns(payload);
         })
     );
+    ipcMain.handle("adsets:read", safeHandler((input) => adSetService.read(input)));
+    ipcMain.handle("adsets:refresh", safeHandler((input) => adSetService.refresh(input)));
+    ipcMain.handle("adsets:duplicate", safeHandler((input) => adSetService.duplicate(input)));
     ipcMain.handle(
         "campaigns:statistics-refresh",
         safeHandler(async ({
