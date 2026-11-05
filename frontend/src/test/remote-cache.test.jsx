@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import AdAccountsTab from "../tabs/AdAccountsTab.jsx";
 import PagesTab from "../tabs/PagesTab.jsx";
@@ -77,5 +77,23 @@ describe("Спільний дисковий кеш у GUI", () => {
         expect(await screen.findByText("New https://example.test")).toBeInTheDocument();
         expect(screen.getByAltText("Прев’ю поста")).toHaveAttribute("src", "adsbot-cache://image/test.png");
         expect(window.adsBot.getPagePostsWithLinks).toHaveBeenLastCalledWith("a", "10", false);
+        window.adsBot.getPagePostComments = vi.fn().mockResolvedValue({ ok: true, data: {
+            comments: [{ id: "comment-1", author: "Автор", message: "Відкритий коментар", reactionCount: 2 }], nextCursor: null,
+        } });
+        fireEvent.click(screen.getByText("Розгорнути"));
+        await screen.findByText("Відкритий коментар");
+        window.adsBot.getPagePostsWithLinks.mockResolvedValueOnce({ ok: true, data: [{
+            id: "10_new", message: "New https://example.test", createdTime: "2026-10-11T13:00:00Z",
+            thumbnailUrl: "adsbot-cache://image/updated.png",
+        }] });
+        const preloadImage = {};
+        const imageMock = vi.spyOn(window, "Image").mockImplementation(function () { return preloadImage; });
+        await act(async () => cacheListener({ kind: "page-images", pageId: "10" }));
+        expect(preloadImage.src).toBe("adsbot-cache://image/updated.png");
+        await act(async () => preloadImage.onload());
+        imageMock.mockRestore();
+        await waitFor(() => expect(screen.getByAltText("Прев’ю поста")).toHaveAttribute("src", "adsbot-cache://image/updated.png"));
+        expect(screen.getByText("Відкритий коментар")).toBeInTheDocument();
+        expect(window.adsBot.getPagePostComments).toHaveBeenCalledTimes(1);
     });
 });

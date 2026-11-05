@@ -15,6 +15,23 @@ const png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCA
 
 try {
     const store = new RemoteDataCacheStore({ cacheFile, imagesDirectory });
+    const source = "https://scontent.test.fbcdn.net/current.jpg";
+    await store.setPosts("client", "image-race", [{ id: "image-race_1", message: "https://example.test", reactionCount: 15,
+        thumbnailUrl: null, thumbnailSourceUrl: source, thumbnailPending: true }], "campaign");
+    await store.patchPageSnapshotImages("client", "image-race", { page: null, posts: [
+        { id: "image-race_1", thumbnailUrl: png, thumbnailSourceUrl: "https://scontent.test.fbcdn.net/old.jpg" },
+        { id: "deleted", thumbnailUrl: png, thumbnailSourceUrl: source },
+    ] });
+    let imageRace = (await store.getPosts("client", "image-race", "campaign")).value;
+    assert.equal(imageRace.length, 1);
+    assert.equal(imageRace[0].thumbnailUrl, null);
+    await store.patchPageSnapshotImages("client", "image-race", { page: null, posts: [
+        { id: "image-race_1", thumbnailUrl: png, thumbnailSourceUrl: source, reactionCount: 1 },
+    ] });
+    imageRace = (await store.getPosts("client", "image-race", "campaign")).value;
+    assert.equal(imageRace[0].reactionCount, 15);
+    assert.equal(imageRace[0].thumbnailPending, false);
+    assert.match(imageRace[0].thumbnailUrl, /^adsbot-cache:\/\/image\//);
     const longMessage = "x".repeat(600) + " https://example.test/late";
     await store.setPosts("client", "text-links", [
         { id: "late-url", message: longMessage },

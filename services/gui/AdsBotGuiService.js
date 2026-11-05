@@ -406,6 +406,17 @@ export default class AdsBotGuiService {
     }
 
 
+    async getPageSnapshot({ accountKey, pageId }, previous = {}) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getPageSnapshot(accountKey, { pageId, ...previous });
+    }
+
+    async getPageSnapshotImages(accountKey, snapshot) {
+        await this.#assertActiveAccount(accountKey);
+        return this.#facebookBackend.getPageSnapshotImages(accountKey, snapshot);
+    }
+
+
     async getPageRebuildRequirements(options = {}) {
         await this.#assertActiveAccount(options.accountKey);
         return this.#facebookBackend.getPageRebuildRequirements(options);

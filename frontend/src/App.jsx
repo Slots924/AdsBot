@@ -266,7 +266,7 @@ export default function App() {
 
     useEffect(() => { if (selectedAccount && !["bm", "system"].includes(selectedAccount.kind)) loadWorkspace(selectedAccountKey); }, [selectedAccountKey, selectedAccount?.status, selectedAccount?.kind]);
     useEffect(() => window.adsBot.onRemoteCacheUpdated?.((event) => {
-        if (event.kind !== "workspace") return;
+        if (!["workspace", "page-images"].includes(event.kind)) return;
         for (const key of Object.keys(workspaceCacheRef.current)) {
             loadWorkspace(key, false, { readCache: true, background: true });
         }

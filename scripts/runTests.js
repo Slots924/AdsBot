@@ -80,6 +80,7 @@ const backendSuites = {
         "test/testFacebookStateLocalization.js",
         "test/testOpenFacebookUserProfile.js",
         "test/testFacebookPagePostsMock.js",
+        "test/testFacebookPageSnapshotMock.js",
         "test/testFacebookPagePublishingMock.js",
         "test/testFacebookPostLinkPreviewMock.js",
         "test/testFacebookPersonalProfilePostDate.js",

@@ -767,6 +767,7 @@ export default function PagesTab({
     const [countries, setCountries] = useState([]);
     const postsByPage = useRef({});
     const postsRequestId = useRef(0);
+    const selectedRefreshRequestId = useRef(0);
     const signatureRequestId = useRef(0);
     const accountKey = selectedAccount?.accountKey || "";
     const selected = pages.find((page) => String(page.id) === String(selectedPageId));
@@ -804,12 +805,12 @@ export default function PagesTab({
         .filter((page) => !page.isFavorite)
         .sort(compare), [pages]);
 
-    const loadPosts = async (force = false) => {
+    const loadPosts = async (force = false, imagesOnly = false) => {
         if (!selected) return;
-        setDiscussionVersion((value) => value + 1);
+        if (!imagesOnly) setDiscussionVersion((value) => value + 1);
         const pageId = String(selected.id);
         const requestId = ++postsRequestId.current;
-        setLoading(true);
+        if (!imagesOnly) setLoading(true);
         try {
             const next = await unwrap(window.adsBot.getPagePostsWithLinks(
                 accountKey,
@@ -858,6 +859,8 @@ export default function PagesTab({
     }, []);
     useEffect(() => {
         postsRequestId.current += 1;
+        selectedRefreshRequestId.current += 1;
+        setSelectedRefreshing(false);
         signatureRequestId.current += 1;
         setPostsChanged(false);
         const key = String(selected?.id ?? "");
@@ -890,15 +893,16 @@ export default function PagesTab({
                 String(event.pageId) === String(selectedPageId)
             ) {
                 setPosts(next);
+                setDiscussionVersion((value) => value + 1);
                 if (event.type === "snapshot") setPostsChanged(false);
             }
         }) ?? (() => {});
         const offCache = window.adsBot.onRemoteCacheUpdated?.((event) => {
-            if (event.kind !== "posts") return;
+            if (!["posts", "page-images"].includes(event.kind)) return;
             if (String(event.pageId) === String(selectedPageId)) {
                 signatureRequestId.current += 1;
                 setPostsChanged(false);
-                loadPosts();
+                loadPosts(false, event.kind === "page-images");
             }
         }) ?? (() => {});
         return () => { unsubscribe(); offCache(); };
@@ -920,16 +924,17 @@ export default function PagesTab({
 
     const refreshSelectedFanpage = async () => {
         if (!selected || selectedRefreshing) return;
+        postsRequestId.current += 1;
         setDiscussionVersion((value) => value + 1);
         const pageId = String(selected.id);
-        const requestId = ++postsRequestId.current;
+        const requestId = ++selectedRefreshRequestId.current;
         setSelectedRefreshing(true);
         try {
             const result = await unwrap(window.adsBot.refreshSelectedFanPage(
                 accountKey,
                 pageId
             ));
-            if (requestId !== postsRequestId.current) return;
+            if (requestId !== selectedRefreshRequestId.current) return;
             const key = pageId;
             postsByPage.current[key] = result.posts;
             setPosts(result.posts);
@@ -945,7 +950,7 @@ export default function PagesTab({
                 title: "Не вдалося оновити фанку",
             });
         } finally {
-            setSelectedRefreshing(false);
+            if (requestId === selectedRefreshRequestId.current) setSelectedRefreshing(false);
         }
     };
 
@@ -1242,6 +1247,7 @@ export default function PagesTab({
                                                 </div>
                                                 <PagePostDiscussion key={`${accountKey}:${selected.id}:${post.id}:${discussionVersion}`}
                                                     accountKey={accountKey} pageId={selected.id} post={post}
+                                                    resetKey={discussionVersion}
                                                     disabled={loading || selectedRefreshing} />
                                                 <div className="post-actions">
                                                     <button onClick={async () => {

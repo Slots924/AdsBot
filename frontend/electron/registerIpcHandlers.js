@@ -1951,10 +1951,15 @@ export default function registerIpcHandlers({
     ipcMain.handle("pages:selected-refresh", safeHandler(async (payload) => {
         const revision = await remoteDataCacheStore.getPostRevision(payload.pageId);
         const workspaceRevision = await remoteDataCacheStore.getWorkspaceRevision();
-        const [details, posts] = await Promise.all([
-            guiService.getFanPageDetails(payload),
-            guiService.getPagePostsWithLinks({ ...payload, limit: 5, includeAll: true }),
+        const [previousWorkspace, previousPosts] = await Promise.all([
+            remoteDataCacheStore.getWorkspace(payload.accountKey),
+            remoteDataCacheStore.getPosts(payload.accountKey, payload.pageId, "campaign"),
         ]);
+        const snapshot = await guiService.getPageSnapshot(payload, {
+            previousPage: previousWorkspace?.value?.pages?.find((page) => String(page.id) === String(payload.pageId)),
+            previousPosts: previousPosts?.value ?? [],
+        });
+        const { page: details, posts } = snapshot;
         const [page] = await pagePreferencesStore.enrich([details]);
         const cached = await remoteDataCacheStore.getWorkspace(payload.accountKey);
         const currentPages = cached?.value?.pages ?? [];
@@ -1980,6 +1985,14 @@ export default function registerIpcHandlers({
         ) ?? page;
         const stablePosts = updatedPosts?.value ?? posts;
         sendRendererEvent("pages:posts-cache-updated", { type: "snapshot", pageId: payload.pageId, accountKey: payload.accountKey, posts: stablePosts });
+        if (details.picturePending || posts.some((post) => post.thumbnailPending)) {
+            // Повертаємо дані одразу; фоновий патч змінює лише зображення з тим самим джерелом.
+            setImmediate(() => {
+                void guiService.getPageSnapshotImages(payload.accountKey, snapshot)
+                    .then((images) => remoteDataCacheStore.patchPageSnapshotImages(payload.accountKey, payload.pageId, images))
+                    .catch((error) => logger?.warn("pages.images-refresh-failed", "Не вдалося оновити зображення фанпейджі", { error }));
+            });
+        }
         return {
             page: updatedPage,
             posts: stablePosts,

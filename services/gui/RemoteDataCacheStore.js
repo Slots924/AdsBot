@@ -235,6 +235,37 @@ export default class RemoteDataCacheStore {
         }, { kind: "posts", pageId });
     }
 
+    patchPageSnapshotImages(accountKey, pageId, images) {
+        return this.#update(async (store) => {
+            let changed = false;
+            const patch = async (item, image, imageField, sourceField, pendingField) => {
+                if (!item || !image || String(item.id) !== String(image.id)
+                    || !item[pendingField] || item[sourceField] !== image[sourceField]) return item;
+                const prepared = await this.#externalizeImages(image);
+                if (!cachedImageUrl(prepared[imageField])) return item;
+                changed = true;
+                return { ...item, [imageField]: prepared[imageField], [pendingField]: false };
+            };
+            const pageEntry = store.pages[String(pageId)];
+            if (pageEntry) {
+                const next = await patch(pageEntry.value, images.page, "pictureUrl", "pictureSourceUrl", "picturePending");
+                if (next !== pageEntry.value) {
+                    pageEntry.value = next;
+                    store.revisions.workspace += 1;
+                }
+            }
+            const byId = new Map((images.posts ?? []).map((post) => [String(post.id), post]));
+            for (const kind of ["campaign", "links"]) {
+                const entry = store.posts[this.#postsKey(accountKey, pageId, kind)];
+                if (!entry) continue;
+                entry.value = await Promise.all(entry.value.map((post) => patch(post, byId.get(String(post.id)),
+                    "thumbnailUrl", "thumbnailSourceUrl", "thumbnailPending")));
+            }
+            return changed;
+        }, { kind: "page-images", pageId });
+    }
+
+
     async getPostRevision(pageId) {
         return (await this.#read()).postRevisions[pageId] ?? 0;
     }

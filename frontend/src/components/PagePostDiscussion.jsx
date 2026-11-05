@@ -5,7 +5,7 @@ import ReactionCounts from "./ReactionCounts.jsx";
 
 const count = (value) => value == null ? "—" : Number(value).toLocaleString("uk-UA");
 
-export default function PagePostDiscussion({ accountKey, pageId, post, disabled }) {
+export default function PagePostDiscussion({ accountKey, pageId, post, disabled, resetKey = post }) {
     const [expanded, setExpanded] = useState(false);
     const [comments, setComments] = useState([]);
     const [nextCursor, setNextCursor] = useState(null);
@@ -25,7 +25,7 @@ export default function PagePostDiscussion({ accountKey, pageId, post, disabled 
         setLoading(false);
         setError("");
         return () => { request.current += 1; };
-    }, [accountKey, pageId, post]);
+    }, [accountKey, pageId, resetKey]);
 
     const load = async (after) => {
         if (pending.current || disabled) return;

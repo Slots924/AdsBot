@@ -84,3 +84,17 @@ it("дозволяє повторити невдале завантаження"
     fireEvent.click(screen.getByText("Спробувати ще"));
     await screen.findByText("Текст 1");
 });
+
+it("залишає коментарі відкритими після фонового оновлення зображення", async () => {
+    window.adsBot = { getPagePostComments: vi.fn().mockResolvedValue({ ok: true,
+        data: { comments: [comment("1")], nextCursor: null } }) };
+    const view = render(<PagePostDiscussion accountKey="a" pageId="10" post={post} resetKey={1} />);
+    fireEvent.click(screen.getByText("Розгорнути"));
+    await screen.findByText("Текст 1");
+    view.rerender(<PagePostDiscussion accountKey="a" pageId="10" post={{ ...post, thumbnailUrl: "adsbot-cache://image/new.png" }} resetKey={1} />);
+    expect(screen.getByText("Текст 1")).toBeInTheDocument();
+    expect(window.adsBot.getPagePostComments).toHaveBeenCalledTimes(1);
+    view.rerender(<PagePostDiscussion accountKey="a" pageId="10" post={post} resetKey={2} />);
+    expect(screen.queryByText("Текст 1")).not.toBeInTheDocument();
+    expect(screen.getByText("Розгорнути")).toHaveAttribute("aria-expanded", "false");
+});

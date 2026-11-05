@@ -1,4 +1,5 @@
 import {
+    act,
     cleanup,
     fireEvent,
     render,
@@ -309,6 +310,8 @@ describe("Дизайн workspace фанпейджів", () => {
         const onRefresh = vi.fn().mockResolvedValue([]);
         const onPagesChange = vi.fn();
         let finishRefresh;
+        let cacheListener;
+        window.adsBot.onRemoteCacheUpdated = vi.fn((callback) => { cacheListener = callback; return () => {}; });
         window.adsBot.refreshSelectedFanPage = vi.fn(() => new Promise((resolve) => {
             finishRefresh = resolve;
         }));
@@ -348,6 +351,8 @@ describe("Дизайн workspace фанпейджів", () => {
         fireEvent.click(selectedRefresh);
         expect(screen.getByText("Post")).toBeInTheDocument();
         expect(selectedRefresh.querySelector("svg")).toHaveClass("spin");
+
+        await act(async () => cacheListener({ kind: "posts", pageId: "10" }));
 
         finishRefresh({
             ok: true,

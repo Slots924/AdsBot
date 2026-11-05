@@ -203,6 +203,20 @@ function normalizePagePost(post) {
 }
 
 
+function reuseSnapshotImage(item, previous, imageField, sourceField, pendingField) {
+    const source = item[imageField];
+    const cached = previous?.[imageField];
+    const reusable = source && previous?.[sourceField] === source
+        && !previous?.[pendingField] && /^(?:adsbot-cache:\/\/image\/|data:image\/)/.test(cached ?? "");
+    return {
+        ...item,
+        [imageField]: cached ?? null,
+        [sourceField]: source,
+        [pendingField]: Boolean(source && !reusable),
+    };
+}
+
+
 export default class FacebookGraphApi {
     #pagesCache = null;
     #pagesRequest = null;
@@ -1160,6 +1174,7 @@ export default class FacebookGraphApi {
         if (!/^https:\/\//i.test(String(url ?? ""))) return url;
         try {
             const response = await this.#proxyHttpClient.get(url, {
+                timeout: 15000,
                 responseType: "arraybuffer",
                 headers: {
                     "User-Agent": this.userAgent,
@@ -1274,8 +1289,13 @@ export default class FacebookGraphApi {
     }
 
 
-    async getPageDetails({ pageId } = {}) {
-        const page = await this.getFanPageById(pageId);
+    async #findPageAccess(pageId) {
+        const page = (await this.getPages()).find((item) => String(item.id) === String(pageId ?? "").trim());
+        return page?.pageAccessToken && hasPagePublishTask(page.tasks) ? page : null;
+    }
+
+
+    async #readPageDetails(page) {
         if (!page) {
             throw createValidationError(
                 "Немає доступу до вибраної фанпейджі",
@@ -1291,11 +1311,50 @@ export default class FacebookGraphApi {
                 "PAGE_DETAILS_UNPUBLISHED"
             );
         }
-        return this.#cachePagePicture({
+        return {
             id: data?.id ?? page.id,
             name: data?.name ?? page.name,
             pictureUrl: data?.picture?.data?.url ?? page.pictureUrl ?? null,
-        });
+        };
+    }
+
+
+    async getPageDetails({ pageId } = {}) {
+        return this.#cachePagePicture(await this.#readPageDetails(await this.#findPageAccess(pageId)));
+    }
+
+
+    /** Оновлює дані двома Graph-запитами, залишаючи зображення для окремого завантаження. */
+    async getPageSnapshot({ pageId, previousPage, previousPosts = [] } = {}) {
+        const id = normalizeObjectId(pageId, "PAGE_ID_INVALID", "ID фанпейджі");
+        const access = await this.#findPageAccess(id);
+        if (!access) throw createValidationError("Немає доступу до фанпейджі", "PAGE_DETAILS_ACCESS_DENIED");
+        const [page, posts] = await Promise.all([
+            this.#readPageDetails(access),
+            this.#readLatestPagePosts(access, { limit: 5, includeAll: true }),
+        ]);
+        const previousById = new Map(previousPosts.map((post) => [String(post.id), post]));
+        return {
+            page: reuseSnapshotImage(page, previousPage, "pictureUrl", "pictureSourceUrl", "picturePending"),
+            posts: posts.map((post) => reuseSnapshotImage(post, previousById.get(post.id),
+                "thumbnailUrl", "thumbnailSourceUrl", "thumbnailPending")),
+        };
+    }
+
+
+    /** Завантажує лише нові зображення; повертає патчі без текстів і лічильників. */
+    async getPageSnapshotImages({ page, posts }) {
+        const download = async (item, imageField, sourceField, pendingField, maximumBytes) => {
+            if (!item[pendingField]) return null;
+            const url = await this.#cacheImageUrl(item[sourceField], maximumBytes);
+            if (!String(url ?? "").startsWith("data:image/")) return null;
+            return { id: item.id, [imageField]: url, [sourceField]: item[sourceField], [pendingField]: false };
+        };
+        const [pageImage, postImages] = await Promise.all([
+            download(page, "pictureUrl", "pictureSourceUrl", "picturePending", 2_000_000),
+            mapWithConcurrency(posts, (post) => download(post, "thumbnailUrl", "thumbnailSourceUrl", "thumbnailPending", 1_500_000), 3),
+        ]);
+        return { page: pageImage, posts: postImages.filter(Boolean) };
     }
 
 
@@ -1312,11 +1371,7 @@ export default class FacebookGraphApi {
             return null;
         }
 
-        const pages = await this.getPages();
-
-        const page = pages.find(
-            (page) => String(page.id) === normalizedPageId
-        ) ?? null;
+        const page = await this.#findPageAccess(normalizedPageId);
 
         if (!page) {
             return null;
@@ -1769,8 +1824,13 @@ export default class FacebookGraphApi {
             );
         }
 
-        const posts = await collectLatestPagePostsWithLinks({
-            limit: normalizedLimit,
+        return this.#cachePostPictures(await this.#readLatestPagePosts(page, { limit: normalizedLimit, includeAll }));
+    }
+
+
+    #readLatestPagePosts(page, { limit, includeAll }) {
+        return collectLatestPagePostsWithLinks({
+            limit,
             includeAll,
             normalizePost: normalizePagePost,
             fetchPosts: async ({ limit: requestLimit }) => {
@@ -1781,7 +1841,6 @@ export default class FacebookGraphApi {
                 return Array.isArray(data?.data) ? data.data : [];
             },
         });
-        return this.#cachePostPictures(posts);
     }
 
 

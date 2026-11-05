@@ -183,6 +183,14 @@ export default class FacebookBackendService {
         return this.#getFacebookApiClient(accountKey).getPageDetails(options);
     }
 
+    async getPageSnapshot(accountKey, options) {
+        return this.#getFacebookApiClient(accountKey).getPageSnapshot(options);
+    }
+
+    async getPageSnapshotImages(accountKey, snapshot) {
+        return this.#getFacebookApiClient(accountKey).getPageSnapshotImages(snapshot);
+    }
+
 
     async getPageRebuildRequirements({ accountKey, pageId } = {}) {
         const facebookApiClient = this.#getFacebookApiClient(accountKey);

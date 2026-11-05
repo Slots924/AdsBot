@@ -1025,6 +1025,39 @@ const sharedPosts = (await remoteDataCacheStore.getPosts("other-client", "10")).
 assert.match(sharedPosts[0].thumbnailUrl, /^adsbot-cache:\/\/image\//);
 assert.equal(rendererEvents.filter((item) => item.channel === "pages:posts-cache-updated").at(-1).payload.post.thumbnailUrl, sharedPosts[0].thumbnailUrl);
 
+// Свіжі лічильники повертаються раніше за зображення, а фоновий патч не відкочує нові дані.
+let finishPageImages;
+guiService.getPageSnapshot = async ({ pageId }, previous) => {
+    assert.equal(previous.previousPosts[0].id, "10_new");
+    return {
+        page: { id: pageId, name: "Fast page", pictureUrl: null, pictureSourceUrl: "https://image.test/avatar", picturePending: true },
+        posts: [{ id: "10_new", message: "https://example.test", reactionCount: 8,
+            thumbnailUrl: sharedPosts[0].thumbnailUrl, thumbnailSourceUrl: "https://image.test/post", thumbnailPending: true }],
+    };
+};
+guiService.getPageSnapshotImages = () => new Promise((resolve) => { finishPageImages = resolve; });
+const quickPage = await handlers.get("pages:selected-refresh")({}, { accountKey: "fp_hub", pageId: "10" });
+assert.equal(quickPage.ok, true);
+assert.equal(quickPage.data.page.name, "Fast page");
+assert.equal(quickPage.data.posts[0].reactionCount, 8);
+assert.equal(quickPage.data.posts[0].thumbnailUrl, sharedPosts[0].thumbnailUrl);
+while (!finishPageImages) await new Promise((resolve) => setImmediate(resolve));
+const currentSnapshot = await remoteDataCacheStore.getPosts("fp_hub", "10", "campaign");
+await remoteDataCacheStore.setPosts("fp_hub", "10", [{ ...currentSnapshot.value[0], reactionCount: 19 }], "campaign");
+const imagesPatched = new Promise((resolve) => {
+    const off = remoteDataCacheStore.subscribe((event) => {
+        if (event.kind === "page-images") { off(); resolve(); }
+    });
+});
+finishPageImages({
+    page: { id: "10", pictureUrl: png, pictureSourceUrl: "https://image.test/avatar" },
+    posts: [{ id: "10_new", thumbnailUrl: png, thumbnailSourceUrl: "https://image.test/post" }],
+});
+await imagesPatched;
+assert.equal((await remoteDataCacheStore.getPosts("fp_hub", "10")).value[0].reactionCount, 19);
+assert.equal((await remoteDataCacheStore.getPosts("fp_hub", "10")).value[0].thumbnailPending, false);
+assert.match((await remoteDataCacheStore.getWorkspace("fp_hub")).value.pages.find((page) => page.id === "10").pictureUrl, /^adsbot-cache:\/\/image\//);
+
 // Оновлення починається в IPC одразу, не створює задачі й відхиляє дубль.
 const queueSizeBeforeTokenRefresh = enqueuedOptions.length;
 facebookAccountManager.get = async () => ({ accountKey: "fp_hub", kind: "api", proxyMode: "bound", proxyId: "proxy-001" });
