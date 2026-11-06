@@ -317,8 +317,8 @@ export default function Sidebar({
                                     </small>}
                                 </span>
                             </button>
-                            {getAccountTokenMode(account) === "afp" && <small className="connection-detail" role="status" title={account.spendServer?.message || (account.spendServer?.sentAt ? `???????????: ${new Date(account.spendServer.sentAt).toLocaleString()}` : "????? ???????? ????????? ?????? ???? ???? ??????????? ?? ??????")}>
-                                <span style={{ color: account.spendServer?.state === "success" ? "#22c55e" : account.spendServer?.state === "error" ? "#ef4444" : "#94a3b8" }}>?</span> Spend Server: {account.spendServer?.state === "success" ? "???????????" : account.spendServer?.state === "error" ? "??????? ?????????" : "?? ???????????"}
+                            {getAccountTokenMode(account) === "afp" && <small className="connection-detail" role="status" title={account.spendServer?.message || (account.spendServer?.sentAt ? `Відправлено: ${new Date(account.spendServer.sentAt).toLocaleString()}` : "Після успішної перевірки токена дані буде відправлено на сервер")}>
+                                <span style={{ color: account.spendServer?.state === "success" ? "#22c55e" : account.spendServer?.state === "error" ? "#ef4444" : "#94a3b8" }}>●</span> Spend Server: {account.spendServer?.state === "success" ? "відправлено" : account.spendServer?.state === "error" ? "помилка відправки" : "не відправлено"}
                             </small>}
                             <div className="connection-card-footer">
                             {(account.kind || "api") === "api" ? <div className="account-card-token-mode"><TokenPicker value={getAccountTokenMode(account)} onChange={(mode) => changeTokenMode(account, mode)} afpDisabled={!account.hasAfpToken} disabled={busyKey === account.accountKey || syncingAccountKeys.includes(account.accountKey) || refreshingTokenAccountKeys.includes(account.accountKey) || account.archived} /></div> : <span className="connection-kind-label">{account.kind === "bm" ? "Business Manager" : "System User"}</span>}

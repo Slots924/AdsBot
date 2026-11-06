@@ -10,6 +10,18 @@ const clients = [{ accountKey: "account-001", name: "Без профілю", kin
 const proxies = [{ id: "p1", name: "Public", type: "socks5", isPublic: true, adsPowerId: 1 }, { id: "p2", name: "Private", type: "http", isPublic: false, adsPowerId: 2 }, { id: "p3", name: "Legacy public", type: "http" }];
 
 describe("Робочий простір підключень", () => {
+    it.each([
+        ["success", "відправлено", "#22c55e"],
+        ["error", "помилка відправки", "#ef4444"],
+        ["pending", "не відправлено", "#94a3b8"],
+    ])("показує український статус Spend Server: %s", (state, label, color) => {
+        render(<Sidebar standalone accounts={[{ ...clients[1], spendServer: { state } }]} />);
+        const indicator = screen.getByRole("status");
+        expect(indicator).toHaveTextContent(`● Spend Server: ${label}`);
+        expect(indicator).toHaveAttribute("title", "Після успішної перевірки токена дані буде відправлено на сервер");
+        expect(indicator.querySelector("span")).toHaveStyle({ color });
+    });
+
     it("вибирає клієнта через фон, проміжки та клавіатуру, а кнопки дій не змінюють вибір", async () => {
         const onSelect = vi.fn();
         const onUpdate = vi.fn().mockResolvedValue();
