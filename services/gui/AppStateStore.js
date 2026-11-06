@@ -43,6 +43,7 @@ const defaultState = {
     selectedAccountKey: "",
     selectedPageId: "",
     selectedAdAccountId: "",
+    clientWorkspaceSelections: {},
     selectedGroupIds: [],
     favoriteGroupIds: [],
     commentLeftGroupId: "",
@@ -70,6 +71,20 @@ function stringsFrom(source, fields) {
         field,
         typeof source?.[field] === "string" ? source[field] : "",
     ]));
+}
+
+function normalizeClientWorkspaceSelections(state) {
+    const source = state.clientWorkspaceSelections;
+    const entries = source && typeof source === "object" && !Array.isArray(source)
+        ? Object.entries(source).filter(([key, value]) => key && value && typeof value === "object" && !Array.isArray(value))
+        : [];
+    const selections = Object.fromEntries(entries.map(([key, value]) => [
+        key, stringsFrom(value, ["selectedPageId", "selectedAdAccountId"]),
+    ]));
+    if (typeof state.selectedAccountKey === "string" && state.selectedAccountKey && !Object.hasOwn(selections, state.selectedAccountKey)) {
+        selections[state.selectedAccountKey] = stringsFrom(state, ["selectedPageId", "selectedAdAccountId"]);
+    }
+    return selections;
 }
 
 
@@ -216,6 +231,7 @@ function normalizeState(state = {}) {
         defaultPixelId: String(state.defaultPixelId ?? "").trim(),
         defaultUtm: String(state.defaultUtm ?? ""),
         taskPanelCollapsed: Boolean(state.taskPanelCollapsed),
+        clientWorkspaceSelections: normalizeClientWorkspaceSelections(state),
         ...stringsFrom(state, [
             "selectedAccountKey",
             "selectedPageId",

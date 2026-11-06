@@ -1,4 +1,768 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "f32a8779-64d5-4cac-a7e3-f743bdc635f2",
+      "type": "campaign",
+      "name": "DE | Creo_1 | 25+ 06/11 16:31",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "c416af46-b54c-4c78-9021-dac0cbaeb8b8"
+      },
+      "metadata": {
+        "campaignJobId": "c416af46-b54c-4c78-9021-dac0cbaeb8b8",
+        "accountKey": "account-067",
+        "adAccountId": "act_1360465989324394",
+        "uniqueKey": "campaign-job:c416af46-b54c-4c78-9021-dac0cbaeb8b8",
+        "reportId": "f2ee0491-d1b8-46a6-8388-38d18a317fa9"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "52544872467398",
+          "creativeId": "29540573445528713",
+          "creatives": [
+            {
+              "id": "29540573445528713",
+              "pageId": "1284807618060555",
+              "postId": "1284807618060555_122114815473508803"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52544872498398",
+              "name": "DE | Creo_1 | 25+ 06/11 16:31 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52544872534398",
+              "name": "DE | Creo_1 | 25+ 06/11 16:31 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "c416af46-b54c-4c78-9021-dac0cbaeb8b8",
+        "campaignId": "52544872467398",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T16:32:02.035Z",
+      "startedAt": "2026-11-06T16:32:02.037Z",
+      "finishedAt": "2026-11-06T16:32:25.844Z",
+      "updatedAt": "2026-11-06T16:32:25.846Z"
+    },
+    {
+      "id": "e3f09bb7-ee91-42ec-abc5-a15c3a6c046e",
+      "type": "publication",
+      "name": "Публікація · DE · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/njdszf",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\762829933_122325643460007675_5689537905500061894_n.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "1",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "d83ff6bf-73ff-419a-b6f9-08c6f9b2f865"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/njdszf",
+        "postId": "1284807618060555_122114815473508803",
+        "permalinkUrl": "https://www.facebook.com/122114787813508803/posts/122114815473508803",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T16:31:35.276Z",
+      "startedAt": "2026-11-06T16:31:35.278Z",
+      "finishedAt": "2026-11-06T16:31:41.876Z",
+      "updatedAt": "2026-11-06T16:31:41.878Z"
+    },
+    {
+      "id": "bc18436d-ff30-4474-aab6-a6b77580c73a",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1284807618060555_122114788371508803",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "postId": "1284807618060555_122114788371508803"
+      },
+      "metadata": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "reportId": "2eefa525-d1bc-48c1-95ba-d9a7009eb2e2"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1284807618060555_122114788371508803"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T16:31:16.380Z",
+      "startedAt": "2026-11-06T16:31:16.381Z",
+      "finishedAt": "2026-11-06T16:31:22.682Z",
+      "updatedAt": "2026-11-06T16:31:22.684Z"
+    },
+    {
+      "id": "f919fab7-0a59-4cc8-a3d7-ba6d75f330c7",
+      "type": "campaign",
+      "name": "DE | Creo_1 | 25+ 06/11 14:48",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "4aa747ca-e679-440b-9e56-8a385634bbdd"
+      },
+      "metadata": {
+        "campaignJobId": "4aa747ca-e679-440b-9e56-8a385634bbdd",
+        "accountKey": "account-067",
+        "adAccountId": "act_1360465989324394",
+        "uniqueKey": "campaign-job:4aa747ca-e679-440b-9e56-8a385634bbdd",
+        "reportId": "9c350a2a-8022-4cb0-838b-3bdb4ac051e7"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "52544849482598",
+          "creativeId": "1435839805355704",
+          "creatives": [
+            {
+              "id": "1435839805355704",
+              "pageId": "1284807618060555",
+              "postId": "1284807618060555_122114788371508803"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52544849562798",
+              "name": "DE | Creo_1 | 25+ 06/11 14:48 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52544850193798",
+              "name": "DE | Creo_1 | 25+ 06/11 14:48 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "4aa747ca-e679-440b-9e56-8a385634bbdd",
+        "campaignId": "52544849482598",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T14:48:58.066Z",
+      "startedAt": "2026-11-06T14:48:58.067Z",
+      "finishedAt": "2026-11-06T14:49:25.211Z",
+      "updatedAt": "2026-11-06T14:49:25.214Z"
+    },
+    {
+      "id": "9758bf01-79f8-4355-94e2-2857782d1c72",
+      "type": "publication",
+      "name": "Публікація · DE · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/0jjho5",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\764065672_122301694466017959_6381979788048763933_n (1).jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\767002259_122301694574017959_7729209163543953863_n.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "1",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "af909adc-0a66-4ea6-9e44-dfcdfe9c8751"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/0jjho5",
+        "postId": "1284807618060555_122114788371508803",
+        "permalinkUrl": "https://www.facebook.com/122114787813508803/posts/122114788371508803",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T14:48:26.135Z",
+      "startedAt": "2026-11-06T14:48:26.136Z",
+      "finishedAt": "2026-11-06T14:48:36.501Z",
+      "updatedAt": "2026-11-06T14:48:36.503Z"
+    },
+    {
+      "id": "29954a3d-cbbe-4bec-b946-c3bf16f65fd2",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1284807618060555_122109762723508803",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "postId": "1284807618060555_122109762723508803"
+      },
+      "metadata": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "reportId": "ceadfbbb-51d5-4ce9-9522-cd7bbaed83c1"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1284807618060555_122109762723508803"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T14:48:04.974Z",
+      "startedAt": "2026-11-06T14:48:04.975Z",
+      "finishedAt": "2026-11-06T14:48:12.480Z",
+      "updatedAt": "2026-11-06T14:48:12.482Z"
+    },
+    {
+      "id": "f72c5382-e499-442c-b84d-92b8d5a15356",
+      "type": "adset-duplicate",
+      "name": "Дублювання адсету · 5 копій",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "accountKey": "account-064",
+        "adAccountId": "act_992958336430516",
+        "campaignId": "120252776761600105",
+        "adSetId": "120252776763800105",
+        "count": 5,
+        "budget": 10,
+        "startTime": null,
+        "createActive": true
+      },
+      "metadata": {
+        "accountKey": "account-064",
+        "adAccountId": "act_992958336430516",
+        "campaignId": "120252776761600105",
+        "adSetId": "120252776763800105",
+        "uniqueKey": "adset-duplicate:act_992958336430516:120252776763800105",
+        "reportId": "a3a947f0-6e8f-4a61-aa4a-b161de4bdee4"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "createdAdSetIds": [
+          "120252803462550105",
+          "120252803466380105",
+          "120252803469390105",
+          "120252803474240105",
+          "120252803481380105"
+        ]
+      },
+      "result": {
+        "copies": [
+          {
+            "id": "120252803462550105",
+            "name": "AT | Creo_1 | 25+ 05/11 12:34 | AS 01 — копія 1",
+            "status": "ACTIVE",
+            "effectiveStatus": "IN_PROCESS",
+            "campaignBudget": false,
+            "setupIncomplete": false,
+            "dailyBudget": "1000",
+            "lifetimeBudget": null,
+            "startTime": "2026-11-06T14:45:52.589Z",
+            "endTime": null
+          },
+          {
+            "id": "120252803466380105",
+            "name": "AT | Creo_1 | 25+ 05/11 12:34 | AS 01 — копія 2",
+            "status": "ACTIVE",
+            "effectiveStatus": "IN_PROCESS",
+            "campaignBudget": false,
+            "setupIncomplete": false,
+            "dailyBudget": "1000",
+            "lifetimeBudget": null,
+            "startTime": "2026-11-06T14:46:16.149Z",
+            "endTime": null
+          },
+          {
+            "id": "120252803469390105",
+            "name": "AT | Creo_1 | 25+ 05/11 12:34 | AS 01 — копія 3",
+            "status": "ACTIVE",
+            "effectiveStatus": "IN_PROCESS",
+            "campaignBudget": false,
+            "setupIncomplete": false,
+            "dailyBudget": "1000",
+            "lifetimeBudget": null,
+            "startTime": "2026-11-06T14:46:40.588Z",
+            "endTime": null
+          },
+          {
+            "id": "120252803474240105",
+            "name": "AT | Creo_1 | 25+ 05/11 12:34 | AS 01 — копія 4",
+            "status": "ACTIVE",
+            "effectiveStatus": "IN_PROCESS",
+            "campaignBudget": false,
+            "setupIncomplete": false,
+            "dailyBudget": "1000",
+            "lifetimeBudget": null,
+            "startTime": "2026-11-06T14:47:05.808Z",
+            "endTime": null
+          },
+          {
+            "id": "120252803481380105",
+            "name": "AT | Creo_1 | 25+ 05/11 12:34 | AS 01 — копія 5",
+            "status": "ACTIVE",
+            "effectiveStatus": "IN_PROCESS",
+            "campaignBudget": false,
+            "setupIncomplete": false,
+            "dailyBudget": "1000",
+            "lifetimeBudget": null,
+            "startTime": "2026-11-06T14:47:29.528Z",
+            "endTime": null
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T14:45:31.687Z",
+      "startedAt": "2026-11-06T14:45:31.688Z",
+      "finishedAt": "2026-11-06T14:47:36.339Z",
+      "updatedAt": "2026-11-06T14:47:36.341Z"
+    },
+    {
+      "id": "c8b135f5-1228-4cca-8a4e-206f65ea1b7c",
+      "type": "campaign",
+      "name": "DE | Creo_4 | 25+ 06/11 13:02",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "7d723bae-dd48-444a-83c8-95225ab882e3"
+      },
+      "metadata": {
+        "campaignJobId": "7d723bae-dd48-444a-83c8-95225ab882e3",
+        "accountKey": "account-067",
+        "adAccountId": "act_1360465989324394",
+        "uniqueKey": "campaign-job:7d723bae-dd48-444a-83c8-95225ab882e3",
+        "reportId": "28539793-97fb-45aa-b872-4a7ac3d72be5"
+      },
+      "progress": {
+        "completed": 9,
+        "total": 9,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "52544814375998",
+          "creativeId": "1698774841816735",
+          "creatives": [
+            {
+              "id": "1698774841816735",
+              "pageId": "1272886725918152",
+              "postId": "1272886725918152_122112527337503197"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52544814437198",
+              "name": "DE | Creo_4 | 25+ 06/11 13:02 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "52544814463598",
+              "name": "DE | Creo_4 | 25+ 06/11 13:02 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "52544814480798",
+              "name": "DE | Creo_4 | 25+ 06/11 13:02 | AS 03"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52544814459998",
+              "name": "DE | Creo_4 | 25+ 06/11 13:02 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "52544814474598",
+              "name": "DE | Creo_4 | 25+ 06/11 13:02 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "52544814519598",
+              "name": "DE | Creo_4 | 25+ 06/11 13:02 | AD 03"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "7d723bae-dd48-444a-83c8-95225ab882e3",
+        "campaignId": "52544814375998",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T13:02:36.625Z",
+      "startedAt": "2026-11-06T13:02:36.626Z",
+      "finishedAt": "2026-11-06T13:03:26.245Z",
+      "updatedAt": "2026-11-06T13:03:26.247Z"
+    },
+    {
+      "id": "5e03894d-c0b8-4506-b878-a00fe0d47419",
+      "type": "campaign",
+      "name": "AT | Creo_138 | 25+ 06/11 16:01",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "3adabf87-29fb-497d-9664-2d02b56c7511"
+      },
+      "metadata": {
+        "campaignJobId": "3adabf87-29fb-497d-9664-2d02b56c7511",
+        "accountKey": "account-064",
+        "adAccountId": "act_992958336430516",
+        "uniqueKey": "campaign-job:3adabf87-29fb-497d-9664-2d02b56c7511",
+        "reportId": "1fde7666-4f86-4167-b17f-df4c45ea7dc6"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120252801760010105",
+          "creativeId": "1420333650257899",
+          "creatives": [
+            {
+              "id": "1420333650257899",
+              "pageId": "114245201640307",
+              "postId": "114245201640307_1058241307250880"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120252801761750105",
+              "name": "AT | Creo_138 | 25+ 06/11 16:01 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120252801763720105",
+              "name": "AT | Creo_138 | 25+ 06/11 16:01 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "3adabf87-29fb-497d-9664-2d02b56c7511",
+        "campaignId": "120252801760010105",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T13:01:34.895Z",
+      "startedAt": "2026-11-06T13:01:34.896Z",
+      "finishedAt": "2026-11-06T13:01:58.521Z",
+      "updatedAt": "2026-11-06T13:01:58.523Z"
+    },
+    {
+      "id": "f9edbf10-157d-470e-8c2a-692d95d2b7e3",
+      "type": "publication",
+      "name": "Публікація · AT · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-064",
+        "pageId": "114245201640307",
+        "geo": "AT",
+        "language": "",
+        "creativeGeo": "AT",
+        "creativeName": "138",
+        "siteUrl": "https://love-in-hurt.club/q5fe4c",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\138\\14.jpeg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-064",
+        "pageId": "114245201640307",
+        "geo": "AT",
+        "language": "",
+        "creativeName": "138",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "09b065ae-a776-47ad-b499-8da2798720e0"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-064",
+        "pageId": "114245201640307",
+        "geo": "AT",
+        "language": "",
+        "creativeName": "138",
+        "siteUrl": "https://love-in-hurt.club/q5fe4c",
+        "postId": "114245201640307_1058241307250880",
+        "permalinkUrl": "https://www.facebook.com/100091950606765/posts/pfbid031dTASvTyUxGAbC2uJM8XiWVCa18UeQG7QAQFwr92jfbUuJiSV6MwYRQcVP5WVk1l",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T13:00:59.512Z",
+      "startedAt": "2026-11-06T13:00:59.513Z",
+      "finishedAt": "2026-11-06T13:01:08.586Z",
+      "updatedAt": "2026-11-06T13:01:08.587Z"
+    },
+    {
+      "id": "cfd400b8-0ae4-4c76-a5c5-eee64bf6b7a6",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 114245201640307_1057155190692825",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-064",
+        "pageId": "114245201640307",
+        "postId": "114245201640307_1057155190692825"
+      },
+      "metadata": {
+        "accountKey": "account-064",
+        "pageId": "114245201640307",
+        "reportId": "300b9525-a506-4c02-96d9-d80a7da47543"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "114245201640307_1057155190692825"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T12:59:34.614Z",
+      "startedAt": "2026-11-06T12:59:34.616Z",
+      "finishedAt": "2026-11-06T12:59:41.319Z",
+      "updatedAt": "2026-11-06T12:59:41.321Z"
+    },
+    {
+      "id": "00672b0c-b42b-41b7-84a7-eaa4da9340a5",
+      "type": "facebook-api-client-sync",
+      "name": "Синхронізація API-клієнта account-064",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:1441",
+          "label": "AdsPower №1441"
+        }
+      ],
+      "input": {
+        "accountKey": "account-064",
+        "adsPowerProfileNo": "1441"
+      },
+      "metadata": {
+        "accountKey": "account-064",
+        "uniqueKey": "facebook-api-client-sync:account-064",
+        "reportId": "a22a1a3c-fcdb-413c-8a6f-f4a3e46c8c95"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-064",
+        "adsPowerProfileNo": "1441",
+        "userAgentUpdated": true,
+        "accessTokenUpdated": true,
+        "cookieUpdated": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T12:58:16.464Z",
+      "startedAt": "2026-11-06T12:58:16.465Z",
+      "finishedAt": "2026-11-06T12:58:32.225Z",
+      "updatedAt": "2026-11-06T12:58:32.228Z"
+    }
+  ]
 }

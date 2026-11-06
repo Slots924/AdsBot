@@ -133,6 +133,10 @@ try {
         adsSubtab: "templates",
         uiScale: 1.4,
         selectedAccountKey: "account-1",
+        clientWorkspaceSelections: {
+            "account-1": { selectedAdAccountId: "act-1", selectedPageId: "page-1" },
+            "account-2": { selectedAdAccountId: "act-2", selectedPageId: "page-2" },
+        },
         commentWorkerConcurrency: 4,
         defaultPixelId: "123",
         defaultUtm: "utm_source=test",
@@ -148,6 +152,13 @@ try {
         unsafe: "not-saved",
     });
     const state = await stateStore.load();
+    assert.deepEqual(
+        (await new AppStateStore({ stateFile }).load()).clientWorkspaceSelections,
+        {
+            "account-1": { selectedAdAccountId: "act-1", selectedPageId: "page-1" },
+            "account-2": { selectedAdAccountId: "act-2", selectedPageId: "page-2" },
+        }
+    );
     assert.equal(state.activeTab, "pages");
     assert.equal(state.adsSubtab, "templates");
     assert.equal(state.uiScale, 1.4);

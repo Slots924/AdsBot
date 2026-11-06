@@ -18,6 +18,7 @@ import KeitaroWorkspaceTab from "./tabs/KeitaroWorkspaceTab.jsx";
 import SpendTab from "./tabs/SpendTab.jsx";
 import BusinessManagerTab from "./tabs/BusinessManagerTab.jsx";
 import { errorDetails, unwrap } from "./lib/api.js";
+import useClientWorkspaceSelection from "./lib/useClientWorkspaceSelection.js";
 
 const tabs = [
     { id: "accounts", label: "API-клієнти", icon: Bot },
@@ -42,15 +43,16 @@ export default function App() {
     const [proxies, setProxies] = useState([]);
     const [proxiesLoading, setProxiesLoading] = useState(true);
     const [selectedAccountKey, setSelectedAccountKey] = useState("");
-    const [selectedAdAccountId, setSelectedAdAccountId] = useState("");
-    const [selectedPageId, setSelectedPageId] = useState("");
+    const {
+        clientWorkspaceSelections, setClientWorkspaceSelections,
+        selectedAdAccountId, setSelectedAdAccountId, selectedPageId, setSelectedPageId,
+        reconcileWorkspaceSelection,
+    } = useClientWorkspaceSelection(selectedAccountKey);
     const [workspaceCache, setWorkspaceCache] = useState({});
     const [workspaceLoading, setWorkspaceLoading] = useState(false);
     const workspaceRequestVersions = useRef({});
     const workspaceCacheRef = useRef({});
-    const selectedAccountKeyRef = useRef("");
     workspaceCacheRef.current = workspaceCache;
-    selectedAccountKeyRef.current = selectedAccountKey;
     const [groups, setGroups] = useState([]);
     const [favoriteGroupIds, setFavoriteGroupIds] = useState([]);
     const [commentLeftGroupId, setCommentLeftGroupId] = useState("");
@@ -143,10 +145,7 @@ export default function App() {
             if (workspaceRequestVersions.current[accountKey] !== requestVersion) return;
             if ((workspaceCacheRef.current[accountKey]?.cacheRevision ?? 0) > (value.cacheRevision ?? 0)) return;
             setWorkspaceCache((current) => ({ ...current, [accountKey]: value }));
-            if (selectedAccountKeyRef.current === accountKey) {
-                setSelectedAdAccountId((current) => value.adAccounts.some((item) => item.id === current) ? current : "");
-                setSelectedPageId((current) => value.pages.some((item) => item.id === current) ? current : "");
-            }
+            reconcileWorkspaceSelection(accountKey, value);
         } catch (error) { if (!background) setModal({ ...errorDetails(error), title: `Не вдалося завантажити workspace ${accountKey}` }); }
         finally { if (!background) setWorkspaceLoading(false); }
     };
@@ -219,7 +218,8 @@ export default function App() {
             try {
                 const state = await unwrap(window.adsBot.loadAppState());
                 setActiveTab(state.activeTab); setAdsSubtab(state.adsSubtab);
-                setSelectedAccountKey(state.selectedAccountKey); setSelectedAdAccountId(state.selectedAdAccountId); setSelectedPageId(state.selectedPageId);
+                setSelectedAccountKey(state.selectedAccountKey);
+                setClientWorkspaceSelections(state.clientWorkspaceSelections || {});
                 setUiScale(state.uiScale); setCreateCampaignsPaused(state.createCampaignsPaused); setCreateAdSetsPaused(state.createAdSetsPaused); setCreateAdsPaused(state.createAdsPaused); setCommentWorkerConcurrency(state.commentWorkerConcurrency);
                 setCommentWorkerProxyIds(state.commentWorkerProxyIds || {});
                 setCommentBrowserMode(state.commentBrowserMode); setCommentDisableImages(state.commentDisableImages);
@@ -277,9 +277,9 @@ export default function App() {
     useEffect(() => window.adsBot.onCacheRecovered?.((event) => showToast(event.message, "info")), []);
     useEffect(() => {
         if (!hydrated) return undefined;
-        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, reactionWorkerConcurrency, reactionWorkerProxyIds, reactionBrowserMode, reactionDisableImages, apiClientsBrowserMode, apiClientsDisableImages, apiClientsAutoRefresh, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped }).catch(() => {}), 250);
+        const timer = setTimeout(() => window.adsBot.saveAppState({ activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, reactionWorkerConcurrency, reactionWorkerProxyIds, reactionBrowserMode, reactionDisableImages, apiClientsBrowserMode, apiClientsDisableImages, apiClientsAutoRefresh, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, clientWorkspaceSelections, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped }).catch(() => {}), 250);
         return () => clearTimeout(timer);
-    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, reactionWorkerConcurrency, reactionWorkerProxyIds, reactionBrowserMode, reactionDisableImages, apiClientsBrowserMode, apiClientsDisableImages, apiClientsAutoRefresh, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped]);
+    }, [hydrated, activeTab, adsSubtab, uiScale, createCampaignsPaused, createAdSetsPaused, createAdsPaused, commentWorkerConcurrency, commentWorkerProxyIds, commentBrowserMode, commentDisableImages, accountSetupWorkerConcurrency, accountSetupWorkerProxyIds, accountSetupBrowserMode, reactionWorkerConcurrency, reactionWorkerProxyIds, reactionBrowserMode, reactionDisableImages, apiClientsBrowserMode, apiClientsDisableImages, apiClientsAutoRefresh, accountSetupPhotosDirectory, defaultPixelId, defaultUtm, logLevel, taskPanelCollapsed, selectedAccountKey, selectedPageId, selectedAdAccountId, clientWorkspaceSelections, favoriteGroupIds, commentLeftGroupId, commentRightGroupId, commentLeftSort, commentRightSort, keitaroAvailableGroupIds, keitaroSearch, keitaroGroupId, keitaroDatePreset, keitaroSort, keitaroColumnOrder, keitaroColumnWidths, keitaroVisibleColumns, keitaroPageSize, keitaroConcurrency, keitaroSubtab, keitaroOffersGrouped]);
 
     const updateWorkspacePages = (pages) => setWorkspaceCache((current) => ({
         ...current,
