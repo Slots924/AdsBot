@@ -19,6 +19,7 @@ try {
         async getCampaignAdSetInsights() { statCalls++; if (failStats) throw new Error("Статистика недоступна"); return [{ adset_id: "10", spend: "12", impressions: "1000", clicks: "20", actions: [{ action_type: "lead", value: "3" }] }]; },
         async duplicateAdSet() { return { copies: [{ id: "11", name: "Копія", status: "ACTIVE" }] }; },
         async deleteAdSet(_accountKey, input) { return { id: input.adSetId, status: "DELETED", effectiveStatus: "DELETED" }; },
+        async setAdSetStatus(_accountKey, input) { return { id: input.adSetId, status: input.status, effectiveStatus: input.status }; },
     };
     const cache = new RemoteDataCacheStore({ cacheFile, now: () => clock });
     await cache.setWorkspacePart("client", { adAccounts: [{ id: "act_1", timezoneName: "America/Los_Angeles" }] });
@@ -84,6 +85,10 @@ try {
     releaseStatistics();
     await background;
     assert.equal((await prioritized.read(firstInput)).adSets[0].spend, 5);
+    await prioritized.setStatus({ ...firstInput, adSetId: "90", status: "PAUSED" });
+    assert.equal((await prioritized.read(firstInput)).adSets[0].status, "PAUSED");
+    const statusRestart = create(new RemoteDataCacheStore({ cacheFile, now: () => clock }));
+    assert.equal((await statusRestart.read(firstInput)).adSets[0].status, "PAUSED");
 
     const requests = [];
     let cbo = false, rejectedBudget = false;
@@ -123,6 +128,16 @@ try {
     assert.equal(partial.copies.length, 1); assert.ok(partial.error);
     assert.equal(requests.filter((request) => request.url.endsWith("/copies")).length, 1);
     await assert.rejects(() => api.duplicateAdSet({ ...payload, count: 0 }), /Кількість/);
+    rejectedBudget = false;
+    const controller = new AbortController();
+    requests.length = 0;
+    const cancelled = await api.duplicateAdSet({ ...payload, count: 3 }, { signal: controller.signal, onProgress: async (update) => { assert.equal(update.completed, 1); controller.abort(); } });
+    assert.equal(cancelled.cancelled, true);
+    assert.equal(cancelled.copies.length, 1);
+    assert.equal(requests.filter((request) => request.url.endsWith("/copies")).length, 1);
+    requests.length = 0;
+    await api.setAdSetStatus({ adAccountId: "act_1", campaignId: "20", adSetId: "10", status: "PAUSED" });
+    assert.equal(new URLSearchParams(requests.find((request) => request.method === "post").data).get("status"), "PAUSED");
     rejectedBudget = false; requests.length = 0;
     await api.deleteAdSet({ adAccountId: "act_1", campaignId: "20", adSetId: "10" });
     const deletionWrite = requests.find((request) => request.method === "post");

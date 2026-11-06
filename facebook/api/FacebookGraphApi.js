@@ -1004,6 +1004,12 @@ export default class FacebookGraphApi {
 
     /** Позначає адсет видаленим після перевірки його належності до кампанії та РК. */
     async deleteAdSet({ adAccountId, campaignId, adSetId }) {
+        return this.setAdSetStatus({ adAccountId, campaignId, adSetId, status: "DELETED" });
+    }
+
+    /** Змінює налаштований стан адсету після перевірки його батьківських об'єктів. */
+    async setAdSetStatus({ adAccountId, campaignId, adSetId, status }) {
+        if (!["ACTIVE", "PAUSED", "DELETED"].includes(status)) throw createValidationError("Некоректний статус адсету", "ADSET_STATUS_INVALID");
         const accountId = normalizeAdAccountId(adAccountId);
         const parentId = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");
         const id = normalizeObjectId(adSetId, "ADSET_ID_INVALID", "ID адсету");
@@ -1011,12 +1017,13 @@ export default class FacebookGraphApi {
         if (`act_${source.account_id}` !== accountId || String(source.campaign_id) !== parentId) {
             throw createValidationError("Адсет не належить вибраній кампанії або РК", "ADSET_PARENT_INVALID");
         }
-        await this.#writeObject(`/${id}`, { status: "DELETED" });
-        return { id, status: "DELETED", effectiveStatus: "DELETED" };
+        await this.#writeObject(`/${id}`, { status });
+        return { id, status, effectiveStatus: status };
     }
 
     /** Копіює разом з оголошеннями; бюджет налаштовує до активації. */
-    async duplicateAdSet({ adAccountId, campaignId, adSetId, count, budget, startTime = null, createActive = true }) {
+    async duplicateAdSet({ adAccountId, campaignId, adSetId, count, budget, startTime = null, createActive = true }, { signal, onProgress = async () => {} } = {}) {
+        if (signal?.aborted) return { copies: [], cancelled: true };
         const accountId = normalizeAdAccountId(adAccountId);
         const id = normalizeObjectId(adSetId, "ADSET_ID_INVALID", "ID адсету");
         const parentId = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");
@@ -1035,6 +1042,7 @@ export default class FacebookGraphApi {
         const copies = [];
         try {
             for (let index = 0; index < count; index += 1) {
+                if (signal?.aborted) return { copies, cancelled: true };
                 const result = await this.#writeObject(`/${id}/copies`, {
                     campaign_id: parentId, deep_copy: true, status_option: "PAUSED",
                     start_time: scheduled ? startTime : new Date().toISOString(),
@@ -1059,6 +1067,7 @@ export default class FacebookGraphApi {
                     copy.effectiveStatus = "IN_PROCESS";
                 }
                 copy.setupIncomplete = false;
+                await onProgress({ completed: index + 1, total: count, copies: [...copies] });
             }
             return { copies };
         } catch (error) {

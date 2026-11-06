@@ -120,36 +120,57 @@ export default class AdSetService {
     }
 
     delete(input) {
+        return this.#changeStatus({ ...input, status: "DELETED" });
+    }
+
+    setStatus(input) {
+        if (!["ACTIVE", "PAUSED"].includes(input.status)) throw new Error("Статус адсету має бути ACTIVE або PAUSED");
+        return this.#changeStatus(input);
+    }
+
+    #changeStatus(input) {
         return this.#exclusive(input, async () => {
-            const result = await this.guiService.deleteAdSet(input.accountKey, input);
+            const before = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId);
+            if (input.status !== "DELETED" && before?.adSets?.some((row) => String(row.id) === String(input.adSetId) && deleted(row))) throw new Error("Адсет уже видалено");
+            const result = input.status === "DELETED"
+                ? await this.guiService.deleteAdSet(input.accountKey, input)
+                : await this.guiService.setAdSetStatus(input.accountKey, input);
             try {
                 const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
                 const rows = snapshot.adSets ?? [];
                 const previous = rows.find((row) => String(row.id) === String(input.adSetId));
-                const removed = { ...previous, ...result, id: String(input.adSetId), status: "DELETED", effectiveStatus: "DELETED", deletedLocally: true };
+                const removed = { ...previous, ...result, id: String(input.adSetId), status: input.status, effectiveStatus: input.status, ...(input.status === "DELETED" ? { deletedLocally: true } : {}) };
                 await this.cache.setAdSetSnapshot(input.adAccountId, input.campaignId, {
-                    ...snapshot, adSets: [...rows.filter((row) => String(row.id) !== String(input.adSetId)), removed],
+                    ...snapshot, adSets: previous ? rows.map((row) => String(row.id) === String(input.adSetId) ? removed : row) : [...rows, removed],
                 });
                 return { ...result, data: await this.read(input) };
             } catch {
-                return { ...result, cacheError: { message: "Адсет видалено, але не вдалося оновити кеш. Перевірте Ads Manager." } };
+                return { ...result, cacheError: { message: "Стан адсету змінено, але не вдалося оновити кеш. Перевірте Ads Manager." } };
             }
         });
     }
 
-    async duplicate(input) {
+    async duplicate(input, context = {}) {
         const key = JSON.stringify([input.adAccountId, input.campaignId]);
         if (this.#duplicates.has(key)) throw new Error("Дублювання в цій кампанії вже виконується");
         this.#duplicates.add(key);
         try {
             return await this.#exclusive(input, async () => {
-                const result = await this.guiService.duplicateAdSet(input.accountKey, input);
+                const persist = async (copies) => {
+                    const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
+                    const rows = new Map((snapshot.adSets ?? []).map((row) => [String(row.id), row]));
+                    for (const row of copies) rows.set(String(row.id), row);
+                    await this.cache.setAdSetSnapshot(input.adAccountId, input.campaignId, { ...snapshot, adSets: [...rows.values()] });
+                };
+                const result = await this.guiService.duplicateAdSet(input.accountKey, input, {
+                    ...context, onProgress: async (progress) => {
+                        await persist(progress.copies);
+                        await context.onProgress?.(progress);
+                    },
+                });
                 const copies = result.copies ?? [];
                 try {
-                    const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
-                    if (copies.length) await this.cache.setAdSetSnapshot(input.adAccountId, input.campaignId, {
-                        ...snapshot, adSets: [...(snapshot.adSets ?? []), ...copies],
-                    });
+                    if (copies.length) await persist(copies);
                 } catch {
                     return { ...result, error: result.error ?? { message: "Копії створено, але не вдалося зберегти їх у кеші. Перевірте Ads Manager перед повтором.", code: "ADSET_CACHE_WRITE_FAILED" } };
                 }

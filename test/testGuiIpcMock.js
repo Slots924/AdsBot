@@ -1078,6 +1078,32 @@ const retryTokenResult = await handlers.get("accounts:refresh-access-token")({},
 assert.equal(retryTokenResult.error.code, "TOKEN_REFRESH_RETRY_TEST");
 assert.equal(enqueuedOptions.length, queueSizeBeforeTokenRefresh);
 
+let duplicateAdSetCalls = 0;
+guiService.duplicateAdSet = async (_accountKey, input, context) => {
+    duplicateAdSetCalls++;
+    const copies = [{ id: "777", name: "Copy", status: "ACTIVE" }];
+    await context.onProgress({ completed: 1, total: input.count, copies });
+    return { copies };
+};
+const duplicateInput = { accountKey: "fp_hub", adAccountId: "act_1", campaignId: "222", adSetId: "333", count: 1, budget: 20, createActive: true };
+const queuedDuplicate = await handlers.get("adsets:duplicate")({}, duplicateInput);
+assert.equal(queuedDuplicate.ok, true);
+assert.ok(queuedDuplicate.data.taskId);
+assert.equal(duplicateAdSetCalls, 0);
+const duplicateTask = enqueuedOptions.at(-1);
+assert.equal(duplicateTask.type, "adset-duplicate");
+assert.equal(duplicateTask.resources[0].key, "facebook-campaign-write");
+const duplicateProgress = [];
+const duplicated = await duplicateTask.runner({ signal: new AbortController().signal, progress: async (update) => duplicateProgress.push(update) });
+assert.equal(duplicated.result.copies[0].id, "777");
+assert.equal(duplicateProgress.at(-1).completed, 1);
+assert.ok(rendererEvents.some((event) => event.channel === "adsets:updated"));
+assert.equal((await remoteDataCacheStore.getAdSetSnapshot("act_1", "222")).adSets[0].id, "777");
+guiService.duplicateAdSet = async () => ({ copies: [{ id: "778" }], error: { message: "Часткова помилка", code: "COPY_TEST_ERROR" } });
+await assert.rejects(() => duplicateTask.runner({ signal: new AbortController().signal, progress: async () => {} }), (error) => error.result.copies[0].id === "778" && error.code === "COPY_TEST_ERROR");
+const invalidDuplicate = await handlers.get("adsets:duplicate")({}, { ...duplicateInput, count: 0 });
+assert.equal(invalidDuplicate.ok, false);
+
 console.log("Mock-перевірка GUI IPC пройшла успішно");
 
 } finally { await rm(cacheDirectory, { recursive: true, force: true }); }

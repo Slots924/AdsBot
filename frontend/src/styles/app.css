@@ -717,7 +717,9 @@ button:focus-visible, input:focus-visible {
     .campaign-table-card > .campaign-table-head, .campaign-table-card > .campaign-list { min-width: 900px; }
     .campaign-table-card .campaign-grid { grid-template-columns: 22px 26px minmax(180px,1.7fr) 90px 50px 90px 95px 85px 65px 30px; gap: 8px; }
 }
-.campaign-row.pending { opacity: .48; pointer-events: none; }
+.entity-status-control { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 47px; width: 47px; }
+.entity-status-progress { display: inline-flex; width: 13px; color: #aeb6c6; }
+.adset-name-line { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .campaign-row.deleted { color: #666d7d; background: rgba(255,255,255,.015); }
 .campaign-row.deleted .campaign-name strong, .campaign-row.deleted strong { color: #777f90; }
 .campaign-number { color: #5e6679; }

@@ -2,6 +2,10 @@ import { app, BrowserWindow } from "electron";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { mkdtempSync } from "node:fs";
+import os from "node:os";
+
+app.setPath("userData", mkdtempSync(path.join(os.tmpdir(), "adsbot-adsets-review-")));
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const output = path.join(root, "artifacts/adsets-ui-review");
@@ -33,8 +37,15 @@ try {
     await window.webContents.executeJavaScript('document.querySelector("[role=dialog] .modal-close").click()');
     await wait(300);
     await writeFile(path.join(output, "adsets-compact.png"), (await window.webContents.capturePage()).toPNG());
+    window.setSize(1600, 1000);
+    await wait(150);
+    await window.webContents.executeJavaScript('document.querySelectorAll(".adset-row [role=switch]").forEach(button => button.click())');
+    await wait(150);
+    const pending = await window.webContents.executeJavaScript(`({ count: document.querySelectorAll('.adset-row .campaign-state-toggle.pending').length, states: [...document.querySelectorAll('.adset-row [role=switch]')].map(button => button.getAttribute('aria-checked')), spinners: document.querySelectorAll('.adset-row .entity-status-progress .spin').length })`);
+    await writeFile(path.join(output, "adsets-pending.png"), (await window.webContents.capturePage()).toPNG());
+    if (pending.count !== 2 || pending.spinners !== 2 || pending.states.join(',') !== 'false,true') throw new Error(JSON.stringify(pending));
     if (checks.rows !== 2 || checks.documentOverflow || checks.deleteButtons !== 2 || !checks.actionsFit || !modal.fits || !modal.switchEnabled || errors.length) throw new Error(JSON.stringify({ checks, modal, errors }));
-    console.log(JSON.stringify({ visible: window.isVisible(), checks, modal, errors, screenshots: output }));
+    console.log(JSON.stringify({ visible: window.isVisible(), checks, modal, pending, errors, screenshots: output }));
 } catch (error) { console.error(error); process.exitCode = 1; }
 finally { window?.destroy(); app.quit(); }
 }

@@ -1,4 +1,5 @@
 import CampaignAdSets from "../components/CampaignAdSets.jsx";
+import EntityStatusToggle from "../components/EntityStatusToggle.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, Reorder, useDragControls } from "framer-motion";
 import {
@@ -229,21 +230,8 @@ function isUnavailableCampaign(campaign) {
 
 function CampaignStateToggle({ campaign, pending, onToggle }) {
     const deleted = isUnavailableCampaign(campaign);
-    const active = campaign.effectiveStatus === "ACTIVE";
-    return (
-        <button
-            type="button"
-            className={`campaign-state-toggle ${active ? "active" : ""} ${pending ? "pending" : ""}`}
-            role="switch"
-            aria-checked={active}
-            aria-label={`${active ? "Вимкнути" : "Увімкнути"} кампанію ${campaign.name}`}
-            title={deleted ? "Видалену кампанію неможливо увімкнути" : active ? "Вимкнути кампанію" : "Увімкнути кампанію"}
-            disabled={deleted || pending}
-            onClick={() => onToggle(campaign)}
-        >
-            {pending ? <LoaderCircle className="spin" size={13} /> : <i />}
-        </button>
-    );
+    const active = (campaign.status ?? campaign.effectiveStatus) === "ACTIVE";
+    return <EntityStatusToggle active={active} pending={pending} disabled={deleted} label={`${active ? "Вимкнути" : "Увімкнути"} кампанію ${campaign.name}`} onClick={() => onToggle(campaign)} />;
 }
 
 
@@ -396,6 +384,7 @@ export default function AdAccountsTab({
     const [imageAdModalOpen, setImageAdModalOpen] = useState(false);
     const [showDeletedCampaigns, setShowDeletedCampaigns] = useState(false);
     const [pendingCampaignIds, setPendingCampaignIds] = useState(() => new Set());
+    const pendingCampaignStates = useRef(new Map());
     const requestSequence = useRef(0);
     const campaignCacheRef = useRef({});
     const campaignRequestIds = useRef({});
@@ -423,9 +412,12 @@ export default function AdAccountsTab({
     favoriteOrderRef.current = favorites.map((account) => account.id);
 
     const updateCampaignCache = (updater) => {
-        const next = typeof updater === "function"
+        let next = typeof updater === "function"
             ? updater(campaignCacheRef.current)
             : updater;
+        if (pendingCampaignStates.current.size) next = Object.fromEntries(Object.entries(next).map(([key, entry]) => [key, !entry?.data?.campaigns ? entry : {
+            ...entry, data: { ...entry.data, campaigns: entry.data.campaigns.map((campaign) => pendingCampaignStates.current.has(String(campaign.id)) ? { ...campaign, ...pendingCampaignStates.current.get(String(campaign.id)) } : campaign) },
+        }]));
         campaignCacheRef.current = next;
         setCampaignCache(next);
     };
@@ -744,8 +736,12 @@ export default function AdAccountsTab({
 
     const toggleCampaign = async (campaign) => {
         if (!selected) return;
-        const nextStatus = campaign.effectiveStatus === "ACTIVE" ? "PAUSED" : "ACTIVE";
+        if (pendingCampaignIds.has(String(campaign.id))) return;
+        const previous = { status: campaign.status, effectiveStatus: campaign.effectiveStatus };
+        const nextStatus = (campaign.status ?? campaign.effectiveStatus) === "ACTIVE" ? "PAUSED" : "ACTIVE";
+        pendingCampaignStates.current.set(String(campaign.id), { status: nextStatus, effectiveStatus: nextStatus });
         setCampaignPending(campaign.id, true);
+        patchCampaignInCache(selected.id, campaign.id, { status: nextStatus, effectiveStatus: nextStatus });
         try {
             await unwrap(window.adsBot.setAdCampaignStatus(
                 accountKey,
@@ -759,8 +755,11 @@ export default function AdAccountsTab({
             });
             showToast(nextStatus === "ACTIVE" ? "Кампанію увімкнено" : "Кампанію призупинено", "success");
         } catch (error) {
+            pendingCampaignStates.current.delete(String(campaign.id));
+            patchCampaignInCache(selected.id, campaign.id, previous);
             onError({ ...errorDetails(error), title: "Не вдалося змінити статус кампанії" });
         } finally {
+            pendingCampaignStates.current.delete(String(campaign.id));
             setCampaignPending(campaign.id, false);
         }
     };

@@ -13,11 +13,64 @@ const setup = () => {
         getCampaignAdSets: vi.fn(() => ok(data)), refreshCampaignAdSets: vi.fn(() => ok(data)),
         refreshCampaignAdSetStatistics: vi.fn(() => window.adsBot.getCampaignAdSets()),
         deleteAdSet: vi.fn(() => ok({ id: row.id, status: "DELETED", data: { ...data, adSets: [{ ...row, status: "DELETED", effectiveStatus: "DELETED", spend: null, leads: null }] } })),
-        duplicateAdSet: vi.fn(() => ok({ copies: [{ id: "4" }] })),
+        duplicateAdSet: vi.fn(() => ok({ taskId: "duplicate-task" })),
+        setAdSetStatus: vi.fn((input) => ok({ id: input.adSetId, status: input.status, effectiveStatus: input.status })),
     };
 };
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 describe("Адсети кампанії", () => {
+    it("одразу змінює положення перемикачів кампаній і не блокує інші рядки", async () => {
+        setup();
+        const campaigns = { cacheHit: true, campaigns: [{ id: "2", name: "Перша", status: "ACTIVE", effectiveStatus: "ACTIVE" }, { id: "5", name: "Друга", status: "PAUSED", effectiveStatus: "PAUSED" }] };
+        window.adsBot.getAdCampaigns = vi.fn(() => ok(campaigns));
+        const finish = [];
+        window.adsBot.setAdCampaignStatus = vi.fn(() => new Promise((resolve) => finish.push(resolve)));
+        render(<AdAccountsTab selectedAccount={{ accountKey: "client", status: "active" }} workspaceAccounts={[account]} selectedId="act_1" setSelectedId={() => {}} onError={vi.fn()} />);
+        const first = await screen.findByRole("switch", { name: "Вимкнути кампанію Перша" });
+        const second = screen.getByRole("switch", { name: "Увімкнути кампанію Друга" });
+        fireEvent.click(first);
+        expect(first).not.toBeChecked(); expect(first).toHaveClass("pending");
+        fireEvent.click(second);
+        expect(second).toBeChecked();
+        await act(async () => { finish[0]({ ok: true, data: { status: "PAUSED" } }); finish[1]({ ok: false, error: { message: "Помилка" } }); });
+        expect(first).toBeEnabled(); expect(second).not.toBeChecked(); expect(second).toBeEnabled();
+    });
+    it("одразу перемикає кілька адсетів і повертає попередній стан при помилці", async () => {
+        setup();
+        const two = { ...data, adSets: [{ ...row, status: "ACTIVE" }, { ...row, id: "4", name: "Другий", status: "PAUSED", effectiveStatus: "CAMPAIGN_PAUSED" }] };
+        window.adsBot.getCampaignAdSets.mockImplementation(() => ok(two));
+        window.adsBot.refreshCampaignAdSets.mockImplementation(() => ok(two));
+        const finish = [];
+        window.adsBot.setAdSetStatus.mockImplementation(() => new Promise((resolve) => finish.push(resolve)));
+        render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" refreshToken={0} canWrite />);
+        const first = await screen.findByRole("switch", { name: "Вимкнути адсет Основний адсет" });
+        const second = screen.getByRole("switch", { name: "Увімкнути адсет Другий" });
+        fireEvent.click(first);
+        expect(first).not.toBeChecked(); expect(first).toHaveClass("pending"); expect(first).toBeDisabled();
+        expect(second).toBeEnabled();
+        fireEvent.click(second);
+        expect(second).toBeChecked(); expect(screen.getAllByLabelText("Оновлюється статус")).toHaveLength(2);
+        await act(async () => finish[0]({ ok: true, data: { status: "PAUSED", effectiveStatus: "PAUSED" } }));
+        expect(first).toBeEnabled(); expect(first).not.toHaveClass("pending");
+        await act(async () => finish[1]({ ok: false, error: { message: "Помилка зміни стану" } }));
+        expect(second).not.toBeChecked(); expect(second).toBeEnabled();
+        expect(screen.getByText(/Помилка зміни стану/)).toBeInTheDocument();
+    });
+    it("закриває дублювання після додавання задачі й перечитує лише кеш за подією", async () => {
+        setup();
+        let updated;
+        window.adsBot.onAdSetsUpdated = (callback) => { updated = callback; return () => {}; };
+        render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" refreshToken={0} canWrite />);
+        fireEvent.click(await screen.findByRole("button", { name: "Дублювати адсет Основний адсет" }));
+        fireEvent.click(screen.getByRole("button", { name: "Дублювати" }));
+        await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+        expect(screen.getByText(/Дублювання додано в чергу/)).toBeInTheDocument();
+        window.adsBot.getCampaignAdSets.mockImplementation(() => ok({ ...data, adSets: [...data.adSets, { ...row, id: "4", name: "Нова копія" }] }));
+        const refreshCount = window.adsBot.refreshCampaignAdSets.mock.calls.length;
+        await act(async () => updated({ adAccountId: "act_1", campaignId: "2" }));
+        expect(await screen.findByText("Нова копія")).toBeInTheDocument();
+        expect(window.adsBot.refreshCampaignAdSets).toHaveBeenCalledTimes(refreshCount);
+    });
     it("показує список до завершення статистики, зберігаючи старі показники", async () => {
         setup();
         let finish;
@@ -84,7 +137,7 @@ describe("Адсети кампанії", () => {
         render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" refreshToken={0} canWrite />);
         fireEvent.click(await screen.findByRole("button", { name: "Дублювати адсет Основний адсет" }));
         expect(screen.queryByLabelText("Бюджет на день / копія · USD")).not.toBeInTheDocument();
-        fireEvent.click(screen.getByRole("switch"));
+        fireEvent.click(screen.getByRole("switch", { name: "Увімкнути адсети" }));
         fireEvent.click(screen.getByRole("button", { name: "Дублювати" }));
         await waitFor(() => expect(window.adsBot.duplicateAdSet).toHaveBeenCalledWith(expect.objectContaining({ budget: null, createActive: false })));
     });

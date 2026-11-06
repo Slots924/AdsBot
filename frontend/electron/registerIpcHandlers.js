@@ -2207,7 +2207,40 @@ export default function registerIpcHandlers({
     ipcMain.handle("adsets:refresh", safeHandler((input) => adSetService.refresh(input)));
     ipcMain.handle("adsets:statistics-refresh", safeHandler((input) => adSetService.refreshStatistics(input)));
     ipcMain.handle("adsets:delete", safeHandler((input) => adSetService.delete(input)));
-    ipcMain.handle("adsets:duplicate", safeHandler((input) => adSetService.duplicate(input)));
+    ipcMain.handle("adsets:status-set", safeHandler(async (input) => {
+        const result = await adSetService.setStatus(input);
+        sendRendererEvent("adsets:updated", { adAccountId: input.adAccountId, campaignId: input.campaignId });
+        return result;
+    }));
+    ipcMain.handle("adsets:duplicate", safeHandler(async (input) => {
+        const { accountKey, adAccountId, campaignId, adSetId, count, budget, startTime = null, createActive = true } = input;
+        if (!accountKey || !/^act_\d+$/.test(adAccountId) || !/^\d+$/.test(campaignId) || !/^\d+$/.test(adSetId)) throw new Error("Некоректні дані адсету");
+        if (!Number.isInteger(count) || count < 1 || count > 50) throw new Error("Кількість копій: від 1 до 50");
+        if (typeof createActive !== "boolean" || (budget != null && (!Number.isFinite(Number(budget)) || Number(budget) <= 0))) throw new Error("Некоректні параметри дублювання");
+        if (startTime !== null && (!Number.isFinite(Date.parse(startTime)) || Date.parse(startTime) <= Date.now())) throw new Error("Вкажіть майбутній час запуску");
+        const payload = { accountKey, adAccountId, campaignId, adSetId, count, budget, startTime, createActive };
+        const notify = () => sendRendererEvent("adsets:updated", { adAccountId, campaignId });
+        const task = await backgroundTaskManager.enqueue({
+            type: "adset-duplicate", name: `Дублювання адсету · ${count} копій`,
+            uniqueKey: `adset-duplicate:${adAccountId}:${adSetId}`,
+            resources: [{ key: "facebook-campaign-write", label: "черга створення рекламних кампаній" }],
+            input: payload, metadata: { accountKey, adAccountId, campaignId, adSetId },
+            runner: async ({ signal, progress }) => {
+                await progress({ stage: "duplicating", completed: 0, total: count, message: "Готуємо дублювання адсету" });
+                try {
+                    const result = await adSetService.duplicate(payload, {
+                        signal, onProgress: async (update) => {
+                            await progress({ stage: "duplicating", completed: update.completed, total: count, message: `Готово копій: ${update.completed} із ${count}`, createdAdSetIds: update.copies.map((row) => row.id) });
+                            notify();
+                        },
+                    });
+                    if (result.error) throw Object.assign(new Error(result.error.message), result.error, { result });
+                    return { result };
+                } finally { notify(); }
+            },
+        });
+        return { taskId: task.id };
+    }));
     ipcMain.handle(
         "campaigns:statistics-refresh",
         safeHandler(async ({
