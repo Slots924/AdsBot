@@ -30,13 +30,7 @@ const kinds = [
     { id: "bm", label: "BM" },
     { id: "system", label: "System Users" },
 ];
-const systemUserAgents = [153, 154].flatMap((version) => [
-    [`Chrome ${version} · Windows`, `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version}.0.0.0 Safari/537.36`],
-    [`Chrome ${version} · macOS`, `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version}.0.0.0 Safari/537.36`],
-    [`Chrome ${version} · Linux`, `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version}.0.0.0 Safari/537.36`],
-    [`Chrome ${version} · Android`, `Mozilla/5.0 (Linux; Android 16; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version}.0.0.0 Mobile Safari/537.36`],
-    [`Edge ${version} · Windows`, `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version}.0.0.0 Safari/537.36 Edg/${version}.0.0.0`],
-]);
+import { systemUserAgents } from "../lib/systemUserAgents.js";
 
 function KindPicker({ value, onChange, disabled = false }) {
     return <div className="account-kind-picker" role="radiogroup" aria-label="Тип клієнта">
@@ -323,6 +317,9 @@ export default function Sidebar({
                                     </small>}
                                 </span>
                             </button>
+                            {getAccountTokenMode(account) === "afp" && <small className="connection-detail" role="status" title={account.spendServer?.message || (account.spendServer?.sentAt ? `???????????: ${new Date(account.spendServer.sentAt).toLocaleString()}` : "????? ???????? ????????? ?????? ???? ???? ??????????? ?? ??????")}>
+                                <span style={{ color: account.spendServer?.state === "success" ? "#22c55e" : account.spendServer?.state === "error" ? "#ef4444" : "#94a3b8" }}>?</span> Spend Server: {account.spendServer?.state === "success" ? "???????????" : account.spendServer?.state === "error" ? "??????? ?????????" : "?? ???????????"}
+                            </small>}
                             <div className="connection-card-footer">
                             {(account.kind || "api") === "api" ? <div className="account-card-token-mode"><TokenPicker value={getAccountTokenMode(account)} onChange={(mode) => changeTokenMode(account, mode)} afpDisabled={!account.hasAfpToken} disabled={busyKey === account.accountKey || syncingAccountKeys.includes(account.accountKey) || refreshingTokenAccountKeys.includes(account.accountKey) || account.archived} /></div> : <span className="connection-kind-label">{account.kind === "bm" ? "Business Manager" : "System User"}</span>}
                             <span className="account-card-tools">

@@ -387,6 +387,8 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("keitaro-campaign-settings:save", payload),
     getSpendOverview: () => ipcRenderer.invoke("spend:overview"),
     getSpendSettings: () => ipcRenderer.invoke("spend:settings-get"),
+    getSpendServerSettings: () => ipcRenderer.invoke("spend-server:settings-get"),
+    saveSpendServerSettings: (payload) => ipcRenderer.invoke("spend-server:settings-save", payload),
     getCrmSettings: () => ipcRenderer.invoke("crm:settings-get"),
     saveCrmSettings: (payload) => ipcRenderer.invoke("crm:settings-save", payload),
     getCrmCampaigns: () => ipcRenderer.invoke("crm:campaigns-list"),

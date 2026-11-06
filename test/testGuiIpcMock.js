@@ -845,6 +845,7 @@ try {
     assert.equal(statusTimers.length, 1);
     assert.equal(statusTimers[0].delay, 5 * 60_000);
     statusTimers[0].callback();
+    await new Promise((resolve) => setImmediate(resolve));
     assert.equal(activeStatusChecks, 1);
     await handlers.get("state:save")({}, { apiClientsAutoRefresh: true });
     assert.equal(statusTimers.length, 1);

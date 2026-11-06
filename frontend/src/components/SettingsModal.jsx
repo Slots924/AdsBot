@@ -1,3 +1,4 @@
+import SpendServerSettings from "./SpendServerSettings.jsx";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -235,8 +236,12 @@ export default function SettingsModal({
                         >
                             <WalletCards size={15} /> Спенд
                         </button>
+                        <button type="button" className={tab === "spend-server" ? "active" : ""} onClick={() => setTab("spend-server")}>
+                            <WalletCards size={15} /> Spend Server
+                        </button>
                     </nav>
                     <div className="settings-body" ref={settingsBodyRef}>
+                        {tab === "spend-server" && <SpendServerSettings onError={onError} showToast={showToast} />}
                         {tab === "crm" && <CrmSettings onError={onError} showToast={showToast} />}
                         {tab === "credit-cards" && (
                             <CreditCardsSettings onError={onError} showToast={showToast} />

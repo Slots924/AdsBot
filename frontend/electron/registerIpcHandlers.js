@@ -1,3 +1,4 @@
+import SpendServerService from "../../services/gui/SpendServerService.js";
 import { isUnavailableCampaign, clearUnavailableCampaignStatistics, visibleCampaigns } from "../../services/campaigns/campaignVisibility.js";
 import { readdir, readFile, stat } from "node:fs/promises";
 import registerFarmIpcHandlers from "./registerFarmIpcHandlers.js";
@@ -213,6 +214,19 @@ export default function registerIpcHandlers({
         guiService, activityStore: profileActivityStore, copyText,
     });
     ipcMain.handle("manual-comments:action", safeHandler(({ action, ...input }) => manualComments.execute(action, input)));
+    const spendServer = new SpendServerService({ file: appPaths.spendServerSettings, accountManager: facebookAccountManager });
+    const withSpendStatus = async (account) => account.kind === "api" && account.tokenMode === "afp"
+        ? { ...account, spendServer: await spendServer.status(account.accountKey) } : account;
+    ipcMain.handle("spend-server:settings-get", safeHandler(() => spendServer.getSettings()));
+    ipcMain.handle("spend-server:settings-save", safeHandler(async (payload) => {
+        const settings = await spendServer.saveSettings(payload);
+        for (const account of await facebookAccountManager.list()) {
+            if (account.tokenMode === "afp") sendRendererEvent("accounts:facebook-status", {
+                accountKey: account.accountKey, accountStatus: { spendServer: await spendServer.status(account.accountKey) },
+            });
+        }
+        return settings;
+    }));
     ipcMain.handle("crm:settings-get", safeHandler(() => crm.getSettings()));
     ipcMain.handle("crm:settings-save", safeHandler((payload) => crm.saveSettings(payload)));
     ipcMain.handle("crm:campaigns-list", safeHandler(() => crm.getCampaigns()));
@@ -388,13 +402,20 @@ export default function registerIpcHandlers({
     ));
     const refreshActiveAccountStatuses = async () => {
         try {
+            const checkedTokens = new Map();
+            for (const account of await facebookAccountManager.list()) {
+                if (account.tokenMode === "afp") checkedTokens.set(account.accountKey, (await facebookAccountManager.getEditorCredentials(account.accountKey)).afpToken);
+            }
             const accountStatuses = await guiService.checkActiveAccounts();
-            accountStatuses.forEach((accountStatus) => {
+            for (const accountStatus of accountStatuses) {
+                if (accountStatus.status === "active" && checkedTokens.has(accountStatus.accountKey)) {
+                    accountStatus.spendServer = await spendServer.send(accountStatus.accountKey, checkedTokens.get(accountStatus.accountKey));
+                }
                 sendRendererEvent("accounts:facebook-status", {
                     accountKey: accountStatus.accountKey,
                     accountStatus,
                 });
-            });
+            }
         } catch (error) {
             logger?.warn(
                 "accounts.active-status-refresh-failed",
@@ -860,7 +881,7 @@ export default function registerIpcHandlers({
     const prepareManagedAccounts = async (graphAccounts) => {
         const accounts = await mergeAccountStates(graphAccounts);
         refreshAdsPowerStates(accounts);
-        return accounts;
+        return Promise.all(accounts.map(withSpendStatus));
     };
     const refreshManagedAccounts = async () => prepareManagedAccounts(
         await guiService.refreshAccounts()
@@ -1287,9 +1308,12 @@ export default function registerIpcHandlers({
         "accounts:update",
         safeHandler(async ({ accountKey, ...patch }) => {
             await validateAccountProxy(patch);
+            const previousToken = Object.hasOwn(patch, "afpToken")
+                ? (await managerForAccount(accountKey).getEditorCredentials(accountKey)).afpToken : undefined;
             const account = await managerForAccount(accountKey).update(accountKey, patch);
             await guiService.reloadFacebookBackend();
-            return Object.hasOwn(patch, "tokenMode") ? { ...account, status: "unknown", error: null } : account;
+            if (previousToken !== undefined && previousToken !== String(patch.afpToken ?? "").trim()) await spendServer.invalidate(accountKey);
+            return withSpendStatus(Object.hasOwn(patch, "tokenMode") ? { ...account, status: "unknown", error: null } : account);
         })
     );
     ipcMain.handle(
@@ -1308,6 +1332,8 @@ export default function registerIpcHandlers({
             if (account.tokenMode === "afp" ? !account.hasAfpToken : !account.hasAccessToken || !account.hasUserAgent) {
                 return { ...account, status: "inactive", error: { message: account.tokenMode === "afp" ? "Додайте AFP token" : "Додайте accessToken та User-Agent або синхронізуйте з AdsPower" } };
             }
+            const checkedToken = account.kind === "api" && account.tokenMode === "afp"
+                ? (await facebookAccountManager.getEditorCredentials(accountKey)).afpToken : undefined;
             const [status, adsPowerOpen] = await Promise.all([
                 guiService.checkAccount(accountKey),
                 account.adsPowerProfileNo
@@ -1316,11 +1342,15 @@ export default function registerIpcHandlers({
                     )
                     : Promise.resolve(null),
             ]);
+            const spendServerStatus = account.kind === "api" && account.tokenMode === "afp"
+                ? status.status === "active" ? await spendServer.send(accountKey, checkedToken) : await spendServer.status(accountKey)
+                : undefined;
             return {
                 ...account,
                 ...status,
                 name: account.name,
                 adsPowerOpen,
+                ...(spendServerStatus ? { spendServer: spendServerStatus } : {}),
             };
         })
     );
