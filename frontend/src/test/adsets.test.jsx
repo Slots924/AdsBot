@@ -24,23 +24,42 @@ const refreshAdSets = async () => {
     fireEvent.click(button);
 };
 describe("Адсети кампанії", () => {
-    it("показує rejected попри ACTIVE і не запускає статистику при відкритті", async () => {
+    it("ігнорує стару позначку rejected і не запускає статистику при відкритті", async () => {
         setup();
         const rejected = { ...data, adSets: [{ ...row, status: "ACTIVE", isRejected: true }] };
         window.adsBot.getCampaignAdSets.mockImplementation(() => ok(rejected));
         window.adsBot.refreshCampaignAdSets.mockImplementation(() => ok(rejected));
         render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" canWrite />);
-        expect(await screen.findByText("Відхилено")).toHaveClass("rejected");
+        expect(await screen.findByText("Активний")).toHaveClass("active");
+        expect(screen.queryByText("Відхилено")).not.toBeInTheDocument();
         expect(screen.getByRole("switch", { name: "Вимкнути адсет Основний адсет" })).toBeChecked();
         expect(window.adsBot.refreshCampaignAdSetStatistics).not.toHaveBeenCalled();
     });
-    it("показує червоний лічильник активної кампанії та сірий призупиненої", async () => {
+    it("постійно показує кеш rejected без автоматичного запиту", async () => {
         setup();
         window.adsBot.getAdCampaigns = vi.fn(() => ok({ cacheHit: true, campaigns: [{ id: "2", name: "Активна", status: "ACTIVE", effectiveStatus: "ACTIVE", rejectedCount: 4 }, { id: "5", name: "Пауза", status: "PAUSED", effectiveStatus: "PAUSED", rejectedCount: 2 }, { id: "6", name: "Без помилок", effectiveStatus: "ACTIVE", rejectedCount: 0 }] }));
         render(<AdAccountsTab selectedAccount={{ accountKey: "client", status: "active" }} workspaceAccounts={[account]} selectedId="act_1" setSelectedId={() => {}} onError={vi.fn()} />);
-        expect(await screen.findByLabelText("Відхилені адсети: 4")).not.toHaveClass("muted");
+        await screen.findByText("Активна");
+        expect(screen.getByLabelText("Відхилені адсети: 4")).not.toHaveClass("muted");
         expect(screen.getByLabelText("Відхилені адсети: 2")).toHaveClass("muted");
         expect(screen.queryByLabelText("Відхилені адсети: 0")).not.toBeInTheDocument();
+    });
+    it("перевіряє ріджекти лише кнопкою та ігнорує повтор протягом хвилини", async () => {
+        setup();
+        window.adsBot.getAdCampaigns = vi.fn(() => ok({ cacheHit: true, campaigns: [{ id: "2", name: "Ручна", status: "ACTIVE", effectiveStatus: "ACTIVE", rejectedCount: 3 }] }));
+        let finish;
+        window.adsBot.refreshCampaignRejectedCount = vi.fn(() => new Promise((resolve) => { finish = resolve; }));
+        render(<AdAccountsTab selectedAccount={{ accountKey: "client", status: "active" }} workspaceAccounts={[account]} selectedId="act_1" setSelectedId={() => {}} onError={vi.fn()} />);
+        const button = await screen.findByRole("button", { name: "Перевірити ріджекти кампанії Ручна" });
+        expect(window.adsBot.refreshCampaignRejectedCount).not.toHaveBeenCalled();
+        fireEvent.click(button);
+        expect(screen.getByLabelText("Відхилені адсети: 3")).toBeInTheDocument();
+        expect(button).toBeDisabled();
+        expect(window.adsBot.refreshCampaignRejectedCount).toHaveBeenCalledWith({ accountKey: "client", adAccountId: "act_1", campaignId: "2" });
+        await act(async () => finish({ ok: true, data: { rejectedCount: 5, rejectedCountAttemptedAt: new Date().toISOString(), rejectedCountUpdatedAt: new Date().toISOString() } }));
+        expect(screen.getByLabelText("Відхилені адсети: 5")).toBeInTheDocument();
+        fireEvent.click(button);
+        expect(window.adsBot.refreshCampaignRejectedCount).toHaveBeenCalledTimes(1);
     });
     it("одразу змінює положення перемикачів кампаній і не блокує інші рядки", async () => {
         setup();

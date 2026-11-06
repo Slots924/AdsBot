@@ -790,7 +790,6 @@ export default function registerIpcHandlers({
             refreshKeitaro: false,
             includeDeleted,
         });
-        await adSetService.refreshRejectedCounts({ accountKey, adAccountId, datePreset, includeDeleted }, data.campaigns);
         const statistics = data.campaigns.length > 0
             ? await loadRemoteCampaignStatistics({
                 accountKey,
@@ -2241,6 +2240,7 @@ export default function registerIpcHandlers({
             return readCachedCampaigns(payload);
         })
     );
+    ipcMain.handle("campaigns:rejected-count-refresh", safeHandler((input) => adSetService.refreshRejectedCount(input)));
     ipcMain.handle("adsets:read", safeHandler((input) => adSetService.read(input)));
     ipcMain.handle("adsets:refresh", safeHandler(async (input) => {
         const result = await adSetService.refresh(input);

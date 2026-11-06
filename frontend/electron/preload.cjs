@@ -110,6 +110,7 @@ contextBridge.exposeInMainWorld("adsBot", {
         }),
     getCampaignAdSets: (input) => ipcRenderer.invoke("adsets:read", input),
     refreshCampaignAdSets: (input) => ipcRenderer.invoke("adsets:refresh", input),
+    refreshCampaignRejectedCount: (input) => ipcRenderer.invoke("campaigns:rejected-count-refresh", input),
     refreshCampaignAdSetStatistics: (input) => ipcRenderer.invoke("adsets:statistics-refresh", input),
     deleteAdSet: (input) => ipcRenderer.invoke("adsets:delete", input),
     setAdSetStatus: (input) => ipcRenderer.invoke("adsets:status-set", input),

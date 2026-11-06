@@ -235,6 +235,31 @@ function CampaignStateToggle({ campaign, pending, onToggle }) {
 }
 
 
+function CampaignRejectedCount({ campaign, context }) {
+    const [result, setResult] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const busy = useRef(false);
+    const cached = result && (Date.parse(result.rejectedCountAttemptedAt ?? result.rejectedCountUpdatedAt) || 0) >= (Date.parse(campaign.rejectedCountAttemptedAt ?? campaign.rejectedCountUpdatedAt) || 0) ? result : campaign;
+    const attemptedAt = useRef(null);
+    const refresh = async () => {
+        const lastAttempt = Math.max(Date.parse(attemptedAt.current) || 0, Date.parse(cached.rejectedCountAttemptedAt ?? cached.rejectedCountUpdatedAt) || 0);
+        if (busy.current || Date.now() - lastAttempt < 60_000) return;
+        busy.current = true;
+        attemptedAt.current = new Date().toISOString();
+        setLoading(true);
+        try {
+            const next = await unwrap(window.adsBot.refreshCampaignRejectedCount({ accountKey: context.accountKey, adAccountId: context.account.id, campaignId: campaign.id }));
+            setResult(next);
+            if (next.rejectedCountError) context.onError?.(next.rejectedCountError);
+        } catch (error) { context.onError?.(errorDetails(error)); }
+        finally { busy.current = false; setLoading(false); }
+    };
+    return <>
+        {Number.isInteger(cached.rejectedCount) && cached.rejectedCount > 0 && <span className={`campaign-rejected-count ${(campaign.status ?? campaign.effectiveStatus) !== "ACTIVE" ? "muted" : ""}`} aria-label={`Відхилені адсети: ${cached.rejectedCount}`} title={`${cached.rejectedCount} адсетів із відхиленнями${cached.rejectedCountUpdatedAt ? ` · Оновлено: ${new Date(cached.rejectedCountUpdatedAt).toLocaleString("uk-UA")}` : ""}${cached.rejectedCountError ? " · Не вдалося оновити, показано кеш" : ""}`}>{cached.rejectedCount}</span>}
+        <button type="button" className="campaign-rename-button" aria-label={`Перевірити ріджекти кампанії ${campaign.name}`} title="Перевірити ріджекти · не частіше разу на хвилину" disabled={loading || !context.canWrite} onClick={refresh}>{loading ? <LoaderCircle className="spin" size={14} /> : <ShieldAlert size={14} />}</button>
+    </>;
+}
+
 function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, onRename, dragControls, reorderable = false, adSetsContext }) {
     const [expanded, setExpanded] = useState(false);
     const deleted = isDeletedCampaign(campaign);
@@ -256,9 +281,9 @@ function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, o
                     <CampaignStateToggle campaign={campaign} pending={pending} onToggle={onToggle} />
                     {!unavailable && <button type="button" className={`campaign-expand-button ${expanded ? "expanded" : ""}`} aria-label={`${expanded ? "Згорнути" : "Розгорнути"} кампанію ${campaign.name}`} aria-expanded={expanded} onClick={() => setExpanded((current) => !current)}><ChevronRight size={15} /></button>}
                     <strong>{campaign.name}</strong>
-                    {Number.isInteger(campaign.rejectedCount) && campaign.rejectedCount > 0 && <span className={`campaign-rejected-count ${(campaign.status ?? campaign.effectiveStatus) !== "ACTIVE" || unavailable ? "muted" : ""}`} aria-label={`Відхилені адсети: ${campaign.rejectedCount}`} title={`${campaign.rejectedCount} адсетів із відхиленнями${campaign.rejectedCountUpdatedAt ? ` · Оновлено: ${new Date(campaign.rejectedCountUpdatedAt).toLocaleString("uk-UA")}` : ""}${campaign.rejectedCountError ? " · Не вдалося оновити, показано кеш" : ""}`}>{campaign.rejectedCount}</span>}
                     {!unavailable && <button type="button" className="campaign-rename-button" aria-label={`Перейменувати кампанію ${campaign.name}`} title="Перейменувати кампанію" disabled={pending} onClick={() => onRename(campaign)}><Pencil size={14} /></button>}
                 </span>
+                {adSetsContext && <span className="campaign-name-row"><CampaignRejectedCount key={`${adSetsContext.accountKey}::${adSetsContext.account.id}::${campaign.id}`} campaign={campaign} context={adSetsContext} /></span>}
                 <small>{campaign.id}</small>
                 {campaign.missingFromLatestRead && <small title="Кампанія відсутня в останній відповіді API. Показано збережені дані.">Збережена копія</small>}
                 {campaign.creationIncomplete && <small>Створення ще не підтверджено</small>}
@@ -1049,7 +1074,7 @@ export default function AdAccountsTab({
                             {selected.accessUnavailable && <div className="notice">Цей РК відсутній в останньому списку доступу API-клієнта. Показано збережені дані.</div>}
 
                             <CampaignTable
-                                adSetsContext={{ accountKey, account: selected, datePreset, canWrite: accountActive && selected.status === "active" }}
+                                adSetsContext={{ accountKey, account: selected, datePreset, canWrite: accountActive && selected.status === "active", onError }}
                                 entry={currentCampaignEntry}
                                 currency={selected.currency}
                                 showDeleted={showDeletedCampaigns}

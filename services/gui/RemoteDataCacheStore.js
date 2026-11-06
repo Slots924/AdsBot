@@ -23,6 +23,7 @@ function emptyStore() {
         revisions: { workspace: 0 },
         businessManagers: {},
         adSets: {},
+        rejectedAdSets: {},
     };
 }
 
@@ -144,6 +145,17 @@ export default class RemoteDataCacheStore {
 
     async getBusinessData(key) {
         return safeClone((await this.#read()).businessManagers[normalizedPart(key, "CACHE_BUSINESS_KEY_REQUIRED")] ?? null);
+    }
+
+    async getRejectedAdSetSnapshot(adAccountId) {
+        return safeClone((await this.#read()).rejectedAdSets?.[String(adAccountId)]?.value ?? null);
+    }
+
+    setRejectedAdSetSnapshot(adAccountId, value) {
+        return this.#update((store) => {
+            store.rejectedAdSets ??= {};
+            store.rejectedAdSets[String(adAccountId)] = cacheEntry(value);
+        });
     }
 
     async getAdSetSnapshot(adAccountId, campaignId) {

@@ -2,6 +2,115 @@
   "version": 1,
   "tasks": [
     {
+      "id": "e083cf3c-0971-4738-a74e-786566ec6d18",
+      "type": "publication",
+      "name": "Публікація · DE · 17",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "17",
+        "siteUrl": "https://love-in-hurt.club/njdszf",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\762829933_122325643460007675_5689537905500061894_n.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "17",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "11588af4-9f03-4869-8863-5e7742b338fc"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "17",
+        "siteUrl": "https://love-in-hurt.club/njdszf",
+        "postId": "1284807618060555_122114899089508803",
+        "permalinkUrl": "https://www.facebook.com/122114787813508803/posts/122114899089508803",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T20:48:20.341Z",
+      "startedAt": "2026-11-06T20:48:20.343Z",
+      "finishedAt": "2026-11-06T20:48:25.284Z",
+      "updatedAt": "2026-11-06T20:48:25.286Z"
+    },
+    {
+      "id": "e6ffca88-fefc-40ed-87cb-079f94eb0872",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1284807618060555_122114815473508803",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "postId": "1284807618060555_122114815473508803"
+      },
+      "metadata": {
+        "accountKey": "account-067",
+        "pageId": "1284807618060555",
+        "reportId": "3620d30a-4065-495c-bdfb-9f54a3bb8e54"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1284807618060555_122114815473508803"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-06T20:47:56.658Z",
+      "startedAt": "2026-11-06T20:47:56.660Z",
+      "finishedAt": "2026-11-06T20:48:02.943Z",
+      "updatedAt": "2026-11-06T20:48:02.946Z"
+    },
+    {
       "id": "f32a8779-64d5-4cac-a7e3-f743bdc635f2",
       "type": "campaign",
       "name": "DE | Creo_1 | 25+ 06/11 16:31",

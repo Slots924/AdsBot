@@ -1004,6 +1004,19 @@ export default class FacebookGraphApi {
         return count;
     }
 
+    /** Отримує всі відхилені адсети РК разом з ID їхніх кампаній. */
+    async getRejectedAdSets(adAccountId) {
+        const account = normalizeAdAccountId(adAccountId);
+        const rows = await this.#getAll(`/${account}/adsets`, {
+            fields: "id,campaign_id", limit: 100,
+            filtering: JSON.stringify([{ field: "adset.delivery_info", operator: "IN", value: ["rejected"] }]),
+        }, { requireComplete: true });
+        if (rows.some((row) => !/^\d+$/.test(String(row.campaign_id ?? "")))) {
+            throw createValidationError("Meta не повернула ID кампанії відхиленого адсету", "ADSET_REJECTED_CAMPAIGN_INVALID");
+        }
+        return [...new Map(rows.map((row) => [String(row.id), { id: String(row.id), campaignId: String(row.campaign_id) }])).values()];
+    }
+
     async getRejectedAdSetIds(adAccountId, campaignId) {
         const account = normalizeAdAccountId(adAccountId);
         const campaign = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");

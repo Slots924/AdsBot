@@ -1112,7 +1112,11 @@ guiService.getAdCampaignStatistics = async () => ({ campaigns: [{ id: "901", spe
 guiService.getRejectedAdSetCount = async () => { rejectedSummaryCalls++; return 4; };
 const deliveryCampaigns = await handlers.get("campaigns:refresh")({}, { accountKey: "fp_hub", adAccountId: "act_delivery_count" });
 assert.equal(deliveryCampaigns.ok, true);
-assert.equal(deliveryCampaigns.data.campaigns[0].rejectedCount, 4);
+assert.equal(deliveryCampaigns.data.campaigns[0].rejectedCount, null);
+assert.equal(rejectedSummaryCalls, 0);
+const manualRejected = await handlers.get("campaigns:rejected-count-refresh")({}, { accountKey: "fp_hub", adAccountId: "act_delivery_count", campaignId: "901" });
+assert.equal(manualRejected.data.rejectedCount, 4);
+await handlers.get("campaigns:rejected-count-refresh")({}, { accountKey: "fp_hub", adAccountId: "act_delivery_count", campaignId: "901" });
 assert.equal(rejectedSummaryCalls, 1);
 const cachedDelivery = await handlers.get("campaigns:list")({}, { accountKey: "other-client", adAccountId: "act_delivery_count" });
 assert.equal(cachedDelivery.data.campaigns[0].rejectedCount, 4);

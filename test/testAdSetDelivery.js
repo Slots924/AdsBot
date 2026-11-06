@@ -15,7 +15,7 @@ try {
     let countCalls = 0, idCalls = 0, listCalls = 0, statsCalls = 0, fail = false;
     let rows = [{ id: "1", name: "First", status: "ACTIVE", effectiveStatus: "ACTIVE" }, { id: "2", name: "Second", status: "ACTIVE", effectiveStatus: "ACTIVE" }];
     const guiService = {
-        async getRejectedAdSetCount() { countCalls++; if (fail) throw new Error("Token expired"); return 2; },
+        async getRejectedAdSets() { countCalls++; if (fail) throw new Error("Token expired"); return [{ id: "1", campaignId: "10" }, { id: "2", campaignId: "10" }, { id: "2", campaignId: "10" }, { id: "4", campaignId: "20" }, { id: "5", campaignId: "99" }]; },
         async getRejectedAdSetIds() { idCalls++; if (fail) throw new Error("Token expired"); return ["1", "2"]; },
         async getCampaignAdSets() { listCalls++; return rows; },
         async getCampaignAdSetInsights() { statsCalls++; return rows.map((row) => ({ adset_id: row.id, spend: "12", actions: [{ action_type: "lead", value: "2" }] })); },
@@ -23,55 +23,44 @@ try {
     const create = (store = cache) => new AdSetService({ cache: store, guiService, now, serializeError: (error) => ({ message: error.message }) });
     const service = create();
     const input = { accountKey: "client", adAccountId: "act_1", campaignId: "10", datePreset: "today" };
-    const campaigns = [{ id: "10", status: "ACTIVE" }, { id: "20", status: "PAUSED" }];
-    await cache.setAdSetSnapshot("act_1", "20", { rejectedCount: 3 });
-    assert.equal((await service.enrichCampaigns(input, campaigns))[0].rejectedCount, null);
-    await service.refreshRejectedCounts(input, campaigns);
-    assert.equal(countCalls, 1);
-    assert.deepEqual((await service.enrichCampaigns(input, campaigns)).map((row) => row.rejectedCount), [2, 3]);
-    await service.refreshRejectedCounts(input, campaigns);
-    assert.equal(countCalls, 1);
+    const campaigns = [{ id: "10", status: "ACTIVE" }, { id: "20", status: "PAUSED" }, { id: "30", status: "PAUSED" }];
+    await cache.setAdSetSnapshot("act_1", "10", { rejectedCount: 3, rejectedIds: ["1"], rejectedIdsError: { message: "Old error" } });
+    guiService.getRejectedAdSetCount = async () => { countCalls++; if (fail) throw new Error("Token expired"); return 2; };
+    assert.equal((await service.enrichCampaigns(input, campaigns))[0].rejectedCount, 3);
     const opened = await service.refresh(input);
-    assert.equal(statsCalls, 0);
-    assert.equal(idCalls, 1);
-    assert.equal(opened.adSets[0].effectiveStatus, "ACTIVE");
-    assert.equal(opened.adSets[0].isRejected, true);
-    await service.refreshRejectedCounts(input, campaigns);
-    assert.equal(countCalls, 1);
-    const firstManual = await service.refresh({ ...input, manual: true });
-    assert.equal(firstManual.manualRefreshAllowed, true);
+    assert.equal(opened.adSets[0].isRejected, undefined);
+    assert.equal(opened.refreshError, null);
+    assert.deepEqual([countCalls, idCalls, statsCalls], [0, 0, 0]);
     await service.refreshStatistics(input);
     assert.equal(statsCalls, 1);
-    const callsBefore = [listCalls, idCalls];
-    const tooSoon = await service.refresh({ ...input, manual: true });
-    assert.equal(tooSoon.manualRefreshAllowed, false);
-    assert.deepEqual([listCalls, idCalls], callsBefore);
+    const first = await service.refreshRejectedCount(input);
+    assert.equal(first.rejectedCount, 2);
+    assert.equal(first.skipped, false);
+    assert.equal((await service.refreshRejectedCount(input)).skipped, true);
+    assert.equal(countCalls, 1);
+    const restarted = create(new RemoteDataCacheStore({ cacheFile, now }));
+    assert.equal((await restarted.refreshRejectedCount(input)).skipped, true);
+    assert.equal(countCalls, 1);
+    await service.refreshRejectedCount({ ...input, campaignId: "20" });
+    assert.equal(countCalls, 2);
     clock = new Date(clock.getTime() + 60_000);
-    rows = [...rows, { id: "3", name: "New", status: "ACTIVE", effectiveStatus: "ACTIVE" }];
-    await service.refresh({ ...input, manual: true });
-    const oldStatistics = await service.refreshStatistics(input);
-    assert.equal(statsCalls, 1);
-    assert.equal(oldStatistics.adSets.find((row) => row.id === "3").spend, undefined);
-    await service.refreshStatistics({ ...input, datePreset: "yesterday" });
-    assert.equal(statsCalls, 1);
-    clock = new Date(clock.getTime() + 14 * 60_000);
-    await service.refresh({ ...input, manual: true });
-    const refreshed = await service.refreshStatistics(input);
-    assert.equal(statsCalls, 2);
-    assert.equal(refreshed.adSets.find((row) => row.id === "3").spend, 12);
+    await Promise.all([service.refreshRejectedCount(input), service.refreshRejectedCount(input)]);
+    assert.equal(countCalls, 3);
     fail = true;
     clock = new Date(clock.getTime() + 60_000);
-    const failedIds = await service.refresh(input);
-    assert.equal(failedIds.adSets[0].isRejected, true);
-    assert.equal(failedIds.adSets[0].spend, 12);
-    await service.refreshRejectedCounts(input, campaigns);
-    assert.equal((await service.enrichCampaigns(input, campaigns))[0].rejectedCount, 2);
-    const restarted = create(new RemoteDataCacheStore({ cacheFile, now }));
-    const calls = [listCalls, idCalls, countCalls];
-    await restarted.refresh(input);
-    await restarted.refreshRejectedCounts(input, campaigns);
-    assert.deepEqual([listCalls, idCalls, countCalls], calls);
-    assert.equal((await restarted.read(input)).adSets[0].isRejected, true);
+    const failed = await service.refreshRejectedCount(input);
+    assert.equal(failed.rejectedCount, 2);
+    assert.ok(failed.rejectedCountError);
+    await service.refreshRejectedCount(input);
+    assert.equal(countCalls, 4);
+    fail = false;
+    guiService.getRejectedAdSetCount = async () => { countCalls++; return 0; };
+    clock = new Date(clock.getTime() + 60_000);
+    assert.equal((await service.refreshRejectedCount(input)).rejectedCount, 0);
+    await service.refresh({ ...input, manual: true });
+    await service.refreshStatistics(input);
+    assert.equal(statsCalls, 1);
+    assert.equal(idCalls, 0);
 
     const requests = [];
     let missingSummary = false;
@@ -90,5 +79,24 @@ try {
     assert.deepEqual(await api.getRejectedAdSetIds("act_1", "10"), ["1", "2"]);
     missingSummary = true;
     await assert.rejects(() => api.getRejectedAdSetCount("act_1", "10"), { code: "ADSET_REJECTED_COUNT_INVALID" });
-    console.log("Rejected: мінімальний summary, ID, кеш та інтервали 1/15 хв — OK");
+    let invalidCampaign = false, incomplete = false;
+    const accountRequests = [];
+    const accountApi = new FacebookGraphApi({ accountKey: "mock", accessToken: "mock", cookie: "mock", userAgent: "mock", proxyHttpClient: {
+        async request(request) {
+            accountRequests.push(request);
+            return { data: request.params.after
+                ? { data: [{ id: "1", campaign_id: "10" }, { id: "2", ...(invalidCampaign ? {} : { campaign_id: "20" }) }] }
+                : { data: [{ id: "1", campaign_id: "10" }], paging: { next: "next", ...(incomplete ? {} : { cursors: { after: "second" } }) } } };
+        },
+    } });
+    assert.deepEqual(await accountApi.getRejectedAdSets("act_1"), [{ id: "1", campaignId: "10" }, { id: "2", campaignId: "20" }]);
+    assert.equal(accountRequests.length, 2);
+    assert.ok(accountRequests[0].url.endsWith("/act_1/adsets"));
+    assert.equal(accountRequests[0].params.fields, "id,campaign_id");
+    assert.deepEqual(JSON.parse(accountRequests[0].params.filtering), [{ field: "adset.delivery_info", operator: "IN", value: ["rejected"] }]);
+    invalidCampaign = true;
+    await assert.rejects(() => accountApi.getRejectedAdSets("act_1"), { code: "ADSET_REJECTED_CAMPAIGN_INVALID" });
+    incomplete = true;
+    await assert.rejects(() => accountApi.getRejectedAdSets("act_1"), { code: "FACEBOOK_CAMPAIGN_LIST_INCOMPLETE" });
+    console.log("Rejected: ручна кнопка, кеш, незалежні інтервали та відсутність автоматичних запитів — OK");
 } finally { await rm(directory, { recursive: true, force: true }); }
