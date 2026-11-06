@@ -24,7 +24,7 @@ try {
     const input = { accountKey: "client", adAccountId: "act_1", campaignId: "100", datePreset: "today" };
     const rows = ["1", "2", "3"].map((id) => ({ id, name: `Ad set ${id}`, status: "ACTIVE", effectiveStatus: "ACTIVE" }));
     const seed = (target) => cache.setAdSetSnapshot(target.adAccountId, target.campaignId, { adSets: rows, listUpdatedAt: "2026-11-06T11:00:00Z" });
-    const create = (guiService) => new AdSetService({ cache, guiService, now, serializeError: (error) => ({ message: error.message }) });
+    const create = (guiService) => { guiService.getRejectedAdSetIds ??= async () => []; return new AdSetService({ cache, guiService, now, serializeError: (error) => ({ message: error.message }) }); };
 
     await seed(input);
     const statisticsStarted = deferred(), statisticsResponse = deferred();

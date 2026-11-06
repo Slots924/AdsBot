@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Copy, LoaderCircle, Trash2, X } from "lucide-react";
+import { Copy, LoaderCircle, RefreshCw, Trash2, X } from "lucide-react";
 import { unwrap } from "../lib/api.js";
 import { localValueInZone, zonedValueToIso } from "../lib/accountTime.js";
 import { budgetFromMinorUnits } from "../../../facebook/services/campaigns/CampaignBudget.js";
@@ -70,7 +70,7 @@ function DuplicateAdSetModal({ row, input, account, onClose, onComplete }) {
     </div>, document.body);
 }
 
-export default function CampaignAdSets({ campaignId, accountKey, account, datePreset, refreshToken, canWrite }) {
+export default function CampaignAdSets({ campaignId, accountKey, account, datePreset, canWrite }) {
     const [data, setData] = useState(null);
     const [busy, setBusy] = useState(false);
     const [statisticsBusy, setStatisticsBusy] = useState(false);
@@ -108,15 +108,29 @@ export default function CampaignAdSets({ campaignId, accountKey, account, datePr
                 if (!alive || sequence.current !== request) return;
                 applyData(fresh, revision);
                 setBusy(false);
-                if (fresh.listError || !fresh.adSets.some((row) => !removed(row) && !row.missingFromLatestRead)) return;
-                setStatisticsBusy(true);
-                const statistics = await unwrap(window.adsBot.refreshCampaignAdSetStatistics(input));
-                if (alive && sequence.current === request) applyData(statistics, revision);
             } catch (failure) { if (alive) setError(failure.message); }
             finally { if (alive) { setBusy(false); setStatisticsBusy(false); } }
         })();
-        return () => { alive = false; };
-    }, [key, refreshToken]);
+        return () => { alive = false; if (sequence.current === request) sequence.current += 1; };
+    }, [key]);
+    const refreshRows = async () => {
+        if (busy || statisticsBusy) return;
+        const request = sequence.current;
+        const revision = statusRevision.current;
+        setBusy(true);
+        setError("");
+        try {
+            const fresh = await unwrap(window.adsBot.refreshCampaignAdSets({ ...input, manual: true }));
+            if (sequence.current !== request) return;
+            applyData(fresh, revision);
+            setBusy(false);
+            if (!fresh.manualRefreshAllowed || fresh.listError) return;
+            setStatisticsBusy(true);
+            const statistics = await unwrap(window.adsBot.refreshCampaignAdSetStatistics(input));
+            if (sequence.current === request) applyData(statistics, revision);
+        } catch (failure) { if (sequence.current === request) setError(failure.message); }
+        finally { if (sequence.current === request) { setBusy(false); setStatisticsBusy(false); } }
+    };
     useEffect(() => {
         let alive = true;
         const off = window.adsBot.onAdSetsUpdated?.((event) => {
@@ -167,7 +181,7 @@ export default function CampaignAdSets({ campaignId, accountKey, account, datePr
     const rows = data?.adSets ?? [];
     const timestamp = (date) => date ? new Date(date).toLocaleString("uk-UA", { timeZone: account.timezoneName || "Europe/Kyiv", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "ще немає";
     return <section className="campaign-adsets" aria-label="Адсети кампанії">
-        <div className="adsets-caption"><strong>Адсети <span>{rows.length}</span></strong><small>{(busy || statisticsBusy) && <LoaderCircle className="spin" size={12} />}Статуси: {timestamp(data?.listUpdatedAt)} · Статистика: {timestamp(data?.statisticsUpdatedAt)}{statisticsBusy ? " · оновлюється" : ""}{data?.statisticsStale ? " · попередній період" : ""}</small></div>
+        <div className="adsets-caption"><strong>Адсети <span>{rows.length}</span></strong><div className="adsets-caption-tools"><small>Статуси: {timestamp(data?.listUpdatedAt)} · Статистика: {timestamp(data?.statisticsUpdatedAt)}{statisticsBusy ? " · оновлюється" : ""}{data?.statisticsStale ? " · попередній період" : ""}</small><button type="button" className="adsets-refresh-button" aria-label="Оновити адсети" title="Статуси — раз на хвилину, статистика — раз на 15 хвилин" disabled={!canWrite || busy || statisticsBusy} onClick={refreshRows}><RefreshCw size={13} className={busy || statisticsBusy ? "spin" : ""} /> Оновити</button></div></div>
         {(error || data?.refreshError) && <div className="notice danger">{error || data.refreshError.message}. Показано збережені дані.</div>}
         {queuedMessage && <div className="notice" role="status">{queuedMessage}</div>}
         {!rows.length && <div className="adsets-empty">{busy ? "Завантажуємо адсети…" : data?.cacheHit ? "У кампанії немає адсетів." : "Збережених адсетів ще немає. Оновіть після відновлення доступу."}</div>}
@@ -175,7 +189,7 @@ export default function CampaignAdSets({ campaignId, accountKey, account, datePr
             <div className="adset-grid adset-table-head"><span>Адсет / бюджет</span><span>Статус</span><span>Ліди Meta</span><span>Spend</span><span>Ціна / лід</span><span>CPM</span><span>CTR</span><span /></div>
             {rows.map((row) => <div className="adset-grid adset-row" key={row.id}>
                 <div className="adset-identity"><div className="adset-name-line"><EntityStatusToggle active={(row.status ?? row.effectiveStatus) === "ACTIVE"} pending={pendingStatuses.has(String(row.id))} disabled={!canWrite || unavailable(row) || deletingIds.has(String(row.id))} label={`${(row.status ?? row.effectiveStatus) === "ACTIVE" ? "Вимкнути" : "Увімкнути"} адсет ${row.name}`} onClick={() => toggleRow(row)} /><strong title={row.name}>{row.name}</strong></div><small>{row.id} · {row.campaignBudget ? "Бюджет кампанії" : `${money(budgetAmount(row, account.currency), account.currency)}${Number(row.lifetimeBudget) > 0 ? " на весь термін" : " / день"}`}</small><small title={row.optimizationGoal || ""}>Старт: {timestamp(row.startTime)}{row.endTime ? ` · До: ${timestamp(row.endTime)}` : ""}{row.missingFromLatestRead ? " · Збережена копія" : ""}</small></div>
-                <span className={`adset-status ${row.effectiveStatus === "ACTIVE" ? "active" : ""}`} title={row.effectiveStatus}>{row.setupIncomplete ? "Потрібна перевірка" : statuses[row.effectiveStatus] || row.effectiveStatus || "Невідомий"}</span>
+                <span className={`adset-status ${row.isRejected ? "rejected" : row.effectiveStatus === "ACTIVE" ? "active" : ""}`} title={row.isRejected ? "Meta: rejected" : row.effectiveStatus}>{row.isRejected ? "Відхилено" : row.setupIncomplete ? "Потрібна перевірка" : statuses[row.effectiveStatus] || row.effectiveStatus || "Невідомий"}</span>
                 <strong>{row.leads ?? "—"}</strong><strong>{money(row.spend, account.currency)}</strong><span>{money(row.costPerLead, account.currency)}</span><span>{money(row.cpm, account.currency)}</span><span>{row.ctr == null ? "—" : `${Number(row.ctr).toFixed(2)}%`}</span>
                 <span className="adset-actions">{!removed(row) && <>
                     <button type="button" className="icon-button adset-copy-button" title="Дублювати адсет" aria-label={`Дублювати адсет ${row.name}`} disabled={!canWrite || unavailable(row) || deletingIds.has(String(row.id)) || pendingStatuses.has(String(row.id))} onClick={() => setDuplicate(row)}><Copy size={15} /></button>

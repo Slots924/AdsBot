@@ -27,6 +27,8 @@ try {
     await wait(800);
     await writeFile(path.join(output, "adsets-wide.png"), (await window.webContents.capturePage()).toPNG());
     const checks = await window.webContents.executeJavaScript(`({ rows: document.querySelectorAll('.adset-row').length, documentOverflow: document.documentElement.scrollWidth > innerWidth, hidden: document.visibilityState, buttons: document.querySelectorAll('.adset-copy-button').length, deleteButtons: document.querySelectorAll('.adset-actions .campaign-delete-button').length, actionsFit: [...document.querySelectorAll('.adset-actions')].every(cell => { const row = cell.closest('.adset-row').getBoundingClientRect(); const rect = cell.getBoundingClientRect(); return rect.right <= row.right; }) })`);
+    const delivery = await window.webContents.executeJavaScript(`({ redBadges: document.querySelectorAll('.campaign-rejected-count:not(.muted)').length, grayBadges: document.querySelectorAll('.campaign-rejected-count.muted').length, rejectedRows: document.querySelectorAll('.adset-status.rejected').length, refreshButtons: document.querySelectorAll('.adsets-refresh-button').length })`);
+    if (delivery.redBadges !== 1 || delivery.grayBadges !== 1 || delivery.rejectedRows !== 1 || delivery.refreshButtons !== 1) throw new Error(JSON.stringify(delivery));
     await window.webContents.executeJavaScript('document.querySelector(".adset-copy-button").click()');
     await wait(200);
     await writeFile(path.join(output, "duplicate-wide.png"), (await window.webContents.capturePage()).toPNG());
@@ -36,6 +38,8 @@ try {
     const modal = await window.webContents.executeJavaScript(`(() => { const modal = document.querySelector('[role=dialog]'); const rect = modal.getBoundingClientRect(); return { fits: rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight, switchEnabled: modal.querySelector('[role=switch]').checked }; })()`);
     await window.webContents.executeJavaScript('document.querySelector("[role=dialog] .modal-close").click()');
     await wait(300);
+    const compactRefreshVisible = await window.webContents.executeJavaScript(`(() => { const rect = document.querySelector('.adsets-refresh-button').getBoundingClientRect(); return rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight; })()`);
+    if (!compactRefreshVisible) throw new Error("Кнопка оновлення адсетів не вміщується у компактному вікні");
     await writeFile(path.join(output, "adsets-compact.png"), (await window.webContents.capturePage()).toPNG());
     window.setSize(1600, 1000);
     await wait(150);
@@ -45,7 +49,7 @@ try {
     await writeFile(path.join(output, "adsets-pending.png"), (await window.webContents.capturePage()).toPNG());
     if (pending.count !== 2 || pending.spinners !== 2 || pending.states.join(',') !== 'false,true') throw new Error(JSON.stringify(pending));
     if (checks.rows !== 2 || checks.documentOverflow || checks.deleteButtons !== 2 || !checks.actionsFit || !modal.fits || !modal.switchEnabled || errors.length) throw new Error(JSON.stringify({ checks, modal, errors }));
-    console.log(JSON.stringify({ visible: window.isVisible(), checks, modal, pending, errors, screenshots: output }));
+    console.log(JSON.stringify({ visible: window.isVisible(), checks, delivery, compactRefreshVisible, modal, pending, errors, screenshots: output }));
 } catch (error) { console.error(error); process.exitCode = 1; }
 finally { window?.destroy(); app.quit(); }
 }

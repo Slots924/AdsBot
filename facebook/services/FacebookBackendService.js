@@ -263,6 +263,14 @@ export default class FacebookBackendService {
         return this.#getFacebookApiClient(accountKey).getCampaignAdSets(campaignId);
     }
 
+    async getRejectedAdSetCount(accountKey, adAccountId, campaignId) {
+        return this.#getFacebookApiClient(accountKey).getRejectedAdSetCount(adAccountId, campaignId);
+    }
+
+    async getRejectedAdSetIds(accountKey, adAccountId, campaignId) {
+        return this.#getFacebookApiClient(accountKey).getRejectedAdSetIds(adAccountId, campaignId);
+    }
+
     async getCampaignAdSetInsights(accountKey, campaignId, datePreset, context) {
         return this.#getFacebookApiClient(accountKey).getCampaignAdSetInsights(campaignId, datePreset, context);
     }

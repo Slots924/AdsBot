@@ -10,7 +10,7 @@ const row = { id: "3", name: "Основний адсет", effectiveStatus: "AC
 const data = { cacheHit: true, adSets: [row], listUpdatedAt: "2026-11-06T10:00:00Z", statisticsUpdatedAt: "2026-11-06T10:00:00Z" };
 const setup = () => {
     window.adsBot = {
-        getCampaignAdSets: vi.fn(() => ok(data)), refreshCampaignAdSets: vi.fn(() => ok(data)),
+        getCampaignAdSets: vi.fn(() => ok(data)), refreshCampaignAdSets: vi.fn((input) => ok({ ...data, manualRefreshAllowed: Boolean(input.manual) })),
         refreshCampaignAdSetStatistics: vi.fn(() => window.adsBot.getCampaignAdSets()),
         deleteAdSet: vi.fn(() => ok({ id: row.id, status: "DELETED", data: { ...data, adSets: [{ ...row, status: "DELETED", effectiveStatus: "DELETED", spend: null, leads: null }] } })),
         duplicateAdSet: vi.fn(() => ok({ taskId: "duplicate-task" })),
@@ -18,7 +18,30 @@ const setup = () => {
     };
 };
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+const refreshAdSets = async () => {
+    const button = screen.getByRole("button", { name: "Оновити адсети" });
+    await waitFor(() => expect(button).toBeEnabled());
+    fireEvent.click(button);
+};
 describe("Адсети кампанії", () => {
+    it("показує rejected попри ACTIVE і не запускає статистику при відкритті", async () => {
+        setup();
+        const rejected = { ...data, adSets: [{ ...row, status: "ACTIVE", isRejected: true }] };
+        window.adsBot.getCampaignAdSets.mockImplementation(() => ok(rejected));
+        window.adsBot.refreshCampaignAdSets.mockImplementation(() => ok(rejected));
+        render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" canWrite />);
+        expect(await screen.findByText("Відхилено")).toHaveClass("rejected");
+        expect(screen.getByRole("switch", { name: "Вимкнути адсет Основний адсет" })).toBeChecked();
+        expect(window.adsBot.refreshCampaignAdSetStatistics).not.toHaveBeenCalled();
+    });
+    it("показує червоний лічильник активної кампанії та сірий призупиненої", async () => {
+        setup();
+        window.adsBot.getAdCampaigns = vi.fn(() => ok({ cacheHit: true, campaigns: [{ id: "2", name: "Активна", status: "ACTIVE", effectiveStatus: "ACTIVE", rejectedCount: 4 }, { id: "5", name: "Пауза", status: "PAUSED", effectiveStatus: "PAUSED", rejectedCount: 2 }, { id: "6", name: "Без помилок", effectiveStatus: "ACTIVE", rejectedCount: 0 }] }));
+        render(<AdAccountsTab selectedAccount={{ accountKey: "client", status: "active" }} workspaceAccounts={[account]} selectedId="act_1" setSelectedId={() => {}} onError={vi.fn()} />);
+        expect(await screen.findByLabelText("Відхилені адсети: 4")).not.toHaveClass("muted");
+        expect(screen.getByLabelText("Відхилені адсети: 2")).toHaveClass("muted");
+        expect(screen.queryByLabelText("Відхилені адсети: 0")).not.toBeInTheDocument();
+    });
     it("одразу змінює положення перемикачів кампаній і не блокує інші рядки", async () => {
         setup();
         const campaigns = { cacheHit: true, campaigns: [{ id: "2", name: "Перша", status: "ACTIVE", effectiveStatus: "ACTIVE" }, { id: "5", name: "Друга", status: "PAUSED", effectiveStatus: "PAUSED" }] };
@@ -77,6 +100,8 @@ describe("Адсети кампанії", () => {
         window.adsBot.refreshCampaignAdSetStatistics.mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
         render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" refreshToken={0} canWrite />);
         expect(await screen.findByText("Основний адсет")).toBeInTheDocument();
+        expect(window.adsBot.refreshCampaignAdSetStatistics).not.toHaveBeenCalled();
+        await refreshAdSets();
         await waitFor(() => expect(finish).toBeTypeOf("function"));
         expect(screen.getByText(/оновлюється/)).toBeInTheDocument();
         expect(screen.getByText("2")).toBeInTheDocument();
@@ -85,8 +110,9 @@ describe("Адсети кампанії", () => {
     });
     it("оновлює статистику після попередньої помилки її перевірки", async () => {
         setup();
-        window.adsBot.refreshCampaignAdSets.mockImplementation(() => ok({ ...data, listError: null, refreshError: { code: "FACEBOOK_CAMPAIGN_LIST_INVALID", message: "Попередня помилка статистики" } }));
+        window.adsBot.refreshCampaignAdSets.mockImplementation((input) => ok({ ...data, manualRefreshAllowed: Boolean(input.manual), listError: null, refreshError: { code: "FACEBOOK_CAMPAIGN_LIST_INVALID", message: "Попередня помилка статистики" } }));
         render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" refreshToken={0} canWrite />);
+        await refreshAdSets();
         await waitFor(() => expect(window.adsBot.refreshCampaignAdSetStatistics).toHaveBeenCalledTimes(1));
     });
     it("підтверджує видалення і не повертає видалений стан через запізнілу статистику", async () => {
@@ -96,6 +122,7 @@ describe("Адсети кампанії", () => {
         const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
         render(<CampaignAdSets campaignId="2" accountKey="client" account={account} datePreset="today" refreshToken={0} canWrite />);
         const button = await screen.findByRole("button", { name: "Видалити адсет Основний адсет" });
+        await refreshAdSets();
         await waitFor(() => expect(finish).toBeTypeOf("function"));
         fireEvent.click(button);
         expect(window.adsBot.deleteAdSet).not.toHaveBeenCalled();
@@ -152,7 +179,10 @@ describe("Адсети кампанії", () => {
         fireEvent.click(expand);
         await screen.findByText("Основний адсет");
         await waitFor(() => expect(window.adsBot.refreshCampaignAdSets).toHaveBeenCalledTimes(1));
-        fireEvent.click(screen.getByRole("button", { name: "Оновити" }));
+        fireEvent.click(screen.getByRole("button", { name: "Оновити", exact: true }));
+        await waitFor(() => expect(window.adsBot.refreshAdCampaignData).toHaveBeenCalledTimes(1));
+        expect(window.adsBot.refreshCampaignAdSets).toHaveBeenCalledTimes(1);
+        await refreshAdSets();
         await waitFor(() => expect(window.adsBot.refreshCampaignAdSets).toHaveBeenCalledTimes(2));
         expect(window.adsBot.refreshCampaignAdSets.mock.calls.every(([input]) => input.campaignId === "2")).toBe(true);
         fireEvent.click(screen.getByRole("button", { name: "Згорнути кампанію Перша" }));

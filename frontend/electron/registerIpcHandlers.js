@@ -673,10 +673,10 @@ export default function registerIpcHandlers({
             ...cached.value,
             cacheUpdatedAt: cached.updatedAt,
             includeDeleted,
-            campaigns: await adAccountPreferencesStore.enrichCampaigns(
+            campaigns: await adSetService.enrichCampaigns({ adAccountId }, await adAccountPreferencesStore.enrichCampaigns(
                 adAccountId,
                 visibleCampaigns(cached.value.campaigns, includeDeleted)
-            ),
+            )),
             cacheHit: true,
         };
     };
@@ -689,6 +689,7 @@ export default function registerIpcHandlers({
             return { ...cached, refreshError: serializeError(error) };
         }
     };
+
 
     const loadRemoteCampaignStatistics = async ({
         accountKey,
@@ -768,6 +769,7 @@ export default function registerIpcHandlers({
             refreshKeitaro: false,
             includeDeleted,
         });
+        await adSetService.refreshRejectedCounts({ accountKey, adAccountId, datePreset, includeDeleted }, data.campaigns);
         const statistics = data.campaigns.length > 0
             ? await loadRemoteCampaignStatistics({
                 accountKey,
@@ -787,7 +789,7 @@ export default function registerIpcHandlers({
                 data: statistics ?? data,
             });
         }
-        return statistics ?? data;
+        return { ...(statistics ?? data), ...await readCachedCampaigns({ accountKey, adAccountId, datePreset, includeDeleted }) };
     };
     const mergeAccountStates = async (graphAccounts) => {
         const storedAccounts = (await Promise.all([
@@ -2204,7 +2206,11 @@ export default function registerIpcHandlers({
         })
     );
     ipcMain.handle("adsets:read", safeHandler((input) => adSetService.read(input)));
-    ipcMain.handle("adsets:refresh", safeHandler((input) => adSetService.refresh(input)));
+    ipcMain.handle("adsets:refresh", safeHandler(async (input) => {
+        const result = await adSetService.refresh(input);
+        sendRendererEvent("adsets:updated", { adAccountId: input.adAccountId, campaignId: input.campaignId });
+        return result;
+    }));
     ipcMain.handle("adsets:statistics-refresh", safeHandler((input) => adSetService.refreshStatistics(input)));
     ipcMain.handle("adsets:delete", safeHandler((input) => adSetService.delete(input)));
     ipcMain.handle("adsets:status-set", safeHandler(async (input) => {
@@ -2265,7 +2271,7 @@ export default function registerIpcHandlers({
             const key = [adAccountId, datePreset, includeDeleted].join("::");
             const now = Date.now();
             const lastRefresh = campaignRefreshTimes.get(key) ?? 0;
-            if (now - lastRefresh < manualRefreshIntervalMs) {
+            if (now - lastRefresh < 60_000) {
                 return readCachedCampaigns(payload);
             }
             campaignRefreshTimes.set(key, now);

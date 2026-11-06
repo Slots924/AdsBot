@@ -695,6 +695,13 @@ button:focus-visible, input:focus-visible {
 .adset-identity small { color: #7f899f; font-size: 10px; overflow-wrap: anywhere; }
 .adset-status { font-size: 10px; color: #d6b87b; }
 .adset-status.active { color: #67d8a6; }
+.adset-status.rejected { color: #ff738a; }
+.campaign-rejected-count { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 50%; background: #d64259; color: #fff; font-size: 10px; font-weight: 750; line-height: 1; }
+.campaign-rejected-count.muted { color: #adb3c1; background: #424856; }
+.adsets-caption-tools { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 9px; }
+.adsets-refresh-button { display: inline-flex; align-items: center; gap: 5px; min-height: 26px; padding: 0 8px; border: 1px solid var(--stroke); border-radius: 6px; background: rgba(255,255,255,.025); color: #b9bfd1; font-size: 10px; cursor: pointer; }
+.adsets-refresh-button:disabled { opacity: .5; cursor: default; }
+.adsets-refresh-button:hover:not(:disabled) { border-color: #8472ff; color: #d4caff; }
 .adset-copy-button { color: #b3a6ff; }
 .adsets-empty { padding: 12px 0; color: #7f899f; font-size: 12px; }
 .adset-duplicate-modal { width: min(480px, calc(100vw - 32px)); }
@@ -707,6 +714,7 @@ button:focus-visible, input:focus-visible {
 .adset-budget-total strong { color: #dfdbff; }
 @media (max-width: 1000px) { .campaign-adsets { padding-left: 0; } .adsets-caption { flex-wrap: wrap; } }
 @media (max-width: 1250px) {
+    .adsets-caption { justify-content: flex-start; }
     .ad-account-main .ad-detail header { flex-wrap: wrap; gap: 14px; }
     .ad-account-main .ad-detail-identity { flex-basis: 100%; }
     .ad-account-main .ad-detail-actions { flex-wrap: wrap; }

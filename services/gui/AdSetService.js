@@ -34,13 +34,42 @@ export default class AdSetService {
         const statistics = snapshot?.statistics?.[context.rangeKey] ?? snapshot?.lastStatistics;
         const byId = statistics?.byId ?? {};
         return {
-            adSets: (snapshot?.adSets ?? []).map((row) => ({ ...row, ...byId[row.id], ...(deleted(row) ? { spend: null, leads: null, costPerLead: null, cpm: null, ctr: null } : {}) })),
+            adSets: (snapshot?.adSets ?? []).map((row) => ({ ...row, ...byId[row.id], isRejected: !deleted(row) && Boolean(snapshot?.rejectedIds?.includes(String(row.id))), ...(deleted(row) ? { spend: null, leads: null, costPerLead: null, cpm: null, ctr: null } : {}) })),
             context, cacheHit: Boolean(snapshot?.listUpdatedAt), listUpdatedAt: snapshot?.listUpdatedAt ?? null,
             statisticsUpdatedAt: statistics?.updatedAt ?? null,
             statisticsStale: Boolean(statistics && statistics.context.rangeKey !== context.rangeKey),
             listError: snapshot?.listError ?? null,
-            refreshError: snapshot?.listError ?? snapshot?.statisticsErrors?.[context.rangeKey] ?? null,
+            rejectedUpdatedAt: snapshot?.rejectedIdsUpdatedAt ?? null,
+            refreshError: snapshot?.listError ?? snapshot?.rejectedIdsError ?? snapshot?.statisticsErrors?.[context.rangeKey] ?? null,
         };
+    }
+
+    async enrichCampaigns(input, campaigns) {
+        return Promise.all(campaigns.map(async (campaign) => {
+            const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, campaign.id);
+            return { ...campaign, rejectedCount: snapshot?.rejectedCount ?? null, rejectedCountUpdatedAt: snapshot?.rejectedCountUpdatedAt ?? null, rejectedCountError: snapshot?.rejectedCountError ?? null };
+        }));
+    }
+
+    async refreshRejectedCounts(input, campaigns) {
+        for (const campaign of campaigns) {
+            if ((campaign.status ?? campaign.effectiveStatus) !== "ACTIVE") continue;
+            const target = { ...input, campaignId: campaign.id };
+            await this.#exclusive(target, async () => {
+                const snapshot = await this.cache.getAdSetSnapshot(target.adAccountId, target.campaignId) ?? {};
+                if (!due(this.now(), snapshot.rejectedCountAttemptedAt ?? snapshot.rejectedCountUpdatedAt, minute)) return;
+                await this.#update(target, (current) => ({ ...current, rejectedCountAttemptedAt: this.now().toISOString() }));
+                try {
+                    const count = snapshot.rejectedIdsUpdatedAt && !due(this.now(), snapshot.rejectedIdsUpdatedAt, minute)
+                        ? snapshot.rejectedIds.length
+                        : await this.guiService.getRejectedAdSetCount(input.accountKey, input.adAccountId, campaign.id);
+                    if (!Number.isSafeInteger(count) || count < 0) throw new Error("Некоректна кількість відхилених адсетів");
+                    await this.#update(target, (current) => ({ ...current, rejectedCount: count, rejectedCountUpdatedAt: this.now().toISOString(), rejectedCountError: null }));
+                } catch (error) {
+                    await this.#update(target, (current) => ({ ...current, rejectedCountError: this.serializeError(error) }));
+                }
+            });
+        }
     }
 
     #exclusive(input, operation, background = false) {
@@ -69,7 +98,14 @@ export default class AdSetService {
     }
 
     refresh(input) {
-        return this.#exclusive(input, () => this.#refreshList(input));
+        return this.#exclusive(input, async () => {
+            if (input.manual) {
+                const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId);
+                if (!due(this.now(), snapshot?.manualAttemptedAt, minute)) return { ...await this.read(input), manualRefreshAllowed: false };
+                await this.#update(input, (current) => ({ ...current, manualAttemptedAt: this.now().toISOString() }));
+            }
+            return { ...await this.#refreshList(input), manualRefreshAllowed: Boolean(input.manual) };
+        });
     }
 
     refreshStatistics(input) {
@@ -101,16 +137,34 @@ export default class AdSetService {
                 await this.#update(input, (current) => ({ ...current, listError: this.serializeError(error) }));
             }
         }
+        const current = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId);
+        if (!current?.listError && current?.listUpdatedAt) await this.#refreshRejectedIds(input);
         return this.read(input);
+    }
+
+    async #refreshRejectedIds(input) {
+        const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
+        if (!due(this.now(), snapshot.rejectedIdsAttemptedAt ?? snapshot.rejectedIdsUpdatedAt, minute)) return;
+        await this.#update(input, (current) => ({ ...current, rejectedIdsAttemptedAt: this.now().toISOString() }));
+        try {
+            const ids = await this.guiService.getRejectedAdSetIds(input.accountKey, input.adAccountId, input.campaignId);
+            if (!Array.isArray(ids) || ids.some((id) => !String(id).trim())) throw new Error("Некоректний список відхилених адсетів");
+            await this.#update(input, (current) => ({ ...current, rejectedIds: [...new Set(ids.map(String))], rejectedIdsUpdatedAt: this.now().toISOString(), rejectedIdsError: null,
+                rejectedCount: new Set(ids.map(String)).size, rejectedCountUpdatedAt: this.now().toISOString(), rejectedCountAttemptedAt: this.now().toISOString(), rejectedCountError: null,
+            }));
+        } catch (error) {
+            await this.#update(input, (current) => ({ ...current, rejectedIdsError: this.serializeError(error) }));
+        }
     }
 
     async #refreshStatistics(input) {
         const context = await this.#context(input);
         const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
         const range = context.rangeKey;
+        const lastAttempt = snapshot.statisticsAttemptedAt ?? Object.values(snapshot.statisticsAttempts ?? {}).sort().at(-1) ?? snapshot.lastStatistics?.updatedAt;
         if (!snapshot.listError && snapshot.adSets?.some((row) => !row.missingFromLatestRead && !deleted(row))
-            && due(this.now(), snapshot.statisticsAttempts?.[range] ?? snapshot.statistics?.[range]?.updatedAt, 15 * minute)) {
-            await this.#update(input, (current) => ({ ...current, statisticsAttempts: { ...current.statisticsAttempts, [range]: this.now().toISOString() } }));
+            && due(this.now(), lastAttempt, 15 * minute)) {
+            await this.#update(input, (current) => ({ ...current, statisticsAttemptedAt: this.now().toISOString(), statisticsAttempts: { ...current.statisticsAttempts, [range]: this.now().toISOString() } }));
             try {
                 const rows = await this.guiService.getCampaignAdSetInsights(input.accountKey, input.campaignId, input.datePreset ?? "today", context);
                 if (!Array.isArray(rows)) throw new Error("Некоректна відповідь статистики адсетів");

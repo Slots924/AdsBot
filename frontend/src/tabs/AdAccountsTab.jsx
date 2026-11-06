@@ -256,6 +256,7 @@ function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, o
                     <CampaignStateToggle campaign={campaign} pending={pending} onToggle={onToggle} />
                     {!unavailable && <button type="button" className={`campaign-expand-button ${expanded ? "expanded" : ""}`} aria-label={`${expanded ? "Згорнути" : "Розгорнути"} кампанію ${campaign.name}`} aria-expanded={expanded} onClick={() => setExpanded((current) => !current)}><ChevronRight size={15} /></button>}
                     <strong>{campaign.name}</strong>
+                    {Number.isInteger(campaign.rejectedCount) && campaign.rejectedCount > 0 && <span className={`campaign-rejected-count ${(campaign.status ?? campaign.effectiveStatus) !== "ACTIVE" || unavailable ? "muted" : ""}`} aria-label={`Відхилені адсети: ${campaign.rejectedCount}`} title={`${campaign.rejectedCount} адсетів із відхиленнями${campaign.rejectedCountUpdatedAt ? ` · Оновлено: ${new Date(campaign.rejectedCountUpdatedAt).toLocaleString("uk-UA")}` : ""}${campaign.rejectedCountError ? " · Не вдалося оновити, показано кеш" : ""}`}>{campaign.rejectedCount}</span>}
                     {!unavailable && <button type="button" className="campaign-rename-button" aria-label={`Перейменувати кампанію ${campaign.name}`} title="Перейменувати кампанію" disabled={pending} onClick={() => onRename(campaign)}><Pencil size={14} /></button>}
                 </span>
                 <small>{campaign.id}</small>
@@ -375,7 +376,6 @@ export default function AdAccountsTab({
     const [datePreset, setDatePreset] = useState("today");
     const [campaignCache, setCampaignCache] = useState({});
     const [campaignsRefreshing, setCampaignsRefreshing] = useState(false);
-    const [adSetRefreshToken, setAdSetRefreshToken] = useState(0);
     const [renameEditor, setRenameEditor] = useState(null);
     const [renaming, setRenaming] = useState(false);
     const [campaignRenameEditor, setCampaignRenameEditor] = useState(null);
@@ -616,7 +616,11 @@ export default function AdAccountsTab({
                 loadCampaigns(event.adAccountId, datePreset, { readCache: true, background: true });
             }
         }) ?? (() => {});
+        const offAdSets = window.adsBot.onAdSetsUpdated?.((event) => {
+            if (String(event.adAccountId) === String(selected?.id)) loadCampaigns(event.adAccountId, datePreset, { readCache: true, background: true });
+        }) ?? (() => {});
         return () => {
+            offAdSets();
             offRefreshed();
             offInvalidated();
             offKeitaroLeads();
@@ -810,7 +814,6 @@ export default function AdAccountsTab({
         const now = Date.now();
         if (now - (lastCampaignRefreshAt.current[key] ?? 0) < 5_000) return;
         lastCampaignRefreshAt.current[key] = now;
-        setAdSetRefreshToken((current) => current + 1);
         setCampaignsRefreshing(true);
         try {
             const data = await unwrap(window.adsBot.refreshAdCampaignData(
@@ -1046,7 +1049,7 @@ export default function AdAccountsTab({
                             {selected.accessUnavailable && <div className="notice">Цей РК відсутній в останньому списку доступу API-клієнта. Показано збережені дані.</div>}
 
                             <CampaignTable
-                                adSetsContext={{ accountKey, account: selected, datePreset, refreshToken: adSetRefreshToken, canWrite: accountActive && selected.status === "active" }}
+                                adSetsContext={{ accountKey, account: selected, datePreset, canWrite: accountActive && selected.status === "active" }}
                                 entry={currentCampaignEntry}
                                 currency={selected.currency}
                                 showDeleted={showDeletedCampaigns}

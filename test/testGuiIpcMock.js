@@ -1104,6 +1104,18 @@ await assert.rejects(() => duplicateTask.runner({ signal: new AbortController().
 const invalidDuplicate = await handlers.get("adsets:duplicate")({}, { ...duplicateInput, count: 0 });
 assert.equal(invalidDuplicate.ok, false);
 
+let rejectedSummaryCalls = 0;
+guiService.getAdCampaignList = async () => [{ id: "901", name: "Delivery campaign", status: "ACTIVE", effectiveStatus: "ACTIVE" }];
+guiService.getAdCampaignStatistics = async () => ({ campaigns: [{ id: "901", spend: 0, leads: 0 }] });
+guiService.getRejectedAdSetCount = async () => { rejectedSummaryCalls++; return 4; };
+const deliveryCampaigns = await handlers.get("campaigns:refresh")({}, { accountKey: "fp_hub", adAccountId: "act_delivery_count" });
+assert.equal(deliveryCampaigns.ok, true);
+assert.equal(deliveryCampaigns.data.campaigns[0].rejectedCount, 4);
+assert.equal(rejectedSummaryCalls, 1);
+const cachedDelivery = await handlers.get("campaigns:list")({}, { accountKey: "other-client", adAccountId: "act_delivery_count" });
+assert.equal(cachedDelivery.data.campaigns[0].rejectedCount, 4);
+assert.equal(rejectedSummaryCalls, 1);
+
 console.log("Mock-перевірка GUI IPC пройшла успішно");
 
 } finally { await rm(cacheDirectory, { recursive: true, force: true }); }

@@ -15,6 +15,8 @@ try {
     let clock = new Date("2026-11-06T10:00:00Z");
     let listCalls = 0, statCalls = 0, fail = false, failStats = false, empty = false;
     const guiService = {
+        async getRejectedAdSetIds() { return []; },
+        async getRejectedAdSetCount() { return 0; },
         async getCampaignAdSets() { listCalls++; if (fail) throw new Error("Токен недійсний"); return empty ? [] : [{ id: "10", name: "Адсет", effectiveStatus: "ACTIVE" }]; },
         async getCampaignAdSetInsights() { statCalls++; if (failStats) throw new Error("Статистика недоступна"); return [{ adset_id: "10", spend: "12", impressions: "1000", clicks: "20", actions: [{ action_type: "lead", value: "3" }] }]; },
         async duplicateAdSet() { return { copies: [{ id: "11", name: "Копія", status: "ACTIVE" }] }; },

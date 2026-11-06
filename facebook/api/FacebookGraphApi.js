@@ -991,6 +991,29 @@ export default class FacebookGraphApi {
         }));
     }
 
+    /** Мінімальний запит кількості відхилених адсетів вибраної кампанії без списку об'єктів. */
+    async getRejectedAdSetCount(adAccountId, campaignId) {
+        const account = normalizeAdAccountId(adAccountId);
+        const campaign = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");
+        const data = await this.#request(`/${account}/adsets`, {
+            fields: "id", limit: 0, summary: "total_count",
+            filtering: JSON.stringify([{ field: "campaign.id", operator: "IN", value: [campaign] }, { field: "adset.delivery_info", operator: "IN", value: ["rejected"] }]),
+        });
+        const count = data.summary?.total_count;
+        if (!Number.isSafeInteger(count) || count < 0) throw createValidationError("Meta не повернула кількість відхилених адсетів", "ADSET_REJECTED_COUNT_INVALID");
+        return count;
+    }
+
+    async getRejectedAdSetIds(adAccountId, campaignId) {
+        const account = normalizeAdAccountId(adAccountId);
+        const campaign = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");
+        const rows = await this.#getAll(`/${account}/adsets`, {
+            fields: "id", limit: 100,
+            filtering: JSON.stringify([{ field: "campaign.id", operator: "IN", value: [campaign] }, { field: "adset.delivery_info", operator: "IN", value: ["rejected"] }]),
+        }, { requireComplete: true });
+        return [...new Set(rows.map((row) => String(row.id)))];
+    }
+
     /** Статистика лише вибраної кампанії за зафіксованими датами РК. */
     async getCampaignAdSetInsights(campaignId, datePreset, context) {
         const id = normalizeObjectId(campaignId, "CAMPAIGN_ID_INVALID", "ID кампанії");

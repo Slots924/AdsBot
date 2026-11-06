@@ -4,6 +4,7 @@ import { performance } from "node:perf_hooks";
 
 const backendSuites = {
     campaign: [
+        "test/testAdSetDelivery.js",
         "test/testAdSetConcurrency.js",
         "test/testAdSetService.js",
         "test/testFacebookGraphDiagnosticsMock.js",
@@ -18,6 +19,7 @@ const backendSuites = {
         "test/testCampaignTemplateManager.js",
     ],
     all: [
+        "test/testAdSetDelivery.js",
         "test/testAdSetConcurrency.js",
         "test/testAdSetService.js",
         "scripts/manual-commenting.test.js",
