@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     saveCreativeVariant: (payload) => ipcRenderer.invoke("creatives:save-variant", payload),
     bmRequest: (payload) => ipcRenderer.invoke("bm:request", payload),
     onBMProgress: (callback) => subscribe("bm:progress", callback),
+    getAccountEditorCredentials: (accountKey) => ipcRenderer.invoke("accounts:editor-credentials", { accountKey }),
     getAccounts: () => ipcRenderer.invoke("accounts:list"),
     refreshAccounts: () => ipcRenderer.invoke("accounts:refresh"),
     createAccount: (account) => ipcRenderer.invoke("accounts:create", account),

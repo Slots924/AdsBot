@@ -3,6 +3,8 @@ import path from "node:path";
 import { getAccountProxyMode, normalizeAccountProxySettings } from "../../services/proxy/accountProxyMode.js";
 
 
+import { defaultAfpUserAgent, getAccountTokenMode } from "../api/accountCredentials.js";
+
 const facebookCookieNames = new Set([
     "c_user",
     "xs",
@@ -181,6 +183,8 @@ function safeAccount(account, primaryAccountKey = "") {
         hasUserAgent: Boolean(String(account.userAgent ?? "").trim()),
         hasAccessToken: Boolean(String(account.accessToken ?? "").trim()),
         hasCookie: Boolean(String(account.cookie ?? "").trim()),
+        hasAfpToken: Boolean(String(account.afpToken ?? "").trim()),
+        tokenMode: getAccountTokenMode(account),
         adsPowerProfileNo: String(account.adsPowerProfileNo ?? "").trim(),
         proxyId: String(account.proxyId ?? "").trim(),
         proxyMode: getAccountProxyMode(account),
@@ -240,13 +244,13 @@ export default class FacebookAccountManager {
             const adsPowerProfileNo = normalizeAdsPowerProfileNo(
                 input.adsPowerProfileNo
             );
-            if (!adsPowerProfileNo && !userAgent) {
+            if (this.kind !== "api" && !adsPowerProfileNo && !userAgent) {
                 throw createAccountError(
                     "Вкажіть userAgent",
                     "FACEBOOK_ACCOUNT_USER_AGENT_REQUIRED"
                 );
             }
-            if (!adsPowerProfileNo && !accessToken) {
+            if (this.kind !== "api" && !adsPowerProfileNo && !accessToken) {
                 throw createAccountError(
                     "Вкажіть accessToken",
                     "FACEBOOK_ACCOUNT_ACCESS_TOKEN_REQUIRED"
@@ -258,6 +262,7 @@ export default class FacebookAccountManager {
                 facebookUserId: "",
                 userAgent,
                 accessToken,
+                ...(this.kind === "api" ? { tokenMode: getAccountTokenMode(input), afpToken: String(input.afpToken ?? "").trim(), afpUserAgent: String(input.afpUserAgent || defaultAfpUserAgent).trim() } : {}),
                 cookie: this.kind === "system" ? "" : input.cookie ? normalizeFacebookCookie(input.cookie) : "",
                 adsPowerProfileNo,
                 ...normalizeAccountProxySettings(input, { defaultMode: this.kind === "system" ? "auto" : "profile" }),
@@ -298,8 +303,6 @@ export default class FacebookAccountManager {
                     "FACEBOOK_ACCOUNT_NOT_FOUND"
                 );
             }
-            const userAgent = String(input.userAgent ?? "").trim();
-            const accessToken = String(input.accessToken ?? "").trim();
             const cookie = typeof input.cookie === "string"
                 ? input.cookie.trim()
                 : input.cookie;
@@ -313,12 +316,21 @@ export default class FacebookAccountManager {
                 }
                 account.name = name;
             }
-            if (userAgent) account.userAgent = userAgent;
-            if (accessToken) account.accessToken = accessToken;
-            if (this.kind !== "system" && cookie && (typeof cookie !== "string" || cookie.length)) {
-                account.cookie = normalizeFacebookCookie(cookie);
+            for (const field of ["userAgent", "accessToken"]) {
+                if (Object.hasOwn(input, field) && (input.replaceCredentials === true || String(input[field] ?? "").trim())) account[field] = String(input[field] ?? "").trim();
             }
-            if (String(input.adsPowerProfileNo ?? "").trim()) {
+            if (this.kind === "api") {
+                if (Object.hasOwn(input, "tokenMode")) {
+                    if (!["access", "afp"].includes(input.tokenMode)) throw new Error("Невідомий тип токена");
+                    account.tokenMode = input.tokenMode;
+                }
+                if (Object.hasOwn(input, "afpToken")) account.afpToken = String(input.afpToken ?? "").trim();
+                if (Object.hasOwn(input, "afpUserAgent")) account.afpUserAgent = String(input.afpUserAgent || defaultAfpUserAgent).trim();
+            }
+            if (this.kind !== "system" && Object.hasOwn(input, "cookie") && (cookie || input.replaceCredentials === true)) {
+                account.cookie = cookie ? normalizeFacebookCookie(cookie) : "";
+            }
+            if (Object.hasOwn(input, "adsPowerProfileNo") && (String(input.adsPowerProfileNo ?? "").trim() || input.replaceCredentials === true)) {
                 if (String(input.adsPowerProfileNo).trim() !== account.adsPowerProfileNo) delete account.adsPowerProxy;
                 account.adsPowerProfileNo = normalizeAdsPowerProfileNo(
                     input.adsPowerProfileNo
@@ -358,6 +370,17 @@ export default class FacebookAccountManager {
             account.adsPowerProxy = snapshot;
             await this.#write(store);
             return safeAccount(account, store.primaryAccountKey);
+        });
+    }
+
+    // Секрети повертаються лише для явного відкриття редактора; не логувати.
+    async getEditorCredentials(accountKey) {
+        return this.#enqueue(async () => {
+            const store = await this.#read();
+            const key = normalizeAccountKey(accountKey).toLowerCase();
+            const account = store.accounts.find((item) => String(item.accountKey).toLowerCase() === key);
+            if (!account) throw createAccountError("API-клієнт не знайдено", "FACEBOOK_ACCOUNT_NOT_FOUND");
+            return Object.fromEntries(["userAgent", "accessToken", "cookie", "afpToken", "afpUserAgent"].map((field) => [field, String(account[field] ?? "")]));
         });
     }
 

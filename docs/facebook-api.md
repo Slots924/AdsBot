@@ -1,5 +1,14 @@
 # Facebook Graph API
 
+API-клієнти підтримують `tokenMode: "access" | "afp"` (типово `access`).
+`facebook/api/accountCredentials.js` централізовано обирає `accessToken`,
+`userAgent`, `cookie` або `afpToken` і `afpUserAgent`. AFP не передає cookie,
+навіть якщо вони збережені для Access. Обидва режими використовують ту саму
+проксі клієнта. Для Access порожні cookie також не додаються до HTTP-заголовків;
+cookie необов’язкові для API-клієнтів і BM. Записи API-клієнтів без активного
+токена або User-Agent залишаються в сховищі для редагування й пропускаються
+під час створення Graph API-клієнтів.
+
 Контракт браузерних API-екшинів, отримання runtime та збережені винятки описані в [Facebook browser runtime](facebook-browser-runtime.md).
 
 ## Puppeteer: пости особистого профілю з вибраними датами
@@ -168,8 +177,8 @@ const post = await facebookBackend.publishPost({
 Підсистема `facebook/api` виконує запити до Graph API, а workflow
 `publishPagePost` додає контрольовану публікацію постів на фанпейджі. Вона не
 залежить від AdsPower і не запускає браузер. Кожен Facebook-акаунт має власні
-access token, session cookies та User-Agent, але всі клієнти використовують один
-спільний `ProxyHttpClient`.
+access token, необов’язкові session cookies та User-Agent. Проксі обирається
+за режимом клієнта: з профілю AdsPower, автоматично з пулу або призначена вручну.
 
 ## Конфігурація акаунтів
 
@@ -191,12 +200,15 @@ access token, session cookies та User-Agent, але всі клієнти ви
 }
 ```
 
-Обов'язкові поля:
+Поля конфігурації:
 
 - `accountKey` — унікальний внутрішній ключ для вибору клієнта;
 - `userAgent` — User-Agent конкретного Facebook-акаунта;
 - `accessToken` — user access token;
-- `cookie` — готовий рядок session cookies того самого акаунта у форматі `name=value; name=value`.
+- `cookie` — необов’язковий рядок session cookies того самого акаунта у форматі `name=value; name=value`;
+- `tokenMode` — `access` (типово) або `afp`;
+- `afpToken` — окремий AFP token; необов’язковий для збереження, потрібний для запитів у режимі AFP;
+- `afpUserAgent` — необов’язковий User-Agent AFP; типово Chrome на Windows.
 
 `name`, `facebookUserId` і `metadata` зарезервовані для подальшої автоматизації та можуть бути порожніми. Фабрика читає конфіг, але ніколи його не перезаписує.
 
@@ -550,8 +562,11 @@ POST-запит не повторюється після мережевої по
 
 Cookie input приймає готовий Cookie header, JSON-масив із AdsPower або об’єкт
 із масивом `cookies`. Під час запису залишаються лише потрібні cookies домену
-`facebook.com`; інші домени й зайві cookie-поля відкидаються. IPC повертає лише
-ознаки наявності секретів, але не їх значення.
+`facebook.com`; інші домени й зайві cookie-поля відкидаються. Списки IPC повертають
+лише ознаки наявності секретів. Повні значення завантажуються лише окремим
+`accounts:editor-credentials` для редактора, де секрети приховані. Редактор
+передає `replaceCredentials: true`, щоб порожнє поле явно очищало значення;
+інші часткові оновлення зберігають попередню поведінку порожніх Access-полів.
 
 - Graph API errors перетворюються на Error з `code="FACEBOOK_API_ERROR"` та полями `httpStatus`, `graphCode`, `graphSubcode`, `graphType`, `graphUserTitle`, `graphUserMessage`.
 - Вичерпання проксі повертає `code="PROXY_POOL_EXHAUSTED"`.

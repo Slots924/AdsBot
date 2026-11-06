@@ -93,6 +93,24 @@ try {
     assert.equal(persistedAfterUpdate.accessToken, "new-token");
     assert.equal(persistedAfterUpdate.cookie, "c_user=100; xs=session=value");
 
+    const optional = await manager.create({ name: "AFP optional" });
+    assert.equal(optional.hasAfpToken, false);
+    await manager.update(optional.accountKey, { afpToken: "mock-afp", tokenMode: "afp" });
+    const afp = await manager.get(optional.accountKey);
+    assert.equal(afp.tokenMode, "afp");
+    assert.equal(afp.hasAfpToken, true);
+    assert.equal(JSON.stringify(afp).includes("mock-afp"), false);
+    assert.equal((await manager.getEditorCredentials(optional.accountKey)).afpToken, "mock-afp");
+    await assert.rejects(manager.update(optional.accountKey, { tokenMode: "invalid" }), /Невідомий тип токена/);
+    await manager.update(optional.accountKey, { tokenMode: "access" });
+    assert.equal((await manager.getEditorCredentials(optional.accountKey)).afpToken, "mock-afp");
+    await manager.update(optional.accountKey, { replaceCredentials: true, afpToken: "", cookie: "", accessToken: "", userAgent: "" });
+    assert.equal((await manager.get(optional.accountKey)).hasAfpToken, false);
+    await manager.delete(optional.accountKey);
+    await manager.update("account-002", { replaceCredentials: true, cookie: "" });
+    assert.equal((await manager.getEditorCredentials("account-002")).cookie, "");
+    assert.equal((await manager.getEditorCredentials("account-002")).accessToken, "new-token");
+
     const archived = await manager.setArchived("account-002", true);
     assert.equal(archived.archived, true);
     assert.equal((await manager.list())[1].archived, true);
@@ -117,10 +135,10 @@ try {
         name: "Client 3",
         adsPowerProfileNo: "1793",
     });
-    assert.equal(createdAfterDeletion.accountKey, "account-004");
+    assert.equal(createdAfterDeletion.accountKey, "account-005");
     assert.deepEqual(
         (await manager.list()).map((account) => account.accountKey),
-        ["account-001", "account-004"]
+        ["account-001", "account-005"]
     );
 
     const bmFile = path.join(directory, "businessManagers.json");

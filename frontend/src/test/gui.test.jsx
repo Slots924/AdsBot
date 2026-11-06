@@ -312,7 +312,7 @@ describe("GUI helpers", () => {
         fireEvent.change(screen.getByLabelText("accessToken"), {
             target: { value: "token" },
         });
-        fireEvent.change(screen.getByLabelText(/Cookie або AdsPower JSON/), {
+        fireEvent.change(screen.getByLabelText("Cookie або AdsPower JSON", { exact: true }), {
             target: { value: "c_user=1; xs=2" },
         });
         fireEvent.click(screen.getByText("Створити"));
@@ -323,6 +323,9 @@ describe("GUI helpers", () => {
             userAgent: "Mozilla/5.0 Test",
             accessToken: "token",
             cookie: "c_user=1; xs=2",
+            afpToken: "",
+            afpUserAgent: expect.stringContaining("Windows NT"),
+            tokenMode: "access",
             proxyId: "",
             proxyMode: "profile",
         }));

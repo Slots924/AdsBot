@@ -810,7 +810,7 @@ export default function registerIpcHandlers({
             }
             const graphAccount = graphByKey.get(stored.accountKey) ?? {
                 status: "error",
-                error: { message: "Акаунт не завантажено" },
+                error: { message: stored.tokenMode === "afp" ? "Додайте AFP token" : "Додайте accessToken та User-Agent або синхронізуйте з AdsPower" },
             };
             return {
                 ...stored,
@@ -1282,13 +1282,14 @@ export default function registerIpcHandlers({
             return refreshManagedAccounts();
         })
     );
+    ipcMain.handle("accounts:editor-credentials", safeHandler(({ accountKey }) => managerForAccount(accountKey).getEditorCredentials(accountKey)));
     ipcMain.handle(
         "accounts:update",
         safeHandler(async ({ accountKey, ...patch }) => {
             await validateAccountProxy(patch);
             const account = await managerForAccount(accountKey).update(accountKey, patch);
             await guiService.reloadFacebookBackend();
-            return account;
+            return Object.hasOwn(patch, "tokenMode") ? { ...account, status: "unknown", error: null } : account;
         })
     );
     ipcMain.handle(
@@ -1304,6 +1305,9 @@ export default function registerIpcHandlers({
         safeHandler(async ({ accountKey }) => {
             const account = await managerForAccount(accountKey).get(accountKey);
             if (account.kind === "system") return { ...account, status: "unknown", error: null };
+            if (account.tokenMode === "afp" ? !account.hasAfpToken : !account.hasAccessToken || !account.hasUserAgent) {
+                return { ...account, status: "inactive", error: { message: account.tokenMode === "afp" ? "Додайте AFP token" : "Додайте accessToken та User-Agent або синхронізуйте з AdsPower" } };
+            }
             const [status, adsPowerOpen] = await Promise.all([
                 guiService.checkAccount(accountKey),
                 account.adsPowerProfileNo
@@ -1326,6 +1330,7 @@ export default function registerIpcHandlers({
         safeHandler(async ({ accountKey }) => {
             const manager = managerForAccount(accountKey);
             const account = await manager.get(accountKey);
+            if (account.tokenMode === "afp") throw new Error("У режимі AFP оновлення через cookie недоступне");
             if (account.kind === "system" || account.archived) throw new Error("Оновлення токена доступне для активних API-клієнтів і БМ");
             if (refreshingAccessTokens.has(account.accountKey)) throw new Error("Токен цього клієнта вже оновлюється");
             refreshingAccessTokens.add(account.accountKey);
@@ -1364,6 +1369,7 @@ export default function registerIpcHandlers({
                 item.accountKey.toLowerCase() === normalizedKey.toLowerCase()
             ));
             if (!account) throw Object.assign(new Error("API-клієнт не знайдено"), { code: "FACEBOOK_ACCOUNT_NOT_FOUND" });
+            if (account.tokenMode === "afp") throw new Error("У режимі AFP синхронізація з AdsPower недоступна");
             if (!account.adsPowerProfileNo) throw Object.assign(new Error("Для API-клієнта не вказано номер AdsPower"), { code: "ADSPOWER_PROFILE_NO_REQUIRED" });
             const task = await backgroundTaskManager.enqueue({
                 type: "facebook-api-client-sync",

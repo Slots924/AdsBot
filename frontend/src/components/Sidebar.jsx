@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import {
     Bot,
+    Eye,
+    EyeOff,
     CloudDownload,
     KeyRound,
     LoaderCircle,
@@ -16,7 +19,8 @@ import {
     X,
 } from "lucide-react";
 
-import { errorDetails } from "../lib/api.js";
+import { errorDetails, unwrap } from "../lib/api.js";
+import { defaultAfpUserAgent, getAccountTokenMode } from "../../../facebook/api/accountCredentials.js";
 import { UiSelect } from "./shared-ui/SharedUi.jsx";
 import { getAccountProxyMode } from "../../../services/proxy/accountProxyMode.js";
 
@@ -53,13 +57,29 @@ function ProxyPicker({ proxies, value, onChange }) {
 
 
 function emptyAccountDraft() {
-    return { kind: "api", name: "", adsPowerProfileNo: "", userAgent: "", accessToken: "", cookie: "", proxyId: "", proxyMode: "profile" };
+    return { kind: "api", name: "", adsPowerProfileNo: "", userAgent: "", accessToken: "", cookie: "", afpToken: "", afpUserAgent: defaultAfpUserAgent, tokenMode: "access", proxyId: "", proxyMode: "profile" };
 }
 
+function SecretField({ label, value, onChange, placeholder }) {
+    const [visible, setVisible] = useState(false);
+    return <label className="field"><span>{label}</span><div className="account-secret-input">
+        <input type={visible ? "text" : "password"} value={value} onChange={onChange} placeholder={placeholder} autoComplete="off" spellCheck={false} />
+        <button type="button" className="icon-button" aria-label={`${visible ? "Приховати" : "Показати"} ${label}`} onClick={() => setVisible((current) => !current)}>{visible ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+    </div></label>;
+}
+
+function TokenPicker({ value, onChange, disabled = false, label = "Токен для запитів" }) {
+    return <div className="account-token-picker" role="group" aria-label={label}>
+        {[["access", "Access token"], ["afp", "AFP token"]].map(([id, title]) => <button key={id} type="button" aria-pressed={value === id} disabled={disabled} onClick={() => onChange(id)}>{title}</button>)}
+    </div>;
+}
 
 function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
     const [draft, setDraft] = useState(() => ({
         ...emptyAccountDraft(),
+        ...editor.credentials,
+        afpUserAgent: editor.credentials?.afpUserAgent || defaultAfpUserAgent,
+        tokenMode: getAccountTokenMode(editor),
         name: editor.name ?? "",
         adsPowerProfileNo: editor.adsPowerProfileNo ?? "",
         kind: editor.kind ?? "api",
@@ -67,6 +87,7 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
         proxyMode: editor.mode === "create" ? (editor.kind === "system" ? "auto" : "profile") : getAccountProxyMode(editor),
     }));
     const [saving, setSaving] = useState(false);
+    const [tokenTab, setTokenTab] = useState(getAccountTokenMode(editor));
     const update = (field) => (event) => setDraft((current) => ({
         ...current,
         [field]: event.target.value,
@@ -74,9 +95,9 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
     const creating = editor.mode === "create";
     const system = draft.kind === "system";
     const canSave = (draft.proxyMode !== "bound" || proxies.some((proxy) => proxy.id === draft.proxyId && proxy.type !== "no_proxy")) && (creating
-        ? draft.name.trim() && (system ? draft.userAgent.trim() && draft.accessToken.trim() : draft.adsPowerProfileNo.trim() || (
-            draft.userAgent.trim() && draft.accessToken.trim() && draft.cookie.trim()
-        ))
+        ? draft.name.trim() && (draft.kind === "api" || (system ? draft.userAgent.trim() && draft.accessToken.trim() : draft.adsPowerProfileNo.trim() || (
+            draft.userAgent.trim() && draft.accessToken.trim()
+        )))
         : draft.name.trim());
 
     const submit = async (event) => {
@@ -84,7 +105,7 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
         if (!canSave || saving) return;
         setSaving(true);
         try {
-            await onSave(draft);
+            await onSave(creating ? draft : { ...draft, replaceCredentials: true });
             onClose();
         } catch (error) {
             onError({
@@ -98,29 +119,32 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
         }
     };
 
-    return (
+    return createPortal(
         <div className="overlay" onMouseDown={() => !saving && onClose()}>
-            <motion.form className="modal account-editor" initial={{ opacity: 0, y: 18, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} onMouseDown={(event) => event.stopPropagation()} onSubmit={submit}>
-                <button className="modal-close" type="button" disabled={saving} onClick={onClose}><X size={17} /></button>
-                <div className="modal-icon"><Bot /></div>
+            <motion.form role="dialog" aria-modal="true" aria-label={creating ? "Новий клієнт" : "Редагувати клієнта"} className="modal account-editor" initial={{ opacity: 0, y: 18, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} onMouseDown={(event) => event.stopPropagation()} onKeyDown={(event) => { if (event.key === "Escape" && !saving) onClose(); }} onSubmit={submit}>
+                <button className="modal-close" type="button" aria-label="Закрити редактор" disabled={saving} onClick={onClose}><X size={17} /></button>
                 <h2>{creating ? "Новий клієнт" : "Редагувати клієнта"}</h2>
                 <KindPicker value={draft.kind} disabled={!creating} onChange={(kind) => setDraft((current) => ({ ...current, kind, userAgent: "", proxyMode: current.proxyMode === "bound" ? "bound" : kind === "system" ? "auto" : "profile" }))} />
-                {!creating && <p>Порожні поля залишаться без змін. Поточні секрети з міркувань безпеки не показуються.</p>}
                 <div className="template-editor-fields">
                     <label className="field"><span>{system ? "Назва системного юзера" : draft.kind === "bm" ? "Назва BM" : "Назва API-клієнта"}</span><input autoFocus value={draft.name} onChange={update("name")} placeholder="Наприклад, Польща 1" /></label>
-                    {!system && <label className="field"><span>AdsPower № (необов'язково)</span><input inputMode="numeric" value={draft.adsPowerProfileNo} onChange={update("adsPowerProfileNo")} placeholder="1791" /><small className="field-hint">З номером AdsPower можна створити клієнт без token, cookie і userAgent — їх додасть синхронізація.</small></label>}
-                    {system ? <label className="field"><span>User-Agent</span><select value={draft.userAgent} onChange={update("userAgent")}><option value="">Виберіть User-Agent</option>{systemUserAgents.map(([label, value]) => <option key={label} value={value}>{label}</option>)}</select></label> : <label className="field"><span>userAgent</span><textarea rows="3" value={draft.userAgent} onChange={update("userAgent")} placeholder={creating ? "Mozilla/5.0…" : "Залишити без змін"} /></label>}
-                    <label className="field"><span>accessToken</span><textarea rows="3" value={draft.accessToken} onChange={update("accessToken")} placeholder={creating ? "Access token" : "Залишити без змін"} /></label>
-                    {!system && <label className="field">
-                        <span>Cookie або AdsPower JSON</span>
-                        <textarea rows="6" value={draft.cookie} onChange={update("cookie")} placeholder={creating ? "Cookie header або повний JSON-масив cookies" : "Залишити без змін"} />
-                        <small className="field-hint">Із масиву автоматично беруться лише потрібні cookies домену facebook.com.</small>
-                    </label>}
+                    {draft.kind === "api" && <TokenPicker label="Налаштування токенів" value={tokenTab} onChange={setTokenTab} />}
+                    {draft.kind === "api" && tokenTab === "afp" ? <>
+                        <SecretField label="AFP token" value={draft.afpToken} onChange={update("afpToken")} placeholder="Необов’язково" />
+                        <label className="field"><span>AFP User-Agent</span><select value={draft.afpUserAgent} onChange={update("afpUserAgent")}>
+                            {!systemUserAgents.some(([, value]) => value === draft.afpUserAgent) && <option value={draft.afpUserAgent}>{draft.afpUserAgent}</option>}
+                            {systemUserAgents.map(([label, value]) => <option key={label} value={value}>{label}</option>)}
+                        </select></label>
+                        <small className="field-hint">Без cookie · проксі зі вкладки Access token.</small>
+                    </> : <>
+                        {!system && <label className="field"><span>AdsPower № (необов'язково)</span><input inputMode="numeric" value={draft.adsPowerProfileNo} onChange={update("adsPowerProfileNo")} placeholder="1791" /></label>}
+                        {system ? <label className="field"><span>User-Agent</span><select value={draft.userAgent} onChange={update("userAgent")}><option value="">Виберіть User-Agent</option>{draft.userAgent && !systemUserAgents.some(([, value]) => value === draft.userAgent) && <option value={draft.userAgent}>{draft.userAgent}</option>}{systemUserAgents.map(([label, value]) => <option key={label} value={value}>{label}</option>)}</select></label> : <label className="field"><span>userAgent</span><input value={draft.userAgent} onChange={update("userAgent")} placeholder="Mozilla/5.0…" /></label>}
+                        <SecretField label="accessToken" value={draft.accessToken} onChange={update("accessToken")} placeholder="Access token" />
+                        {!system && <SecretField label="Cookie або AdsPower JSON" value={draft.cookie} onChange={update("cookie")} placeholder="Необов’язково" />}
                     <div className="account-proxy-binding">
                         <span className="account-proxy-label">Проксі</span>
                         <div className="account-proxy-modes" role="radiogroup" aria-label="Режим проксі">
-                            {[...(!system ? [{ id: "profile", label: "Проксі профілю" }] : []), { id: "auto", label: "Автоматично" }, { id: "bound", label: "Прив’язати проксі" }].map((mode) => <label key={mode.id} className={draft.proxyMode === mode.id ? "active" : ""}>
-                                <input type="radio" name="account-proxy-mode" value={mode.id} checked={draft.proxyMode === mode.id} disabled={saving} onChange={() => setDraft((current) => ({ ...current, proxyMode: mode.id, proxyId: mode.id === "bound" ? current.proxyId : "" }))} />
+                            {[...(!system ? [{ id: "profile", label: "Профіль", aria: "Проксі профілю" }] : []), { id: "auto", label: "Авто", aria: "Автоматично" }, { id: "bound", label: "Призначити", aria: "Прив’язати проксі" }].map((mode) => <label key={mode.id} className={draft.proxyMode === mode.id ? "active" : ""}>
+                                <input type="radio" aria-label={mode.aria} name="account-proxy-mode" value={mode.id} checked={draft.proxyMode === mode.id} disabled={saving} onChange={() => setDraft((current) => ({ ...current, proxyMode: mode.id, proxyId: mode.id === "bound" ? current.proxyId : "" }))} />
                                 <span>{mode.label}</span>
                             </label>)}
                         </div>
@@ -130,13 +154,14 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
                             : "Проксі буде отримана перед першим запитом"}</small>}
                         {draft.proxyMode === "bound" && <div className="field"><span>Прив’язана проксі</span><ProxyPicker proxies={proxies.filter((proxy) => proxy.type !== "no_proxy")} value={draft.proxyId} onChange={(proxyId) => setDraft((current) => ({ ...current, proxyId }))} /></div>}
                     </div>
+                    </>}
                 </div>
                 <div className="form-actions">
                     <button className="secondary-button" type="button" disabled={saving} onClick={onClose}>Скасувати</button>
                     <button className="primary-button" type="submit" disabled={!canSave || saving}>{saving && <LoaderCircle className="spin" size={16} />}{creating ? "Створити" : "Зберегти зміни"}</button>
                 </div>
             </motion.form>
-        </div>
+        </div>, document.body
     );
 }
 
@@ -166,10 +191,35 @@ export default function Sidebar({
     const [kind, setKind] = useState("api");
     const [editor, setEditor] = useState(null);
     const [busyKey, setBusyKey] = useState(null);
+    const [editingKey, setEditingKey] = useState(null);
     const visibleAccounts = accounts.filter((account) => (account.kind || "api") === kind);
     const saveAccount = (draft) => editor.mode === "create"
         ? onCreate(draft)
         : onUpdate(editor.accountKey, draft);
+
+    const openEditor = async (account) => {
+        setEditingKey(account.accountKey);
+        try {
+            const credentials = await unwrap(window.adsBot.getAccountEditorCredentials(account.accountKey));
+            setEditor({ mode: "edit", ...account, credentials });
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося відкрити клієнта" });
+        } finally {
+            setEditingKey(null);
+        }
+    };
+
+    const changeTokenMode = async (account, tokenMode) => {
+        if (getAccountTokenMode(account) === tokenMode) return;
+        setBusyKey(account.accountKey);
+        try {
+            await onUpdate(account.accountKey, { tokenMode });
+        } catch (error) {
+            onError({ ...errorDetails(error), title: "Не вдалося перемкнути токен" });
+        } finally {
+            setBusyKey(null);
+        }
+    };
 
     const removeAccount = async (event, account) => {
         event.stopPropagation();
@@ -259,14 +309,15 @@ export default function Sidebar({
                                     <small>{account.facebookUserId || account.accountKey}</small>
                                     {account.adsPowerProfileNo && <small>AdsPower № {account.adsPowerProfileNo}</small>}
                                     <small>
-                                        Дані: UA {account.hasUserAgent ? "є" : "—"}
+                                        {getAccountTokenMode(account) === "afp" ? `AFP token ${account.hasAfpToken ? "є" : "—"} · без cookie` : <>Дані: UA {account.hasUserAgent ? "є" : "—"}
                                         {" · "}token {account.hasAccessToken ? "є" : "—"}
-                                        {account.kind !== "system" && <> · cookie {account.hasCookie ? "є" : "—"}</>}
+                                        {account.kind !== "system" && <> · cookie {account.hasCookie ? "є" : "—"}</>}</>}
                                     </small>
                                     {account.proxyId && <small>Проксі: {proxies.find((proxy) => proxy.id === account.proxyId)?.name || " "} · {account.proxyId}</small>}
                                     {account.error?.message && <em>{account.error.message}</em>}
                                 </span>
                             </button>
+                            {(account.kind || "api") === "api" && <div className="account-card-token-mode"><TokenPicker value={getAccountTokenMode(account)} onChange={(mode) => changeTokenMode(account, mode)} disabled={busyKey === account.accountKey || syncingAccountKeys.includes(account.accountKey) || refreshingTokenAccountKeys.includes(account.accountKey) || account.archived} /></div>}
                             {account.kind !== "system" && <button
                                 type="button"
                                 className="icon-button account-card-check"
@@ -283,14 +334,14 @@ export default function Sidebar({
                                     const syncing = syncingAccountKeys.includes(account.accountKey);
                                     const refreshing = refreshingTokenAccountKeys.includes(account.accountKey);
                                     const unavailable = !account.adsPowerProfileNo;
-                                    const disabled = busyKey === account.accountKey || syncing || refreshing || account.archived;
+                                    const disabled = busyKey === account.accountKey || syncing || refreshing || account.archived || getAccountTokenMode(account) === "afp";
                                     return <span className="account-sync-actions">
                                         <button type="button" className="icon-button" title={unavailable ? "Додайте номер профілю AdsPower" : "Синхронізувати з AdsPower"} disabled={disabled || unavailable} onClick={(event) => sync(event, account)}>{syncing ? <LoaderCircle className="spin" size={13} /> : <CloudDownload size={13} />}</button>
                                         <button type="button" className="icon-button" aria-label="Оновити access token" title={!account.hasCookie || !account.hasUserAgent ? "Спочатку додайте cookies та User-Agent або синхронізуйте з AdsPower" : "Оновити access token через проксі"} disabled={disabled || !account.hasCookie || !account.hasUserAgent} onClick={(event) => refreshAccessToken(event, account)}>{refreshing ? <LoaderCircle className="spin" size={13} /> : <KeyRound size={13} />}</button>
                                     </span>;
                                 })()}
                                 {account.kind !== "system" && account.adsPowerProfileNo && (account.adsPowerOpen ? <button type="button" className="icon-button danger" title="Профіль відкритий — закрити" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onCloseProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Power size={13} />}</button> : <button type="button" className="icon-button" title="Відкрити AdsPower-профіль" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onOpenProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Play size={13} />}</button>)}
-                                <button type="button" className="icon-button" title="Редагувати" onClick={(event) => { event.stopPropagation(); setEditor({ mode: "edit", ...account }); }}><Pencil size={13} /></button>
+                                <button type="button" className="icon-button" title="Редагувати" disabled={editingKey !== null || busyKey === account.accountKey} onClick={(event) => { event.stopPropagation(); openEditor(account); }}>{editingKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Pencil size={13} />}</button>
                                 <button type="button" className="icon-button danger account-delete-button" title="Видалити API-клієнта" disabled={busyKey === account.accountKey} onClick={(event) => removeAccount(event, account)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <X size={13} />}</button>
                             </span>
                         </motion.div>

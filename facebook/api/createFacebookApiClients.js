@@ -6,6 +6,7 @@ import FacebookGraphApi from "./FacebookGraphApi.js";
 import ProfileProxyHttpClient from "../../services/proxy/ProfileProxyHttpClient.js";
 import { getProfileProxyService } from "../../services/proxy/AdsPowerProfileProxy.js";
 import { getAccountProxyMode } from "../../services/proxy/accountProxyMode.js";
+import { getAccountCredentials } from "./accountCredentials.js";
 
 
 async function readJson(filePath, label, optional = false) {
@@ -32,9 +33,7 @@ function normalizeAccounts(accounts) {
 
     return accounts.map((account, index) => {
         const accountKey = String(account?.accountKey ?? "").trim();
-        const accessToken = String(account?.accessToken ?? "").trim();
-        const cookie = String(account?.cookie ?? "").trim();
-        const userAgent = String(account?.userAgent ?? "").trim();
+        const { accessToken, cookie, userAgent } = getAccountCredentials(account);
         const adsPowerProfileNo = String(
             account?.adsPowerProfileNo ?? ""
         ).trim();
@@ -50,10 +49,11 @@ function normalizeAccounts(accounts) {
                 `accountKey "${accountKey}" дублюється`
             );
         }
+        seenKeys.add(accountKey);
 
-        const credentialsMissing = !accessToken || !userAgent || (!cookie && account.kind !== "system");
-        if (credentialsMissing && adsPowerProfileNo) {
-            // API-клієнт очікує фонову синхронізацію з AdsPower.
+        const credentialsMissing = !accessToken || !userAgent;
+        if (credentialsMissing && (adsPowerProfileNo || (account.kind || "api") === "api")) {
+            // Незавершений клієнт доступний у редакторі, але ще не виконує запитів.
             return null;
         }
 
@@ -69,12 +69,6 @@ function normalizeAccounts(accounts) {
             );
         }
 
-        if (!cookie && account.kind !== "system") {
-            throw new Error(
-                `Facebook-акаунт "${accountKey}" не містить cookie`
-            );
-        }
-
         if (
             account?.metadata !== undefined
             && (
@@ -87,8 +81,6 @@ function normalizeAccounts(accounts) {
                 `metadata акаунта "${accountKey}" має бути об'єктом`
             );
         }
-
-        seenKeys.add(accountKey);
 
         return {
             accountKey,

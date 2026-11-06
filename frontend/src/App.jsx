@@ -302,6 +302,7 @@ export default function App() {
     const setPrimaryAccount = async (accountKey) => { applyAccounts(await unwrap(window.adsBot.setPrimaryAccount(accountKey))); showToast("Основний клієнт змінено", "success"); };
     const updateAccount = async (key, patch) => {
         const updated = await unwrap(window.adsBot.updateAccount(key, patch));
+        workspaceRequestVersions.current[key] = (workspaceRequestVersions.current[key] ?? 0) + 1;
         setAccounts((current) => current.map((account) => (
             account.accountKey === key ? { ...account, ...updated } : account
         )));

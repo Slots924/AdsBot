@@ -1,10 +1,13 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Sidebar from "../components/Sidebar.jsx";
 import prepareAccountProfileProxy from "../../../services/proxy/prepareAccountProfileProxy.js";
 import { getAccountProxyMode, normalizeAccountProxySettings } from "../../../services/proxy/accountProxyMode.js";
 
 afterEach(cleanup);
+beforeEach(() => {
+    window.adsBot = { getAccountEditorCredentials: vi.fn().mockResolvedValue({ ok: true, data: {} }) };
+});
 
 const proxies = [{ id: "p1", name: "Перша", type: "http", host: "example.com", port: "8080" },
     { id: "p2", name: "Друга", type: "http", host: "example.org", port: "8080", isPublic: false }];
@@ -35,20 +38,20 @@ describe("Режим проксі клієнта", () => {
         expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
     });
 
-    it("зберігає попередній режим наявного клієнта", () => {
+    it("зберігає попередній режим наявного клієнта", async () => {
         show([{ accountKey: "account-001", kind: "api", name: "Клієнт", proxyId: "p1" }]);
         fireEvent.click(screen.getByTitle("Редагувати"));
-        expect(screen.getByRole("radio", { name: "Прив’язати проксі" })).toBeChecked();
+        expect(await screen.findByRole("radio", { name: "Прив’язати проксі" })).toBeChecked();
         expect(getAccountProxyMode({})).toBe("auto");
         expect(normalizeAccountProxySettings({})).toEqual({ proxyMode: "profile", proxyId: "" });
         expect(() => normalizeAccountProxySettings({ proxyMode: "bound" })).toThrow();
     });
 
-    it("показує стан проксі профілю без її реквізитів", () => {
+    it("показує стан проксі профілю без її реквізитів", async () => {
         show([{ accountKey: "account-001", kind: "api", name: "Клієнт", adsPowerProfileNo: "123",
             proxyMode: "profile", hasAdsPowerProxy: true, adsPowerProxyUpdatedAt: "2026-10-11T00:00:00Z" }]);
         fireEvent.click(screen.getByTitle("Редагувати"));
-        expect(screen.getByText(/Проксі отримана · оновлено/)).toBeInTheDocument();
+        expect(await screen.findByText(/Проксі отримана · оновлено/)).toBeInTheDocument();
         fireEvent.change(screen.getByLabelText(/AdsPower №/), { target: { value: "456" } });
         expect(screen.getByText("Проксі буде отримана перед першим запитом")).toBeInTheDocument();
     });

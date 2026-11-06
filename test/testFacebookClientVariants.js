@@ -13,7 +13,7 @@ try {
         { accountKey: "account-001", name: "API", userAgent: "UA", accessToken: "token", cookie: "c_user=1", proxyId: "proxy-002" },
     ] }));
     await writeFile(bmFilePath, JSON.stringify({ accounts: [
-        { accountKey: "bm-001", name: "BM", userAgent: "UA", accessToken: "token", cookie: "c_user=2" },
+        { accountKey: "bm-001", name: "BM", userAgent: "UA", accessToken: "token" },
     ] }));
     await writeFile(proxiesFilePath, JSON.stringify({ proxies: [
         { id: "proxy-001", type: "http", host: "pool.example", port: "8080" },
@@ -76,10 +76,40 @@ try {
     await writeFile(bmFilePath, JSON.stringify({ accounts: [{ accountKey: "bound", userAgent: "UA", accessToken: "token", cookie: "c_user=2", proxyId: "proxy-002" }] }));
     const emptyPoolClients = await createFacebookApiClients(options);
     hosts.length = 0;
-    await assert.rejects(emptyPoolClients.get("client").getMe(), /Немає загальнодоступних проксі/);
+    await assert.rejects(emptyPoolClients.get("client").getMe(), { code: "PROXY_POOL_EXHAUSTED" });
     assert.deepEqual(hosts, []);
     await emptyPoolClients.get("bound").getMe();
     assert.deepEqual(hosts, ["fixed.example"]);
+    const requests = [];
+    await writeFile(accountsFilePath, JSON.stringify({ accounts: [
+        { accountKey: "afp", kind: "api", tokenMode: "afp", afpToken: "mock-afp", accessToken: "mock-access", userAgent: "Access UA", cookie: "c_user=1", proxyId: "proxy-002" },
+        { accountKey: "access", kind: "api", accessToken: "mock-access", userAgent: "Access UA", proxyId: "proxy-002" },
+        { accountKey: "empty", kind: "api", tokenMode: "afp" },
+    ] }));
+    const selectedClients = await createFacebookApiClients({ ...options, httpClient: { request: async (config) => {
+        requests.push(config);
+        return { data: { id: "1" } };
+    } } });
+    assert.equal(selectedClients.has("empty"), false);
+    await selectedClients.get("afp").getMe();
+    await selectedClients.get("access").getMe();
+    assert.equal(requests[0].headers.Authorization, "Bearer mock-afp");
+    assert.match(requests[0].headers["User-Agent"], /Windows NT/);
+    assert.equal(Object.hasOwn(requests[0].headers, "Cookie"), false);
+    assert.equal(requests[0].httpsAgent.proxy.hostname, "fixed.example");
+    assert.equal(requests[1].headers.Authorization, "Bearer mock-access");
+    assert.equal(requests[1].headers["User-Agent"], "Access UA");
+    assert.equal(Object.hasOwn(requests[1].headers, "Cookie"), false);
+    await writeFile(accountsFilePath, JSON.stringify({ accounts: [
+        { accountKey: "afp", kind: "api", tokenMode: "access", afpToken: "mock-afp", accessToken: "mock-access", userAgent: "Access UA", cookie: "c_user=1", proxyId: "proxy-002" },
+    ] }));
+    const restoredClients = await createFacebookApiClients({ ...options, onlyAccountKey: "afp", httpClient: { request: async (config) => {
+        assert.equal(config.headers.Authorization, "Bearer mock-access");
+        assert.equal(config.headers.Cookie, "c_user=1");
+        assert.equal(config.headers["User-Agent"], "Access UA");
+        return { data: { id: "1" } };
+    } } });
+    await restoredClients.get("afp").getMe();
     console.log("Перевірка BM і прив’язаної проксі пройшла успішно");
 } finally {
     await rm(directory, { recursive: true, force: true });

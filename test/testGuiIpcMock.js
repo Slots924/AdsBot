@@ -239,6 +239,7 @@ const campaignCreationJournal = {
 };
 const ipcMain = {
     handle(channel, handler) {
+        assert.equal(handlers.has(channel), false, `Повторний IPC-обробник: ${channel}`);
         handlers.set(channel, handler);
     },
 };
@@ -1115,6 +1116,19 @@ assert.equal(rejectedSummaryCalls, 1);
 const cachedDelivery = await handlers.get("campaigns:list")({}, { accountKey: "other-client", adAccountId: "act_delivery_count" });
 assert.equal(cachedDelivery.data.campaigns[0].rejectedCount, 4);
 assert.equal(rejectedSummaryCalls, 1);
+
+facebookAccountManager.getEditorCredentials = async () => ({ accessToken: "mock-editor-token", cookie: "c_user=1" });
+const editorCredentials = await handlers.get("accounts:editor-credentials")({}, { accountKey: "fp_hub" });
+assert.equal(editorCredentials.data.accessToken, "mock-editor-token");
+facebookAccountManager.get = async () => ({ accountKey: "fp_hub", kind: "api", tokenMode: "afp", hasAfpToken: false, adsPowerProfileNo: "123" });
+assert.equal((await handlers.get("accounts:check")({}, { accountKey: "fp_hub" })).data.status, "inactive");
+const tokenRefreshAfp = await handlers.get("accounts:refresh-access-token")({}, { accountKey: "fp_hub" });
+assert.equal(tokenRefreshAfp.ok, false);
+assert.match(tokenRefreshAfp.error.message, /У режимі AFP/);
+facebookAccountManager.list = async () => [{ accountKey: "fp_hub", kind: "api", tokenMode: "afp", adsPowerProfileNo: "123" }];
+const syncAfp = await handlers.get("accounts:sync-from-adspower")({}, { accountKey: "fp_hub" });
+assert.equal(syncAfp.ok, false);
+assert.match(syncAfp.error.message, /У режимі AFP/);
 
 console.log("Mock-перевірка GUI IPC пройшла успішно");
 
