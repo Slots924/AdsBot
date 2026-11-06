@@ -152,9 +152,14 @@ export default class RemoteDataCacheStore {
     }
 
     setAdSetSnapshot(adAccountId, campaignId, value) {
-        return this.#update((store) => {
+        return this.updateAdSetSnapshot(adAccountId, campaignId, () => value);
+    }
+
+    updateAdSetSnapshot(adAccountId, campaignId, updater) {
+        return this.#update(async (store) => {
             const key = JSON.stringify([String(adAccountId), String(campaignId)]);
-            store.adSets[key] = cacheEntry(value);
+            const current = safeClone(store.adSets[key]?.value ?? {});
+            store.adSets[key] = cacheEntry(await updater(current));
         });
     }
 

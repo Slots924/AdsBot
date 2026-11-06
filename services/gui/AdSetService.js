@@ -1,6 +1,7 @@
 const minute = 60_000;
 const deleted = (row) => ["DELETED", "ARCHIVED"].includes(row.status) || ["DELETED", "ARCHIVED"].includes(row.effectiveStatus);
 const due = (now, timestamp, interval) => !Number.isFinite(Date.parse(timestamp)) || now.getTime() - Date.parse(timestamp) >= interval;
+const savedStatus = (row) => ({ status: row.status, effectiveStatus: row.effectiveStatus, statusRevision: row.statusRevision ?? 0, ...(row.deletedLocally ? { deletedLocally: true } : {}) });
 const metrics = (row = {}) => {
     const spend = Number(row.spend ?? 0);
     const impressions = Number(row.impressions ?? 0);
@@ -13,6 +14,7 @@ const metrics = (row = {}) => {
 export default class AdSetService {
     #pending = new Map();
     #duplicates = new Set();
+    #statusRequests = new Set();
 
     constructor({ cache, guiService, serializeError, now = () => new Date() }) {
         Object.assign(this, { cache, guiService, serializeError, now });
@@ -20,6 +22,10 @@ export default class AdSetService {
 
     #context(input) {
         return this.cache.getCampaignContext(input.adAccountId, input.datePreset ?? "today");
+    }
+
+    #update(input, updater) {
+        return this.cache.updateAdSetSnapshot(input.adAccountId, input.campaignId, updater);
     }
 
     async read(input) {
@@ -72,23 +78,28 @@ export default class AdSetService {
 
     async #refreshList(input) {
         const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
-        const save = () => this.cache.setAdSetSnapshot(input.adAccountId, input.campaignId, snapshot);
         if (due(this.now(), snapshot.listAttemptedAt ?? snapshot.listUpdatedAt, minute)) {
-            snapshot.listAttemptedAt = this.now().toISOString();
-            await save();
+            await this.#update(input, (current) => ({ ...current, listAttemptedAt: this.now().toISOString() }));
             try {
                 const rows = await this.guiService.getCampaignAdSets(input.accountKey, input.campaignId);
                 if (!Array.isArray(rows)) throw new Error("Некоректна відповідь списку адсетів");
                 const incoming = new Map(rows.map((row) => [String(row.id), row]));
-                const previous = new Map((snapshot.adSets ?? []).map((row) => [String(row.id), row]));
-                snapshot.adSets = [
-                    ...rows.map((row) => ({ ...row, missingFromLatestRead: false, ...(previous.get(String(row.id))?.deletedLocally ? { status: "DELETED", effectiveStatus: "DELETED", deletedLocally: true } : {}) })),
-                    ...(snapshot.adSets ?? []).filter((row) => !incoming.has(String(row.id))).map((row) => ({ ...row, missingFromLatestRead: true })),
-                ];
-                snapshot.listUpdatedAt = this.now().toISOString();
-                snapshot.listError = null;
-            } catch (error) { snapshot.listError = this.serializeError(error); }
-            await save();
+                const requested = new Map((snapshot.adSets ?? []).map((row) => [String(row.id), row]));
+                await this.#update(input, (current) => {
+                    const previous = new Map((current.adSets ?? []).map((row) => [String(row.id), row]));
+                    return { ...current, listUpdatedAt: this.now().toISOString(), listError: null, adSets: [
+                        ...rows.map((row) => {
+                            const old = previous.get(String(row.id));
+                            // Пізня відповідь списку не відкочує статус, змінений після початку читання.
+                            const changed = old && (old.deletedLocally || (old.statusRevision ?? 0) !== (requested.get(String(row.id))?.statusRevision ?? 0));
+                            return { ...row, statusRevision: old?.statusRevision ?? 0, missingFromLatestRead: false, ...(changed ? savedStatus(old) : {}) };
+                        }),
+                        ...(current.adSets ?? []).filter((row) => !incoming.has(String(row.id))).map((row) => ({ ...row, missingFromLatestRead: true })),
+                    ] };
+                });
+            } catch (error) {
+                await this.#update(input, (current) => ({ ...current, listError: this.serializeError(error) }));
+            }
         }
         return this.read(input);
     }
@@ -96,58 +107,60 @@ export default class AdSetService {
     async #refreshStatistics(input) {
         const context = await this.#context(input);
         const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
-        const save = () => this.cache.setAdSetSnapshot(input.adAccountId, input.campaignId, snapshot);
         const range = context.rangeKey;
         if (!snapshot.listError && snapshot.adSets?.some((row) => !row.missingFromLatestRead && !deleted(row))
             && due(this.now(), snapshot.statisticsAttempts?.[range] ?? snapshot.statistics?.[range]?.updatedAt, 15 * minute)) {
-            snapshot.statisticsAttempts = { ...snapshot.statisticsAttempts, [range]: this.now().toISOString() };
-            await save();
+            await this.#update(input, (current) => ({ ...current, statisticsAttempts: { ...current.statisticsAttempts, [range]: this.now().toISOString() } }));
             try {
                 const rows = await this.guiService.getCampaignAdSetInsights(input.accountKey, input.campaignId, input.datePreset ?? "today", context);
                 if (!Array.isArray(rows)) throw new Error("Некоректна відповідь статистики адсетів");
                 const byId = Object.fromEntries(snapshot.adSets.filter((row) => !row.missingFromLatestRead && !deleted(row)).map((row) => [row.id, metrics()]));
                 for (const row of rows) byId[row.adset_id] = metrics(row);
                 const statistics = { context, updatedAt: this.now().toISOString(), byId };
-                snapshot.statistics = { ...snapshot.statistics, [range]: statistics };
-                snapshot.lastStatistics = statistics;
-                snapshot.statisticsErrors = { ...snapshot.statisticsErrors, [range]: null };
+                await this.#update(input, (current) => ({ ...current,
+                    statistics: { ...current.statistics, [range]: statistics }, lastStatistics: statistics,
+                    statisticsErrors: { ...current.statisticsErrors, [range]: null },
+                }));
             } catch (error) {
-                snapshot.statisticsErrors = { ...snapshot.statisticsErrors, [range]: this.serializeError(error) };
+                await this.#update(input, (current) => ({ ...current, statisticsErrors: { ...current.statisticsErrors, [range]: this.serializeError(error) } }));
             }
-            await save();
         }
         return this.read(input);
     }
 
     delete(input) {
-        return this.#changeStatus({ ...input, status: "DELETED" });
+        return this.#withStatusLock(input, () => this.#exclusive(input, () => this.#changeStatus({ ...input, status: "DELETED" })));
     }
 
     setStatus(input) {
         if (!["ACTIVE", "PAUSED"].includes(input.status)) throw new Error("Статус адсету має бути ACTIVE або PAUSED");
-        return this.#changeStatus(input);
+        return this.#withStatusLock(input, () => this.#changeStatus(input));
     }
 
-    #changeStatus(input) {
-        return this.#exclusive(input, async () => {
-            const before = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId);
-            if (input.status !== "DELETED" && before?.adSets?.some((row) => String(row.id) === String(input.adSetId) && deleted(row))) throw new Error("Адсет уже видалено");
-            const result = input.status === "DELETED"
-                ? await this.guiService.deleteAdSet(input.accountKey, input)
-                : await this.guiService.setAdSetStatus(input.accountKey, input);
-            try {
-                const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
-                const rows = snapshot.adSets ?? [];
+    async #withStatusLock(input, operation) {
+        const key = JSON.stringify([String(input.adAccountId), String(input.adSetId)]);
+        if (this.#statusRequests.has(key)) throw Object.assign(new Error("Стан цього адсету вже змінюється"), { code: "ADSET_STATUS_PENDING" });
+        this.#statusRequests.add(key);
+        try { return await operation(); } finally { this.#statusRequests.delete(key); }
+    }
+
+    async #changeStatus(input) {
+        const before = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId);
+        if (input.status !== "DELETED" && before?.adSets?.some((row) => String(row.id) === String(input.adSetId) && deleted(row))) throw new Error("Адсет уже видалено");
+        const result = input.status === "DELETED"
+            ? await this.guiService.deleteAdSet(input.accountKey, input)
+            : await this.guiService.setAdSetStatus(input.accountKey, input);
+        try {
+            await this.#update(input, (current) => {
+                const rows = current.adSets ?? [];
                 const previous = rows.find((row) => String(row.id) === String(input.adSetId));
-                const removed = { ...previous, ...result, id: String(input.adSetId), status: input.status, effectiveStatus: input.status, ...(input.status === "DELETED" ? { deletedLocally: true } : {}) };
-                await this.cache.setAdSetSnapshot(input.adAccountId, input.campaignId, {
-                    ...snapshot, adSets: previous ? rows.map((row) => String(row.id) === String(input.adSetId) ? removed : row) : [...rows, removed],
-                });
-                return { ...result, data: await this.read(input) };
-            } catch {
-                return { ...result, cacheError: { message: "Стан адсету змінено, але не вдалося оновити кеш. Перевірте Ads Manager." } };
-            }
-        });
+                const changed = { ...previous, ...result, id: String(input.adSetId), status: input.status, effectiveStatus: input.status, statusRevision: (previous?.statusRevision ?? 0) + 1, ...(input.status === "DELETED" ? { deletedLocally: true } : {}) };
+                return { ...current, adSets: previous ? rows.map((row) => String(row.id) === String(input.adSetId) ? changed : row) : [...rows, changed] };
+            });
+            return { ...result, data: await this.read(input) };
+        } catch {
+            return { ...result, cacheError: { message: "Стан адсету змінено, але не вдалося оновити кеш. Перевірте Ads Manager." } };
+        }
     }
 
     async duplicate(input, context = {}) {
@@ -157,10 +170,14 @@ export default class AdSetService {
         try {
             return await this.#exclusive(input, async () => {
                 const persist = async (copies) => {
-                    const snapshot = await this.cache.getAdSetSnapshot(input.adAccountId, input.campaignId) ?? {};
-                    const rows = new Map((snapshot.adSets ?? []).map((row) => [String(row.id), row]));
-                    for (const row of copies) rows.set(String(row.id), row);
-                    await this.cache.setAdSetSnapshot(input.adAccountId, input.campaignId, { ...snapshot, adSets: [...rows.values()] });
+                    await this.#update(input, (current) => {
+                        const rows = new Map((current.adSets ?? []).map((row) => [String(row.id), row]));
+                        for (const row of copies) {
+                            const previous = rows.get(String(row.id));
+                            rows.set(String(row.id), { ...previous, ...row, ...(previous?.statusRevision || previous?.deletedLocally ? savedStatus(previous) : {}) });
+                        }
+                        return { ...current, adSets: [...rows.values()] };
+                    });
                 };
                 const result = await this.guiService.duplicateAdSet(input.accountKey, input, {
                     ...context, onProgress: async (progress) => {
