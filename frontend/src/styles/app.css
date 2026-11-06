@@ -685,11 +685,11 @@ button:focus-visible, input:focus-visible {
 .detail-grid small { margin-top: 3px; color: #646c7e; font-size: var(--font-caption); }
 
 .ad-accounts-tab { width: 100%; min-height: 100%; padding: 24px; }
-.ad-workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; max-width: 1360px; margin: 0 auto 18px; }
+.ad-workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; max-width: 1632px; margin: 0 auto 18px; }
 .ad-workspace-heading h1 { margin: 4px 0 5px; font-size: 29px; letter-spacing: -.045em; }
 .ad-workspace-heading p { margin: 0; color: var(--muted); font-size: var(--font-body); }
-.ad-account-notice { max-width: 1360px; margin: 0 auto 12px; }
-.ad-accounts-workspace { display: grid; grid-template-columns: 322px minmax(0, 1fr); gap: 18px; max-width: 1360px; min-height: 510px; margin: 0 auto; }
+.ad-account-notice { max-width: 1632px; margin: 0 auto 12px; }
+.ad-accounts-workspace { display: grid; grid-template-columns: 322px minmax(0, 1fr); gap: 18px; max-width: 1632px; min-height: 510px; margin: 0 auto; }
 .ad-account-browser { overflow: hidden; align-self: start; border: 1px solid var(--stroke); border-radius: 17px; background: linear-gradient(160deg, rgba(19,22,34,.94), rgba(11,14,23,.88)); box-shadow: var(--shadow); }
 .ad-account-section { padding: 14px; }
 .ad-account-section > header { display: flex; align-items: center; justify-content: space-between; min-height: 26px; padding: 0 3px 10px; color: #b7bdcc; font-size: var(--font-meta); font-weight: 800; text-transform: uppercase; letter-spacing: .11em; }
@@ -756,8 +756,9 @@ button:focus-visible, input:focus-visible {
 .campaign-show-deleted span::after { position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #b8bfce; content: ""; transition: transform .16s ease, background .16s ease; }
 .campaign-show-deleted input:checked + span { background: #6054b8; }
 .campaign-show-deleted input:checked + span::after { transform: translateX(13px); background: #f2f1ff; }
-.campaign-table-card { overflow: hidden; border: 1px solid var(--stroke); border-radius: 15px; background: rgba(15,18,29,.84); box-shadow: 0 18px 45px rgba(0,0,0,.2); }
-.campaign-grid { display: grid; grid-template-columns: 28px 32px minmax(180px,1.7fr) 92px 65px 105px 115px 105px 72px 34px; align-items: center; gap: 10px; }
+.campaign-table-card { overflow-x: auto; border: 1px solid var(--stroke); border-radius: 15px; background: rgba(15,18,29,.84); box-shadow: 0 18px 45px rgba(0,0,0,.2); }
+.campaign-table-card > .campaign-table-head, .campaign-table-card > .campaign-list { min-width: 850px; }
+.campaign-grid { display: grid; grid-template-columns: 24px 24px minmax(180px,1fr) 90px 50px 85px 100px 85px 65px 30px; align-items: center; gap: 8px; }
 .campaign-table-head { min-height: 38px; padding: 0 13px; border-bottom: 1px solid var(--stroke); color: #686f82; background: rgba(255,255,255,.025); font-size: var(--font-caption); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .campaign-row { min-height: 52px; padding: 7px 13px; border-bottom: 1px solid rgba(255,255,255,.055); color: #aeb4c1; font-size: var(--font-meta); }
 .campaign-list > .campaign-row:last-child { border-bottom: 0; }
@@ -809,9 +810,8 @@ button:focus-visible, input:focus-visible {
     .ad-account-main .campaign-heading { flex-wrap: wrap; }
     .ad-account-main .campaign-heading > div:first-child { flex-shrink: 0; }
     .ad-account-main .campaign-heading .eyebrow { white-space: nowrap; }
-    .campaign-table-card { overflow-x: auto; }
     .campaign-table-card > .campaign-table-head, .campaign-table-card > .campaign-list { min-width: 900px; }
-    .campaign-table-card .campaign-grid { grid-template-columns: 22px 26px minmax(180px,1.7fr) 90px 50px 90px 95px 85px 65px 30px; gap: 8px; }
+    .campaign-table-card .campaign-grid { grid-template-columns: 24px 24px minmax(180px,1fr) 90px 50px 85px 100px 85px 65px 30px; gap: 8px; }
 }
 .entity-status-control { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 47px; width: 47px; }
 .entity-status-progress { display: inline-flex; width: 13px; color: #aeb6c6; }
