@@ -16,6 +16,8 @@
 .connections-page .account-card-shell { flex: 0 0 auto; min-width: 0; list-style: none; }
 .connections-page .connection-card { min-height: 284px; padding: 20px; border-radius: 14px; border: 1px solid #2b2e3a; background: #171a24; box-shadow: none; transition: background .16s, border-color .16s; }
 .connections-page .connection-card:hover { border-color: #474455; }
+.connections-page .account-card-shell.connection-card:not(.archived):not(.kind-system):hover { border-color: #82729f; }
+.connections-page .account-card-shell.connection-card:not(.archived):not(.kind-system):not(.selected):hover { background: #201e2e; }
 .connections-page .connection-card.selected { border-color: #9985d2; background: linear-gradient(125deg, #27243b, #191d2b); box-shadow: none; }
 .connections-page .connection-card .account-card { min-height: 0; flex: 1; padding: 0; background: transparent; box-shadow: none; gap: 12px; }
 .connections-page .connection-card .status-dot { width: 8px; height: 8px; margin-top: 9px; }

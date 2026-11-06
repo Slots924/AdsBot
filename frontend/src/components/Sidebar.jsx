@@ -302,8 +302,13 @@ export default function Sidebar({
                 {loading && accounts.length === 0
                     ? [1, 2, 3].map((item) => <div className="account-card skeleton" key={item} />)
                     : visibleAccounts.map((account, index) => (
-                        <motion.div className={`account-card-shell connection-card kind-${account.kind || "api"} ${account.archived ? "archived" : ""} ${account.accountKey === selectedAccountKey ? "selected" : ""}`} key={account.accountKey} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * .045 }}>
-                            <button type="button" className={`account-card ${account.accountKey === selectedAccountKey ? "selected" : ""}`} onClick={() => account.kind !== "system" && !account.archived && onSelect(account.accountKey)} disabled={account.archived}>
+                        <motion.div className={`account-card-shell connection-card kind-${account.kind || "api"} ${account.archived ? "archived" : ""} ${account.accountKey === selectedAccountKey ? "selected" : ""}`} key={account.accountKey} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * .045 }} onClick={(event) => {
+                            if (account.archived || account.kind === "system") return;
+                            const button = event.target.closest("button");
+                            if (button && !button.classList.contains("account-card")) return;
+                            onSelect(account.accountKey);
+                        }}>
+                            <button type="button" className={`account-card ${account.accountKey === selectedAccountKey ? "selected" : ""}`} aria-pressed={account.accountKey === selectedAccountKey} disabled={account.archived || account.kind === "system"}>
                                 <span className={`status-dot ${account.status}`} />
                                 <span className="account-copy">
                                     <span className="connection-title-row"><strong title={account.name}>{account.name || "Без назви"}</strong><span className={`connection-status ${account.archived ? "archived" : account.status || "unknown"}`}>{account.archived ? "В архіві" : account.isPrimary ? "Основний" : ({ active: "Активний", inactive: "Неактивний", error: "Помилка" })[account.status] || "Не перевірено"}</span></span>

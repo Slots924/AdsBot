@@ -371,13 +371,6 @@ export default function App() {
         .filter(Boolean);
     const selectAccount = (key) => {
         setSelectedAccountKey(key);
-        const account = accounts.find((item) => item.accountKey === key);
-        if (["bm", "system"].includes(account?.kind)) {
-            setActiveTab("bm");
-            return;
-        }
-        setActiveTab("ads");
-        loadWorkspace(key);
     };
     const createProxy = async (input) => { setProxies(await unwrap(window.adsBot.createProxy(input))); showToast("Проксі додано", "success"); };
     const updateProxy = async (proxyId, patch) => { setProxies(await unwrap(window.adsBot.updateProxy(proxyId, patch))); showToast("Проксі оновлено", "success"); };

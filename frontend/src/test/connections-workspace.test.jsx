@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 import Sidebar from "../components/Sidebar.jsx";
 import ProxyStrip from "../components/ProxyStrip.jsx";
 
@@ -9,6 +10,43 @@ const clients = [{ accountKey: "account-001", name: "Без профілю", kin
 const proxies = [{ id: "p1", name: "Public", type: "socks5", isPublic: true, adsPowerId: 1 }, { id: "p2", name: "Private", type: "http", isPublic: false, adsPowerId: 2 }, { id: "p3", name: "Legacy public", type: "http" }];
 
 describe("Робочий простір підключень", () => {
+    it("вибирає клієнта через фон, проміжки та клавіатуру, а кнопки дій не змінюють вибір", async () => {
+        const onSelect = vi.fn();
+        const onUpdate = vi.fn().mockResolvedValue();
+        const user = userEvent.setup();
+        render(<Sidebar standalone accounts={[clients[0]]} selectedAccountKey={clients[0].accountKey} onSelect={onSelect} onUpdate={onUpdate} onError={vi.fn()} />);
+        const card = document.querySelector(".account-card-shell");
+        fireEvent.click(card);
+        fireEvent.click(card.querySelector(".connection-card-footer"));
+        fireEvent.click(screen.getByText("Без профілю"));
+        expect(onSelect).toHaveBeenCalledTimes(3);
+        expect(onSelect).toHaveBeenLastCalledWith(clients[0].accountKey);
+        const selection = card.querySelector(".account-card");
+        expect(selection).toHaveAttribute("aria-pressed", "true");
+        selection.focus();
+        await user.keyboard("{Enter} ");
+        expect(onSelect).toHaveBeenCalledTimes(5);
+        onSelect.mockClear();
+        fireEvent.click(screen.getByRole("button", { name: "AFP token" }));
+        await waitFor(() => expect(onUpdate).toHaveBeenCalledWith(clients[0].accountKey, { tokenMode: "afp" }));
+        fireEvent.click(screen.getByRole("button", { name: "Відкрити AdsPower-профіль" }));
+        expect(onSelect).not.toHaveBeenCalled();
+    });
+
+    it("не вибирає архівну картку або System User через фон чи вміст", () => {
+        const onSelect = vi.fn();
+        const { rerender } = render(<Sidebar standalone accounts={[{ ...clients[0], archived: true }]} onSelect={onSelect} />);
+        fireEvent.click(document.querySelector(".account-card-shell"));
+        fireEvent.click(screen.getByText("Без профілю"));
+        expect(document.querySelector(".account-card")).toBeDisabled();
+        rerender(<Sidebar standalone accounts={[{ ...clients[0], archived: false, kind: "system" }]} onSelect={onSelect} />);
+        fireEvent.click(screen.getByRole("radio", { name: /System User/ }));
+        fireEvent.click(document.querySelector(".account-card-shell"));
+        fireEvent.click(screen.getByText("Без профілю"));
+        expect(document.querySelector(".account-card")).toBeDisabled();
+        expect(onSelect).not.toHaveBeenCalled();
+    });
+
     it("показує неактивний запуск без профілю та перевіряє токен окремо від списку", async () => {
         const onCheck = vi.fn().mockResolvedValue();
         const onRefresh = vi.fn();
