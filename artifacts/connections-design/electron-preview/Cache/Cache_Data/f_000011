@@ -1,0 +1,418 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/tabs/SpendTab.jsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=7966e25d"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport1_react from "/node_modules/.vite/deps/react.js?v=7966e25d"; const useEffect = __vite__cjsImport1_react["useEffect"]; const useMemo = __vite__cjsImport1_react["useMemo"]; const useState = __vite__cjsImport1_react["useState"];
+import { ArrowUpToLine, RefreshCw, Search } from "/node_modules/.vite/deps/lucide-react.js?v=7966e25d";
+import { errorDetails, unwrap } from "/src/lib/api.js";
+function formatMoney(value, currency = "") {
+  return `${Number(value || 0).toLocaleString("uk-UA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })}${currency ? ` ${currency}` : ""}`;
+}
+function formatDate(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleString("uk-UA");
+}
+function formatGroupedTotal(totalsByCurrency, field) {
+  const entries = Object.entries(totalsByCurrency ?? {});
+  if (entries.length === 0) return "0,00";
+  return entries.map(
+    ([currency, totals]) => formatMoney(totals[field], currency === "—" ? "" : currency)
+  ).join(" · ");
+}
+const statusLabels = {
+  synced: "Передано",
+  pending: "Очікує",
+  "mapping-missing": "Немає відповідності",
+  "mapping-ambiguous": "Кілька відповідностей"
+};
+export default function SpendTab({ tasks = [], onError = () => {
+}, showToast }) {
+  _s();
+  const [overview, setOverview] = useState({ totals: {}, campaigns: [], settings: {} });
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const collectBusy = tasks.some((task) => task.type === "spend-collect" && ["queued", "running"].includes(task.status));
+  const exportBusy = tasks.some((task) => task.type === "spend-export-keitaro" && ["queued", "running"].includes(task.status));
+  const taskSignature = tasks.filter((task) => task.type?.startsWith("spend-")).map((task) => `${task.id}:${task.status}`).join("|");
+  const load = async () => {
+    setLoading(true);
+    try {
+      setOverview(await unwrap(window.adsBot.getSpendOverview()));
+    } catch (error) {
+      onError({ ...errorDetails(error), title: "Не вдалося завантажити спенд" });
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    load();
+  }, [taskSignature]);
+  const run = async (operation, message) => {
+    try {
+      await unwrap(operation());
+      showToast?.(message, "success");
+    } catch (error) {
+      onError({ ...errorDetails(error), title: "Не вдалося запустити задачу спенду" });
+    }
+  };
+  const rows = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    if (!needle) return overview.campaigns;
+    return overview.campaigns.filter((item) => [
+      item.name,
+      item.campaignId,
+      item.adAccountId,
+      item.keitaroCampaignId
+    ].some((value) => String(value ?? "").toLowerCase().includes(needle)));
+  }, [overview.campaigns, search]);
+  const currencyCount = Object.keys(overview.totalsByCurrency ?? {}).length;
+  return /* @__PURE__ */ jsxDEV("div", { className: "spend-page", children: [
+    /* @__PURE__ */ jsxDEV("header", { className: "spend-heading", children: [
+      /* @__PURE__ */ jsxDEV("div", { children: [
+        /* @__PURE__ */ jsxDEV("span", { className: "eyebrow", children: "Meta → Keitaro" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 84,
+          columnNumber: 22
+        }, this),
+        /* @__PURE__ */ jsxDEV("h1", { children: "Спенд" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 84,
+          columnNumber: 69
+        }, this),
+        /* @__PURE__ */ jsxDEV("p", { children: "Локальна історія витрат і контроль передачі у трекер." }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 84,
+          columnNumber: 83
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 84,
+        columnNumber: 17
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "spend-actions", children: [
+        /* @__PURE__ */ jsxDEV("button", { className: "secondary-button", disabled: collectBusy, onClick: () => run(window.adsBot.startSpendCollection, "Збір спенду додано до черги"), children: [
+          /* @__PURE__ */ jsxDEV(RefreshCw, { size: 15, className: collectBusy ? "spin" : "" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+            lineNumber: 86,
+            columnNumber: 168
+          }, this),
+          " ",
+          collectBusy ? "Збираємо…" : "Оновити з Meta"
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 86,
+          columnNumber: 21
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { className: "primary-button", disabled: exportBusy, onClick: () => run(window.adsBot.startSpendExport, "Передачу спенду додано до черги"), children: [
+          /* @__PURE__ */ jsxDEV(ArrowUpToLine, { size: 15 }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+            lineNumber: 87,
+            columnNumber: 165
+          }, this),
+          " ",
+          exportBusy ? "Передаємо…" : "Відправити в Keitaro"
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 87,
+          columnNumber: 21
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 85,
+        columnNumber: 17
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+      lineNumber: 83,
+      columnNumber: 13
+    }, this),
+    /* @__PURE__ */ jsxDEV("section", { className: "spend-summary", children: [
+      /* @__PURE__ */ jsxDEV("article", { children: [
+        /* @__PURE__ */ jsxDEV("small", { children: "Зібрано" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 91,
+          columnNumber: 26
+        }, this),
+        /* @__PURE__ */ jsxDEV("strong", { children: formatGroupedTotal(overview.totalsByCurrency, "spend") }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 91,
+          columnNumber: 48
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: currencyCount > 1 ? "Окремо за валютами" : "Всього у базі" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 91,
+          columnNumber: 121
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 91,
+        columnNumber: 17
+      }, this),
+      /* @__PURE__ */ jsxDEV("article", { children: [
+        /* @__PURE__ */ jsxDEV("small", { children: "Передано" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 92,
+          columnNumber: 26
+        }, this),
+        /* @__PURE__ */ jsxDEV("strong", { children: formatGroupedTotal(overview.totalsByCurrency, "exported") }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 92,
+          columnNumber: 49
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: "З урахуванням комісії" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 92,
+          columnNumber: 125
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 92,
+        columnNumber: 17
+      }, this),
+      /* @__PURE__ */ jsxDEV("article", { children: [
+        /* @__PURE__ */ jsxDEV("small", { children: "Очікує" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 93,
+          columnNumber: 26
+        }, this),
+        /* @__PURE__ */ jsxDEV("strong", { children: formatGroupedTotal(overview.totalsByCurrency, "pending") }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 93,
+          columnNumber: 47
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: "З урахуванням комісії" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 93,
+          columnNumber: 122
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 93,
+        columnNumber: 17
+      }, this),
+      /* @__PURE__ */ jsxDEV("article", { children: [
+        /* @__PURE__ */ jsxDEV("small", { children: "Останній збір" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 94,
+          columnNumber: 26
+        }, this),
+        /* @__PURE__ */ jsxDEV("strong", { className: "spend-date-value", children: formatDate(overview.settings.lastCollectionRunAt) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 94,
+          columnNumber: 54
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: "Округлення до 15 хв" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 94,
+          columnNumber: 151
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 94,
+        columnNumber: 17
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+      lineNumber: 90,
+      columnNumber: 13
+    }, this),
+    /* @__PURE__ */ jsxDEV("div", { className: "spend-toolbar", children: [
+      /* @__PURE__ */ jsxDEV("label", { children: [
+        /* @__PURE__ */ jsxDEV(Search, { size: 15 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 97,
+          columnNumber: 24
+        }, this),
+        /* @__PURE__ */ jsxDEV("input", { "aria-label": "Пошук спенду", value: search, onChange: (event) => setSearch(event.target.value), placeholder: "Кампанія, Meta ID, рекламний акаунт…" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 97,
+          columnNumber: 44
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 97,
+        columnNumber: 17
+      }, this),
+      /* @__PURE__ */ jsxDEV("span", { children: [
+        "Остання передача: ",
+        formatDate(overview.settings.lastExportRunAt)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 98,
+        columnNumber: 17
+      }, this),
+      /* @__PURE__ */ jsxDEV("button", { className: "icon-button", "aria-label": "Оновити таблицю спенду", onClick: load, children: /* @__PURE__ */ jsxDEV(RefreshCw, { size: 15 }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 99,
+        columnNumber: 100
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 99,
+        columnNumber: 17
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+      lineNumber: 96,
+      columnNumber: 13
+    }, this),
+    /* @__PURE__ */ jsxDEV("section", { className: "spend-table", children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "spend-row spend-head", children: [
+        /* @__PURE__ */ jsxDEV("span", { children: "Кампанія" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 102,
+          columnNumber: 55
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: "Рекламний акаунт" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 102,
+          columnNumber: 76
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: "Спенд" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 102,
+          columnNumber: 105
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: "Зміна" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 102,
+          columnNumber: 123
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: "Keitaro" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 102,
+          columnNumber: 141
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: "Оновлено" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 102,
+          columnNumber: 161
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: "Статус" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 102,
+          columnNumber: 182
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 102,
+        columnNumber: 17
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "spend-table-body", children: [
+        rows.map((item) => /* @__PURE__ */ jsxDEV("div", { className: "spend-row", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: [
+            /* @__PURE__ */ jsxDEV("strong", { children: item.name || "Без назви" }, void 0, false, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+              lineNumber: 105,
+              columnNumber: 31
+            }, this),
+            /* @__PURE__ */ jsxDEV("small", { children: [
+              "Meta ID ",
+              item.campaignId
+            ] }, void 0, true, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+              lineNumber: 105,
+              columnNumber: 74
+            }, this)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+            lineNumber: 105,
+            columnNumber: 25
+          }, this),
+          /* @__PURE__ */ jsxDEV("span", { children: item.adAccountId }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+            lineNumber: 106,
+            columnNumber: 25
+          }, this),
+          /* @__PURE__ */ jsxDEV("span", { className: "numeric", children: formatMoney(item.spend, item.currency) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+            lineNumber: 107,
+            columnNumber: 25
+          }, this),
+          /* @__PURE__ */ jsxDEV("span", { className: `numeric ${item.lastDelta < 0 ? "negative" : item.lastDelta > 0 ? "positive" : ""}`, children: [
+            item.lastDelta > 0 ? "+" : "",
+            formatMoney(item.lastDelta, item.currency)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+            lineNumber: 108,
+            columnNumber: 25
+          }, this),
+          /* @__PURE__ */ jsxDEV("span", { children: item.keitaroCampaignId ? `ID ${item.keitaroCampaignId}` : "—" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+            lineNumber: 109,
+            columnNumber: 25
+          }, this),
+          /* @__PURE__ */ jsxDEV("span", { children: formatDate(item.collectedAt) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+            lineNumber: 110,
+            columnNumber: 25
+          }, this),
+          /* @__PURE__ */ jsxDEV("span", { children: /* @__PURE__ */ jsxDEV("i", { className: `spend-status ${item.status}`, children: statusLabels[item.status] ?? item.status }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+            lineNumber: 111,
+            columnNumber: 31
+          }, this) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+            lineNumber: 111,
+            columnNumber: 25
+          }, this)
+        ] }, item.campaignId, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 104,
+          columnNumber: 41
+        }, this)),
+        !loading && rows.length === 0 && /* @__PURE__ */ jsxDEV("div", { className: "empty-state", children: "Спенд ще не зібрано." }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 113,
+          columnNumber: 55
+        }, this),
+        loading && /* @__PURE__ */ jsxDEV("div", { className: "empty-state", children: "Оновлюємо таблицю…" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+          lineNumber: 114,
+          columnNumber: 33
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+        lineNumber: 103,
+        columnNumber: 17
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+      lineNumber: 101,
+      columnNumber: 13
+    }, this)
+  ] }, void 0, true, {
+    fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx",
+    lineNumber: 82,
+    columnNumber: 5
+  }, this);
+}
+_s(SpendTab, "A+6H7r9L/zo6vuDpejbUkvPXLQU=");
+_c = SpendTab;
+var _c;
+$RefreshReg$(_c, "SpendTab");
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+function $RefreshReg$(type, id) {
+  return RefreshRuntime.register(type, "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/SpendTab.jsx " + id);
+}
+function $RefreshSig$() {
+  return RefreshRuntime.createSignatureFunctionForTransform();
+}
+
+//# sourceMappingURL=data:application/json;base64,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QUEsZUFBaUQ7QUFBQSxRQUNsRmdCLFdBQVcsdUJBQUMsU0FBSSxXQUFVLGVBQWMsa0NBQTdCO0FBQUE7QUFBQTtBQUFBO0FBQUEsZUFBK0M7QUFBQSxXQVgvRDtBQUFBO0FBQUE7QUFBQTtBQUFBLGFBWUE7QUFBQSxTQWRKO0FBQUE7QUFBQTtBQUFBO0FBQUEsV0FlQTtBQUFBLE9BbENKO0FBQUE7QUFBQTtBQUFBO0FBQUEsU0FtQ0E7QUFFUjtBQUFDTCxHQWpGdUJKLFVBQVE7QUFBQSxLQUFSQTtBQUFRLElBQUFzRDtBQUFBLGFBQUFBLElBQUEiLCJuYW1lcyI6WyJ1c2VFZmZlY3QiLCJ1c2VNZW1vIiwidXNlU3RhdGUiLCJBcnJvd1VwVG9MaW5lIiwiUmVmcmVzaEN3IiwiU2VhcmNoIiwiZXJyb3JEZXRhaWxzIiwidW53cmFwIiwiZm9ybWF0TW9uZXkiLCJ2YWx1ZSIsImN1cnJlbmN5IiwiTnVtYmVyIiwidG9Mb2NhbGVTdHJpbmciLCJtaW5pbXVtRnJhY3Rpb25EaWdpdHMiLCJtYXhpbXVtRnJhY3Rpb25EaWdpdHMiLCJmb3JtYXREYXRlIiwiRGF0ZSIsImZvcm1hdEdyb3VwZWRUb3RhbCIsInRvdGFsc0J5Q3VycmVuY3kiLCJmaWVsZCIsImVudHJpZXMiLCJPYmplY3QiLCJsZW5ndGgiLCJtYXAiLCJ0b3RhbHMiLCJqb2luIiwic3RhdHVzTGFiZWxzIiwic3luY2VkIiwicGVuZGluZyIsIlNwZW5kVGFiIiwidGFza3MiLCJvbkVycm9yIiwic2hvd1RvYXN0IiwiX3MiLCJvdmVydmlldyIsInNldE92ZXJ2aWV3IiwiY2FtcGFpZ25zIiwic2V0dGluZ3MiLCJsb2FkaW5nIiwic2V0TG9hZGluZyIsInNlYXJjaCIsInNldFNlYXJjaCIsImNvbGxlY3RCdXN5Iiwic29tZSIsInRhc2siLCJ0eXBlIiwiaW5jbHVkZXMiLCJzdGF0dXMiLCJleHBvcnRCdXN5IiwidGFza1NpZ25hdHVyZSIsImZpbHRlciIsInN0YXJ0c1dpdGgiLCJpZCIsImxvYWQiLCJ3aW5kb3ciLCJhZHNCb3QiLCJnZXRTcGVuZE92ZXJ2aWV3IiwiZXJyb3IiLCJ0aXRsZSIsInJ1biIsIm9wZXJhdGlvbiIsIm1lc3NhZ2UiLCJyb3dzIiwibmVlZGxlIiwidHJpbSIsInRvTG93ZXJDYXNlIiwiaXRlbSIsIm5hbWUiLCJjYW1wYWlnbklkIiwiYWRBY2NvdW50SWQiLCJrZWl0YXJvQ2FtcGFpZ25JZCIsIlN0cmluZyIsImN1cnJlbmN5Q291bnQiLCJrZXlzIiwic3RhcnRTcGVuZENvbGxlY3Rpb24iLCJzdGFydFNwZW5kRXhwb3J0IiwibGFzdENvbGxlY3Rpb25SdW5BdCIsImV2ZW50IiwidGFyZ2V0IiwibGFzdEV4cG9ydFJ1bkF0Iiwic3BlbmQiLCJsYXN0RGVsdGEiLCJjb2xsZWN0ZWRBdCIsIl9jIl0sImlnbm9yZUxpc3QiOltdLCJzb3VyY2VzIjpbIlNwZW5kVGFiLmpzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyB1c2VFZmZlY3QsIHVzZU1lbW8sIHVzZVN0YXRlIH0gZnJvbSBcInJlYWN0XCI7XG5pbXBvcnQgeyBBcnJvd1VwVG9MaW5lLCBSZWZyZXNoQ3csIFNlYXJjaCB9IGZyb20gXCJsdWNpZGUtcmVhY3RcIjtcblxuaW1wb3J0IHsgZXJyb3JEZXRhaWxzLCB1bndyYXAgfSBmcm9tIFwiLi4vbGliL2FwaS5qc1wiO1xuXG5cbmZ1bmN0aW9uIGZvcm1hdE1vbmV5KHZhbHVlLCBjdXJyZW5jeSA9IFwiXCIpIHtcbiAgICByZXR1cm4gYCR7TnVtYmVyKHZhbHVlIHx8IDApLnRvTG9jYWxlU3RyaW5nKFwidWstVUFcIiwge1xuICAgICAgICBtaW5pbXVtRnJhY3Rpb25EaWdpdHM6IDIsXG4gICAgICAgIG1heGltdW1GcmFjdGlvbkRpZ2l0czogMixcbiAgICB9KX0ke2N1cnJlbmN5ID8gYCAke2N1cnJlbmN5fWAgOiBcIlwifWA7XG59XG5cblxuZnVuY3Rpb24gZm9ybWF0RGF0ZSh2YWx1ZSkge1xuICAgIGlmICghdmFsdWUpIHJldHVybiBcIuKAlFwiO1xuICAgIHJldHVybiBuZXcgRGF0ZSh2YWx1ZSkudG9Mb2NhbGVTdHJpbmcoXCJ1ay1VQVwiKTtcbn1cblxuXG5mdW5jdGlvbiBmb3JtYXRHcm91cGVkVG90YWwodG90YWxzQnlDdXJyZW5jeSwgZmllbGQpIHtcbiAgICBjb25zdCBlbnRyaWVzID0gT2JqZWN0LmVudHJpZXModG90YWxzQnlDdXJyZW5jeSA/PyB7fSk7XG4gICAgaWYgKGVudHJpZXMubGVuZ3RoID09PSAwKSByZXR1cm4gXCIwLDAwXCI7XG4gICAgcmV0dXJuIGVudHJpZXMubWFwKChbY3VycmVuY3ksIHRvdGFsc10pID0+IChcbiAgICAgICAgZm9ybWF0TW9uZXkodG90YWxzW2ZpZWxkXSwgY3VycmVuY3kgPT09IFwi4oCUXCIgPyBcIlwiIDogY3VycmVuY3kpXG4gICAgKSkuam9pbihcIiDCtyBcIik7XG59XG5cblxuY29uc3Qgc3RhdHVzTGFiZWxzID0ge1xuICAgIHN5bmNlZDogXCLQn9C10YDQtdC00LDQvdC+XCIsXG4gICAgcGVuZGluZzogXCLQntGH0ZbQutGD0ZRcIixcbiAgICBcIm1hcHBpbmctbWlzc2luZ1wiOiBcItCd0LXQvNCw0ZQg0LLRltC00L/QvtCy0ZbQtNC90L7RgdGC0ZZcIixcbiAgICBcIm1hcHBpbmctYW1iaWd1b3VzXCI6IFwi0JrRltC70YzQutCwINCy0ZbQtNC/0L7QstGW0LTQvdC+0YHRgtC10LlcIixcbn07XG5cblxuZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gU3BlbmRUYWIoeyB0YXNrcyA9IFtdLCBvbkVycm9yID0gKCkgPT4ge30sIHNob3dUb2FzdCB9KSB7XG4gICAgY29uc3QgW292ZXJ2aWV3LCBzZXRPdmVydmlld10gPSB1c2VTdGF0ZSh7IHRvdGFsczoge30sIGNhbXBhaWduczogW10sIHNldHRpbmdzOiB7fSB9KTtcbiAgICBjb25zdCBbbG9hZGluZywgc2V0TG9hZGluZ10gPSB1c2VTdGF0ZSh0cnVlKTtcbiAgICBjb25zdCBbc2VhcmNoLCBzZXRTZWFyY2hdID0gdXNlU3RhdGUoXCJcIik7XG4gICAgY29uc3QgY29sbGVjdEJ1c3kgPSB0YXNrcy5zb21lKCh0YXNrKSA9PiB0YXNrLnR5cGUgPT09IFwic3BlbmQtY29sbGVjdFwiICYmIFtcInF1ZXVlZFwiLCBcInJ1bm5pbmdcIl0uaW5jbHVkZXModGFzay5zdGF0dXMpKTtcbiAgICBjb25zdCBleHBvcnRCdXN5ID0gdGFza3Muc29tZSgodGFzaykgPT4gdGFzay50eXBlID09PSBcInNwZW5kLWV4cG9ydC1rZWl0YXJvXCIgJiYgW1wicXVldWVkXCIsIFwicnVubmluZ1wiXS5pbmNsdWRlcyh0YXNrLnN0YXR1cykpO1xuICAgIGNvbnN0IHRhc2tTaWduYXR1cmUgPSB0YXNrc1xuICAgICAgICAuZmlsdGVyKCh0YXNrKSA9PiB0YXNrLnR5cGU/LnN0YXJ0c1dpdGgoXCJzcGVuZC1cIikpXG4gICAgICAgIC5tYXAoKHRhc2spID0+IGAke3Rhc2suaWR9OiR7dGFzay5zdGF0dXN9YClcbiAgICAgICAgLmpvaW4oXCJ8XCIpO1xuXG4gICAgY29uc3QgbG9hZCA9IGFzeW5jICgpID0+IHtcbiAgICAgICAgc2V0TG9hZGluZyh0cnVlKTtcbiAgICAgICAgdHJ5IHtcbiAgICAgICAgICAgIHNldE92ZXJ2aWV3KGF3YWl0IHVud3JhcCh3aW5kb3cuYWRzQm90LmdldFNwZW5kT3ZlcnZpZXcoKSkpO1xuICAgICAgICB9IGNhdGNoIChlcnJvcikge1xuICAgICAgICAgICAgb25FcnJvcih7IC4uLmVycm9yRGV0YWlscyhlcnJvciksIHRpdGxlOiBcItCd0LUg0LLQtNCw0LvQvtGB0Y8g0LfQsNCy0LDQvdGC0LDQttC40YLQuCDRgdC/0LXQvdC0XCIgfSk7XG4gICAgICAgIH0gZmluYWxseSB7XG4gICAgICAgICAgICBzZXRMb2FkaW5nKGZhbHNlKTtcbiAgICAgICAgfVxuICAgIH07XG4gICAgdXNlRWZmZWN0KCgpID0+IHsgbG9hZCgpOyB9LCBbdGFza1NpZ25hdHVyZV0pO1xuXG4gICAgY29uc3QgcnVuID0gYXN5bmMgKG9wZXJhdGlvbiwgbWVzc2FnZSkgPT4ge1xuICAgICAgICB0cnkge1xuICAgICAgICAgICAgYXdhaXQgdW53cmFwKG9wZXJhdGlvbigpKTtcbiAgICAgICAgICAgIHNob3dUb2FzdD8uKG1lc3NhZ2UsIFwic3VjY2Vzc1wiKTtcbiAgICAgICAgfSBjYXRjaCAoZXJyb3IpIHtcbiAgICAgICAgICAgIG9uRXJyb3IoeyAuLi5lcnJvckRldGFpbHMoZXJyb3IpLCB0aXRsZTogXCLQndC1INCy0LTQsNC70L7RgdGPINC30LDQv9GD0YHRgtC40YLQuCDQt9Cw0LTQsNGH0YMg0YHQv9C10L3QtNGDXCIgfSk7XG4gICAgICAgIH1cbiAgICB9O1xuICAgIGNvbnN0IHJvd3MgPSB1c2VNZW1vKCgpID0+IHtcbiAgICAgICAgY29uc3QgbmVlZGxlID0gc2VhcmNoLnRyaW0oKS50b0xvd2VyQ2FzZSgpO1xuICAgICAgICBpZiAoIW5lZWRsZSkgcmV0dXJuIG92ZXJ2aWV3LmNhbXBhaWducztcbiAgICAgICAgcmV0dXJuIG92ZXJ2aWV3LmNhbXBhaWducy5maWx0ZXIoKGl0ZW0pID0+IFtcbiAgICAgICAgICAgIGl0ZW0ubmFtZSxcbiAgICAgICAgICAgIGl0ZW0uY2FtcGFpZ25JZCxcbiAgICAgICAgICAgIGl0ZW0uYWRBY2NvdW50SWQsXG4gICAgICAgICAgICBpdGVtLmtlaXRhcm9DYW1wYWlnbklkLFxuICAgICAgICBdLnNvbWUoKHZhbHVlKSA9PiBTdHJpbmcodmFsdWUgPz8gXCJcIikudG9Mb3dlckNhc2UoKS5pbmNsdWRlcyhuZWVkbGUpKSk7XG4gICAgfSwgW292ZXJ2aWV3LmNhbXBhaWducywgc2VhcmNoXSk7XG4gICAgY29uc3QgY3VycmVuY3lDb3VudCA9IE9iamVjdC5rZXlzKG92ZXJ2aWV3LnRvdGFsc0J5Q3VycmVuY3kgPz8ge30pLmxlbmd0aDtcblxuICAgIHJldHVybiAoXG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BlbmQtcGFnZVwiPlxuICAgICAgICAgICAgPGhlYWRlciBjbGFzc05hbWU9XCJzcGVuZC1oZWFkaW5nXCI+XG4gICAgICAgICAgICAgICAgPGRpdj48c3BhbiBjbGFzc05hbWU9XCJleWVicm93XCI+TWV0YSDihpIgS2VpdGFybzwvc3Bhbj48aDE+0KHQv9C10L3QtDwvaDE+PHA+0JvQvtC60LDQu9GM0L3QsCDRltGB0YLQvtGA0ZbRjyDQstC40YLRgNCw0YIg0ZYg0LrQvtC90YLRgNC+0LvRjCDQv9C10YDQtdC00LDRh9GWINGDINGC0YDQtdC60LXRgC48L3A+PC9kaXY+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJzcGVuZC1hY3Rpb25zXCI+XG4gICAgICAgICAgICAgICAgICAgIDxidXR0b24gY2xhc3NOYW1lPVwic2Vjb25kYXJ5LWJ1dHRvblwiIGRpc2FibGVkPXtjb2xsZWN0QnVzeX0gb25DbGljaz17KCkgPT4gcnVuKHdpbmRvdy5hZHNCb3Quc3RhcnRTcGVuZENvbGxlY3Rpb24sIFwi0JfQsdGW0YAg0YHQv9C10L3QtNGDINC00L7QtNCw0L3QviDQtNC+INGH0LXRgNCz0LhcIil9PjxSZWZyZXNoQ3cgc2l6ZT17MTV9IGNsYXNzTmFtZT17Y29sbGVjdEJ1c3kgPyBcInNwaW5cIiA6IFwiXCJ9Lz4ge2NvbGxlY3RCdXN5ID8gXCLQl9Cx0LjRgNCw0ZTQvNC+4oCmXCIgOiBcItCe0L3QvtCy0LjRgtC4INC3IE1ldGFcIn08L2J1dHRvbj5cbiAgICAgICAgICAgICAgICAgICAgPGJ1dHRvbiBjbGFzc05hbWU9XCJwcmltYXJ5LWJ1dHRvblwiIGRpc2FibGVkPXtleHBvcnRCdXN5fSBvbkNsaWNrPXsoKSA9PiBydW4od2luZG93LmFkc0JvdC5zdGFydFNwZW5kRXhwb3J0LCBcItCf0LXRgNC10LTQsNGH0YMg0YHQv9C10L3QtNGDINC00L7QtNCw0L3QviDQtNC+INGH0LXRgNCz0LhcIil9PjxBcnJvd1VwVG9MaW5lIHNpemU9ezE1fS8+IHtleHBvcnRCdXN5ID8gXCLQn9C10YDQtdC00LDRlNC80L7igKZcIiA6IFwi0JLRltC00L/RgNCw0LLQuNGC0Lgg0LIgS2VpdGFyb1wifTwvYnV0dG9uPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9oZWFkZXI+XG4gICAgICAgICAgICA8c2VjdGlvbiBjbGFzc05hbWU9XCJzcGVuZC1zdW1tYXJ5XCI+XG4gICAgICAgICAgICAgICAgPGFydGljbGU+PHNtYWxsPtCX0ZbQsdGA0LDQvdC+PC9zbWFsbD48c3Ryb25nPntmb3JtYXRHcm91cGVkVG90YWwob3ZlcnZpZXcudG90YWxzQnlDdXJyZW5jeSwgXCJzcGVuZFwiKX08L3N0cm9uZz48c3Bhbj57Y3VycmVuY3lDb3VudCA+IDEgPyBcItCe0LrRgNC10LzQviDQt9CwINCy0LDQu9GO0YLQsNC80LhcIiA6IFwi0JLRgdGM0L7Qs9C+INGDINCx0LDQt9GWXCJ9PC9zcGFuPjwvYXJ0aWNsZT5cbiAgICAgICAgICAgICAgICA8YXJ0aWNsZT48c21hbGw+0J/QtdGA0LXQtNCw0L3Qvjwvc21hbGw+PHN0cm9uZz57Zm9ybWF0R3JvdXBlZFRvdGFsKG92ZXJ2aWV3LnRvdGFsc0J5Q3VycmVuY3ksIFwiZXhwb3J0ZWRcIil9PC9zdHJvbmc+PHNwYW4+0Jcg0YPRgNCw0YXRg9Cy0LDQvdC90Y/QvCDQutC+0LzRltGB0ZbRlzwvc3Bhbj48L2FydGljbGU+XG4gICAgICAgICAgICAgICAgPGFydGljbGU+PHNtYWxsPtCe0YfRltC60YPRlDwvc21hbGw+PHN0cm9uZz57Zm9ybWF0R3JvdXBlZFRvdGFsKG92ZXJ2aWV3LnRvdGFsc0J5Q3VycmVuY3ksIFwicGVuZGluZ1wiKX08L3N0cm9uZz48c3Bhbj7QlyDRg9GA0LDRhdGD0LLQsNC90L3Rj9C8INC60L7QvNGW0YHRltGXPC9zcGFuPjwvYXJ0aWNsZT5cbiAgICAgICAgICAgICAgICA8YXJ0aWNsZT48c21hbGw+0J7RgdGC0LDQvdC90ZbQuSDQt9Cx0ZbRgDwvc21hbGw+PHN0cm9uZyBjbGFzc05hbWU9XCJzcGVuZC1kYXRlLXZhbHVlXCI+e2Zvcm1hdERhdGUob3ZlcnZpZXcuc2V0dGluZ3MubGFzdENvbGxlY3Rpb25SdW5BdCl9PC9zdHJvbmc+PHNwYW4+0J7QutGA0YPQs9C70LXQvdC90Y8g0LTQviAxNSDRhdCyPC9zcGFuPjwvYXJ0aWNsZT5cbiAgICAgICAgICAgIDwvc2VjdGlvbj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BlbmQtdG9vbGJhclwiPlxuICAgICAgICAgICAgICAgIDxsYWJlbD48U2VhcmNoIHNpemU9ezE1fS8+PGlucHV0IGFyaWEtbGFiZWw9XCLQn9C+0YjRg9C6INGB0L/QtdC90LTRg1wiIHZhbHVlPXtzZWFyY2h9IG9uQ2hhbmdlPXsoZXZlbnQpID0+IHNldFNlYXJjaChldmVudC50YXJnZXQudmFsdWUpfSBwbGFjZWhvbGRlcj1cItCa0LDQvNC/0LDQvdGW0Y8sIE1ldGEgSUQsINGA0LXQutC70LDQvNC90LjQuSDQsNC60LDRg9C90YLigKZcIi8+PC9sYWJlbD5cbiAgICAgICAgICAgICAgICA8c3Bhbj7QntGB0YLQsNC90L3RjyDQv9C10YDQtdC00LDRh9CwOiB7Zm9ybWF0RGF0ZShvdmVydmlldy5zZXR0aW5ncy5sYXN0RXhwb3J0UnVuQXQpfTwvc3Bhbj5cbiAgICAgICAgICAgICAgICA8YnV0dG9uIGNsYXNzTmFtZT1cImljb24tYnV0dG9uXCIgYXJpYS1sYWJlbD1cItCe0L3QvtCy0LjRgtC4INGC0LDQsdC70LjRhtGOINGB0L/QtdC90LTRg1wiIG9uQ2xpY2s9e2xvYWR9PjxSZWZyZXNoQ3cgc2l6ZT17MTV9Lz48L2J1dHRvbj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPHNlY3Rpb24gY2xhc3NOYW1lPVwic3BlbmQtdGFibGVcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwZW5kLXJvdyBzcGVuZC1oZWFkXCI+PHNwYW4+0JrQsNC80L/QsNC90ZbRjzwvc3Bhbj48c3Bhbj7QoNC10LrQu9Cw0LzQvdC40Lkg0LDQutCw0YPQvdGCPC9zcGFuPjxzcGFuPtCh0L/QtdC90LQ8L3NwYW4+PHNwYW4+0JfQvNGW0L3QsDwvc3Bhbj48c3Bhbj5LZWl0YXJvPC9zcGFuPjxzcGFuPtCe0L3QvtCy0LvQtdC90L48L3NwYW4+PHNwYW4+0KHRgtCw0YLRg9GBPC9zcGFuPjwvZGl2PlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwic3BlbmQtdGFibGUtYm9keVwiPlxuICAgICAgICAgICAgICAgICAgICB7cm93cy5tYXAoKGl0ZW0pID0+IDxkaXYgY2xhc3NOYW1lPVwic3BlbmQtcm93XCIga2V5PXtpdGVtLmNhbXBhaWduSWR9PlxuICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4+PHN0cm9uZz57aXRlbS5uYW1lIHx8IFwi0JHQtdC3INC90LDQt9Cy0LhcIn08L3N0cm9uZz48c21hbGw+TWV0YSBJRCB7aXRlbS5jYW1wYWlnbklkfTwvc21hbGw+PC9zcGFuPlxuICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4+e2l0ZW0uYWRBY2NvdW50SWR9PC9zcGFuPlxuICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwibnVtZXJpY1wiPntmb3JtYXRNb25leShpdGVtLnNwZW5kLCBpdGVtLmN1cnJlbmN5KX08L3NwYW4+XG4gICAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9e2BudW1lcmljICR7aXRlbS5sYXN0RGVsdGEgPCAwID8gXCJuZWdhdGl2ZVwiIDogaXRlbS5sYXN0RGVsdGEgPiAwID8gXCJwb3NpdGl2ZVwiIDogXCJcIn1gfT57aXRlbS5sYXN0RGVsdGEgPiAwID8gXCIrXCIgOiBcIlwifXtmb3JtYXRNb25leShpdGVtLmxhc3REZWx0YSwgaXRlbS5jdXJyZW5jeSl9PC9zcGFuPlxuICAgICAgICAgICAgICAgICAgICAgICAgPHNwYW4+e2l0ZW0ua2VpdGFyb0NhbXBhaWduSWQgPyBgSUQgJHtpdGVtLmtlaXRhcm9DYW1wYWlnbklkfWAgOiBcIuKAlFwifTwvc3Bhbj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxzcGFuPntmb3JtYXREYXRlKGl0ZW0uY29sbGVjdGVkQXQpfTwvc3Bhbj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxzcGFuPjxpIGNsYXNzTmFtZT17YHNwZW5kLXN0YXR1cyAke2l0ZW0uc3RhdHVzfWB9PntzdGF0dXNMYWJlbHNbaXRlbS5zdGF0dXNdID8/IGl0ZW0uc3RhdHVzfTwvaT48L3NwYW4+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2Pil9XG4gICAgICAgICAgICAgICAgICAgIHshbG9hZGluZyAmJiByb3dzLmxlbmd0aCA9PT0gMCAmJiA8ZGl2IGNsYXNzTmFtZT1cImVtcHR5LXN0YXRlXCI+0KHQv9C10L3QtCDRidC1INC90LUg0LfRltCx0YDQsNC90L4uPC9kaXY+fVxuICAgICAgICAgICAgICAgICAgICB7bG9hZGluZyAmJiA8ZGl2IGNsYXNzTmFtZT1cImVtcHR5LXN0YXRlXCI+0J7QvdC+0LLQu9GO0ZTQvNC+INGC0LDQsdC70LjRhtGO4oCmPC9kaXY+fVxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9zZWN0aW9uPlxuICAgICAgICA8L2Rpdj5cbiAgICApO1xufVxuIl0sImZpbGUiOiJDOi9Vc2Vycy9EYXJrbmVzcy9Eb2N1bWVudHMvQWRzQm90L2Zyb250ZW5kL3NyYy90YWJzL1NwZW5kVGFiLmpzeCJ9

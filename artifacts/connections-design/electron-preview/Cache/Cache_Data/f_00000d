@@ -1,0 +1,995 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/tabs/FarmAccountsTab.jsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=7966e25d"; const Fragment = __vite__cjsImport0_react_jsxDevRuntime["Fragment"]; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$(), _s2 = $RefreshSig$();
+import AccountCreationType from "/src/components/AccountCreationType.jsx";
+import __vite__cjsImport2_react from "/node_modules/.vite/deps/react.js?v=7966e25d"; const useCallback = __vite__cjsImport2_react["useCallback"]; const useEffect = __vite__cjsImport2_react["useEffect"]; const useRef = __vite__cjsImport2_react["useRef"]; const useState = __vite__cjsImport2_react["useState"];
+import FarmAddModal from "/src/components/FarmAddModal.jsx";
+import FarmSettings from "/src/components/FarmSettings.jsx";
+import WorkspaceDialog from "/src/components/WorkspaceDialog.jsx";
+import { unwrap } from "/src/lib/api.js";
+import { farmActionLabels, normalizeFarmSettings } from "/@fs/C:/Users/Darkness/Documents/AdsBot/services/farming/farmSettings.js";
+import "/src/styles/farming.css";
+const date = (value) => value ? new Date(value).toLocaleString("uk-UA") : "—";
+export const farmDuration = (ms) => ms == null ? "—" : `${Math.floor(ms / 36e5)} год ${Math.floor(ms / 6e4) % 60} хв ${Math.floor(ms / 1e3) % 60} с`;
+const outcomes = { completed: "Завершено", timeout: "Таймаут", failed: "Помилка", cancelled: "Скасовано", check_failed: "Не пройдено перевірки", skipped: "Пропущено", running: "Виконується", interrupted: "Перервано", completed_with_warnings: "Завершено із зауваженнями" };
+const stateLabels = { working: "Активний", banned: "Бан", not_ready: "Профіль не готовий", not_logged_in: "Не авторизований", inactive: "Неактивний", error: "Помилка перевірки", failed: "Перевірку не завершено", failed_loggedIn: "Не авторизований", failed_active: "Неактивний", failed_ensureEnglish: "Не вдалося змінити мову" };
+export default function FarmAccountsTab({ groups: adsPowerGroups = [], showToast = () => {
+} }) {
+  _s();
+  const [state, setState] = useState({ groups: [], members: [], history: { runs: [], memberships: [] } });
+  const [groupId, setGroupId] = useState("");
+  const [selected, setSelected] = useState([]);
+  const [section, setSection] = useState("accounts");
+  const [draft, setDraft] = useState({ groupId: null, name: "", notes: "" });
+  const [settings, setSettings] = useState(null);
+  const [pool, setPool] = useState([]);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [modal, setModal] = useState(null);
+  const [actions, setActions] = useState({});
+  const [runSettings, setRunSettings] = useState(null);
+  const [targetAdsGroup, setTargetAdsGroup] = useState("");
+  const initialized = useRef(false);
+  const sequence = useRef(0);
+  const group = state.groups.find((item) => item.id === groupId);
+  const groupDraft = draft.groupId === groupId ? draft : { groupId, name: group?.name ?? "", notes: group?.notes ?? "" };
+  const load = useCallback(async () => {
+    const request = ++sequence.current;
+    const snapshot = await unwrap(window.adsBot.getFarmSnapshot(groupId));
+    if (request !== sequence.current) return;
+    setState(snapshot);
+    if (!initialized.current) {
+      setSettings(snapshot.settings);
+      setPool(snapshot.pool);
+      initialized.current = true;
+    }
+    if (!groupId && snapshot.groups.length) setGroupId(snapshot.groups[0].id);
+  }, [groupId]);
+  useEffect(() => {
+    load().catch((failure) => setError(failure.message));
+    const timer = setInterval(() => load().catch(() => {
+    }), 5e3);
+    return () => {
+      clearInterval(timer);
+      sequence.current++;
+    };
+  }, [load]);
+  useEffect(() => {
+    setSelected([]);
+  }, [groupId]);
+  const perform = async (operation) => {
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      await operation();
+      await load();
+    } catch (failure) {
+      setError(failure.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const chooseGroup = (id) => {
+    setState((current) => ({ ...current, members: [], history: { runs: [], memberships: [] } }));
+    setGroupId(id);
+  };
+  const select = (no) => setSelected((values) => values.includes(no) ? values.filter((value) => value !== no) : [...values, no]);
+  const selectedMembers = state.members.filter((member) => selected.includes(member.profileNo));
+  const start = () => {
+    setRunSettings(state.settings);
+    setActions(Object.fromEntries(Object.entries(state.settings.actions).map(([key, value]) => [key, { ...value, enabled: false }])));
+    setModal("run");
+  };
+  return /* @__PURE__ */ jsxDEV("section", { className: "farm-tab", children: [
+    /* @__PURE__ */ jsxDEV("div", { className: "page-heading split", children: [
+      /* @__PURE__ */ jsxDEV("div", { children: [
+        /* @__PURE__ */ jsxDEV("p", { className: "eyebrow", children: "Групи · Сесії · Результати" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 63,
+          columnNumber: 50
+        }, this),
+        /* @__PURE__ */ jsxDEV("h2", { children: "Фарм акаунтів" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 63,
+          columnNumber: 103
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 63,
+        columnNumber: 45
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "inline-actions", children: [
+        /* @__PURE__ */ jsxDEV("button", { className: "secondary-button", disabled: busy, onClick: () => setModal("create"), children: "Створити групу" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 63,
+          columnNumber: 163
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { className: "secondary-button", disabled: busy, onClick: () => perform(load), children: "Оновити" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 63,
+          columnNumber: 274
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 63,
+        columnNumber: 131
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 63,
+      columnNumber: 9
+    }, this),
+    error && /* @__PURE__ */ jsxDEV("p", { role: "alert", className: "farm-error", children: error }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 64,
+      columnNumber: 19
+    }, this),
+    /* @__PURE__ */ jsxDEV("nav", { className: "farm-subtabs", children: [["accounts", "Акаунти"], ["compare", "Порівняння"], ["history", "Історія"], ["settings", "Налаштування"]].map(([key, label]) => /* @__PURE__ */ jsxDEV("button", { className: `secondary-button ${section === key ? "active" : ""}`, onClick: () => setSection(key), children: label }, key, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 65,
+      columnNumber: 169
+    }, this)) }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 65,
+      columnNumber: 9
+    }, this),
+    section === "settings" && settings && /* @__PURE__ */ jsxDEV(FarmSettings, { settings, onChange: setSettings, pool, onPoolChange: setPool, busy, onSave: () => perform(async () => {
+      const valid = normalizeFarmSettings(settings);
+      const savedPool = await unwrap(window.adsBot.saveFarmPool(pool));
+      setPool(savedPool);
+      setSettings(await unwrap(window.adsBot.saveFarmSettings(valid)));
+      showToast("Налаштування збережено", "success");
+    }) }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 66,
+      columnNumber: 48
+    }, this),
+    section === "compare" && /* @__PURE__ */ jsxDEV(Fragment, { children: [
+      /* @__PURE__ */ jsxDEV("p", { children: "Враховується вся історія поточного складу кожної групи, включно з діями до перенесення. Невідомий стан не означає, що акаунт активний." }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 71,
+        columnNumber: 37
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "farm-table-scroll", children: /* @__PURE__ */ jsxDEV("table", { children: [
+        /* @__PURE__ */ jsxDEV("thead", { children: /* @__PURE__ */ jsxDEV("tr", { children: [
+          /* @__PURE__ */ jsxDEV("th", { children: "Група" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 231
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Акаунти" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 245
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Відомі бани" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 261
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Бани, %" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 281
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Типи створення" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 297
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Комент-задачі ∑ / середнє" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 320
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Лайк-задачі ∑ / середнє" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 354
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Сесії ∑ / середнє" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 386
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Час фарму ∑ / середнє" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 412
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Період фарму" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 442
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 71,
+          columnNumber: 227
+        }, this) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 71,
+          columnNumber: 220
+        }, this),
+        /* @__PURE__ */ jsxDEV("tbody", { children: state.groups.map((item) => /* @__PURE__ */ jsxDEV("tr", { children: [
+          /* @__PURE__ */ jsxDEV("td", { children: item.name }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 529
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: item.count }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 549
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: item.banned }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 570
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: item.bannedPercent.toFixed(1) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 592
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: /* @__PURE__ */ jsxDEV("div", { className: "farm-creation-types", children: Object.entries(item.creationTypeCounts ?? {}).filter(([, count]) => count > 0).map(([type, count]) => /* @__PURE__ */ jsxDEV("span", { children: [
+            /* @__PURE__ */ jsxDEV(AccountCreationType, { type }, void 0, false, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+              lineNumber: 71,
+              columnNumber: 793
+            }, this),
+            " ",
+            count
+          ] }, type, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 776
+          }, this)) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 636
+          }, this) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 632
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: [
+            item.totals.commentTaskCount,
+            " / ",
+            item.averages.commentTaskCount.toFixed(1)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 856
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: [
+            item.totals.reactionTaskCount,
+            " / ",
+            item.averages.reactionTaskCount.toFixed(1)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 941
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: [
+            item.totals.farmSessionCount,
+            " / ",
+            item.averages.farmSessionCount.toFixed(1)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 1028
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: [
+            farmDuration(item.totals.farmTimeMs),
+            " / ",
+            farmDuration(item.averages.farmTimeMs)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 1113
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: farmDuration(item.farmPeriodMs) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 71,
+            columnNumber: 1203
+          }, this)
+        ] }, item.id, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 71,
+          columnNumber: 511
+        }, this)) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 71,
+          columnNumber: 476
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 71,
+        columnNumber: 213
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 71,
+        columnNumber: 178
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 71,
+      columnNumber: 35
+    }, this),
+    ["accounts", "history"].includes(section) && /* @__PURE__ */ jsxDEV(Fragment, { children: [
+      /* @__PURE__ */ jsxDEV("label", { className: "farm-group-picker", children: [
+        "Група фарму",
+        /* @__PURE__ */ jsxDEV("select", { "aria-label": "Група фарму", value: groupId, onChange: (e) => chooseGroup(e.target.value), children: [
+          /* @__PURE__ */ jsxDEV("option", { value: "", children: "Оберіть групу" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 72,
+            columnNumber: 200
+          }, this),
+          state.groups.map((item) => /* @__PURE__ */ jsxDEV("option", { value: item.id, children: [
+            item.name,
+            " (",
+            item.count,
+            ")"
+          ] }, item.id, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 72,
+            columnNumber: 267
+          }, this))
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 72,
+          columnNumber: 105
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 72,
+        columnNumber: 57
+      }, this),
+      !group && /* @__PURE__ */ jsxDEV("p", { children: "Створіть групу та додайте акаунти з вкладки «Акаунти під коментарі»." }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 72,
+        columnNumber: 370
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 72,
+      columnNumber: 55
+    }, this),
+    section === "accounts" && group && /* @__PURE__ */ jsxDEV(Fragment, { children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "farm-group-info farm-form", children: [
+        /* @__PURE__ */ jsxDEV("label", { children: [
+          "Назва групи",
+          /* @__PURE__ */ jsxDEV("input", { "aria-label": "Назва групи", value: groupDraft.name, onChange: (e) => setDraft({ ...groupDraft, name: e.target.value }) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 74,
+            columnNumber: 74
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 74,
+          columnNumber: 56
+        }, this),
+        /* @__PURE__ */ jsxDEV("label", { children: [
+          "Помітки",
+          /* @__PURE__ */ jsxDEV("textarea", { "aria-label": "Помітки", rows: 5, value: groupDraft.notes, onChange: (e) => setDraft({ ...groupDraft, notes: e.target.value }), placeholder: "Як фармилися акаунти, спостереження, результати…" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 74,
+            columnNumber: 222
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 74,
+          columnNumber: 208
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { className: "inline-actions", children: [
+          /* @__PURE__ */ jsxDEV("button", { className: "secondary-button", disabled: busy, onClick: () => perform(() => unwrap(window.adsBot.saveFarmGroup({ id: groupId, name: groupDraft.name, notes: groupDraft.notes }))), children: "Зберегти групу" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 74,
+            columnNumber: 461
+          }, this),
+          /* @__PURE__ */ jsxDEV("button", { className: "secondary-button", disabled: busy, onClick: () => setModal("delete"), children: "Видалити групу" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 74,
+            columnNumber: 669
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 74,
+          columnNumber: 429
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 74,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("p", { children: [
+        "Акаунтів: ",
+        group.count,
+        " · Відомих банів: ",
+        group.banned,
+        " (",
+        group.bannedPercent.toFixed(1),
+        "%) · Сесій: ",
+        group.totals.farmSessionCount,
+        " · Час фарму: ",
+        farmDuration(group.totals.farmTimeMs)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 75,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("p", { children: Object.entries(group.outcomes ?? {}).filter(([, count]) => count).map(([key, count]) => `${outcomes[key]}: ${count}`).join(" · ") }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 76,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "inline-actions farm-toolbar", children: [
+        /* @__PURE__ */ jsxDEV("button", { className: "primary-button", disabled: busy || !selectedMembers.length || !settings, onClick: start, children: [
+          "Фарм вибраних (",
+          selectedMembers.length,
+          ")"
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 78,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { className: "secondary-button", disabled: busy || !selectedMembers.length, onClick: () => perform(async () => {
+          await unwrap(window.adsBot.checkCommentAccounts({ profileNos: selected }));
+          showToast("Перевірку поставлено в чергу", "success");
+        }), children: "Перевірити акаунти" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 79,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { className: "secondary-button", disabled: busy || !selectedMembers.length, onClick: () => setModal("move"), children: "Перенести до групи фарму" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 80,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { className: "secondary-button", disabled: busy || !selectedMembers.length, onClick: () => perform(async () => {
+          await unwrap(window.adsBot.assignFarmProfiles(null, selected));
+          setSelected([]);
+        }), children: "Вилучити з групи" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 81,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("select", { "aria-label": "Нова група AdsPower", value: targetAdsGroup, onChange: (e) => setTargetAdsGroup(e.target.value), children: [
+          /* @__PURE__ */ jsxDEV("option", { value: "", children: "Група AdsPower" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 82,
+            columnNumber: 133
+          }, this),
+          adsPowerGroups.map((item) => /* @__PURE__ */ jsxDEV("option", { value: item.groupId, children: item.groupName }, item.groupId, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 82,
+            columnNumber: 203
+          }, this))
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 82,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { className: "secondary-button", disabled: busy || !selectedMembers.length || !targetAdsGroup, onClick: () => perform(() => unwrap(window.adsBot.moveAdsPowerProfiles(selectedMembers.map((m) => m.profileId), targetAdsGroup))), children: "Змінити AdsPower-групу" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 83,
+          columnNumber: 17
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 77,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "farm-table-scroll", children: /* @__PURE__ */ jsxDEV("table", { children: [
+        /* @__PURE__ */ jsxDEV("thead", { children: /* @__PURE__ */ jsxDEV("tr", { children: [
+          /* @__PURE__ */ jsxDEV("th", { children: /* @__PURE__ */ jsxDEV("input", { "aria-label": "Вибрати всі акаунти", type: "checkbox", checked: state.members.length > 0 && selectedMembers.length === state.members.length, onChange: (e) => setSelected(e.target.checked ? state.members.map((m) => m.profileNo) : []) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 70
+          }, this) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 66
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "№" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 312
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Назва AdsPower" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 322
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Група AdsPower" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 345
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Стан / перевірено" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 368
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Тип створення" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 394
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Комент-задачі" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 416
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Лайк-задачі" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 438
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Фарм-сесії" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 458
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Результати сесій" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 477
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Час фарму" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 502
+          }, this),
+          /* @__PURE__ */ jsxDEV("th", { children: "Період фарму" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 85,
+            columnNumber: 520
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 85,
+          columnNumber: 62
+        }, this) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 85,
+          columnNumber: 55
+        }, this),
+        /* @__PURE__ */ jsxDEV("tbody", { children: state.members.map((member) => /* @__PURE__ */ jsxDEV("tr", { children: [
+          /* @__PURE__ */ jsxDEV("td", { children: /* @__PURE__ */ jsxDEV("input", { type: "checkbox", "aria-label": `Вибрати ${member.profileNo}`, checked: selected.includes(member.profileNo), onChange: () => select(member.profileNo) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 21
+          }, this) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 17
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: member.profileNo }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 182
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: /* @__PURE__ */ jsxDEV("button", { className: "farm-name", onClick: () => setModal({ rename: member, name: member.name }), children: member.name || "Без назви" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 213
+          }, this) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 209
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: adsPowerGroups.find((g) => String(g.groupId) === member.adsPowerGroupId)?.groupName || member.adsPowerGroupName || member.adsPowerGroupId || "—" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 349
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: [
+            member.isBanned ? "Бан" : stateLabels[member.state] || "Невідомо",
+            /* @__PURE__ */ jsxDEV("small", { children: date(member.checkedAt) }, void 0, false, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+              lineNumber: 86,
+              columnNumber: 575
+            }, this)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 504
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: /* @__PURE__ */ jsxDEV(AccountCreationType, { type: member.accountType }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 623
+          }, this) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 619
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: member.commentTaskCount }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 677
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: member.reactionTaskCount }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 711
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: member.farmSessionCount }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 746
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: Object.entries(member.outcomes).filter(([, value]) => value).map(([key, value]) => /* @__PURE__ */ jsxDEV("small", { children: [
+            outcomes[key],
+            ": ",
+            value
+          ] }, key, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 868
+          }, this)) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 780
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: farmDuration(member.farmTimeMs) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 924
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: [
+            farmDuration(member.farmPeriodMs),
+            /* @__PURE__ */ jsxDEV("small", { children: [
+              date(member.farmFirstAt),
+              " — ",
+              date(member.farmLastAt)
+            ] }, void 0, true, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+              lineNumber: 86,
+              columnNumber: 1005
+            }, this)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 86,
+            columnNumber: 966
+          }, this)
+        ] }, member.profileNo, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 85,
+          columnNumber: 592
+        }, this)) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 85,
+          columnNumber: 554
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 85,
+        columnNumber: 48
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 85,
+        columnNumber: 13
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 73,
+      columnNumber: 45
+    }, this),
+    section === "history" && group && /* @__PURE__ */ jsxDEV("div", { className: "farm-history", children: [
+      !state.history.runs.length && /* @__PURE__ */ jsxDEV("p", { children: "Запусків ще немає." }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 89,
+        columnNumber: 105
+      }, this),
+      state.history.runs.map((run) => /* @__PURE__ */ jsxDEV("details", { children: [
+        /* @__PURE__ */ jsxDEV("summary", { children: [
+          date(run.startedAt),
+          " · ",
+          outcomes[run.outcome] ?? run.outcome,
+          " · акаунтів: ",
+          run.profileNos.length
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 89,
+          columnNumber: 186
+        }, this),
+        /* @__PURE__ */ jsxDEV("p", { children: [
+          "Воркери: ",
+          run.settings.workers,
+          ", таймаут: ",
+          run.settings.timeoutSeconds,
+          " с"
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 89,
+          columnNumber: 303
+        }, this),
+        /* @__PURE__ */ jsxDEV("details", { children: [
+          /* @__PURE__ */ jsxDEV("summary", { children: "Налаштування запуску" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 89,
+            columnNumber: 392
+          }, this),
+          /* @__PURE__ */ jsxDEV("pre", { children: JSON.stringify(run.settings, null, 2) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 89,
+            columnNumber: 431
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 89,
+          columnNumber: 383
+        }, this),
+        run.sessions.map((session) => /* @__PURE__ */ jsxDEV("details", { children: [
+          /* @__PURE__ */ jsxDEV("summary", { children: [
+            "№",
+            session.profileNo,
+            " · ",
+            outcomes[session.outcome],
+            " · ",
+            farmDuration(session.farmTimeMs)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 89,
+            columnNumber: 548
+          }, this),
+          /* @__PURE__ */ jsxDEV("p", { children: [
+            session.reason,
+            session.cleanupError && ` · Закриття: ${session.cleanupError}`
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 89,
+            columnNumber: 654
+          }, this),
+          /* @__PURE__ */ jsxDEV("ul", { children: session.events.map((event, i) => /* @__PURE__ */ jsxDEV("li", { children: [
+            date(event.at),
+            " · ",
+            event.action,
+            ": ",
+            event.status,
+            event.reason && ` · ${event.reason}`
+          ] }, i, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 89,
+            columnNumber: 779
+          }, this)) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+            lineNumber: 89,
+            columnNumber: 741
+          }, this)
+        ] }, session.id, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 89,
+          columnNumber: 522
+        }, this))
+      ] }, run.id, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 89,
+        columnNumber: 164
+      }, this)),
+      /* @__PURE__ */ jsxDEV("details", { children: [
+        /* @__PURE__ */ jsxDEV("summary", { children: "Історія перенесень" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 89,
+          columnNumber: 923
+        }, this),
+        /* @__PURE__ */ jsxDEV("ul", { children: state.history.memberships.map((item) => /* @__PURE__ */ jsxDEV("li", { children: [
+          date(item.occurred_at),
+          " · №",
+          item.profile_no,
+          " · ",
+          item.to_group === groupId ? "Додано до групи" : "Вилучено з групи"
+        ] }, item.id, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 89,
+          columnNumber: 1005
+        }, this)) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 89,
+          columnNumber: 960
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 89,
+        columnNumber: 914
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 89,
+      columnNumber: 44
+    }, this),
+    modal === "move" && /* @__PURE__ */ jsxDEV(FarmAddModal, { profiles: selectedMembers, onClose: () => setModal(null), onAdded: () => {
+      setModal(null);
+      setSelected([]);
+      load().catch((failure) => setError(failure.message));
+    } }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 90,
+      columnNumber: 30
+    }, this),
+    modal === "create" && /* @__PURE__ */ jsxDEV(GroupCreate, { onClose: () => setModal(null), onCreate: (name) => perform(async () => {
+      const created = await unwrap(window.adsBot.saveFarmGroup({ name }));
+      setGroupId(created.id);
+      setModal(null);
+    }), busy }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 91,
+      columnNumber: 32
+    }, this),
+    modal === "delete" && /* @__PURE__ */ jsxDEV(WorkspaceDialog, { title: "Видалити групу фарму?", onClose: () => setModal(null), busy, children: [
+      /* @__PURE__ */ jsxDEV("p", { children: "Акаунти залишаться без групи фарму. Історія запусків збережеться в базі." }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 92,
+        columnNumber: 122
+      }, this),
+      /* @__PURE__ */ jsxDEV("button", { className: "primary-button", disabled: busy, onClick: () => perform(async () => {
+        await unwrap(window.adsBot.deleteFarmGroup(groupId));
+        setGroupId("");
+        setModal(null);
+      }), children: "Видалити" }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 92,
+        columnNumber: 201
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 92,
+      columnNumber: 32
+    }, this),
+    modal?.rename && /* @__PURE__ */ jsxDEV(WorkspaceDialog, { title: "Перейменувати AdsPower-профіль", onClose: () => setModal(null), busy, children: /* @__PURE__ */ jsxDEV("form", { className: "farm-form", onSubmit: (e) => {
+      e.preventDefault();
+      perform(async () => {
+        await unwrap(window.adsBot.renameAdsPowerProfile(modal.rename.profileId, modal.name));
+        setModal(null);
+      });
+    }, children: [
+      /* @__PURE__ */ jsxDEV("label", { children: [
+        "Нова назва",
+        /* @__PURE__ */ jsxDEV("input", { value: modal.name, onChange: (e) => setModal({ ...modal, name: e.target.value }) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 93,
+          columnNumber: 336
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 93,
+        columnNumber: 319
+      }, this),
+      /* @__PURE__ */ jsxDEV("button", { className: "primary-button", disabled: busy || !modal.name.trim(), children: "Зберегти" }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 93,
+        columnNumber: 435
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 93,
+      columnNumber: 126
+    }, this) }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 93,
+      columnNumber: 27
+    }, this),
+    modal === "run" && /* @__PURE__ */ jsxDEV(WorkspaceDialog, { title: "Запуск фарму", onClose: () => setModal(null), busy, children: /* @__PURE__ */ jsxDEV("div", { className: "farm-form", children: [
+      error && /* @__PURE__ */ jsxDEV("p", { role: "alert", className: "farm-error", children: error }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 94,
+        columnNumber: 147
+      }, this),
+      /* @__PURE__ */ jsxDEV("p", { children: [
+        "Акаунтів: ",
+        selectedMembers.length,
+        " · Воркери: ",
+        runSettings.workers,
+        " · Таймаут: ",
+        runSettings.timeoutSeconds,
+        " с на акаунт"
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 94,
+        columnNumber: 198
+      }, this),
+      Object.entries(actions).map(([key, value]) => /* @__PURE__ */ jsxDEV("label", { className: "farm-check", children: [
+        /* @__PURE__ */ jsxDEV("input", { type: "checkbox", checked: value.enabled, onChange: (e) => setActions({ ...actions, [key]: { ...value, enabled: e.target.checked } }) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+          lineNumber: 94,
+          columnNumber: 411
+        }, this),
+        farmActionLabels[key]
+      ] }, key, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 94,
+        columnNumber: 371
+      }, this)),
+      /* @__PURE__ */ jsxDEV("button", { className: "primary-button", disabled: busy || !Object.values(actions).some((a) => a.enabled), onClick: () => perform(async () => {
+        await unwrap(window.adsBot.runFarm({ groupId, profileNos: selected, actions }));
+        setModal(null);
+        showToast("Фарм поставлено в чергу", "success");
+      }), children: "Запустити" }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 94,
+        columnNumber: 586
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 94,
+      columnNumber: 110
+    }, this) }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 94,
+      columnNumber: 29
+    }, this)
+  ] }, void 0, true, {
+    fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+    lineNumber: 62,
+    columnNumber: 10
+  }, this);
+}
+_s(FarmAccountsTab, "qF7TJ+lYEmcfG3srcNluhCGGuOA=");
+_c = FarmAccountsTab;
+function GroupCreate({ onClose, onCreate, busy }) {
+  _s2();
+  const [name, setName] = useState("");
+  return /* @__PURE__ */ jsxDEV(WorkspaceDialog, { title: "Нова група фарму", onClose, busy, children: /* @__PURE__ */ jsxDEV("form", { className: "farm-form", onSubmit: (event) => {
+    event.preventDefault();
+    onCreate(name);
+  }, children: [
+    /* @__PURE__ */ jsxDEV("label", { children: [
+      "Назва групи",
+      /* @__PURE__ */ jsxDEV("input", { value: name, onChange: (e) => setName(e.target.value), autoFocus: true }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+        lineNumber: 100,
+        columnNumber: 191
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 100,
+      columnNumber: 173
+    }, this),
+    /* @__PURE__ */ jsxDEV("button", { className: "primary-button", disabled: busy || !name.trim(), children: "Створити" }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+      lineNumber: 100,
+      columnNumber: 273
+    }, this)
+  ] }, void 0, true, {
+    fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+    lineNumber: 100,
+    columnNumber: 82
+  }, this) }, void 0, false, {
+    fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx",
+    lineNumber: 100,
+    columnNumber: 10
+  }, this);
+}
+_s2(GroupCreate, "gFPpQ6rgfiGkmgRsh4q2nIO1W+Q=");
+_c2 = GroupCreate;
+var _c, _c2;
+$RefreshReg$(_c, "FarmAccountsTab");
+$RefreshReg$(_c2, "GroupCreate");
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+function $RefreshReg$(type, id) {
+  return RefreshRuntime.register(type, "C:/Users/Darkness/Documents/AdsBot/frontend/src/tabs/FarmAccountsTab.jsx " + id);
+}
+function $RefreshSig$() {
+  return RefreshRuntime.createSignatureFunctionForTransform();
+}
+
+//# sourceMappingURL=data:application/json;base64,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VSxrQkFBaUIsVUFBVXFELFFBQVEsQ0FBQ1AsS0FBS3VILEtBQUssR0FBRyx3QkFBbkU7QUFBQTtBQUFBO0FBQUE7QUFBQSxXQUEyRTtBQUFBLE9BQTdRO0FBQUE7QUFBQTtBQUFBO0FBQUEsU0FBc1IsS0FBOVY7QUFBQTtBQUFBO0FBQUE7QUFBQSxTQUFxVztBQUNoWDtBQUFDTyxJQUhRSCxhQUFXO0FBQUEsTUFBWEE7QUFBVyxJQUFBSyxJQUFBQztBQUFBLGFBQUFELElBQUE7QUFBQSxhQUFBQyxLQUFBIiwibmFtZXMiOlsiQWNjb3VudENyZWF0aW9uVHlwZSIsInVzZUNhbGxiYWNrIiwidXNlRWZmZWN0IiwidXNlUmVmIiwidXNlU3RhdGUiLCJGYXJtQWRkTW9kYWwiLCJGYXJtU2V0dGluZ3MiLCJXb3Jrc3BhY2VEaWFsb2ciLCJ1bndyYXAiLCJmYXJtQWN0aW9uTGFiZWxzIiwibm9ybWFsaXplRmFybVNldHRpbmdzIiwiZGF0ZSIsInZhbHVlIiwiRGF0ZSIsInRvTG9jYWxlU3RyaW5nIiwiZmFybUR1cmF0aW9uIiwibXMiLCJNYXRoIiwiZmxvb3IiLCJvdXRjb21lcyIsImNvbXBsZXRlZCIsInRpbWVvdXQiLCJmYWlsZWQiLCJjYW5jZWxsZWQiLCJjaGVja19mYWlsZWQiLCJza2lwcGVkIiwicnVubmluZyIsImludGVycnVwdGVkIiwiY29tcGxldGVkX3dpdGhfd2FybmluZ3MiLCJzdGF0ZUxhYmVscyIsIndvcmtpbmciLCJiYW5uZWQiLCJub3RfcmVhZHkiLCJub3RfbG9nZ2VkX2luIiwiaW5hY3RpdmUiLCJlcnJvciIsImZhaWxlZF9sb2dnZWRJbiIsImZhaWxlZF9hY3RpdmUiLCJmYWlsZWRfZW5zdXJlRW5nbGlzaCIsIkZhcm1BY2NvdW50c1RhYiIsImdyb3VwcyIsImFkc1Bvd2VyR3JvdXBzIiwic2hvd1RvYXN0IiwiX3MiLCJzdGF0ZSIsInNldFN0YXRlIiwibWVtYmVycyIsImhpc3RvcnkiLCJydW5zIiwibWVtYmVyc2hpcHMiLCJncm91cElkIiwic2V0R3JvdXBJZCIsInNlbGVjdGVkIiwic2V0U2VsZWN0ZWQiLCJzZWN0aW9uIiwic2V0U2VjdGlvbiIsImRyYWZ0Iiwic2V0RHJhZnQiLCJuYW1lIiwibm90ZXMiLCJzZXR0aW5ncyIsInNldFNldHRpbmdzIiwicG9vbCIsInNldFBvb2wiLCJzZXRFcnJvciIsImJ1c3kiLCJzZXRCdXN5IiwibW9kYWwiLCJzZXRNb2RhbCIsImFjdGlvbnMiLCJzZXRBY3Rpb25zIiwicnVuU2V0dGluZ3MiLCJzZXRSdW5TZXR0aW5ncyIsInRhcmdldEFkc0dyb3VwIiwic2V0VGFyZ2V0QWRzR3JvdXAiLCJpbml0aWFsaXplZCIsInNlcXVlbmNlIiwiZ3JvdXAiLCJmaW5kIiwiaXRlbSIsImlkIiwiZ3JvdXBEcmFmdCIsImxvYWQiLCJyZXF1ZXN0IiwiY3VycmVudCIsInNuYXBzaG90Iiwid2luZG93IiwiYWRzQm90IiwiZ2V0RmFybVNuYXBzaG90IiwibGVuZ3RoIiwiY2F0Y2giLCJmYWlsdXJlIiwibWVzc2FnZSIsInRpbWVyIiwic2V0SW50ZXJ2YWwiLCJjbGVhckludGVydmFsIiwicGVyZm9ybSIsIm9wZXJhdGlvbiIsImNob29zZUdyb3VwIiwic2VsZWN0Iiwibm8iLCJ2YWx1ZXMiLCJpbmNsdWRlcyIsImZpbHRlciIsInNlbGVjdGVkTWVtYmVycyIsIm1lbWJlciIsInByb2ZpbGVObyIsInN0YXJ0IiwiT2JqZWN0IiwiZnJvbUVudHJpZXMiLCJlbnRyaWVzIiwibWFwIiwia2V5IiwiZW5hYmxlZCIsImxhYmVsIiwidmFsaWQiLCJzYXZlZFBvb2wiLCJzYXZlRmFybVBvb2wiLCJzYXZlRmFybVNldHRpbmdzIiwiY291bnQiLCJiYW5uZWRQZXJjZW50IiwidG9GaXhlZCIsImNyZWF0aW9uVHlwZUNvdW50cyIsInR5cGUiLCJ0b3RhbHMiLCJjb21tZW50VGFza0NvdW50IiwiYXZlcmFnZXMiLCJyZWFjdGlvblRhc2tDb3VudCIsImZhcm1TZXNzaW9uQ291bnQiLCJmYXJtVGltZU1zIiwiZmFybVBlcmlvZE1zIiwiZSIsInRhcmdldCIsInNhdmVGYXJtR3JvdXAiLCJqb2luIiwiY2hlY2tDb21tZW50QWNjb3VudHMiLCJwcm9maWxlTm9zIiwiYXNzaWduRmFybVByb2ZpbGVzIiwiZ3JvdXBOYW1lIiwibW92ZUFkc1Bvd2VyUHJvZmlsZXMiLCJtIiwicHJvZmlsZUlkIiwiY2hlY2tlZCIsInJlbmFtZSIsImciLCJTdHJpbmciLCJhZHNQb3dlckdyb3VwSWQiLCJhZHNQb3dlckdyb3VwTmFtZSIsImlzQmFubmVkIiwiY2hlY2tlZEF0IiwiYWNjb3VudFR5cGUiLCJmYXJtRmlyc3RBdCIsImZhcm1MYXN0QXQiLCJydW4iLCJzdGFydGVkQXQiLCJvdXRjb21lIiwid29ya2VycyIsInRpbWVvdXRTZWNvbmRzIiwiSlNPTiIsInN0cmluZ2lmeSIsInNlc3Npb25zIiwic2Vzc2lvbiIsInJlYXNvbiIsImNsZWFudXBFcnJvciIsImV2ZW50cyIsImV2ZW50IiwiaSIsImF0IiwiYWN0aW9uIiwic3RhdHVzIiwib2NjdXJyZWRfYXQiLCJwcm9maWxlX25vIiwidG9fZ3JvdXAiLCJjcmVhdGVkIiwiZGVsZXRlRmFybUdyb3VwIiwicHJldmVudERlZmF1bHQiLCJyZW5hbWVBZHNQb3dlclByb2ZpbGUiLCJ0cmltIiwic29tZSIsImEiLCJydW5GYXJtIiwiR3JvdXBDcmVhdGUiLCJvbkNsb3NlIiwib25DcmVhdGUiLCJfczIiLCJzZXROYW1lIiwiX2MiLCJfYzIiXSwiaWdub3JlTGlzdCI6W10sInNvdXJjZXMiOlsiRmFybUFjY291bnRzVGFiLmpzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgQWNjb3VudENyZWF0aW9uVHlwZSBmcm9tIFwiLi4vY29tcG9uZW50cy9BY2NvdW50Q3JlYXRpb25UeXBlLmpzeFwiO1xyXG5pbXBvcnQgeyB1c2VDYWxsYmFjaywgdXNlRWZmZWN0LCB1c2VSZWYsIHVzZVN0YXRlIH0gZnJvbSBcInJlYWN0XCI7XHJcbmltcG9ydCBGYXJtQWRkTW9kYWwgZnJvbSBcIi4uL2NvbXBvbmVudHMvRmFybUFkZE1vZGFsLmpzeFwiO1xyXG5pbXBvcnQgRmFybVNldHRpbmdzIGZyb20gXCIuLi9jb21wb25lbnRzL0Zhcm1TZXR0aW5ncy5qc3hcIjtcclxuaW1wb3J0IFdvcmtzcGFjZURpYWxvZyBmcm9tIFwiLi4vY29tcG9uZW50cy9Xb3Jrc3BhY2VEaWFsb2cuanN4XCI7XHJcbmltcG9ydCB7IHVud3JhcCB9IGZyb20gXCIuLi9saWIvYXBpLmpzXCI7XHJcbmltcG9ydCB7IGZhcm1BY3Rpb25MYWJlbHMsIG5vcm1hbGl6ZUZhcm1TZXR0aW5ncyB9IGZyb20gXCIuLi8uLi8uLi9zZXJ2aWNlcy9mYXJtaW5nL2Zhcm1TZXR0aW5ncy5qc1wiO1xyXG5pbXBvcnQgXCIuLi9zdHlsZXMvZmFybWluZy5jc3NcIjtcclxuXHJcbmNvbnN0IGRhdGUgPSAodmFsdWUpID0+IHZhbHVlID8gbmV3IERhdGUodmFsdWUpLnRvTG9jYWxlU3RyaW5nKFwidWstVUFcIikgOiBcIuKAlFwiO1xyXG5leHBvcnQgY29uc3QgZmFybUR1cmF0aW9uID0gKG1zKSA9PiBtcyA9PSBudWxsID8gXCLigJRcIiA6IGAke01hdGguZmxvb3IobXMgLyAzNjAwMDAwKX0g0LPQvtC0ICR7TWF0aC5mbG9vcihtcyAvIDYwMDAwKSAlIDYwfSDRhdCyICR7TWF0aC5mbG9vcihtcyAvIDEwMDApICUgNjB9INGBYDtcclxuY29uc3Qgb3V0Y29tZXMgPSB7IGNvbXBsZXRlZDogXCLQl9Cw0LLQtdGA0YjQtdC90L5cIiwgdGltZW91dDogXCLQotCw0LnQvNCw0YPRglwiLCBmYWlsZWQ6IFwi0J/QvtC80LjQu9C60LBcIiwgY2FuY2VsbGVkOiBcItCh0LrQsNGB0L7QstCw0L3QvlwiLCBjaGVja19mYWlsZWQ6IFwi0J3QtSDQv9GA0L7QudC00LXQvdC+INC/0LXRgNC10LLRltGA0LrQuFwiLCBza2lwcGVkOiBcItCf0YDQvtC/0YPRidC10L3QvlwiLCBydW5uaW5nOiBcItCS0LjQutC+0L3Rg9GU0YLRjNGB0Y9cIiwgaW50ZXJydXB0ZWQ6IFwi0J/QtdGA0LXRgNCy0LDQvdC+XCIsIGNvbXBsZXRlZF93aXRoX3dhcm5pbmdzOiBcItCX0LDQstC10YDRiNC10L3QviDRltC3INC30LDRg9Cy0LDQttC10L3QvdGP0LzQuFwiIH07XHJcbmNvbnN0IHN0YXRlTGFiZWxzID0geyB3b3JraW5nOiBcItCQ0LrRgtC40LLQvdC40LlcIiwgYmFubmVkOiBcItCR0LDQvVwiLCBub3RfcmVhZHk6IFwi0J/RgNC+0YTRltC70Ywg0L3QtSDQs9C+0YLQvtCy0LjQuVwiLCBub3RfbG9nZ2VkX2luOiBcItCd0LUg0LDQstGC0L7RgNC40LfQvtCy0LDQvdC40LlcIiwgaW5hY3RpdmU6IFwi0J3QtdCw0LrRgtC40LLQvdC40LlcIiwgZXJyb3I6IFwi0J/QvtC80LjQu9C60LAg0L/QtdGA0LXQstGW0YDQutC4XCIsIGZhaWxlZDogXCLQn9C10YDQtdCy0ZbRgNC60YMg0L3QtSDQt9Cw0LLQtdGA0YjQtdC90L5cIiwgZmFpbGVkX2xvZ2dlZEluOiBcItCd0LUg0LDQstGC0L7RgNC40LfQvtCy0LDQvdC40LlcIiwgZmFpbGVkX2FjdGl2ZTogXCLQndC10LDQutGC0LjQstC90LjQuVwiLCBmYWlsZWRfZW5zdXJlRW5nbGlzaDogXCLQndC1INCy0LTQsNC70L7RgdGPINC30LzRltC90LjRgtC4INC80L7QstGDXCIgfTtcclxuXHJcbmV4cG9ydCBkZWZhdWx0IGZ1bmN0aW9uIEZhcm1BY2NvdW50c1RhYih7IGdyb3VwczogYWRzUG93ZXJHcm91cHMgPSBbXSwgc2hvd1RvYXN0ID0gKCkgPT4ge30gfSkge1xyXG4gICAgY29uc3QgW3N0YXRlLCBzZXRTdGF0ZV0gPSB1c2VTdGF0ZSh7IGdyb3VwczogW10sIG1lbWJlcnM6IFtdLCBoaXN0b3J5OiB7IHJ1bnM6IFtdLCBtZW1iZXJzaGlwczogW10gfSB9KTtcclxuICAgIGNvbnN0IFtncm91cElkLCBzZXRHcm91cElkXSA9IHVzZVN0YXRlKFwiXCIpO1xyXG4gICAgY29uc3QgW3NlbGVjdGVkLCBzZXRTZWxlY3RlZF0gPSB1c2VTdGF0ZShbXSk7XHJcbiAgICBjb25zdCBbc2VjdGlvbiwgc2V0U2VjdGlvbl0gPSB1c2VTdGF0ZShcImFjY291bnRzXCIpO1xyXG4gICAgY29uc3QgW2RyYWZ0LCBzZXREcmFmdF0gPSB1c2VTdGF0ZSh7IGdyb3VwSWQ6IG51bGwsIG5hbWU6IFwiXCIsIG5vdGVzOiBcIlwiIH0pO1xyXG4gICAgY29uc3QgW3NldHRpbmdzLCBzZXRTZXR0aW5nc10gPSB1c2VTdGF0ZShudWxsKTtcclxuICAgIGNvbnN0IFtwb29sLCBzZXRQb29sXSA9IHVzZVN0YXRlKFtdKTtcclxuICAgIGNvbnN0IFtlcnJvciwgc2V0RXJyb3JdID0gdXNlU3RhdGUoXCJcIik7XHJcbiAgICBjb25zdCBbYnVzeSwgc2V0QnVzeV0gPSB1c2VTdGF0ZShmYWxzZSk7XHJcbiAgICBjb25zdCBbbW9kYWwsIHNldE1vZGFsXSA9IHVzZVN0YXRlKG51bGwpO1xyXG4gICAgY29uc3QgW2FjdGlvbnMsIHNldEFjdGlvbnNdID0gdXNlU3RhdGUoe30pO1xyXG4gICAgY29uc3QgW3J1blNldHRpbmdzLCBzZXRSdW5TZXR0aW5nc10gPSB1c2VTdGF0ZShudWxsKTtcclxuICAgIGNvbnN0IFt0YXJnZXRBZHNHcm91cCwgc2V0VGFyZ2V0QWRzR3JvdXBdID0gdXNlU3RhdGUoXCJcIik7XHJcbiAgICBjb25zdCBpbml0aWFsaXplZCA9IHVzZVJlZihmYWxzZSk7XHJcbiAgICBjb25zdCBzZXF1ZW5jZSA9IHVzZVJlZigwKTtcclxuICAgIGNvbnN0IGdyb3VwID0gc3RhdGUuZ3JvdXBzLmZpbmQoKGl0ZW0pID0+IGl0ZW0uaWQgPT09IGdyb3VwSWQpO1xyXG4gICAgY29uc3QgZ3JvdXBEcmFmdCA9IGRyYWZ0Lmdyb3VwSWQgPT09IGdyb3VwSWQgPyBkcmFmdCA6IHsgZ3JvdXBJZCwgbmFtZTogZ3JvdXA/Lm5hbWUgPz8gXCJcIiwgbm90ZXM6IGdyb3VwPy5ub3RlcyA/PyBcIlwiIH07XHJcbiAgICBjb25zdCBsb2FkID0gdXNlQ2FsbGJhY2soYXN5bmMgKCkgPT4ge1xyXG4gICAgICAgIGNvbnN0IHJlcXVlc3QgPSArK3NlcXVlbmNlLmN1cnJlbnQ7XHJcbiAgICAgICAgY29uc3Qgc25hcHNob3QgPSBhd2FpdCB1bndyYXAod2luZG93LmFkc0JvdC5nZXRGYXJtU25hcHNob3QoZ3JvdXBJZCkpO1xyXG4gICAgICAgIGlmIChyZXF1ZXN0ICE9PSBzZXF1ZW5jZS5jdXJyZW50KSByZXR1cm47XHJcbiAgICAgICAgc2V0U3RhdGUoc25hcHNob3QpO1xyXG4gICAgICAgIGlmICghaW5pdGlhbGl6ZWQuY3VycmVudCkgeyBzZXRTZXR0aW5ncyhzbmFwc2hvdC5zZXR0aW5ncyk7IHNldFBvb2woc25hcHNob3QucG9vbCk7IGluaXRpYWxpemVkLmN1cnJlbnQgPSB0cnVlOyB9XHJcbiAgICAgICAgaWYgKCFncm91cElkICYmIHNuYXBzaG90Lmdyb3Vwcy5sZW5ndGgpIHNldEdyb3VwSWQoc25hcHNob3QuZ3JvdXBzWzBdLmlkKTtcclxuICAgIH0sIFtncm91cElkXSk7XHJcbiAgICB1c2VFZmZlY3QoKCkgPT4ge1xyXG4gICAgICAgIGxvYWQoKS5jYXRjaCgoZmFpbHVyZSkgPT4gc2V0RXJyb3IoZmFpbHVyZS5tZXNzYWdlKSk7XHJcbiAgICAgICAgY29uc3QgdGltZXIgPSBzZXRJbnRlcnZhbCgoKSA9PiBsb2FkKCkuY2F0Y2goKCkgPT4ge30pLCA1MDAwKTtcclxuICAgICAgICByZXR1cm4gKCkgPT4geyBjbGVhckludGVydmFsKHRpbWVyKTsgc2VxdWVuY2UuY3VycmVudCsrOyB9O1xyXG4gICAgfSwgW2xvYWRdKTtcclxuICAgIHVzZUVmZmVjdCgoKSA9PiB7IHNldFNlbGVjdGVkKFtdKTsgfSwgW2dyb3VwSWRdKTtcclxuICAgIGNvbnN0IHBlcmZvcm0gPSBhc3luYyAob3BlcmF0aW9uKSA9PiB7XHJcbiAgICAgICAgaWYgKGJ1c3kpIHJldHVybjtcclxuICAgICAgICBzZXRCdXN5KHRydWUpOyBzZXRFcnJvcihcIlwiKTtcclxuICAgICAgICB0cnkgeyBhd2FpdCBvcGVyYXRpb24oKTsgYXdhaXQgbG9hZCgpOyB9XHJcbiAgICAgICAgY2F0Y2ggKGZhaWx1cmUpIHsgc2V0RXJyb3IoZmFpbHVyZS5tZXNzYWdlKTsgfVxyXG4gICAgICAgIGZpbmFsbHkgeyBzZXRCdXN5KGZhbHNlKTsgfVxyXG4gICAgfTtcclxuICAgIGNvbnN0IGNob29zZUdyb3VwID0gKGlkKSA9PiB7IHNldFN0YXRlKChjdXJyZW50KSA9PiAoeyAuLi5jdXJyZW50LCBtZW1iZXJzOiBbXSwgaGlzdG9yeTogeyBydW5zOiBbXSwgbWVtYmVyc2hpcHM6IFtdIH0gfSkpOyBzZXRHcm91cElkKGlkKTsgfTtcclxuICAgIGNvbnN0IHNlbGVjdCA9IChubykgPT4gc2V0U2VsZWN0ZWQoKHZhbHVlcykgPT4gdmFsdWVzLmluY2x1ZGVzKG5vKSA/IHZhbHVlcy5maWx0ZXIoKHZhbHVlKSA9PiB2YWx1ZSAhPT0gbm8pIDogWy4uLnZhbHVlcywgbm9dKTtcclxuICAgIGNvbnN0IHNlbGVjdGVkTWVtYmVycyA9IHN0YXRlLm1lbWJlcnMuZmlsdGVyKChtZW1iZXIpID0+IHNlbGVjdGVkLmluY2x1ZGVzKG1lbWJlci5wcm9maWxlTm8pKTtcclxuICAgIGNvbnN0IHN0YXJ0ID0gKCkgPT4ge1xyXG4gICAgICAgIHNldFJ1blNldHRpbmdzKHN0YXRlLnNldHRpbmdzKTtcclxuICAgICAgICBzZXRBY3Rpb25zKE9iamVjdC5mcm9tRW50cmllcyhPYmplY3QuZW50cmllcyhzdGF0ZS5zZXR0aW5ncy5hY3Rpb25zKS5tYXAoKFtrZXksIHZhbHVlXSkgPT4gW2tleSwgeyAuLi52YWx1ZSwgZW5hYmxlZDogZmFsc2UgfV0pKSk7XHJcbiAgICAgICAgc2V0TW9kYWwoXCJydW5cIik7XHJcbiAgICB9O1xyXG4gICAgcmV0dXJuIDxzZWN0aW9uIGNsYXNzTmFtZT1cImZhcm0tdGFiXCI+XHJcbiAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJwYWdlLWhlYWRpbmcgc3BsaXRcIj48ZGl2PjxwIGNsYXNzTmFtZT1cImV5ZWJyb3dcIj7Qk9GA0YPQv9C4IMK3INCh0LXRgdGW0Zcgwrcg0KDQtdC30YPQu9GM0YLQsNGC0Lg8L3A+PGgyPtCk0LDRgNC8INCw0LrQsNGD0L3RgtGW0LI8L2gyPjwvZGl2PjxkaXYgY2xhc3NOYW1lPVwiaW5saW5lLWFjdGlvbnNcIj48YnV0dG9uIGNsYXNzTmFtZT1cInNlY29uZGFyeS1idXR0b25cIiBkaXNhYmxlZD17YnVzeX0gb25DbGljaz17KCkgPT4gc2V0TW9kYWwoXCJjcmVhdGVcIil9PtCh0YLQstC+0YDQuNGC0Lgg0LPRgNGD0L/RgzwvYnV0dG9uPjxidXR0b24gY2xhc3NOYW1lPVwic2Vjb25kYXJ5LWJ1dHRvblwiIGRpc2FibGVkPXtidXN5fSBvbkNsaWNrPXsoKSA9PiBwZXJmb3JtKGxvYWQpfT7QntC90L7QstC40YLQuDwvYnV0dG9uPjwvZGl2PjwvZGl2PlxyXG4gICAgICAgIHtlcnJvciAmJiA8cCByb2xlPVwiYWxlcnRcIiBjbGFzc05hbWU9XCJmYXJtLWVycm9yXCI+e2Vycm9yfTwvcD59XHJcbiAgICAgICAgPG5hdiBjbGFzc05hbWU9XCJmYXJtLXN1YnRhYnNcIj57W1tcImFjY291bnRzXCIsIFwi0JDQutCw0YPQvdGC0LhcIl0sIFtcImNvbXBhcmVcIiwgXCLQn9C+0YDRltCy0L3Rj9C90L3Rj1wiXSwgW1wiaGlzdG9yeVwiLCBcItCG0YHRgtC+0YDRltGPXCJdLCBbXCJzZXR0aW5nc1wiLCBcItCd0LDQu9Cw0YjRgtGD0LLQsNC90L3Rj1wiXV0ubWFwKChba2V5LCBsYWJlbF0pID0+IDxidXR0b24gY2xhc3NOYW1lPXtgc2Vjb25kYXJ5LWJ1dHRvbiAke3NlY3Rpb24gPT09IGtleSA/IFwiYWN0aXZlXCIgOiBcIlwifWB9IGtleT17a2V5fSBvbkNsaWNrPXsoKSA9PiBzZXRTZWN0aW9uKGtleSl9PntsYWJlbH08L2J1dHRvbj4pfTwvbmF2PlxyXG4gICAgICAgIHtzZWN0aW9uID09PSBcInNldHRpbmdzXCIgJiYgc2V0dGluZ3MgJiYgPEZhcm1TZXR0aW5ncyBzZXR0aW5ncz17c2V0dGluZ3N9IG9uQ2hhbmdlPXtzZXRTZXR0aW5nc30gcG9vbD17cG9vbH0gb25Qb29sQ2hhbmdlPXtzZXRQb29sfSBidXN5PXtidXN5fSBvblNhdmU9eygpID0+IHBlcmZvcm0oYXN5bmMgKCkgPT4ge1xyXG4gICAgICAgICAgICBjb25zdCB2YWxpZCA9IG5vcm1hbGl6ZUZhcm1TZXR0aW5ncyhzZXR0aW5ncyk7XHJcbiAgICAgICAgICAgIGNvbnN0IHNhdmVkUG9vbCA9IGF3YWl0IHVud3JhcCh3aW5kb3cuYWRzQm90LnNhdmVGYXJtUG9vbChwb29sKSk7IHNldFBvb2woc2F2ZWRQb29sKTtcclxuICAgICAgICAgICAgc2V0U2V0dGluZ3MoYXdhaXQgdW53cmFwKHdpbmRvdy5hZHNCb3Quc2F2ZUZhcm1TZXR0aW5ncyh2YWxpZCkpKTsgc2hvd1RvYXN0KFwi0J3QsNC70LDRiNGC0YPQstCw0L3QvdGPINC30LHQtdGA0LXQttC10L3QvlwiLCBcInN1Y2Nlc3NcIik7XHJcbiAgICAgICAgfSl9IC8+fVxyXG4gICAgICAgIHtzZWN0aW9uID09PSBcImNvbXBhcmVcIiAmJiA8PjxwPtCS0YDQsNGF0L7QstGD0ZTRgtGM0YHRjyDQstGB0Y8g0ZbRgdGC0L7RgNGW0Y8g0L/QvtGC0L7Rh9C90L7Qs9C+INGB0LrQu9Cw0LTRgyDQutC+0LbQvdC+0Zcg0LPRgNGD0L/QuCwg0LLQutC70Y7Rh9C90L4g0Lcg0LTRltGP0LzQuCDQtNC+INC/0LXRgNC10L3QtdGB0LXQvdC90Y8uINCd0LXQstGW0LTQvtC80LjQuSDRgdGC0LDQvSDQvdC1INC+0LfQvdCw0YfQsNGULCDRidC+INCw0LrQsNGD0L3RgiDQsNC60YLQuNCy0L3QuNC5LjwvcD48ZGl2IGNsYXNzTmFtZT1cImZhcm0tdGFibGUtc2Nyb2xsXCI+PHRhYmxlPjx0aGVhZD48dHI+PHRoPtCT0YDRg9C/0LA8L3RoPjx0aD7QkNC60LDRg9C90YLQuDwvdGg+PHRoPtCS0ZbQtNC+0LzRliDQsdCw0L3QuDwvdGg+PHRoPtCR0LDQvdC4LCAlPC90aD48dGg+0KLQuNC/0Lgg0YHRgtCy0L7RgNC10L3QvdGPPC90aD48dGg+0JrQvtC80LXQvdGCLdC30LDQtNCw0YfRliDiiJEgLyDRgdC10YDQtdC00L3RlDwvdGg+PHRoPtCb0LDQudC6LdC30LDQtNCw0YfRliDiiJEgLyDRgdC10YDQtdC00L3RlDwvdGg+PHRoPtCh0LXRgdGW0Zcg4oiRIC8g0YHQtdGA0LXQtNC90ZQ8L3RoPjx0aD7Qp9Cw0YEg0YTQsNGA0LzRgyDiiJEgLyDRgdC10YDQtdC00L3RlDwvdGg+PHRoPtCf0LXRgNGW0L7QtCDRhNCw0YDQvNGDPC90aD48L3RyPjwvdGhlYWQ+PHRib2R5PntzdGF0ZS5ncm91cHMubWFwKChpdGVtKSA9PiA8dHIga2V5PXtpdGVtLmlkfT48dGQ+e2l0ZW0ubmFtZX08L3RkPjx0ZD57aXRlbS5jb3VudH08L3RkPjx0ZD57aXRlbS5iYW5uZWR9PC90ZD48dGQ+e2l0ZW0uYmFubmVkUGVyY2VudC50b0ZpeGVkKDEpfTwvdGQ+PHRkPjxkaXYgY2xhc3NOYW1lPVwiZmFybS1jcmVhdGlvbi10eXBlc1wiPntPYmplY3QuZW50cmllcyhpdGVtLmNyZWF0aW9uVHlwZUNvdW50cyA/PyB7fSkuZmlsdGVyKChbLCBjb3VudF0pID0+IGNvdW50ID4gMCkubWFwKChbdHlwZSwgY291bnRdKSA9PiA8c3BhbiBrZXk9e3R5cGV9PjxBY2NvdW50Q3JlYXRpb25UeXBlIHR5cGU9e3R5cGV9IC8+IHtjb3VudH08L3NwYW4+KX08L2Rpdj48L3RkPjx0ZD57aXRlbS50b3RhbHMuY29tbWVudFRhc2tDb3VudH0gLyB7aXRlbS5hdmVyYWdlcy5jb21tZW50VGFza0NvdW50LnRvRml4ZWQoMSl9PC90ZD48dGQ+e2l0ZW0udG90YWxzLnJlYWN0aW9uVGFza0NvdW50fSAvIHtpdGVtLmF2ZXJhZ2VzLnJlYWN0aW9uVGFza0NvdW50LnRvRml4ZWQoMSl9PC90ZD48dGQ+e2l0ZW0udG90YWxzLmZhcm1TZXNzaW9uQ291bnR9IC8ge2l0ZW0uYXZlcmFnZXMuZmFybVNlc3Npb25Db3VudC50b0ZpeGVkKDEpfTwvdGQ+PHRkPntmYXJtRHVyYXRpb24oaXRlbS50b3RhbHMuZmFybVRpbWVNcyl9IC8ge2Zhcm1EdXJhdGlvbihpdGVtLmF2ZXJhZ2VzLmZhcm1UaW1lTXMpfTwvdGQ+PHRkPntmYXJtRHVyYXRpb24oaXRlbS5mYXJtUGVyaW9kTXMpfTwvdGQ+PC90cj4pfTwvdGJvZHk+PC90YWJsZT48L2Rpdj48Lz59XHJcbiAgICAgICAge1tcImFjY291bnRzXCIsIFwiaGlzdG9yeVwiXS5pbmNsdWRlcyhzZWN0aW9uKSAmJiA8PjxsYWJlbCBjbGFzc05hbWU9XCJmYXJtLWdyb3VwLXBpY2tlclwiPtCT0YDRg9C/0LAg0YTQsNGA0LzRgzxzZWxlY3QgYXJpYS1sYWJlbD1cItCT0YDRg9C/0LAg0YTQsNGA0LzRg1wiIHZhbHVlPXtncm91cElkfSBvbkNoYW5nZT17KGUpID0+IGNob29zZUdyb3VwKGUudGFyZ2V0LnZhbHVlKX0+PG9wdGlvbiB2YWx1ZT1cIlwiPtCe0LHQtdGA0ZbRgtGMINCz0YDRg9C/0YM8L29wdGlvbj57c3RhdGUuZ3JvdXBzLm1hcCgoaXRlbSkgPT4gPG9wdGlvbiBrZXk9e2l0ZW0uaWR9IHZhbHVlPXtpdGVtLmlkfT57aXRlbS5uYW1lfSAoe2l0ZW0uY291bnR9KTwvb3B0aW9uPil9PC9zZWxlY3Q+PC9sYWJlbD57IWdyb3VwICYmIDxwPtCh0YLQstC+0YDRltGC0Ywg0LPRgNGD0L/RgyDRgtCwINC00L7QtNCw0LnRgtC1INCw0LrQsNGD0L3RgtC4INC3INCy0LrQu9Cw0LTQutC4IMKr0JDQutCw0YPQvdGC0Lgg0L/RltC0INC60L7QvNC10L3RgtCw0YDRlsK7LjwvcD59PC8+fVxyXG4gICAgICAgIHtzZWN0aW9uID09PSBcImFjY291bnRzXCIgJiYgZ3JvdXAgJiYgPD5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmYXJtLWdyb3VwLWluZm8gZmFybS1mb3JtXCI+PGxhYmVsPtCd0LDQt9Cy0LAg0LPRgNGD0L/QuDxpbnB1dCBhcmlhLWxhYmVsPVwi0J3QsNC30LLQsCDQs9GA0YPQv9C4XCIgdmFsdWU9e2dyb3VwRHJhZnQubmFtZX0gb25DaGFuZ2U9eyhlKSA9PiBzZXREcmFmdCh7IC4uLmdyb3VwRHJhZnQsIG5hbWU6IGUudGFyZ2V0LnZhbHVlIH0pfSAvPjwvbGFiZWw+PGxhYmVsPtCf0L7QvNGW0YLQutC4PHRleHRhcmVhIGFyaWEtbGFiZWw9XCLQn9C+0LzRltGC0LrQuFwiIHJvd3M9ezV9IHZhbHVlPXtncm91cERyYWZ0Lm5vdGVzfSBvbkNoYW5nZT17KGUpID0+IHNldERyYWZ0KHsgLi4uZ3JvdXBEcmFmdCwgbm90ZXM6IGUudGFyZ2V0LnZhbHVlIH0pfSBwbGFjZWhvbGRlcj1cItCv0Log0YTQsNGA0LzQuNC70LjRgdGPINCw0LrQsNGD0L3RgtC4LCDRgdC/0L7RgdGC0LXRgNC10LbQtdC90L3Rjywg0YDQtdC30YPQu9GM0YLQsNGC0LjigKZcIiAvPjwvbGFiZWw+PGRpdiBjbGFzc05hbWU9XCJpbmxpbmUtYWN0aW9uc1wiPjxidXR0b24gY2xhc3NOYW1lPVwic2Vjb25kYXJ5LWJ1dHRvblwiIGRpc2FibGVkPXtidXN5fSBvbkNsaWNrPXsoKSA9PiBwZXJmb3JtKCgpID0+IHVud3JhcCh3aW5kb3cuYWRzQm90LnNhdmVGYXJtR3JvdXAoeyBpZDogZ3JvdXBJZCwgbmFtZTogZ3JvdXBEcmFmdC5uYW1lLCBub3RlczogZ3JvdXBEcmFmdC5ub3RlcyB9KSkpfT7Ql9Cx0LXRgNC10LPRgtC4INCz0YDRg9C/0YM8L2J1dHRvbj48YnV0dG9uIGNsYXNzTmFtZT1cInNlY29uZGFyeS1idXR0b25cIiBkaXNhYmxlZD17YnVzeX0gb25DbGljaz17KCkgPT4gc2V0TW9kYWwoXCJkZWxldGVcIil9PtCS0LjQtNCw0LvQuNGC0Lgg0LPRgNGD0L/RgzwvYnV0dG9uPjwvZGl2PjwvZGl2PlxyXG4gICAgICAgICAgICA8cD7QkNC60LDRg9C90YLRltCyOiB7Z3JvdXAuY291bnR9IMK3INCS0ZbQtNC+0LzQuNGFINCx0LDQvdGW0LI6IHtncm91cC5iYW5uZWR9ICh7Z3JvdXAuYmFubmVkUGVyY2VudC50b0ZpeGVkKDEpfSUpIMK3INCh0LXRgdGW0Lk6IHtncm91cC50b3RhbHMuZmFybVNlc3Npb25Db3VudH0gwrcg0KfQsNGBINGE0LDRgNC80YM6IHtmYXJtRHVyYXRpb24oZ3JvdXAudG90YWxzLmZhcm1UaW1lTXMpfTwvcD5cclxuICAgICAgICAgICAgPHA+e09iamVjdC5lbnRyaWVzKGdyb3VwLm91dGNvbWVzID8/IHt9KS5maWx0ZXIoKFssIGNvdW50XSkgPT4gY291bnQpLm1hcCgoW2tleSwgY291bnRdKSA9PiBgJHtvdXRjb21lc1trZXldfTogJHtjb3VudH1gKS5qb2luKFwiIMK3IFwiKX08L3A+XHJcbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiaW5saW5lLWFjdGlvbnMgZmFybS10b29sYmFyXCI+XHJcbiAgICAgICAgICAgICAgICA8YnV0dG9uIGNsYXNzTmFtZT1cInByaW1hcnktYnV0dG9uXCIgZGlzYWJsZWQ9e2J1c3kgfHwgIXNlbGVjdGVkTWVtYmVycy5sZW5ndGggfHwgIXNldHRpbmdzfSBvbkNsaWNrPXtzdGFydH0+0KTQsNGA0Lwg0LLQuNCx0YDQsNC90LjRhSAoe3NlbGVjdGVkTWVtYmVycy5sZW5ndGh9KTwvYnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgPGJ1dHRvbiBjbGFzc05hbWU9XCJzZWNvbmRhcnktYnV0dG9uXCIgZGlzYWJsZWQ9e2J1c3kgfHwgIXNlbGVjdGVkTWVtYmVycy5sZW5ndGh9IG9uQ2xpY2s9eygpID0+IHBlcmZvcm0oYXN5bmMgKCkgPT4geyBhd2FpdCB1bndyYXAod2luZG93LmFkc0JvdC5jaGVja0NvbW1lbnRBY2NvdW50cyh7IHByb2ZpbGVOb3M6IHNlbGVjdGVkIH0pKTsgc2hvd1RvYXN0KFwi0J/QtdGA0LXQstGW0YDQutGDINC/0L7RgdGC0LDQstC70LXQvdC+INCyINGH0LXRgNCz0YNcIiwgXCJzdWNjZXNzXCIpOyB9KX0+0J/QtdGA0LXQstGW0YDQuNGC0Lgg0LDQutCw0YPQvdGC0Lg8L2J1dHRvbj5cclxuICAgICAgICAgICAgICAgIDxidXR0b24gY2xhc3NOYW1lPVwic2Vjb25kYXJ5LWJ1dHRvblwiIGRpc2FibGVkPXtidXN5IHx8ICFzZWxlY3RlZE1lbWJlcnMubGVuZ3RofSBvbkNsaWNrPXsoKSA9PiBzZXRNb2RhbChcIm1vdmVcIil9PtCf0LXRgNC10L3QtdGB0YLQuCDQtNC+INCz0YDRg9C/0Lgg0YTQsNGA0LzRgzwvYnV0dG9uPlxyXG4gICAgICAgICAgICAgICAgPGJ1dHRvbiBjbGFzc05hbWU9XCJzZWNvbmRhcnktYnV0dG9uXCIgZGlzYWJsZWQ9e2J1c3kgfHwgIXNlbGVjdGVkTWVtYmVycy5sZW5ndGh9IG9uQ2xpY2s9eygpID0+IHBlcmZvcm0oYXN5bmMgKCkgPT4geyBhd2FpdCB1bndyYXAod2luZG93LmFkc0JvdC5hc3NpZ25GYXJtUHJvZmlsZXMobnVsbCwgc2VsZWN0ZWQpKTsgc2V0U2VsZWN0ZWQoW10pOyB9KX0+0JLQuNC70YPRh9C40YLQuCDQtyDQs9GA0YPQv9C4PC9idXR0b24+XHJcbiAgICAgICAgICAgICAgICA8c2VsZWN0IGFyaWEtbGFiZWw9XCLQndC+0LLQsCDQs9GA0YPQv9CwIEFkc1Bvd2VyXCIgdmFsdWU9e3RhcmdldEFkc0dyb3VwfSBvbkNoYW5nZT17KGUpID0+IHNldFRhcmdldEFkc0dyb3VwKGUudGFyZ2V0LnZhbHVlKX0+PG9wdGlvbiB2YWx1ZT1cIlwiPtCT0YDRg9C/0LAgQWRzUG93ZXI8L29wdGlvbj57YWRzUG93ZXJHcm91cHMubWFwKChpdGVtKSA9PiA8b3B0aW9uIGtleT17aXRlbS5ncm91cElkfSB2YWx1ZT17aXRlbS5ncm91cElkfT57aXRlbS5ncm91cE5hbWV9PC9vcHRpb24+KX08L3NlbGVjdD5cclxuICAgICAgICAgICAgICAgIDxidXR0b24gY2xhc3NOYW1lPVwic2Vjb25kYXJ5LWJ1dHRvblwiIGRpc2FibGVkPXtidXN5IHx8ICFzZWxlY3RlZE1lbWJlcnMubGVuZ3RoIHx8ICF0YXJnZXRBZHNHcm91cH0gb25DbGljaz17KCkgPT4gcGVyZm9ybSgoKSA9PiB1bndyYXAod2luZG93LmFkc0JvdC5tb3ZlQWRzUG93ZXJQcm9maWxlcyhzZWxlY3RlZE1lbWJlcnMubWFwKChtKSA9PiBtLnByb2ZpbGVJZCksIHRhcmdldEFkc0dyb3VwKSkpfT7Ql9C80ZbQvdC40YLQuCBBZHNQb3dlci3Qs9GA0YPQv9GDPC9idXR0b24+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZhcm0tdGFibGUtc2Nyb2xsXCI+PHRhYmxlPjx0aGVhZD48dHI+PHRoPjxpbnB1dCBhcmlhLWxhYmVsPVwi0JLQuNCx0YDQsNGC0Lgg0LLRgdGWINCw0LrQsNGD0L3RgtC4XCIgdHlwZT1cImNoZWNrYm94XCIgY2hlY2tlZD17c3RhdGUubWVtYmVycy5sZW5ndGggPiAwICYmIHNlbGVjdGVkTWVtYmVycy5sZW5ndGggPT09IHN0YXRlLm1lbWJlcnMubGVuZ3RofSBvbkNoYW5nZT17KGUpID0+IHNldFNlbGVjdGVkKGUudGFyZ2V0LmNoZWNrZWQgPyBzdGF0ZS5tZW1iZXJzLm1hcCgobSkgPT4gbS5wcm9maWxlTm8pIDogW10pfSAvPjwvdGg+PHRoPuKEljwvdGg+PHRoPtCd0LDQt9Cy0LAgQWRzUG93ZXI8L3RoPjx0aD7Qk9GA0YPQv9CwIEFkc1Bvd2VyPC90aD48dGg+0KHRgtCw0L0gLyDQv9C10YDQtdCy0ZbRgNC10L3QvjwvdGg+PHRoPtCi0LjQvyDRgdGC0LLQvtGA0LXQvdC90Y88L3RoPjx0aD7QmtC+0LzQtdC90YIt0LfQsNC00LDRh9GWPC90aD48dGg+0JvQsNC50Lot0LfQsNC00LDRh9GWPC90aD48dGg+0KTQsNGA0Lwt0YHQtdGB0ZbRlzwvdGg+PHRoPtCg0LXQt9GD0LvRjNGC0LDRgtC4INGB0LXRgdGW0Lk8L3RoPjx0aD7Qp9Cw0YEg0YTQsNGA0LzRgzwvdGg+PHRoPtCf0LXRgNGW0L7QtCDRhNCw0YDQvNGDPC90aD48L3RyPjwvdGhlYWQ+PHRib2R5PntzdGF0ZS5tZW1iZXJzLm1hcCgobWVtYmVyKSA9PiA8dHIga2V5PXttZW1iZXIucHJvZmlsZU5vfT5cclxuICAgICAgICAgICAgICAgIDx0ZD48aW5wdXQgdHlwZT1cImNoZWNrYm94XCIgYXJpYS1sYWJlbD17YNCS0LjQsdGA0LDRgtC4ICR7bWVtYmVyLnByb2ZpbGVOb31gfSBjaGVja2VkPXtzZWxlY3RlZC5pbmNsdWRlcyhtZW1iZXIucHJvZmlsZU5vKX0gb25DaGFuZ2U9eygpID0+IHNlbGVjdChtZW1iZXIucHJvZmlsZU5vKX0gLz48L3RkPjx0ZD57bWVtYmVyLnByb2ZpbGVOb308L3RkPjx0ZD48YnV0dG9uIGNsYXNzTmFtZT1cImZhcm0tbmFtZVwiIG9uQ2xpY2s9eygpID0+IHNldE1vZGFsKHsgcmVuYW1lOiBtZW1iZXIsIG5hbWU6IG1lbWJlci5uYW1lIH0pfT57bWVtYmVyLm5hbWUgfHwgXCLQkdC10Lcg0L3QsNC30LLQuFwifTwvYnV0dG9uPjwvdGQ+PHRkPnthZHNQb3dlckdyb3Vwcy5maW5kKChnKSA9PiBTdHJpbmcoZy5ncm91cElkKSA9PT0gbWVtYmVyLmFkc1Bvd2VyR3JvdXBJZCk/Lmdyb3VwTmFtZSB8fCBtZW1iZXIuYWRzUG93ZXJHcm91cE5hbWUgfHwgbWVtYmVyLmFkc1Bvd2VyR3JvdXBJZCB8fCBcIuKAlFwifTwvdGQ+PHRkPnttZW1iZXIuaXNCYW5uZWQgPyBcItCR0LDQvVwiIDogc3RhdGVMYWJlbHNbbWVtYmVyLnN0YXRlXSB8fCBcItCd0LXQstGW0LTQvtC80L5cIn08c21hbGw+e2RhdGUobWVtYmVyLmNoZWNrZWRBdCl9PC9zbWFsbD48L3RkPjx0ZD48QWNjb3VudENyZWF0aW9uVHlwZSB0eXBlPXttZW1iZXIuYWNjb3VudFR5cGV9IC8+PC90ZD48dGQ+e21lbWJlci5jb21tZW50VGFza0NvdW50fTwvdGQ+PHRkPnttZW1iZXIucmVhY3Rpb25UYXNrQ291bnR9PC90ZD48dGQ+e21lbWJlci5mYXJtU2Vzc2lvbkNvdW50fTwvdGQ+PHRkPntPYmplY3QuZW50cmllcyhtZW1iZXIub3V0Y29tZXMpLmZpbHRlcigoWywgdmFsdWVdKSA9PiB2YWx1ZSkubWFwKChba2V5LCB2YWx1ZV0pID0+IDxzbWFsbCBrZXk9e2tleX0+e291dGNvbWVzW2tleV19OiB7dmFsdWV9PC9zbWFsbD4pfTwvdGQ+PHRkPntmYXJtRHVyYXRpb24obWVtYmVyLmZhcm1UaW1lTXMpfTwvdGQ+PHRkPntmYXJtRHVyYXRpb24obWVtYmVyLmZhcm1QZXJpb2RNcyl9PHNtYWxsPntkYXRlKG1lbWJlci5mYXJtRmlyc3RBdCl9IOKAlCB7ZGF0ZShtZW1iZXIuZmFybUxhc3RBdCl9PC9zbWFsbD48L3RkPlxyXG4gICAgICAgICAgICA8L3RyPil9PC90Ym9keT48L3RhYmxlPjwvZGl2PlxyXG4gICAgICAgIDwvPn1cclxuICAgICAgICB7c2VjdGlvbiA9PT0gXCJoaXN0b3J5XCIgJiYgZ3JvdXAgJiYgPGRpdiBjbGFzc05hbWU9XCJmYXJtLWhpc3RvcnlcIj57IXN0YXRlLmhpc3RvcnkucnVucy5sZW5ndGggJiYgPHA+0JfQsNC/0YPRgdC60ZbQsiDRidC1INC90LXQvNCw0ZQuPC9wPn17c3RhdGUuaGlzdG9yeS5ydW5zLm1hcCgocnVuKSA9PiA8ZGV0YWlscyBrZXk9e3J1bi5pZH0+PHN1bW1hcnk+e2RhdGUocnVuLnN0YXJ0ZWRBdCl9IMK3IHtvdXRjb21lc1tydW4ub3V0Y29tZV0gPz8gcnVuLm91dGNvbWV9IMK3INCw0LrQsNGD0L3RgtGW0LI6IHtydW4ucHJvZmlsZU5vcy5sZW5ndGh9PC9zdW1tYXJ5PjxwPtCS0L7RgNC60LXRgNC4OiB7cnVuLnNldHRpbmdzLndvcmtlcnN9LCDRgtCw0LnQvNCw0YPRgjoge3J1bi5zZXR0aW5ncy50aW1lb3V0U2Vjb25kc30g0YE8L3A+PGRldGFpbHM+PHN1bW1hcnk+0J3QsNC70LDRiNGC0YPQstCw0L3QvdGPINC30LDQv9GD0YHQutGDPC9zdW1tYXJ5PjxwcmU+e0pTT04uc3RyaW5naWZ5KHJ1bi5zZXR0aW5ncywgbnVsbCwgMil9PC9wcmU+PC9kZXRhaWxzPntydW4uc2Vzc2lvbnMubWFwKChzZXNzaW9uKSA9PiA8ZGV0YWlscyBrZXk9e3Nlc3Npb24uaWR9PjxzdW1tYXJ5PuKElntzZXNzaW9uLnByb2ZpbGVOb30gwrcge291dGNvbWVzW3Nlc3Npb24ub3V0Y29tZV19IMK3IHtmYXJtRHVyYXRpb24oc2Vzc2lvbi5mYXJtVGltZU1zKX08L3N1bW1hcnk+PHA+e3Nlc3Npb24ucmVhc29ufXtzZXNzaW9uLmNsZWFudXBFcnJvciAmJiBgIMK3INCX0LDQutGA0LjRgtGC0Y86ICR7c2Vzc2lvbi5jbGVhbnVwRXJyb3J9YH08L3A+PHVsPntzZXNzaW9uLmV2ZW50cy5tYXAoKGV2ZW50LCBpKSA9PiA8bGkga2V5PXtpfT57ZGF0ZShldmVudC5hdCl9IMK3IHtldmVudC5hY3Rpb259OiB7ZXZlbnQuc3RhdHVzfXtldmVudC5yZWFzb24gJiYgYCDCtyAke2V2ZW50LnJlYXNvbn1gfTwvbGk+KX08L3VsPjwvZGV0YWlscz4pfTwvZGV0YWlscz4pfTxkZXRhaWxzPjxzdW1tYXJ5PtCG0YHRgtC+0YDRltGPINC/0LXRgNC10L3QtdGB0LXQvdGMPC9zdW1tYXJ5Pjx1bD57c3RhdGUuaGlzdG9yeS5tZW1iZXJzaGlwcy5tYXAoKGl0ZW0pID0+IDxsaSBrZXk9e2l0ZW0uaWR9PntkYXRlKGl0ZW0ub2NjdXJyZWRfYXQpfSDCtyDihJZ7aXRlbS5wcm9maWxlX25vfSDCtyB7aXRlbS50b19ncm91cCA9PT0gZ3JvdXBJZCA/IFwi0JTQvtC00LDQvdC+INC00L4g0LPRgNGD0L/QuFwiIDogXCLQktC40LvRg9GH0LXQvdC+INC3INCz0YDRg9C/0LhcIn08L2xpPil9PC91bD48L2RldGFpbHM+PC9kaXY+fVxyXG4gICAgICAgIHttb2RhbCA9PT0gXCJtb3ZlXCIgJiYgPEZhcm1BZGRNb2RhbCBwcm9maWxlcz17c2VsZWN0ZWRNZW1iZXJzfSBvbkNsb3NlPXsoKSA9PiBzZXRNb2RhbChudWxsKX0gb25BZGRlZD17KCkgPT4geyBzZXRNb2RhbChudWxsKTsgc2V0U2VsZWN0ZWQoW10pOyBsb2FkKCkuY2F0Y2goKGZhaWx1cmUpID0+IHNldEVycm9yKGZhaWx1cmUubWVzc2FnZSkpOyB9fSAvPn1cclxuICAgICAgICB7bW9kYWwgPT09IFwiY3JlYXRlXCIgJiYgPEdyb3VwQ3JlYXRlIG9uQ2xvc2U9eygpID0+IHNldE1vZGFsKG51bGwpfSBvbkNyZWF0ZT17KG5hbWUpID0+IHBlcmZvcm0oYXN5bmMgKCkgPT4geyBjb25zdCBjcmVhdGVkID0gYXdhaXQgdW53cmFwKHdpbmRvdy5hZHNCb3Quc2F2ZUZhcm1Hcm91cCh7IG5hbWUgfSkpOyBzZXRHcm91cElkKGNyZWF0ZWQuaWQpOyBzZXRNb2RhbChudWxsKTsgfSl9IGJ1c3k9e2J1c3l9IC8+fVxyXG4gICAgICAgIHttb2RhbCA9PT0gXCJkZWxldGVcIiAmJiA8V29ya3NwYWNlRGlhbG9nIHRpdGxlPVwi0JLQuNC00LDQu9C40YLQuCDQs9GA0YPQv9GDINGE0LDRgNC80YM/XCIgb25DbG9zZT17KCkgPT4gc2V0TW9kYWwobnVsbCl9IGJ1c3k9e2J1c3l9PjxwPtCQ0LrQsNGD0L3RgtC4INC30LDQu9C40YjQsNGC0YzRgdGPINCx0LXQtyDQs9GA0YPQv9C4INGE0LDRgNC80YMuINCG0YHRgtC+0YDRltGPINC30LDQv9GD0YHQutGW0LIg0LfQsdC10YDQtdC20LXRgtGM0YHRjyDQsiDQsdCw0LfRli48L3A+PGJ1dHRvbiBjbGFzc05hbWU9XCJwcmltYXJ5LWJ1dHRvblwiIGRpc2FibGVkPXtidXN5fSBvbkNsaWNrPXsoKSA9PiBwZXJmb3JtKGFzeW5jICgpID0+IHsgYXdhaXQgdW53cmFwKHdpbmRvdy5hZHNCb3QuZGVsZXRlRmFybUdyb3VwKGdyb3VwSWQpKTsgc2V0R3JvdXBJZChcIlwiKTsgc2V0TW9kYWwobnVsbCk7IH0pfT7QktC40LTQsNC70LjRgtC4PC9idXR0b24+PC9Xb3Jrc3BhY2VEaWFsb2c+fVxyXG4gICAgICAgIHttb2RhbD8ucmVuYW1lICYmIDxXb3Jrc3BhY2VEaWFsb2cgdGl0bGU9XCLQn9C10YDQtdC50LzQtdC90YPQstCw0YLQuCBBZHNQb3dlci3Qv9GA0L7RhNGW0LvRjFwiIG9uQ2xvc2U9eygpID0+IHNldE1vZGFsKG51bGwpfSBidXN5PXtidXN5fT48Zm9ybSBjbGFzc05hbWU9XCJmYXJtLWZvcm1cIiBvblN1Ym1pdD17KGUpID0+IHsgZS5wcmV2ZW50RGVmYXVsdCgpOyBwZXJmb3JtKGFzeW5jICgpID0+IHsgYXdhaXQgdW53cmFwKHdpbmRvdy5hZHNCb3QucmVuYW1lQWRzUG93ZXJQcm9maWxlKG1vZGFsLnJlbmFtZS5wcm9maWxlSWQsIG1vZGFsLm5hbWUpKTsgc2V0TW9kYWwobnVsbCk7IH0pOyB9fT48bGFiZWw+0J3QvtCy0LAg0L3QsNC30LLQsDxpbnB1dCB2YWx1ZT17bW9kYWwubmFtZX0gb25DaGFuZ2U9eyhlKSA9PiBzZXRNb2RhbCh7IC4uLm1vZGFsLCBuYW1lOiBlLnRhcmdldC52YWx1ZSB9KX0gLz48L2xhYmVsPjxidXR0b24gY2xhc3NOYW1lPVwicHJpbWFyeS1idXR0b25cIiBkaXNhYmxlZD17YnVzeSB8fCAhbW9kYWwubmFtZS50cmltKCl9PtCX0LHQtdGA0LXQs9GC0Lg8L2J1dHRvbj48L2Zvcm0+PC9Xb3Jrc3BhY2VEaWFsb2c+fVxyXG4gICAgICAgIHttb2RhbCA9PT0gXCJydW5cIiAmJiA8V29ya3NwYWNlRGlhbG9nIHRpdGxlPVwi0JfQsNC/0YPRgdC6INGE0LDRgNC80YNcIiBvbkNsb3NlPXsoKSA9PiBzZXRNb2RhbChudWxsKX0gYnVzeT17YnVzeX0+PGRpdiBjbGFzc05hbWU9XCJmYXJtLWZvcm1cIj57ZXJyb3IgJiYgPHAgcm9sZT1cImFsZXJ0XCIgY2xhc3NOYW1lPVwiZmFybS1lcnJvclwiPntlcnJvcn08L3A+fTxwPtCQ0LrQsNGD0L3RgtGW0LI6IHtzZWxlY3RlZE1lbWJlcnMubGVuZ3RofSDCtyDQktC+0YDQutC10YDQuDoge3J1blNldHRpbmdzLndvcmtlcnN9IMK3INCi0LDQudC80LDRg9GCOiB7cnVuU2V0dGluZ3MudGltZW91dFNlY29uZHN9INGBINC90LAg0LDQutCw0YPQvdGCPC9wPntPYmplY3QuZW50cmllcyhhY3Rpb25zKS5tYXAoKFtrZXksIHZhbHVlXSkgPT4gPGxhYmVsIGtleT17a2V5fSBjbGFzc05hbWU9XCJmYXJtLWNoZWNrXCI+PGlucHV0IHR5cGU9XCJjaGVja2JveFwiIGNoZWNrZWQ9e3ZhbHVlLmVuYWJsZWR9IG9uQ2hhbmdlPXsoZSkgPT4gc2V0QWN0aW9ucyh7IC4uLmFjdGlvbnMsIFtrZXldOiB7IC4uLnZhbHVlLCBlbmFibGVkOiBlLnRhcmdldC5jaGVja2VkIH0gfSl9IC8+e2Zhcm1BY3Rpb25MYWJlbHNba2V5XX08L2xhYmVsPil9PGJ1dHRvbiBjbGFzc05hbWU9XCJwcmltYXJ5LWJ1dHRvblwiIGRpc2FibGVkPXtidXN5IHx8ICFPYmplY3QudmFsdWVzKGFjdGlvbnMpLnNvbWUoKGEpID0+IGEuZW5hYmxlZCl9IG9uQ2xpY2s9eygpID0+IHBlcmZvcm0oYXN5bmMgKCkgPT4geyBhd2FpdCB1bndyYXAod2luZG93LmFkc0JvdC5ydW5GYXJtKHsgZ3JvdXBJZCwgcHJvZmlsZU5vczogc2VsZWN0ZWQsIGFjdGlvbnMgfSkpOyBzZXRNb2RhbChudWxsKTsgc2hvd1RvYXN0KFwi0KTQsNGA0Lwg0L/QvtGB0YLQsNCy0LvQtdC90L4g0LIg0YfQtdGA0LPRg1wiLCBcInN1Y2Nlc3NcIik7IH0pfT7Ql9Cw0L/Rg9GB0YLQuNGC0Lg8L2J1dHRvbj48L2Rpdj48L1dvcmtzcGFjZURpYWxvZz59XHJcbiAgICA8L3NlY3Rpb24+O1xyXG59XHJcblxyXG5mdW5jdGlvbiBHcm91cENyZWF0ZSh7IG9uQ2xvc2UsIG9uQ3JlYXRlLCBidXN5IH0pIHtcclxuICAgIGNvbnN0IFtuYW1lLCBzZXROYW1lXSA9IHVzZVN0YXRlKFwiXCIpO1xyXG4gICAgcmV0dXJuIDxXb3Jrc3BhY2VEaWFsb2cgdGl0bGU9XCLQndC+0LLQsCDQs9GA0YPQv9CwINGE0LDRgNC80YNcIiBvbkNsb3NlPXtvbkNsb3NlfSBidXN5PXtidXN5fT48Zm9ybSBjbGFzc05hbWU9XCJmYXJtLWZvcm1cIiBvblN1Ym1pdD17KGV2ZW50KSA9PiB7IGV2ZW50LnByZXZlbnREZWZhdWx0KCk7IG9uQ3JlYXRlKG5hbWUpOyB9fT48bGFiZWw+0J3QsNC30LLQsCDQs9GA0YPQv9C4PGlucHV0IHZhbHVlPXtuYW1lfSBvbkNoYW5nZT17KGUpID0+IHNldE5hbWUoZS50YXJnZXQudmFsdWUpfSBhdXRvRm9jdXMgLz48L2xhYmVsPjxidXR0b24gY2xhc3NOYW1lPVwicHJpbWFyeS1idXR0b25cIiBkaXNhYmxlZD17YnVzeSB8fCAhbmFtZS50cmltKCl9PtCh0YLQstC+0YDQuNGC0Lg8L2J1dHRvbj48L2Zvcm0+PC9Xb3Jrc3BhY2VEaWFsb2c+O1xyXG59XHJcbiJdLCJmaWxlIjoiQzovVXNlcnMvRGFya25lc3MvRG9jdW1lbnRzL0Fkc0JvdC9mcm9udGVuZC9zcmMvdGFicy9GYXJtQWNjb3VudHNUYWIuanN4In0=

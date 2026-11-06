@@ -1,0 +1,100 @@
+/* Спільна геометрія колонок і карток підключень. */
+.connections-page { overflow: hidden; gap: 24px; }
+.connections-page-heading, .connections-page .accounts-workspace { max-width: 1200px; }
+.connections-page-heading h1 { font-size: 28px; }
+.connections-summary { font-size: 14px; }
+.connections-page .accounts-workspace { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); flex: 1; min-height: 0; gap: 24px; }
+.connections-page .accounts-workspace > .sidebar { min-width: 0; min-height: 0; overflow: hidden; padding: 22px; border-radius: 18px; background: #10131c; box-shadow: none; }
+.connections-page .sidebar-title-row { min-height: 48px; padding-bottom: 16px; }
+.connections-page .sidebar-title-row h2 { font-size: 20px; font-weight: 650; }
+.connections-page .sidebar-title-row .icon-button { width: 36px; height: 36px; }
+.connections-page .strip-count { font-size: 13px; background: transparent; color: #a6adbd; }
+.connections-page .account-kind-picker, .connections-page .connection-filter-picker { height: 46px; min-height: 46px; margin: 0 0 20px; padding: 0; gap: 8px; border: 0; border-bottom: 1px solid var(--stroke); border-radius: 0; background: transparent; }
+.connections-page .account-kind-option span, .connections-page .connection-filter-picker button { height: 46px; padding: 12px 4px; border-radius: 0; font-size: 14px; font-weight: 500; background: transparent; color: #a6adbd; }
+.connections-page .account-kind-option.active span, .connections-page .connection-filter-picker button[aria-pressed="true"] { color: #e1d9ff; background: transparent; box-shadow: inset 0 -2px #a591dc; }
+.connections-page .account-list { margin: 0; padding: 0 8px 2px 0; gap: 16px; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #454957 transparent; }
+.connections-page .account-card-shell { flex: 0 0 auto; min-width: 0; list-style: none; }
+.connections-page .connection-card { min-height: 284px; padding: 20px; border-radius: 14px; border: 1px solid #2b2e3a; background: #171a24; box-shadow: none; transition: background .16s, border-color .16s; }
+.connections-page .connection-card:hover { border-color: #474455; }
+.connections-page .connection-card.selected { border-color: #9985d2; background: linear-gradient(125deg, #27243b, #191d2b); box-shadow: none; }
+.connections-page .connection-card .account-card { min-height: 0; flex: 1; padding: 0; background: transparent; box-shadow: none; gap: 12px; }
+.connections-page .connection-card .status-dot { width: 8px; height: 8px; margin-top: 9px; }
+.connections-page .connection-title-row { flex-wrap: wrap; gap: 8px; }
+.connections-page .connection-title-row strong { font-size: 18px; font-weight: 650; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
+.connections-page .connection-card .connection-status { padding: 3px 7px; font-size: 12px; border-color: transparent; }
+.connections-page .account-copy .connection-facts { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 14px; margin-top: 18px; overflow: visible; white-space: normal; }
+.connections-page .connection-facts > span { min-width: 0; overflow: visible; white-space: normal; }
+.connections-page .account-copy .connection-fact-label { display: block; color: #a6adbd; font-size: 13px; line-height: 1.5; white-space: normal; }
+.connections-page .account-copy .connection-fact-value { display: block; margin-top: 4px; color: #eef0f7; font-size: 15px; line-height: 1.5; white-space: normal; overflow: visible; overflow-wrap: anywhere; text-overflow: clip; font-variant-numeric: tabular-nums; }
+.connections-page .connection-card .connection-detail { height: auto; margin-top: 12px; font-size: 14px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+.connections-page .connection-card-footer { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin-top: 16px; padding: 0; border-top: 0; }
+.connections-page .connection-card .account-card-token-mode { width: 250px; max-width: 100%; }
+.connections-page .connection-card .account-token-picker { height: 36px; }
+.connections-page .connection-card .account-token-picker button { font-size: 13px; }
+.connections-page .connection-card .account-card-tools, .connections-page .connection-card .proxy-card-actions { width: 100%; margin: 0; padding-top: 12px; border-top: 1px solid var(--stroke); gap: 8px; flex-wrap: wrap; }
+.connections-page .connection-card .account-sync-actions { gap: 8px; }
+.connections-page .connection-card .icon-button { width: 38px; min-width: 38px; height: 36px; border-radius: 8px; background: rgba(255,255,255,.025); }
+.connections-page .connection-card .icon-button svg { width: 18px; height: 18px; }
+.connections-page .connection-card .icon-button:hover:not(:disabled) { background: #2d2940; border-color: #82729f; }
+.connections-page .connection-kind-label { min-height: 36px; display: flex; align-items: center; font-size: 14px; }
+.connections-page .connection-proxy-content { min-height: 0; flex: 1; }
+.connections-page .connection-proxy-content .connection-meta { margin: 18px 0 0; font-size: 15px; line-height: 1.5; white-space: normal; }
+.connections-page .connection-proxy-content .connection-detail { margin-left: 0; }
+.connections-page .connection-proxy-content .status-dot { margin: 0; }
+.connections-page .connection-card .proxy-public-label { min-height: 36px; font-size: 14px; gap: 10px; }
+.connections-page .connection-card .proxy-public-toggle { width: 34px; min-width: 34px; height: 20px; }
+.connections-page .connection-card .proxy-public-toggle::before { width: 14px; height: 14px; }
+.connections-page .connection-card .proxy-public-toggle:checked::before { transform: translateX(14px); }
+.connections-page .strip-add-button { min-height: 44px; margin-top: 18px; font-size: 14px; border: 1px solid #4e455f; background: #211e30; color: #ddd4f5; }
+
+/* Редактори використовують однакові поля, поверхні й закріплені дії. */
+.connection-editor { color-scheme: dark; }
+.account-editor.connection-editor.modal, .proxy-editor.connection-editor { width: min(720px, calc(100vw - 40px)); max-height: calc(100dvh - 48px); padding: 28px; border: 1px solid #363342; border-radius: 18px; background: #141720; }
+.account-editor.connection-editor { display: flex; flex-direction: column; overflow: hidden; }
+.connection-editor h2, .connection-editor .proxy-editor-heading h1 { margin: 0 40px 8px 0; font-size: 25px; letter-spacing: -.025em; }
+.connection-editor-description { margin: 0 0 22px; font-size: 14px; line-height: 1.5; color: #a6adbd; }
+.connection-editor .account-kind-picker { flex-shrink: 0; min-height: 44px; margin: 0 0 20px; }
+.connection-editor .account-kind-option span { font-size: 14px; padding: 9px 5px; }
+.connection-editor .template-editor-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 0 8px 4px 0; margin: 0; gap: 18px; }
+.connection-editor .template-editor-fields > .field:first-child, .connection-editor .template-editor-fields > .account-token-picker, .connection-editor .template-editor-fields > .field:has(.account-secret-input), .connection-editor .template-editor-fields > .account-proxy-binding, .connection-editor .template-editor-fields > .field-hint { grid-column: 1 / -1; }
+.connection-editor .field > span, .connection-editor .proxy-editor-row > span { color: #b9bfce; font-size: 14px; font-weight: 500; }
+.connection-editor .field input, .connection-editor .field select, .connection-editor .proxy-editor-row input:not(.proxy-public-toggle), .connection-editor .proxy-editor-row select { min-height: 44px; height: 44px; padding: 10px 12px; border-radius: 9px; background: #0f121a; font-size: 15px; border: 1px solid #323541; }
+.connection-editor .account-secret-input .icon-button { top: 6px; }
+.connection-editor .account-token-picker button { font-size: 14px; padding: 9px; }
+.connection-editor .account-proxy-binding { padding: 16px; gap: 12px; background: #191c27; }
+.connection-editor .account-proxy-modes label { font-size: 14px; padding: 10px 5px; }
+.connection-editor .field-hint { color: #a6adbd; font-size: 13px; line-height: 1.5; }
+.connection-editor .form-actions, .connection-editor .proxy-editor-actions { flex-shrink: 0; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--stroke); }
+.connection-editor .primary-button { background: #8070b3; box-shadow: none; }
+.connection-editor .primary-button, .connection-editor .secondary-button { min-height: 42px; font-size: 14px; border-radius: 9px; }
+.proxy-editor-overlay { background: rgba(3,5,9,.78); backdrop-filter: blur(6px); }
+.connection-editor .proxy-editor-heading { text-align: left; justify-content: flex-start; margin-bottom: 0; flex-shrink: 0; }
+.connection-editor .proxy-editor-heading .eyebrow { display: none; }
+.connection-editor .proxy-editor-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #454957 transparent; }
+.connection-editor .proxy-editor-row { grid-template-columns: 1fr; align-content: start; gap: 8px; }
+.connection-editor .proxy-editor-row:has(.proxy-editor-control), .connection-editor .proxy-editor-row:has(.proxy-host-port), .connection-editor .proxy-editor-row:last-child, .connection-editor .proxy-editor-note { grid-column: 1 / -1; }
+.connection-editor .proxy-editor-control { grid-template-columns: minmax(0,1fr) auto; }
+.connection-editor .proxy-editor-control > button:last-child { grid-column: 1 / -1; justify-self: start; min-height: 38px; }
+.connection-editor .proxy-editor-control .secondary-button { min-height: 44px; }
+.connection-editor .proxy-editor-note { padding-left: 0; }
+.connection-editor .proxy-editor-row input.proxy-public-toggle { width: 36px; height: 22px; margin: 10px 0 12px; }
+.connection-editor .proxy-public-toggle::before { width: 16px; height: 16px; }
+.connection-editor .proxy-editor-row input.proxy-public-toggle:checked { background: #8070b3; }
+.connection-editor .proxy-public-toggle:checked::before { transform: translateX(14px); }
+@media (max-width: 1000px) {
+    .connections-page .accounts-workspace { gap: 16px; }
+    .connections-page .accounts-workspace > .sidebar { padding: 16px; }
+    .connections-page .connection-card { padding: 16px; min-height: 330px; }
+    .connections-page .account-copy .connection-facts { grid-template-columns: 1fr; gap: 8px; }
+}
+@media (max-width: 660px) {
+    .connections-page { overflow: auto; }
+    .connections-page .accounts-workspace { grid-template-columns: 1fr; grid-template-rows: none; flex: 0 0 auto; grid-auto-rows: 640px; }
+    .connection-editor .proxy-editor-row { grid-template-columns: 1fr; gap: 8px; }
+    .connection-editor .template-editor-fields, .connection-editor .proxy-editor-rows { grid-template-columns: 1fr; }
+    .connection-editor .proxy-editor-note { padding-left: 0; }
+    .account-editor.connection-editor.modal, .proxy-editor.connection-editor { padding: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .connections-page *, .connection-editor * { transition: none !important; animation: none !important; }
+}

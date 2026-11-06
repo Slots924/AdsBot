@@ -134,7 +134,11 @@ function ProxyEditor({ editor, onClose, onSave, onCheckConfig, onError }) {
 
     const panel = (
         <motion.form
-            className="proxy-editor"
+            className="proxy-editor connection-editor"
+            role="dialog"
+            aria-modal="true"
+            aria-label={creating ? "Нова проксі" : "Змінити проксі"}
+            onKeyDown={(event) => { if (event.key === "Escape" && !saving) onClose(); }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             onSubmit={submit}
@@ -143,6 +147,7 @@ function ProxyEditor({ editor, onClose, onSave, onCheckConfig, onError }) {
                 <div>
                     <span className="eyebrow">Проксі</span>
                     <h1>{creating ? "Нова проксі" : "Змінити проксі"}</h1>
+                    <p className="connection-editor-description">Параметри з’єднання та доступність для клієнтів.</p>
                 </div>
                 <button className="icon-button" type="button" disabled={saving} onClick={onClose} title="Закрити">
                     <X size={18} />

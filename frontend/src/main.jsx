@@ -4,10 +4,13 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import "./styles/shared-ui.css";
 import "./styles/app.css";
+import "./styles/connections.css";
 
 const root = createRoot(document.getElementById("root"));
 
-if (new URLSearchParams(window.location.search).has("adsets-ui") && !window.adsBot) {
+if (new URLSearchParams(window.location.search).has("connections-ui") && !window.adsBot) {
+    import("./design/ConnectionsShowcase.jsx").then(({ default: ConnectionsShowcase }) => root.render(<ConnectionsShowcase />));
+} else if (new URLSearchParams(window.location.search).has("adsets-ui") && !window.adsBot) {
     import("./design/AdSetsShowcase.jsx").then(({ default: AdSetsShowcase }) => root.render(<AdSetsShowcase />));
 } else if (new URLSearchParams(window.location.search).has("autoupload-ui") && !window.adsBot) {
     import("./design/AutouploadShowcase.jsx").then(({ default: AutouploadShowcase }) => root.render(<AutouploadShowcase />));

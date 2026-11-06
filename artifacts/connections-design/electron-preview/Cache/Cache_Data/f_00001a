@@ -1,0 +1,440 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/CreditCardsSettings.jsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=7966e25d"; const Fragment = __vite__cjsImport0_react_jsxDevRuntime["Fragment"]; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport1_react from "/node_modules/.vite/deps/react.js?v=7966e25d"; const useEffect = __vite__cjsImport1_react["useEffect"]; const useState = __vite__cjsImport1_react["useState"];
+import { CreditCard, Pencil, Plus, Trash2, X } from "/node_modules/.vite/deps/lucide-react.js?v=7966e25d";
+import { errorDetails, unwrap } from "/src/lib/api.js";
+const blankCard = () => ({
+  id: "",
+  nickname: "",
+  cardholderName: "",
+  cardNumber: "",
+  securityCode: "",
+  expiration: "",
+  postalCode: "",
+  countryCode: "US"
+});
+export default function CreditCardsSettings({ onError = () => {
+}, showToast, editorOnly = false, onSaved, onCancel }) {
+  _s();
+  const [cards, setCards] = useState([]);
+  const [editor, setEditor] = useState(() => editorOnly ? blankCard() : null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const load = async () => {
+    setLoading(true);
+    try {
+      setCards(await unwrap(window.adsBot.getCreditCards()));
+    } catch (error) {
+      onError({ ...errorDetails(error), title: "Не вдалося завантажити кредитні картки" });
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (!editorOnly) void load();
+  }, []);
+  const dismiss = () => {
+    if (saving) return;
+    setEditor(null);
+    onCancel?.();
+  };
+  const save = async () => {
+    if (saving || !editor) return;
+    setSaving(true);
+    try {
+      const payload = {
+        nickname: editor.nickname.trim(),
+        cardholderName: editor.cardholderName.trim(),
+        cardNumber: editor.cardNumber.replace(/[\s-]/g, ""),
+        securityCode: editor.securityCode.trim(),
+        expiration: editor.expiration.trim(),
+        postalCode: editor.postalCode.trim(),
+        countryCode: editor.countryCode.trim().toUpperCase()
+      };
+      const saved = await unwrap(editor.id ? window.adsBot.updateCreditCard(editor.id, payload) : window.adsBot.createCreditCard(payload));
+      setEditor(null);
+      if (!editorOnly) await load();
+      showToast?.(editor.id ? "Картку оновлено" : "Картку додано", "success");
+      onSaved?.(saved);
+    } catch (error) {
+      onError({ ...errorDetails(error), title: "Не вдалося зберегти картку" });
+    } finally {
+      setSaving(false);
+    }
+  };
+  const remove = async (card) => {
+    if (!window.confirm(`Видалити картку «${card.nickname}»?`)) return;
+    try {
+      await unwrap(window.adsBot.deleteCreditCard(card.id));
+      await load();
+      showToast?.("Картку видалено", "success");
+    } catch (error) {
+      onError({ ...errorDetails(error), title: "Не вдалося видалити картку" });
+    }
+  };
+  const valid = editor && editor.nickname.trim() && editor.cardholderName.trim() && (editor.id || /^\d{12,19}$/.test(editor.cardNumber.replace(/[\s-]/g, ""))) && /^(0[1-9]|1[0-2])\/\d{2}$/.test(editor.expiration.trim()) && (!editor.securityCode || /^\d{3,4}$/.test(editor.securityCode)) && /^[A-Za-z]{2}$/.test(editor.countryCode.trim());
+  return /* @__PURE__ */ jsxDEV("div", { className: "credit-card-settings", children: [
+    !editorOnly && /* @__PURE__ */ jsxDEV(Fragment, { children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "credit-card-settings-head", children: [
+        /* @__PURE__ */ jsxDEV("div", { children: [
+          /* @__PURE__ */ jsxDEV("h3", { children: "Кредитні картки" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 90,
+            columnNumber: 18
+          }, this),
+          /* @__PURE__ */ jsxDEV("p", { children: "Номер і CVV шифруються системним сховищем Electron. Збережений CVV використовується, якщо його не введено в персональному акаунті." }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 90,
+            columnNumber: 42
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 90,
+          columnNumber: 13
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { type: "button", className: "primary-button", onClick: () => setEditor(blankCard()), children: [
+          /* @__PURE__ */ jsxDEV(Plus, { size: 16 }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 92,
+            columnNumber: 17
+          }, this),
+          " Додати картку"
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 91,
+          columnNumber: 13
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+        lineNumber: 89,
+        columnNumber: 27
+      }, this),
+      loading && /* @__PURE__ */ jsxDEV("div", { className: "select-empty", children: "Завантаження карток…" }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+        lineNumber: 95,
+        columnNumber: 21
+      }, this),
+      !loading && cards.length === 0 && /* @__PURE__ */ jsxDEV("div", { className: "select-empty", children: "Карток ще немає." }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+        lineNumber: 96,
+        columnNumber: 44
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "credit-card-grid", children: cards.map((card) => /* @__PURE__ */ jsxDEV("article", { className: "credit-card-tile", children: [
+        /* @__PURE__ */ jsxDEV("div", { className: "credit-card-top", children: [
+          /* @__PURE__ */ jsxDEV("span", { className: "credit-card-ready", children: [
+            /* @__PURE__ */ jsxDEV("i", {}, void 0, false, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+              lineNumber: 100,
+              columnNumber: 57
+            }, this),
+            " Готова"
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 100,
+            columnNumber: 21
+          }, this),
+          /* @__PURE__ */ jsxDEV("strong", { children: card.network }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 101,
+            columnNumber: 21
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 99,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV(CreditCard, { className: "credit-card-chip", size: 34 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 103,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { className: "credit-card-identity", children: [
+          /* @__PURE__ */ jsxDEV("strong", { children: card.nickname.toUpperCase() }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 105,
+            columnNumber: 21
+          }, this),
+          /* @__PURE__ */ jsxDEV("small", { children: card.cardholderName }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 106,
+            columnNumber: 21
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 104,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { className: "credit-card-number", children: card.displayNumber }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 108,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { className: "credit-card-meta", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: [
+            "EXP ",
+            /* @__PURE__ */ jsxDEV("strong", { children: card.expiration }, void 0, false, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+              lineNumber: 110,
+              columnNumber: 31
+            }, this)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 110,
+            columnNumber: 21
+          }, this),
+          card.postalCode && /* @__PURE__ */ jsxDEV("span", { children: [
+            "ZIP ",
+            /* @__PURE__ */ jsxDEV("strong", { children: card.postalCode }, void 0, false, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+              lineNumber: 111,
+              columnNumber: 51
+            }, this)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 111,
+            columnNumber: 41
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 109,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { className: "credit-card-actions", children: [
+          /* @__PURE__ */ jsxDEV("button", { type: "button", className: "icon-button", title: "Редагувати", onClick: () => setEditor({ ...card, cardNumber: "", securityCode: "" }), children: /* @__PURE__ */ jsxDEV(Pencil, { size: 15 }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 114,
+            columnNumber: 159
+          }, this) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 114,
+            columnNumber: 21
+          }, this),
+          /* @__PURE__ */ jsxDEV("button", { type: "button", className: "icon-button danger", title: "Видалити", onClick: () => remove(card), children: /* @__PURE__ */ jsxDEV(Trash2, { size: 15 }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 115,
+            columnNumber: 120
+          }, this) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 115,
+            columnNumber: 21
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 113,
+          columnNumber: 17
+        }, this)
+      ] }, card.id, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+        lineNumber: 98,
+        columnNumber: 34
+      }, this)) }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+        lineNumber: 97,
+        columnNumber: 9
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+      lineNumber: 89,
+      columnNumber: 25
+    }, this),
+    editor && /* @__PURE__ */ jsxDEV("div", { className: "credit-card-editor", children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "credit-card-editor-head", children: [
+        /* @__PURE__ */ jsxDEV("strong", { children: editor.id ? "Редагувати картку" : "Нова картка" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 120,
+          columnNumber: 54
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { type: "button", className: "icon-button", "aria-label": "Закрити редактор картки", disabled: saving, onClick: dismiss, children: /* @__PURE__ */ jsxDEV(X, { size: 16 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 120,
+          columnNumber: 239
+        }, this) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 120,
+          columnNumber: 120
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+        lineNumber: 120,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "credit-card-form", children: [
+        /* @__PURE__ */ jsxDEV("label", { className: "field", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: "Нікнейм" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 122,
+            columnNumber: 42
+          }, this),
+          /* @__PURE__ */ jsxDEV("input", { value: editor.nickname, onChange: (event) => setEditor({ ...editor, nickname: event.target.value }), placeholder: "MYRAHA 1" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 122,
+            columnNumber: 62
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 122,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("label", { className: "field", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: "Ім’я власника" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 123,
+            columnNumber: 42
+          }, this),
+          /* @__PURE__ */ jsxDEV("input", { value: editor.cardholderName, onChange: (event) => setEditor({ ...editor, cardholderName: event.target.value }) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 123,
+            columnNumber: 68
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 123,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("label", { className: "field wide", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: [
+            "Номер картки",
+            editor.id ? " · залиште порожнім, щоб не змінювати" : ""
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 124,
+            columnNumber: 47
+          }, this),
+          /* @__PURE__ */ jsxDEV("input", { inputMode: "numeric", autoComplete: "off", value: editor.cardNumber, onChange: (event) => setEditor({ ...editor, cardNumber: event.target.value }) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 124,
+            columnNumber: 130
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 124,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("label", { className: "field", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: "Строк MM/YY" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 125,
+            columnNumber: 42
+          }, this),
+          /* @__PURE__ */ jsxDEV("input", { placeholder: "09/28", value: editor.expiration, onChange: (event) => setEditor({ ...editor, expiration: event.target.value }) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 125,
+            columnNumber: 66
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 125,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("label", { className: "field", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: [
+            "CVV",
+            editor.hasSecurityCode ? " · залиште порожнім, щоб не змінювати" : " · необов’язково"
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 126,
+            columnNumber: 42
+          }, this),
+          /* @__PURE__ */ jsxDEV("input", { type: "password", inputMode: "numeric", autoComplete: "off", maxLength: 4, value: editor.securityCode, onChange: (event) => setEditor({ ...editor, securityCode: event.target.value.replace(/\D/g, "") }) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 126,
+            columnNumber: 145
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 126,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("label", { className: "field", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: "Поштовий індекс · необов’язково" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 127,
+            columnNumber: 42
+          }, this),
+          /* @__PURE__ */ jsxDEV("input", { value: editor.postalCode, onChange: (event) => setEditor({ ...editor, postalCode: event.target.value }) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 127,
+            columnNumber: 86
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 127,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("label", { className: "field", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: "Країна" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 128,
+            columnNumber: 42
+          }, this),
+          /* @__PURE__ */ jsxDEV("input", { maxLength: "2", value: editor.countryCode, onChange: (event) => setEditor({ ...editor, countryCode: event.target.value.toUpperCase() }) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+            lineNumber: 128,
+            columnNumber: 61
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 128,
+          columnNumber: 17
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+        lineNumber: 121,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "form-actions", children: [
+        /* @__PURE__ */ jsxDEV("button", { type: "button", className: "secondary-button", disabled: saving, onClick: dismiss, children: "Скасувати" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 130,
+          columnNumber: 43
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { type: "button", className: "primary-button", disabled: !valid || saving, onClick: save, children: "Зберегти" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+          lineNumber: 130,
+          columnNumber: 148
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+        lineNumber: 130,
+        columnNumber: 13
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+      lineNumber: 119,
+      columnNumber: 20
+    }, this)
+  ] }, void 0, true, {
+    fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx",
+    lineNumber: 88,
+    columnNumber: 10
+  }, this);
+}
+_s(CreditCardsSettings, "QKZWp8xNXVhlBkpZgmFIWltu8DQ=");
+_c = CreditCardsSettings;
+var _c;
+$RefreshReg$(_c, "CreditCardsSettings");
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+function $RefreshReg$(type, id) {
+  return RefreshRuntime.register(type, "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CreditCardsSettings.jsx " + id);
+}
+function $RefreshSig$() {
+  return RefreshRuntime.createSignatureFunctionForTransform();
+}
+
+//# sourceMappingURL=data:application/json;base64,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QSxXQVlYO0FBQUEsT0EzQ0c7QUFBQTtBQUFBO0FBQUE7QUFBQSxTQTRDUDtBQUNKO0FBQUNoQixHQWxIdUJOLHFCQUFtQjtBQUFBLEtBQW5CQTtBQUFtQixJQUFBNEM7QUFBQSxhQUFBQSxJQUFBIiwibmFtZXMiOlsidXNlRWZmZWN0IiwidXNlU3RhdGUiLCJDcmVkaXRDYXJkIiwiUGVuY2lsIiwiUGx1cyIsIlRyYXNoMiIsIlgiLCJlcnJvckRldGFpbHMiLCJ1bndyYXAiLCJibGFua0NhcmQiLCJpZCIsIm5pY2tuYW1lIiwiY2FyZGhvbGRlck5hbWUiLCJjYXJkTnVtYmVyIiwic2VjdXJpdHlDb2RlIiwiZXhwaXJhdGlvbiIsInBvc3RhbENvZGUiLCJjb3VudHJ5Q29kZSIsIkNyZWRpdENhcmRzU2V0dGluZ3MiLCJvbkVycm9yIiwic2hvd1RvYXN0IiwiZWRpdG9yT25seSIsIm9uU2F2ZWQiLCJvbkNhbmNlbCIsIl9zIiwiY2FyZHMiLCJzZXRDYXJkcyIsImVkaXRvciIsInNldEVkaXRvciIsImxvYWRpbmciLCJzZXRMb2FkaW5nIiwic2F2aW5nIiwic2V0U2F2aW5nIiwibG9hZCIsIndpbmRvdyIsImFkc0JvdCIsImdldENyZWRpdENhcmRzIiwiZXJyb3IiLCJ0aXRsZSIsImRpc21pc3MiLCJzYXZlIiwicGF5bG9hZCIsInRyaW0iLCJyZXBsYWNlIiwidG9VcHBlckNhc2UiLCJzYXZlZCIsInVwZGF0ZUNyZWRpdENhcmQiLCJjcmVhdGVDcmVkaXRDYXJkIiwicmVtb3ZlIiwiY2FyZCIsImNvbmZpcm0iLCJkZWxldGVDcmVkaXRDYXJkIiwidmFsaWQiLCJ0ZXN0IiwibGVuZ3RoIiwibWFwIiwibmV0d29yayIsImRpc3BsYXlOdW1iZXIiLCJldmVudCIsInRhcmdldCIsInZhbHVlIiwiaGFzU2VjdXJpdHlDb2RlIiwiX2MiXSwiaWdub3JlTGlzdCI6W10sInNvdXJjZXMiOlsiQ3JlZGl0Q2FyZHNTZXR0aW5ncy5qc3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlRWZmZWN0LCB1c2VTdGF0ZSB9IGZyb20gXCJyZWFjdFwiO1xuaW1wb3J0IHsgQ3JlZGl0Q2FyZCwgUGVuY2lsLCBQbHVzLCBUcmFzaDIsIFggfSBmcm9tIFwibHVjaWRlLXJlYWN0XCI7XG5cbmltcG9ydCB7IGVycm9yRGV0YWlscywgdW53cmFwIH0gZnJvbSBcIi4uL2xpYi9hcGkuanNcIjtcblxuXG5jb25zdCBibGFua0NhcmQgPSAoKSA9PiAoe1xuICAgIGlkOiBcIlwiLFxuICAgIG5pY2tuYW1lOiBcIlwiLFxuICAgIGNhcmRob2xkZXJOYW1lOiBcIlwiLFxuICAgIGNhcmROdW1iZXI6IFwiXCIsXG4gICAgc2VjdXJpdHlDb2RlOiBcIlwiLFxuICAgIGV4cGlyYXRpb246IFwiXCIsXG4gICAgcG9zdGFsQ29kZTogXCJcIixcbiAgICBjb3VudHJ5Q29kZTogXCJVU1wiLFxufSk7XG5cblxuZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gQ3JlZGl0Q2FyZHNTZXR0aW5ncyh7IG9uRXJyb3IgPSAoKSA9PiB7fSwgc2hvd1RvYXN0LCBlZGl0b3JPbmx5ID0gZmFsc2UsIG9uU2F2ZWQsIG9uQ2FuY2VsIH0pIHtcbiAgICBjb25zdCBbY2FyZHMsIHNldENhcmRzXSA9IHVzZVN0YXRlKFtdKTtcbiAgICBjb25zdCBbZWRpdG9yLCBzZXRFZGl0b3JdID0gdXNlU3RhdGUoKCkgPT4gZWRpdG9yT25seSA/IGJsYW5rQ2FyZCgpIDogbnVsbCk7XG4gICAgY29uc3QgW2xvYWRpbmcsIHNldExvYWRpbmddID0gdXNlU3RhdGUodHJ1ZSk7XG4gICAgY29uc3QgW3NhdmluZywgc2V0U2F2aW5nXSA9IHVzZVN0YXRlKGZhbHNlKTtcblxuICAgIGNvbnN0IGxvYWQgPSBhc3luYyAoKSA9PiB7XG4gICAgICAgIHNldExvYWRpbmcodHJ1ZSk7XG4gICAgICAgIHRyeSB7XG4gICAgICAgICAgICBzZXRDYXJkcyhhd2FpdCB1bndyYXAod2luZG93LmFkc0JvdC5nZXRDcmVkaXRDYXJkcygpKSk7XG4gICAgICAgIH0gY2F0Y2ggKGVycm9yKSB7XG4gICAgICAgICAgICBvbkVycm9yKHsgLi4uZXJyb3JEZXRhaWxzKGVycm9yKSwgdGl0bGU6IFwi0J3QtSDQstC00LDQu9C+0YHRjyDQt9Cw0LLQsNC90YLQsNC20LjRgtC4INC60YDQtdC00LjRgtC90ZYg0LrQsNGA0YLQutC4XCIgfSk7XG4gICAgICAgIH0gZmluYWxseSB7XG4gICAgICAgICAgICBzZXRMb2FkaW5nKGZhbHNlKTtcbiAgICAgICAgfVxuICAgIH07XG4gICAgdXNlRWZmZWN0KCgpID0+IHsgaWYgKCFlZGl0b3JPbmx5KSB2b2lkIGxvYWQoKTsgfSwgW10pO1xuICAgIGNvbnN0IGRpc21pc3MgPSAoKSA9PiB7XG4gICAgICAgIGlmIChzYXZpbmcpIHJldHVybjtcbiAgICAgICAgc2V0RWRpdG9yKG51bGwpO1xuICAgICAgICBvbkNhbmNlbD8uKCk7XG4gICAgfTtcblxuICAgIGNvbnN0IHNhdmUgPSBhc3luYyAoKSA9PiB7XG4gICAgICAgIGlmIChzYXZpbmcgfHwgIWVkaXRvcikgcmV0dXJuO1xuICAgICAgICBzZXRTYXZpbmcodHJ1ZSk7XG4gICAgICAgIHRyeSB7XG4gICAgICAgICAgICBjb25zdCBwYXlsb2FkID0ge1xuICAgICAgICAgICAgICAgIG5pY2tuYW1lOiBlZGl0b3Iubmlja25hbWUudHJpbSgpLFxuICAgICAgICAgICAgICAgIGNhcmRob2xkZXJOYW1lOiBlZGl0b3IuY2FyZGhvbGRlck5hbWUudHJpbSgpLFxuICAgICAgICAgICAgICAgIGNhcmROdW1iZXI6IGVkaXRvci5jYXJkTnVtYmVyLnJlcGxhY2UoL1tcXHMtXS9nLCBcIlwiKSxcbiAgICAgICAgICAgICAgICBzZWN1cml0eUNvZGU6IGVkaXRvci5zZWN1cml0eUNvZGUudHJpbSgpLFxuICAgICAgICAgICAgICAgIGV4cGlyYXRpb246IGVkaXRvci5leHBpcmF0aW9uLnRyaW0oKSxcbiAgICAgICAgICAgICAgICBwb3N0YWxDb2RlOiBlZGl0b3IucG9zdGFsQ29kZS50cmltKCksXG4gICAgICAgICAgICAgICAgY291bnRyeUNvZGU6IGVkaXRvci5jb3VudHJ5Q29kZS50cmltKCkudG9VcHBlckNhc2UoKSxcbiAgICAgICAgICAgIH07XG4gICAgICAgICAgICBjb25zdCBzYXZlZCA9IGF3YWl0IHVud3JhcChlZGl0b3IuaWRcbiAgICAgICAgICAgICAgICA/IHdpbmRvdy5hZHNCb3QudXBkYXRlQ3JlZGl0Q2FyZChlZGl0b3IuaWQsIHBheWxvYWQpXG4gICAgICAgICAgICAgICAgOiB3aW5kb3cuYWRzQm90LmNyZWF0ZUNyZWRpdENhcmQocGF5bG9hZCkpO1xuICAgICAgICAgICAgc2V0RWRpdG9yKG51bGwpO1xuICAgICAgICAgICAgaWYgKCFlZGl0b3JPbmx5KSBhd2FpdCBsb2FkKCk7XG4gICAgICAgICAgICBzaG93VG9hc3Q/LihlZGl0b3IuaWQgPyBcItCa0LDRgNGC0LrRgyDQvtC90L7QstC70LXQvdC+XCIgOiBcItCa0LDRgNGC0LrRgyDQtNC+0LTQsNC90L5cIiwgXCJzdWNjZXNzXCIpO1xuICAgICAgICAgICAgb25TYXZlZD8uKHNhdmVkKTtcbiAgICAgICAgfSBjYXRjaCAoZXJyb3IpIHtcbiAgICAgICAgICAgIG9uRXJyb3IoeyAuLi5lcnJvckRldGFpbHMoZXJyb3IpLCB0aXRsZTogXCLQndC1INCy0LTQsNC70L7RgdGPINC30LHQtdGA0LXQs9GC0Lgg0LrQsNGA0YLQutGDXCIgfSk7XG4gICAgICAgIH0gZmluYWxseSB7XG4gICAgICAgICAgICBzZXRTYXZpbmcoZmFsc2UpO1xuICAgICAgICB9XG4gICAgfTtcblxuICAgIGNvbnN0IHJlbW92ZSA9IGFzeW5jIChjYXJkKSA9PiB7XG4gICAgICAgIGlmICghd2luZG93LmNvbmZpcm0oYNCS0LjQtNCw0LvQuNGC0Lgg0LrQsNGA0YLQutGDIMKrJHtjYXJkLm5pY2tuYW1lfcK7P2ApKSByZXR1cm47XG4gICAgICAgIHRyeSB7XG4gICAgICAgICAgICBhd2FpdCB1bndyYXAod2luZG93LmFkc0JvdC5kZWxldGVDcmVkaXRDYXJkKGNhcmQuaWQpKTtcbiAgICAgICAgICAgIGF3YWl0IGxvYWQoKTtcbiAgICAgICAgICAgIHNob3dUb2FzdD8uKFwi0JrQsNGA0YLQutGDINCy0LjQtNCw0LvQtdC90L5cIiwgXCJzdWNjZXNzXCIpO1xuICAgICAgICB9IGNhdGNoIChlcnJvcikge1xuICAgICAgICAgICAgb25FcnJvcih7IC4uLmVycm9yRGV0YWlscyhlcnJvciksIHRpdGxlOiBcItCd0LUg0LLQtNCw0LvQvtGB0Y8g0LLQuNC00LDQu9C40YLQuCDQutCw0YDRgtC60YNcIiB9KTtcbiAgICAgICAgfVxuICAgIH07XG5cbiAgICBjb25zdCB2YWxpZCA9IGVkaXRvclxuICAgICAgICAmJiBlZGl0b3Iubmlja25hbWUudHJpbSgpXG4gICAgICAgICYmIGVkaXRvci5jYXJkaG9sZGVyTmFtZS50cmltKClcbiAgICAgICAgJiYgKGVkaXRvci5pZCB8fCAvXlxcZHsxMiwxOX0kLy50ZXN0KGVkaXRvci5jYXJkTnVtYmVyLnJlcGxhY2UoL1tcXHMtXS9nLCBcIlwiKSkpXG4gICAgICAgICYmIC9eKDBbMS05XXwxWzAtMl0pXFwvXFxkezJ9JC8udGVzdChlZGl0b3IuZXhwaXJhdGlvbi50cmltKCkpXG4gICAgICAgICYmICghZWRpdG9yLnNlY3VyaXR5Q29kZSB8fCAvXlxcZHszLDR9JC8udGVzdChlZGl0b3Iuc2VjdXJpdHlDb2RlKSlcbiAgICAgICAgJiYgL15bQS1aYS16XXsyfSQvLnRlc3QoZWRpdG9yLmNvdW50cnlDb2RlLnRyaW0oKSk7XG5cbiAgICByZXR1cm4gPGRpdiBjbGFzc05hbWU9XCJjcmVkaXQtY2FyZC1zZXR0aW5nc1wiPlxuICAgICAgICB7IWVkaXRvck9ubHkgJiYgPD48ZGl2IGNsYXNzTmFtZT1cImNyZWRpdC1jYXJkLXNldHRpbmdzLWhlYWRcIj5cbiAgICAgICAgICAgIDxkaXY+PGgzPtCa0YDQtdC00LjRgtC90ZYg0LrQsNGA0YLQutC4PC9oMz48cD7QndC+0LzQtdGAINGWIENWViDRiNC40YTRgNGD0Y7RgtGM0YHRjyDRgdC40YHRgtC10LzQvdC40Lwg0YHRhdC+0LLQuNGJ0LXQvCBFbGVjdHJvbi4g0JfQsdC10YDQtdC20LXQvdC40LkgQ1ZWINCy0LjQutC+0YDQuNGB0YLQvtCy0YPRlNGC0YzRgdGPLCDRj9C60YnQviDQudC+0LPQviDQvdC1INCy0LLQtdC00LXQvdC+INCyINC/0LXRgNGB0L7QvdCw0LvRjNC90L7QvNGDINCw0LrQsNGD0L3RgtGWLjwvcD48L2Rpdj5cbiAgICAgICAgICAgIDxidXR0b24gdHlwZT1cImJ1dHRvblwiIGNsYXNzTmFtZT1cInByaW1hcnktYnV0dG9uXCIgb25DbGljaz17KCkgPT4gc2V0RWRpdG9yKGJsYW5rQ2FyZCgpKX0+XG4gICAgICAgICAgICAgICAgPFBsdXMgc2l6ZT17MTZ9IC8+INCU0L7QtNCw0YLQuCDQutCw0YDRgtC60YNcbiAgICAgICAgICAgIDwvYnV0dG9uPlxuICAgICAgICA8L2Rpdj5cbiAgICAgICAge2xvYWRpbmcgJiYgPGRpdiBjbGFzc05hbWU9XCJzZWxlY3QtZW1wdHlcIj7Ql9Cw0LLQsNC90YLQsNC20LXQvdC90Y8g0LrQsNGA0YLQvtC64oCmPC9kaXY+fVxuICAgICAgICB7IWxvYWRpbmcgJiYgY2FyZHMubGVuZ3RoID09PSAwICYmIDxkaXYgY2xhc3NOYW1lPVwic2VsZWN0LWVtcHR5XCI+0JrQsNGA0YLQvtC6INGJ0LUg0L3QtdC80LDRlC48L2Rpdj59XG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiY3JlZGl0LWNhcmQtZ3JpZFwiPlxuICAgICAgICAgICAge2NhcmRzLm1hcCgoY2FyZCkgPT4gPGFydGljbGUgY2xhc3NOYW1lPVwiY3JlZGl0LWNhcmQtdGlsZVwiIGtleT17Y2FyZC5pZH0+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJjcmVkaXQtY2FyZC10b3BcIj5cbiAgICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwiY3JlZGl0LWNhcmQtcmVhZHlcIj48aSAvPiDQk9C+0YLQvtCy0LA8L3NwYW4+XG4gICAgICAgICAgICAgICAgICAgIDxzdHJvbmc+e2NhcmQubmV0d29ya308L3N0cm9uZz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8Q3JlZGl0Q2FyZCBjbGFzc05hbWU9XCJjcmVkaXQtY2FyZC1jaGlwXCIgc2l6ZT17MzR9IC8+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJjcmVkaXQtY2FyZC1pZGVudGl0eVwiPlxuICAgICAgICAgICAgICAgICAgICA8c3Ryb25nPntjYXJkLm5pY2tuYW1lLnRvVXBwZXJDYXNlKCl9PC9zdHJvbmc+XG4gICAgICAgICAgICAgICAgICAgIDxzbWFsbD57Y2FyZC5jYXJkaG9sZGVyTmFtZX08L3NtYWxsPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiY3JlZGl0LWNhcmQtbnVtYmVyXCI+e2NhcmQuZGlzcGxheU51bWJlcn08L2Rpdj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImNyZWRpdC1jYXJkLW1ldGFcIj5cbiAgICAgICAgICAgICAgICAgICAgPHNwYW4+RVhQIDxzdHJvbmc+e2NhcmQuZXhwaXJhdGlvbn08L3N0cm9uZz48L3NwYW4+XG4gICAgICAgICAgICAgICAgICAgIHtjYXJkLnBvc3RhbENvZGUgJiYgPHNwYW4+WklQIDxzdHJvbmc+e2NhcmQucG9zdGFsQ29kZX08L3N0cm9uZz48L3NwYW4+fVxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiY3JlZGl0LWNhcmQtYWN0aW9uc1wiPlxuICAgICAgICAgICAgICAgICAgICA8YnV0dG9uIHR5cGU9XCJidXR0b25cIiBjbGFzc05hbWU9XCJpY29uLWJ1dHRvblwiIHRpdGxlPVwi0KDQtdC00LDQs9GD0LLQsNGC0LhcIiBvbkNsaWNrPXsoKSA9PiBzZXRFZGl0b3IoeyAuLi5jYXJkLCBjYXJkTnVtYmVyOiBcIlwiLCBzZWN1cml0eUNvZGU6IFwiXCIgfSl9PjxQZW5jaWwgc2l6ZT17MTV9IC8+PC9idXR0b24+XG4gICAgICAgICAgICAgICAgICAgIDxidXR0b24gdHlwZT1cImJ1dHRvblwiIGNsYXNzTmFtZT1cImljb24tYnV0dG9uIGRhbmdlclwiIHRpdGxlPVwi0JLQuNC00LDQu9C40YLQuFwiIG9uQ2xpY2s9eygpID0+IHJlbW92ZShjYXJkKX0+PFRyYXNoMiBzaXplPXsxNX0gLz48L2J1dHRvbj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvYXJ0aWNsZT4pfVxuICAgICAgICA8L2Rpdj48Lz59XG4gICAgICAgIHtlZGl0b3IgJiYgPGRpdiBjbGFzc05hbWU9XCJjcmVkaXQtY2FyZC1lZGl0b3JcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiY3JlZGl0LWNhcmQtZWRpdG9yLWhlYWRcIj48c3Ryb25nPntlZGl0b3IuaWQgPyBcItCg0LXQtNCw0LPRg9Cy0LDRgtC4INC60LDRgNGC0LrRg1wiIDogXCLQndC+0LLQsCDQutCw0YDRgtC60LBcIn08L3N0cm9uZz48YnV0dG9uIHR5cGU9XCJidXR0b25cIiBjbGFzc05hbWU9XCJpY29uLWJ1dHRvblwiIGFyaWEtbGFiZWw9XCLQl9Cw0LrRgNC40YLQuCDRgNC10LTQsNC60YLQvtGAINC60LDRgNGC0LrQuFwiIGRpc2FibGVkPXtzYXZpbmd9IG9uQ2xpY2s9e2Rpc21pc3N9PjxYIHNpemU9ezE2fSAvPjwvYnV0dG9uPjwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJjcmVkaXQtY2FyZC1mb3JtXCI+XG4gICAgICAgICAgICAgICAgPGxhYmVsIGNsYXNzTmFtZT1cImZpZWxkXCI+PHNwYW4+0J3RltC60L3QtdC50Lw8L3NwYW4+PGlucHV0IHZhbHVlPXtlZGl0b3Iubmlja25hbWV9IG9uQ2hhbmdlPXsoZXZlbnQpID0+IHNldEVkaXRvcih7IC4uLmVkaXRvciwgbmlja25hbWU6IGV2ZW50LnRhcmdldC52YWx1ZSB9KX0gcGxhY2Vob2xkZXI9XCJNWVJBSEEgMVwiIC8+PC9sYWJlbD5cbiAgICAgICAgICAgICAgICA8bGFiZWwgY2xhc3NOYW1lPVwiZmllbGRcIj48c3Bhbj7QhtC84oCZ0Y8g0LLQu9Cw0YHQvdC40LrQsDwvc3Bhbj48aW5wdXQgdmFsdWU9e2VkaXRvci5jYXJkaG9sZGVyTmFtZX0gb25DaGFuZ2U9eyhldmVudCkgPT4gc2V0RWRpdG9yKHsgLi4uZWRpdG9yLCBjYXJkaG9sZGVyTmFtZTogZXZlbnQudGFyZ2V0LnZhbHVlIH0pfSAvPjwvbGFiZWw+XG4gICAgICAgICAgICAgICAgPGxhYmVsIGNsYXNzTmFtZT1cImZpZWxkIHdpZGVcIj48c3Bhbj7QndC+0LzQtdGAINC60LDRgNGC0LrQuHtlZGl0b3IuaWQgPyBcIiDCtyDQt9Cw0LvQuNGI0YLQtSDQv9C+0YDQvtC20L3RltC8LCDRidC+0LEg0L3QtSDQt9C80ZbQvdGO0LLQsNGC0LhcIiA6IFwiXCJ9PC9zcGFuPjxpbnB1dCBpbnB1dE1vZGU9XCJudW1lcmljXCIgYXV0b0NvbXBsZXRlPVwib2ZmXCIgdmFsdWU9e2VkaXRvci5jYXJkTnVtYmVyfSBvbkNoYW5nZT17KGV2ZW50KSA9PiBzZXRFZGl0b3IoeyAuLi5lZGl0b3IsIGNhcmROdW1iZXI6IGV2ZW50LnRhcmdldC52YWx1ZSB9KX0gLz48L2xhYmVsPlxuICAgICAgICAgICAgICAgIDxsYWJlbCBjbGFzc05hbWU9XCJmaWVsZFwiPjxzcGFuPtCh0YLRgNC+0LogTU0vWVk8L3NwYW4+PGlucHV0IHBsYWNlaG9sZGVyPVwiMDkvMjhcIiB2YWx1ZT17ZWRpdG9yLmV4cGlyYXRpb259IG9uQ2hhbmdlPXsoZXZlbnQpID0+IHNldEVkaXRvcih7IC4uLmVkaXRvciwgZXhwaXJhdGlvbjogZXZlbnQudGFyZ2V0LnZhbHVlIH0pfSAvPjwvbGFiZWw+XG4gICAgICAgICAgICAgICAgPGxhYmVsIGNsYXNzTmFtZT1cImZpZWxkXCI+PHNwYW4+Q1ZWe2VkaXRvci5oYXNTZWN1cml0eUNvZGUgPyBcIiDCtyDQt9Cw0LvQuNGI0YLQtSDQv9C+0YDQvtC20L3RltC8LCDRidC+0LEg0L3QtSDQt9C80ZbQvdGO0LLQsNGC0LhcIiA6IFwiIMK3INC90LXQvtCx0L7QsuKAmdGP0LfQutC+0LLQvlwifTwvc3Bhbj48aW5wdXQgdHlwZT1cInBhc3N3b3JkXCIgaW5wdXRNb2RlPVwibnVtZXJpY1wiIGF1dG9Db21wbGV0ZT1cIm9mZlwiIG1heExlbmd0aD17NH0gdmFsdWU9e2VkaXRvci5zZWN1cml0eUNvZGV9IG9uQ2hhbmdlPXsoZXZlbnQpID0+IHNldEVkaXRvcih7IC4uLmVkaXRvciwgc2VjdXJpdHlDb2RlOiBldmVudC50YXJnZXQudmFsdWUucmVwbGFjZSgvXFxEL2csIFwiXCIpIH0pfSAvPjwvbGFiZWw+XG4gICAgICAgICAgICAgICAgPGxhYmVsIGNsYXNzTmFtZT1cImZpZWxkXCI+PHNwYW4+0J/QvtGI0YLQvtCy0LjQuSDRltC90LTQtdC60YEgwrcg0L3QtdC+0LHQvtCy4oCZ0Y/Qt9C60L7QstC+PC9zcGFuPjxpbnB1dCB2YWx1ZT17ZWRpdG9yLnBvc3RhbENvZGV9IG9uQ2hhbmdlPXsoZXZlbnQpID0+IHNldEVkaXRvcih7IC4uLmVkaXRvciwgcG9zdGFsQ29kZTogZXZlbnQudGFyZ2V0LnZhbHVlIH0pfSAvPjwvbGFiZWw+XG4gICAgICAgICAgICAgICAgPGxhYmVsIGNsYXNzTmFtZT1cImZpZWxkXCI+PHNwYW4+0JrRgNCw0ZfQvdCwPC9zcGFuPjxpbnB1dCBtYXhMZW5ndGg9XCIyXCIgdmFsdWU9e2VkaXRvci5jb3VudHJ5Q29kZX0gb25DaGFuZ2U9eyhldmVudCkgPT4gc2V0RWRpdG9yKHsgLi4uZWRpdG9yLCBjb3VudHJ5Q29kZTogZXZlbnQudGFyZ2V0LnZhbHVlLnRvVXBwZXJDYXNlKCkgfSl9IC8+PC9sYWJlbD5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmb3JtLWFjdGlvbnNcIj48YnV0dG9uIHR5cGU9XCJidXR0b25cIiBjbGFzc05hbWU9XCJzZWNvbmRhcnktYnV0dG9uXCIgZGlzYWJsZWQ9e3NhdmluZ30gb25DbGljaz17ZGlzbWlzc30+0KHQutCw0YHRg9Cy0LDRgtC4PC9idXR0b24+PGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgY2xhc3NOYW1lPVwicHJpbWFyeS1idXR0b25cIiBkaXNhYmxlZD17IXZhbGlkIHx8IHNhdmluZ30gb25DbGljaz17c2F2ZX0+0JfQsdC10YDQtdCz0YLQuDwvYnV0dG9uPjwvZGl2PlxuICAgICAgICA8L2Rpdj59XG4gICAgPC9kaXY+O1xufVxuIl0sImZpbGUiOiJDOi9Vc2Vycy9EYXJrbmVzcy9Eb2N1bWVudHMvQWRzQm90L2Zyb250ZW5kL3NyYy9jb21wb25lbnRzL0NyZWRpdENhcmRzU2V0dGluZ3MuanN4In0=

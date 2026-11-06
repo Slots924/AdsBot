@@ -122,9 +122,10 @@ function AccountEditor({ editor, proxies, onClose, onSave, onError }) {
 
     return createPortal(
         <div className="overlay" onMouseDown={() => !saving && onClose()}>
-            <motion.form role="dialog" aria-modal="true" aria-label={creating ? "Новий клієнт" : "Редагувати клієнта"} className="modal account-editor" initial={{ opacity: 0, y: 18, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} onMouseDown={(event) => event.stopPropagation()} onKeyDown={(event) => { if (event.key === "Escape" && !saving) onClose(); }} onSubmit={submit}>
+            <motion.form role="dialog" aria-modal="true" aria-label={creating ? "Новий клієнт" : "Редагувати клієнта"} className="modal account-editor connection-editor" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} onMouseDown={(event) => event.stopPropagation()} onKeyDown={(event) => { if (event.key === "Escape" && !saving) onClose(); }} onSubmit={submit}>
                 <button className="modal-close" type="button" aria-label="Закрити редактор" disabled={saving} onClick={onClose}><X size={17} /></button>
                 <h2>{creating ? "Новий клієнт" : "Редагувати клієнта"}</h2>
+                <p className="connection-editor-description">Профіль, доступ до Facebook і налаштування з’єднання.</p>
                 <KindPicker value={draft.kind} disabled={!creating} onChange={(kind) => setDraft((current) => ({ ...current, kind, userAgent: "", proxyMode: current.proxyMode === "bound" ? "bound" : kind === "system" ? "auto" : "profile" }))} />
                 <div className="template-editor-fields">
                     <label className="field"><span>{system ? "Назва системного юзера" : draft.kind === "bm" ? "Назва BM" : "Назва API-клієнта"}</span><input autoFocus value={draft.name} onChange={update("name")} placeholder="Наприклад, Польща 1" /></label>
@@ -306,9 +307,12 @@ export default function Sidebar({
                                 <span className={`status-dot ${account.status}`} />
                                 <span className="account-copy">
                                     <span className="connection-title-row"><strong title={account.name}>{account.name || "Без назви"}</strong><span className={`connection-status ${account.archived ? "archived" : account.status || "unknown"}`}>{account.archived ? "В архіві" : account.isPrimary ? "Основний" : ({ active: "Активний", inactive: "Неактивний", error: "Помилка" })[account.status] || "Не перевірено"}</span></span>
-                                    <small className="connection-meta" title={account.proxyId ? `Проксі: ${proxies.find((proxy) => proxy.id === account.proxyId)?.name || account.proxyId}` : undefined}>
+                                    {standalone ? <span className="connection-facts">
+                                        <span><span className="connection-fact-label">Профіль AdsPower</span><span className="connection-fact-value">{account.adsPowerProfileNo ? `№ ${account.adsPowerProfileNo}` : "Не прив’язано"}</span></span>
+                                        <span><span className="connection-fact-label">{account.facebookUserId ? "Facebook ID" : "Ключ клієнта"}</span><span className="connection-fact-value connection-facebook-id">{account.facebookUserId || account.accountKey}</span></span>
+                                    </span> : <small className="connection-meta" title={account.proxyId ? `Проксі: ${proxies.find((proxy) => proxy.id === account.proxyId)?.name || account.proxyId}` : undefined}>
                                         {account.facebookUserId || account.accountKey}<span className="connection-meta-divider">·</span>{account.adsPowerProfileNo ? `AdsPower № ${account.adsPowerProfileNo}` : "Без AdsPower-профілю"}
-                                    </small>
+                                    </small>}
                                     {account.error?.message ? <em className="connection-detail" title={account.error.message}>{account.error.message}</em> : <small className="connection-detail">
                                         {getAccountTokenMode(account) === "afp" ? `AFP token ${account.hasAfpToken ? "є" : "—"} · без cookie` : <>UA {account.hasUserAgent ? "✓" : "—"} · token {account.hasAccessToken ? "✓" : "—"}{account.kind !== "system" && <> · cookie {account.hasCookie ? "✓" : "—"}</>}</>}
                                     </small>}

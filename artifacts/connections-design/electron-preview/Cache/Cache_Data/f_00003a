@@ -1,0 +1,185 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/KeitaroDateRangePicker.jsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=7966e25d"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport1_react from "/node_modules/.vite/deps/react.js?v=7966e25d"; const useEffect = __vite__cjsImport1_react["useEffect"]; const useRef = __vite__cjsImport1_react["useRef"]; const useState = __vite__cjsImport1_react["useState"];
+import { CalendarDays, ChevronDown } from "/node_modules/.vite/deps/lucide-react.js?v=7966e25d";
+import { UiButton } from "/src/components/shared-ui/index.js";
+import { keitaroDatePresets } from "/src/lib/keitaro.js";
+function todayIso() {
+  const date = /* @__PURE__ */ new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+function formatDate(value) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("uk-UA", { day: "2-digit", month: "short", year: "numeric" }).format(/* @__PURE__ */ new Date(`${value}T12:00:00`));
+}
+export default function KeitaroDateRangePicker({
+  preset = "today",
+  range = null,
+  onPresetChange = () => {
+  },
+  onRangeChange = () => {
+  }
+}) {
+  _s();
+  const root = useRef(null);
+  const initial = range?.from || todayIso();
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState(range?.from && range?.to && range.from !== range.to ? "range" : "day");
+  const [from, setFrom] = useState(initial);
+  const [to, setTo] = useState(range?.to || initial);
+  useEffect(() => {
+    const close = (event) => {
+      if (!root.current?.contains(event.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, []);
+  const label = range?.from ? range.from === range.to ? formatDate(range.from) : `${formatDate(range.from)} — ${formatDate(range.to)}` : keitaroDatePresets.find((item) => item.id === preset)?.label || "Період";
+  const apply = () => {
+    const end = mode === "day" ? from : to;
+    if (!from || !end) return;
+    onRangeChange({ from, to: end });
+    setOpen(false);
+  };
+  return /* @__PURE__ */ jsxDEV("div", { className: "ui-date-picker", ref: root, children: [
+    /* @__PURE__ */ jsxDEV(UiButton, { className: "ui-date-trigger", "aria-expanded": open, onClick: () => setOpen((current) => !current), children: [
+      /* @__PURE__ */ jsxDEV(CalendarDays, { size: 16 }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+        lineNumber: 55,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("span", { children: label }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+        lineNumber: 56,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV(ChevronDown, { size: 15 }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+        lineNumber: 57,
+        columnNumber: 13
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+      lineNumber: 54,
+      columnNumber: 9
+    }, this),
+    open && /* @__PURE__ */ jsxDEV("div", { className: "ui-date-popover", children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "ui-date-presets", children: keitaroDatePresets.map((item) => /* @__PURE__ */ jsxDEV("button", { type: "button", className: !range && preset === item.id ? "active" : "", onClick: () => {
+        onPresetChange(item.id);
+        onRangeChange(null);
+        setOpen(false);
+      }, children: item.label }, item.id, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+        lineNumber: 61,
+        columnNumber: 51
+      }, this)) }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+        lineNumber: 60,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "ui-date-mode", role: "group", "aria-label": "Режим вибору дати", children: [
+        /* @__PURE__ */ jsxDEV("button", { type: "button", className: mode === "day" ? "active" : "", onClick: () => setMode("day"), children: "Один день" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+          lineNumber: 64,
+          columnNumber: 17
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { type: "button", className: mode === "range" ? "active" : "", onClick: () => setMode("range"), children: "Інтервал" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+          lineNumber: 65,
+          columnNumber: 17
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+        lineNumber: 63,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "ui-date-fields", children: [
+        /* @__PURE__ */ jsxDEV("label", { children: [
+          /* @__PURE__ */ jsxDEV("span", { children: mode === "day" ? "Дата" : "Від" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+            lineNumber: 68,
+            columnNumber: 24
+          }, this),
+          /* @__PURE__ */ jsxDEV("input", { type: "date", value: from, onChange: (event) => {
+            setFrom(event.target.value);
+            if (mode === "day") setTo(event.target.value);
+          } }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+            lineNumber: 68,
+            columnNumber: 70
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+          lineNumber: 68,
+          columnNumber: 17
+        }, this),
+        mode === "range" && /* @__PURE__ */ jsxDEV("label", { children: [
+          /* @__PURE__ */ jsxDEV("span", { children: "До" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+            lineNumber: 69,
+            columnNumber: 45
+          }, this),
+          /* @__PURE__ */ jsxDEV("input", { type: "date", value: to, min: from, onChange: (event) => setTo(event.target.value) }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+            lineNumber: 69,
+            columnNumber: 60
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+          lineNumber: 69,
+          columnNumber: 38
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+        lineNumber: 67,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "ui-date-actions", children: /* @__PURE__ */ jsxDEV(UiButton, { variant: "primary", disabled: !from || mode === "range" && !to, onClick: apply, children: "Застосувати" }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+        lineNumber: 71,
+        columnNumber: 46
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+        lineNumber: 71,
+        columnNumber: 13
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+      lineNumber: 59,
+      columnNumber: 18
+    }, this)
+  ] }, void 0, true, {
+    fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx",
+    lineNumber: 53,
+    columnNumber: 10
+  }, this);
+}
+_s(KeitaroDateRangePicker, "/SogoUnxJ8y3HJNZDG53RFpLq8A=");
+_c = KeitaroDateRangePicker;
+var _c;
+$RefreshReg$(_c, "KeitaroDateRangePicker");
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+function $RefreshReg$(type, id) {
+  return RefreshRuntime.register(type, "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/KeitaroDateRangePicker.jsx " + id);
+}
+function $RefreshSig$() {
+  return RefreshRuntime.createSignatureFunctionForTransform();
+}
+
+//# sourceMappingURL=data:application/json;base64,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SCxvQkFBUUcsTUFBTUcsT0FBTzNCLEtBQUs7QUFBRyxnQkFBSWtCLFNBQVMsTUFBT0ksT0FBTUUsTUFBTUcsT0FBTzNCLEtBQUs7QUFBQSxVQUFHLEtBQW5JO0FBQUE7QUFBQTtBQUFBO0FBQUEsaUJBQXFJO0FBQUEsYUFBMUw7QUFBQTtBQUFBO0FBQUE7QUFBQSxlQUE2TDtBQUFBLFFBQzVMa0IsU0FBUyxXQUFXLHVCQUFDLFdBQU07QUFBQSxpQ0FBQyxVQUFLLGtCQUFOO0FBQUE7QUFBQTtBQUFBO0FBQUEsaUJBQVE7QUFBQSxVQUFPLHVCQUFDLFdBQU0sTUFBSyxRQUFPLE9BQU9FLElBQUksS0FBS0wsTUFBTSxVQUFVLENBQUNTLFVBQVVGLE1BQU1FLE1BQU1HLE9BQU8zQixLQUFLLEtBQXRGO0FBQUE7QUFBQTtBQUFBO0FBQUEsaUJBQXdGO0FBQUEsYUFBOUc7QUFBQTtBQUFBO0FBQUE7QUFBQSxlQUFpSDtBQUFBLFdBRjFJO0FBQUE7QUFBQTtBQUFBO0FBQUEsYUFHQTtBQUFBLE1BQ0EsdUJBQUMsU0FBSSxXQUFVLG1CQUFrQixpQ0FBQyxZQUFTLFNBQVEsV0FBVSxVQUFVLENBQUNlLFFBQVNHLFNBQVMsV0FBVyxDQUFDRSxJQUFLLFNBQVNlLE9BQU8sMkJBQTFGO0FBQUE7QUFBQTtBQUFBO0FBQUEsYUFBcUcsS0FBdEk7QUFBQTtBQUFBO0FBQUE7QUFBQSxhQUFpSjtBQUFBLFNBWjVJO0FBQUE7QUFBQTtBQUFBO0FBQUEsV0FhVDtBQUFBLE9BbkJHO0FBQUE7QUFBQTtBQUFBO0FBQUEsU0FvQlA7QUFDSjtBQUFDdkIsR0FyRHVCTCx3QkFBc0I7QUFBQSxLQUF0QkE7QUFBc0IsSUFBQStCO0FBQUEsYUFBQUEsSUFBQSIsIm5hbWVzIjpbInVzZUVmZmVjdCIsInVzZVJlZiIsInVzZVN0YXRlIiwiQ2FsZW5kYXJEYXlzIiwiQ2hldnJvbkRvd24iLCJVaUJ1dHRvbiIsImtlaXRhcm9EYXRlUHJlc2V0cyIsInRvZGF5SXNvIiwiZGF0ZSIsIkRhdGUiLCJnZXRGdWxsWWVhciIsIlN0cmluZyIsImdldE1vbnRoIiwicGFkU3RhcnQiLCJnZXREYXRlIiwiZm9ybWF0RGF0ZSIsInZhbHVlIiwiSW50bCIsIkRhdGVUaW1lRm9ybWF0IiwiZGF5IiwibW9udGgiLCJ5ZWFyIiwiZm9ybWF0IiwiS2VpdGFyb0RhdGVSYW5nZVBpY2tlciIsInByZXNldCIsInJhbmdlIiwib25QcmVzZXRDaGFuZ2UiLCJvblJhbmdlQ2hhbmdlIiwiX3MiLCJyb290IiwiaW5pdGlhbCIsImZyb20iLCJvcGVuIiwic2V0T3BlbiIsIm1vZGUiLCJzZXRNb2RlIiwidG8iLCJzZXRGcm9tIiwic2V0VG8iLCJjbG9zZSIsImV2ZW50IiwiY3VycmVudCIsImNvbnRhaW5zIiwidGFyZ2V0IiwiZG9jdW1lbnQiLCJhZGRFdmVudExpc3RlbmVyIiwicmVtb3ZlRXZlbnRMaXN0ZW5lciIsImxhYmVsIiwiZmluZCIsIml0ZW0iLCJpZCIsImFwcGx5IiwiZW5kIiwibWFwIiwiX2MiXSwiaWdub3JlTGlzdCI6W10sInNvdXJjZXMiOlsiS2VpdGFyb0RhdGVSYW5nZVBpY2tlci5qc3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlRWZmZWN0LCB1c2VSZWYsIHVzZVN0YXRlIH0gZnJvbSBcInJlYWN0XCI7XG5pbXBvcnQgeyBDYWxlbmRhckRheXMsIENoZXZyb25Eb3duIH0gZnJvbSBcImx1Y2lkZS1yZWFjdFwiO1xuXG5pbXBvcnQgeyBVaUJ1dHRvbiB9IGZyb20gXCIuL3NoYXJlZC11aS9pbmRleC5qc1wiO1xuaW1wb3J0IHsga2VpdGFyb0RhdGVQcmVzZXRzIH0gZnJvbSBcIi4uL2xpYi9rZWl0YXJvLmpzXCI7XG5cblxuZnVuY3Rpb24gdG9kYXlJc28oKSB7XG4gICAgY29uc3QgZGF0ZSA9IG5ldyBEYXRlKCk7XG4gICAgcmV0dXJuIGAke2RhdGUuZ2V0RnVsbFllYXIoKX0tJHtTdHJpbmcoZGF0ZS5nZXRNb250aCgpICsgMSkucGFkU3RhcnQoMiwgXCIwXCIpfS0ke1N0cmluZyhkYXRlLmdldERhdGUoKSkucGFkU3RhcnQoMiwgXCIwXCIpfWA7XG59XG5cblxuZnVuY3Rpb24gZm9ybWF0RGF0ZSh2YWx1ZSkge1xuICAgIGlmICghdmFsdWUpIHJldHVybiBcIlwiO1xuICAgIHJldHVybiBuZXcgSW50bC5EYXRlVGltZUZvcm1hdChcInVrLVVBXCIsIHsgZGF5OiBcIjItZGlnaXRcIiwgbW9udGg6IFwic2hvcnRcIiwgeWVhcjogXCJudW1lcmljXCIgfSlcbiAgICAgICAgLmZvcm1hdChuZXcgRGF0ZShgJHt2YWx1ZX1UMTI6MDA6MDBgKSk7XG59XG5cblxuZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gS2VpdGFyb0RhdGVSYW5nZVBpY2tlcih7XG4gICAgcHJlc2V0ID0gXCJ0b2RheVwiLFxuICAgIHJhbmdlID0gbnVsbCxcbiAgICBvblByZXNldENoYW5nZSA9ICgpID0+IHt9LFxuICAgIG9uUmFuZ2VDaGFuZ2UgPSAoKSA9PiB7fSxcbn0pIHtcbiAgICBjb25zdCByb290ID0gdXNlUmVmKG51bGwpO1xuICAgIGNvbnN0IGluaXRpYWwgPSByYW5nZT8uZnJvbSB8fCB0b2RheUlzbygpO1xuICAgIGNvbnN0IFtvcGVuLCBzZXRPcGVuXSA9IHVzZVN0YXRlKGZhbHNlKTtcbiAgICBjb25zdCBbbW9kZSwgc2V0TW9kZV0gPSB1c2VTdGF0ZShyYW5nZT8uZnJvbSAmJiByYW5nZT8udG8gJiYgcmFuZ2UuZnJvbSAhPT0gcmFuZ2UudG8gPyBcInJhbmdlXCIgOiBcImRheVwiKTtcbiAgICBjb25zdCBbZnJvbSwgc2V0RnJvbV0gPSB1c2VTdGF0ZShpbml0aWFsKTtcbiAgICBjb25zdCBbdG8sIHNldFRvXSA9IHVzZVN0YXRlKHJhbmdlPy50byB8fCBpbml0aWFsKTtcblxuICAgIHVzZUVmZmVjdCgoKSA9PiB7XG4gICAgICAgIGNvbnN0IGNsb3NlID0gKGV2ZW50KSA9PiB7IGlmICghcm9vdC5jdXJyZW50Py5jb250YWlucyhldmVudC50YXJnZXQpKSBzZXRPcGVuKGZhbHNlKTsgfTtcbiAgICAgICAgZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcihcIm1vdXNlZG93blwiLCBjbG9zZSk7XG4gICAgICAgIHJldHVybiAoKSA9PiBkb2N1bWVudC5yZW1vdmVFdmVudExpc3RlbmVyKFwibW91c2Vkb3duXCIsIGNsb3NlKTtcbiAgICB9LCBbXSk7XG5cbiAgICBjb25zdCBsYWJlbCA9IHJhbmdlPy5mcm9tXG4gICAgICAgID8gcmFuZ2UuZnJvbSA9PT0gcmFuZ2UudG9cbiAgICAgICAgICAgID8gZm9ybWF0RGF0ZShyYW5nZS5mcm9tKVxuICAgICAgICAgICAgOiBgJHtmb3JtYXREYXRlKHJhbmdlLmZyb20pfSDigJQgJHtmb3JtYXREYXRlKHJhbmdlLnRvKX1gXG4gICAgICAgIDoga2VpdGFyb0RhdGVQcmVzZXRzLmZpbmQoKGl0ZW0pID0+IGl0ZW0uaWQgPT09IHByZXNldCk/LmxhYmVsIHx8IFwi0J/QtdGA0ZbQvtC0XCI7XG5cbiAgICBjb25zdCBhcHBseSA9ICgpID0+IHtcbiAgICAgICAgY29uc3QgZW5kID0gbW9kZSA9PT0gXCJkYXlcIiA/IGZyb20gOiB0bztcbiAgICAgICAgaWYgKCFmcm9tIHx8ICFlbmQpIHJldHVybjtcbiAgICAgICAgb25SYW5nZUNoYW5nZSh7IGZyb20sIHRvOiBlbmQgfSk7XG4gICAgICAgIHNldE9wZW4oZmFsc2UpO1xuICAgIH07XG5cbiAgICByZXR1cm4gPGRpdiBjbGFzc05hbWU9XCJ1aS1kYXRlLXBpY2tlclwiIHJlZj17cm9vdH0+XG4gICAgICAgIDxVaUJ1dHRvbiBjbGFzc05hbWU9XCJ1aS1kYXRlLXRyaWdnZXJcIiBhcmlhLWV4cGFuZGVkPXtvcGVufSBvbkNsaWNrPXsoKSA9PiBzZXRPcGVuKChjdXJyZW50KSA9PiAhY3VycmVudCl9PlxuICAgICAgICAgICAgPENhbGVuZGFyRGF5cyBzaXplPXsxNn0gLz5cbiAgICAgICAgICAgIDxzcGFuPntsYWJlbH08L3NwYW4+XG4gICAgICAgICAgICA8Q2hldnJvbkRvd24gc2l6ZT17MTV9IC8+XG4gICAgICAgIDwvVWlCdXR0b24+XG4gICAgICAgIHtvcGVuICYmIDxkaXYgY2xhc3NOYW1lPVwidWktZGF0ZS1wb3BvdmVyXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInVpLWRhdGUtcHJlc2V0c1wiPlxuICAgICAgICAgICAgICAgIHtrZWl0YXJvRGF0ZVByZXNldHMubWFwKChpdGVtKSA9PiA8YnV0dG9uIGtleT17aXRlbS5pZH0gdHlwZT1cImJ1dHRvblwiIGNsYXNzTmFtZT17IXJhbmdlICYmIHByZXNldCA9PT0gaXRlbS5pZCA/IFwiYWN0aXZlXCIgOiBcIlwifSBvbkNsaWNrPXsoKSA9PiB7IG9uUHJlc2V0Q2hhbmdlKGl0ZW0uaWQpOyBvblJhbmdlQ2hhbmdlKG51bGwpOyBzZXRPcGVuKGZhbHNlKTsgfX0+e2l0ZW0ubGFiZWx9PC9idXR0b24+KX1cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ1aS1kYXRlLW1vZGVcIiByb2xlPVwiZ3JvdXBcIiBhcmlhLWxhYmVsPVwi0KDQtdC20LjQvCDQstC40LHQvtGA0YMg0LTQsNGC0LhcIj5cbiAgICAgICAgICAgICAgICA8YnV0dG9uIHR5cGU9XCJidXR0b25cIiBjbGFzc05hbWU9e21vZGUgPT09IFwiZGF5XCIgPyBcImFjdGl2ZVwiIDogXCJcIn0gb25DbGljaz17KCkgPT4gc2V0TW9kZShcImRheVwiKX0+0J7QtNC40L0g0LTQtdC90Yw8L2J1dHRvbj5cbiAgICAgICAgICAgICAgICA8YnV0dG9uIHR5cGU9XCJidXR0b25cIiBjbGFzc05hbWU9e21vZGUgPT09IFwicmFuZ2VcIiA/IFwiYWN0aXZlXCIgOiBcIlwifSBvbkNsaWNrPXsoKSA9PiBzZXRNb2RlKFwicmFuZ2VcIil9PtCG0L3RgtC10YDQstCw0Ls8L2J1dHRvbj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ1aS1kYXRlLWZpZWxkc1wiPlxuICAgICAgICAgICAgICAgIDxsYWJlbD48c3Bhbj57bW9kZSA9PT0gXCJkYXlcIiA/IFwi0JTQsNGC0LBcIiA6IFwi0JLRltC0XCJ9PC9zcGFuPjxpbnB1dCB0eXBlPVwiZGF0ZVwiIHZhbHVlPXtmcm9tfSBvbkNoYW5nZT17KGV2ZW50KSA9PiB7IHNldEZyb20oZXZlbnQudGFyZ2V0LnZhbHVlKTsgaWYgKG1vZGUgPT09IFwiZGF5XCIpIHNldFRvKGV2ZW50LnRhcmdldC52YWx1ZSk7IH19IC8+PC9sYWJlbD5cbiAgICAgICAgICAgICAgICB7bW9kZSA9PT0gXCJyYW5nZVwiICYmIDxsYWJlbD48c3Bhbj7QlNC+PC9zcGFuPjxpbnB1dCB0eXBlPVwiZGF0ZVwiIHZhbHVlPXt0b30gbWluPXtmcm9tfSBvbkNoYW5nZT17KGV2ZW50KSA9PiBzZXRUbyhldmVudC50YXJnZXQudmFsdWUpfSAvPjwvbGFiZWw+fVxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInVpLWRhdGUtYWN0aW9uc1wiPjxVaUJ1dHRvbiB2YXJpYW50PVwicHJpbWFyeVwiIGRpc2FibGVkPXshZnJvbSB8fCAobW9kZSA9PT0gXCJyYW5nZVwiICYmICF0byl9IG9uQ2xpY2s9e2FwcGx5fT7Ql9Cw0YHRgtC+0YHRg9Cy0LDRgtC4PC9VaUJ1dHRvbj48L2Rpdj5cbiAgICAgICAgPC9kaXY+fVxuICAgIDwvZGl2Pjtcbn1cbiJdLCJmaWxlIjoiQzovVXNlcnMvRGFya25lc3MvRG9jdW1lbnRzL0Fkc0JvdC9mcm9udGVuZC9zcmMvY29tcG9uZW50cy9LZWl0YXJvRGF0ZVJhbmdlUGlja2VyLmpzeCJ9
