@@ -15,6 +15,7 @@ import {
     RefreshCw,
     RotateCw,
     Star,
+    Trash2,
     UserRoundCog,
     X,
 } from "lucide-react";
@@ -288,7 +289,7 @@ export default function Sidebar({
         <aside className={`sidebar ${standalone ? "accounts-tab-sidebar resource-strip" : ""}`}>
             {!standalone && <div className="brand"><div className="brand-mark"><Bot size={22} /></div><div><strong>AdsBot</strong><span>Control center</span></div></div>}
             <div className="sidebar-title-row">
-                <div><span className="eyebrow">Facebook</span><h2>API-клієнти</h2></div>
+                <div className="connection-panel-title">{!standalone && <span className="eyebrow">Facebook</span>}<h2>API-клієнти</h2>{standalone && <b className="strip-count">{visibleAccounts.length}</b>}</div>
                 <div className="sidebar-account-tools">
                     {!standalone && <button className="icon-button" onClick={() => setEditor({ mode: "create", kind })} title="Додати акаунт"><Plus size={17} /></button>}
                     <button className="icon-button" onClick={onRefresh} disabled={loading} title="Оновити акаунти"><RefreshCw className={loading ? "spin" : ""} size={17} /></button>
@@ -300,25 +301,22 @@ export default function Sidebar({
                 {loading && accounts.length === 0
                     ? [1, 2, 3].map((item) => <div className="account-card skeleton" key={item} />)
                     : visibleAccounts.map((account, index) => (
-                        <motion.div className={`account-card-shell kind-${account.kind || "api"} ${account.archived ? "archived" : ""}`} key={account.accountKey} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * .045 }}>
+                        <motion.div className={`account-card-shell connection-card kind-${account.kind || "api"} ${account.archived ? "archived" : ""} ${account.accountKey === selectedAccountKey ? "selected" : ""}`} key={account.accountKey} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * .045 }}>
                             <button type="button" className={`account-card ${account.accountKey === selectedAccountKey ? "selected" : ""}`} onClick={() => account.kind !== "system" && !account.archived && onSelect(account.accountKey)} disabled={account.archived}>
                                 <span className={`status-dot ${account.status}`} />
                                 <span className="account-copy">
-                                    <strong>{account.name || "Без назви"}</strong>
-                                    {(account.kind === "bm" || account.kind === "system") && account.isPrimary && <small className="account-primary-label">Основний</small>}
-                                    <span>{account.archived ? "В архіві" : account.kind === "system" ? "System User" : account.kind === "bm" ? "BM" : "API-клієнт"}</span>
-                                    <small>{account.facebookUserId || account.accountKey}</small>
-                                    {account.adsPowerProfileNo && <small>AdsPower № {account.adsPowerProfileNo}</small>}
-                                    <small>
-                                        {getAccountTokenMode(account) === "afp" ? `AFP token ${account.hasAfpToken ? "є" : "—"} · без cookie` : <>Дані: UA {account.hasUserAgent ? "є" : "—"}
-                                        {" · "}token {account.hasAccessToken ? "є" : "—"}
-                                        {account.kind !== "system" && <> · cookie {account.hasCookie ? "є" : "—"}</>}</>}
+                                    <span className="connection-title-row"><strong title={account.name}>{account.name || "Без назви"}</strong><span className={`connection-status ${account.archived ? "archived" : account.status || "unknown"}`}>{account.archived ? "В архіві" : account.isPrimary ? "Основний" : ({ active: "Активний", inactive: "Неактивний", error: "Помилка" })[account.status] || "Не перевірено"}</span></span>
+                                    <small className="connection-meta" title={account.proxyId ? `Проксі: ${proxies.find((proxy) => proxy.id === account.proxyId)?.name || account.proxyId}` : undefined}>
+                                        {account.facebookUserId || account.accountKey}<span className="connection-meta-divider">·</span>{account.adsPowerProfileNo ? `AdsPower № ${account.adsPowerProfileNo}` : "Без AdsPower-профілю"}
                                     </small>
-                                    {account.proxyId && <small>Проксі: {proxies.find((proxy) => proxy.id === account.proxyId)?.name || " "} · {account.proxyId}</small>}
-                                    {account.error?.message && <em>{account.error.message}</em>}
+                                    {account.error?.message ? <em className="connection-detail" title={account.error.message}>{account.error.message}</em> : <small className="connection-detail">
+                                        {getAccountTokenMode(account) === "afp" ? `AFP token ${account.hasAfpToken ? "є" : "—"} · без cookie` : <>UA {account.hasUserAgent ? "✓" : "—"} · token {account.hasAccessToken ? "✓" : "—"}{account.kind !== "system" && <> · cookie {account.hasCookie ? "✓" : "—"}</>}</>}
+                                    </small>}
                                 </span>
                             </button>
-                            {(account.kind || "api") === "api" && <div className="account-card-token-mode"><TokenPicker value={getAccountTokenMode(account)} onChange={(mode) => changeTokenMode(account, mode)} afpDisabled={!account.hasAfpToken} disabled={busyKey === account.accountKey || syncingAccountKeys.includes(account.accountKey) || refreshingTokenAccountKeys.includes(account.accountKey) || account.archived} /></div>}
+                            <div className="connection-card-footer">
+                            {(account.kind || "api") === "api" ? <div className="account-card-token-mode"><TokenPicker value={getAccountTokenMode(account)} onChange={(mode) => changeTokenMode(account, mode)} afpDisabled={!account.hasAfpToken} disabled={busyKey === account.accountKey || syncingAccountKeys.includes(account.accountKey) || refreshingTokenAccountKeys.includes(account.accountKey) || account.archived} /></div> : <span className="connection-kind-label">{account.kind === "bm" ? "Business Manager" : "System User"}</span>}
+                            <span className="account-card-tools">
                             {account.kind !== "system" && <button
                                 type="button"
                                 className="icon-button account-card-check"
@@ -328,7 +326,6 @@ export default function Sidebar({
                             >
                                 {busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <RotateCw size={13} />}
                             </button>}
-                            <span className="account-card-tools">
                                 {account.kind === "bm" && <button type="button" className="icon-button account-personal-button" title="Відкрити персональний акаунт із цим БМ" aria-label={`Персональний акаунт для ${account.name || "БМ"}`} disabled={account.archived} onClick={(event) => { event.stopPropagation(); onOpenPersonalAccount(account); }}><UserRoundCog size={14} /></button>}
                                 {(account.kind === "bm" || account.kind === "system") && <button type="button" className={`icon-button account-primary-button ${account.isPrimary ? "active" : ""}`} title={account.isPrimary ? "Основний клієнт" : "Зробити основним"} aria-label={account.isPrimary ? "Основний клієнт" : "Зробити основним"} disabled={account.isPrimary || busyKey === account.accountKey} onClick={(event) => { event.stopPropagation(); setBusyKey(account.accountKey); Promise.resolve(onSetPrimary(account.accountKey)).catch((error) => onError({ ...errorDetails(error), title: "Не вдалося обрати основного клієнта" })).finally(() => setBusyKey(null)); }}><Star size={14} fill={account.isPrimary ? "currentColor" : "none"} /></button>}
                                 {account.kind !== "system" && (() => {
@@ -341,10 +338,11 @@ export default function Sidebar({
                                         <button type="button" className="icon-button" aria-label="Оновити access token" title={!account.hasCookie || !account.hasUserAgent ? "Спочатку додайте cookies та User-Agent або синхронізуйте з AdsPower" : "Оновити access token через проксі"} disabled={disabled || !account.hasCookie || !account.hasUserAgent} onClick={(event) => refreshAccessToken(event, account)}>{refreshing ? <LoaderCircle className="spin" size={13} /> : <KeyRound size={13} />}</button>
                                     </span>;
                                 })()}
-                                {account.kind !== "system" && account.adsPowerProfileNo && (account.adsPowerOpen ? <button type="button" className="icon-button danger" title="Профіль відкритий — закрити" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onCloseProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Power size={13} />}</button> : <button type="button" className="icon-button" title="Відкрити AdsPower-профіль" disabled={busyKey === account.accountKey || account.archived} onClick={(event) => changeProfileState(event, account, onOpenProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Play size={13} />}</button>)}
+                                {account.kind !== "system" && (account.adsPowerOpen ? <button type="button" className="icon-button danger" title="Профіль відкритий — закрити" disabled={busyKey === account.accountKey || account.archived || !account.adsPowerProfileNo} onClick={(event) => changeProfileState(event, account, onCloseProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Power size={13} />}</button> : <button type="button" className="icon-button account-launch-button" aria-label="Відкрити AdsPower-профіль" title={account.adsPowerProfileNo ? "Відкрити AdsPower-профіль" : "Спочатку вкажіть AdsPower-профіль"} disabled={busyKey === account.accountKey || account.archived || !account.adsPowerProfileNo} onClick={(event) => changeProfileState(event, account, onOpenProfile)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Play size={13} />}</button>)}
                                 <button type="button" className="icon-button" title="Редагувати" disabled={editingKey !== null || busyKey === account.accountKey} onClick={(event) => { event.stopPropagation(); openEditor(account); }}>{editingKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Pencil size={13} />}</button>
-                                <button type="button" className="icon-button danger account-delete-button" title="Видалити API-клієнта" disabled={busyKey === account.accountKey} onClick={(event) => removeAccount(event, account)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <X size={13} />}</button>
+                                <button type="button" className="icon-button danger account-delete-button" title="Видалити API-клієнта" disabled={busyKey === account.accountKey} onClick={(event) => removeAccount(event, account)}>{busyKey === account.accountKey ? <LoaderCircle className="spin" size={13} /> : <Trash2 size={13} />}</button>
                             </span>
+                            </div>
                         </motion.div>
                     ))}
             </div>

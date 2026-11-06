@@ -2,14 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Reorder, motion, useDragControls } from "framer-motion";
 import {
-    Flashlight,
-    FlashlightOff,
     GripVertical,
     LoaderCircle,
     Pencil,
     Plus,
     RefreshCw,
     ShieldCheck,
+    Trash2,
     CloudDownload,
     X,
 } from "lucide-react";
@@ -324,9 +323,11 @@ function ProxyCard({
     const flashlightOff = status.working === false;
     const card = (
         <div
-            className={`account-card proxy-card ${selected ? "selected" : ""} ${selectable ? "selectable" : ""}`}
+            className={`connection-card proxy-card ${selected ? "selected" : ""} ${selectable ? "selectable" : ""}`}
             onClick={() => selectable && onSelect?.(proxy.id)}
         >
+            <div className="connection-proxy-content">
+            <div className="connection-title-row">
             {canReorder && (
                 <button
                     className="ad-drag-handle enabled"
@@ -342,28 +343,29 @@ function ProxyCard({
                 </button>
             )}
             <span
-                className={`proxy-flashlight ${flashlightOn ? "on" : flashlightOff ? "off" : "unknown"}`}
+                className={`status-dot ${flashlightOn ? "active" : flashlightOff ? "error" : "unknown"}`}
                 title={flashlightOn ? "Проксі активна" : flashlightOff ? "Проксі неактивна" : "Статус ще не перевірено"}
             >
-                {flashlightOff ? <FlashlightOff size={16} /> : <Flashlight size={16} />}
             </span>
-            <span className="account-copy">
-                <strong>{proxy.adsPowerId ?? "Без AdsPower ID"}</strong>
-                <span>{proxy.name || " "}</span>
-                {apiDefault && <small className="proxy-api-badge">API</small>}
-                {status.ip && <small>IP {status.ip}</small>}
+                <strong title={proxy.name}>{proxy.name || (proxy.adsPowerId != null ? `Проксі № ${proxy.adsPowerId}` : "Без назви")}</strong>
+                {apiDefault && <small className="connection-status proxy-pool-badge">Пул API</small>}
+            </div>
+            <small className="connection-meta">{proxyTypes.find((type) => type.value === proxy.type)?.label || proxy.type}<span className="connection-meta-divider">·</span>{proxy.adsPowerId != null ? `AdsPower № ${proxy.adsPowerId}` : "Без AdsPower ID"}</small>
+            <small className={`connection-detail ${flashlightOff ? "error" : ""}`}>{status.checking ? "Перевіряємо з’єднання…" : flashlightOn ? "З’єднання працює" : flashlightOff ? "Проксі недоступна" : "Ще не перевірено"}{status.ip && <span> · IP {status.ip}</span>}</small>
+            </div>
+            <div className="connection-card-footer">
                 <label className="proxy-public-label" onClick={(event) => event.stopPropagation()} onPointerDown={(event) => event.stopPropagation()}>
                     <input
                         className="proxy-public-toggle"
                         type="checkbox"
                         role="switch"
+                        aria-label="Загальнодоступна"
                         checked={proxy.isPublic !== false}
                         disabled={busyId === proxy.id || !onTogglePublic}
                         onChange={(event) => onTogglePublic?.(proxy, event.target.checked)}
                     />
-                    Загальнодоступна
+                    {proxy.isPublic !== false ? "Публічна" : "Приватна"}
                 </label>
-            </span>
             <span className="proxy-card-actions">
                 {onSync && <button type="button" className="icon-button" title="Синхронізувати з AdsPower" disabled={proxy.adsPowerId == null || busyId === proxy.id} onClick={(event) => onSync(event, proxy)}><CloudDownload size={13} /></button>}
                 <button
@@ -406,9 +408,10 @@ function ProxyCard({
                 >
                     {busyId === proxy.id
                         ? <LoaderCircle className="spin" size={13} />
-                        : <X size={13} />}
+                        : <Trash2 size={13} />}
                 </button>
             </span>
+            </div>
         </div>
     );
 
@@ -459,10 +462,12 @@ export default function ProxyStrip({
     excludedIds = emptyExcludedIds,
     autoCheck = false,
     onSelect,
+    onRefresh,
 }) {
     const [editor, setEditor] = useState(null);
     const [statuses, setStatuses] = useState({});
     const [busyId, setBusyId] = useState(null);
+    const [publicFilter, setPublicFilter] = useState("all");
     const [orderedIds, setOrderedIds] = useState(proxies.map((proxy) => proxy.id));
     const orderedIdsRef = { current: orderedIds };
     orderedIdsRef.current = orderedIds;
@@ -471,7 +476,7 @@ export default function ProxyStrip({
         () => proxies.filter((proxy) => !excluded.has(proxy.id)),
         [proxies, excluded]
     );
-    const canReorder = typeof onReorder === "function" && !selectable;
+    const canReorder = typeof onReorder === "function" && !selectable && publicFilter === "all";
     const apiDefaultId = proxies.find((proxy) => proxy.type !== "no_proxy" && proxy.isPublic !== false)?.id ?? null;
 
     useEffect(() => {
@@ -599,7 +604,7 @@ export default function ProxyStrip({
 
     const orderedProxies = orderedIds
         .map((id) => visibleProxies.find((proxy) => proxy.id === id))
-        .filter(Boolean);
+        .filter((proxy) => proxy && (variant === "picker" || publicFilter === "all" || (publicFilter === "public" ? proxy.isPublic !== false : proxy.isPublic === false)));
     const listItems = loading && visibleProxies.length === 0
         ? [1, 2, 3].map((item) => <div className="account-card skeleton" key={item} />)
         : orderedProxies.map((proxy, index) => (
@@ -625,14 +630,17 @@ export default function ProxyStrip({
         ));
 
     return (
-        <aside className={`sidebar accounts-tab-sidebar resource-strip ${variant === "picker" ? "proxy-picker-strip" : ""}`}>
+        <aside className={`sidebar accounts-tab-sidebar resource-strip connection-proxies ${variant === "picker" ? "proxy-picker-strip" : ""}`}>
             <div className="sidebar-title-row">
-                <div>
-                    <span className="eyebrow">Пул</span>
+                <div className="connection-panel-title">
                     <h2>Проксі</h2>
+                    <b className="strip-count">{visibleProxies.length}</b>
                 </div>
-                <b className="strip-count">{visibleProxies.length}</b>
+                {variant !== "picker" && <button type="button" className="icon-button" title="Оновити список проксі" onClick={onRefresh} disabled={loading || !onRefresh}><RefreshCw className={loading ? "spin" : ""} size={16} /></button>}
             </div>
+            {variant !== "picker" && <div className="connection-filter-picker" role="group" aria-label="Доступність проксі">
+                {[["all", "Усі", visibleProxies.length], ["public", "Публічні", visibleProxies.filter((proxy) => proxy.isPublic !== false).length], ["private", "Приватні", visibleProxies.filter((proxy) => proxy.isPublic === false).length]].map(([id, label, count]) => <button type="button" key={id} aria-pressed={publicFilter === id} onClick={() => setPublicFilter(id)}>{label}<span>{count}</span></button>)}
+            </div>}
             {canReorder ? (
                 <Reorder.Group
                     as="div"
@@ -645,9 +653,10 @@ export default function ProxyStrip({
                     }}
                 >
                     {listItems}
+                    {!loading && orderedProxies.length === 0 && <div className="account-empty-state">У цій категорії немає проксі.</div>}
                 </Reorder.Group>
             ) : (
-                <div className="account-list">{listItems}</div>
+                <div className="account-list">{listItems}{!loading && orderedProxies.length === 0 && <div className="account-empty-state">У цій категорії немає проксі.</div>}</div>
             )}
             <button
                 type="button"

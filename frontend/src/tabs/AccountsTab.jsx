@@ -31,10 +31,12 @@ export default function AccountsTab({
     onRefreshProxyIp,
     onSyncProxy,
     onReorderProxies,
+    onRefreshProxies,
     onError,
 }) {
     return (
-        <section className="accounts-tab">
+        <section className="connections-page">
+            <header className="connections-page-heading"><div><span className="eyebrow">Підключення</span><h1>API-клієнти та проксі</h1></div><span className="connections-summary">Клієнтів: {accounts.length} · проксі: {proxies.length}</span></header>
             <div className="accounts-workspace">
                 <Sidebar
                     standalone
@@ -70,6 +72,7 @@ export default function AccountsTab({
                     onRefreshIp={onRefreshProxyIp}
                     onSync={onSyncProxy}
                     onReorder={onReorderProxies}
+                    onRefresh={onRefreshProxies}
                     onError={onError}
                 />
             </div>

@@ -460,13 +460,13 @@ describe("GUI helpers", () => {
             />
         );
 
-        expect(screen.getByText("14")).toBeInTheDocument();
+        expect(screen.getByText(/AdsPower № 14/)).toBeInTheDocument();
         expect(screen.getByText("Київ")).toBeInTheDocument();
-        expect(screen.getByText("API")).toBeInTheDocument();
+        expect(screen.getByText("Пул API")).toBeInTheDocument();
         fireEvent.click(screen.getByTitle("Перевірити статус"));
         await waitFor(() => expect(onCheck).toHaveBeenCalledWith("proxy-001"));
-        expect(await screen.findByText("IP 203.0.113.10")).toBeInTheDocument();
-        expect(document.querySelector(".proxy-flashlight.on")).toBeInTheDocument();
+        expect(await screen.findByText(/IP 203.0.113.10/)).toBeInTheDocument();
+        expect(document.querySelector(".proxy-card .status-dot.active")).toBeInTheDocument();
     });
 
     it("крутить кнопку зміни IP і фарбує її після відповіді", async () => {
