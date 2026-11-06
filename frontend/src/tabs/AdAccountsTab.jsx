@@ -282,8 +282,8 @@ function CampaignRow({ campaign, index, currency, pending, onToggle, onDelete, o
                     {!unavailable && <button type="button" className={`campaign-expand-button ${expanded ? "expanded" : ""}`} aria-label={`${expanded ? "Згорнути" : "Розгорнути"} кампанію ${campaign.name}`} aria-expanded={expanded} onClick={() => setExpanded((current) => !current)}><ChevronRight size={15} /></button>}
                     <strong>{campaign.name}</strong>
                     {!unavailable && <button type="button" className="campaign-rename-button" aria-label={`Перейменувати кампанію ${campaign.name}`} title="Перейменувати кампанію" disabled={pending} onClick={() => onRename(campaign)}><Pencil size={14} /></button>}
+                    {adSetsContext && <CampaignRejectedCount key={`${adSetsContext.accountKey}::${adSetsContext.account.id}::${campaign.id}`} campaign={campaign} context={adSetsContext} />}
                 </span>
-                {adSetsContext && <span className="campaign-name-row"><CampaignRejectedCount key={`${adSetsContext.accountKey}::${adSetsContext.account.id}::${campaign.id}`} campaign={campaign} context={adSetsContext} /></span>}
                 <small>{campaign.id}</small>
                 {campaign.missingFromLatestRead && <small title="Кампанія відсутня в останній відповіді API. Показано збережені дані.">Збережена копія</small>}
                 {campaign.creationIncomplete && <small>Створення ще не підтверджено</small>}

@@ -824,7 +824,7 @@ button:focus-visible, input:focus-visible {
 .campaign-rename-button { display: grid; flex: 0 0 25px; width: 25px; height: 25px; padding: 0; place-items: center; border: 1px solid transparent; border-radius: 6px; color: #737d91; background: transparent; cursor: pointer; }
 .campaign-rename-button:hover:not(:disabled) { border-color: var(--stroke); color: #e2e6f0; background: rgba(255,255,255,.05); }
 .campaign-name strong, .campaign-name small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.campaign-name strong { color: #edf0f8; font-size: calc(var(--font-body) * 1.15); font-weight: 525; }
+.campaign-name strong { min-width: 0; color: #edf0f8; font-size: calc(var(--font-body) * 1.15); font-weight: 525; }
 .campaign-name small { color: #555d70; font-size: var(--font-caption); }
 .campaign-status { display: inline-flex; padding: 4px 6px; border-radius: 6px; font-size: var(--font-caption); font-style: normal; font-weight: 800; text-transform: uppercase; }
 .campaign-status.active { color: var(--green); background: rgba(69,223,161,.09); }
