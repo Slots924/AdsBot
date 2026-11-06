@@ -16,6 +16,25 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("Токени API-клієнтів", () => {
+    it("блокує AFP на картці без токена, але дозволяє відкрити його налаштування", async () => {
+        const props = show({ accounts: [{ ...account, hasAfpToken: false }] });
+        const afp = screen.getByRole("button", { name: "AFP token" });
+        expect(afp).toBeDisabled();
+        fireEvent.click(afp);
+        expect(props.onUpdate).not.toHaveBeenCalled();
+        fireEvent.click(screen.getByTitle("Редагувати"));
+        const dialog = within(await screen.findByRole("dialog"));
+        expect(dialog.getByRole("button", { name: "AFP token" })).toBeEnabled();
+    });
+
+    it("дозволяє перейти на AFP після додавання токена", async () => {
+        const props = show();
+        const afp = screen.getByRole("button", { name: "AFP token" });
+        expect(afp).toBeEnabled();
+        fireEvent.click(afp);
+        await waitFor(() => expect(props.onUpdate).toHaveBeenCalledWith(account.accountKey, { tokenMode: "afp" }));
+    });
+
     it("завантажує секрети лише для редактора, приховує їх і зберігає обидві вкладки", async () => {
         const props = show();
         expect(window.adsBot.getAccountEditorCredentials).not.toHaveBeenCalled();

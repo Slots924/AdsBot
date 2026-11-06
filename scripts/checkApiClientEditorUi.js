@@ -15,7 +15,7 @@ const credentials = { accessToken: 'mock-access-token', userAgent: 'Mock UA', co
 window.adsBot = { getAccountEditorCredentials: async () => ({ ok: true, data: credentials }) };
 function Preview() {
     const [accounts, setAccounts] = useState([{ accountKey: 'account-001', kind: 'api', name: 'Demo API client', tokenMode: 'access', adsPowerProfileNo: '123', hasAccessToken: true, hasUserAgent: true, hasCookie: true, hasAfpToken: true, status: 'active' }]);
-    return <div style={{ width: 'min(400px, 100%)', height: '100vh', padding: 16 }}><Sidebar standalone accounts={accounts} onRefresh={() => {}} onSelect={() => {}} onCreate={async () => {}} onUpdate={async (key, patch) => setAccounts((items) => items.map((item) => item.accountKey === key ? { ...item, ...patch } : item))} onError={(error) => { throw new Error(error.message); }} /></div>;
+    return <div style={{ width: new URLSearchParams(location.search).get('mode') === 'card' ? 'min(900px, 100%)' : 'min(400px, 100%)', height: '100vh', padding: 16 }}><Sidebar standalone accounts={accounts} onRefresh={() => {}} onSelect={() => {}} onCreate={async () => {}} onUpdate={async (key, patch) => setAccounts((items) => items.map((item) => item.accountKey === key ? { ...item, ...patch } : item))} onError={(error) => { throw new Error(error.message); }} /></div>;
 }
 createRoot(document.getElementById('root')).render(<Preview />);
 const pause = () => new Promise((resolve) => setTimeout(resolve, 500));
@@ -28,7 +28,7 @@ async function check() {
         const toggle = document.querySelector('.account-card-token-mode').getBoundingClientRect();
         const remove = document.querySelector('.account-delete-button').getBoundingClientRect();
         const card = document.querySelector('.account-card').getBoundingClientRect();
-        if (Math.abs(toggle.top - remove.top) > 1 || toggle.right > remove.left || card.height > 180) throw new Error('Card footer alignment failed');
+        if (Math.abs(toggle.top - remove.top) > 1 || toggle.right > remove.left || card.height > 180 || toggle.width > 200) throw new Error('Card footer alignment failed');
     } else {
         document.querySelector('[title="Редагувати"]').click();
         await pause();
@@ -76,7 +76,7 @@ try {
         try { await access(candidate); executablePath = candidate; break; } catch {}
     }
     assert.ok(executablePath, "Не знайдено браузер для перевірки");
-    for (const [width, mode] of [[1100, "access"], [390, "access"], [390, "afp"], [390, "card"]]) {
+    for (const [width, mode] of [[1100, "access"], [390, "access"], [390, "afp"], [390, "card"], [1100, "card"]]) {
         const result = await promisify(execFile)(executablePath, ["--headless", "--disable-gpu", "--no-first-run", "--no-default-browser-check", `--user-data-dir=${path.join(directory, `cli-${Date.now()}`)}`, "--window-size=1200,1000", "--virtual-time-budget=4000", "--dump-dom", `--screenshot=${path.join(directory, `${mode}-${width}.png`)}`, `http://localhost:${address.port}/__api-client-frame?width=${width}&mode=${mode}`], { windowsHide: true, timeout: 25000, maxBuffer: 1024 * 1024 });
         assert.ok(/id="ui-check-result"[^>]*>passed</.test(result.stdout), result.stdout.match(/data-check-error="([^"]*)"/)?.[1] || result.stdout.slice(-1800));
     }

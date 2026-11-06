@@ -68,9 +68,9 @@ function SecretField({ label, value, onChange, placeholder }) {
     </div></label>;
 }
 
-function TokenPicker({ value, onChange, disabled = false, label = "Токен для запитів" }) {
+function TokenPicker({ value, onChange, disabled = false, afpDisabled = false, label = "Токен для запитів" }) {
     return <div className="account-token-picker" role="group" aria-label={label}>
-        {[["access", "Access token"], ["afp", "AFP token"]].map(([id, title]) => <button key={id} type="button" aria-pressed={value === id} disabled={disabled} onClick={() => onChange(id)}>{title}</button>)}
+        {[["access", "Access token"], ["afp", "AFP token"]].map(([id, title]) => <button key={id} type="button" aria-pressed={value === id} disabled={disabled || (id === "afp" && afpDisabled)} title={id === "afp" && afpDisabled ? "Спочатку додайте AFP token у редакторі" : undefined} onClick={() => onChange(id)}>{title}</button>)}
     </div>;
 }
 
@@ -210,6 +210,7 @@ export default function Sidebar({
     };
 
     const changeTokenMode = async (account, tokenMode) => {
+        if (tokenMode === "afp" && !account.hasAfpToken) return;
         if (getAccountTokenMode(account) === tokenMode) return;
         setBusyKey(account.accountKey);
         try {
@@ -317,7 +318,7 @@ export default function Sidebar({
                                     {account.error?.message && <em>{account.error.message}</em>}
                                 </span>
                             </button>
-                            {(account.kind || "api") === "api" && <div className="account-card-token-mode"><TokenPicker value={getAccountTokenMode(account)} onChange={(mode) => changeTokenMode(account, mode)} disabled={busyKey === account.accountKey || syncingAccountKeys.includes(account.accountKey) || refreshingTokenAccountKeys.includes(account.accountKey) || account.archived} /></div>}
+                            {(account.kind || "api") === "api" && <div className="account-card-token-mode"><TokenPicker value={getAccountTokenMode(account)} onChange={(mode) => changeTokenMode(account, mode)} afpDisabled={!account.hasAfpToken} disabled={busyKey === account.accountKey || syncingAccountKeys.includes(account.accountKey) || refreshingTokenAccountKeys.includes(account.accountKey) || account.archived} /></div>}
                             {account.kind !== "system" && <button
                                 type="button"
                                 className="icon-button account-card-check"
