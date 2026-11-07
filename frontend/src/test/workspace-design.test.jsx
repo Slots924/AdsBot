@@ -264,6 +264,7 @@ describe("Дизайн workspace фанпейджів", () => {
         fireEvent.click(screen.getByRole("button", { name: "У чергу" }));
         await waitFor(() => expect(window.adsBot.runCommentingCampaign).toHaveBeenCalledOnce());
         const payload = window.adsBot.runCommentingCampaign.mock.calls[0][0];
+        expect(payload.authorPageUrl).toBe("https://www.facebook.com/10");
         if (changeUrl) expect(payload).not.toHaveProperty("postId");
         else expect(payload.postId).toBe("10_20");
     });

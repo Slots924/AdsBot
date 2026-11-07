@@ -975,13 +975,13 @@ export default class AdsBotGuiService {
 
 
     async runParallelComments({
-        groupIds, comments, geo, creativeName, postUrl, postId = null,
+        groupIds, comments, geo, creativeName, postUrl, postId = null, authorPageUrl = null,
         browserMode = "visible", disableImages = false,
         concurrency = 5, workerProxies = null, onProxyUnavailable = null,
         signal, onProgress,
     }) {
         return this.#runParallelCommentingScenario({
-            adsPower: this.adsPower, groupIds, comments, geo, creativeName, postUrl, postId,
+            adsPower: this.adsPower, groupIds, comments, geo, creativeName, postUrl, postId, authorPageUrl,
             browserMode, disableImages, concurrency, workerProxies, onProxyUnavailable,
             signal, onProgress,
             logger: this.logger,

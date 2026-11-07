@@ -38,4 +38,26 @@ assert.equal(
     facebookPostViaAuthorPageStatuses.INVALID_INPUT
 );
 
+for (const postUrl of [
+    "https://www.facebook.com/999/posts/123",
+    "https://www.facebook.com/page-name/posts/123",
+]) {
+    const authorPageUrl = `https://www.facebook.com/${pageId}`;
+    let openedUrl = null;
+    let firstPostWaited = false;
+    const result = await openFacebookPostViaAuthorPage({
+        evaluateOnNewDocument: async () => {},
+        goto: async (url) => { openedUrl = url; },
+        waitForFunction: async (_check, _options, selector) => {
+            assert.equal(selector, '[aria-posinset="1"]');
+            firstPostWaited = true;
+            throw new Error("Зупинка mock після перевірки переходу до фанки");
+        },
+        url: () => openedUrl,
+    }, { postUrl, authorPageUrl, logger: { info() {} } });
+    assert.equal(openedUrl, authorPageUrl);
+    assert.equal(firstPostWaited, true);
+    assert.equal(result.status, facebookPostViaAuthorPageStatuses.FIRST_POST_NOT_FOUND);
+}
+
 console.log("Mock-перевірка пошуку поста через сторінку автора пройшла успішно");

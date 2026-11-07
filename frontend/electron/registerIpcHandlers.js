@@ -2739,6 +2739,7 @@ export default function registerIpcHandlers({
                     siteUrl: payload.siteUrl,
                     postUrl: payload.postUrl,
                     postId: payload.postId ?? null,
+                    authorPageUrl: payload.authorPageUrl ?? null,
                     browserMode,
                     disableImages,
                     commentTarget,

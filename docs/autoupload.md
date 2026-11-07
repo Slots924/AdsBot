@@ -444,4 +444,30 @@ if (result.status === "CARD_ACCOUNT_LIMIT_REACHED") {
 
 Mock-перевірки платіжних результатів: `scripts/billing-card.test.js`; передавання результатів через workflow та GUI перевіряють `scripts/personal-autoupload.test.js` і `frontend/src/test/personal-autoupload.test.jsx`.
 
+## HTTP-коментарі: перевірений екшен
+
+`facebook/autoupload/actions/comments/createComment.js` приймає готові `fbData`,
+`{ feedbackId, text }` та `{ signal, beforeSend }`. Він не розбирає URL, не відкриває
+браузер чи Ads Manager і не виконує додаткових GET або перемикання actor.
+Використовує наявний GraphQL-транспорт та його локальну валідацію сесії.
+`services/autoupload/resolveCommentTarget.js` окремо перетворює прямий HTTPS permalink
+зі `story_fbid` на `storyId` та `feedbackId`; helper викликає зовнішній workflow.
+
+Успіх підтверджує ID у `data.comment_create.feedback_comment_edge.node`.
+Повертаються `commentId`, `legacyCommentId`, `commentFeedbackId`, `commentUrl`,
+`postFeedbackId`, текст, час та HTTP-діагностика. Відсутні необов'язкові поля — `null`.
+`tracedAction` додає `actionId` та `exchanges`; зовнішній `withHttpWorkflow` зберігає
+HTTP-історію. Mutation не повторюється автоматично.
+
+`scripts/manual/testHttpComment.js --execute-profile-2238` — одноразовий живий тест
+узгодженого профілю та поста. Отримує звичайну Facebook-сесію через
+`checkProfileSession` і зберігає результат у `data/reports/http-comment-2238-live.json`.
+Наявність цього звіту блокує повторний запуск. Живий тест підтвердив створення
+коментаря через два запити: GET сесії та POST GraphQL. Масовий workflow, GUI та
+лічильники в імені профілю ще не підключені. Для майбутнього workflow: підтверджена
+відмова залишає коментар наступному акаунту; невідомий результат пропускає коментар
+без повторної публікації; успіх просуває чергу лише після отримання ID.
+
+Mock-перевірки: `node --test scripts/autoupload-comments.test.js`.
+
 `npm run test:autoupload` перевіряє сховище, cookies, перенаправлення, помилки та workflow без запитів до реальних профілів. Frontend: `npm --prefix frontend run test -- src/test/autoupload.test.jsx src/test/shared-ui.test.jsx`. Збірка: `npm run gui:build`.

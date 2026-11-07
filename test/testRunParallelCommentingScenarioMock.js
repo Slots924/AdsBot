@@ -28,11 +28,13 @@ const result = await runParallelCommentingScenario({
     comments,
     geo: "HU",
     creativeName: "parallel-test",
+    authorPageUrl: "https://www.facebook.com/10",
     postUrl: "https://www.facebook.com/test/posts/1",
     concurrency: 3,
     getGender: (profile) => profile?.gender ?? null,
     logger: { info() {}, warn() {}, error() {}, debug() {} },
-    executeComment: async ({ profile, comment, parentComment }) => {
+    executeComment: async ({ profile, comment, parentComment, authorPageUrl }) => {
+        assert.equal(authorPageUrl, "https://www.facebook.com/10");
         if (comment.parent_id !== null) {
             assert(parentComment);
             assert(events.includes(`end:${comment.parent_id}`));

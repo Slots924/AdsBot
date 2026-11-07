@@ -212,11 +212,12 @@ export default async function openFacebookPostViaAuthorPage(
     {
         postUrl,
         expectedPostId = null,
+        authorPageUrl = null,
         timeout = 15000,
         logger = console,
     } = {}
 ) {
-    const pageId = extractFacebookAuthorPageId(postUrl);
+    const pageId = authorPageUrl ? null : extractFacebookAuthorPageId(postUrl);
     const postId = extractFacebookPostId(postUrl);
     const numericPostId = normalizeFacebookNumericPostId(expectedPostId ?? postId);
     const result = {
@@ -225,9 +226,9 @@ export default async function openFacebookPostViaAuthorPage(
         pageId,
         postId,
         expectedPostId: numericPostId,
-        authorPageUrl: pageId
+        authorPageUrl: authorPageUrl || (pageId
             ? `https://fb.com/${pageId}`
-            : null,
+            : null),
         dateLink: null,
         finalUrl: null,
         openedPostId: null,
@@ -241,7 +242,7 @@ export default async function openFacebookPostViaAuthorPage(
             throw createError("Не передано Puppeteer-сторінку", "PAGE_INVALID");
         }
 
-        if (!pageId) {
+        if (!result.authorPageUrl) {
             result.status = facebookPostViaAuthorPageStatuses.PAGE_ID_NOT_FOUND;
             throw createError(
                 "Не вдалося отримати ID автора з посилання на пост",

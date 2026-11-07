@@ -20,6 +20,7 @@ export default async function executeCommentWithProfile({
     profile,
     postUrl,
     postId = null,
+    authorPageUrl = null,
     comment,
     parentComment = null,
     browserMode = "visible",
@@ -219,6 +220,7 @@ export default async function executeCommentWithProfile({
         result.postOpen = await openFacebookPostViaAuthorPage(page, {
             postUrl,
             expectedPostId: postId,
+            authorPageUrl,
             logger,
         });
 

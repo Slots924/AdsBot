@@ -2,6 +2,460 @@
   "version": 1,
   "tasks": [
     {
+      "id": "ac645469-df1a-4569-af60-7c6cb1562bbf",
+      "type": "comments",
+      "name": "Коментарі поста · DE · 133",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
+        },
+        {
+          "key": "adspower-group:7887373",
+          "label": "[AT] Austria"
+        },
+        {
+          "key": "adspower-group:7887378",
+          "label": "[CH] Switherland"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "creativeGeo": "DE",
+        "language": "",
+        "creativeName": "133",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/122117915679503197/posts/122118218043503197",
+        "postId": "1272886725918152_122118218043503197",
+        "authorPageUrl": "https://www.facebook.com/1272886725918152",
+        "browserMode": "visible",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "language": "",
+        "browserMode": "visible",
+        "disableImages": true,
+        "reportId": "a43d7c78-6621-469d-80bf-1b9018371fe6"
+      },
+      "progress": {
+        "completed": 2,
+        "total": 19,
+        "stage": "interrupted",
+        "message": "Задачу перервано",
+        "published": 0,
+        "skipped": 2,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "1",
+        "currentProfileNo": "2587",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-11-07_14-25-14-987.md",
+        "fatalError": "Паралельне коментування перервано",
+        "interrupted": true
+      },
+      "error": {
+        "message": "Паралельне коментування перервано",
+        "code": "COMMENTING_ABORTED",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "httpStatus": null,
+        "requestId": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "endpoint": null,
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": null,
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-07T12:25:09.271Z",
+      "startedAt": "2026-11-07T12:25:09.273Z",
+      "finishedAt": "2026-11-07T12:25:14.989Z",
+      "updatedAt": "2026-11-07T12:25:14.992Z"
+    },
+    {
+      "id": "4554872d-d347-4c90-8d3f-2fddabeb2d2f",
+      "type": "campaign",
+      "name": "DE | Creo_133 | 25+ 07/11 12:14",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "0d96638b-cbbe-4d0a-bc71-a9346c25a23f"
+      },
+      "metadata": {
+        "campaignJobId": "0d96638b-cbbe-4d0a-bc71-a9346c25a23f",
+        "accountKey": "account-067",
+        "adAccountId": "act_1360465989324394",
+        "uniqueKey": "campaign-job:0d96638b-cbbe-4d0a-bc71-a9346c25a23f",
+        "reportId": "1cfe5b82-4bdb-4fac-b866-8d4bb141c07e"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "52545073591198",
+          "creativeId": "1100470802898742",
+          "creatives": [
+            {
+              "id": "1100470802898742",
+              "pageId": "1272886725918152",
+              "postId": "1272886725918152_122118218043503197"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52545073607398",
+              "name": "DE | Creo_133 | 25+ 07/11 12:14 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52545073623598",
+              "name": "DE | Creo_133 | 25+ 07/11 12:14 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "0d96638b-cbbe-4d0a-bc71-a9346c25a23f",
+        "campaignId": "52545073591198",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T12:14:57.741Z",
+      "startedAt": "2026-11-07T12:14:57.742Z",
+      "finishedAt": "2026-11-07T12:15:22.183Z",
+      "updatedAt": "2026-11-07T12:15:22.186Z"
+    },
+    {
+      "id": "09cddee8-3693-4137-a2de-93305b58fcee",
+      "type": "publication",
+      "name": "Публікація · DE · 133",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-067",
+        "pageId": "1272886725918152",
+        "geo": "DE",
+        "language": "",
+        "creativeGeo": "DE",
+        "creativeName": "133",
+        "siteUrl": "https://love-in-hurt.club/5n7ieu",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\133\\image_2026-06-17_21-42-23 1.png"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-067",
+        "pageId": "1272886725918152",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "133",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "8959bbbc-f536-4575-9fb6-5e2b2665b71a"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-067",
+        "pageId": "1272886725918152",
+        "geo": "DE",
+        "language": "",
+        "creativeName": "133",
+        "siteUrl": "https://love-in-hurt.club/5n7ieu",
+        "postId": "1272886725918152_122118218043503197",
+        "permalinkUrl": "https://www.facebook.com/122117915679503197/posts/122118218043503197",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T12:14:23.194Z",
+      "startedAt": "2026-11-07T12:14:23.196Z",
+      "finishedAt": "2026-11-07T12:14:33.084Z",
+      "updatedAt": "2026-11-07T12:14:33.089Z"
+    },
+    {
+      "id": "8476a2d7-7aa5-47f0-91eb-3f3b1e012248",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1272886725918152_122112527337503197",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-067",
+        "pageId": "1272886725918152",
+        "postId": "1272886725918152_122112527337503197"
+      },
+      "metadata": {
+        "accountKey": "account-067",
+        "pageId": "1272886725918152",
+        "reportId": "31ede4e1-509e-4615-a2c2-9f9c40a7a269"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1272886725918152_122112527337503197"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T12:13:28.834Z",
+      "startedAt": "2026-11-07T12:13:28.836Z",
+      "finishedAt": "2026-11-07T12:13:35.861Z",
+      "updatedAt": "2026-11-07T12:13:35.864Z"
+    },
+    {
+      "id": "2116c0c8-4d34-47f4-ba93-f67681451a9c",
+      "type": "comments",
+      "name": "Коментарі поста · DE · 45",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
+        },
+        {
+          "key": "adspower-group:7887373",
+          "label": "[AT] Austria"
+        },
+        {
+          "key": "adspower-group:7887378",
+          "label": "[CH] Switherland"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "creativeGeo": "DE",
+        "language": "",
+        "creativeName": "45",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/122114787813508803/posts/122115061041508803",
+        "postId": "1284807618060555_122115061041508803",
+        "authorPageUrl": "https://www.facebook.com/1284807618060555",
+        "browserMode": "visible",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "language": "",
+        "browserMode": "visible",
+        "disableImages": true,
+        "reportId": "d1102e76-7ea2-4e86-a0d5-66f9c85e9dc8"
+      },
+      "progress": {
+        "completed": 16,
+        "total": 16,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "published": 12,
+        "skipped": 2,
+        "failedComments": 2,
+        "failedProfiles": 5,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "10.1",
+        "currentProfileNo": "2588",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-11-07_14-10-37-538.md",
+        "published": 12,
+        "skipped": 2,
+        "failedComments": 2,
+        "failedProfiles": 5,
+        "excludedProfiles": 0,
+        "fatalError": null,
+        "browserMode": "visible",
+        "disableImages": true
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T11:51:17.385Z",
+      "startedAt": "2026-11-07T11:51:17.387Z",
+      "finishedAt": "2026-11-07T12:10:37.542Z",
+      "updatedAt": "2026-11-07T12:10:37.545Z"
+    },
+    {
+      "id": "dc704f1b-5002-4a82-96f4-f0ef37017c76",
+      "type": "comments",
+      "name": "Коментарі поста · DE · 45",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "adspower-group:7887375",
+          "label": "[DE] Germany"
+        },
+        {
+          "key": "adspower-group:7887373",
+          "label": "[AT] Austria"
+        },
+        {
+          "key": "adspower-group:7887378",
+          "label": "[CH] Switherland"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "creativeGeo": "DE",
+        "language": "",
+        "creativeName": "45",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/122114787813508803/posts/122115061041508803",
+        "postId": "1284807618060555_122115061041508803",
+        "browserMode": "visible",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7887375",
+          "7887373",
+          "7887378"
+        ],
+        "geo": "DE",
+        "language": "",
+        "browserMode": "visible",
+        "disableImages": true,
+        "reportId": "0b4dccfa-6a2e-4c5a-8af9-62011abbc347"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 16,
+        "stage": "interrupted",
+        "message": "Задачу перервано",
+        "published": 0,
+        "skipped": 1,
+        "failedComments": 0,
+        "failedProfiles": 4,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "1",
+        "currentProfileNo": "189",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-11-07_13-45-50-394.md",
+        "fatalError": "Паралельне коментування перервано",
+        "interrupted": true
+      },
+      "error": {
+        "message": "Паралельне коментування перервано",
+        "code": "COMMENTING_ABORTED",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "httpStatus": null,
+        "requestId": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "endpoint": null,
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": null,
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-07T11:44:05.575Z",
+      "startedAt": "2026-11-07T11:44:05.577Z",
+      "finishedAt": "2026-11-07T11:45:50.398Z",
+      "updatedAt": "2026-11-07T11:45:50.400Z"
+    },
+    {
       "id": "96a68db3-86c7-4d9f-84f1-a4795e94238a",
       "type": "comments",
       "name": "Коментарі поста · DE · 45",
