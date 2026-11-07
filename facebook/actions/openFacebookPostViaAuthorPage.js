@@ -226,7 +226,7 @@ export default async function openFacebookPostViaAuthorPage(
         postId,
         expectedPostId: numericPostId,
         authorPageUrl: pageId
-            ? `https://www.facebook.com/profile.php?id=${pageId}`
+            ? `https://fb.com/${pageId}`
             : null,
         dateLink: null,
         finalUrl: null,
