@@ -4,6 +4,7 @@ import getProfileGender from "../profile/getProfileGender.js";
 import getBlockedProfileTag from "../profile/tags/getBlockedProfileTag.js";
 import markProfileAsBanned from "../profile/tags/markProfileAsBanned.js";
 import { profileActivityTypes } from "../profile/ProfileActivityStore.js";
+import { facebookAutomationWindowSize } from "../../facebook/browser/configureFacebookAutomationWindow.js";
 
 const blockedTags = ["BAN", "LOGIN_ERROR"];
 const actorKey = (row) => row.profile_key || `comment:${row.id}`;
@@ -95,14 +96,11 @@ export default class ManualCommentSessionManager {
             row.status = "pending";
             row.completedAt = null;
             this.save(session);
+            // Завжди пробуємо закрити локальний браузер незалежно від хмарного статусу.
+            await this.guiService.closeAdsPowerProfile(previousNo);
             await this.copyText(row.text);
-            const profile = await this.guiService.adsPower.getProfileByNo(previousNo);
-            // Перевіряємо стан, щоб не надсилати повторне закриття вже закритого браузера.
-            const active = await this.guiService.adsPower.getCloudProfileStatus([profile.profile_id]);
-            if (active.some((item) => String(item.user_id) === String(profile.profile_id))) {
-                await this.guiService.closeAdsPowerProfile(previousNo);
-            }
             if (action === "ban") {
+                const profile = await this.guiService.adsPower.getProfileByNo(previousNo);
                 await this.markBanned(this.guiService.adsPower, profile);
                 await this.activityStore.markBanned(previousNo);
             }
@@ -158,7 +156,9 @@ export default class ManualCommentSessionManager {
             this.save(session);
             throw new Error("Прив’язаний профіль більше не відповідає тегам статі або має BAN / LOGIN_ERROR");
         }
-        await this.guiService.openAdsPowerProfile(candidate.profileNo);
+        await this.guiService.openAdsPowerProfile(candidate.profileNo, {
+            windowSize: facebookAutomationWindowSize,
+        });
         await this.copyText(row.text);
         row.status = "assumed";
         row.completedAt ||= new Date().toISOString();

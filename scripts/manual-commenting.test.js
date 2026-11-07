@@ -27,7 +27,13 @@ async function fixture(t, comments) {
             getProfileByNo: async (no) => profiles.find((profile) => profile.profile_no === no),
             getCloudProfileStatus: async () => [...opened].map((no) => ({ user_id: `id-${no}` })),
         },
-        openAdsPowerProfile: async (no) => { events.push(["open", no]); if (failOpen) throw new Error("Помилка запуску"); opened.add(no); },
+        openAdsPowerProfile: async (no, options) => {
+            assert.equal(options.windowSize.width, 1280);
+            assert.equal(options.windowSize.height, 1440);
+            events.push(["open", no]);
+            if (failOpen) throw new Error("Помилка запуску");
+            opened.add(no);
+        },
         closeAdsPowerProfile: async (no) => { events.push(["close", no]); opened.delete(no); },
     };
     const options = { guiService, activityStore,
@@ -64,6 +70,37 @@ test("заміна скасовує попередню спробу, закри�
     const stats = await f.activityStore.list({ bannedOnly: false });
     assert.deepEqual(stats.items.map((item) => [item.profileNo, item.manualCommentCount]), [["2", 1]]);
 });
+
+for (const action of ["replace", "ban"]) {
+    test(`${action}: закриття не залежить від порожнього або недоступного хмарного статусу`, async (t) => {
+        for (const status of ["empty", "error"]) {
+            const f = await fixture(t, [comment("1")]);
+            await f.act("open", "1");
+            let statusCalls = 0;
+            f.guiService.adsPower.getCloudProfileStatus = async () => {
+                statusCalls++;
+                if (status === "error") throw new Error("Статус недоступний");
+                return [];
+            };
+            f.events.length = 0;
+            const state = await f.act(action, "1");
+            assert.deepEqual(f.events[0], ["close", "1"]);
+            assert.equal(statusCalls, 0);
+            assert.equal(state.comments[0].profileNo, "2");
+            assert.equal(f.opened.has("1"), false);
+        }
+    });
+
+    test(`${action}: помилка буфера не перешкоджає спробі закриття`, async (t) => {
+        const f = await fixture(t, [comment("1")]);
+        await f.act("open", "1");
+        f.failCopy(true);
+        await assert.rejects(f.act(action, "1"), /Буфер/);
+        assert.ok(f.events.some(([event, no]) => event === "close" && no === "1"));
+        assert.equal(f.opened.has("1"), false);
+        assert.ok(!f.events.some(([event, no]) => event === "open" && no === "2"));
+    });
+}
 
 test("два чоловіки в діалозі зберігають власні профілі; повторне відкриття не дублює статистику", async (t) => {
     const f = await fixture(t, [comment("1", "male", "a"), comment("2", "male", "b", "1"), comment("3", "male", "a", "2")]);

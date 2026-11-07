@@ -349,11 +349,12 @@ export default class AdsBotGuiService {
     }
 
 
-    async openAdsPowerProfile(profileNo) {
+    async openAdsPowerProfile(profileNo, { windowSize = null } = {}) {
         await this.adsPower.openProfile(profileNo, {
             browserMode: "visible",
             restoreLastOpenedTabs: true,
             proxyDetection: true,
+            ...(windowSize ? { launchArgs: [`--window-size=${windowSize.width},${windowSize.height}`] } : {}),
         });
         return { isOpen: true };
     }

@@ -2,6 +2,1699 @@
   "version": 1,
   "tasks": [
     {
+      "id": "4f82beeb-6e7d-456e-8bdd-f085ba2d056a",
+      "type": "campaign",
+      "name": "CZ | Creo_4 | 25+ 07/11 17:17",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "dfe9b7d2-fa67-4d4f-868b-10f29f2cf6e4"
+      },
+      "metadata": {
+        "campaignJobId": "dfe9b7d2-fa67-4d4f-868b-10f29f2cf6e4",
+        "accountKey": "account-069",
+        "adAccountId": "act_1917580402939176",
+        "uniqueKey": "campaign-job:dfe9b7d2-fa67-4d4f-868b-10f29f2cf6e4",
+        "reportId": "b4ba2541-9bef-4110-9134-61c3ae72ff20"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "52628399802245",
+          "creativeId": "988244503735331",
+          "creatives": [
+            {
+              "id": "988244503735331",
+              "pageId": "1426771563842326",
+              "postId": "1426771563842326_122118308529501113"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52628399820045",
+              "name": "CZ | Creo_4 | 25+ 07/11 17:17 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52628399832645",
+              "name": "CZ | Creo_4 | 25+ 07/11 17:17 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "dfe9b7d2-fa67-4d4f-868b-10f29f2cf6e4",
+        "campaignId": "52628399802245",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T17:17:26.448Z",
+      "startedAt": "2026-11-07T17:17:26.450Z",
+      "finishedAt": "2026-11-07T17:17:56.992Z",
+      "updatedAt": "2026-11-07T17:17:56.995Z"
+    },
+    {
+      "id": "6eff05e2-36aa-415b-a8e9-77cb03187b06",
+      "type": "publication",
+      "name": "Публікація · CZ · 4",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1426771563842326",
+        "geo": "CZ",
+        "language": "",
+        "creativeGeo": "CZ",
+        "creativeName": "4",
+        "siteUrl": "https://love-in-hurt.club/a6klye",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558967207_17876948703410212_8701678181365780701_n.png",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\004\\558674094_17876948694410212_5685162515973610647_n.png"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1426771563842326",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "4",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "59d26a22-21f2-47ca-8a66-77cbf7b09598"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-069",
+        "pageId": "1426771563842326",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "4",
+        "siteUrl": "https://love-in-hurt.club/a6klye",
+        "postId": "1426771563842326_122118308529501113",
+        "permalinkUrl": "https://www.facebook.com/122118306099501113/posts/122118308529501113",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T17:16:47.597Z",
+      "startedAt": "2026-11-07T17:16:47.600Z",
+      "finishedAt": "2026-11-07T17:17:05.465Z",
+      "updatedAt": "2026-11-07T17:17:05.469Z"
+    },
+    {
+      "id": "60b51331-1c68-4bc5-b601-93c63972365a",
+      "type": "page-rebuild",
+      "name": "Пересетаплення фанпейджа · 1426771563842326",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-page:account-069:1426771563842326",
+          "label": "фанпейджа 1426771563842326"
+        }
+      ],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1426771563842326",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\6+\\377980023_156229247526826_291576750729020592_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\6+\\470022449_444481155368299_2828507578742696750_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\6+\\470173924_446194748530273_6128229093373376926_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\6+\\470182918_446580835158331_1165959953492035087_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\6+\\470207450_446580608491687_7095137941311836914_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\6+\\470211779_446580785158336_5505039703289649041_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\6+\\546421345_646019755214437_4917207761061284581_n.jpg"
+        ],
+        "pageCreatedAt": null,
+        "preserveDates": true
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1426771563842326",
+        "uniqueKey": "page-rebuild:account-069:1426771563842326",
+        "reportId": "c9ae1a96-1bcd-46ae-8815-a2f6ef5aa9eb"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "current": 5,
+        "count": 5
+      },
+      "result": {
+        "pageId": "1426771563842326",
+        "avatar": {
+          "file": "377980023_156229247526826_291576750729020592_n.jpg",
+          "photoId": "122118305751501113"
+        },
+        "cover": {
+          "file": "470211779_446580785158336_5505039703289649041_n.jpg",
+          "photoId": "122118305835501113"
+        },
+        "cleanup": {
+          "deletedPostIds": [],
+          "deletedPhotoIds": [],
+          "hiddenPostIds": []
+        },
+        "publications": [
+          {
+            "file": "470022449_444481155368299_2828507578742696750_n.jpg",
+            "photoId": "122118305979501113",
+            "postId": "1426771563842326_122118306051501113",
+            "backdatedTime": null
+          },
+          {
+            "file": "470173924_446194748530273_6128229093373376926_n.jpg",
+            "photoId": "122118306135501113",
+            "postId": "1426771563842326_122118306177501113",
+            "backdatedTime": null
+          },
+          {
+            "file": "470182918_446580835158331_1165959953492035087_n.jpg",
+            "photoId": "122118306249501113",
+            "postId": "1426771563842326_122118306291501113",
+            "backdatedTime": null
+          },
+          {
+            "file": "470207450_446580608491687_7095137941311836914_n.jpg",
+            "photoId": "122118306387501113",
+            "postId": "1426771563842326_122118306453501113",
+            "backdatedTime": null
+          },
+          {
+            "file": "546421345_646019755214437_4917207761061284581_n.jpg",
+            "photoId": "122118306525501113",
+            "postId": "1426771563842326_122118306567501113",
+            "backdatedTime": null
+          }
+        ],
+        "warnings": [
+          {
+            "stage": "delete-photo",
+            "objectId": "122098039851501113",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          }
+        ],
+        "resumed": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T17:09:45.763Z",
+      "startedAt": "2026-11-07T17:09:45.766Z",
+      "finishedAt": "2026-11-07T17:10:48.239Z",
+      "updatedAt": "2026-11-07T17:10:48.243Z"
+    },
+    {
+      "id": "3ef2d521-387a-4f54-bf99-575c8237191a",
+      "type": "page-cleanup",
+      "name": "Видалення URL-постів · 1426771563842326",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1426771563842326"
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1426771563842326",
+        "reportId": "ac1cac57-8f41-4415-be82-f6aefb1ce724"
+      },
+      "progress": {
+        "completed": 2,
+        "total": 2,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T17:08:34.961Z",
+      "startedAt": "2026-11-07T17:08:34.964Z",
+      "finishedAt": "2026-11-07T17:08:36.611Z",
+      "updatedAt": "2026-11-07T17:08:36.613Z"
+    },
+    {
+      "id": "727df117-02c4-4484-83e6-52869ca980d1",
+      "type": "campaign",
+      "name": "CZ | Creo_1 | 25+ 07/11 17:07",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "6bd84edc-8fa0-4a9b-8d01-3a9ccbb0172e"
+      },
+      "metadata": {
+        "campaignJobId": "6bd84edc-8fa0-4a9b-8d01-3a9ccbb0172e",
+        "accountKey": "account-069",
+        "adAccountId": "act_1917580402939176",
+        "uniqueKey": "campaign-job:6bd84edc-8fa0-4a9b-8d01-3a9ccbb0172e",
+        "reportId": "59b9bc03-66eb-4c32-bdb9-c223f8058075"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "52628398947245",
+          "creativeId": "2909292039448333",
+          "creatives": [
+            {
+              "id": "2909292039448333",
+              "pageId": "1401321019721226",
+              "postId": "1401321019721226_122120611101505571"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52628398954645",
+              "name": "CZ | Creo_1 | 25+ 07/11 17:07 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52628398963445",
+              "name": "CZ | Creo_1 | 25+ 07/11 17:07 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "6bd84edc-8fa0-4a9b-8d01-3a9ccbb0172e",
+        "campaignId": "52628398947245",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T17:08:00.795Z",
+      "startedAt": "2026-11-07T17:08:00.797Z",
+      "finishedAt": "2026-11-07T17:08:20.406Z",
+      "updatedAt": "2026-11-07T17:08:20.409Z"
+    },
+    {
+      "id": "8963c570-c612-4f81-a140-acdfb4376120",
+      "type": "campaign",
+      "name": "CZ | Creo_1 | 25+ 07/11 17:05",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "63237ad7-d164-4d66-9785-4b531d99c37f"
+      },
+      "metadata": {
+        "campaignJobId": "63237ad7-d164-4d66-9785-4b531d99c37f",
+        "accountKey": "account-069",
+        "adAccountId": "act_1917580402939176",
+        "uniqueKey": "campaign-job:63237ad7-d164-4d66-9785-4b531d99c37f",
+        "reportId": "2481cba6-ba6e-488e-8eaf-ded2a16875b5"
+      },
+      "progress": {
+        "completed": 4,
+        "total": 5,
+        "stage": "failed",
+        "message": "You must certify compliance with our Non-discrimination Policy before running ads. Visit facebook.com/certification/nondiscrimination to certify compliance.",
+        "objects": {
+          "campaignId": "52628398808245",
+          "creativeId": "2909292039448333",
+          "creatives": [
+            {
+              "id": "2909292039448333",
+              "pageId": "1401321019721226",
+              "postId": "1401321019721226_122120611101505571"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52628398820845",
+              "name": "CZ | Creo_1 | 25+ 07/11 17:05 | AS 01"
+            }
+          ],
+          "ads": []
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "You must certify compliance with our Non-discrimination Policy before running ads. Visit facebook.com/certification/nondiscrimination to certify compliance.",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": "ad",
+        "graphCode": 3,
+        "graphSubcode": 2859002,
+        "httpStatus": 400,
+        "requestId": "23105dd3-f6d3-4c9d-9117-d40c5b8defb6",
+        "traceId": "ALpVOiG_OlS2wGr6qLap4WE",
+        "metaRequestId": "ALpVOiG_OlS2wGr6qLap4WE",
+        "endpoint": "/act_1917580402939176/ads",
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": "Certification required",
+        "graphUserMessage": "You must certify compliance with our Non-discrimination Policy before running ads. Visit facebook.com/certification/nondiscrimination to certify compliance.",
+        "graphType": "OAuthException",
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-07T17:06:28.591Z",
+      "startedAt": "2026-11-07T17:06:28.593Z",
+      "finishedAt": "2026-11-07T17:06:50.043Z",
+      "updatedAt": "2026-11-07T17:06:50.046Z"
+    },
+    {
+      "id": "5e457197-f6f2-4fc8-9877-8ab9cfc1cd23",
+      "type": "publication",
+      "name": "Публікація · CZ · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeGeo": "CZ",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/lu13xi",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\762829933_122325643460007675_5689537905500061894_n.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "1",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "ead644ac-f7ea-47bf-9c5e-7a4c685b7151"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/lu13xi",
+        "postId": "1401321019721226_122120611101505571",
+        "permalinkUrl": "https://www.facebook.com/122120604063505571/posts/122120611101505571",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T17:03:45.120Z",
+      "startedAt": "2026-11-07T17:03:45.124Z",
+      "finishedAt": "2026-11-07T17:05:13.593Z",
+      "updatedAt": "2026-11-07T17:05:13.596Z"
+    },
+    {
+      "id": "b96d01f7-c5e5-4af1-ad91-bab9b0305b25",
+      "type": "page-rebuild",
+      "name": "Пересетаплення фанпейджа · 1401321019721226",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-page:account-069:1401321019721226",
+          "label": "фанпейджа 1401321019721226"
+        }
+      ],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\4+\\474793535_597197406532402_4444059848637199379_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\4+\\482316502_628576753394467_8462223626861554756_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\4+\\483365495_630170969901712_2354208593325139390_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\4+\\483945909_628576706727805_6996281938727451978_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\4+\\484070950_630866599832149_583830648600047284_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\4+\\484072710_633255659593243_6444786717677557527_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\4+\\484079097_628576803394462_5302496242182304377_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\4+\\484098299_632609726324503_3873177056933600784_n.jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\CZ\\Skyf\\4+\\511203137_712894681629340_3316740454425214836_n.jpg"
+        ],
+        "pageCreatedAt": null,
+        "preserveDates": true
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "uniqueKey": "page-rebuild:account-069:1401321019721226",
+        "reportId": "b2984bc3-c750-4853-b61b-c1b07193005c"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "current": 7,
+        "count": 7
+      },
+      "result": {
+        "pageId": "1401321019721226",
+        "avatar": {
+          "file": "484072710_633255659593243_6444786717677557527_n.jpg",
+          "photoId": "122120603739505571"
+        },
+        "cover": {
+          "file": "482316502_628576753394467_8462223626861554756_n.jpg",
+          "photoId": "122120603859505571"
+        },
+        "cleanup": {
+          "deletedPostIds": [],
+          "deletedPhotoIds": [],
+          "hiddenPostIds": []
+        },
+        "publications": [
+          {
+            "file": "474793535_597197406532402_4444059848637199379_n.jpg",
+            "photoId": "122120603973505571",
+            "postId": "1401321019721226_122120604021505571",
+            "backdatedTime": null
+          },
+          {
+            "file": "483365495_630170969901712_2354208593325139390_n.jpg",
+            "photoId": "122120604129505571",
+            "postId": "1401321019721226_122120604219505571",
+            "backdatedTime": null
+          },
+          {
+            "file": "483945909_628576706727805_6996281938727451978_n.jpg",
+            "photoId": "122120604495505571",
+            "postId": "1401321019721226_122120604537505571",
+            "backdatedTime": null
+          },
+          {
+            "file": "484070950_630866599832149_583830648600047284_n.jpg",
+            "photoId": "122120604807505571",
+            "postId": "1401321019721226_122120604861505571",
+            "backdatedTime": null
+          },
+          {
+            "file": "484079097_628576803394462_5302496242182304377_n.jpg",
+            "photoId": "122120604945505571",
+            "postId": "1401321019721226_122120604981505571",
+            "backdatedTime": null
+          },
+          {
+            "file": "484098299_632609726324503_3873177056933600784_n.jpg",
+            "photoId": "122120605107505571",
+            "postId": "1401321019721226_122120605149505571",
+            "backdatedTime": null
+          },
+          {
+            "file": "511203137_712894681629340_3316740454425214836_n.jpg",
+            "photoId": "122120605323505571",
+            "postId": "1401321019721226_122120605401505571",
+            "backdatedTime": null
+          }
+        ],
+        "warnings": [
+          {
+            "stage": "delete-photo",
+            "objectId": "122093005143505571",
+            "code": "FACEBOOK_API_ERROR",
+            "graphCode": 200,
+            "message": "(#200) App can only delete photos created by the same app"
+          }
+        ],
+        "resumed": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T16:51:56.340Z",
+      "startedAt": "2026-11-07T16:51:56.343Z",
+      "finishedAt": "2026-11-07T16:53:09.298Z",
+      "updatedAt": "2026-11-07T16:53:09.301Z"
+    },
+    {
+      "id": "b608aced-0fc0-4c1d-b17d-83b6ba4d5b33",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 3",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2709",
+          "label": "профіль №2709"
+        },
+        {
+          "key": "adspower-profile:2710",
+          "label": "профіль №2710"
+        },
+        {
+          "key": "adspower-profile:2712",
+          "label": "профіль №2712"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1iqf2m9",
+          "k1iqf2ma",
+          "k1iqf2mc"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1iqf2m9,k1iqf2ma,k1iqf2mc",
+        "httpHistory": {
+          "id": "767d3337-6ca8-43ad-815a-1fb4e7892364",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\767d3337-6ca8-43ad-815a-1fb4e7892364.jsonl",
+          "requestCount": 15,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "c1472998-c17a-427c-a2e2-5e39f99b3cfe"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1iqf2m9",
+            "profileNo": "2709",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "accountId": "61595366072110",
+            "actorId": "61595366072110",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq",
+              "accountId"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "httpHistory": {
+              "id": "767d3337-6ca8-43ad-815a-1fb4e7892364",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\767d3337-6ca8-43ad-815a-1fb4e7892364.jsonl",
+              "requestCount": 5,
+              "format": "jsonl",
+              "version": 1
+            },
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1138157575570746",
+                  "accountId": "1138157575570746",
+                  "name": "Vasilisa Dinitskaya",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          },
+          {
+            "profileId": "k1iqf2ma",
+            "profileNo": "2710",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "accountId": "61595666450228",
+            "actorId": "61595666450228",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq",
+              "accountId"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "httpHistory": {
+              "id": "767d3337-6ca8-43ad-815a-1fb4e7892364",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\767d3337-6ca8-43ad-815a-1fb4e7892364.jsonl",
+              "requestCount": 10,
+              "format": "jsonl",
+              "version": 1
+            },
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1115502547845663",
+                  "accountId": "1115502547845663",
+                  "name": "Ekaterina Kozyreva",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          },
+          {
+            "profileId": "k1iqf2mc",
+            "profileNo": "2712",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "accountId": "61595482557626",
+            "actorId": "61595482557626",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq",
+              "accountId"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "httpHistory": {
+              "id": "767d3337-6ca8-43ad-815a-1fb4e7892364",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\767d3337-6ca8-43ad-815a-1fb4e7892364.jsonl",
+              "requestCount": 15,
+              "format": "jsonl",
+              "version": 1
+            },
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1782624992954025",
+                  "accountId": "1782624992954025",
+                  "name": "Ruza Valieva",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T15:23:38.695Z",
+      "startedAt": "2026-11-07T15:23:38.697Z",
+      "finishedAt": "2026-11-07T15:24:10.750Z",
+      "updatedAt": "2026-11-07T15:24:10.754Z"
+    },
+    {
+      "id": "3471e0ee-5ec6-4505-8dda-5ab33079dbf4",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 3",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2709",
+          "label": "профіль №2709"
+        },
+        {
+          "key": "adspower-profile:2710",
+          "label": "профіль №2710"
+        },
+        {
+          "key": "adspower-profile:2712",
+          "label": "профіль №2712"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1iqf2m9",
+          "k1iqf2ma",
+          "k1iqf2mc"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1iqf2m9,k1iqf2ma,k1iqf2mc",
+        "httpHistory": {
+          "id": "16da9a24-db1b-42a4-98ba-98c1f7aea33e",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\16da9a24-db1b-42a4-98ba-98c1f7aea33e.jsonl",
+          "requestCount": 15,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "d80a475d-9908-4727-a4aa-9124fc101698"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1iqf2m9",
+            "profileNo": "2709",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "accountId": "61595366072110",
+            "actorId": "61595366072110",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq",
+              "accountId"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "httpHistory": {
+              "id": "16da9a24-db1b-42a4-98ba-98c1f7aea33e",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\16da9a24-db1b-42a4-98ba-98c1f7aea33e.jsonl",
+              "requestCount": 5,
+              "format": "jsonl",
+              "version": 1
+            },
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1138157575570746",
+                  "accountId": "1138157575570746",
+                  "name": "Vasilisa Dinitskaya",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          },
+          {
+            "profileId": "k1iqf2ma",
+            "profileNo": "2710",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "accountId": "61595666450228",
+            "actorId": "61595666450228",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq",
+              "accountId"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "httpHistory": {
+              "id": "16da9a24-db1b-42a4-98ba-98c1f7aea33e",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\16da9a24-db1b-42a4-98ba-98c1f7aea33e.jsonl",
+              "requestCount": 10,
+              "format": "jsonl",
+              "version": 1
+            },
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1115502547845663",
+                  "accountId": "1115502547845663",
+                  "name": "Ekaterina Kozyreva",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          },
+          {
+            "profileId": "k1iqf2mc",
+            "profileNo": "2712",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "accountId": "61595482557626",
+            "actorId": "61595482557626",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq",
+              "accountId"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "httpHistory": {
+              "id": "16da9a24-db1b-42a4-98ba-98c1f7aea33e",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\16da9a24-db1b-42a4-98ba-98c1f7aea33e.jsonl",
+              "requestCount": 15,
+              "format": "jsonl",
+              "version": 1
+            },
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1782624992954025",
+                  "accountId": "1782624992954025",
+                  "name": "Ruza Valieva",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T14:16:00.044Z",
+      "startedAt": "2026-11-07T14:16:00.046Z",
+      "finishedAt": "2026-11-07T14:16:31.008Z",
+      "updatedAt": "2026-11-07T14:16:31.016Z"
+    },
+    {
+      "id": "8d1ea497-304b-4895-9858-ae448ce110ad",
+      "type": "autoupload-comments",
+      "name": "Коментарі · 3 · 3 профілів",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "autoupload-comments",
+          "label": "послідовна публікація коментарів"
+        },
+        {
+          "key": "adspower-profile:2709",
+          "label": "профіль №2709"
+        },
+        {
+          "key": "adspower-profile:2710",
+          "label": "профіль №2710"
+        },
+        {
+          "key": "adspower-profile:2712",
+          "label": "профіль №2712"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1iqf2m9",
+          "k1iqf2ma",
+          "k1iqf2mc"
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0aiWWGCnjhW5Kv8zbEDys2LRQ3ij4SCVQSK8Jf3syagAFBn6UKYZ7Ta3ULhDnnB6Jl&id=61594903530645",
+        "comments": [
+          "I swear the internet gets weirder every single day 😂",
+          "This deserves way more attention than it's getting.",
+          "Imagine explaining this to someone from 100 years ago 💀"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-comments:pfbid0aiWWGCnjhW5Kv8zbEDys2LRQ3ij4SCVQSK8Jf3syagAFBn6UKYZ7Ta3ULhDnnB6Jl:k1iqf2m9,k1iqf2ma,k1iqf2mc",
+        "httpHistory": {
+          "id": "1d3224d9-7ea3-4fc0-a0a0-3f38246d69cf",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\1d3224d9-7ea3-4fc0-a0a0-3f38246d69cf.jsonl",
+          "requestCount": 6,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "34d3c9af-ee4a-41c7-ad77-0b1074bfe57b"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1iqf2m9",
+            "profileNo": "2709",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwYWlXV0dDbmpoVzVLdjh6YkVEeXMyTFJRM2lqNFNDVlFTSzhKZjNzeWFnQUZCbjZVS1laN1RhM1VMaERubkI2Smw=",
+            "commentId": "Y29tbWVudDoxMjIxMjAxMzU2Nzk0OTY3ODRfMTE2MTIwODQ0OTgxMTIzNg==",
+            "legacyCommentId": "1161208449811236",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwOFAyS3V5cUtkU0JUenRnZlpIWmhGTnAyWXlMZlJxa2NReW43MUFlTDZiWG9QTGlWb0ttRUVmYkZ0UTNYaEV2R3VpUld4d3pVdnQ1dGdOVnRZb1VvWnhuOXZaNW5QNUY5WHd2d3Vs",
+            "commentUrl": null,
+            "text": "I swear the internet gets weirder every single day 😂",
+            "createdTime": 1794060449,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "9300a358-c4df-489d-afb6-6100bb2dc69a",
+            "httpHistory": {
+              "id": "1d3224d9-7ea3-4fc0-a0a0-3f38246d69cf",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\1d3224d9-7ea3-4fc0-a0a0-3f38246d69cf.jsonl",
+              "requestCount": 2,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "9641e676-b77c-4ff4-a1b4-df208186cf7e",
+            "operation": "comment-create",
+            "commentIndex": 1,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0aiWWGCnjhW5Kv8zbEDys2LRQ3ij4SCVQSK8Jf3syagAFBn6UKYZ7Ta3ULhDnnB6Jl&id=61594903530645",
+            "storyId": "pfbid0aiWWGCnjhW5Kv8zbEDys2LRQ3ij4SCVQSK8Jf3syagAFBn6UKYZ7Ta3ULhDnnB6Jl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 3,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2ma",
+            "profileNo": "2710",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwYWlXV0dDbmpoVzVLdjh6YkVEeXMyTFJRM2lqNFNDVlFTSzhKZjNzeWFnQUZCbjZVS1laN1RhM1VMaERubkI2Smw=",
+            "commentId": "Y29tbWVudDoxMjIxMjAxMzU2Nzk0OTY3ODRfMTExNTM2NzIyNzg2ODEyMg==",
+            "legacyCommentId": "1115367227868122",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwNUo0U0VnSnpxMVptN1UxMW93NHpkUnVVamhlbWc1TDZxUDRVUkhuVHdQR0I2QkJpZ1loRU0xc1VHMTRnc0FWZWVHOXM3dm8zRk5vdUdYWjNZTnVSNGt4bzJwY3hiUTVtclNEMXBs",
+            "commentUrl": null,
+            "text": "This deserves way more attention than it's getting.",
+            "createdTime": 1794060463,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "1f6eace6-edfe-4455-ac98-af2ef0a8b37b",
+            "httpHistory": {
+              "id": "1d3224d9-7ea3-4fc0-a0a0-3f38246d69cf",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\1d3224d9-7ea3-4fc0-a0a0-3f38246d69cf.jsonl",
+              "requestCount": 4,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "61896ecf-8daa-431b-b287-bb3a242f7a03",
+            "operation": "comment-create",
+            "commentIndex": 2,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0aiWWGCnjhW5Kv8zbEDys2LRQ3ij4SCVQSK8Jf3syagAFBn6UKYZ7Ta3ULhDnnB6Jl&id=61594903530645",
+            "storyId": "pfbid0aiWWGCnjhW5Kv8zbEDys2LRQ3ij4SCVQSK8Jf3syagAFBn6UKYZ7Ta3ULhDnnB6Jl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 3,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2mc",
+            "profileNo": "2712",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwYWlXV0dDbmpoVzVLdjh6YkVEeXMyTFJRM2lqNFNDVlFTSzhKZjNzeWFnQUZCbjZVS1laN1RhM1VMaERubkI2Smw=",
+            "commentId": "Y29tbWVudDoxMjIxMjAxMzU2Nzk0OTY3ODRfMTc4MDg4MTM2MzAwMjIwOA==",
+            "legacyCommentId": "1780881363002208",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwdm9kMnpEblhDZHlScEp0eVJiRkNzRTl2M2NKcGhQUlltTDJ5aU5KQ3lYbUM5NTlQcVBMUW1hRllGMmFoV2dMd2szMWZSYnZ4NEpLY3dDdVBwRFdkRDRzbUVneE00SkNRbmgxMnls",
+            "commentUrl": null,
+            "text": "Imagine explaining this to someone from 100 years ago 💀",
+            "createdTime": 1794060476,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "95298c67-4bf4-4673-b1f1-e15526c2648d",
+            "httpHistory": {
+              "id": "1d3224d9-7ea3-4fc0-a0a0-3f38246d69cf",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\1d3224d9-7ea3-4fc0-a0a0-3f38246d69cf.jsonl",
+              "requestCount": 6,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "c0ff09b6-38a0-4311-9a86-d4d620addca8",
+            "operation": "comment-create",
+            "commentIndex": 3,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0aiWWGCnjhW5Kv8zbEDys2LRQ3ij4SCVQSK8Jf3syagAFBn6UKYZ7Ta3ULhDnnB6Jl&id=61594903530645",
+            "storyId": "pfbid0aiWWGCnjhW5Kv8zbEDys2LRQ3ij4SCVQSK8Jf3syagAFBn6UKYZ7Ta3ULhDnnB6Jl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 3,
+              "synced": true
+            }
+          }
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0aiWWGCnjhW5Kv8zbEDys2LRQ3ij4SCVQSK8Jf3syagAFBn6UKYZ7Ta3ULhDnnB6Jl&id=61594903530645",
+        "requestedCount": 3,
+        "publishedCount": 3,
+        "skippedCount": 0,
+        "remaining": [],
+        "cancelled": false,
+        "stoppedForStorage": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T14:02:11.999Z",
+      "startedAt": "2026-11-07T14:02:12.001Z",
+      "finishedAt": "2026-11-07T14:02:53.215Z",
+      "updatedAt": "2026-11-07T14:02:53.219Z"
+    },
+    {
+      "id": "55099065-e051-44c9-9bd2-a6041f3a6a3d",
+      "type": "autoupload-comments",
+      "name": "Коментарі · 3 · 3 профілів",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "autoupload-comments",
+          "label": "послідовна публікація коментарів"
+        },
+        {
+          "key": "adspower-profile:2709",
+          "label": "профіль №2709"
+        },
+        {
+          "key": "adspower-profile:2710",
+          "label": "профіль №2710"
+        },
+        {
+          "key": "adspower-profile:2712",
+          "label": "профіль №2712"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1iqf2m9",
+          "k1iqf2ma",
+          "k1iqf2mc"
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02VJe23kRPyVdbuGVtCyXZBkADph53yMPE12TgUS21fGG8WWQXUmggvy9muYzVgGMyl&id=61595003267470",
+        "comments": [
+          "Not gonna lie, this made my day 😂",
+          "I need more context because WHAT is happening here 💀",
+          "My last two brain cells trying to make a decision."
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-comments:pfbid02VJe23kRPyVdbuGVtCyXZBkADph53yMPE12TgUS21fGG8WWQXUmggvy9muYzVgGMyl:k1iqf2m9,k1iqf2ma,k1iqf2mc",
+        "httpHistory": {
+          "id": "f03ee6fe-52ac-4f6d-b709-b1725b9bd755",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\f03ee6fe-52ac-4f6d-b709-b1725b9bd755.jsonl",
+          "requestCount": 6,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "ea0ba486-4995-4139-85f4-d3482d95e56c"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1iqf2m9",
+            "profileNo": "2709",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlZKZTIza1JQeVZkYnVHVnRDeVhaQmtBRHBoNTN5TVBFMTJUZ1VTMjFmR0c4V1dRWFVtZ2d2eTltdVl6VmdHTXls",
+            "commentId": "Y29tbWVudDoxMjIxMTgzODIzOTU1MDAxMDhfMTY4NzQ1NDY0OTc2NDExMg==",
+            "legacyCommentId": "1687454649764112",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMjFMNzdVQVZUTFBOeER2UXJDbnp3UUVkeFBBRlM0bU5yMmRXU0Jyek1KUlJSNldlbnQ5Y0tCRzdoZE5EcHJjZzhFNjYzUVJrMUU1QlRRa3J4Z2FTUEZpSHh0OFQyTml1bUNaZHJBbA==",
+            "commentUrl": null,
+            "text": "Not gonna lie, this made my day 😂",
+            "createdTime": 1794059420,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "de420686-18d3-491e-b6d1-d4ea4b88cb56",
+            "httpHistory": {
+              "id": "f03ee6fe-52ac-4f6d-b709-b1725b9bd755",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\f03ee6fe-52ac-4f6d-b709-b1725b9bd755.jsonl",
+              "requestCount": 2,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "f4988609-1bb3-42df-85fc-b91b73271619",
+            "operation": "comment-create",
+            "commentIndex": 1,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02VJe23kRPyVdbuGVtCyXZBkADph53yMPE12TgUS21fGG8WWQXUmggvy9muYzVgGMyl&id=61595003267470",
+            "storyId": "pfbid02VJe23kRPyVdbuGVtCyXZBkADph53yMPE12TgUS21fGG8WWQXUmggvy9muYzVgGMyl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 2,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2ma",
+            "profileNo": "2710",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlZKZTIza1JQeVZkYnVHVnRDeVhaQmtBRHBoNTN5TVBFMTJUZ1VTMjFmR0c4V1dRWFVtZ2d2eTltdVl6VmdHTXls",
+            "commentId": "Y29tbWVudDoxMjIxMTgzODIzOTU1MDAxMDhfMTY3MTYxMjk0Nzc0ODE2Nw==",
+            "legacyCommentId": "1671612947748167",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMjlkNmlycm90VjVON0Z6d2ZpYnpFa0oyUUh6elpHYWFOM0RlMkRrelkzWGZveXlIMVVWWTVXNDhMN2JtczI3M21WVVFwZG5DTDFIVFV3S0ZIcXI3M2NGOUVwYlhnM1RRb3Fyc3V6bA==",
+            "commentUrl": null,
+            "text": "I need more context because WHAT is happening here 💀",
+            "createdTime": 1794059435,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "72b4705b-1003-4aab-be86-7e812dc5fce8",
+            "httpHistory": {
+              "id": "f03ee6fe-52ac-4f6d-b709-b1725b9bd755",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\f03ee6fe-52ac-4f6d-b709-b1725b9bd755.jsonl",
+              "requestCount": 4,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "8ffc6ba3-613a-43c6-a515-1d4b04199c60",
+            "operation": "comment-create",
+            "commentIndex": 2,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02VJe23kRPyVdbuGVtCyXZBkADph53yMPE12TgUS21fGG8WWQXUmggvy9muYzVgGMyl&id=61595003267470",
+            "storyId": "pfbid02VJe23kRPyVdbuGVtCyXZBkADph53yMPE12TgUS21fGG8WWQXUmggvy9muYzVgGMyl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 2,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2mc",
+            "profileNo": "2712",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlZKZTIza1JQeVZkYnVHVnRDeVhaQmtBRHBoNTN5TVBFMTJUZ1VTMjFmR0c4V1dRWFVtZ2d2eTltdVl6VmdHTXls",
+            "commentId": "Y29tbWVudDoxMjIxMTgzODIzOTU1MDAxMDhfMTA4Nzg1NzMzMDczMzU3NQ==",
+            "legacyCommentId": "1087857330733575",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwY05qNXhFeUhmSmo2Z2pib214RXc5UXNoTERzbzlZeTRmQWRzaDFvWWhzUTVoaVI1ZkVBdVUyQzc4ZUQ0WGc1bk03amRDQTk2NWhDSHB4amk3UnNMYXB5Um42RVp6czlvdHl0Vjls",
+            "commentUrl": null,
+            "text": "My last two brain cells trying to make a decision.",
+            "createdTime": 1794059450,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "320992a9-e8fb-4974-8dd8-cf852da93652",
+            "httpHistory": {
+              "id": "f03ee6fe-52ac-4f6d-b709-b1725b9bd755",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\f03ee6fe-52ac-4f6d-b709-b1725b9bd755.jsonl",
+              "requestCount": 6,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "bf1fcb3d-e024-446c-a1f6-0c1d52c38186",
+            "operation": "comment-create",
+            "commentIndex": 3,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02VJe23kRPyVdbuGVtCyXZBkADph53yMPE12TgUS21fGG8WWQXUmggvy9muYzVgGMyl&id=61595003267470",
+            "storyId": "pfbid02VJe23kRPyVdbuGVtCyXZBkADph53yMPE12TgUS21fGG8WWQXUmggvy9muYzVgGMyl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 2,
+              "synced": true
+            }
+          }
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02VJe23kRPyVdbuGVtCyXZBkADph53yMPE12TgUS21fGG8WWQXUmggvy9muYzVgGMyl&id=61595003267470",
+        "requestedCount": 3,
+        "publishedCount": 3,
+        "skippedCount": 0,
+        "remaining": [],
+        "cancelled": false,
+        "stoppedForStorage": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T13:45:05.633Z",
+      "startedAt": "2026-11-07T13:45:05.635Z",
+      "finishedAt": "2026-11-07T13:45:47.378Z",
+      "updatedAt": "2026-11-07T13:45:47.382Z"
+    },
+    {
+      "id": "85cb3905-f6d0-4719-ad8a-67ac91538dfa",
+      "type": "autoupload-comments",
+      "name": "Коментарі · 3 · 3 профілів",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "autoupload-comments",
+          "label": "послідовна публікація коментарів"
+        },
+        {
+          "key": "adspower-profile:2709",
+          "label": "профіль №2709"
+        },
+        {
+          "key": "adspower-profile:2710",
+          "label": "профіль №2710"
+        },
+        {
+          "key": "adspower-profile:2712",
+          "label": "профіль №2712"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1iqf2m9",
+          "k1iqf2ma",
+          "k1iqf2mc"
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid09AkGNQYbacuBJimMWpCYaNWYouwES95yLk3TyJwLdhRtSg8NfrUbkqQ4VqBtKbegl&id=61595003267470",
+        "comments": [
+          "This is the kind of chaos I fully support 😂",
+          "I have absolutely no idea what's going on here, but I'm invested.",
+          "Somewhere out there, a potato is living a better life than me."
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-comments:pfbid09AkGNQYbacuBJimMWpCYaNWYouwES95yLk3TyJwLdhRtSg8NfrUbkqQ4VqBtKbegl:k1iqf2m9,k1iqf2ma,k1iqf2mc",
+        "httpHistory": {
+          "id": "e69de143-dc02-4f6e-834a-caa1f50e8d35",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\e69de143-dc02-4f6e-834a-caa1f50e8d35.jsonl",
+          "requestCount": 6,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "893b09ae-1315-4ec1-8fd3-a7eca55a0aa4"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1iqf2m9",
+            "profileNo": "2709",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwOUFrR05RWWJhY3VCSmltTVdwQ1lhTldZb3V3RVM5NXlMazNUeUp3TGRoUnRTZzhOZnJVYmtxUTRWcUJ0S2JlZ2w=",
+            "commentId": "Y29tbWVudDoxMjIxMTgzNjg4ODk1MDAxMDhfMzAzOTAzMjYwNjQ3NDc2OQ==",
+            "legacyCommentId": "3039032606474769",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwTEFTOGphUlZlRGNBNmhnODQzS1NaTnNad1ZQbk1LUWdoNmZkVlBpZFBKZTYxY240Ujh5OFdOcEtDeURNc3d2Snp3UnFjN1ZGSndCNTF0QmRHcno4UDJnRVZwWlc3aWFKVmpvZ3Js",
+            "commentUrl": null,
+            "text": "This is the kind of chaos I fully support 😂",
+            "createdTime": 1794059286,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "2f20cc49-4520-4f04-b627-165248623d77",
+            "httpHistory": {
+              "id": "e69de143-dc02-4f6e-834a-caa1f50e8d35",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\e69de143-dc02-4f6e-834a-caa1f50e8d35.jsonl",
+              "requestCount": 2,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "a040ab6b-331d-45df-b8c1-4da4ddf3398d",
+            "operation": "comment-create",
+            "commentIndex": 1,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid09AkGNQYbacuBJimMWpCYaNWYouwES95yLk3TyJwLdhRtSg8NfrUbkqQ4VqBtKbegl&id=61595003267470",
+            "storyId": "pfbid09AkGNQYbacuBJimMWpCYaNWYouwES95yLk3TyJwLdhRtSg8NfrUbkqQ4VqBtKbegl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 1,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2ma",
+            "profileNo": "2710",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwOUFrR05RWWJhY3VCSmltTVdwQ1lhTldZb3V3RVM5NXlMazNUeUp3TGRoUnRTZzhOZnJVYmtxUTRWcUJ0S2JlZ2w=",
+            "commentId": "Y29tbWVudDoxMjIxMTgzNjg4ODk1MDAxMDhfMTUzMjcyMTUzODkwMjMzNA==",
+            "legacyCommentId": "1532721538902334",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwS1VTNEVlZG9aekdna3R1QWlxU213b3RNeFRrQVNacW9ISzhVMWpuNG5ENkJDeUpiOFRCY1lDZE1kQWhVRVRRcUZjVzg2VHNBRlUxdEc4MmN2QUxTS2E5cmNvU00xTUxHMk0xUFJs",
+            "commentUrl": null,
+            "text": "I have absolutely no idea what's going on here, but I'm invested.",
+            "createdTime": 1794059298,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "ad54300b-759f-44f0-b46a-75dd4aad791e",
+            "httpHistory": {
+              "id": "e69de143-dc02-4f6e-834a-caa1f50e8d35",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\e69de143-dc02-4f6e-834a-caa1f50e8d35.jsonl",
+              "requestCount": 4,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "bac74487-3704-4e9f-a42c-801536a73699",
+            "operation": "comment-create",
+            "commentIndex": 2,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid09AkGNQYbacuBJimMWpCYaNWYouwES95yLk3TyJwLdhRtSg8NfrUbkqQ4VqBtKbegl&id=61595003267470",
+            "storyId": "pfbid09AkGNQYbacuBJimMWpCYaNWYouwES95yLk3TyJwLdhRtSg8NfrUbkqQ4VqBtKbegl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 1,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2mc",
+            "profileNo": "2712",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwOUFrR05RWWJhY3VCSmltTVdwQ1lhTldZb3V3RVM5NXlMazNUeUp3TGRoUnRTZzhOZnJVYmtxUTRWcUJ0S2JlZ2w=",
+            "commentId": "Y29tbWVudDoxMjIxMTgzNjg4ODk1MDAxMDhfMTE3MDkzMzczODkyODI4OA==",
+            "legacyCommentId": "1170933738928288",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZlp3aUI3aXFaM2lZWEVYSFZ5ZWRCVXI1WXkzYkJHTmlEZktNdTJ5Z0J0ZWt4czdXU2RDcEM5MzZ3ZzR6a0ZzV2Fibng1anNuR21lRmJQY3FQTENTbWFENWpOdUdQU1BmZTMxYnls",
+            "commentUrl": null,
+            "text": "Somewhere out there, a potato is living a better life than me.",
+            "createdTime": 1794059309,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "6f30951c-1154-4dd7-9dc8-adf1b897d4c3",
+            "httpHistory": {
+              "id": "e69de143-dc02-4f6e-834a-caa1f50e8d35",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\e69de143-dc02-4f6e-834a-caa1f50e8d35.jsonl",
+              "requestCount": 6,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "679e4ff9-f832-4689-a69e-7766923ae9a9",
+            "operation": "comment-create",
+            "commentIndex": 3,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid09AkGNQYbacuBJimMWpCYaNWYouwES95yLk3TyJwLdhRtSg8NfrUbkqQ4VqBtKbegl&id=61595003267470",
+            "storyId": "pfbid09AkGNQYbacuBJimMWpCYaNWYouwES95yLk3TyJwLdhRtSg8NfrUbkqQ4VqBtKbegl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 1,
+              "synced": true
+            }
+          }
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid09AkGNQYbacuBJimMWpCYaNWYouwES95yLk3TyJwLdhRtSg8NfrUbkqQ4VqBtKbegl&id=61595003267470",
+        "requestedCount": 3,
+        "publishedCount": 3,
+        "skippedCount": 0,
+        "remaining": [],
+        "cancelled": false,
+        "stoppedForStorage": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T13:42:46.544Z",
+      "startedAt": "2026-11-07T13:42:46.547Z",
+      "finishedAt": "2026-11-07T13:43:27.640Z",
+      "updatedAt": "2026-11-07T13:43:27.644Z"
+    },
+    {
       "id": "dcda5cc2-9d23-4022-9548-76f93ca253a7",
       "type": "adset-duplicate",
       "name": "Дублювання адсету · 5 копій",
