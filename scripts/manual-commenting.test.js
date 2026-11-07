@@ -7,7 +7,7 @@ import { BAN_TAG_ID, LOGIN_ERROR_TAG_ID, MAN_TAG_ID, WOMAN_TAG_ID } from "../con
 const comment = (id, gender = "male", key = null, parent = null) => ({ id, gender, profile_key: key,
     parent_id: parent, is_author: false, should_write: true, text: `Коментар ${id}` });
 
-async function fixture(t, comments) {
+async function fixture(t, comments, random = () => 0.999999) {
     const activityStore = new ProfileActivityStore({ databaseFile: ":memory:" });
     await activityStore.initialize();
     t.after(() => activityStore.db.close());
@@ -36,7 +36,7 @@ async function fixture(t, comments) {
         },
         closeAdsPowerProfile: async (no) => { events.push(["close", no]); opened.delete(no); },
     };
-    const options = { guiService, activityStore,
+    const options = { guiService, activityStore, random,
         copyText: async (text) => { if (failCopy) throw new Error("Буфер недоступний"); events.push(["copy", text]); },
         creativeManager: { getCreative: async () => ({ comments }) },
         markBanned: async (_ads, profile) => { events.push(["ban", profile.profile_no]); profile.profile_tags.push({ id: BAN_TAG_ID }); },
@@ -47,6 +47,29 @@ async function fixture(t, comments) {
     return { manager, options, session, act, activityStore, profiles, events, opened, guiService,
         failOpen: (value) => { failOpen = value; }, failCopy: (value) => { failCopy = value; } };
 }
+
+test("новий сеанс перемішує пул, а відновлення зберігає чергу та призначення", async (t) => {
+    let randomCalls = 0;
+    const f = await fixture(t, [comment("1"), comment("2", "female")], () => { randomCalls++; return 0; });
+    assert.deepEqual(f.session.pool.map((item) => item.profileNo), ["2", "3", "8", "1"]);
+    assert.equal(randomCalls, 3);
+    assert.equal((await f.act("open", "1")).comments[0].profileNo, "2");
+    assert.equal((await f.act("open", "2")).comments[1].profileNo, "3");
+    const restored = await new ManualCommentSessionManager(f.options).execute("start", {
+        contextKey: "page-post", geo: "US", creativeName: "202", groupIds: ["g"],
+    });
+    assert.equal(restored.id, f.session.id);
+    assert.deepEqual(restored.pool.map((item) => item.profileNo), ["2", "3", "8", "1"]);
+    assert.deepEqual(restored.comments.map((item) => item.profileNo), ["2", "3"]);
+    assert.equal(randomCalls, 3);
+    await f.act("finish");
+    f.manager.random = () => 0.999999;
+    const next = await f.manager.execute("start", {
+        contextKey: "page-post", geo: "US", creativeName: "202", groupIds: ["g"],
+    });
+    assert.notEqual(next.id, f.session.id);
+    assert.deepEqual(next.pool.map((item) => item.profileNo), ["1", "2", "3", "8"]);
+});
 
 test("пул фільтрує теги й дублікати; автор недоступний; стать відповідає коментарю", async (t) => {
     const f = await fixture(t, [comment("1", "female"), { ...comment("2"), is_author: true }]);

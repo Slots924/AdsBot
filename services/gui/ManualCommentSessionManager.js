@@ -5,6 +5,7 @@ import getBlockedProfileTag from "../profile/tags/getBlockedProfileTag.js";
 import markProfileAsBanned from "../profile/tags/markProfileAsBanned.js";
 import { profileActivityTypes } from "../profile/ProfileActivityStore.js";
 import { facebookAutomationWindowSize } from "../../facebook/browser/configureFacebookAutomationWindow.js";
+import { shuffleArray } from "../../scenarios/runCommentingScenario.js";
 
 const blockedTags = ["BAN", "LOGIN_ERROR"];
 const actorKey = (row) => row.profile_key || `comment:${row.id}`;
@@ -12,8 +13,8 @@ const writable = (row) => !row.is_author && row.should_write !== false;
 
 export default class ManualCommentSessionManager {
     constructor({ guiService, activityStore, copyText, creativeManager = null,
-        getGender = getProfileGender, markBanned = markProfileAsBanned }) {
-        Object.assign(this, { guiService, activityStore, copyText, creativeManager, getGender, markBanned });
+        getGender = getProfileGender, markBanned = markProfileAsBanned, random = Math.random }) {
+        Object.assign(this, { guiService, activityStore, copyText, creativeManager, getGender, markBanned, random });
         this.tail = Promise.resolve();
     }
 
@@ -200,6 +201,6 @@ export default class ManualCommentSessionManager {
         }
         return this.save({ id: randomUUID(), contextKey: input.contextKey, closed: false,
             settings: { geo: input.geo, language: input.language, creativeName, groupIds, siteUrl: input.siteUrl || "" },
-            comments, pool: [...profiles.values()], assignments: {} });
+            comments, pool: shuffleArray([...profiles.values()], this.random), assignments: {} });
     }
 }

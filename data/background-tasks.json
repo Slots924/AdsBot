@@ -2,6 +2,769 @@
   "version": 1,
   "tasks": [
     {
+      "id": "4302c22b-a1e8-41fc-a7e4-ea47804bbc27",
+      "type": "autoupload-session-check",
+      "name": "Перевірка сесій · 3",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "adspower-profile:2709",
+          "label": "профіль №2709"
+        },
+        {
+          "key": "adspower-profile:2710",
+          "label": "профіль №2710"
+        },
+        {
+          "key": "adspower-profile:2712",
+          "label": "профіль №2712"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1iqf2m9",
+          "k1iqf2ma",
+          "k1iqf2mc"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload:k1iqf2m9,k1iqf2ma,k1iqf2mc",
+        "httpHistory": {
+          "id": "2dc37a76-1467-4c35-90a0-b0352f3c1abc",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2dc37a76-1467-4c35-90a0-b0352f3c1abc.jsonl",
+          "requestCount": 15,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "c0bc46e5-6f9e-47a1-b15e-6975ac8cfd6a"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1iqf2m9",
+            "profileNo": "2709",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "accountId": "61595366072110",
+            "actorId": "61595366072110",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq",
+              "accountId"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "httpHistory": {
+              "id": "2dc37a76-1467-4c35-90a0-b0352f3c1abc",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2dc37a76-1467-4c35-90a0-b0352f3c1abc.jsonl",
+              "requestCount": 5,
+              "format": "jsonl",
+              "version": 1
+            },
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1138157575570746",
+                  "accountId": "1138157575570746",
+                  "name": "Vasilisa Dinitskaya",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          },
+          {
+            "profileId": "k1iqf2ma",
+            "profileNo": "2710",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "accountId": "61595666450228",
+            "actorId": "61595666450228",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq",
+              "accountId"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "httpHistory": {
+              "id": "2dc37a76-1467-4c35-90a0-b0352f3c1abc",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2dc37a76-1467-4c35-90a0-b0352f3c1abc.jsonl",
+              "requestCount": 10,
+              "format": "jsonl",
+              "version": 1
+            },
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1115502547845663",
+                  "accountId": "1115502547845663",
+                  "name": "Ekaterina Kozyreva",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          },
+          {
+            "profileId": "k1iqf2mc",
+            "profileNo": "2712",
+            "status": "active",
+            "stage": "facebook",
+            "message": "Акаунт перевірено, сесії та активи оновлено",
+            "accountId": "61595482557626",
+            "actorId": "61595482557626",
+            "fields": [
+              "fb_dtsg",
+              "fb_dtsg_ag",
+              "lsd",
+              "jazoest",
+              "sessionID",
+              "FacebookID",
+              "clientRevision",
+              "hsi",
+              "spinR",
+              "spinB",
+              "spinT",
+              "cometReq",
+              "accountId"
+            ],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook відповів. Дані сесії отримано, акаунт підтверджено",
+              "Сесію Ads Manager та access token отримано",
+              "Рекламних кабінетів: 1; фанпейджів: 0"
+            ],
+            "httpHistory": {
+              "id": "2dc37a76-1467-4c35-90a0-b0352f3c1abc",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2dc37a76-1467-4c35-90a0-b0352f3c1abc.jsonl",
+              "requestCount": 15,
+              "format": "jsonl",
+              "version": 1
+            },
+            "assets": {
+              "adAccounts": [
+                {
+                  "id": "act_1782624992954025",
+                  "accountId": "1782624992954025",
+                  "name": "Ruza Valieva",
+                  "accountStatus": 1,
+                  "businessId": null,
+                  "isPersonal": true
+                }
+              ],
+              "pages": [],
+              "adAccountsState": "loaded",
+              "pagesState": "loaded"
+            },
+            "capabilities": {
+              "facebook": true,
+              "adsManager": true,
+              "accessToken": true
+            },
+            "warnings": [],
+            "hasWarnings": false
+          }
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T19:33:35.604Z",
+      "startedAt": "2026-11-07T19:33:35.608Z",
+      "finishedAt": "2026-11-07T19:34:08.645Z",
+      "updatedAt": "2026-11-07T19:34:08.654Z"
+    },
+    {
+      "id": "64e37067-5cc5-4fe0-802c-65c3bc251a4f",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1401321019721226_122120611101505571",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "postId": "1401321019721226_122120611101505571"
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "reportId": "e88b2005-9213-4a58-9f2d-5df127c7c43a"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1401321019721226_122120611101505571"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T19:32:47.047Z",
+      "startedAt": "2026-11-07T19:32:47.050Z",
+      "finishedAt": "2026-11-07T19:32:53.848Z",
+      "updatedAt": "2026-11-07T19:32:53.851Z"
+    },
+    {
+      "id": "f2309f99-c83c-41b2-9e2c-d8798f96a034",
+      "type": "campaign",
+      "name": "CZ | Creo_1 | 25+ 07/11 18:32",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "ac5a1ef6-92d4-4916-bc0d-cf6067dc2f7b"
+      },
+      "metadata": {
+        "campaignJobId": "ac5a1ef6-92d4-4916-bc0d-cf6067dc2f7b",
+        "accountKey": "account-069",
+        "adAccountId": "act_1917580402939176",
+        "uniqueKey": "campaign-job:ac5a1ef6-92d4-4916-bc0d-cf6067dc2f7b",
+        "reportId": "9312c3f2-12ff-4cf3-a497-f2dde088c022"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "52628406894045",
+          "creativeId": "1606522244441694",
+          "creatives": [
+            {
+              "id": "1606522244441694",
+              "pageId": "1401321019721226",
+              "postId": "1401321019721226_122120633259505571"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52628406938845",
+              "name": "CZ | Creo_1 | 25+ 07/11 18:32 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52628406956045",
+              "name": "CZ | Creo_1 | 25+ 07/11 18:32 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "ac5a1ef6-92d4-4916-bc0d-cf6067dc2f7b",
+        "campaignId": "52628406894045",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T18:32:39.327Z",
+      "startedAt": "2026-11-07T18:32:39.329Z",
+      "finishedAt": "2026-11-07T18:33:01.637Z",
+      "updatedAt": "2026-11-07T18:33:01.640Z"
+    },
+    {
+      "id": "c98bed43-10e6-4a87-ba9d-1b5eb92c60c9",
+      "type": "publication",
+      "name": "Публікація · CZ · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeGeo": "CZ",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/lu13xi",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\764065672_122301694466017959_6381979788048763933_n (1).jpg",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\767002259_122301694574017959_7729209163543953863_n.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "1",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "7b7fe147-fb73-4c52-8513-c1a1dc6292b3"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "https://love-in-hurt.club/lu13xi",
+        "postId": "1401321019721226_122120633259505571",
+        "permalinkUrl": "https://www.facebook.com/122120604063505571/posts/122120633259505571",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T18:32:11.514Z",
+      "startedAt": "2026-11-07T18:32:11.517Z",
+      "finishedAt": "2026-11-07T18:32:19.644Z",
+      "updatedAt": "2026-11-07T18:32:19.647Z"
+    },
+    {
+      "id": "4e75a8ba-eff5-480a-a066-e687a761d6ae",
+      "type": "campaign",
+      "name": "US(es) | Creo_17 | 25+ Android 07/11 18:25",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "21492573-ce94-406a-88f1-cb8139634495"
+      },
+      "metadata": {
+        "campaignJobId": "21492573-ce94-406a-88f1-cb8139634495",
+        "accountKey": "account-060",
+        "adAccountId": "act_823573256754721",
+        "uniqueKey": "campaign-job:21492573-ce94-406a-88f1-cb8139634495",
+        "reportId": "ad8a595e-60b6-4c08-b0c5-5c70ff999f90"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120249435634610775",
+          "creativeId": "1655212215986904",
+          "creatives": [
+            {
+              "id": "1655212215986904",
+              "pageId": "771628746042789",
+              "postId": "771628746042789_122148286461070732"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120249435635760775",
+              "name": "US(es) | Creo_17 | 25+ Android 07/11 18:25 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120249435636160775",
+              "name": "US(es) | Creo_17 | 25+ Android 07/11 18:25 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "21492573-ce94-406a-88f1-cb8139634495",
+        "campaignId": "120249435634610775",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T18:25:18.312Z",
+      "startedAt": "2026-11-07T18:25:18.314Z",
+      "finishedAt": "2026-11-07T18:25:38.716Z",
+      "updatedAt": "2026-11-07T18:25:38.719Z"
+    },
+    {
+      "id": "fc0f26f8-ecae-4dc0-ae04-712ae59507df",
+      "type": "publication",
+      "name": "Публікація · US · 17",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-060",
+        "pageId": "771628746042789",
+        "geo": "US",
+        "language": "ES",
+        "creativeGeo": "ES",
+        "creativeName": "17",
+        "siteUrl": "https://love-in-hurt.club/0zcv3f",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Downloads\\541883859_122110679012987479_2885827865036503292_n.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-060",
+        "pageId": "771628746042789",
+        "geo": "US",
+        "language": "ES",
+        "creativeName": "17",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "2a342590-e0f1-44a5-b4fa-98a54abf4084"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-060",
+        "pageId": "771628746042789",
+        "geo": "US",
+        "language": "ES",
+        "creativeName": "17",
+        "siteUrl": "https://love-in-hurt.club/0zcv3f",
+        "postId": "771628746042789_122148286461070732",
+        "permalinkUrl": "https://www.facebook.com/122148073629070732/posts/122148286461070732",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T18:24:52.950Z",
+      "startedAt": "2026-11-07T18:24:52.954Z",
+      "finishedAt": "2026-11-07T18:25:02.331Z",
+      "updatedAt": "2026-11-07T18:25:02.335Z"
+    },
+    {
+      "id": "713d6f97-ddaf-47cb-832b-45accec98e47",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 771628746042789_122148284991070732",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-060",
+        "pageId": "771628746042789",
+        "postId": "771628746042789_122148284991070732"
+      },
+      "metadata": {
+        "accountKey": "account-060",
+        "pageId": "771628746042789",
+        "reportId": "cc423ecb-537a-49c7-b8bd-5ff9f273c9aa"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "771628746042789_122148284991070732"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T18:23:41.445Z",
+      "startedAt": "2026-11-07T18:23:41.449Z",
+      "finishedAt": "2026-11-07T18:23:47.991Z",
+      "updatedAt": "2026-11-07T18:23:47.996Z"
+    },
+    {
+      "id": "56476059-5eb2-4056-9049-f9f15f712059",
+      "type": "campaign",
+      "name": "US(es) | Creo_138 | 25+ Android 07/11 18:06",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "68405c8b-8bdb-4b80-83fc-abcd1d995d68"
+      },
+      "metadata": {
+        "campaignJobId": "68405c8b-8bdb-4b80-83fc-abcd1d995d68",
+        "accountKey": "account-060",
+        "adAccountId": "act_823573256754721",
+        "uniqueKey": "campaign-job:68405c8b-8bdb-4b80-83fc-abcd1d995d68",
+        "reportId": "afe74f57-8048-4855-be60-1946d84e8a51"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120249435556520775",
+          "creativeId": "1791709472088215",
+          "creatives": [
+            {
+              "id": "1791709472088215",
+              "pageId": "771628746042789",
+              "postId": "771628746042789_122148284991070732"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120249435557290775",
+              "name": "US(es) | Creo_138 | 25+ Android 07/11 18:06 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120249435557650775",
+              "name": "US(es) | Creo_138 | 25+ Android 07/11 18:06 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "68405c8b-8bdb-4b80-83fc-abcd1d995d68",
+        "campaignId": "120249435556520775",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T18:07:07.393Z",
+      "startedAt": "2026-11-07T18:07:07.395Z",
+      "finishedAt": "2026-11-07T18:07:31.985Z",
+      "updatedAt": "2026-11-07T18:07:31.988Z"
+    },
+    {
+      "id": "c42e750b-efb2-40ec-b8e1-69488300409a",
+      "type": "publication",
+      "name": "Публікація · US · 138",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-060",
+        "pageId": "771628746042789",
+        "geo": "US",
+        "language": "ES",
+        "creativeGeo": "ES",
+        "creativeName": "138",
+        "siteUrl": "https://love-in-hurt.club/213x11",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Downloads\\73636378_003_bf44.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-060",
+        "pageId": "771628746042789",
+        "geo": "US",
+        "language": "ES",
+        "creativeName": "138",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "f1a0a691-926c-4c9a-897e-79497f9eb7cd"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-060",
+        "pageId": "771628746042789",
+        "geo": "US",
+        "language": "ES",
+        "creativeName": "138",
+        "siteUrl": "https://love-in-hurt.club/213x11",
+        "postId": "771628746042789_122148284991070732",
+        "permalinkUrl": "https://www.facebook.com/122148073629070732/posts/122148284991070732",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T18:04:58.119Z",
+      "startedAt": "2026-11-07T18:04:58.122Z",
+      "finishedAt": "2026-11-07T18:05:51.305Z",
+      "updatedAt": "2026-11-07T18:05:51.308Z"
+    },
+    {
+      "id": "0b2244bf-fee0-4a94-9157-57162f9cc778",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 771628746042789_122147023359070732",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-060",
+        "pageId": "771628746042789",
+        "postId": "771628746042789_122147023359070732"
+      },
+      "metadata": {
+        "accountKey": "account-060",
+        "pageId": "771628746042789",
+        "reportId": "5365a693-7594-491c-bb59-97d9d1ddcde9"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "771628746042789_122147023359070732"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-07T18:03:12.805Z",
+      "startedAt": "2026-11-07T18:03:12.808Z",
+      "finishedAt": "2026-11-07T18:03:18.156Z",
+      "updatedAt": "2026-11-07T18:03:18.160Z"
+    },
+    {
       "id": "4f82beeb-6e7d-456e-8bdd-f085ba2d056a",
       "type": "campaign",
       "name": "CZ | Creo_4 | 25+ 07/11 17:17",
