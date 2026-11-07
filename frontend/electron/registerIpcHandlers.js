@@ -19,6 +19,7 @@ import PersonalAutouploadSessionManager from "../../services/personalAccounts/Pe
 import { validateTargetUserId } from "../../facebook/autoupload/actions/friends/sendFriendRequest.js";
 import { validateName } from "../../facebook/autoupload/actions/accounts/changeFacebookName.js";
 import { validateProfileAction } from "../../facebook/autoupload/actions/profile/index.js";
+import commentBatchInput from "../../services/autoupload/commentBatchInput.js";
 import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
 import refreshFacebookAccessToken from "../../services/accounts/refreshFacebookAccessToken.js";
 import ProfileProxyHttpClient from "../../services/proxy/ProfileProxyHttpClient.js";
@@ -355,6 +356,20 @@ export default function registerIpcHandlers({
             resources: profiles.map(profile => ({ key: `adspower-profile:${profile.profileNo}`, label: `профіль №${profile.profileNo}` })),
             input: { profileIds: selectedIds, action },
             runner: context => autoupload.runProfileAction(selectedIds, action, normalized, context),
+        });
+        return { taskId: task.id };
+    }));
+    ipcMain.handle("autoupload:comments", safeHandler(async ({ ids, ...input } = {}) => {
+        const normalized = commentBatchInput(input);
+        const profiles = await autoupload.selected(ids);
+        const selectedIds = profiles.map(profile => profile.profileId);
+        const task = await backgroundTaskManager.enqueue({
+            type: "autoupload-comments", name: `Коментарі · ${normalized.comments.length} · ${profiles.length} профілів`,
+            uniqueKey: `autoupload-comments:${normalized.storyId}:${[...selectedIds].sort().join(",")}`,
+            resources: [{ key: "autoupload-comments", label: "послідовна публікація коментарів" },
+                ...profiles.map(profile => ({ key: `adspower-profile:${profile.profileNo}`, label: `профіль №${profile.profileNo}` }))],
+            input: { profileIds: selectedIds, postUrl: normalized.postUrl, comments: normalized.comments },
+            runner: context => autoupload.publishComments(selectedIds, normalized, context),
         });
         return { taskId: task.id };
     }));

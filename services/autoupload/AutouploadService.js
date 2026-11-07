@@ -13,6 +13,10 @@ import changeFacebookName, { validateName } from "../../facebook/autoupload/acti
 import { profileActions, validateProfileAction } from "../../facebook/autoupload/actions/profile/index.js";
 import getFanPages from "../../facebook/autoupload/actions/pages/getFanPages.js";
 import grantFanPageAccess from "../../facebook/autoupload/workflows/grantFanPageAccess.js";
+import createComment from "../../facebook/autoupload/actions/comments/createComment.js";
+import commentBatchInput from "./commentBatchInput.js";
+import { incrementActionCounter } from "../profile/actionCounters.js";
+import { randomUUID } from "node:crypto";
 
 export default class AutouploadService {
     #clients = new Map();
@@ -22,16 +26,98 @@ export default class AutouploadService {
     #mutating = new Set();
     #pageLists = new Map();
     constructor({ store, adsPower, profileBrowser, sessionStore, reportManager, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount, acceptFriendRequestFn = acceptIncomingFriendRequest, changeNameFn = changeFacebookName,
-        getFanPagesFn = getFanPages, grantFanPageAccessFn = grantFanPageAccess, checkPageSession = checkProfileSession }) {
+        getFanPagesFn = getFanPages, grantFanPageAccessFn = grantFanPageAccess, checkPageSession = checkProfileSession,
+        createCommentFn = createComment, prepareCommentSession = checkProfileSession }) {
+        Object.assign(this, { createCommentFn, prepareCommentSession });
         Object.assign(this, { reportManager, getFanPagesFn, grantFanPageAccessFn, checkPageSession });
         this.changeNameFn = changeNameFn;
         Object.assign(this, { store, adsPower, profileBrowser, sessionStore, onUpdated, checkSession: checkSession ?? (sessionStore ? refreshProfileSession : checkProfileSession), sendFriendRequestFn, shareAdAccountFn, acceptFriendRequestFn });
     }
     runReported(name, execute) { return this.#runReported(name, execute); }
+
+    publishComments(ids, input, context = {}) {
+        return this.#runReported("publishComments", () => this.#publishComments(ids, commentBatchInput(input), context));
+    }
+
+    async #publishComments(ids, input, { signal, progress = async () => {} } = {}) {
+        const profiles = await this.selected(ids);
+        const results = [];
+        let cursor = 0;
+        let stoppedForStorage = false;
+        const pendingIds = profiles.map(profile => profile.profileId);
+        if (pendingIds.some(id => this.#running.has(id) || this.#mutating.has(id) || this.#browserBusy.has(id))) throw new Error("Операція над профілем уже виконується");
+        // Резервуємо всю чергу, щоб інша дія не змінила її акаунти між спробами.
+        pendingIds.forEach(id => this.#running.add(id));
+        try {
+            await this.#publish();
+            for (const profile of profiles) {
+                if (signal?.aborted || cursor >= input.comments.length) break;
+                const id = profile.profileId;
+                const text = input.comments[cursor];
+                const attemptId = randomUUID();
+                let action;
+                let client;
+                await progress({ stage: "comment", completed: results.length, total: profiles.length,
+                    message: `№${profile.profileNo} · коментар ${cursor + 1}/${input.comments.length}` });
+                try {
+                    const prepared = await this.prepareCommentSession({ profileId: id, adsPower: this.adsPower, signal,
+                        onSessionStatus: this.#statusHandler(id),
+                        onStage: message => progress({ stage: "session", completed: results.length, total: profiles.length, message: `№${profile.profileNo}: ${message}` }),
+                    });
+                    client = prepared.client;
+                    if (!client) action = { success: false, outcome: "NOT_SENT", code: "FACEBOOK_SESSION_PREPARATION_FAILED",
+                        message: prepared.result.message, sessionStatus: prepared.result.status, mutationAttempted: false, outcomeUnknown: false };
+                    else action = await this.createCommentFn(client.getFbData(id), { feedbackId: input.feedbackId, text }, { signal });
+                } catch (error) { action = actionFailure(error); }
+                if (action.success && !action.commentId) action = { ...action, success: false, outcome: "OUTCOME_UNKNOWN", outcomeUnknown: true,
+                    message: "ID коментаря не отримано; коментар пропущено" };
+                const entry = { ...action, attemptId, operation: "comment-create", commentIndex: cursor + 1, text,
+                    postUrl: input.postUrl, storyId: input.storyId, postFeedbackId: input.feedbackId, skipped: !action.success && action.outcomeUnknown === true,
+                    fields: [], steps: [action.message] };
+                if (action.success || action.outcomeUnknown) cursor++;
+                results.push({ profileId: id, profileNo: profile.profileNo, ...entry });
+                // Підтвердження з ID зберігається до перейменування; збій лічильника не повторює POST.
+                try { await this.store.recordAction(id, entry); }
+                catch {
+                    results.at(-1).storageWarning = "Не вдалося зберегти результат; чергу зупинено";
+                    stoppedForStorage = true;
+                    break;
+                }
+                const patch = {};
+                if (action.success) {
+                    try { patch.counter = await incrementActionCounter({ adsPower: this.adsPower, store: this.store,
+                        profileId: id, key: "AU_COMMENT", eventId: action.commentId }); }
+                    catch { patch.counterWarning = "Коментар опубліковано. Не вдалося синхронізувати AU_COMMENT у назві профілю"; }
+                }
+                if (client && this.sessionStore && !["login_required", "checkpoint"].includes(action.sessionStatus)) {
+                    try { await this.sessionStore.save(id, client.exportSession()); }
+                    catch { patch.storageWarning = "Не вдалося зберегти оновлену сесію"; }
+                }
+                Object.assign(results.at(-1), patch);
+                if (Object.keys(patch).length) {
+                    try { await this.store.patchAction(id, attemptId, patch); }
+                    catch { results.at(-1).storageWarning = "Не вдалося зберегти стан лічильника"; }
+                }
+                await this.#publish();
+            }
+        } finally {
+            pendingIds.forEach(id => this.#running.delete(id));
+            await this.#publish();
+        }
+        const remaining = input.comments.slice(cursor).map((text, index) => ({ commentIndex: cursor + index + 1, text }));
+        const publishedCount = results.filter(item => item.success).length;
+        const skippedCount = results.filter(item => item.skipped).length;
+        await progress({ stage: "comment", completed: results.length, total: profiles.length,
+            message: `Опубліковано: ${publishedCount} · пропущено: ${skippedCount} · залишилось: ${remaining.length}` });
+        return { result: { profiles: results, postUrl: input.postUrl, requestedCount: input.comments.length,
+            publishedCount, skippedCount, remaining, cancelled: signal?.aborted === true, stoppedForStorage },
+            taskStatus: signal?.aborted || remaining.length || results.some(item => !item.success || item.counterWarning || item.storageWarning)
+                ? "completed_with_warnings" : "completed" };
+    }
     async #runReported(name, execute) {
         if (currentHttpHistory() || !this.reportManager) return withHttpWorkflow(name, execute);
         const startedAt = new Date().toISOString();
-        const titles = { listFanPages: "Список фанок", shareFanPage: "Надання доступу до фанки", check: "Перевірка сесії", refreshAccessToken: "Оновлення access token" };
+        const titles = { publishComments: "Публікація коментарів", listFanPages: "Список фанок", shareFanPage: "Надання доступу до фанки", check: "Перевірка сесії", refreshAccessToken: "Оновлення access token" };
         const task = { id: null, type: `autoupload-${name}`, name: titles[name] ?? name, startedAt, input: {} };
         let liveReportId = null;
         const save = async (value, error) => {

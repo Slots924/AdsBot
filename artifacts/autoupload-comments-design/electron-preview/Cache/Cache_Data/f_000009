@@ -1,0 +1,316 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/AutouploadShareFanPageModal.jsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=9cb3e465"; const Fragment = __vite__cjsImport0_react_jsxDevRuntime["Fragment"]; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport1_react from "/node_modules/.vite/deps/react.js?v=9cb3e465"; const useRef = __vite__cjsImport1_react["useRef"]; const useState = __vite__cjsImport1_react["useState"];
+import { AlertCircle, CheckCircle2, Download, Image, LoaderCircle, Share2, ShieldCheck } from "/node_modules/.vite/deps/lucide-react.js?v=9cb3e465";
+import WorkspaceDialog from "/src/components/WorkspaceDialog.jsx";
+import { unwrap } from "/src/lib/api.js";
+import useFanPageAccessRequest from "/src/components/useFanPageAccessRequest.jsx";
+export default function AutouploadShareFanPageModal({ profile, onClose }) {
+  _s();
+  const accessRequest = useFanPageAccessRequest();
+  const [pages, setPages] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+  const [target, setTarget] = useState("");
+  const [operation, setOperation] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [results, setResults] = useState({});
+  const locked = useRef(false);
+  const targetId = target.trim();
+  const validTarget = /^[1-9]\d{0,29}$/.test(targetId);
+  const busy = operation !== null;
+  const load = async () => {
+    if (locked.current) return;
+    locked.current = true;
+    setOperation("list");
+    setFeedback(null);
+    setPages([]);
+    setLoaded(false);
+    try {
+      const result = await unwrap(window.adsBot.getAutouploadFanPages([profile.profileId]));
+      if (!result.success) throw new Error(result.message || "Не вдалося отримати список фанок");
+      setPages(result.pages);
+      setLoaded(true);
+    } catch (error) {
+      setFeedback({ success: false, message: error.message });
+    } finally {
+      locked.current = false;
+      setOperation(null);
+    }
+  };
+  const share = async (page) => {
+    if (locked.current || !validTarget) return;
+    locked.current = true;
+    setOperation(page.additionalProfileId);
+    setFeedback(null);
+    try {
+      const result = await accessRequest.send({ ids: [profile.profileId], additionalProfileId: page.additionalProfileId, targetUserId: targetId });
+      setFeedback({ success: result.success, message: `${page.name || "Фанка"} · ${result.message}` });
+      if (result.success || result.outcomeUnknown) setResults((current) => ({ ...current, [`${targetId}:${page.additionalProfileId}`]: result }));
+    } catch (error) {
+      setFeedback({ success: false, message: error.message });
+    } finally {
+      locked.current = false;
+      setOperation(null);
+    }
+  };
+  return /* @__PURE__ */ jsxDEV(Fragment, { children: [
+    /* @__PURE__ */ jsxDEV(WorkspaceDialog, { title: "Пошарити фанку", className: "fan-page-share-dialog", busy, onClose, children: /* @__PURE__ */ jsxDEV("div", { className: "fan-page-share", children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "fan-page-share-context", children: [
+        /* @__PURE__ */ jsxDEV("span", { className: "fan-page-share-icon", children: /* @__PURE__ */ jsxDEV(Share2, { size: 19 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 41,
+          columnNumber: 91
+        }, this) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 41,
+          columnNumber: 53
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { children: [
+          /* @__PURE__ */ jsxDEV("strong", { children: [
+            "Профіль №",
+            profile.profileNo
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+            lineNumber: 41,
+            columnNumber: 123
+          }, this),
+          /* @__PURE__ */ jsxDEV("span", { children: profile.name || "Без назви" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+            lineNumber: 41,
+            columnNumber: 168
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 41,
+          columnNumber: 118
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { className: "fan-page-share-access", children: [
+          /* @__PURE__ */ jsxDEV(ShieldCheck, { size: 13 }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+            lineNumber: 41,
+            columnNumber: 256
+          }, this),
+          " Повний доступ"
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 41,
+          columnNumber: 216
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+        lineNumber: 41,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("button", { type: "button", className: "secondary-button fan-page-share-load", disabled: busy, onClick: load, children: [
+        operation === "list" ? /* @__PURE__ */ jsxDEV(LoaderCircle, { className: "spin", size: 15 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 42,
+          columnNumber: 139
+        }, this) : /* @__PURE__ */ jsxDEV(Download, { size: 15 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 42,
+          columnNumber: 185
+        }, this),
+        operation === "list" ? "Отримуємо фанки…" : "Отримати список фанок"
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+        lineNumber: 42,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("label", { className: "fan-page-share-target", children: [
+        "Facebook ID отримувача",
+        /* @__PURE__ */ jsxDEV("input", { value: target, inputMode: "numeric", autoComplete: "off", maxLength: 30, disabled: busy, placeholder: "Введіть ID користувача", onChange: (event) => {
+          setTarget(event.target.value);
+          setFeedback(null);
+        } }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 43,
+          columnNumber: 76
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+        lineNumber: 43,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "fan-page-share-heading", children: [
+        /* @__PURE__ */ jsxDEV("span", { children: "Доступні фанки" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 44,
+          columnNumber: 53
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: loaded ? `${pages.length}` : "—" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 44,
+          columnNumber: 80
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+        lineNumber: 44,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "fan-page-share-list", "aria-label": "Фанки для надання доступу", "aria-busy": operation === "list", children: [
+        !pages.length && /* @__PURE__ */ jsxDEV("div", { className: "fan-page-share-empty", children: [
+          /* @__PURE__ */ jsxDEV(Image, { size: 28, strokeWidth: 1.3 }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+            lineNumber: 46,
+            columnNumber: 73
+          }, this),
+          /* @__PURE__ */ jsxDEV("strong", { children: operation === "list" ? "Завантажуємо список" : loaded ? "Доступних фанок немає" : "Ваші фанки з’являться тут" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+            lineNumber: 46,
+            columnNumber: 110
+          }, this),
+          /* @__PURE__ */ jsxDEV("span", { children: operation === "list" ? "Це може зайняти трохи часу" : loaded ? "Спробуйте інший профіль" : "Натисніть «Отримати список фанок»" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+            lineNumber: 46,
+            columnNumber: 238
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 46,
+          columnNumber: 35
+        }, this),
+        pages.map((page) => {
+          const result = results[`${targetId}:${page.additionalProfileId}`];
+          const sharing = operation === page.additionalProfileId;
+          return /* @__PURE__ */ jsxDEV("div", { className: "fan-page-share-row", children: [
+            /* @__PURE__ */ jsxDEV("span", { className: "fan-page-share-avatar", children: [
+              /* @__PURE__ */ jsxDEV(Image, { size: 17 }, void 0, false, {
+                fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+                lineNumber: 51,
+                columnNumber: 65
+              }, this),
+              page.photoUrl && /* @__PURE__ */ jsxDEV("img", { src: page.photoUrl, alt: "", referrerPolicy: "no-referrer", onError: (event) => {
+                event.currentTarget.style.display = "none";
+              } }, void 0, false, {
+                fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+                lineNumber: 51,
+                columnNumber: 102
+              }, this)
+            ] }, void 0, true, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+              lineNumber: 51,
+              columnNumber: 25
+            }, this),
+            /* @__PURE__ */ jsxDEV("div", { className: "fan-page-share-name", children: [
+              /* @__PURE__ */ jsxDEV("strong", { title: page.name, children: page.name || "Без назви" }, void 0, false, {
+                fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+                lineNumber: 52,
+                columnNumber: 62
+              }, this),
+              /* @__PURE__ */ jsxDEV("span", { children: page.additionalProfileId }, void 0, false, {
+                fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+                lineNumber: 52,
+                columnNumber: 123
+              }, this)
+            ] }, void 0, true, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+              lineNumber: 52,
+              columnNumber: 25
+            }, this),
+            /* @__PURE__ */ jsxDEV("button", { type: "button", className: `secondary-button fan-page-share-button${result?.success ? " is-sent" : ""}`, "aria-label": `Пошарити ${page.name || page.additionalProfileId}`, disabled: busy || !validTarget || Boolean(result), onClick: () => share(page), children: [
+              sharing ? /* @__PURE__ */ jsxDEV(LoaderCircle, { className: "spin", size: 13 }, void 0, false, {
+                fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+                lineNumber: 54,
+                columnNumber: 40
+              }, this) : result?.success ? /* @__PURE__ */ jsxDEV(CheckCircle2, { size: 13 }, void 0, false, {
+                fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+                lineNumber: 54,
+                columnNumber: 104
+              }, this) : /* @__PURE__ */ jsxDEV(Share2, { size: 13 }, void 0, false, {
+                fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+                lineNumber: 54,
+                columnNumber: 133
+              }, this),
+              sharing ? "Надсилаємо…" : result?.outcomeUnknown ? "Перевірте стан" : result?.outcome === "FULL_CONTROL_ALREADY_PRESENT" ? "Є доступ" : result?.success ? "Очікує" : "Пошарити"
+            ] }, void 0, true, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+              lineNumber: 53,
+              columnNumber: 25
+            }, this)
+          ] }, page.additionalProfileId, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+            lineNumber: 50,
+            columnNumber: 20
+          }, this);
+        })
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+        lineNumber: 45,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: `fan-page-share-feedback${feedback ? feedback.success ? " is-success" : " is-error" : ""}`, role: feedback?.success === false ? "alert" : "status", "aria-live": "polite", children: feedback ? /* @__PURE__ */ jsxDEV(Fragment, { children: [
+        feedback.success ? /* @__PURE__ */ jsxDEV(CheckCircle2, { size: 16 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 61,
+          columnNumber: 51
+        }, this) : /* @__PURE__ */ jsxDEV(AlertCircle, { size: 16 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 61,
+          columnNumber: 80
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { children: feedback.message }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+          lineNumber: 61,
+          columnNumber: 106
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+        lineNumber: 61,
+        columnNumber: 29
+      }, this) : /* @__PURE__ */ jsxDEV("span", { children: busy && operation !== "list" ? "Надаємо доступ. Вікно залишиться відкритим." : "Пошарте потрібні фанки по черзі — вікно залишиться відкритим." }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+        lineNumber: 61,
+        columnNumber: 143
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+        lineNumber: 60,
+        columnNumber: 13
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+      lineNumber: 40,
+      columnNumber: 9
+    }, this) }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+      lineNumber: 39,
+      columnNumber: 12
+    }, this),
+    accessRequest.dialog
+  ] }, void 0, true, {
+    fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx",
+    lineNumber: 39,
+    columnNumber: 10
+  }, this);
+}
+_s(AutouploadShareFanPageModal, "VHv6reuJwibTeWCOFl6ouV/O6/U=", false, function() {
+  return [useFanPageAccessRequest];
+});
+_c = AutouploadShareFanPageModal;
+var _c;
+$RefreshReg$(_c, "AutouploadShareFanPageModal");
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+function $RefreshReg$(type, id) {
+  return RefreshRuntime.register(type, "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadShareFanPageModal.jsx " + id);
+}
+function $RefreshSig$() {
+  return RefreshRuntime.createSignatureFunctionForTransform();
+}
+
+//# sourceMappingURL=data:application/json;base64,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O0FBQUEsYUFBQUEsSUFBQSIsIm5hbWVzIjpbInVzZVJlZiIsInVzZVN0YXRlIiwiQWxlcnRDaXJjbGUiLCJDaGVja0NpcmNsZTIiLCJEb3dubG9hZCIsIkltYWdlIiwiTG9hZGVyQ2lyY2xlIiwiU2hhcmUyIiwiU2hpZWxkQ2hlY2siLCJXb3Jrc3BhY2VEaWFsb2ciLCJ1bndyYXAiLCJ1c2VGYW5QYWdlQWNjZXNzUmVxdWVzdCIsIkF1dG91cGxvYWRTaGFyZUZhblBhZ2VNb2RhbCIsInByb2ZpbGUiLCJvbkNsb3NlIiwiX3MiLCJhY2Nlc3NSZXF1ZXN0IiwicGFnZXMiLCJzZXRQYWdlcyIsImxvYWRlZCIsInNldExvYWRlZCIsInRhcmdldCIsInNldFRhcmdldCIsIm9wZXJhdGlvbiIsInNldE9wZXJhdGlvbiIsImZlZWRiYWNrIiwic2V0RmVlZGJhY2siLCJyZXN1bHRzIiwic2V0UmVzdWx0cyIsImxvY2tlZCIsInRhcmdldElkIiwidHJpbSIsInZhbGlkVGFyZ2V0IiwidGVzdCIsImJ1c3kiLCJsb2FkIiwiY3VycmVudCIsInJlc3VsdCIsIndpbmRvdyIsImFkc0JvdCIsImdldEF1dG91cGxvYWRGYW5QYWdlcyIsInByb2ZpbGVJZCIsInN1Y2Nlc3MiLCJFcnJvciIsIm1lc3NhZ2UiLCJlcnJvciIsInNoYXJlIiwicGFnZSIsImFkZGl0aW9uYWxQcm9maWxlSWQiLCJzZW5kIiwiaWRzIiwidGFyZ2V0VXNlcklkIiwibmFtZSIsIm91dGNvbWVVbmtub3duIiwicHJvZmlsZU5vIiwiZXZlbnQiLCJ2YWx1ZSIsImxlbmd0aCIsIm1hcCIsInNoYXJpbmciLCJwaG90b1VybCIsImN1cnJlbnRUYXJnZXQiLCJzdHlsZSIsImRpc3BsYXkiLCJCb29sZWFuIiwib3V0Y29tZSIsImRpYWxvZyIsIl9jIl0sImlnbm9yZUxpc3QiOltdLCJzb3VyY2VzIjpbIkF1dG91cGxvYWRTaGFyZUZhblBhZ2VNb2RhbC5qc3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlUmVmLCB1c2VTdGF0ZSB9IGZyb20gXCJyZWFjdFwiO1xuaW1wb3J0IHsgQWxlcnRDaXJjbGUsIENoZWNrQ2lyY2xlMiwgRG93bmxvYWQsIEltYWdlLCBMb2FkZXJDaXJjbGUsIFNoYXJlMiwgU2hpZWxkQ2hlY2sgfSBmcm9tIFwibHVjaWRlLXJlYWN0XCI7XG5pbXBvcnQgV29ya3NwYWNlRGlhbG9nIGZyb20gXCIuL1dvcmtzcGFjZURpYWxvZy5qc3hcIjtcbmltcG9ydCB7IHVud3JhcCB9IGZyb20gXCIuLi9saWIvYXBpLmpzXCI7XG5pbXBvcnQgdXNlRmFuUGFnZUFjY2Vzc1JlcXVlc3QgZnJvbSBcIi4vdXNlRmFuUGFnZUFjY2Vzc1JlcXVlc3QuanN4XCI7XG5cbmV4cG9ydCBkZWZhdWx0IGZ1bmN0aW9uIEF1dG91cGxvYWRTaGFyZUZhblBhZ2VNb2RhbCh7IHByb2ZpbGUsIG9uQ2xvc2UgfSkge1xuICAgIGNvbnN0IGFjY2Vzc1JlcXVlc3QgPSB1c2VGYW5QYWdlQWNjZXNzUmVxdWVzdCgpO1xuICAgIGNvbnN0IFtwYWdlcywgc2V0UGFnZXNdID0gdXNlU3RhdGUoW10pO1xuICAgIGNvbnN0IFtsb2FkZWQsIHNldExvYWRlZF0gPSB1c2VTdGF0ZShmYWxzZSk7XG4gICAgY29uc3QgW3RhcmdldCwgc2V0VGFyZ2V0XSA9IHVzZVN0YXRlKFwiXCIpO1xuICAgIGNvbnN0IFtvcGVyYXRpb24sIHNldE9wZXJhdGlvbl0gPSB1c2VTdGF0ZShudWxsKTtcbiAgICBjb25zdCBbZmVlZGJhY2ssIHNldEZlZWRiYWNrXSA9IHVzZVN0YXRlKG51bGwpO1xuICAgIGNvbnN0IFtyZXN1bHRzLCBzZXRSZXN1bHRzXSA9IHVzZVN0YXRlKHt9KTtcbiAgICBjb25zdCBsb2NrZWQgPSB1c2VSZWYoZmFsc2UpO1xuICAgIGNvbnN0IHRhcmdldElkID0gdGFyZ2V0LnRyaW0oKTtcbiAgICBjb25zdCB2YWxpZFRhcmdldCA9IC9eWzEtOV1cXGR7MCwyOX0kLy50ZXN0KHRhcmdldElkKTtcbiAgICBjb25zdCBidXN5ID0gb3BlcmF0aW9uICE9PSBudWxsO1xuICAgIGNvbnN0IGxvYWQgPSBhc3luYyAoKSA9PiB7XG4gICAgICAgIGlmIChsb2NrZWQuY3VycmVudCkgcmV0dXJuO1xuICAgICAgICBsb2NrZWQuY3VycmVudCA9IHRydWU7IHNldE9wZXJhdGlvbihcImxpc3RcIik7IHNldEZlZWRiYWNrKG51bGwpOyBzZXRQYWdlcyhbXSk7IHNldExvYWRlZChmYWxzZSk7XG4gICAgICAgIHRyeSB7XG4gICAgICAgICAgICBjb25zdCByZXN1bHQgPSBhd2FpdCB1bndyYXAod2luZG93LmFkc0JvdC5nZXRBdXRvdXBsb2FkRmFuUGFnZXMoW3Byb2ZpbGUucHJvZmlsZUlkXSkpO1xuICAgICAgICAgICAgaWYgKCFyZXN1bHQuc3VjY2VzcykgdGhyb3cgbmV3IEVycm9yKHJlc3VsdC5tZXNzYWdlIHx8IFwi0J3QtSDQstC00LDQu9C+0YHRjyDQvtGC0YDQuNC80LDRgtC4INGB0L/QuNGB0L7QuiDRhNCw0L3QvtC6XCIpO1xuICAgICAgICAgICAgc2V0UGFnZXMocmVzdWx0LnBhZ2VzKTsgc2V0TG9hZGVkKHRydWUpO1xuICAgICAgICB9IGNhdGNoIChlcnJvcikgeyBzZXRGZWVkYmFjayh7IHN1Y2Nlc3M6IGZhbHNlLCBtZXNzYWdlOiBlcnJvci5tZXNzYWdlIH0pOyB9XG4gICAgICAgIGZpbmFsbHkgeyBsb2NrZWQuY3VycmVudCA9IGZhbHNlOyBzZXRPcGVyYXRpb24obnVsbCk7IH1cbiAgICB9O1xuICAgIGNvbnN0IHNoYXJlID0gYXN5bmMgcGFnZSA9PiB7XG4gICAgICAgIGlmIChsb2NrZWQuY3VycmVudCB8fCAhdmFsaWRUYXJnZXQpIHJldHVybjtcbiAgICAgICAgbG9ja2VkLmN1cnJlbnQgPSB0cnVlOyBzZXRPcGVyYXRpb24ocGFnZS5hZGRpdGlvbmFsUHJvZmlsZUlkKTsgc2V0RmVlZGJhY2sobnVsbCk7XG4gICAgICAgIHRyeSB7XG4gICAgICAgICAgICBjb25zdCByZXN1bHQgPSBhd2FpdCBhY2Nlc3NSZXF1ZXN0LnNlbmQoeyBpZHM6IFtwcm9maWxlLnByb2ZpbGVJZF0sIGFkZGl0aW9uYWxQcm9maWxlSWQ6IHBhZ2UuYWRkaXRpb25hbFByb2ZpbGVJZCwgdGFyZ2V0VXNlcklkOiB0YXJnZXRJZCB9KTtcbiAgICAgICAgICAgIHNldEZlZWRiYWNrKHsgc3VjY2VzczogcmVzdWx0LnN1Y2Nlc3MsIG1lc3NhZ2U6IGAke3BhZ2UubmFtZSB8fCBcItCk0LDQvdC60LBcIn0gwrcgJHtyZXN1bHQubWVzc2FnZX1gIH0pO1xuICAgICAgICAgICAgaWYgKHJlc3VsdC5zdWNjZXNzIHx8IHJlc3VsdC5vdXRjb21lVW5rbm93bikgc2V0UmVzdWx0cyhjdXJyZW50ID0+ICh7IC4uLmN1cnJlbnQsIFtgJHt0YXJnZXRJZH06JHtwYWdlLmFkZGl0aW9uYWxQcm9maWxlSWR9YF06IHJlc3VsdCB9KSk7XG4gICAgICAgIH0gY2F0Y2ggKGVycm9yKSB7IHNldEZlZWRiYWNrKHsgc3VjY2VzczogZmFsc2UsIG1lc3NhZ2U6IGVycm9yLm1lc3NhZ2UgfSk7IH1cbiAgICAgICAgZmluYWxseSB7IGxvY2tlZC5jdXJyZW50ID0gZmFsc2U7IHNldE9wZXJhdGlvbihudWxsKTsgfVxuICAgIH07XG4gICAgcmV0dXJuIDw+PFdvcmtzcGFjZURpYWxvZyB0aXRsZT1cItCf0L7RiNCw0YDQuNGC0Lgg0YTQsNC90LrRg1wiIGNsYXNzTmFtZT1cImZhbi1wYWdlLXNoYXJlLWRpYWxvZ1wiIGJ1c3k9e2J1c3l9IG9uQ2xvc2U9e29uQ2xvc2V9PlxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZhbi1wYWdlLXNoYXJlXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZhbi1wYWdlLXNoYXJlLWNvbnRleHRcIj48c3BhbiBjbGFzc05hbWU9XCJmYW4tcGFnZS1zaGFyZS1pY29uXCI+PFNoYXJlMiBzaXplPXsxOX0gLz48L3NwYW4+PGRpdj48c3Ryb25nPtCf0YDQvtGE0ZbQu9GMIOKElntwcm9maWxlLnByb2ZpbGVOb308L3N0cm9uZz48c3Bhbj57cHJvZmlsZS5uYW1lIHx8IFwi0JHQtdC3INC90LDQt9Cy0LhcIn08L3NwYW4+PC9kaXY+PHNwYW4gY2xhc3NOYW1lPVwiZmFuLXBhZ2Utc2hhcmUtYWNjZXNzXCI+PFNoaWVsZENoZWNrIHNpemU9ezEzfSAvPiDQn9C+0LLQvdC40Lkg0LTQvtGB0YLRg9C/PC9zcGFuPjwvZGl2PlxuICAgICAgICAgICAgPGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgY2xhc3NOYW1lPVwic2Vjb25kYXJ5LWJ1dHRvbiBmYW4tcGFnZS1zaGFyZS1sb2FkXCIgZGlzYWJsZWQ9e2J1c3l9IG9uQ2xpY2s9e2xvYWR9PntvcGVyYXRpb24gPT09IFwibGlzdFwiID8gPExvYWRlckNpcmNsZSBjbGFzc05hbWU9XCJzcGluXCIgc2l6ZT17MTV9IC8+IDogPERvd25sb2FkIHNpemU9ezE1fSAvPn17b3BlcmF0aW9uID09PSBcImxpc3RcIiA/IFwi0J7RgtGA0LjQvNGD0ZTQvNC+INGE0LDQvdC60LjigKZcIiA6IFwi0J7RgtGA0LjQvNCw0YLQuCDRgdC/0LjRgdC+0Log0YTQsNC90L7QulwifTwvYnV0dG9uPlxuICAgICAgICAgICAgPGxhYmVsIGNsYXNzTmFtZT1cImZhbi1wYWdlLXNoYXJlLXRhcmdldFwiPkZhY2Vib29rIElEINC+0YLRgNC40LzRg9Cy0LDRh9CwPGlucHV0IHZhbHVlPXt0YXJnZXR9IGlucHV0TW9kZT1cIm51bWVyaWNcIiBhdXRvQ29tcGxldGU9XCJvZmZcIiBtYXhMZW5ndGg9ezMwfSBkaXNhYmxlZD17YnVzeX0gcGxhY2Vob2xkZXI9XCLQktCy0LXQtNGW0YLRjCBJRCDQutC+0YDQuNGB0YLRg9Cy0LDRh9CwXCIgb25DaGFuZ2U9e2V2ZW50ID0+IHsgc2V0VGFyZ2V0KGV2ZW50LnRhcmdldC52YWx1ZSk7IHNldEZlZWRiYWNrKG51bGwpOyB9fSAvPjwvbGFiZWw+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZhbi1wYWdlLXNoYXJlLWhlYWRpbmdcIj48c3Bhbj7QlNC+0YHRgtGD0L/QvdGWINGE0LDQvdC60Lg8L3NwYW4+PHNwYW4+e2xvYWRlZCA/IGAke3BhZ2VzLmxlbmd0aH1gIDogXCLigJRcIn08L3NwYW4+PC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZhbi1wYWdlLXNoYXJlLWxpc3RcIiBhcmlhLWxhYmVsPVwi0KTQsNC90LrQuCDQtNC70Y8g0L3QsNC00LDQvdC90Y8g0LTQvtGB0YLRg9C/0YNcIiBhcmlhLWJ1c3k9e29wZXJhdGlvbiA9PT0gXCJsaXN0XCJ9PlxuICAgICAgICAgICAgICAgIHshcGFnZXMubGVuZ3RoICYmIDxkaXYgY2xhc3NOYW1lPVwiZmFuLXBhZ2Utc2hhcmUtZW1wdHlcIj48SW1hZ2Ugc2l6ZT17Mjh9IHN0cm9rZVdpZHRoPXsxLjN9IC8+PHN0cm9uZz57b3BlcmF0aW9uID09PSBcImxpc3RcIiA/IFwi0JfQsNCy0LDQvdGC0LDQttGD0ZTQvNC+INGB0L/QuNGB0L7QulwiIDogbG9hZGVkID8gXCLQlNC+0YHRgtGD0L/QvdC40YUg0YTQsNC90L7QuiDQvdC10LzQsNGUXCIgOiBcItCS0LDRiNGWINGE0LDQvdC60Lgg0LfigJnRj9Cy0LvRj9GC0YzRgdGPINGC0YPRglwifTwvc3Ryb25nPjxzcGFuPntvcGVyYXRpb24gPT09IFwibGlzdFwiID8gXCLQptC1INC80L7QttC1INC30LDQudC90Y/RgtC4INGC0YDQvtGF0Lgg0YfQsNGB0YNcIiA6IGxvYWRlZCA/IFwi0KHQv9GA0L7QsdGD0LnRgtC1INGW0L3RiNC40Lkg0L/RgNC+0YTRltC70YxcIiA6IFwi0J3QsNGC0LjRgdC90ZbRgtGMIMKr0J7RgtGA0LjQvNCw0YLQuCDRgdC/0LjRgdC+0Log0YTQsNC90L7QusK7XCJ9PC9zcGFuPjwvZGl2Pn1cbiAgICAgICAgICAgICAgICB7cGFnZXMubWFwKHBhZ2UgPT4ge1xuICAgICAgICAgICAgICAgICAgICBjb25zdCByZXN1bHQgPSByZXN1bHRzW2Ake3RhcmdldElkfToke3BhZ2UuYWRkaXRpb25hbFByb2ZpbGVJZH1gXTtcbiAgICAgICAgICAgICAgICAgICAgY29uc3Qgc2hhcmluZyA9IG9wZXJhdGlvbiA9PT0gcGFnZS5hZGRpdGlvbmFsUHJvZmlsZUlkO1xuICAgICAgICAgICAgICAgICAgICByZXR1cm4gPGRpdiBjbGFzc05hbWU9XCJmYW4tcGFnZS1zaGFyZS1yb3dcIiBrZXk9e3BhZ2UuYWRkaXRpb25hbFByb2ZpbGVJZH0+XG4gICAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJmYW4tcGFnZS1zaGFyZS1hdmF0YXJcIj48SW1hZ2Ugc2l6ZT17MTd9IC8+e3BhZ2UucGhvdG9VcmwgJiYgPGltZyBzcmM9e3BhZ2UucGhvdG9Vcmx9IGFsdD1cIlwiIHJlZmVycmVyUG9saWN5PVwibm8tcmVmZXJyZXJcIiBvbkVycm9yPXtldmVudCA9PiB7IGV2ZW50LmN1cnJlbnRUYXJnZXQuc3R5bGUuZGlzcGxheSA9IFwibm9uZVwiOyB9fSAvPn08L3NwYW4+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZhbi1wYWdlLXNoYXJlLW5hbWVcIj48c3Ryb25nIHRpdGxlPXtwYWdlLm5hbWV9PntwYWdlLm5hbWUgfHwgXCLQkdC10Lcg0L3QsNC30LLQuFwifTwvc3Ryb25nPjxzcGFuPntwYWdlLmFkZGl0aW9uYWxQcm9maWxlSWR9PC9zcGFuPjwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgY2xhc3NOYW1lPXtgc2Vjb25kYXJ5LWJ1dHRvbiBmYW4tcGFnZS1zaGFyZS1idXR0b24ke3Jlc3VsdD8uc3VjY2VzcyA/IFwiIGlzLXNlbnRcIiA6IFwiXCJ9YH0gYXJpYS1sYWJlbD17YNCf0L7RiNCw0YDQuNGC0LggJHtwYWdlLm5hbWUgfHwgcGFnZS5hZGRpdGlvbmFsUHJvZmlsZUlkfWB9IGRpc2FibGVkPXtidXN5IHx8ICF2YWxpZFRhcmdldCB8fCBCb29sZWFuKHJlc3VsdCl9IG9uQ2xpY2s9eygpID0+IHNoYXJlKHBhZ2UpfT5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICB7c2hhcmluZyA/IDxMb2FkZXJDaXJjbGUgY2xhc3NOYW1lPVwic3BpblwiIHNpemU9ezEzfSAvPiA6IHJlc3VsdD8uc3VjY2VzcyA/IDxDaGVja0NpcmNsZTIgc2l6ZT17MTN9IC8+IDogPFNoYXJlMiBzaXplPXsxM30gLz59XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAge3NoYXJpbmcgPyBcItCd0LDQtNGB0LjQu9Cw0ZTQvNC+4oCmXCIgOiByZXN1bHQ/Lm91dGNvbWVVbmtub3duID8gXCLQn9C10YDQtdCy0ZbRgNGC0LUg0YHRgtCw0L1cIiA6IHJlc3VsdD8ub3V0Y29tZSA9PT0gXCJGVUxMX0NPTlRST0xfQUxSRUFEWV9QUkVTRU5UXCIgPyBcItCEINC00L7RgdGC0YPQv1wiIDogcmVzdWx0Py5zdWNjZXNzID8gXCLQntGH0ZbQutGD0ZRcIiA6IFwi0J/QvtGI0LDRgNC40YLQuFwifVxuICAgICAgICAgICAgICAgICAgICAgICAgPC9idXR0b24+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PjtcbiAgICAgICAgICAgICAgICB9KX1cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9e2BmYW4tcGFnZS1zaGFyZS1mZWVkYmFjayR7ZmVlZGJhY2sgPyBmZWVkYmFjay5zdWNjZXNzID8gXCIgaXMtc3VjY2Vzc1wiIDogXCIgaXMtZXJyb3JcIiA6IFwiXCJ9YH0gcm9sZT17ZmVlZGJhY2s/LnN1Y2Nlc3MgPT09IGZhbHNlID8gXCJhbGVydFwiIDogXCJzdGF0dXNcIn0gYXJpYS1saXZlPVwicG9saXRlXCI+XG4gICAgICAgICAgICAgICAge2ZlZWRiYWNrID8gPD57ZmVlZGJhY2suc3VjY2VzcyA/IDxDaGVja0NpcmNsZTIgc2l6ZT17MTZ9IC8+IDogPEFsZXJ0Q2lyY2xlIHNpemU9ezE2fSAvPn08c3Bhbj57ZmVlZGJhY2subWVzc2FnZX08L3NwYW4+PC8+IDogPHNwYW4+e2J1c3kgJiYgb3BlcmF0aW9uICE9PSBcImxpc3RcIiA/IFwi0J3QsNC00LDRlNC80L4g0LTQvtGB0YLRg9C/LiDQktGW0LrQvdC+INC30LDQu9C40YjQuNGC0YzRgdGPINCy0ZbQtNC60YDQuNGC0LjQvC5cIiA6IFwi0J/QvtGI0LDRgNGC0LUg0L/QvtGC0YDRltCx0L3RliDRhNCw0L3QutC4INC/0L4g0YfQtdGA0LfRliDigJQg0LLRltC60L3QviDQt9Cw0LvQuNGI0LjRgtGM0YHRjyDQstGW0LTQutGA0LjRgtC40LwuXCJ9PC9zcGFuPn1cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L1dvcmtzcGFjZURpYWxvZz57YWNjZXNzUmVxdWVzdC5kaWFsb2d9PC8+O1xufVxuIl0sImZpbGUiOiJDOi9Vc2Vycy9EYXJrbmVzcy9Eb2N1bWVudHMvQWRzQm90L2Zyb250ZW5kL3NyYy9jb21wb25lbnRzL0F1dG91cGxvYWRTaGFyZUZhblBhZ2VNb2RhbC5qc3gifQ==

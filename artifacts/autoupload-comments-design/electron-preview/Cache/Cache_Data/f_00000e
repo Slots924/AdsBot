@@ -1,0 +1,340 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/AutouploadCommentsModal.jsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=9cb3e465"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport1_react from "/node_modules/.vite/deps/react.js?v=9cb3e465"; const useMemo = __vite__cjsImport1_react["useMemo"]; const useState = __vite__cjsImport1_react["useState"];
+import { ArrowRight, Check, ListOrdered, MessageSquare, Users } from "/node_modules/.vite/deps/lucide-react.js?v=9cb3e465";
+import WorkspaceDialog from "/src/components/WorkspaceDialog.jsx";
+import { unwrap } from "/src/lib/api.js";
+import "/src/styles/autoupload-comments.css";
+function validPostUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && ["www.facebook.com", "facebook.com"].includes(url.hostname) && url.pathname === "/permalink.php" && /^(?:pfbid[A-Za-z0-9]+|[1-9]\d*)$/.test(url.searchParams.get("story_fbid") ?? "");
+  } catch {
+    return false;
+  }
+}
+export default function AutouploadCommentsModal({ profiles, onClose, onQueued }) {
+  _s();
+  const [postUrl, setPostUrl] = useState("");
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const comments = useMemo(() => text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean), [text]);
+  const valid = validPostUrl(postUrl.trim()) && comments.length > 0 && comments.length <= 1e3 && comments.every((comment) => comment.length <= 8e3) && profiles.length > 0;
+  const submit = async (event) => {
+    event.preventDefault();
+    if (busy || !valid) return;
+    setBusy(true);
+    setError("");
+    try {
+      const task = await unwrap(window.adsBot.publishAutouploadComments(profiles.map((profile) => profile.profileId), { postUrl: postUrl.trim(), comments }));
+      onQueued(task);
+    } catch (failure) {
+      setError(failure.message || "Не вдалося запустити публікацію коментарів");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return /* @__PURE__ */ jsxDEV(WorkspaceDialog, { title: "Написати коментарі", onClose, busy, className: "autoupload-comments-dialog", children: /* @__PURE__ */ jsxDEV("form", { className: "autoupload-form", onSubmit: submit, children: [
+    /* @__PURE__ */ jsxDEV("div", { className: "comment-compose-intro", children: [
+      /* @__PURE__ */ jsxDEV("span", { className: "comment-compose-icon", children: /* @__PURE__ */ jsxDEV(MessageSquare, { size: 22 }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 35,
+        columnNumber: 91
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 35,
+        columnNumber: 52
+      }, this),
+      /* @__PURE__ */ jsxDEV("p", { children: [
+        "Один пост. Послідовна черга.",
+        /* @__PURE__ */ jsxDEV("small", { children: "Після успішної публікації наступний акаунт бере наступний коментар." }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 35,
+          columnNumber: 156
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 35,
+        columnNumber: 125
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+      lineNumber: 35,
+      columnNumber: 13
+    }, this),
+    /* @__PURE__ */ jsxDEV("div", { className: "comment-compose-stats", children: [
+      /* @__PURE__ */ jsxDEV("span", { children: [
+        /* @__PURE__ */ jsxDEV(Users, { size: 16 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 36,
+          columnNumber: 58
+        }, this),
+        /* @__PURE__ */ jsxDEV("strong", { children: profiles.length }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 36,
+          columnNumber: 77
+        }, this),
+        " акаунтів"
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 36,
+        columnNumber: 52
+      }, this),
+      /* @__PURE__ */ jsxDEV(ArrowRight, { size: 16 }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 36,
+        columnNumber: 127
+      }, this),
+      /* @__PURE__ */ jsxDEV("span", { children: [
+        /* @__PURE__ */ jsxDEV(ListOrdered, { size: 16 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 36,
+          columnNumber: 157
+        }, this),
+        /* @__PURE__ */ jsxDEV("strong", { children: comments.length }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 36,
+          columnNumber: 182
+        }, this),
+        " коментарів"
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 36,
+        columnNumber: 151
+      }, this),
+      /* @__PURE__ */ jsxDEV("span", { className: "comment-compose-counter", children: [
+        /* @__PURE__ */ jsxDEV(Check, { size: 14 }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 36,
+          columnNumber: 276
+        }, this),
+        " AU_COMMENT +1 за успіх"
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 36,
+        columnNumber: 234
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+      lineNumber: 36,
+      columnNumber: 13
+    }, this),
+    /* @__PURE__ */ jsxDEV("label", { children: [
+      "Посилання на пост",
+      /* @__PURE__ */ jsxDEV("input", { type: "url", required: true, autoComplete: "off", value: postUrl, disabled: busy, onChange: (event) => setPostUrl(event.target.value), placeholder: "https://www.facebook.com/permalink.php?story_fbid=…&id=…", "aria-describedby": "comment-url-help" }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 37,
+        columnNumber: 37
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+      lineNumber: 37,
+      columnNumber: 13
+    }, this),
+    /* @__PURE__ */ jsxDEV("small", { id: "comment-url-help", className: postUrl && !validPostUrl(postUrl.trim()) ? "autoupload-error" : "comment-compose-hint", children: "Пряме посилання Facebook: permalink.php зі story_fbid." }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+      lineNumber: 38,
+      columnNumber: 13
+    }, this),
+    /* @__PURE__ */ jsxDEV("div", { className: "comment-compose-columns", children: [
+      /* @__PURE__ */ jsxDEV("label", { children: [
+        "Коментарі",
+        /* @__PURE__ */ jsxDEV("textarea", { rows: 8, value: text, disabled: busy, onChange: (event) => setText(event.target.value), placeholder: "Гарне фото!\nДякую, що поділилися.\nДуже атмосферно!" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 40,
+          columnNumber: 33
+        }, this),
+        /* @__PURE__ */ jsxDEV("small", { className: "comment-compose-hint", children: "Кожен непорожній рядок — окремий коментар." }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 40,
+          columnNumber: 202
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 40,
+        columnNumber: 17
+      }, this),
+      /* @__PURE__ */ jsxDEV("section", { className: "comment-compose-preview", "aria-label": "Черга коментарів", children: [
+        /* @__PURE__ */ jsxDEV("div", { className: "comment-compose-preview-title", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: "Черга публікації" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+            lineNumber: 41,
+            columnNumber: 139
+          }, this),
+          /* @__PURE__ */ jsxDEV("span", { children: comments.length }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+            lineNumber: 41,
+            columnNumber: 168
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 41,
+          columnNumber: 92
+        }, this),
+        comments.length ? /* @__PURE__ */ jsxDEV("ol", { children: comments.map((comment, index) => /* @__PURE__ */ jsxDEV("li", { children: [
+          /* @__PURE__ */ jsxDEV("span", { children: String(index + 1).padStart(2, "0") }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+            lineNumber: 42,
+            columnNumber: 94
+          }, this),
+          /* @__PURE__ */ jsxDEV("p", { children: comment }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+            lineNumber: 42,
+            columnNumber: 143
+          }, this)
+        ] }, index, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 42,
+          columnNumber: 78
+        }, this)) }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 42,
+          columnNumber: 40
+        }, this) : /* @__PURE__ */ jsxDEV("div", { className: "comment-compose-empty", children: [
+          /* @__PURE__ */ jsxDEV(ListOrdered, { size: 28 }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+            lineNumber: 42,
+            columnNumber: 213
+          }, this),
+          /* @__PURE__ */ jsxDEV("p", { children: [
+            "Тут з’являться коментарі",
+            /* @__PURE__ */ jsxDEV("small", { children: "Додайте текст ліворуч" }, void 0, false, {
+              fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+              lineNumber: 42,
+              columnNumber: 265
+            }, this)
+          ] }, void 0, true, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+            lineNumber: 42,
+            columnNumber: 238
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 42,
+          columnNumber: 174
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 41,
+        columnNumber: 17
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+      lineNumber: 39,
+      columnNumber: 13
+    }, this),
+    /* @__PURE__ */ jsxDEV("div", { className: "comment-compose-rules", children: [
+      /* @__PURE__ */ jsxDEV("p", { children: [
+        /* @__PURE__ */ jsxDEV("strong", { children: "Як працює черга" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 45,
+          columnNumber: 55
+        }, this),
+        " Відмова — той самий коментар пробує наступний акаунт. Невідомий результат — коментар пропускається."
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 45,
+        columnNumber: 52
+      }, this),
+      /* @__PURE__ */ jsxDEV("small", { children: [
+        "Порядок акаунтів: ",
+        profiles.map((profile) => `№${profile.profileNo}`).join(" → ")
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 45,
+        columnNumber: 191
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+      lineNumber: 45,
+      columnNumber: 13
+    }, this),
+    comments.length > profiles.length && /* @__PURE__ */ jsxDEV("p", { className: "comment-compose-warning", children: "Коментарів більше, ніж акаунтів. Невикористані коментарі залишаться у звіті." }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+      lineNumber: 46,
+      columnNumber: 51
+    }, this),
+    (comments.length > 1e3 || comments.some((comment) => comment.length > 8e3)) && /* @__PURE__ */ jsxDEV("p", { role: "alert", className: "autoupload-error", children: "До 1000 коментарів, максимум 8000 символів у кожному." }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+      lineNumber: 47,
+      columnNumber: 95
+    }, this),
+    error && /* @__PURE__ */ jsxDEV("p", { role: "alert", className: "autoupload-error", children: error }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+      lineNumber: 48,
+      columnNumber: 23
+    }, this),
+    /* @__PURE__ */ jsxDEV("div", { className: "comment-compose-footer", children: [
+      /* @__PURE__ */ jsxDEV("small", { children: "Результати та ID коментарів — у журналі операцій." }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 49,
+        columnNumber: 53
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "inline-actions", children: [
+        /* @__PURE__ */ jsxDEV("button", { type: "button", className: "secondary-button", disabled: busy, onClick: onClose, children: "Скасувати" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 49,
+          columnNumber: 149
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { className: "primary-button", disabled: busy || !valid, children: [
+          /* @__PURE__ */ jsxDEV(MessageSquare, { size: 16 }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+            lineNumber: 49,
+            columnNumber: 313
+          }, this),
+          busy ? "Запускаємо…" : "Запустити чергу"
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+          lineNumber: 49,
+          columnNumber: 252
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+        lineNumber: 49,
+        columnNumber: 117
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+      lineNumber: 49,
+      columnNumber: 13
+    }, this)
+  ] }, void 0, true, {
+    fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+    lineNumber: 34,
+    columnNumber: 9
+  }, this) }, void 0, false, {
+    fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx",
+    lineNumber: 33,
+    columnNumber: 10
+  }, this);
+}
+_s(AutouploadCommentsModal, "v3rDTujmskxK2PqeuofuA5CNbxU=");
+_c = AutouploadCommentsModal;
+var _c;
+$RefreshReg$(_c, "AutouploadCommentsModal");
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+function $RefreshReg$(type, id) {
+  return RefreshRuntime.register(type, "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/AutouploadCommentsModal.jsx " + id);
+}
+function $RefreshSig$() {
+  return RefreshRuntime.createSignatureFunctionForTransform();
+}
+
+//# sourceMappingURL=data:application/json;base64,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O0FBQUEsTUFBUSx1QkFBQyxTQUFJLFdBQVUsa0JBQWlCO0FBQUEsK0JBQUMsWUFBTyxNQUFLLFVBQVMsV0FBVSxvQkFBbUIsVUFBVUYsTUFBTSxTQUFTUCxTQUFTLHlCQUFyRjtBQUFBO0FBQUE7QUFBQTtBQUFBLGVBQThGO0FBQUEsUUFBUyx1QkFBQyxZQUFPLFdBQVUsa0JBQWlCLFVBQVVPLFFBQVEsQ0FBQ1csT0FBTztBQUFBLGlDQUFDLGlCQUFjLE1BQU0sTUFBckI7QUFBQTtBQUFBO0FBQUE7QUFBQSxpQkFBd0I7QUFBQSxVQUFJWCxPQUFPLGdCQUFnQjtBQUFBLGFBQWhIO0FBQUE7QUFBQTtBQUFBO0FBQUEsZUFBa0k7QUFBQSxXQUF6UTtBQUFBO0FBQUE7QUFBQTtBQUFBLGFBQWtSO0FBQUEsU0FBMVg7QUFBQTtBQUFBO0FBQUE7QUFBQSxXQUFnWTtBQUFBLE9BZnBZO0FBQUE7QUFBQTtBQUFBO0FBQUEsU0FnQkEsS0FqQkc7QUFBQTtBQUFBO0FBQUE7QUFBQSxTQWtCUDtBQUNKO0FBQUNMLEdBckN1QkoseUJBQXVCO0FBQUEsS0FBdkJBO0FBQXVCLElBQUEwQztBQUFBLGFBQUFBLElBQUEiLCJuYW1lcyI6WyJ1c2VNZW1vIiwidXNlU3RhdGUiLCJBcnJvd1JpZ2h0IiwiQ2hlY2siLCJMaXN0T3JkZXJlZCIsIk1lc3NhZ2VTcXVhcmUiLCJVc2VycyIsIldvcmtzcGFjZURpYWxvZyIsInVud3JhcCIsInZhbGlkUG9zdFVybCIsInZhbHVlIiwidXJsIiwiVVJMIiwicHJvdG9jb2wiLCJpbmNsdWRlcyIsImhvc3RuYW1lIiwicGF0aG5hbWUiLCJ0ZXN0Iiwic2VhcmNoUGFyYW1zIiwiZ2V0IiwiQXV0b3VwbG9hZENvbW1lbnRzTW9kYWwiLCJwcm9maWxlcyIsIm9uQ2xvc2UiLCJvblF1ZXVlZCIsIl9zIiwicG9zdFVybCIsInNldFBvc3RVcmwiLCJ0ZXh0Iiwic2V0VGV4dCIsImJ1c3kiLCJzZXRCdXN5IiwiZXJyb3IiLCJzZXRFcnJvciIsImNvbW1lbnRzIiwic3BsaXQiLCJtYXAiLCJsaW5lIiwidHJpbSIsImZpbHRlciIsIkJvb2xlYW4iLCJ2YWxpZCIsImxlbmd0aCIsImV2ZXJ5IiwiY29tbWVudCIsInN1Ym1pdCIsImV2ZW50IiwicHJldmVudERlZmF1bHQiLCJ0YXNrIiwid2luZG93IiwiYWRzQm90IiwicHVibGlzaEF1dG91cGxvYWRDb21tZW50cyIsInByb2ZpbGUiLCJwcm9maWxlSWQiLCJmYWlsdXJlIiwibWVzc2FnZSIsInRhcmdldCIsImluZGV4IiwiU3RyaW5nIiwicGFkU3RhcnQiLCJwcm9maWxlTm8iLCJqb2luIiwic29tZSIsIl9jIl0sImlnbm9yZUxpc3QiOltdLCJzb3VyY2VzIjpbIkF1dG91cGxvYWRDb21tZW50c01vZGFsLmpzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyB1c2VNZW1vLCB1c2VTdGF0ZSB9IGZyb20gXCJyZWFjdFwiO1xuaW1wb3J0IHsgQXJyb3dSaWdodCwgQ2hlY2ssIExpc3RPcmRlcmVkLCBNZXNzYWdlU3F1YXJlLCBVc2VycyB9IGZyb20gXCJsdWNpZGUtcmVhY3RcIjtcbmltcG9ydCBXb3Jrc3BhY2VEaWFsb2cgZnJvbSBcIi4vV29ya3NwYWNlRGlhbG9nLmpzeFwiO1xuaW1wb3J0IHsgdW53cmFwIH0gZnJvbSBcIi4uL2xpYi9hcGkuanNcIjtcbmltcG9ydCBcIi4uL3N0eWxlcy9hdXRvdXBsb2FkLWNvbW1lbnRzLmNzc1wiO1xuXG5mdW5jdGlvbiB2YWxpZFBvc3RVcmwodmFsdWUpIHtcbiAgICB0cnkge1xuICAgICAgICBjb25zdCB1cmwgPSBuZXcgVVJMKHZhbHVlKTtcbiAgICAgICAgcmV0dXJuIHVybC5wcm90b2NvbCA9PT0gXCJodHRwczpcIiAmJiBbXCJ3d3cuZmFjZWJvb2suY29tXCIsIFwiZmFjZWJvb2suY29tXCJdLmluY2x1ZGVzKHVybC5ob3N0bmFtZSlcbiAgICAgICAgICAgICYmIHVybC5wYXRobmFtZSA9PT0gXCIvcGVybWFsaW5rLnBocFwiICYmIC9eKD86cGZiaWRbQS1aYS16MC05XSt8WzEtOV1cXGQqKSQvLnRlc3QodXJsLnNlYXJjaFBhcmFtcy5nZXQoXCJzdG9yeV9mYmlkXCIpID8/IFwiXCIpO1xuICAgIH0gY2F0Y2ggeyByZXR1cm4gZmFsc2U7IH1cbn1cblxuZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gQXV0b3VwbG9hZENvbW1lbnRzTW9kYWwoeyBwcm9maWxlcywgb25DbG9zZSwgb25RdWV1ZWQgfSkge1xuICAgIGNvbnN0IFtwb3N0VXJsLCBzZXRQb3N0VXJsXSA9IHVzZVN0YXRlKFwiXCIpO1xuICAgIGNvbnN0IFt0ZXh0LCBzZXRUZXh0XSA9IHVzZVN0YXRlKFwiXCIpO1xuICAgIGNvbnN0IFtidXN5LCBzZXRCdXN5XSA9IHVzZVN0YXRlKGZhbHNlKTtcbiAgICBjb25zdCBbZXJyb3IsIHNldEVycm9yXSA9IHVzZVN0YXRlKFwiXCIpO1xuICAgIGNvbnN0IGNvbW1lbnRzID0gdXNlTWVtbygoKSA9PiB0ZXh0LnNwbGl0KC9cXHI/XFxuLykubWFwKGxpbmUgPT4gbGluZS50cmltKCkpLmZpbHRlcihCb29sZWFuKSwgW3RleHRdKTtcbiAgICBjb25zdCB2YWxpZCA9IHZhbGlkUG9zdFVybChwb3N0VXJsLnRyaW0oKSkgJiYgY29tbWVudHMubGVuZ3RoID4gMCAmJiBjb21tZW50cy5sZW5ndGggPD0gMTAwMFxuICAgICAgICAmJiBjb21tZW50cy5ldmVyeShjb21tZW50ID0+IGNvbW1lbnQubGVuZ3RoIDw9IDgwMDApICYmIHByb2ZpbGVzLmxlbmd0aCA+IDA7XG4gICAgY29uc3Qgc3VibWl0ID0gYXN5bmMgZXZlbnQgPT4ge1xuICAgICAgICBldmVudC5wcmV2ZW50RGVmYXVsdCgpO1xuICAgICAgICBpZiAoYnVzeSB8fCAhdmFsaWQpIHJldHVybjtcbiAgICAgICAgc2V0QnVzeSh0cnVlKTsgc2V0RXJyb3IoXCJcIik7XG4gICAgICAgIHRyeSB7XG4gICAgICAgICAgICBjb25zdCB0YXNrID0gYXdhaXQgdW53cmFwKHdpbmRvdy5hZHNCb3QucHVibGlzaEF1dG91cGxvYWRDb21tZW50cyhwcm9maWxlcy5tYXAocHJvZmlsZSA9PiBwcm9maWxlLnByb2ZpbGVJZCksIHsgcG9zdFVybDogcG9zdFVybC50cmltKCksIGNvbW1lbnRzIH0pKTtcbiAgICAgICAgICAgIG9uUXVldWVkKHRhc2spO1xuICAgICAgICB9IGNhdGNoIChmYWlsdXJlKSB7IHNldEVycm9yKGZhaWx1cmUubWVzc2FnZSB8fCBcItCd0LUg0LLQtNCw0LvQvtGB0Y8g0LfQsNC/0YPRgdGC0LjRgtC4INC/0YPQsdC70ZbQutCw0YbRltGOINC60L7QvNC10L3RgtCw0YDRltCyXCIpOyB9XG4gICAgICAgIGZpbmFsbHkgeyBzZXRCdXN5KGZhbHNlKTsgfVxuICAgIH07XG4gICAgcmV0dXJuIDxXb3Jrc3BhY2VEaWFsb2cgdGl0bGU9XCLQndCw0L/QuNGB0LDRgtC4INC60L7QvNC10L3RgtCw0YDRllwiIG9uQ2xvc2U9e29uQ2xvc2V9IGJ1c3k9e2J1c3l9IGNsYXNzTmFtZT1cImF1dG91cGxvYWQtY29tbWVudHMtZGlhbG9nXCI+XG4gICAgICAgIDxmb3JtIGNsYXNzTmFtZT1cImF1dG91cGxvYWQtZm9ybVwiIG9uU3VibWl0PXtzdWJtaXR9PlxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJjb21tZW50LWNvbXBvc2UtaW50cm9cIj48c3BhbiBjbGFzc05hbWU9XCJjb21tZW50LWNvbXBvc2UtaWNvblwiPjxNZXNzYWdlU3F1YXJlIHNpemU9ezIyfSAvPjwvc3Bhbj48cD7QntC00LjQvSDQv9C+0YHRgi4g0J/QvtGB0LvRltC00L7QstC90LAg0YfQtdGA0LPQsC48c21hbGw+0J/RltGB0LvRjyDRg9GB0L/RltGI0L3QvtGXINC/0YPQsdC70ZbQutCw0YbRltGXINC90LDRgdGC0YPQv9C90LjQuSDQsNC60LDRg9C90YIg0LHQtdGA0LUg0L3QsNGB0YLRg9C/0L3QuNC5INC60L7QvNC10L3RgtCw0YAuPC9zbWFsbD48L3A+PC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImNvbW1lbnQtY29tcG9zZS1zdGF0c1wiPjxzcGFuPjxVc2VycyBzaXplPXsxNn0gLz48c3Ryb25nPntwcm9maWxlcy5sZW5ndGh9PC9zdHJvbmc+INCw0LrQsNGD0L3RgtGW0LI8L3NwYW4+PEFycm93UmlnaHQgc2l6ZT17MTZ9IC8+PHNwYW4+PExpc3RPcmRlcmVkIHNpemU9ezE2fSAvPjxzdHJvbmc+e2NvbW1lbnRzLmxlbmd0aH08L3N0cm9uZz4g0LrQvtC80LXQvdGC0LDRgNGW0LI8L3NwYW4+PHNwYW4gY2xhc3NOYW1lPVwiY29tbWVudC1jb21wb3NlLWNvdW50ZXJcIj48Q2hlY2sgc2l6ZT17MTR9IC8+IEFVX0NPTU1FTlQgKzEg0LfQsCDRg9GB0L/RltGFPC9zcGFuPjwvZGl2PlxuICAgICAgICAgICAgPGxhYmVsPtCf0L7RgdC40LvQsNC90L3RjyDQvdCwINC/0L7RgdGCPGlucHV0IHR5cGU9XCJ1cmxcIiByZXF1aXJlZCBhdXRvQ29tcGxldGU9XCJvZmZcIiB2YWx1ZT17cG9zdFVybH0gZGlzYWJsZWQ9e2J1c3l9IG9uQ2hhbmdlPXtldmVudCA9PiBzZXRQb3N0VXJsKGV2ZW50LnRhcmdldC52YWx1ZSl9IHBsYWNlaG9sZGVyPVwiaHR0cHM6Ly93d3cuZmFjZWJvb2suY29tL3Blcm1hbGluay5waHA/c3RvcnlfZmJpZD3igKYmaWQ94oCmXCIgYXJpYS1kZXNjcmliZWRieT1cImNvbW1lbnQtdXJsLWhlbHBcIiAvPjwvbGFiZWw+XG4gICAgICAgICAgICA8c21hbGwgaWQ9XCJjb21tZW50LXVybC1oZWxwXCIgY2xhc3NOYW1lPXtwb3N0VXJsICYmICF2YWxpZFBvc3RVcmwocG9zdFVybC50cmltKCkpID8gXCJhdXRvdXBsb2FkLWVycm9yXCIgOiBcImNvbW1lbnQtY29tcG9zZS1oaW50XCJ9PtCf0YDRj9C80LUg0L/QvtGB0LjQu9Cw0L3QvdGPIEZhY2Vib29rOiBwZXJtYWxpbmsucGhwINC30ZYgc3RvcnlfZmJpZC48L3NtYWxsPlxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJjb21tZW50LWNvbXBvc2UtY29sdW1uc1wiPlxuICAgICAgICAgICAgICAgIDxsYWJlbD7QmtC+0LzQtdC90YLQsNGA0ZY8dGV4dGFyZWEgcm93cz17OH0gdmFsdWU9e3RleHR9IGRpc2FibGVkPXtidXN5fSBvbkNoYW5nZT17ZXZlbnQgPT4gc2V0VGV4dChldmVudC50YXJnZXQudmFsdWUpfSBwbGFjZWhvbGRlcj17XCLQk9Cw0YDQvdC1INGE0L7RgtC+IVxcbtCU0Y/QutGD0Y4sINGJ0L4g0L/QvtC00ZbQu9C40LvQuNGB0Y8uXFxu0JTRg9C20LUg0LDRgtC80L7RgdGE0LXRgNC90L4hXCJ9IC8+PHNtYWxsIGNsYXNzTmFtZT1cImNvbW1lbnQtY29tcG9zZS1oaW50XCI+0JrQvtC20LXQvSDQvdC10L/QvtGA0L7QttC90ZbQuSDRgNGP0LTQvtC6IOKAlCDQvtC60YDQtdC80LjQuSDQutC+0LzQtdC90YLQsNGALjwvc21hbGw+PC9sYWJlbD5cbiAgICAgICAgICAgICAgICA8c2VjdGlvbiBjbGFzc05hbWU9XCJjb21tZW50LWNvbXBvc2UtcHJldmlld1wiIGFyaWEtbGFiZWw9XCLQp9C10YDQs9CwINC60L7QvNC10L3RgtCw0YDRltCyXCI+PGRpdiBjbGFzc05hbWU9XCJjb21tZW50LWNvbXBvc2UtcHJldmlldy10aXRsZVwiPjxzcGFuPtCn0LXRgNCz0LAg0L/Rg9Cx0LvRltC60LDRhtGW0Zc8L3NwYW4+PHNwYW4+e2NvbW1lbnRzLmxlbmd0aH08L3NwYW4+PC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIHtjb21tZW50cy5sZW5ndGggPyA8b2w+e2NvbW1lbnRzLm1hcCgoY29tbWVudCwgaW5kZXgpID0+IDxsaSBrZXk9e2luZGV4fT48c3Bhbj57U3RyaW5nKGluZGV4ICsgMSkucGFkU3RhcnQoMiwgXCIwXCIpfTwvc3Bhbj48cD57Y29tbWVudH08L3A+PC9saT4pfTwvb2w+IDogPGRpdiBjbGFzc05hbWU9XCJjb21tZW50LWNvbXBvc2UtZW1wdHlcIj48TGlzdE9yZGVyZWQgc2l6ZT17Mjh9IC8+PHA+0KLRg9GCINC34oCZ0Y/QstC70Y/RgtGM0YHRjyDQutC+0LzQtdC90YLQsNGA0ZY8c21hbGw+0JTQvtC00LDQudGC0LUg0YLQtdC60YHRgiDQu9GW0LLQvtGA0YPRhzwvc21hbGw+PC9wPjwvZGl2Pn1cbiAgICAgICAgICAgICAgICA8L3NlY3Rpb24+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiY29tbWVudC1jb21wb3NlLXJ1bGVzXCI+PHA+PHN0cm9uZz7Qr9C6INC/0YDQsNGG0Y7RlCDRh9C10YDQs9CwPC9zdHJvbmc+INCS0ZbQtNC80L7QstCwIOKAlCDRgtC+0Lkg0YHQsNC80LjQuSDQutC+0LzQtdC90YLQsNGAINC/0YDQvtCx0YPRlCDQvdCw0YHRgtGD0L/QvdC40Lkg0LDQutCw0YPQvdGCLiDQndC10LLRltC00L7QvNC40Lkg0YDQtdC30YPQu9GM0YLQsNGCIOKAlCDQutC+0LzQtdC90YLQsNGAINC/0YDQvtC/0YPRgdC60LDRlNGC0YzRgdGPLjwvcD48c21hbGw+0J/QvtGA0Y/QtNC+0Log0LDQutCw0YPQvdGC0ZbQsjoge3Byb2ZpbGVzLm1hcChwcm9maWxlID0+IGDihJYke3Byb2ZpbGUucHJvZmlsZU5vfWApLmpvaW4oXCIg4oaSIFwiKX08L3NtYWxsPjwvZGl2PlxuICAgICAgICAgICAge2NvbW1lbnRzLmxlbmd0aCA+IHByb2ZpbGVzLmxlbmd0aCAmJiA8cCBjbGFzc05hbWU9XCJjb21tZW50LWNvbXBvc2Utd2FybmluZ1wiPtCa0L7QvNC10L3RgtCw0YDRltCyINCx0ZbQu9GM0YjQtSwg0L3RltC2INCw0LrQsNGD0L3RgtGW0LIuINCd0LXQstC40LrQvtGA0LjRgdGC0LDQvdGWINC60L7QvNC10L3RgtCw0YDRliDQt9Cw0LvQuNGI0LDRgtGM0YHRjyDRgyDQt9Cy0ZbRgtGWLjwvcD59XG4gICAgICAgICAgICB7KGNvbW1lbnRzLmxlbmd0aCA+IDEwMDAgfHwgY29tbWVudHMuc29tZShjb21tZW50ID0+IGNvbW1lbnQubGVuZ3RoID4gODAwMCkpICYmIDxwIHJvbGU9XCJhbGVydFwiIGNsYXNzTmFtZT1cImF1dG91cGxvYWQtZXJyb3JcIj7QlNC+IDEwMDAg0LrQvtC80LXQvdGC0LDRgNGW0LIsINC80LDQutGB0LjQvNGD0LwgODAwMCDRgdC40LzQstC+0LvRltCyINGDINC60L7QttC90L7QvNGDLjwvcD59XG4gICAgICAgICAgICB7ZXJyb3IgJiYgPHAgcm9sZT1cImFsZXJ0XCIgY2xhc3NOYW1lPVwiYXV0b3VwbG9hZC1lcnJvclwiPntlcnJvcn08L3A+fVxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJjb21tZW50LWNvbXBvc2UtZm9vdGVyXCI+PHNtYWxsPtCg0LXQt9GD0LvRjNGC0LDRgtC4INGC0LAgSUQg0LrQvtC80LXQvdGC0LDRgNGW0LIg4oCUINGDINC20YPRgNC90LDQu9GWINC+0L/QtdGA0LDRhtGW0LkuPC9zbWFsbD48ZGl2IGNsYXNzTmFtZT1cImlubGluZS1hY3Rpb25zXCI+PGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgY2xhc3NOYW1lPVwic2Vjb25kYXJ5LWJ1dHRvblwiIGRpc2FibGVkPXtidXN5fSBvbkNsaWNrPXtvbkNsb3NlfT7QodC60LDRgdGD0LLQsNGC0Lg8L2J1dHRvbj48YnV0dG9uIGNsYXNzTmFtZT1cInByaW1hcnktYnV0dG9uXCIgZGlzYWJsZWQ9e2J1c3kgfHwgIXZhbGlkfT48TWVzc2FnZVNxdWFyZSBzaXplPXsxNn0gLz57YnVzeSA/IFwi0JfQsNC/0YPRgdC60LDRlNC80L7igKZcIiA6IFwi0JfQsNC/0YPRgdGC0LjRgtC4INGH0LXRgNCz0YNcIn08L2J1dHRvbj48L2Rpdj48L2Rpdj5cbiAgICAgICAgPC9mb3JtPlxuICAgIDwvV29ya3NwYWNlRGlhbG9nPjtcbn1cbiJdLCJmaWxlIjoiQzovVXNlcnMvRGFya25lc3MvRG9jdW1lbnRzL0Fkc0JvdC9mcm9udGVuZC9zcmMvY29tcG9uZW50cy9BdXRvdXBsb2FkQ29tbWVudHNNb2RhbC5qc3gifQ==

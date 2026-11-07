@@ -1,0 +1,43 @@
+.workspace-dialog.autoupload-comments-dialog { width: min(880px, calc(100vw - 40px)); padding: 28px; }
+.autoupload-comments-dialog h2 { margin: 0 0 18px; font-size: 23px; letter-spacing: -.5px; }
+.comment-compose-intro { display: flex; align-items: center; gap: 12px; }
+.comment-compose-icon { display: grid; place-items: center; flex: 0 0 44px; height: 44px; border-radius: 13px; background: rgba(91, 134, 255, .12); color: #89aaff; border: 1px solid rgba(112, 150, 255, .2); }
+.comment-compose-intro p { margin: 0; font-weight: 600; }
+.comment-compose-intro small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.comment-compose-stats { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 12px 14px; border-radius: 11px; border: 1px solid var(--stroke); background: rgba(123, 145, 190, .04); font-size: 12px; }
+.comment-compose-stats > span { display: inline-flex; align-items: center; gap: 7px; }
+.comment-compose-stats > svg { color: var(--muted); }
+.comment-compose-stats .comment-compose-counter { margin-left: auto; color: #8bd9b4; font-size: 11px; }
+.comment-compose-hint { color: var(--muted); font-size: 11px; font-weight: 400; }
+.autoupload-comments-dialog #comment-url-help { margin-top: -10px; }
+.comment-compose-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; min-width: 0; }
+.comment-compose-columns > label { min-width: 0; font-size: 13px; }
+.comment-compose-columns textarea { width: 100%; min-height: 216px; box-sizing: border-box; line-height: 1.7; font-family: inherit; font-size: 13px; }
+.comment-compose-preview { min-width: 0; align-self: start; border: 1px solid var(--stroke); border-radius: 11px; overflow: hidden; }
+.comment-compose-preview-title { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--stroke); font-size: 12px; font-weight: 600; }
+.comment-compose-preview-title > span:last-child { min-width: 22px; padding: 2px 6px; text-align: center; background: rgba(115, 148, 242, .12); color: #99b6ff; border-radius: 5px; }
+.comment-compose-preview ol { margin: 0; padding: 0; max-height: 212px; overflow-y: auto; list-style: none; }
+.comment-compose-preview li { display: flex; align-items: baseline; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--stroke); }
+.comment-compose-preview li:last-child { border: 0; }
+.comment-compose-preview li > span { color: #8daaff; font-size: 11px; font-variant-numeric: tabular-nums; }
+.comment-compose-preview li p { margin: 0; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; min-width: 0; }
+.comment-compose-empty { display: grid; justify-items: center; align-content: center; min-height: 178px; color: var(--muted); text-align: center; }
+.comment-compose-empty svg { opacity: .45; }
+.comment-compose-empty p { font-size: 12px; }
+.comment-compose-empty small { display: block; font-size: 11px; opacity: .7; }
+.comment-compose-rules { padding: 12px 14px; border-radius: 10px; background: rgba(116, 141, 202, .05); border-left: 2px solid #6889e3; }
+.comment-compose-rules p { margin: 0 0 5px; color: var(--muted); font-size: 12px; }
+.comment-compose-rules strong { color: var(--text); margin-right: 5px; }
+.comment-compose-rules small { display: block; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; max-height: 52px; overflow-y: auto; }
+.comment-compose-warning { margin: 0; color: #e4bd7b; font-size: 12px; }
+.comment-compose-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; border-top: 1px solid var(--stroke); }
+.comment-compose-footer > small { max-width: 240px; color: var(--muted); font-size: 11px; }
+.comment-compose-footer .inline-actions { flex-wrap: wrap; }
+.comment-compose-footer button { display: inline-flex; justify-content: center; align-items: center; gap: 7px; }
+@media (max-width: 650px) {
+    .workspace-dialog.autoupload-comments-dialog { padding: 20px; }
+    .comment-compose-columns { grid-template-columns: 1fr; }
+    .comment-compose-preview ol { max-height: 155px; }
+    .comment-compose-footer { align-items: stretch; flex-direction: column; }
+    .comment-compose-stats .comment-compose-counter { margin-left: 0; }
+}

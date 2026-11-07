@@ -23,7 +23,7 @@ const errorStatuses = {
 
 export default function AutouploadActionDetails({ entry }) {
     const [historyError, setHistoryError] = useState("");
-    if (!entry.httpHistory && !entry.operation?.startsWith("profile-") && !["friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share", "fan-page-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
+    if (!entry.httpHistory && !entry.operation?.startsWith("profile-") && !["comment-create", "friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share", "fan-page-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
     const detail = entry.diagnostic ?? {};
     const diagnostics = [
         ["Тип збою", errorStatuses[detail.status] ?? detail.status], ["Етап", detail.stage], ["Код мережі", detail.networkCode],
@@ -32,6 +32,9 @@ export default function AutouploadActionDetails({ entry }) {
         ["Рекламний кабінет", entry.adAccountId], ["Фанка", entry.additionalProfileId], ["Назва фанки", entry.pageName], ["Отримувач", entry.targetUserId], ["Результат", entry.outcome], ["Екшен", entry.stage], ["Код застосунку", entry.code],
         ["HTTP", entry.httpStatus], ["Код Facebook", entry.graphCode], ["Підкод Facebook", entry.graphSubcode],
         ["API error code", entry.apiErrorCode], ["Тип помилки", entry.graphType], ["Trace ID", entry.traceId], ["Request ID", entry.metaRequestId],
+        ["Коментар №", entry.commentIndex], ["ID коментаря", entry.legacyCommentId], ["GraphQL ID коментаря", entry.commentId],
+        ["Feedback коментаря", entry.commentFeedbackId], ["Feedback поста", entry.postFeedbackId],
+        ["Лічильник", entry.counter ? `${entry.counter.key}=${entry.counter.value}` : null],
     ].filter(([, value]) => value !== null && value !== undefined && value !== "");
     return <div className="autoupload-action-details">
         <p className={`autoupload-status ${entry.success || entry.status === "active" ? "success" : entry.outcomeUnknown ? "warning" : "danger"}`}>{entry.message}</p>
@@ -40,6 +43,8 @@ export default function AutouploadActionDetails({ entry }) {
         {entry.actionRequired && <p>{requiredActions[entry.actionRequired] || entry.actionRequired}</p>}
         {entry.incomingCheckMessage && <p>{entry.incomingCheckMessage}</p>}
         {entry.storageWarning && <p>{entry.storageWarning}</p>}
+        {entry.counterWarning && <p>{entry.counterWarning}</p>}
+        {entry.operation === "comment-create" && <><p>{entry.text}</p>{entry.skipped && <p>Коментар пропущено: результат публікації невідомий.</p>}</>}
         {entry.httpHistory && <div>
             <p>HTTP-запитів у журналі: {entry.httpHistory.requestCount}</p>
             <button type="button" className="secondary-button" onClick={() => {

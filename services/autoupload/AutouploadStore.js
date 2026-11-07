@@ -106,6 +106,34 @@ export default class AutouploadStore {
         });
     }
 
+    async confirmActionCounter(profileId, key, eventId, remote = {}) {
+        if (!/^AU_[A-Z][A-Z0-9_]*$/.test(key) || !eventId) throw new Error("Некоректний ключ або ID дії");
+        let counters;
+        await this.change(state => {
+            state.actionCounters ??= {};
+            const saved = state.actionCounters[profileId] ??= { values: {}, events: {} };
+            for (const [name, value] of Object.entries(remote)) saved.values[name] = Math.max(saved.values[name] ?? 0, value);
+            const eventKey = `${key}:${eventId}`;
+            if (!saved.events[eventKey]) {
+                const next = (saved.values[key] ?? 0) + 1;
+                if (!Number.isSafeInteger(next)) throw new Error("Лічильник перевищує допустиме значення");
+                saved.values[key] = next;
+                saved.events[eventKey] = true;
+            }
+            counters = { ...saved.values };
+        });
+        return counters;
+    }
+
+    patchAction(profileId, attemptId, patch) {
+        return this.change(state => {
+            const entry = state.history.find(item => item.profileId === profileId && item.attemptId === attemptId);
+            if (entry) Object.assign(entry, patch);
+            const last = state.profiles.find(item => item.profileId === profileId)?.lastAction;
+            if (last?.attemptId === attemptId) Object.assign(last, patch);
+        });
+    }
+
     record(profileId, result) {
         return this.change((state) => {
             const profile = state.profiles.find((item) => item.profileId === profileId);

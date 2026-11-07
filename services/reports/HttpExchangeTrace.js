@@ -72,6 +72,9 @@ export async function withHttpAction(name, execute, metadata = {}) {
                     httpStatus: result?.httpStatus, actionRequired: result?.actionRequired,
                     postResults: result?.postResults, actionSteps: result?.actionSteps,
                     publishedCount: result?.publishedCount, backdatedCount: result?.backdatedCount, requestedCount: result?.requestedCount,
+                    commentId: result?.commentId, legacyCommentId: result?.legacyCommentId,
+                    commentFeedbackId: result?.commentFeedbackId, postFeedbackId: result?.postFeedbackId,
+                    commentUrl: result?.commentUrl, text: result?.text, createdTime: result?.createdTime,
                     adsManagerPrepared: result?.hasAdsManagerSession, credentialObtained: result?.hasAccessToken }, [...scope.secrets]) });
             return result && typeof result === "object" ? { ...result, actionId: scope.actionId, exchanges: scope.exchanges,
                 ...(currentHttpHistory() ? { httpHistory: currentHttpHistory() } : {}) } : result;

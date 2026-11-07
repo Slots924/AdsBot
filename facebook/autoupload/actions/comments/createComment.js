@@ -55,6 +55,8 @@ async function createCommentImpl(fbData, { feedbackId, text } = {}, { signal, be
         });
     } catch (error) {
         if (sent && error.code !== "FACEBOOK_GRAPHQL_ERROR") error.outcomeUnknown = true;
+        // Черга пропускає невизначений коментар; підказки дружніх екшенів тут не застосовуються.
+        if (error.outcomeUnknown) error.actionRequired = null;
         return { ...actionFailure(error), mutationAttempted: sent };
     }
 }

@@ -2,6 +2,142 @@
   "version": 1,
   "tasks": [
     {
+      "id": "dcda5cc2-9d23-4022-9548-76f93ca253a7",
+      "type": "adset-duplicate",
+      "name": "Дублювання адсету · 5 копій",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "accountKey": "account-067",
+        "adAccountId": "act_1360465989324394",
+        "campaignId": "52545073591198",
+        "adSetId": "52545073607398",
+        "count": 5,
+        "budget": 20,
+        "startTime": null,
+        "createActive": true
+      },
+      "metadata": {
+        "accountKey": "account-067",
+        "adAccountId": "act_1360465989324394",
+        "campaignId": "52545073591198",
+        "adSetId": "52545073607398",
+        "uniqueKey": "adset-duplicate:act_1360465989324394:52545073607398",
+        "reportId": "0b122139-66f6-4f4d-88fd-e2405cdbb548"
+      },
+      "progress": {
+        "completed": 4,
+        "total": 5,
+        "stage": "failed",
+        "message": "There have been too many calls from this ad-account. Please wait a bit and try again.",
+        "createdAdSetIds": [
+          "52545083395598",
+          "52545083416998",
+          "52545083434198",
+          "52545083468798"
+        ]
+      },
+      "result": {
+        "copies": [
+          {
+            "id": "52545083395598",
+            "name": "DE | Creo_133 | 25+ 07/11 12:14 | AS 01 — копія 1",
+            "status": "ACTIVE",
+            "effectiveStatus": "IN_PROCESS",
+            "campaignBudget": false,
+            "setupIncomplete": false,
+            "dailyBudget": "2000",
+            "lifetimeBudget": null,
+            "startTime": "2026-11-07T13:29:00.907Z",
+            "endTime": null
+          },
+          {
+            "id": "52545083416998",
+            "name": "DE | Creo_133 | 25+ 07/11 12:14 | AS 01 — копія 2",
+            "status": "ACTIVE",
+            "effectiveStatus": "IN_PROCESS",
+            "campaignBudget": false,
+            "setupIncomplete": false,
+            "dailyBudget": "2000",
+            "lifetimeBudget": null,
+            "startTime": "2026-11-07T13:29:15.066Z",
+            "endTime": null
+          },
+          {
+            "id": "52545083434198",
+            "name": "DE | Creo_133 | 25+ 07/11 12:14 | AS 01 — копія 3",
+            "status": "ACTIVE",
+            "effectiveStatus": "IN_PROCESS",
+            "campaignBudget": false,
+            "setupIncomplete": false,
+            "dailyBudget": "2000",
+            "lifetimeBudget": null,
+            "startTime": "2026-11-07T13:29:27.472Z",
+            "endTime": null
+          },
+          {
+            "id": "52545083468798",
+            "name": "DE | Creo_133 | 25+ 07/11 12:14 | AS 01 — копія 4",
+            "status": "ACTIVE",
+            "effectiveStatus": "IN_PROCESS",
+            "campaignBudget": false,
+            "setupIncomplete": false,
+            "dailyBudget": "2000",
+            "lifetimeBudget": null,
+            "startTime": "2026-11-07T13:29:42.064Z",
+            "endTime": null
+          },
+          {
+            "id": "52545083510198",
+            "name": "DE | Creo_133 | 25+ 07/11 12:14 | AS 01 — копія 5",
+            "status": "PAUSED",
+            "effectiveStatus": "PAUSED",
+            "campaignBudget": false,
+            "setupIncomplete": true,
+            "dailyBudget": "2000",
+            "lifetimeBudget": null,
+            "startTime": "2026-11-07T13:29:58.199Z",
+            "endTime": null
+          }
+        ],
+        "error": {
+          "message": "There have been too many calls from this ad-account. Please wait a bit and try again.",
+          "code": "FACEBOOK_API_ERROR",
+          "outcomeUnknown": false
+        }
+      },
+      "error": {
+        "message": "There have been too many calls from this ad-account. Please wait a bit and try again.",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "httpStatus": null,
+        "requestId": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "endpoint": null,
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": null,
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-07T13:28:46.311Z",
+      "startedAt": "2026-11-07T13:28:46.313Z",
+      "finishedAt": "2026-11-07T13:30:00.325Z",
+      "updatedAt": "2026-11-07T13:30:00.329Z"
+    },
+    {
       "id": "ac645469-df1a-4569-af60-7c6cb1562bbf",
       "type": "comments",
       "name": "Коментарі поста · DE · 133",
