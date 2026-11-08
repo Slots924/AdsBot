@@ -189,14 +189,14 @@ export default class AutouploadStore {
         if (currentHttpHistory()) result = { ...compactHttpHistory(result), httpHistory: currentHttpHistory() };
         return this.change((state) => {
             const profile = state.profiles.find((item) => item.profileId === profileId);
-            if (!profile) return;
+            if (!profile && !result.profileNo) return;
             const checkedAt = new Date().toISOString();
             const entry = { ...result, operation: result.operation ?? "friend-request", checkedAt };
-            profile.lastAction = entry;
-            if (isSessionUnavailable(result.sessionStatus)) {
+            if (profile) profile.lastAction = entry;
+            if (profile && isSessionUnavailable(result.sessionStatus)) {
                 Object.assign(profile, { status: result.sessionStatus, message: result.message });
             }
-            state.history = [{ id: randomUUID(), profileId, profileNo: profile.profileNo, ...entry }, ...state.history].slice(0, 500);
+            state.history = [{ id: randomUUID(), profileId, profileNo: profile?.profileNo ?? result.profileNo, ...entry }, ...state.history].slice(0, 500);
             if (entry.operation === "ad-account-share" && (result.attempted || result.success)) {
                 state.adAccountShares ??= {};
                 state.adAccountShares[`${profileId}:${result.adAccountId}:${result.targetUserId}`] = entry;

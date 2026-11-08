@@ -1,0 +1,23 @@
+.modal.fanpage-au-dialog { width: min(1000px, calc(100vw - 48px)); max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: #514963 transparent; color-scheme: dark; }
+.fanpage-au-dialog .field { margin-bottom: 14px; min-width: 0; }
+.fanpage-au-dialog .au-intro { display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: 13px; margin: 14px 0 20px; }
+.au-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.au-load-row, .au-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.au-load-row { margin: 18px 0; flex-wrap: wrap; }
+.au-load-row > span, .au-panel-heading > span { color: var(--muted); font-size: 12px; }
+.au-workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.au-panel { min-width: 0; border: 1px solid var(--stroke); border-radius: 12px; overflow: hidden; background: #ffffff03; }
+.au-panel-heading { padding: 14px; border-bottom: 1px solid var(--stroke); font-size: 13px; }
+.au-panel-heading label { display: flex; align-items: center; gap: 8px; }
+.au-scroll { max-height: 265px; overflow-y: auto; margin: 0; padding: 10px 14px; scrollbar-width: thin; }
+.au-profile { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--stroke); cursor: pointer; }
+.au-profile span { min-width: 0; }
+.au-profile strong { display: block; overflow-wrap: anywhere; font-size: 12px; }
+.au-profile small, .au-comments small { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
+.au-comments { list-style-position: inside; }
+.au-comments li { border-bottom: 1px solid var(--stroke); padding: 8px 0; font-size: 12px; }
+.fanpage-au-dialog .au-comments p { margin: 6px 0; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.au-note { color: var(--muted); font-size: 12px; line-height: 1.6; padding: 12px 14px; border-radius: 10px; background: #8472ff0c; }
+.au-footer { justify-content: space-between; gap: 12px; }
+.comment-au-button { margin-bottom: 16px; }
+@media (max-width: 680px) { .au-workspace { grid-template-columns: 1fr; } .au-fields { grid-template-columns: 1fr; gap: 0; } .au-scroll { max-height: 200px; } .au-footer { flex-wrap: wrap; } }

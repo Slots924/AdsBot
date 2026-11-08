@@ -1,0 +1,202 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/CrmCampaignPickerModal.jsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=932634d7"; const Fragment = __vite__cjsImport0_react_jsxDevRuntime["Fragment"]; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport1_react from "/node_modules/.vite/deps/react.js?v=932634d7"; const useEffect = __vite__cjsImport1_react["useEffect"]; const useMemo = __vite__cjsImport1_react["useMemo"]; const useState = __vite__cjsImport1_react["useState"];
+import { LoaderCircle, Plus, Search, X } from "/node_modules/.vite/deps/lucide-react.js?v=932634d7";
+import { errorDetails, unwrap } from "/src/lib/api.js";
+import CrmCampaignCreateModal from "/src/components/CrmCampaignCreateModal.jsx";
+export default function CrmCampaignPickerModal({ geo = "", creativeName = "", onSelect, onClose, onError }) {
+  _s();
+  const [campaigns, setCampaigns] = useState([]);
+  const [query, setQuery] = useState(() => geo.trim() ? `${geo.trim().toUpperCase()} | ` : "");
+  const [selected, setSelected] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const load = async () => {
+    setLoading(true);
+    try {
+      setCampaigns(await unwrap(window.adsBot.getCrmCampaigns()));
+    } catch (error) {
+      onError?.({ ...errorDetails(error), title: "Не вдалося завантажити кампанії CRM" });
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    load();
+  }, []);
+  const visible = useMemo(() => campaigns.filter((c) => `${c.name} ${c.id} ${c.url}`.toLowerCase().includes(query.trim().toLowerCase())), [campaigns, query]);
+  const selectedCampaign = campaigns.find((c) => c.id === selected);
+  return /* @__PURE__ */ jsxDEV(Fragment, { children: [
+    /* @__PURE__ */ jsxDEV("div", { className: "overlay", onMouseDown: onClose, children: /* @__PURE__ */ jsxDEV("div", { className: "modal keitaro-picker-modal", onMouseDown: (event) => event.stopPropagation(), children: [
+      /* @__PURE__ */ jsxDEV("button", { className: "modal-close", type: "button", onClick: onClose, "aria-label": "Закрити", children: /* @__PURE__ */ jsxDEV(X, { size: 17 }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+        lineNumber: 23,
+        columnNumber: 98
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+        lineNumber: 23,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "modal-icon", children: /* @__PURE__ */ jsxDEV(Search, {}, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+        lineNumber: 24,
+        columnNumber: 41
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+        lineNumber: 24,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("span", { className: "eyebrow", children: "CRM" }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+        lineNumber: 24,
+        columnNumber: 57
+      }, this),
+      /* @__PURE__ */ jsxDEV("h2", { children: "Вибрати кампанію" }, void 0, false, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+        lineNumber: 24,
+        columnNumber: 93
+      }, this),
+      /* @__PURE__ */ jsxDEV("label", { className: "field", children: [
+        /* @__PURE__ */ jsxDEV("span", { children: "Пошук" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+          lineNumber: 25,
+          columnNumber: 38
+        }, this),
+        /* @__PURE__ */ jsxDEV("input", { autoFocus: true, value: query, onChange: (event) => setQuery(event.target.value), placeholder: "GEO, назва або ID" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+          lineNumber: 25,
+          columnNumber: 56
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+        lineNumber: 25,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "keitaro-picker-list", children: [
+        loading && /* @__PURE__ */ jsxDEV("div", { className: "campaign-loading", children: [
+          /* @__PURE__ */ jsxDEV(LoaderCircle, { className: "spin", size: 18 }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+            lineNumber: 27,
+            columnNumber: 63
+          }, this),
+          " Завантажуємо кампанії…"
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+          lineNumber: 27,
+          columnNumber: 29
+        }, this),
+        !loading && !visible.length && /* @__PURE__ */ jsxDEV("div", { className: "ad-list-empty", children: "Кампаній не знайдено." }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+          lineNumber: 28,
+          columnNumber: 49
+        }, this),
+        visible.map((c) => /* @__PURE__ */ jsxDEV("div", { className: `keitaro-picker-row ${selected === c.id ? "selected" : ""}`, children: /* @__PURE__ */ jsxDEV("button", { type: "button", className: "keitaro-picker-select", onClick: () => setSelected(c.id), children: [
+          /* @__PURE__ */ jsxDEV("strong", { children: c.name }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+            lineNumber: 30,
+            columnNumber: 111
+          }, this),
+          /* @__PURE__ */ jsxDEV("span", { children: c.id }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+            lineNumber: 30,
+            columnNumber: 136
+          }, this),
+          /* @__PURE__ */ jsxDEV("small", { children: c.url || "Короткого посилання немає" }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+            lineNumber: 30,
+            columnNumber: 155
+          }, this)
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+          lineNumber: 30,
+          columnNumber: 21
+        }, this) }, c.id, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+          lineNumber: 29,
+          columnNumber: 37
+        }, this))
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+        lineNumber: 26,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "form-actions", children: [
+        /* @__PURE__ */ jsxDEV("button", { type: "button", className: "secondary-button", onClick: () => setCreating(true), children: [
+          /* @__PURE__ */ jsxDEV(Plus, { size: 16 }, void 0, false, {
+            fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+            lineNumber: 33,
+            columnNumber: 128
+          }, this),
+          " Створити кампанію"
+        ] }, void 0, true, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+          lineNumber: 33,
+          columnNumber: 43
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { className: "action-spacer" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+          lineNumber: 33,
+          columnNumber: 173
+        }, this),
+        /* @__PURE__ */ jsxDEV("button", { type: "button", className: "primary-button", disabled: !selectedCampaign?.url, onClick: () => onSelect(selectedCampaign.url), children: "Обрати" }, void 0, false, {
+          fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+          lineNumber: 33,
+          columnNumber: 207
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+        lineNumber: 33,
+        columnNumber: 13
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+      lineNumber: 22,
+      columnNumber: 56
+    }, this) }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+      lineNumber: 22,
+      columnNumber: 9
+    }, this),
+    creating && /* @__PURE__ */ jsxDEV(CrmCampaignCreateModal, { initialGeo: geo, initialCreative: creativeName, onClose: () => setCreating(false), onCreated: () => {
+      setCreating(false);
+      load();
+    }, onError }, void 0, false, {
+      fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+      lineNumber: 35,
+      columnNumber: 22
+    }, this)
+  ] }, void 0, true, {
+    fileName: "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx",
+    lineNumber: 21,
+    columnNumber: 10
+  }, this);
+}
+_s(CrmCampaignPickerModal, "F90kNpscZVOXNwglr2wXM/T2C4M=");
+_c = CrmCampaignPickerModal;
+var _c;
+$RefreshReg$(_c, "CrmCampaignPickerModal");
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+function $RefreshReg$(type, id) {
+  return RefreshRuntime.register(type, "C:/Users/Darkness/Documents/AdsBot/frontend/src/components/CrmCampaignPickerModal.jsx " + id);
+}
+function $RefreshSig$() {
+  return RefreshRuntime.createSignatureFunctionForTransform();
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJtYXBwaW5ncyI6IkFBb0JXLG1CQUVzRixjQUZ0Rjs7QUFwQlgsU0FBU0EsV0FBV0MsU0FBU0MsZ0JBQWdCO0FBQzdDLFNBQVNDLGNBQWNDLE1BQU1DLFFBQVFDLFNBQVM7QUFDOUMsU0FBU0MsY0FBY0MsY0FBYztBQUNyQyxPQUFPQyw0QkFBNEI7QUFFbkMsd0JBQXdCQyx1QkFBdUIsRUFBRUMsTUFBTSxJQUFJQyxlQUFlLElBQUlDLFVBQVVDLFNBQVNDLFFBQVEsR0FBRztBQUFBQyxLQUFBO0FBQ3hHLFFBQU0sQ0FBQ0MsV0FBV0MsWUFBWSxJQUFJaEIsU0FBUyxFQUFFO0FBQzdDLFFBQU0sQ0FBQ2lCLE9BQU9DLFFBQVEsSUFBSWxCLFNBQVMsTUFBTVMsSUFBSVUsS0FBSyxJQUFJLEdBQUdWLElBQUlVLEtBQUssRUFBRUMsWUFBWSxDQUFDLFFBQVEsRUFBRTtBQUMzRixRQUFNLENBQUNDLFVBQVVDLFdBQVcsSUFBSXRCLFNBQVMsRUFBRTtBQUMzQyxRQUFNLENBQUN1QixTQUFTQyxVQUFVLElBQUl4QixTQUFTLElBQUk7QUFDM0MsUUFBTSxDQUFDeUIsVUFBVUMsV0FBVyxJQUFJMUIsU0FBUyxLQUFLO0FBQzlDLFFBQU0yQixPQUFPLFlBQVk7QUFDckJILGVBQVcsSUFBSTtBQUNmLFFBQUk7QUFBRVIsbUJBQWEsTUFBTVYsT0FBT3NCLE9BQU9DLE9BQU9DLGdCQUFnQixDQUFDLENBQUM7QUFBQSxJQUFHLFNBQzVEQyxPQUFPO0FBQUVsQixnQkFBVSxFQUFFLEdBQUdSLGFBQWEwQixLQUFLLEdBQUdDLE9BQU8sc0NBQXNDLENBQUM7QUFBQSxJQUFHLFVBQUM7QUFDNUZSLGlCQUFXLEtBQUs7QUFBQSxJQUFHO0FBQUEsRUFDakM7QUFDQTFCLFlBQVUsTUFBTTtBQUFFNkIsU0FBSztBQUFBLEVBQUcsR0FBRyxFQUFFO0FBQy9CLFFBQU1NLFVBQVVsQyxRQUFRLE1BQU1nQixVQUFVbUIsT0FBTyxDQUFBQyxNQUFLLEdBQUdBLEVBQUVDLElBQUksSUFBSUQsRUFBRUUsRUFBRSxJQUFJRixFQUFFRyxHQUFHLEdBQUdDLFlBQVksRUFBRUMsU0FBU3ZCLE1BQU1FLEtBQUssRUFBRW9CLFlBQVksQ0FBQyxDQUFDLEdBQUcsQ0FBQ3hCLFdBQVdFLEtBQUssQ0FBQztBQUN4SixRQUFNd0IsbUJBQW1CMUIsVUFBVTJCLEtBQUssQ0FBQVAsTUFBS0EsRUFBRUUsT0FBT2hCLFFBQVE7QUFDOUQsU0FBTyxtQ0FDSDtBQUFBLDJCQUFDLFNBQUksV0FBVSxXQUFVLGFBQWFULFNBQVMsaUNBQUMsU0FBSSxXQUFVLDhCQUE2QixhQUFhLENBQUErQixVQUFTQSxNQUFNQyxnQkFBZ0IsR0FDbkk7QUFBQSw2QkFBQyxZQUFPLFdBQVUsZUFBYyxNQUFLLFVBQVMsU0FBU2hDLFNBQVMsY0FBVyxXQUFVLGlDQUFDLEtBQUUsTUFBTSxNQUFUO0FBQUE7QUFBQTtBQUFBO0FBQUEsYUFBWSxLQUFqRztBQUFBO0FBQUE7QUFBQTtBQUFBLGFBQW9HO0FBQUEsTUFDcEcsdUJBQUMsU0FBSSxXQUFVLGNBQWEsaUNBQUMsWUFBRDtBQUFBO0FBQUE7QUFBQTtBQUFBLGFBQU8sS0FBbkM7QUFBQTtBQUFBO0FBQUE7QUFBQSxhQUFzQztBQUFBLE1BQU0sdUJBQUMsVUFBSyxXQUFVLFdBQVUsbUJBQTFCO0FBQUE7QUFBQTtBQUFBO0FBQUEsYUFBNkI7QUFBQSxNQUFPLHVCQUFDLFFBQUcsZ0NBQUo7QUFBQTtBQUFBO0FBQUE7QUFBQSxhQUFvQjtBQUFBLE1BQ3BHLHVCQUFDLFdBQU0sV0FBVSxTQUFRO0FBQUEsK0JBQUMsVUFBSyxxQkFBTjtBQUFBO0FBQUE7QUFBQTtBQUFBLGVBQVc7QUFBQSxRQUFPLHVCQUFDLFdBQU0sV0FBUyxNQUFDLE9BQU9LLE9BQU8sVUFBVSxDQUFBMEIsVUFBU3pCLFNBQVN5QixNQUFNRSxPQUFPQyxLQUFLLEdBQUcsYUFBWSx1QkFBNUY7QUFBQTtBQUFBO0FBQUE7QUFBQSxlQUErRztBQUFBLFdBQTFKO0FBQUE7QUFBQTtBQUFBO0FBQUEsYUFBNko7QUFBQSxNQUM3Six1QkFBQyxTQUFJLFdBQVUsdUJBQ1Z2QjtBQUFBQSxtQkFBVyx1QkFBQyxTQUFJLFdBQVUsb0JBQW1CO0FBQUEsaUNBQUMsZ0JBQWEsV0FBVSxRQUFPLE1BQU0sTUFBckM7QUFBQTtBQUFBO0FBQUE7QUFBQSxpQkFBd0M7QUFBQSxVQUFHO0FBQUEsYUFBN0U7QUFBQTtBQUFBO0FBQUE7QUFBQSxlQUFvRztBQUFBLFFBQy9HLENBQUNBLFdBQVcsQ0FBQ1UsUUFBUWMsVUFBVSx1QkFBQyxTQUFJLFdBQVUsaUJBQWdCLHFDQUEvQjtBQUFBO0FBQUE7QUFBQTtBQUFBLGVBQW9EO0FBQUEsUUFDbkZkLFFBQVFlLElBQUksQ0FBQWIsTUFBSyx1QkFBQyxTQUFlLFdBQVcsc0JBQXNCZCxhQUFhYyxFQUFFRSxLQUFLLGFBQWEsRUFBRSxJQUNsRyxpQ0FBQyxZQUFPLE1BQUssVUFBUyxXQUFVLHlCQUF3QixTQUFTLE1BQU1mLFlBQVlhLEVBQUVFLEVBQUUsR0FBRztBQUFBLGlDQUFDLFlBQVFGLFlBQUVDLFFBQVg7QUFBQTtBQUFBO0FBQUE7QUFBQSxpQkFBZ0I7QUFBQSxVQUFTLHVCQUFDLFVBQU1ELFlBQUVFLE1BQVQ7QUFBQTtBQUFBO0FBQUE7QUFBQSxpQkFBWTtBQUFBLFVBQU8sdUJBQUMsV0FBT0YsWUFBRUcsT0FBTywrQkFBakI7QUFBQTtBQUFBO0FBQUE7QUFBQSxpQkFBNkM7QUFBQSxhQUFuTDtBQUFBO0FBQUE7QUFBQTtBQUFBLGVBQTJMLEtBRG5LSCxFQUFFRSxJQUFaO0FBQUE7QUFBQTtBQUFBO0FBQUEsZUFFbEIsQ0FBTTtBQUFBLFdBTFY7QUFBQTtBQUFBO0FBQUE7QUFBQSxhQU1BO0FBQUEsTUFDQSx1QkFBQyxTQUFJLFdBQVUsZ0JBQWU7QUFBQSwrQkFBQyxZQUFPLE1BQUssVUFBUyxXQUFVLG9CQUFtQixTQUFTLE1BQU1YLFlBQVksSUFBSSxHQUFHO0FBQUEsaUNBQUMsUUFBSyxNQUFNLE1BQVo7QUFBQTtBQUFBO0FBQUE7QUFBQSxpQkFBZTtBQUFBLFVBQUc7QUFBQSxhQUF2RztBQUFBO0FBQUE7QUFBQTtBQUFBLGVBQXlIO0FBQUEsUUFBUyx1QkFBQyxVQUFLLFdBQVUsbUJBQWhCO0FBQUE7QUFBQTtBQUFBO0FBQUEsZUFBK0I7QUFBQSxRQUFHLHVCQUFDLFlBQU8sTUFBSyxVQUFTLFdBQVUsa0JBQWlCLFVBQVUsQ0FBQ2Usa0JBQWtCSCxLQUFLLFNBQVMsTUFBTTNCLFNBQVM4QixpQkFBaUJILEdBQUcsR0FBRyxzQkFBbEk7QUFBQTtBQUFBO0FBQUE7QUFBQSxlQUF3STtBQUFBLFdBQTFVO0FBQUE7QUFBQTtBQUFBO0FBQUEsYUFBbVY7QUFBQSxTQVh4UztBQUFBO0FBQUE7QUFBQTtBQUFBLFdBWS9DLEtBWkE7QUFBQTtBQUFBO0FBQUE7QUFBQSxXQVlNO0FBQUEsSUFDTGIsWUFBWSx1QkFBQywwQkFBdUIsWUFBWWhCLEtBQUssaUJBQWlCQyxjQUFjLFNBQVMsTUFBTWdCLFlBQVksS0FBSyxHQUFHLFdBQVcsTUFBTTtBQUFFQSxrQkFBWSxLQUFLO0FBQUdDLFdBQUs7QUFBQSxJQUFHLEdBQUcsV0FBN0o7QUFBQTtBQUFBO0FBQUE7QUFBQSxXQUE4SztBQUFBLE9BZHhMO0FBQUE7QUFBQTtBQUFBO0FBQUEsU0FlUDtBQUNKO0FBQUNiLEdBL0J1Qk4sd0JBQXNCO0FBQUEsS0FBdEJBO0FBQXNCLElBQUF5QztBQUFBLGFBQUFBLElBQUEiLCJuYW1lcyI6WyJ1c2VFZmZlY3QiLCJ1c2VNZW1vIiwidXNlU3RhdGUiLCJMb2FkZXJDaXJjbGUiLCJQbHVzIiwiU2VhcmNoIiwiWCIsImVycm9yRGV0YWlscyIsInVud3JhcCIsIkNybUNhbXBhaWduQ3JlYXRlTW9kYWwiLCJDcm1DYW1wYWlnblBpY2tlck1vZGFsIiwiZ2VvIiwiY3JlYXRpdmVOYW1lIiwib25TZWxlY3QiLCJvbkNsb3NlIiwib25FcnJvciIsIl9zIiwiY2FtcGFpZ25zIiwic2V0Q2FtcGFpZ25zIiwicXVlcnkiLCJzZXRRdWVyeSIsInRyaW0iLCJ0b1VwcGVyQ2FzZSIsInNlbGVjdGVkIiwic2V0U2VsZWN0ZWQiLCJsb2FkaW5nIiwic2V0TG9hZGluZyIsImNyZWF0aW5nIiwic2V0Q3JlYXRpbmciLCJsb2FkIiwid2luZG93IiwiYWRzQm90IiwiZ2V0Q3JtQ2FtcGFpZ25zIiwiZXJyb3IiLCJ0aXRsZSIsInZpc2libGUiLCJmaWx0ZXIiLCJjIiwibmFtZSIsImlkIiwidXJsIiwidG9Mb3dlckNhc2UiLCJpbmNsdWRlcyIsInNlbGVjdGVkQ2FtcGFpZ24iLCJmaW5kIiwiZXZlbnQiLCJzdG9wUHJvcGFnYXRpb24iLCJ0YXJnZXQiLCJ2YWx1ZSIsImxlbmd0aCIsIm1hcCIsIl9jIl0sImlnbm9yZUxpc3QiOltdLCJzb3VyY2VzIjpbIkNybUNhbXBhaWduUGlja2VyTW9kYWwuanN4Il0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IHVzZUVmZmVjdCwgdXNlTWVtbywgdXNlU3RhdGUgfSBmcm9tIFwicmVhY3RcIjtcbmltcG9ydCB7IExvYWRlckNpcmNsZSwgUGx1cywgU2VhcmNoLCBYIH0gZnJvbSBcImx1Y2lkZS1yZWFjdFwiO1xuaW1wb3J0IHsgZXJyb3JEZXRhaWxzLCB1bndyYXAgfSBmcm9tIFwiLi4vbGliL2FwaS5qc1wiO1xuaW1wb3J0IENybUNhbXBhaWduQ3JlYXRlTW9kYWwgZnJvbSBcIi4vQ3JtQ2FtcGFpZ25DcmVhdGVNb2RhbC5qc3hcIjtcblxuZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gQ3JtQ2FtcGFpZ25QaWNrZXJNb2RhbCh7IGdlbyA9IFwiXCIsIGNyZWF0aXZlTmFtZSA9IFwiXCIsIG9uU2VsZWN0LCBvbkNsb3NlLCBvbkVycm9yIH0pIHtcbiAgICBjb25zdCBbY2FtcGFpZ25zLCBzZXRDYW1wYWlnbnNdID0gdXNlU3RhdGUoW10pO1xuICAgIGNvbnN0IFtxdWVyeSwgc2V0UXVlcnldID0gdXNlU3RhdGUoKCkgPT4gZ2VvLnRyaW0oKSA/IGAke2dlby50cmltKCkudG9VcHBlckNhc2UoKX0gfCBgIDogXCJcIik7XG4gICAgY29uc3QgW3NlbGVjdGVkLCBzZXRTZWxlY3RlZF0gPSB1c2VTdGF0ZShcIlwiKTtcbiAgICBjb25zdCBbbG9hZGluZywgc2V0TG9hZGluZ10gPSB1c2VTdGF0ZSh0cnVlKTtcbiAgICBjb25zdCBbY3JlYXRpbmcsIHNldENyZWF0aW5nXSA9IHVzZVN0YXRlKGZhbHNlKTtcbiAgICBjb25zdCBsb2FkID0gYXN5bmMgKCkgPT4ge1xuICAgICAgICBzZXRMb2FkaW5nKHRydWUpO1xuICAgICAgICB0cnkgeyBzZXRDYW1wYWlnbnMoYXdhaXQgdW53cmFwKHdpbmRvdy5hZHNCb3QuZ2V0Q3JtQ2FtcGFpZ25zKCkpKTsgfVxuICAgICAgICBjYXRjaCAoZXJyb3IpIHsgb25FcnJvcj8uKHsgLi4uZXJyb3JEZXRhaWxzKGVycm9yKSwgdGl0bGU6IFwi0J3QtSDQstC00LDQu9C+0YHRjyDQt9Cw0LLQsNC90YLQsNC20LjRgtC4INC60LDQvNC/0LDQvdGW0ZcgQ1JNXCIgfSk7IH1cbiAgICAgICAgZmluYWxseSB7IHNldExvYWRpbmcoZmFsc2UpOyB9XG4gICAgfTtcbiAgICB1c2VFZmZlY3QoKCkgPT4geyBsb2FkKCk7IH0sIFtdKTtcbiAgICBjb25zdCB2aXNpYmxlID0gdXNlTWVtbygoKSA9PiBjYW1wYWlnbnMuZmlsdGVyKGMgPT4gYCR7Yy5uYW1lfSAke2MuaWR9ICR7Yy51cmx9YC50b0xvd2VyQ2FzZSgpLmluY2x1ZGVzKHF1ZXJ5LnRyaW0oKS50b0xvd2VyQ2FzZSgpKSksIFtjYW1wYWlnbnMsIHF1ZXJ5XSk7XG4gICAgY29uc3Qgc2VsZWN0ZWRDYW1wYWlnbiA9IGNhbXBhaWducy5maW5kKGMgPT4gYy5pZCA9PT0gc2VsZWN0ZWQpO1xuICAgIHJldHVybiA8PlxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cIm92ZXJsYXlcIiBvbk1vdXNlRG93bj17b25DbG9zZX0+PGRpdiBjbGFzc05hbWU9XCJtb2RhbCBrZWl0YXJvLXBpY2tlci1tb2RhbFwiIG9uTW91c2VEb3duPXtldmVudCA9PiBldmVudC5zdG9wUHJvcGFnYXRpb24oKX0+XG4gICAgICAgICAgICA8YnV0dG9uIGNsYXNzTmFtZT1cIm1vZGFsLWNsb3NlXCIgdHlwZT1cImJ1dHRvblwiIG9uQ2xpY2s9e29uQ2xvc2V9IGFyaWEtbGFiZWw9XCLQl9Cw0LrRgNC40YLQuFwiPjxYIHNpemU9ezE3fSAvPjwvYnV0dG9uPlxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJtb2RhbC1pY29uXCI+PFNlYXJjaCAvPjwvZGl2PjxzcGFuIGNsYXNzTmFtZT1cImV5ZWJyb3dcIj5DUk08L3NwYW4+PGgyPtCS0LjQsdGA0LDRgtC4INC60LDQvNC/0LDQvdGW0Y48L2gyPlxuICAgICAgICAgICAgPGxhYmVsIGNsYXNzTmFtZT1cImZpZWxkXCI+PHNwYW4+0J/QvtGI0YPQujwvc3Bhbj48aW5wdXQgYXV0b0ZvY3VzIHZhbHVlPXtxdWVyeX0gb25DaGFuZ2U9e2V2ZW50ID0+IHNldFF1ZXJ5KGV2ZW50LnRhcmdldC52YWx1ZSl9IHBsYWNlaG9sZGVyPVwiR0VPLCDQvdCw0LfQstCwINCw0LHQviBJRFwiIC8+PC9sYWJlbD5cbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwia2VpdGFyby1waWNrZXItbGlzdFwiPlxuICAgICAgICAgICAgICAgIHtsb2FkaW5nICYmIDxkaXYgY2xhc3NOYW1lPVwiY2FtcGFpZ24tbG9hZGluZ1wiPjxMb2FkZXJDaXJjbGUgY2xhc3NOYW1lPVwic3BpblwiIHNpemU9ezE4fSAvPiDQl9Cw0LLQsNC90YLQsNC20YPRlNC80L4g0LrQsNC80L/QsNC90ZbRl+KApjwvZGl2Pn1cbiAgICAgICAgICAgICAgICB7IWxvYWRpbmcgJiYgIXZpc2libGUubGVuZ3RoICYmIDxkaXYgY2xhc3NOYW1lPVwiYWQtbGlzdC1lbXB0eVwiPtCa0LDQvNC/0LDQvdGW0Lkg0L3QtSDQt9C90LDQudC00LXQvdC+LjwvZGl2Pn1cbiAgICAgICAgICAgICAgICB7dmlzaWJsZS5tYXAoYyA9PiA8ZGl2IGtleT17Yy5pZH0gY2xhc3NOYW1lPXtga2VpdGFyby1waWNrZXItcm93ICR7c2VsZWN0ZWQgPT09IGMuaWQgPyBcInNlbGVjdGVkXCIgOiBcIlwifWB9PlxuICAgICAgICAgICAgICAgICAgICA8YnV0dG9uIHR5cGU9XCJidXR0b25cIiBjbGFzc05hbWU9XCJrZWl0YXJvLXBpY2tlci1zZWxlY3RcIiBvbkNsaWNrPXsoKSA9PiBzZXRTZWxlY3RlZChjLmlkKX0+PHN0cm9uZz57Yy5uYW1lfTwvc3Ryb25nPjxzcGFuPntjLmlkfTwvc3Bhbj48c21hbGw+e2MudXJsIHx8IFwi0JrQvtGA0L7RgtC60L7Qs9C+INC/0L7RgdC40LvQsNC90L3RjyDQvdC10LzQsNGUXCJ9PC9zbWFsbD48L2J1dHRvbj5cbiAgICAgICAgICAgICAgICA8L2Rpdj4pfVxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZvcm0tYWN0aW9uc1wiPjxidXR0b24gdHlwZT1cImJ1dHRvblwiIGNsYXNzTmFtZT1cInNlY29uZGFyeS1idXR0b25cIiBvbkNsaWNrPXsoKSA9PiBzZXRDcmVhdGluZyh0cnVlKX0+PFBsdXMgc2l6ZT17MTZ9IC8+INCh0YLQstC+0YDQuNGC0Lgg0LrQsNC80L/QsNC90ZbRjjwvYnV0dG9uPjxzcGFuIGNsYXNzTmFtZT1cImFjdGlvbi1zcGFjZXJcIiAvPjxidXR0b24gdHlwZT1cImJ1dHRvblwiIGNsYXNzTmFtZT1cInByaW1hcnktYnV0dG9uXCIgZGlzYWJsZWQ9eyFzZWxlY3RlZENhbXBhaWduPy51cmx9IG9uQ2xpY2s9eygpID0+IG9uU2VsZWN0KHNlbGVjdGVkQ2FtcGFpZ24udXJsKX0+0J7QsdGA0LDRgtC4PC9idXR0b24+PC9kaXY+XG4gICAgICAgIDwvZGl2PjwvZGl2PlxuICAgICAgICB7Y3JlYXRpbmcgJiYgPENybUNhbXBhaWduQ3JlYXRlTW9kYWwgaW5pdGlhbEdlbz17Z2VvfSBpbml0aWFsQ3JlYXRpdmU9e2NyZWF0aXZlTmFtZX0gb25DbG9zZT17KCkgPT4gc2V0Q3JlYXRpbmcoZmFsc2UpfSBvbkNyZWF0ZWQ9eygpID0+IHsgc2V0Q3JlYXRpbmcoZmFsc2UpOyBsb2FkKCk7IH19IG9uRXJyb3I9e29uRXJyb3J9IC8+fVxuICAgIDwvPjtcbn1cbiJdLCJmaWxlIjoiQzovVXNlcnMvRGFya25lc3MvRG9jdW1lbnRzL0Fkc0JvdC9mcm9udGVuZC9zcmMvY29tcG9uZW50cy9Dcm1DYW1wYWlnblBpY2tlck1vZGFsLmpzeCJ9

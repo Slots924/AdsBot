@@ -18,7 +18,7 @@ export function formatActionCounters(name, counters) {
     return result;
 }
 
-export async function incrementActionCounter({ adsPower, store, profileId, key, eventId }) {
+export async function incrementActionCounter({ adsPower, store, profileId, key, eventId, syncLocalName = true }) {
     let profile;
     let readFailed = false;
     try { profile = await adsPower.getProfileById(profileId); }
@@ -32,6 +32,6 @@ export async function incrementActionCounter({ adsPower, store, profileId, key, 
     if (readFailed) throw new Error("AdsPower недоступний; збільшення лічильника збережено локально");
     const name = formatActionCounters(profile.name ?? "", counters);
     if (name !== profile.name) await adsPower.updateProfileName(profileId, name);
-    await store.renameProfile(profileId, name);
+    if (syncLocalName) await store.renameProfile(profileId, name);
     return { key, value: counters[key], synced: true };
 }

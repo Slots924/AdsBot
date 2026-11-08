@@ -35,6 +35,31 @@ async function batchFixture(t, execute, count = 4) {
 const batchInput = { postUrl: "https://www.facebook.com/permalink.php?story_fbid=pfbidTest123&id=456", comments: ["First", "Second", "Third"] };
 
 const feedbackId = Buffer.from("feedback:pfbidTest123").toString("base64");
+test("акаунти поза вкладкою AU підбираються за статтю, відмова передає коментар наступному", async t => {
+    const f = await batchFixture(t, async () => ({}));
+    const profiles = [
+        { profileId: "x1", profileNo: "91", name: "Тест", gender: "male" },
+        { profileId: "x2", profileNo: "92", name: "Тест", gender: "female" },
+        { profileId: "x3", profileNo: "93", name: "Тест", gender: "female" },
+    ];
+    const attempts = [];
+    f.adsPower.getProfileById = async () => ({ name: "Тест" });
+    f.service.createCommentFn = async (data, input) => {
+        attempts.push([data.profileId, input.text]);
+        return data.profileId === "x2" ? { success: false, outcomeUnknown: false }
+            : { success: true, commentId: `id-${data.profileId}` };
+    };
+    const value = await f.service.publishComments(profiles.map(p => p.profileId), batchInput, {
+        profiles, commentRows: [{ gender: "female" }, { gender: "female" }, { gender: "male" }],
+    });
+    assert.deepEqual(attempts, [["x2", "First"], ["x3", "First"], ["x1", "Third"]]);
+    assert.equal(value.result.publishedCount, 2);
+    assert.equal(value.result.skippedCount, 1);
+    const state = await f.store.snapshot();
+    assert.equal(state.profiles.length, 4);
+    assert.equal(state.history.filter(row => row.profileId.startsWith("x")).length, 3);
+    assert.equal(state.actionCounters.x3.values.AU_COMMENT, 1);
+});
 const html = 'DTSGInitialData",[],{"token":"fake-dtsg"} LSD",[],{"token":"fake-lsd"} <input name="jazoest" value="2123"> {"sessionId":"fake-session","actorID":"123","client_revision":456}';
 async function fixture(reply) {
     const calls = [];

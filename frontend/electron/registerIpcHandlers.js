@@ -20,6 +20,7 @@ import { validateTargetUserId } from "../../facebook/autoupload/actions/friends/
 import { validateName } from "../../facebook/autoupload/actions/accounts/changeFacebookName.js";
 import { validateProfileAction } from "../../facebook/autoupload/actions/profile/index.js";
 import commentBatchInput from "../../services/autoupload/commentBatchInput.js";
+import FanPageCommentsService from "../../services/autoupload/FanPageCommentsService.js";
 import createFacebookApiClients from "../../facebook/api/createFacebookApiClients.js";
 import refreshFacebookAccessToken from "../../services/accounts/refreshFacebookAccessToken.js";
 import ProfileProxyHttpClient from "../../services/proxy/ProfileProxyHttpClient.js";
@@ -357,6 +358,23 @@ export default function registerIpcHandlers({
             resources: profiles.map(profile => ({ key: `adspower-profile:${profile.profileNo}`, label: `профіль №${profile.profileNo}` })),
             input: { profileIds: selectedIds, action },
             runner: context => autoupload.runProfileAction(selectedIds, action, normalized, context),
+        });
+        return { taskId: task.id };
+    }));
+    const fanPageComments = new FanPageCommentsService({ adsPower: guiService.adsPower, guiService, autoupload });
+    ipcMain.handle("fanpage-au-comments:prepare", safeHandler(async input => ({
+        prepared: await fanPageComments.prepare(input), profiles: await fanPageComments.profiles(),
+    })));
+    ipcMain.handle("fanpage-au-comments:run", safeHandler(async ({ ids, ...input }) => {
+        const prepared = await fanPageComments.prepare(input);
+        const profiles = await fanPageComments.selected(ids);
+        const task = await backgroundTaskManager.enqueue({
+            type: "autoupload-comments", name: `AU Comments · ${prepared.comments.length} · ${profiles.length} профілів`,
+            uniqueKey: `fanpage-au-comments:${prepared.storyId}`,
+            resources: [{ key: "autoupload-comments", label: "послідовна публікація коментарів" },
+                ...profiles.map(profile => ({ key: `adspower-profile:${profile.profileNo}`, label: `профіль №${profile.profileNo}` }))],
+            input: { profileIds: profiles.map(profile => profile.profileId), postUrl: prepared.postUrl },
+            runner: context => fanPageComments.run(profiles, prepared, context),
         });
         return { taskId: task.id };
     }));

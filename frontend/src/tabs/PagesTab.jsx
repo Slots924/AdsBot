@@ -27,6 +27,7 @@ import ImageListDropzone from "../components/ImageListDropzone.jsx";
 import CrmCampaignPickerModal from "../components/CrmCampaignPickerModal.jsx";
 import MultiSelect from "../components/MultiSelect.jsx";
 import ManualCommentsModal from "../components/ManualCommentsModal.jsx";
+import FanPageAuCommentsModal from "../components/FanPageAuCommentsModal.jsx";
 import PagePostDiscussion from "../components/PagePostDiscussion.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import { findGroupForGeo } from "../lib/groups.js";
@@ -528,12 +529,13 @@ function PublicationModal({
 }
 
 
-function CommentModal({
+export function CommentModal({
     page, post = null, commentTarget = "post", accountKey, countries, groups,
     settings, onClose, onQueued, onError,
 }) {
     const isAd = commentTarget === "ad";
     const [manualOpen, setManualOpen] = useState(false);
+    const [auOpen, setAuOpen] = useState(false);
     const defaultGroup = findGroupForGeo(groups, page.geo);
     const [draft, setDraft] = useState({
         geo: page.geo || "",
@@ -565,6 +567,8 @@ function CommentModal({
             onError(errorDetails(error));
         }
     };
+    if (auOpen) return <FanPageAuCommentsModal initialDraft={draft} countries={countries} onClose={onClose}
+        onBack={value => { setDraft(value); setAuOpen(false); }} onQueued={onQueued} />;
     if (manualOpen) return <ManualCommentsModal
         contextKey={JSON.stringify([accountKey, page.id || page.pageId, post?.id || post?.postId || draft.postUrl, commentTarget])}
         initialDraft={draft} countries={countries} groups={groups}
@@ -580,6 +584,7 @@ function CommentModal({
                     {post ? `Пост ${post.id}` : isAd ? "Рекламна об’ява" : "Facebook-пост"}
                 </span>
                 <h2>{isAd ? "Закоментити рекламну об’яву" : "Закоментити пост"}</h2>
+                {!isAd && <button type="button" className="secondary-button comment-au-button" onClick={() => setAuOpen(true)}><MessageSquareText size={14} /> AU Comments</button>}
                 <label className="field">
                     <span>Посилання на {isAd ? "рекламну об’яву" : "пост"}</span>
                     <input

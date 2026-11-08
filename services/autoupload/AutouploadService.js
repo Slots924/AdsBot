@@ -41,8 +41,9 @@ export default class AutouploadService {
         return this.#runReported("publishComments", () => this.#publishComments(ids, commentBatchInput(input), context));
     }
 
-    async #publishComments(ids, input, { signal, progress = async () => {} } = {}) {
-        const profiles = await this.selected(ids);
+    async #publishComments(ids, input, { signal, progress = async () => {}, profiles: suppliedProfiles, commentRows } = {}) {
+        const profiles = suppliedProfiles ?? await this.selected(ids);
+        const available = [...profiles];
         const results = [];
         let cursor = 0;
         let stoppedForStorage = false;
@@ -52,8 +53,17 @@ export default class AutouploadService {
         pendingIds.forEach(id => this.#running.add(id));
         try {
             await this.#publish();
-            for (const profile of profiles) {
+            while (available.length) {
                 if (signal?.aborted || cursor >= input.comments.length) break;
+                const gender = commentRows?.[cursor]?.gender;
+                const candidate = available.findIndex(profile => !gender || profile.gender === gender);
+                if (candidate < 0) {
+                    results.push({ success: false, skipped: true, commentIndex: cursor + 1, text: input.comments[cursor],
+                        message: "Немає доступного акаунта відповідної статі", mutationAttempted: false });
+                    cursor++;
+                    continue;
+                }
+                const [profile] = available.splice(candidate, 1);
                 const id = profile.profileId;
                 const text = input.comments[cursor];
                 const attemptId = randomUUID();
@@ -74,7 +84,7 @@ export default class AutouploadService {
                 await this.#handleRestriction(id, action);
                 if (action.success && !action.commentId) action = { ...action, success: false, outcome: "OUTCOME_UNKNOWN", outcomeUnknown: true,
                     message: "ID коментаря не отримано; коментар пропущено" };
-                const entry = { ...action, attemptId, operation: "comment-create", commentIndex: cursor + 1, text,
+                const entry = { ...action, profileNo: profile.profileNo, attemptId, operation: "comment-create", commentIndex: cursor + 1, text,
                     postUrl: input.postUrl, storyId: input.storyId, postFeedbackId: input.feedbackId, skipped: !action.success && action.outcomeUnknown === true,
                     fields: [], steps: [action.message] };
                 if (action.success || action.outcomeUnknown) cursor++;
@@ -89,7 +99,7 @@ export default class AutouploadService {
                 const patch = {};
                 if (action.success) {
                     try { patch.counter = await incrementActionCounter({ adsPower: this.adsPower, store: this.store,
-                        profileId: id, key: "AU_COMMENT", eventId: action.commentId }); }
+                        profileId: id, key: "AU_COMMENT", eventId: action.commentId, syncLocalName: !suppliedProfiles }); }
                     catch { patch.counterWarning = "Коментар опубліковано. Не вдалося синхронізувати AU_COMMENT у назві профілю"; }
                 }
                 if (client && this.sessionStore && !isSessionUnavailable(action.sessionStatus)) {

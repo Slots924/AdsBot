@@ -185,6 +185,8 @@ contextBridge.exposeInMainWorld("adsBot", {
     runAutouploadProfileAction: (ids, action, input) => ipcRenderer.invoke("autoupload:profile-action", { ids, action, input }),
     sendAutouploadFriendRequests: (ids, targetUserId) => ipcRenderer.invoke("autoupload:friend-request", { ids, targetUserId }),
     publishAutouploadComments: (ids, input) => ipcRenderer.invoke("autoupload:comments", { ids, ...input }),
+    prepareFanPageAuComments: (input) => ipcRenderer.invoke("fanpage-au-comments:prepare", input),
+    runFanPageAuComments: (input) => ipcRenderer.invoke("fanpage-au-comments:run", input),
     shareAutouploadAdAccounts: (payload) => ipcRenderer.invoke("autoupload:share-ad-accounts", payload),
     getAutouploadFanPages: (ids) => ipcRenderer.invoke("autoupload:fan-pages", { ids }),
     shareAutouploadFanPage: (payload) => ipcRenderer.invoke("autoupload:share-fan-page", payload),
