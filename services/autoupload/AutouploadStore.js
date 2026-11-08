@@ -1,3 +1,4 @@
+import { isSessionUnavailable } from "../../facebook/session/sessionStatus.js";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
@@ -192,7 +193,7 @@ export default class AutouploadStore {
             const checkedAt = new Date().toISOString();
             const entry = { ...result, operation: result.operation ?? "friend-request", checkedAt };
             profile.lastAction = entry;
-            if (["login_required", "checkpoint"].includes(result.sessionStatus)) {
+            if (isSessionUnavailable(result.sessionStatus)) {
                 Object.assign(profile, { status: result.sessionStatus, message: result.message });
             }
             state.history = [{ id: randomUUID(), profileId, profileNo: profile.profileNo, ...entry }, ...state.history].slice(0, 500);

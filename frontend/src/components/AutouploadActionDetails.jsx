@@ -4,6 +4,7 @@ import { unwrap } from "../lib/api.js";
 const requiredActions = {
     authenticate_account: "Увійдіть у Facebook у профілі AdsPower",
     confirm_account: "Пройдіть підтвердження акаунта у Facebook",
+    confirm_human: "Facebook вимагає підтвердити, що ви людина. Подальші дії зупинено.",
     refresh_session: "Оновіть сесію профілю",
     check_friendship_status: "Перевірте стан заявки у Facebook перед новою спробою",
     check_profile_name: "Перевірте ім’я соціального профілю у Facebook перед новою спробою",
@@ -19,11 +20,12 @@ const errorStatuses = {
     http_error: "Помилка HTTP", facebook_api_error: "Помилка Facebook API", response_invalid: "Неочікувана відповідь", response_empty: "Порожня відповідь",
     access_token_missing: "Access token не знайдено", account_mismatch: "Інший акаунт", session_error: "Помилка сесії",
     login_required: "Потрібна авторизація", checkpoint: "Потрібне підтвердження", error: "Помилка",
+    human_confirmation_required: "Потрібне підтвердження людини",
 };
 
 export default function AutouploadActionDetails({ entry }) {
     const [historyError, setHistoryError] = useState("");
-    if (!entry.httpHistory && !entry.operation?.startsWith("profile-") && !["comment-create", "friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share", "fan-page-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
+    if (!entry.sessionStatus && !entry.banTag && !entry.httpHistory && !entry.operation?.startsWith("profile-") && !["comment-create", "friend-request", "friend-request-accept", "personal-account-transfer", "ad-account-share", "fan-page-share"].includes(entry.operation) && !entry.diagnostic && !entry.warnings?.length) return null;
     const detail = entry.diagnostic ?? {};
     const diagnostics = [
         ["Тип збою", errorStatuses[detail.status] ?? detail.status], ["Етап", detail.stage], ["Код мережі", detail.networkCode],
@@ -44,6 +46,8 @@ export default function AutouploadActionDetails({ entry }) {
         {entry.incomingCheckMessage && <p>{entry.incomingCheckMessage}</p>}
         {entry.storageWarning && <p>{entry.storageWarning}</p>}
         {entry.counterWarning && <p>{entry.counterWarning}</p>}
+        {entry.banTag && <p>{entry.banTag.failed ? "Не вдалося додати тег BAN" : entry.banTag.alreadyBanned ? "Профіль уже має тег BAN" : "До профілю AdsPower додано тег BAN"}</p>}
+        {entry.banWarning && <p>{entry.banWarning}</p>}
         {entry.operation === "comment-create" && <><p>{entry.text}</p>{entry.skipped && <p>Коментар пропущено: результат публікації невідомий.</p>}</>}
         {entry.httpHistory && <div>
             <p>HTTP-запитів у журналі: {entry.httpHistory.requestCount}</p>

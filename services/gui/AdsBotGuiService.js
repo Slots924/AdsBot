@@ -876,6 +876,9 @@ export default class AdsBotGuiService {
         return {
             reportPath: report.reportPath,
             fatalError: report.fatalError,
+            ...(report.profiles.some(item => item.sessionStatus === "human_confirmation_required") ? {
+                humanConfirmationRequired: report.profiles.filter(item => item.sessionStatus === "human_confirmation_required").length,
+            } : {}),
             success: report.profiles.filter((item) => item.outcome === "success").length,
             completedWithError: report.profiles.filter((item) =>
                 item.outcome === "completed_with_error"

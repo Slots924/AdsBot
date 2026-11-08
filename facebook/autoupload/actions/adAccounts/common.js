@@ -1,3 +1,4 @@
+import { isSessionUnavailable } from "../../../session/sessionStatus.js";
 import { actionError, actionFailure } from "../../graphql/errors.js";
 import parseResponse from "../../graphql/parseResponse.js";
 import { validateTargetUserId, validateFriendSession } from "../friends/common.js";
@@ -33,7 +34,7 @@ export async function requestJson(fbData, config) {
         if (parsed.chunks.length !== 1) throw actionError("Facebook повернув неоднозначну відповідь", "FACEBOOK_RESPONSE_INVALID", { httpStatus: response.status, outcomeUnknown: config.mutation === true });
         return { ...parsed, json: parsed.chunks[0] };
     } catch (error) {
-        if (error.code === "FACEBOOK_GRAPHQL_ERROR" && ["login_required", "checkpoint"].includes(error.sessionStatus)) await fbData.client.invalidateSession(error);
+        if (error.code === "FACEBOOK_GRAPHQL_ERROR" && isSessionUnavailable(error.sessionStatus)) await fbData.client.invalidateSession(error);
         if (error.code === "FACEBOOK_RESPONSE_INVALID") error.message = "Не вдалося розібрати відповідь Facebook для доступів РК";
         if (error.code === "FACEBOOK_RESPONSE_INVALID" && response && !String(response.data ?? "").trim()) {
             error.code = "FACEBOOK_RESPONSE_EMPTY";

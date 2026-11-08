@@ -18,6 +18,8 @@ import markProfileAsChangeNameError from "../../services/profile/tags/markProfil
 import ensureWorkerProxyReady from "../../services/proxy/ensureWorkerProxyReady.js";
 import finalizeSetupMetadata from "./finalizeSetupMetadata.js";
 import { createStep, createEmptySteps, tryProfilePhoto } from "./executeCommentAccountSetupWithProfile.js";
+import handleSessionFailure from "../autoupload/handleSessionFailure.js";
+import { HUMAN_CONFIRMATION_REQUIRED } from "../../facebook/session/sessionStatus.js";
 
 const stopsWorkflow = result => Boolean(result.outcomeUnknown || result.sessionStatus
     || ["FACEBOOK_SESSION_MISMATCH", "FACEBOOK_SOCIAL_CONTEXT_REQUIRED", "FACEBOOK_SESSION_FIELDS_MISSING", "FACEBOOK_SESSION_EXPIRED"].includes(result.code));
@@ -48,6 +50,17 @@ async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {})
     let client;
     let fbData;
     let context;
+    const handleRestriction = async value => {
+        const handled = await handleSessionFailure({ result: { ...value, banTag: value.banTag ?? result.banTag,
+            banWarning: value.banWarning ?? result.banWarning }, adsPower, profile,
+            markBanned: actions.markBanned });
+        if (handled.stopProfile) {
+            Object.assign(result, handled, { sessionStatus: HUMAN_CONFIRMATION_REQUIRED,
+                code: value.code, error: value.message, outcome: "failed", success: false });
+            blocked = value.message || "Facebook вимагає підтвердити, що ви людина";
+        }
+        return handled.stopProfile ? handled : undefined;
+    };
     const refreshContext = async () => {
         // Оновлення сесії виконується поза чергою окремої HTTP-дії.
         if (client && !actions.prepareSocialContext) {
@@ -69,7 +82,8 @@ async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {})
         if (refresh) await refreshContext();
         previousAction = true;
     };
-    const record = (key, value) => {
+    const record = async (key, value) => {
+        await handleRestriction(value);
         const error = value.success ? null : [value.message, value.graphUserMessage].filter(Boolean).join(": ");
         result.steps[key] = createStep({ ok: value.success === true, status: value.outcome,
             detail: value.success ? value.message : null, error, diagnostic: value });
@@ -93,7 +107,7 @@ async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {})
         }
     };
     const finalizeOutcome = () => {
-        if (result.aborted || (!skipNameChange && !result.nameChanged) || (!result.nameChanged && result.error)) {
+        if (result.stopProfile || result.aborted || (!skipNameChange && !result.nameChanged) || (!result.nameChanged && result.error)) {
             result.outcome = "failed";
         } else {
             const warnings = result.error || Object.values(result.steps).some(step => !step.ok && !step.skipped);
@@ -116,7 +130,8 @@ async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {})
             }
         }
         const prepared = await (actions.checkProfileSession ?? checkProfileSession)({ adsPower, profile,
-            profileId: profile.profile_id, proxy: workerProxy ?? undefined, signal });
+            profileId: profile.profile_id, proxy: workerProxy ?? undefined, signal, onSessionStatus: handleRestriction });
+        await handleRestriction(prepared.result);
         result.steps.session = createStep({ ok: Boolean(prepared.client), error: prepared.client ? null : prepared.result.message,
             diagnostic: prepared.result.diagnostic ?? null, detail: prepared.result.message });
         if (!prepared.client) { result.error = prepared.result.message; return result; }
@@ -129,13 +144,13 @@ async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {})
             try {
                 const session = await (actions.prepareNameContext ?? prepareNameContext)(fbData, { signal });
                 await waitBeforeAction();
-                const name = record("name", await (actions.changeName ?? executeNameChange)(fbData, persona, { signal, session }));
+                const name = await record("name", await (actions.changeName ?? executeNameChange)(fbData, persona, { signal, session }));
                 result.nameChanged = name.success === true;
             } catch (error) {
                 signal?.throwIfAborted();
-                record("name", actionFailure(error));
+                await record("name", actionFailure(error));
             }
-            if (!result.nameChanged) {
+            if (!result.nameChanged && !result.stopProfile) {
                 result.error = result.steps.name.error;
                 try { await (actions.markChangeNameError ?? markProfileAsChangeNameError)(adsPower, profile); }
                 catch (error) { result.cleanupErrors.push(error.message); }
@@ -159,6 +174,7 @@ async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {})
                 changeFn: async (_, input) => {
                     await waitBeforeAction();
                     const value = await action(fbData, input, { signal, context });
+                    await handleRestriction(value);
                     if (stopsWorkflow(value)) blocked = value.message;
                     return { ...value, status: value.outcome, diagnostic: value,
                         error: { message: [value.message, value.graphUserMessage].filter(Boolean).join(": ") } };
@@ -172,7 +188,7 @@ async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {})
         else {
             result.stage = "DELETE_POSTS";
             await waitBeforeAction();
-            record("deletePosts", await attemptAction(() => (actions.deletePosts ?? clearProfilePosts)(fbData, {}, { signal, context })));
+            await record("deletePosts", await attemptAction(() => (actions.deletePosts ?? clearProfilePosts)(fbData, {}, { signal, context })));
         }
         if (result.steps.deletePosts.skipped) logStep("Видалення постів", result.steps.deletePosts, "");
         const postFiles = classified.all.filter(file => !usedPaths.has(file));
@@ -191,7 +207,7 @@ async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {})
                 const value = await attemptAction(() => (actions.publishPosts ?? publishProfilePostsWithDates)(fbData,
                     { posts: [{ mediaPaths: [file], targetDate: dates[index] }] }, { signal, context }));
                 items.push({ sequence: index + 1, targetDate: dates[index], ...value });
-                record(`post${index + 1}`, value);
+                await record(`post${index + 1}`, value);
             }
             result.steps.posts = createStep({ ok: items.length === postFiles.length && items.every(item => item.success),
                 detail: `Пости: ${items.filter(item => item.success).length}/${postFiles.length}`,
@@ -228,6 +244,7 @@ async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {})
                     });
                 });
                 const error = value.success ? null : [value.message, value.graphUserMessage].filter(Boolean).join(": ");
+                await handleRestriction(value);
                 fields[key] = { success: value.success === true, skipped: value.skipped === true,
                     status: value.outcome, error, diagnostic: value };
                 if (stopsWorkflow(value)) blocked = error || "Подальші дії зупинено";
@@ -252,13 +269,14 @@ async function executeCommentAccountAutouploadSetupWithProfileImpl(options = {})
     } catch (error) {
         result.aborted = signal?.aborted || error.name === "AbortError";
         const failure = actionFailure(error);
+        await handleRestriction(failure);
         result.error = result.aborted ? "Оформлення перервано" : failure.message;
         result.steps.failure = createStep({ error: result.error, diagnostic: failure });
     } finally {
         for (const step of Object.values(result.steps)) {
             if (step.skipped && step.reason === "Ще не виконано") step.reason = blocked || result.error || "Попередній крок не завершено";
         }
-        if (ready) await finalizeSetupMetadata({ result, profile, persona, photoSet, profileNo, adsPowerName, profileNameNote,
+        if (ready && !result.stopProfile) await finalizeSetupMetadata({ result, profile, persona, photoSet, profileNo, adsPowerName, profileNameNote,
             skipNameChange, signal, adsPower, createStep, finalizeOutcome,
             updateName: actions.updateProfileName ?? ((id, name) => adsPower.updateProfileName(id, name)),
             markGender: actions.markGender ?? markProfileGender, renameFolder: actions.renamePhotoSet ?? renamePhotoSet });

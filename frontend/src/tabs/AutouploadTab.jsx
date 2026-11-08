@@ -14,6 +14,7 @@ import { unwrap } from "../lib/api.js";
 const statuses = {
     unchecked: ["Не перевірено", "muted"], checking: ["Виконується…", "pending"], active: ["Акаунт активний", "success"],
     login_required: ["Потрібна авторизація", "danger"], checkpoint: ["Потрібне підтвердження", "danger"], error: ["Помилка перевірки", "warning"],
+    human_confirmation_required: ["Потрібне підтвердження людини", "danger"],
 };
 const time = (value) => value ? new Date(value).toLocaleString("uk-UA") : "—";
 

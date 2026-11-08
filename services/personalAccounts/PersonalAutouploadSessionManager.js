@@ -10,10 +10,14 @@ import requestPhoneCode from "../../facebook/api-actions/phone-verification/requ
 import submitPhoneCode from "../../facebook/api-actions/phone-verification/submitPhoneVerificationCode.js";
 import addCard from "../../facebook/autoupload/actions/billing/addCreditCard.js";
 import { tracedAction, withHttpWorkflow } from "../reports/HttpExchangeTrace.js";
+import handleSessionFailure from "../../workflows/autoupload/handleSessionFailure.js";
+import { HUMAN_CONFIRMATION_REQUIRED } from "../../facebook/session/sessionStatus.js";
 
 const checked = result => {
     if (!result?.success) throw Object.assign(new Error(result?.error || result?.message || "Facebook не підтвердив дію"),
-        { code: result?.status || "FACEBOOK_ACTION_FAILED", stage: result?.stage });
+        { code: result?.code || result?.status || "FACEBOOK_ACTION_FAILED", stage: result?.stage,
+            sessionStatus: result?.sessionStatus, banTag: result?.banTag, banWarning: result?.banWarning,
+            actionRequired: result?.actionRequired, safeFacebookError: Boolean(result?.sessionStatus) });
     return result.data;
 };
 
@@ -22,6 +26,18 @@ export default class PersonalAutouploadSessionManager {
     sessions = new Map();
     starting = new Set();
     constructor(options) { Object.assign(this, options); }
+    async handleRestriction(profileId, result) {
+        const handled = await handleSessionFailure({ result, adsPower: this.adsPower, profileId });
+        if (handled.stopProfile) {
+            Object.assign(result, handled);
+            for (const [id, session] of this.sessions) {
+                if (session.profileId === profileId) this.sessions.delete(id);
+            }
+            try { await this.sessionStore.remove(profileId); }
+            catch { result.storageWarning = "Не вдалося видалити неактуальну сесію"; }
+        }
+        return handled.stopProfile ? handled : undefined;
+    }
     publicSession(session) {
         return { id: session.id, profileNo: session.profileNo, profileId: session.profileId,
             profileName: session.profile.name, profile: session.profile, context: "HTTP_ADS_MANAGER",
@@ -33,7 +49,9 @@ export default class PersonalAutouploadSessionManager {
             input: { profileNo }, startedAt: new Date().toISOString() };
         const save = (status, result, error) => this.reportManager?.createFromTask({ ...task, status, result,
             finishedAt: status === "running" ? null : new Date().toISOString(),
-            error: error ? { code: error.code, message: "Дія завершилася помилкою; дивіться HTTP-історію" } : null,
+            error: error ? { code: error.code, sessionStatus: error.sessionStatus,
+                banTag: error.banTag, banWarning: error.banWarning,
+                message: error.sessionStatus === HUMAN_CONFIRMATION_REQUIRED ? error.message : "Дія завершилася помилкою; дивіться HTTP-історію" } : null,
             metadata: { httpHistory: result?.httpHistory || error?.httpHistory },
         }, {}, { reportId: id });
         try {
@@ -43,7 +61,7 @@ export default class PersonalAutouploadSessionManager {
                 metadata: { profileNo }, onStart: httpHistory => save("running", { httpHistory }),
             });
             let storageWarning = value?.httpHistory?.storageWarning || null;
-            await Promise.resolve(save(storageWarning || value.value?.success === false || value.value?.storageWarning || value.value?.profileUpdateWarning || value.value?.refreshError ? "completed_with_warnings" : "completed", value))
+            await Promise.resolve(save(value.value?.sessionStatus === HUMAN_CONFIRMATION_REQUIRED ? "failed" : storageWarning || value.value?.success === false || value.value?.storageWarning || value.value?.profileUpdateWarning || value.value?.refreshError ? "completed_with_warnings" : "completed", value))
                 .catch(() => { storageWarning = "Дію виконано, але звіт не вдалося повністю зберегти"; });
             return storageWarning && value.value && !Array.isArray(value.value) ? { ...value.value, storageWarning } : value.value;
         } catch (error) { await save("failed", error.result, error)?.catch(() => {}); throw error; }
@@ -62,15 +80,18 @@ export default class PersonalAutouploadSessionManager {
                 try {
                     const saved = await this.sessionStore.load(profileId);
                     if (saved) {
-                        client = this.restoreClient(saved);
+                        client = this.restoreClient(saved, { onSessionStatus: result => this.handleRestriction(profileId, result) });
                         client.getAdsManagerData(client.getFbData(profileId));
                     }
                 } catch { client = null; }
             }
             if (!client) {
-                const prepared = await this.refreshSession({ profileId, profile: raw, adsPower: this.adsPower, loadAssets: false });
+                const prepared = await this.refreshSession({ profileId, profile: raw, adsPower: this.adsPower, loadAssets: false,
+                    onSessionStatus: result => this.handleRestriction(profileId, result) });
+                await this.handleRestriction(profileId, prepared.result);
                 client = prepared.client;
-                if (!client || !prepared.result.capabilities?.adsManager) throw Object.assign(new Error(prepared.result.message || "Не вдалося підготувати Ads Manager"), { code: "ADS_MANAGER_SESSION_REQUIRED" });
+                if (!client || !prepared.result.capabilities?.adsManager) throw Object.assign(new Error(prepared.result.message || "Не вдалося підготувати Ads Manager"),
+                    { ...prepared.result, code: prepared.result.code ?? "ADS_MANAGER_SESSION_REQUIRED" });
             }
             // Зберігаємо сесію до читання активів, щоб помилка одного списку не втрачала авторизацію.
             await this.sessionStore.save(profileId, client.exportSession());
@@ -84,7 +105,7 @@ export default class PersonalAutouploadSessionManager {
         }); } finally { this.starting.delete(no); }
     }
     refreshSession = refreshProfileSession;
-    restoreClient = snapshot => FacebookWebClient.restore(snapshot);
+    restoreClient = (snapshot, options) => FacebookWebClient.restore(snapshot, options);
     addCreditCard = addCard;
     async overview(session) {
         const api = session.client.createGraphApi();
@@ -119,9 +140,12 @@ export default class PersonalAutouploadSessionManager {
                     session.context.failure.stage ??= error.stage;
                     error = session.context.failure;
                 }
+                await this.handleRestriction(session.profileId, error);
                 if (error.sessionStatus) await this.sessionStore.remove(session.profileId).catch(() => {});
                 throw error;
             }
+            await this.handleRestriction(session.profileId, value);
+            if (value?.sessionStatus === HUMAN_CONFIRMATION_REQUIRED) return value;
             try { await this.sessionStore.save(session.profileId, session.client.exportSession()); }
             catch {
                 if (value && !Array.isArray(value)) return { ...value, storageWarning: "Дію виконано; не вдалося зберегти оновлену сесію" };

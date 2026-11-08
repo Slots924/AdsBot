@@ -38,6 +38,7 @@ function serializeError(error) {
     return {
         message: safeMessage(error?.message),
         code: error?.code ?? null,
+        ...(error?.sessionStatus ? { sessionStatus: error.sessionStatus, banTag: error.banTag, banWarning: error.banWarning } : {}),
         httpStatus: error?.httpStatus ?? null,
         graphCode: error?.graphCode ?? null,
         graphSubcode: error?.graphSubcode ?? null,
@@ -1390,7 +1391,8 @@ export default function registerIpcHandlers({
                             : await Promise.all((await proxyManager.list()).filter((proxy) => proxy.type !== "no_proxy" && proxy.isPublic !== false)
                                 .map((proxy) => proxyManager.getById(proxy.id))) });
                     const result = await refreshFacebookAccessToken({ accountKey: current.accountKey, accountManager: manager,
-                        httpClient, directory: reportManager.httpHistoryDirectory });
+                        httpClient, directory: reportManager.httpHistoryDirectory,
+                        adsPower: guiService.adsPower, profileNo: current.adsPowerProfileNo });
                     await guiService.reloadFacebookBackend();
                     const accountStatus = await guiService.checkAccount(current.accountKey);
                     sendRendererEvent("accounts:facebook-status", { accountKey: current.accountKey, accountStatus });
@@ -2982,7 +2984,7 @@ export default function registerIpcHandlers({
                     }
                     return {
                         result: summary,
-                        taskStatus: summary.failed || summary.completedWithError
+                        taskStatus: summary.humanConfirmationRequired ? "failed" : summary.failed || summary.completedWithError
                             ? "completed_with_warnings"
                             : "completed",
                         reportDetails: { resultSummary: summary },

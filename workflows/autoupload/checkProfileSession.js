@@ -3,16 +3,18 @@ import FacebookWebClient from "../../facebook/api/FacebookWebClient.js";
 import normalizeProxy from "../../services/proxy/normalizeProxy.js";
 import describeHttpError from "../../services/logging/httpDiagnostics.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
+import handleSessionFailure from "./handleSessionFailure.js";
 
 // Дані авторизації залишаються всередині клієнта й не входять до результату задачі.
 async function checkProfileSessionImpl({ profileId, profile: suppliedProfile, proxy: suppliedProxy, adsPower, signal, onSessionStatus, onStage = () => {}, createClient = (options) => new FacebookWebClient(options) }) {
     const steps = [];
     let stage = "profile";
     let privateProxy;
+    let profile = suppliedProfile;
     const note = async (message) => { steps.push(message); await onStage(message); };
     try {
         signal?.throwIfAborted();
-        const profile = suppliedProfile ?? await adsPower.getProfileById(profileId);
+        profile ??= await adsPower.getProfileById(profileId);
         signal?.throwIfAborted();
         await note("Дані профілю отримано");
         stage = "proxy";
@@ -50,7 +52,11 @@ async function checkProfileSessionImpl({ profileId, profile: suppliedProfile, pr
         const diagnostic = describeHttpError(error, { stage, proxy: privateProxy });
         const message = error.sessionStatus || error.safeAdsPowerMessage || error.diagnostic || error.response ? diagnostic.message : `${messages[stage]}: ${diagnostic.message}`;
         getLogger("autoupload.session").error("autoupload.session.failed", message, { ...diagnostic, profileId });
-        return { client: null, result: { status: error.sessionStatus ?? "error", errorStatus: diagnostic.status, stage, message, diagnostic, fields: [], steps: [...steps, message] } };
+        const handled = await handleSessionFailure({ result: error, adsPower, profile, profileId });
+        return { client: null, result: { status: error.sessionStatus ?? "error", sessionStatus: error.sessionStatus ?? null,
+            code: error.code ?? null, actionRequired: error.actionRequired ?? null,
+            ...(handled.stopProfile ? { ...handled, ...(error.storageWarning ? { storageWarning: error.storageWarning } : {}) } : {}),
+            errorStatus: diagnostic.status, stage, message, diagnostic, fields: [], steps: [...steps, message] } };
     }
 }
 

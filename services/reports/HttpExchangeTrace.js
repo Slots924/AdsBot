@@ -110,7 +110,7 @@ export async function withHttpWorkflow(name, execute, options = {}) {
         const attach = value => {
             if (!value || typeof value !== "object" || !journal.requests) return value;
             return { ...compactHttpHistory(value), httpHistory: journal.reference(),
-                ...(journal.storageError ? { taskStatus: "completed_with_warnings" } : {}) };
+                ...(journal.storageError && value.taskStatus !== "failed" ? { taskStatus: "completed_with_warnings" } : {}) };
         };
         try {
             const result = await execute();

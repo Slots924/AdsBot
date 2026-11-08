@@ -226,6 +226,8 @@ export default async function runParallelCommentAccountSetupScenario({
     const toReportItem = (result, extra = {}) => ({
         profileNo: result.profileNo,
         outcome: result.outcome,
+        ...(result.sessionStatus ? { sessionStatus: result.sessionStatus, code: result.code,
+            banTag: result.banTag, banWarning: result.banWarning, stopProfile: result.stopProfile } : {}),
         skipReason: result.skipReason ?? extra.skipReason ?? null,
         error: result.error ?? extra.error ?? null,
         stage: result.stage ?? extra.stage ?? null,

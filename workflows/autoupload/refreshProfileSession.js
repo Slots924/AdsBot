@@ -4,6 +4,8 @@ import getAdsManagerSession from "../../facebook/autoupload/actions/getAdsManage
 import { actionFailure } from "../../facebook/autoupload/graphql/errors.js";
 import describeHttpError from "../../services/logging/httpDiagnostics.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
+import { isSessionUnavailable } from "../../facebook/session/sessionStatus.js";
+import handleSessionFailure from "./handleSessionFailure.js";
 
 // Одна повна перевірка оновлює сесії й активи; секрети не потрапляють у result.
 async function refreshProfileSessionImpl(options) {
@@ -33,6 +35,7 @@ async function refreshProfileSessionImpl(options) {
                 assets[stateKey] = "loaded";
             } catch (error) {
                 if (options.signal?.aborted) throw error;
+                if (isSessionUnavailable(error.sessionStatus)) throw error;
                 const diagnostic = describeHttpError(error, { stage: label });
                 assets[stateKey] = "error";
                 result.warnings.push({ ...diagnostic, scope: label });
@@ -50,8 +53,10 @@ async function refreshProfileSessionImpl(options) {
         result.warnings.push({ ...diagnostic, scope: "adsManager" });
         getLogger("autoupload.session").error("autoupload.ads-manager.failed", diagnostic.message, { ...diagnostic, profileId: options.profileId });
         await note(`Ads Manager: ${diagnostic.message}`);
-        if (["login_required", "checkpoint"].includes(safe.sessionStatus)) {
+        if (isSessionUnavailable(safe.sessionStatus)) {
             result.status = safe.sessionStatus;
+            Object.assign(result, { sessionStatus: safe.sessionStatus, code: safe.code, actionRequired: safe.actionRequired },
+                await handleSessionFailure({ result: safe, adsPower: options.adsPower, profile: options.profile, profileId: options.profileId }));
             result.message = safe.message;
             result.capabilities = { facebook: false, adsManager: false, accessToken: false };
             return { client: null, result };

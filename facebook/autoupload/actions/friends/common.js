@@ -1,3 +1,4 @@
+import { isSessionUnavailable } from "../../../session/sessionStatus.js";
 import { actionError, actionFailure } from "../../graphql/errors.js";
 
 export function validateTargetUserId(value) {
@@ -12,7 +13,7 @@ export function validateFriendSession(fbData) {
 }
 
 export function friendActionFailure(error, { sent = false, signal, targetUserId = null } = {}) {
-    if (sent && !error?.safeFacebookError && !["login_required", "checkpoint"].includes(error?.sessionStatus)) {
+    if (sent && !error?.safeFacebookError && !isSessionUnavailable(error?.sessionStatus)) {
         error = actionError("Результат заявки невідомий. Перевірте стан перед повтором", "FACEBOOK_WRITE_OUTCOME_UNKNOWN", { outcomeUnknown: true, actionRequired: "check_friendship_status" });
     } else if (!sent && signal?.aborted) {
         error = actionError("Задачу перервано до надсилання запиту", "TASK_INTERRUPTED");

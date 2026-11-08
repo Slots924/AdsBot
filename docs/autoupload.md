@@ -1,5 +1,29 @@
 # Автозаливи
 
+## Підтвердження людини та BAN
+
+Сторінки сесії Facebook, Ads Manager і Accounts Center отримуються через
+`FacebookWebClient.requestSessionPage()`. Лише під час такого отримання клієнт
+перевіряє кожен redirect і кінцеву адресу на точний шлях
+`/checkpoint/1501092823525282` (з необов'язковим завершальним `/`). Query-параметри
+не впливають на визначення; дозволені лише HTTPS-адреси домену Facebook.
+Додатковий GET сторінки checkpoint не виконується.
+
+Відмова має `sessionStatus: "human_confirmation_required"`,
+`code: "FACEBOOK_HUMAN_CONFIRMATION_REQUIRED"`, `actionRequired: "confirm_human"`.
+Для перевірки сесії поле `status` має те саме значення. Відсутність токенів,
+мережева помилка або інший checkpoint не прирівнюються до цього стану.
+
+`workflows/autoupload/handleSessionFailure.js` застосовує політику завершення:
+через наявний `markProfileAsBanned` додає BAN у AdsPower і повертає `stopProfile`.
+Workflow припиняє подальші дії профілю, видаляє неактуальну збережену сесію,
+зберігає причину та `banTag` у звіті. Збій маркування повертається як `banWarning`
+і не дозволяє продовжувати Facebook-дії. Масові GUI-операції продовжують інші
+профілі; наявність цього статусу завершує задачу як `failed`.
+Персональна HTTP-сесія після цього видаляється зі списку активних сесій.
+При оновленні access token BAN застосовується до прив'язаного AdsPower-профілю.
+
+
 ## Оновлення access token API-клієнтів і БМ
 
 Кнопка з ключем праворуч від синхронізації AdsPower одразу виконує HTTP-операцію

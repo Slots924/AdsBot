@@ -1,3 +1,4 @@
+import { isSessionUnavailable } from "../../facebook/session/sessionStatus.js";
 import { redactString } from "./AppLogger.js";
 
 const codeValue = value => /^[A-Za-z0-9_:-]{1,100}$/.test(String(value ?? "")) ? value : null;
@@ -49,7 +50,7 @@ export default function describeHttpError(error, options = {}) {
     if (error?.code === "ADS_MANAGER_ACCESS_TOKEN_NOT_FOUND") status = "access_token_missing";
     if (error?.code === "ADS_MANAGER_ACCOUNT_MISMATCH") status = "account_mismatch";
     if (error?.sessionStatus === "error" && status === "error") status = "session_error";
-    if (["login_required", "checkpoint"].includes(error?.sessionStatus)) status = error.sessionStatus;
+    if (isSessionUnavailable(error?.sessionStatus)) status = error.sessionStatus;
     let endpoint = previous?.endpoint ?? null;
     try { const url = new URL(options.url ?? config.url); endpoint = `${url.origin}${url.pathname}`; } catch {}
     const context = { ...options, config };

@@ -9,6 +9,7 @@ import { actionError } from "../autoupload/graphql/errors.js";
 import describeHttpError from "../../services/logging/httpDiagnostics.js";
 import { getLogger } from "../../services/logging/runtimeLogger.js";
 import { requestWithTrace, withHttpAction } from "../../services/reports/HttpExchangeTrace.js";
+import { isSessionUnavailable, isHumanConfirmationUrl, HUMAN_CONFIRMATION_REQUIRED, HUMAN_CONFIRMATION_CODE } from "../session/sessionStatus.js";
 
 const homeUrl = "https://www.facebook.com/";
 const isFacebook = (host) => host === "facebook.com" || host.endsWith(".facebook.com");
@@ -122,10 +123,12 @@ export default class FacebookWebClient {
     }
 
     async #handleSessionStatus(error) {
-        if (!["login_required", "checkpoint"].includes(error?.sessionStatus)) return;
+        if (!isSessionUnavailable(error?.sessionStatus)) return;
         this.#session = null;
         this.#adsManager = null;
-        await this.#onSessionStatus?.({ status: error.sessionStatus, message: error.message });
+        const handled = await this.#onSessionStatus?.({ status: error.sessionStatus, sessionStatus: error.sessionStatus,
+            code: error.code, message: error.message, banTag: error.banTag });
+        if (handled) Object.assign(error, handled);
     }
 
     // JSON-відповіді API також можуть повідомляти про втрату авторизації.
@@ -175,7 +178,11 @@ export default class FacebookWebClient {
         }
     }
 
-    async request({ url = homeUrl, method = "get", data, signal, headers = {}, mutation = !["get", "head"].includes(String(method).toLowerCase()), allowHttpErrors = false, asFetch = false, historyPurpose = "api" }) {
+    requestSessionPage(options = {}) {
+        return this.request({ ...options, mutation: false, sessionPage: true, historyPurpose: options.historyPurpose ?? "session" });
+    }
+
+    async request({ url = homeUrl, method = "get", data, signal, headers = {}, mutation = !["get", "head"].includes(String(method).toLowerCase()), allowHttpErrors = false, asFetch = false, historyPurpose = "api", sessionPage = false }) {
         signal?.throwIfAborted();
         let target = new URL(url, homeUrl);
         let requestMethod = method;
@@ -218,7 +225,7 @@ export default class FacebookWebClient {
             if ([301, 302, 303, 307, 308].includes(response.status) && response.headers?.location) {
                 target = new URL(response.headers.location, target);
                 if (target.protocol !== "https:" || !isFacebook(target.hostname)) throw failure("Непідтримуваний перехід Facebook");
-                try { this.#checkPage(target, ""); }
+                try { this.#checkPage(target, "", sessionPage); }
                 catch (error) { await this.#handleSessionStatus(error); if (mutation) error.outcomeUnknown = true; throw error; }
                 if (mutation) throw actionError("Facebook перенаправив запит. Результат заявки невідомий; повтор не виконувався", "FACEBOOK_WRITE_REDIRECT", {
                     httpStatus: response.status, outcomeUnknown: true, actionRequired: "check_friendship_status",
@@ -235,14 +242,19 @@ export default class FacebookWebClient {
                 getLogger("autoupload.http").error("autoupload.http.failed", error.diagnostic.message, error.diagnostic);
                 throw error;
             }
-            try { this.#checkPage(target, String(response.data)); }
+            try { this.#checkPage(target, String(response.data), sessionPage); }
             catch (error) { await this.#handleSessionStatus(error); if (mutation) error.outcomeUnknown = true; throw error; }
             return response;
         }
         throw failure("Забагато перенаправлень Facebook");
     }
 
-    #checkPage(url, html) {
+    #checkPage(url, html, sessionPage = false) {
+        if (sessionPage && isHumanConfirmationUrl(url.href)) {
+            throw actionError("Facebook вимагає підтвердити, що ви людина", HUMAN_CONFIRMATION_CODE, {
+                sessionStatus: HUMAN_CONFIRMATION_REQUIRED, actionRequired: "confirm_human",
+            });
+        }
         if (/\/(checkpoint|two_step_verification|challenge)(\/|$)/i.test(url.pathname)) {
             throw failure("Facebook потребує підтвердження акаунта", "checkpoint");
         }
@@ -274,7 +286,7 @@ export default class FacebookWebClient {
     // Читає контекст для запитів списку, не змінюючи перевірену сесію соціального профілю.
     async readActorContext({ signal, url = homeUrl, updateSession = false } = {}) {
         if (updateSession) this.invalidateActorContext();
-        const response = await this.request({ url, signal, mutation: false, historyPurpose: "session" });
+        const response = await this.requestSessionPage({ url, signal });
         const { session, accountId } = this.#readSessionIdentity(response, { requireAccount: true });
         if (!session.lsd) {
             throw actionError("Не вдалося прочитати актуальний контекст Facebook", "FACEBOOK_SESSION_FIELDS_MISSING");
@@ -330,7 +342,7 @@ export default class FacebookWebClient {
     checkSession({ signal } = {}) {
         return withHttpAction("checkSession", () => this.run(async () => {
             this.invalidateActorContext();
-            const response = await this.request({ signal, historyPurpose: "session" });
+            const response = await this.requestSessionPage({ signal });
             const { session, accountId } = this.#readSessionIdentity(response);
             // Зберігає фактичного actor і власника сесії без перемикання контексту.
             this.#session = Object.freeze({ ...session, accountId });

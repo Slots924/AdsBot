@@ -83,6 +83,7 @@ async function grantFanPageAccessImpl(client, {
                 httpStatus: error.httpStatus ?? null, graphCode: error.graphCode ?? null,
                 apiErrorCode: error.apiErrorCode ?? null, outcomeUnknown: error.outcomeUnknown === true,
                 sessionStatus: error.sessionStatus ?? null,
+                banTag: error.banTag, banWarning: error.banWarning, actionRequired: error.actionRequired,
             });
         return { ...actionFailure(safe), stage, accountId, additionalProfileId: pageId,
             targetUserId: userId, inviteSent, invitePending: null, inviteAttempted,

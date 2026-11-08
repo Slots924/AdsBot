@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import AutouploadTab from "../tabs/AutouploadTab.jsx";
 import AutouploadAddModal from "../components/AutouploadAddModal.jsx";
+import AutouploadActionDetails from "../components/AutouploadActionDetails.jsx";
 
 const ok = (data) => Promise.resolve({ ok: true, data });
 const state = {
@@ -28,6 +29,24 @@ beforeEach(() => {
 afterEach(() => { cleanup(); delete window.adsBot; });
 
 describe("Автозаливи", () => {
+    it("показує точний статус підтвердження людини та результат BAN", async () => {
+        const blocked = structuredClone(state);
+        Object.assign(blocked.profiles[0], { status: "human_confirmation_required", message: "Confirm human" });
+        window.adsBot.getAutoupload.mockImplementation(() => ok(blocked));
+        render(<AutouploadTab />);
+        await screen.findByRole("img", { name: "Стан акаунта: Потрібне підтвердження людини" });
+        render(<AutouploadActionDetails entry={{ sessionStatus: "human_confirmation_required", actionRequired: "confirm_human",
+            message: "Confirm human", banTag: { added: true } }} />);
+        expect(screen.getByText("До профілю AdsPower додано тег BAN")).toBeInTheDocument();
+    });
+
+    it("показує збій BAN окремо від причини зупинки", () => {
+        render(<AutouploadActionDetails entry={{ sessionStatus: "human_confirmation_required",
+            message: "Confirm human", banTag: { failed: true }, banWarning: "Тег не додано" }} />);
+        expect(screen.getByText("Confirm human")).toBeInTheDocument();
+        expect(screen.getByText("Не вдалося додати тег BAN")).toBeInTheDocument();
+        expect(screen.getByText("Тег не додано")).toBeInTheDocument();
+    });
     it.each([
         ["Змінити аватарку", "avatar"], ["Змінити обкладинку", "cover"],
     ])("%s вибирає фото та запускає HTTP-дію", async (label, action) => {

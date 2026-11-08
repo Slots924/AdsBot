@@ -1,3 +1,4 @@
+import { isSessionUnavailable } from "../../../session/sessionStatus.js";
 import { tracedAction } from "../../../../services/reports/HttpExchangeTrace.js";
 import requestGraphql from "../../graphql/request.js";
 import { actionError, actionFailure } from "../../graphql/errors.js";
@@ -29,7 +30,7 @@ export async function loadIncomingFriendRequests(fbData, { signal, source = "aut
             return { success: true, outcome: "INCOMING_REQUESTS_LOADED", code: null, message: "Вхідні заявки отримано", source: "graphql",
                 ...result, httpStatus, traceId, metaRequestId, diagnostics, outcomeUnknown: false, retryable: false };
         } catch (error) {
-            if (signal?.aborted || error.sessionStatus === "login_required" || error.sessionStatus === "checkpoint" || source === "graphql") throw error;
+            if (signal?.aborted || isSessionUnavailable(error.sessionStatus) || source === "graphql") throw error;
             diagnostics.push({ source: "graphql", ...incomingRequestsFailure(error) });
         }
     }

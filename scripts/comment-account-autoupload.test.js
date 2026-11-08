@@ -13,6 +13,30 @@ import createTestProfileImage from "./helpers/createTestProfileImage.js";
 import { buildCommentAccountSetupMarkdown } from "../services/reports/saveCommentAccountSetupReport.js";
 
 const success = { success: true, outcome: "COMPLETED", message: "Виконано" };
+
+test("підтвердження людини під час Accounts Center ставить BAN і припиняє оформлення", async t => {
+    const { result, events } = await fixture(t, {
+        prepareNameContext: async () => { throw Object.assign(new Error("Confirm human"), {
+            sessionStatus: "human_confirmation_required", code: "FACEBOOK_HUMAN_CONFIRMATION_REQUIRED",
+        }); },
+        markBanned: async () => ({ added: true }),
+    });
+    assert.equal(result.outcome, "failed");
+    assert.equal(result.sessionStatus, "human_confirmation_required");
+    assert.equal(result.banTag.added, true);
+    assert.deepEqual(events, ["session"]);
+});
+
+test("підтвердження людини після зміни імені не завершується частковим успіхом", async t => {
+    const { result, events } = await fixture(t, {
+        deletePosts: async () => ({ success: false, sessionStatus: "human_confirmation_required", message: "Confirm human" }),
+        markBanned: async () => { throw new Error("BAN failed"); },
+    });
+    assert.equal(result.outcome, "failed");
+    assert.equal(result.banTag.failed, true);
+    assert.ok(!events.includes("post"));
+    assert.ok(!events.includes("rename"));
+});
 async function fixture(t, overrides = {}, flags = {}) {
     const directory = await mkdtemp(path.join(os.tmpdir(), "adsbot-comment-http-"));
     t.after(async () => {

@@ -1,6 +1,7 @@
 import path from "node:path";
 import parseWebSession from "../../facebook/session/parseWebSession.js";
 import { extractFacebookAccessTokenFromHtml } from "../../facebook/api/browserCredentials.js";
+import { isHumanConfirmationUrl } from "../../facebook/session/sessionStatus.js";
 
 const hidden = "[REDACTED]";
 const fileDataKey = /^(?:(?:image|photo|file)[_-]?(?:base64|bytes|data)|base64)$/i;
@@ -115,6 +116,8 @@ export function responseSnapshot(response, config, secrets = new Set()) {
             adsManagerCredentialFound: Boolean(extractFacebookAccessTokenFromHtml(text, { prefix: "EAAB" })),
             loginFormFound: /id=["']login_form["']|\/login(?:[/?"']|$)/i.test(text),
             checkpointFound: /\/(?:checkpoint|two_step_verification|challenge)(?:[/?"']|$)/i.test(text),
+            humanConfirmationFound: isHumanConfirmationUrl(response.headers?.location, config.url)
+                || isHumanConfirmationUrl(config.url),
             consentFound: /\/consent(?:[/?"']|$)|consent_flow/i.test(text),
             identityConfirmationFound: /\/confirmidentity(?:[/?"']|$)|identity_verification/i.test(text),
             extraction: { parser: "parseWebSession", status: missing.length ? "missing_fields" : "completed", missingRequiredFields: missing } };

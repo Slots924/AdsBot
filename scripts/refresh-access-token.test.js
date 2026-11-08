@@ -4,6 +4,7 @@ import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import refreshFacebookAccessToken from "../services/accounts/refreshFacebookAccessToken.js";
+import { BAN_TAG_ID } from "../config.js";
 
 const token = `EAAB${"x".repeat(40)}`;
 const html = 'DTSGInitialData",[],{"token":"test-dtsg"} <input name="jazoest" value="2123"> {"sessionId":"test-session","actorID":"123","client_revision":456}';
@@ -57,5 +58,20 @@ test("timeout і скасування не зберігають токен", () 
     const controller = new AbortController();
     controller.abort();
     await assert.rejects(refreshFacebookAccessToken({ ...options, signal: controller.signal }));
+    assert.equal(updates.length, 0);
+}));
+
+test("checkpoint зупиняє оновлення токена та обробляє прив'язаний профіль AdsPower", () => fixture(async ({ options, updates }) => {
+    let checkedProfile = false;
+    options.profileNo = "1";
+    options.adsPower = { getProfileByNo: async no => {
+        assert.equal(no, "1");
+        checkedProfile = true;
+        return { profile_id: "p1", profile_no: no, profile_tags: [{ id: BAN_TAG_ID }] };
+    } };
+    options.httpClient.request = async () => ({ status: 302, headers: { location: "/checkpoint/1501092823525282/?next=%2F" }, data: "" });
+    await assert.rejects(refreshFacebookAccessToken(options), error => error.sessionStatus === "human_confirmation_required"
+        && error.code === "FACEBOOK_HUMAN_CONFIRMATION_REQUIRED" && error.banTag.alreadyBanned);
+    assert.equal(checkedProfile, true);
     assert.equal(updates.length, 0);
 }));

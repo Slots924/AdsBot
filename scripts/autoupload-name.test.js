@@ -21,6 +21,7 @@ function fixture({ available = true, valid = true, update = { error: null }, fai
             return { status: 200, headers: {}, data: JSON.stringify({ data, ...(partialError && operation === "useFXIMUpdateNameMutation" ? { errors: [{ code: 123, message: "Partial error test-dtsg" }] } : {}) }) };
         },
     };
+    client.requestSessionPage = config => client.request(config);
     return { calls, fbData: { userId: "123", session: {}, client } };
 }
 const name = { firstName: " Test ", lastName: "User" };

@@ -7,6 +7,7 @@ function safeError(error) {
     return sanitize({
         message: String(error?.message || "Невідома помилка"),
         code: error?.code ?? null,
+        ...(error?.sessionStatus ? { sessionStatus: error.sessionStatus, banTag: error.banTag, banWarning: error.banWarning } : {}),
         stage: error?.stage ?? null,
         graphCode: error?.graphCode ?? null,
         graphSubcode: error?.graphSubcode ?? null,
@@ -316,6 +317,8 @@ export default class BackgroundTaskManager {
                 : await invokeRunner();
             const status = runtime.controller.signal.aborted
                 ? "interrupted"
+                : output?.taskStatus === "failed"
+                    ? "failed"
                 : output?.taskStatus === "completed_with_warnings"
                     ? "completed_with_warnings"
                     : "completed";
@@ -327,7 +330,7 @@ export default class BackgroundTaskManager {
                 progress: {
                     ...current.progress,
                     stage: status,
-                    message: status === "interrupted" ? "Задачу перервано" : "Задачу завершено",
+                    message: status === "interrupted" ? "Задачу перервано" : status === "failed" ? "Задача завершилася невдачею" : "Задачу завершено",
                 },
             });
             if (output?.httpHistory) {

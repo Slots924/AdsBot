@@ -17,6 +17,8 @@ import createComment from "../../facebook/autoupload/actions/comments/createComm
 import commentBatchInput from "./commentBatchInput.js";
 import { incrementActionCounter } from "../profile/actionCounters.js";
 import { randomUUID } from "node:crypto";
+import handleSessionFailure from "../../workflows/autoupload/handleSessionFailure.js";
+import { HUMAN_CONFIRMATION_REQUIRED, isSessionUnavailable } from "../../facebook/session/sessionStatus.js";
 
 export default class AutouploadService {
     #clients = new Map();
@@ -65,10 +67,11 @@ export default class AutouploadService {
                         onStage: message => progress({ stage: "session", completed: results.length, total: profiles.length, message: `№${profile.profileNo}: ${message}` }),
                     });
                     client = prepared.client;
-                    if (!client) action = { success: false, outcome: "NOT_SENT", code: "FACEBOOK_SESSION_PREPARATION_FAILED",
+                    if (!client) action = { ...prepared.result, success: false, outcome: "NOT_SENT", code: prepared.result.code ?? "FACEBOOK_SESSION_PREPARATION_FAILED",
                         message: prepared.result.message, sessionStatus: prepared.result.status, mutationAttempted: false, outcomeUnknown: false };
                     else action = await this.createCommentFn(client.getFbData(id), { feedbackId: input.feedbackId, text }, { signal });
                 } catch (error) { action = actionFailure(error); }
+                await this.#handleRestriction(id, action);
                 if (action.success && !action.commentId) action = { ...action, success: false, outcome: "OUTCOME_UNKNOWN", outcomeUnknown: true,
                     message: "ID коментаря не отримано; коментар пропущено" };
                 const entry = { ...action, attemptId, operation: "comment-create", commentIndex: cursor + 1, text,
@@ -89,7 +92,7 @@ export default class AutouploadService {
                         profileId: id, key: "AU_COMMENT", eventId: action.commentId }); }
                     catch { patch.counterWarning = "Коментар опубліковано. Не вдалося синхронізувати AU_COMMENT у назві профілю"; }
                 }
-                if (client && this.sessionStore && !["login_required", "checkpoint"].includes(action.sessionStatus)) {
+                if (client && this.sessionStore && !isSessionUnavailable(action.sessionStatus)) {
                     try { await this.sessionStore.save(id, client.exportSession()); }
                     catch { patch.storageWarning = "Не вдалося зберегти оновлену сесію"; }
                 }
@@ -115,6 +118,13 @@ export default class AutouploadService {
                 ? "completed_with_warnings" : "completed" };
     }
     async #runReported(name, execute) {
+        const run = execute;
+        execute = async () => {
+            const value = await run();
+            const entries = value?.result?.profiles ?? value?.result?.accounts ?? [value];
+            return entries.some(item => (item?.sessionStatus ?? item?.status) === HUMAN_CONFIRMATION_REQUIRED)
+                ? { ...value, taskStatus: "failed" } : value;
+        };
         if (currentHttpHistory() || !this.reportManager) return withHttpWorkflow(name, execute);
         const startedAt = new Date().toISOString();
         const titles = { publishComments: "Публікація коментарів", listFanPages: "Список фанок", shareFanPage: "Надання доступу до фанки", check: "Перевірка сесії", refreshAccessToken: "Оновлення access token" };
@@ -123,7 +133,7 @@ export default class AutouploadService {
         const save = async (value, error) => {
             try {
                 const report = await this.reportManager.createFromTask({ ...task, finishedAt: new Date().toISOString(),
-                    status: error ? "failed" : value?.success === false || value?.httpHistory?.storageWarning ? "completed_with_warnings" : value?.taskStatus ?? "completed",
+                    status: error || value?.taskStatus === "failed" ? "failed" : value?.success === false || value?.httpHistory?.storageWarning ? "completed_with_warnings" : value?.taskStatus ?? "completed",
                     result: value?.result ?? value, error: error ? { code: error.code ?? null, message: "Дія автозаливу завершилася помилкою" } : null,
                     metadata: { httpHistory: value?.httpHistory ?? error?.httpHistory } }, {}, { reportId: liveReportId });
                 return report.id;
@@ -144,12 +154,28 @@ export default class AutouploadService {
         }
     }
     #statusHandler(profileId) {
-        return async ({ status, message }) => {
-            await this.store.setAccountStatus(profileId, status, message);
+        return async (result) => {
+            const { status, message } = result;
+            const handled = await handleSessionFailure({ result, adsPower: this.adsPower, profileId });
             this.#clients.delete(profileId);
-            await this.sessionStore?.remove(profileId);
-            await this.#publish();
+            this.#pageLists.delete(profileId);
+            // Збій локального сховища не підміняє підтверджену причину зупинки.
+            const persist = async operation => {
+                try { await operation(); }
+                catch (error) {
+                    if (!handled.stopProfile) throw error;
+                    handled.storageWarning = "Не вдалося повністю зберегти стан заблокованої сесії";
+                }
+            };
+            await persist(() => this.store.setAccountStatus(profileId, status, message));
+            await persist(() => this.sessionStore?.remove(profileId));
+            await persist(() => this.#publish());
+            return handled.stopProfile ? handled : undefined;
         };
+    }
+    async #handleRestriction(profileId, result) {
+        if ((result?.sessionStatus ?? result?.status) !== HUMAN_CONFIRMATION_REQUIRED) return;
+        Object.assign(result, await this.#statusHandler(profileId)({ ...result, status: HUMAN_CONFIRMATION_REQUIRED }));
     }
     async #prepare(profileId, context, refresh) {
         const onSessionStatus = this.#statusHandler(profileId);
@@ -164,12 +190,18 @@ export default class AutouploadService {
                 client.validateFbData(client.getFbData(profileId), { allowPageActor: true });
                 return { client, result: { status: "active", message: "Використано збережену сесію Facebook", fields: [], steps: ["Сесію прочитано з локального сховища"] } };
             } catch {
+                const previous = (await this.store.snapshot()).profiles.find(item => item.profileId === profileId);
+                if (previous?.status === HUMAN_CONFIRMATION_REQUIRED) return { client: null, result: {
+                    status: previous.status, sessionStatus: previous.status, code: "FACEBOOK_HUMAN_CONFIRMATION_REQUIRED",
+                    actionRequired: "confirm_human", message: previous.message, fields: [], steps: [previous.message],
+                } };
                 return { client: null, result: { status: "error", message: "Потрібна нова перевірка профілю: збережена сесія відсутня, застаріла або недоступна", fields: [], steps: ["Потрібна нова перевірка профілю"] } };
             }
         }
         this.#clients.delete(profileId);
         await this.sessionStore?.remove(profileId);
         const prepared = await this.checkSession({ profileId, adsPower: this.adsPower, onSessionStatus, ...context });
+        await this.#handleRestriction(profileId, prepared.result);
         if (prepared.client && this.sessionStore) await this.sessionStore.save(profileId, prepared.client.exportSession());
         return prepared;
     }
@@ -304,12 +336,18 @@ export default class AutouploadService {
             client = cached.client;
             if (!client) {
                 const prepared = await this.checkPageSession({ profileId: id, adsPower: this.adsPower, onSessionStatus: this.#statusHandler(id) });
-                if (!prepared.client) return { success: false, code: "FACEBOOK_SESSION_REQUIRED", message: prepared.result.message };
+                await this.#handleRestriction(id, prepared.result);
+                if (!prepared.client) return { ...prepared.result, success: false, code: prepared.result.code ?? "FACEBOOK_SESSION_REQUIRED", message: prepared.result.message };
                 client = prepared.client;
                 await this.store.record(id, prepared.result);
             }
             this.#clients.set(id, client);
-            return await operation(profile, client);
+            const result = await operation(profile, client);
+            await this.#handleRestriction(id, result);
+            return result;
+        } catch (error) {
+            await this.#handleRestriction(id, error);
+            throw error;
         } finally {
             if (client && this.sessionStore) {
                 try {
@@ -366,9 +404,10 @@ export default class AutouploadService {
             const action = { ...result, message, pageName: page.name, operation: "fan-page-share", fields: [], steps: [message],
                 ...(result.outcomeUnknown ? { actionRequired: "check_page_invites" } : {}),
             };
+            await this.#handleRestriction(profile.profileId, action);
             await this.store.recordAction(profile.profileId, action);
-            if (["login_required", "checkpoint"].includes(result.sessionStatus)) {
-                await this.#statusHandler(profile.profileId)({ status: result.sessionStatus, message });
+            if (isSessionUnavailable(result.sessionStatus)) {
+                await this.#statusHandler(profile.profileId)({ ...action, status: result.sessionStatus, message });
             }
             return action;
         });
@@ -407,17 +446,19 @@ export default class AutouploadService {
                 let action;
                 try {
                     const prepared = await this.#prepare(id, { signal, cachedOnly: true }, false);
-                    if (!prepared.client) action = { success: false, outcome: "NOT_SENT", message: prepared.result.message, code: "FACEBOOK_SESSION_PREPARATION_FAILED", retryable: false, outcomeUnknown: false };
+                    if (!prepared.client) action = { ...prepared.result, sessionStatus: prepared.result.sessionStatus ?? prepared.result.status, success: false, outcome: "NOT_SENT", message: prepared.result.message, code: prepared.result.code ?? "FACEBOOK_SESSION_PREPARATION_FAILED", retryable: false, outcomeUnknown: false };
                     else {
                         this.#clients.set(id, prepared.client);
                         action = await execute(prepared.client.getFbData(id), { signal });
-                        if (["login_required", "checkpoint"].includes(action.sessionStatus)) await this.#statusHandler(id)({ status: action.sessionStatus, message: action.message });
+                        if (isSessionUnavailable(action.sessionStatus)) Object.assign(action,
+                            await this.#statusHandler(id)({ ...action, status: action.sessionStatus, message: action.message }));
                         else if (this.sessionStore) {
                             try { await this.sessionStore.save(id, prepared.client.exportSession()); }
                             catch { action = { ...action, storageWarning: "Не вдалося зберегти оновлену сесію" }; }
                         }
                     }
                 } catch (error) { action = actionFailure(error); }
+                await this.#handleRestriction(id, action);
                 const entry = { ...action, operation, fields: [], steps: [action.message] };
                 await this.store.recordAction(id, entry);
                 results.push({ profileId: id, profileNo: profile.profileNo, ...entry });
@@ -455,6 +496,7 @@ export default class AutouploadService {
         const targetAccounts = new Set(target.assets.adAccounts.map(account => String(account.accountId)));
         let targetClient;
         const record = async (profile, operation, action, extra = {}) => {
+            await this.#handleRestriction(profile.profileId, action);
             const entry = { ...action, ...extra, operation, status: action.success ? "success" : "error", fields: [], steps: [action.message] };
             await this.store.recordAction(profile.profileId, entry);
             results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...entry });
@@ -489,10 +531,12 @@ export default class AutouploadService {
                         signal, beforeSend: async () => { await this.store.beginFriendRequest(profile.profileId, targetUserId); attempted = true; },
                     });
                     await record(profile, "friend-request", sent, { targetUserId, attempted });
+                    if (sent.sessionStatus === HUMAN_CONFIRMATION_REQUIRED) continue;
                     // Навіть за помилки надсилання дружба могла вже існувати: приймаємо заявку та пробуємо передачу.
                     signal?.throwIfAborted();
                     const accepted = await this.acceptFriendRequestFn(targetData, donorUserId, { signal, attemptOnCheckFailure: true });
                     await record(target, "friend-request-accept", accepted, { targetUserId: donorUserId });
+                    if (accepted.sessionStatus === HUMAN_CONFIRMATION_REQUIRED) break;
                     for (const account of accounts) {
                         signal?.throwIfAborted();
                         const adAccountId = validateAdAccountId(account.accountId);
@@ -509,6 +553,7 @@ export default class AutouploadService {
                             targetAccounts.add(adAccountId);
                         }
                         await record(profile, "ad-account-share", shared, { adAccountId, targetUserId, attempted: attemptedShare });
+                        if (shared.sessionStatus === HUMAN_CONFIRMATION_REQUIRED) break;
                     }
                     if (this.sessionStore) {
                         for (const id of [profile.profileId, target.profileId]) {
@@ -573,16 +618,17 @@ export default class AutouploadService {
                         action = client ? await this.shareAdAccountFn(client.getFbData(profile.profileId), account.adAccountId, targetUserId, {
                             signal, confirmation: { confirmed: true, adAccountId: account.adAccountId, targetUserId, role: "ADMIN" },
                             beforeSend: async () => { await this.store.beginAdAccountShare(profile.profileId, account.adAccountId, targetUserId); attempted = true; },
-                        }) : { success: false, outcome: "NOT_SENT", code: "FACEBOOK_SESSION_PREPARATION_FAILED", message: sessionFailure.message, sessionStatus: sessionFailure.sessionStatus ?? sessionFailure.status, retryable: false, outcomeUnknown: false };
+                        }) : { success: false, outcome: "NOT_SENT", ...sessionFailure, code: sessionFailure.code ?? "FACEBOOK_SESSION_PREPARATION_FAILED", message: sessionFailure.message, sessionStatus: sessionFailure.sessionStatus ?? sessionFailure.status, retryable: false, outcomeUnknown: false };
                     } catch (error) {
                         action = actionFailure(error);
                         if (attempted) Object.assign(action, { outcomeUnknown: true, actionRequired: "check_ad_account_permissions", outcome: "OUTCOME_UNKNOWN" });
                     }
+                    await this.#handleRestriction(profile.profileId, action);
                     const record = { ...action, operation: "ad-account-share", adAccountId: account.adAccountId, targetUserId, attempted, fields: [], steps: [action.message] };
                     await this.store.recordAction(profile.profileId, record);
                     results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...record });
-                    if (["login_required", "checkpoint"].includes(action.sessionStatus)) {
-                        await this.#statusHandler(profile.profileId)({ status: action.sessionStatus, message: action.message });
+                    if (isSessionUnavailable(action.sessionStatus)) {
+                        await this.#statusHandler(profile.profileId)({ ...action, status: action.sessionStatus, message: action.message });
                         client = null;
                         sessionFailure = action;
                     }
@@ -610,7 +656,7 @@ export default class AutouploadService {
                     signal,
                     onStage: (message) => progress({ stage: "session", completed: results.length, total: profiles.length, message: `№${profile.profileNo}: ${message}` }),
                 }, !targetUserId);
-                if (targetUserId && !client && ["login_required", "checkpoint"].includes(profile.status)) result.status = profile.status;
+                if (targetUserId && !client && isSessionUnavailable(profile.status)) result.status = profile.status;
                 await this.store.record(profile.profileId, result);
                 if (client) this.#clients.set(profile.profileId, client);
                 if (targetUserId) {
@@ -619,15 +665,16 @@ export default class AutouploadService {
                     const action = client ? await this.sendFriendRequestFn(client.getFbData(profile.profileId), targetUserId, {
                         signal, beforeSend: async () => { await this.store.beginFriendRequest(profile.profileId, targetUserId); attempted = true; },
                     }) : {
-                        success: false, outcome: "NOT_SENT", code: "FACEBOOK_SESSION_PREPARATION_FAILED", message: result.message,
+                        ...result, success: false, outcome: "NOT_SENT", code: result.code ?? "FACEBOOK_SESSION_PREPARATION_FAILED", message: result.message,
                         stage: result.stage, sessionStatus: result.status, outcomeUnknown: false, retryable: false, targetUserId,
                     };
+                    await this.#handleRestriction(profile.profileId, action);
                     const record = { ...action, attempted, fields: [], steps: [...result.steps, action.message] };
                     await this.store.recordAction(profile.profileId, record);
-                    if (["login_required", "checkpoint"].includes(action.sessionStatus)) {
-                        await this.#statusHandler(profile.profileId)({ status: action.sessionStatus, message: action.message });
+                    if (isSessionUnavailable(action.sessionStatus)) {
+                        await this.#statusHandler(profile.profileId)({ ...action, status: action.sessionStatus, message: action.message });
                     }
-                    if (client && this.sessionStore && !["login_required", "checkpoint"].includes(action.sessionStatus)) {
+                    if (client && this.sessionStore && !isSessionUnavailable(action.sessionStatus)) {
                         await this.sessionStore.save(profile.profileId, client.exportSession());
                     }
                     results.push({ profileId: profile.profileId, profileNo: profile.profileNo, ...record });
