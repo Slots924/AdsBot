@@ -1868,6 +1868,7 @@ fieldset.creative-launch-scroll { margin: 0; border: 0; min-width: 0; }
 .keitaro-campaign-editor .primary-button:disabled { border-color: #393939; color: #777; background: #292929; }
 @media (max-width: 900px) { .keitaro-campaign-editor { width: calc(100vw - 16px); } .keitaro-campaign-layout { grid-template-columns: 1fr; } .campaign-main-column { border-right: 0; border-bottom: 1px solid #414141; } }
 
+.crm-campaign-warning { margin: 0 0 12px; color: #e7b65b; font-size: 13px; }
 .crm-campaign-editor { width: min(940px, calc(100vw - 48px)); max-height: calc(100vh - 34px); background: #222; border-color: #3b3b3b; border-radius: 8px; }
 .crm-campaign-head { display: flex; align-items: center; justify-content: space-between; min-height: 70px; padding: 14px 22px; border-bottom: 1px solid #3b3b3b; }
 .crm-campaign-head h2 { margin: 0; font-size: 18px; color: #eee; }

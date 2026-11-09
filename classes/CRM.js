@@ -145,7 +145,7 @@ export default class CRM {
     }
 
     async #request(method, endpoint, options = {}) {
-        const auth = await this.getAuthorization();
+        const auth = options.authorization ?? await this.getAuthorization();
         let response;
         try {
             response = await axios({ method, url: `${crmOrigin}${endpoint}`, data: options.data, params: options.params,
@@ -162,7 +162,30 @@ export default class CRM {
     }
 
     async getCampaigns() {
-        const html = await this.#request("get", "/campaigns/");
+        const authorization = await this.getAuthorization();
+        const results = await Promise.allSettled([
+            this.#getCampaignList(authorization, false),
+            this.#getCampaignList(authorization, true),
+        ]);
+        if (results.every(result => result.status === "rejected")) {
+            throw new Error("Не вдалося завантажити звичайні та приховані кампанії CRM");
+        }
+        const campaigns = new Map();
+        const warnings = [];
+        results.forEach((result, index) => {
+            if (result.status === "rejected") {
+                warnings.push(index === 0 ? "Не вдалося завантажити звичайні кампанії." : "Не вдалося завантажити приховані кампанії.");
+                return;
+            }
+            for (const campaign of result.value) {
+                if (!campaigns.has(campaign.id)) campaigns.set(campaign.id, campaign);
+            }
+        });
+        return { campaigns: [...campaigns.values()], warnings };
+    }
+
+    async #getCampaignList(authorization, hidden) {
+        const html = await this.#request("get", "/campaigns/", { authorization, params: { hidden: hidden ? 1 : 0 } });
         if (typeof html !== "string" || !html.includes('camp-row')) {
             if (typeof html === "string" && /Кампанії\s*0/.test(html)) return [];
             throw new Error("Не вдалося прочитати список кампаній CRM");
