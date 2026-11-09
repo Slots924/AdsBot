@@ -2,6 +2,3039 @@
   "version": 1,
   "tasks": [
     {
+      "id": "a4051e44-7522-4bb3-998a-d0ff3ed94cb7",
+      "type": "campaign",
+      "name": "CZ | Creo_1 | 25+ 09/11 14:59",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "31eb7490-a5fb-4686-a767-cd1f89e97277"
+      },
+      "metadata": {
+        "campaignJobId": "31eb7490-a5fb-4686-a767-cd1f89e97277",
+        "accountKey": "account-069",
+        "adAccountId": "act_1917580402939176",
+        "uniqueKey": "campaign-job:31eb7490-a5fb-4686-a767-cd1f89e97277",
+        "reportId": "dcdd01e3-dc91-42fb-8c92-69d37ad5cc17"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "52628726154645",
+          "creativeId": "1775608370338840",
+          "creatives": [
+            {
+              "id": "1775608370338840",
+              "pageId": "1401321019721226",
+              "postId": "1401321019721226_122121339261505571"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52628726185845",
+              "name": "CZ | Creo_1 | 25+ 09/11 14:59 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52628726202245",
+              "name": "CZ | Creo_1 | 25+ 09/11 14:59 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "31eb7490-a5fb-4686-a767-cd1f89e97277",
+        "campaignId": "52628726154645",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-09T15:00:10.575Z",
+      "startedAt": "2026-11-09T15:00:10.582Z",
+      "finishedAt": "2026-11-09T15:00:34.425Z",
+      "updatedAt": "2026-11-09T15:00:34.434Z"
+    },
+    {
+      "id": "2fbe02be-d252-4fd0-a70e-ac8c2bff8dc4",
+      "type": "publication",
+      "name": "Публікація · CZ · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeGeo": "CZ",
+        "creativeName": "1",
+        "siteUrl": "",
+        "manualCreativeText": "**Co všechno tahle nymfomanka vyváděla...**\n\nPřed měsícem jsem se zaregistroval na jednu seznamku: https://love-in-hurt.club/lu13xi. Jestli tam někdo z vás taky je, napište mi do komentářů.\n\nUpřímně jsem od toho moc nečekal. Říkal jsem si, že zase rozdám pár lajků, pokecám s několika holkama a pak se po nich slehne zem a přestanou odepisovat. Jenže tentokrát to dopadlo úplně jinak, chlapi 🫣\n\nPrvní holka, se kterou jsem si začal psát, mě úplně nečekaně pozvala k sobě domů. Představte si, hned při prvním seznámení! Byl jsem z toho tak vykulenej, že jsem najednou vůbec nevěděl, co říct. Normálně jsem to já, kdo udělá první krok a navrhne schůzku, ale tentokrát to bylo přesně naopak. Netušil jsem, jak reagovat, tak jsem začal vtipkovat a plácat jednu blbost za druhou. Nakonec z toho nic nebylo. Jak jsem ale později zjistil, tohle byl teprve začátek těch opravdu zajímavých zážitků.\n\nDorazil jsem, zaklepal na dveře, ona otevřela… a hned mě pozvala dál.\n\nDlouho jsme se nezdržovali a rovnou přešli k tomu nejzajímavějšímu.\n\nPozději jsem se přes tuhle seznamku sešel ještě s několika dalšíma holkama. Byla mezi nima jedna s pořádně velkýma prsama i silikonová kráska, ale tu nymfomanku pořád nemůžu dostat z hlavy. Několikrát jsem jí ještě psal, ale vůbec nechápu, co se stalo. Možná jsem něco pokazil, nebo o mě prostě ztratila zájem. Na seznamce ji často vidím online, ale na WhatsAppu mi neodepisuje.\n\nNakonec to ale všechno dopadlo dobře. Teď už mám pár holek, se kterýma se pravidelně vídám. Jednu věc jsem se ale naučil naprosto jistě: některý ženský to chtějí úplně stejně jako chlapi, a někdy dokonce ještě víc.",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\762829933_122325643460007675_5689537905500061894_n.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "1",
+        "manualCreativeText": true,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "f8545744-4f7d-49ec-931c-e4c5d66f4f47"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "",
+        "postId": "1401321019721226_122121339261505571",
+        "permalinkUrl": "https://www.facebook.com/122120604063505571/posts/122121339261505571",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-09T14:59:33.278Z",
+      "startedAt": "2026-11-09T14:59:33.286Z",
+      "finishedAt": "2026-11-09T14:59:40.321Z",
+      "updatedAt": "2026-11-09T14:59:40.332Z"
+    },
+    {
+      "id": "6b24bfdd-2f48-470d-96a3-d016e80d72e5",
+      "type": "autoupload-comments",
+      "name": "AU Comments · 15 · 26 профілів",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "autoupload-comments",
+          "label": "послідовна публікація коментарів"
+        },
+        {
+          "key": "adspower-profile:357",
+          "label": "профіль №357"
+        },
+        {
+          "key": "adspower-profile:1374",
+          "label": "профіль №1374"
+        },
+        {
+          "key": "adspower-profile:1694",
+          "label": "профіль №1694"
+        },
+        {
+          "key": "adspower-profile:1757",
+          "label": "профіль №1757"
+        },
+        {
+          "key": "adspower-profile:1788",
+          "label": "профіль №1788"
+        },
+        {
+          "key": "adspower-profile:1793",
+          "label": "профіль №1793"
+        },
+        {
+          "key": "adspower-profile:2393",
+          "label": "профіль №2393"
+        },
+        {
+          "key": "adspower-profile:2395",
+          "label": "профіль №2395"
+        },
+        {
+          "key": "adspower-profile:2397",
+          "label": "профіль №2397"
+        },
+        {
+          "key": "adspower-profile:2402",
+          "label": "профіль №2402"
+        },
+        {
+          "key": "adspower-profile:2524",
+          "label": "профіль №2524"
+        },
+        {
+          "key": "adspower-profile:2536",
+          "label": "профіль №2536"
+        },
+        {
+          "key": "adspower-profile:2541",
+          "label": "профіль №2541"
+        },
+        {
+          "key": "adspower-profile:2542",
+          "label": "профіль №2542"
+        },
+        {
+          "key": "adspower-profile:2544",
+          "label": "профіль №2544"
+        },
+        {
+          "key": "adspower-profile:2595",
+          "label": "профіль №2595"
+        },
+        {
+          "key": "adspower-profile:2597",
+          "label": "профіль №2597"
+        },
+        {
+          "key": "adspower-profile:2604",
+          "label": "профіль №2604"
+        },
+        {
+          "key": "adspower-profile:2605",
+          "label": "профіль №2605"
+        },
+        {
+          "key": "adspower-profile:2696",
+          "label": "профіль №2696"
+        },
+        {
+          "key": "adspower-profile:2697",
+          "label": "профіль №2697"
+        },
+        {
+          "key": "adspower-profile:2698",
+          "label": "профіль №2698"
+        },
+        {
+          "key": "adspower-profile:2713",
+          "label": "профіль №2713"
+        },
+        {
+          "key": "adspower-profile:2714",
+          "label": "профіль №2714"
+        },
+        {
+          "key": "adspower-profile:2715",
+          "label": "профіль №2715"
+        },
+        {
+          "key": "adspower-profile:2717",
+          "label": "профіль №2717"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1829rp3",
+          "k1e0e269",
+          "k1g2i0cy",
+          "k1g2i0fk",
+          "k1g2i0gr",
+          "k1g2i0h0",
+          "k1i44opa",
+          "k1i44opc",
+          "k1i44ope",
+          "k1i44opp",
+          "k1ib0170",
+          "k1ib017g",
+          "k1ib017o",
+          "k1ib017p",
+          "k1ib017r",
+          "k1iktb9b",
+          "k1iktb9d",
+          "k1iktb9m",
+          "k1iktb9n",
+          "k1iqf2lr",
+          "k1iqf2ls",
+          "k1iqf2lt",
+          "k1iqf2md",
+          "k1iqf2me",
+          "k1iqf2mf",
+          "k1iqf2mh"
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+        "groupIds": [
+          "8278298"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "fanpage-au-comments:pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+        "httpHistory": {
+          "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+          "requestCount": 67,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "59b47fd5-5f36-4760-8ef0-0526efb79971"
+      },
+      "progress": {
+        "completed": 16,
+        "total": 16,
+        "stage": "failed",
+        "message": "Задача завершилася невдачею"
+      },
+      "result": {
+        "rows": [
+          {
+            "id": "1",
+            "parent_id": null,
+            "text": "Ó, ismerem ezt az oldalt - van ott egy ismerősöm, igazi kis bestia, és a mai napig nem mászik ki onnan. Fiúk, inkább keressetek normális, rendes nőket.",
+            "gender": "female",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "439262d8-c1d5-40a5-8378-578217f1daac",
+                "profileId": "k1829rp3",
+                "profileNo": "357",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjg4NTkxMjkxODQ0Njk5NQ==",
+                "legacyCommentId": "2885912918446995",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRkM1eUg1U3FEMk1kZ2V2SkdVdmdqYWJlNURkVUFkZUZMaGdMSzQyUGVBS1dBRnpKaDllcmNuS2E4MWJSaGc0QVZYYmk2NGtFY2dkY3FuaXlINVF6eFJpQ01ScHZmTWlkU256OXBs",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2885912918446995",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRkM1eUg1U3FEMk1kZ2V2SkdVdmdqYWJlNURkVUFkZUZMaGdMSzQyUGVBS1dBRnpKaDllcmNuS2E4MWJSaGc0QVZYYmk2NGtFY2dkY3FuaXlINVF6eFJpQ01ScHZmTWlkU256OXBs",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjg4NTkxMjkxODQ0Njk5NQ==",
+                  "legacyCommentId": "2885912918446995",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRkM1eUg1U3FEMk1kZ2V2SkdVdmdqYWJlNURkVUFkZUZMaGdMSzQyUGVBS1dBRnpKaDllcmNuS2E4MWJSaGc0QVZYYmk2NGtFY2dkY3FuaXlINVF6eFJpQ01ScHZmTWlkU256OXBs",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2885912918446995",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRkM1eUg1U3FEMk1kZ2V2SkdVdmdqYWJlNURkVUFkZUZMaGdMSzQyUGVBS1dBRnpKaDllcmNuS2E4MWJSaGc0QVZYYmk2NGtFY2dkY3FuaXlINVF6eFJpQ01ScHZmTWlkU256OXBs"
+                },
+                "text": "Ó, ismerem ezt az oldalt - van ott egy ismerősöm, igazi kis bestia, és a mai napig nem mászik ki onnan. Fiúk, inkább keressetek normális, rendes nőket.",
+                "createdTime": 1794235797,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "adf48147-c4fc-4cb7-a11c-9beca49b5bc3",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 5,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1829rp3",
+            "profileNo": "357",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjg4NTkxMjkxODQ0Njk5NQ==",
+              "legacyCommentId": "2885912918446995",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRkM1eUg1U3FEMk1kZ2V2SkdVdmdqYWJlNURkVUFkZUZMaGdMSzQyUGVBS1dBRnpKaDllcmNuS2E4MWJSaGc0QVZYYmk2NGtFY2dkY3FuaXlINVF6eFJpQ01ScHZmTWlkU256OXBs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2885912918446995",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRkM1eUg1U3FEMk1kZ2V2SkdVdmdqYWJlNURkVUFkZUZMaGdMSzQyUGVBS1dBRnpKaDllcmNuS2E4MWJSaGc0QVZYYmk2NGtFY2dkY3FuaXlINVF6eFJpQ01ScHZmTWlkU256OXBs"
+            }
+          },
+          {
+            "id": "2",
+            "parent_id": null,
+            "text": "Haha, én is ismerem azt a nimfománt, szerintem mindenki ismeri, aki ült azon az oldalon. Tényleg tűz, de úgy tűnik, a célja, hogy mindenkivel lefeküdjön a világon.",
+            "gender": "male",
+            "profile_key": "m1",
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "09c8959e-dc86-49b8-973d-ec6db2145860",
+                "profileId": "k1e0e269",
+                "profileNo": "1374",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjU4NTM4MjAyMTk3NjIzMg==",
+                "legacyCommentId": "2585382021976232",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjU4NTM4MjAyMTk3NjIzMg==",
+                  "legacyCommentId": "2585382021976232",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs"
+                },
+                "text": "Haha, én is ismerem azt a nimfománt, szerintem mindenki ismeri, aki ült azon az oldalon. Tényleg tűz, de úgy tűnik, a célja, hogy mindenkivel lefeküdjön a világon.",
+                "createdTime": 1794235822,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "7a81b518-417d-45cb-8256-b8624357245d",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 10,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1e0e269",
+            "profileNo": "1374",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjU4NTM4MjAyMTk3NjIzMg==",
+              "legacyCommentId": "2585382021976232",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs"
+            }
+          },
+          {
+            "id": "2.1",
+            "parent_id": "2",
+            "text": "Te is elmentél hozzá?",
+            "gender": "male",
+            "profile_key": "m2",
+            "is_author": false,
+            "should_write": true,
+            "type": "reply",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "ec1c0113-0211-4d3e-b588-0d3b1a9e95fa",
+                "profileId": "k1g2i0fk",
+                "profileNo": "1757",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE3Mjc1MTMwNTI1ODk4MQ==",
+                "legacyCommentId": "1172751305258981",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZTliWnlHQm1hTWZFSGlZVlU2OGtwN0Q2MnJZRk55N051b2N5aTFVTE45OUp3WXExakZQY3FFR2pBNHVnSDF5Z1dVVkdBM3RocUFLNWR0YVlQN3FnVzVOWVZCenVNcnpva0RiRDds",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232&reply_comment_id=1172751305258981",
+                "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjU4NTM4MjAyMTk3NjIzMg==",
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE3Mjc1MTMwNTI1ODk4MQ==",
+                  "legacyCommentId": "1172751305258981",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZTliWnlHQm1hTWZFSGlZVlU2OGtwN0Q2MnJZRk55N051b2N5aTFVTE45OUp3WXExakZQY3FFR2pBNHVnSDF5Z1dVVkdBM3RocUFLNWR0YVlQN3FnVzVOWVZCenVNcnpva0RiRDds",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232&reply_comment_id=1172751305258981",
+                  "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjU4NTM4MjAyMTk3NjIzMg==",
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs"
+                },
+                "text": "Te is elmentél hozzá?",
+                "createdTime": 1794235847,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "5c3f8c59-a09b-4562-b3e4-2b0b480934d3",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 15,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1g2i0fk",
+            "profileNo": "1757",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE3Mjc1MTMwNTI1ODk4MQ==",
+              "legacyCommentId": "1172751305258981",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZTliWnlHQm1hTWZFSGlZVlU2OGtwN0Q2MnJZRk55N051b2N5aTFVTE45OUp3WXExakZQY3FFR2pBNHVnSDF5Z1dVVkdBM3RocUFLNWR0YVlQN3FnVzVOWVZCenVNcnpva0RiRDds",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232&reply_comment_id=1172751305258981",
+              "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjU4NTM4MjAyMTk3NjIzMg==",
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs"
+            }
+          },
+          {
+            "id": "2.1.1",
+            "parent_id": "2.1",
+            "text": "Igen, volt. Szerintem azok közül a nők közül való, akik azt akarják, hogy mindenki róluk álmodozzon - igazi férfigyűjtő.",
+            "gender": "male",
+            "profile_key": "m1",
+            "is_author": false,
+            "should_write": true,
+            "type": "reply",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "e5edde92-eb46-497a-abbc-a6a53daa382e",
+                "profileId": "k1e0e269",
+                "profileNo": "1374",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjM1MTAyODcwODk5ODcyNQ==",
+                "legacyCommentId": "2351028708998725",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQweUtBV0R6cjRncUtuQ1MybnA4REJaUmFlSkZncHZzSHdZNmVUN0FlSFdFYjE0NFNKZVdKWVcySHgzSHUxTmgyRWpTZ1lrcWpWVnNOaW1BNW52Z21LY2ZTUHFTTWpZQkczREN3QlVs",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232&reply_comment_id=2351028708998725",
+                "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE3Mjc1MTMwNTI1ODk4MQ==",
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjM1MTAyODcwODk5ODcyNQ==",
+                  "legacyCommentId": "2351028708998725",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQweUtBV0R6cjRncUtuQ1MybnA4REJaUmFlSkZncHZzSHdZNmVUN0FlSFdFYjE0NFNKZVdKWVcySHgzSHUxTmgyRWpTZ1lrcWpWVnNOaW1BNW52Z21LY2ZTUHFTTWpZQkczREN3QlVs",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232&reply_comment_id=2351028708998725",
+                  "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE3Mjc1MTMwNTI1ODk4MQ==",
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs"
+                },
+                "text": "Igen, volt. Szerintem azok közül a nők közül való, akik azt akarják, hogy mindenki róluk álmodozzon - igazi férfigyűjtő.",
+                "createdTime": 1794235853,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "d8cf580c-1b0e-473c-9e14-25d9c4dadb47",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 16,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1e0e269",
+            "profileNo": "1374",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjM1MTAyODcwODk5ODcyNQ==",
+              "legacyCommentId": "2351028708998725",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQweUtBV0R6cjRncUtuQ1MybnA4REJaUmFlSkZncHZzSHdZNmVUN0FlSFdFYjE0NFNKZVdKWVcySHgzSHUxTmgyRWpTZ1lrcWpWVnNOaW1BNW52Z21LY2ZTUHFTTWpZQkczREN3QlVs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232&reply_comment_id=2351028708998725",
+              "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE3Mjc1MTMwNTI1ODk4MQ==",
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs"
+            }
+          },
+          {
+            "id": "3",
+            "parent_id": null,
+            "text": "Ezen az oldalon megtaláltam a szomszédomat. Az életben csendes-csendes, az ágyban viszont tűz.",
+            "gender": "male",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "07946977-a2b6-441d-ae9c-4a30307aa5d5",
+                "profileId": "k1g2i0gr",
+                "profileNo": "1788",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE0OTc4MDQ5MDgyMjE2NQ==",
+                "legacyCommentId": "1149780490822165",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwbmJteHl0RUxoYW5NaDFLcks4ZFhGcnUxQmE5alVSSEd1SnNha1haNVFIbzY4VEE0UGRjTExqNlFjb0NkcU5obnVVNVZFN1JOVk1zdUdIVjZTcFNkaTdHQWFmZ0RYaDRTTWNBbjZs",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1149780490822165",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwbmJteHl0RUxoYW5NaDFLcks4ZFhGcnUxQmE5alVSSEd1SnNha1haNVFIbzY4VEE0UGRjTExqNlFjb0NkcU5obnVVNVZFN1JOVk1zdUdIVjZTcFNkaTdHQWFmZ0RYaDRTTWNBbjZs",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE0OTc4MDQ5MDgyMjE2NQ==",
+                  "legacyCommentId": "1149780490822165",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwbmJteHl0RUxoYW5NaDFLcks4ZFhGcnUxQmE5alVSSEd1SnNha1haNVFIbzY4VEE0UGRjTExqNlFjb0NkcU5obnVVNVZFN1JOVk1zdUdIVjZTcFNkaTdHQWFmZ0RYaDRTTWNBbjZs",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1149780490822165",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwbmJteHl0RUxoYW5NaDFLcks4ZFhGcnUxQmE5alVSSEd1SnNha1haNVFIbzY4VEE0UGRjTExqNlFjb0NkcU5obnVVNVZFN1JOVk1zdUdIVjZTcFNkaTdHQWFmZ0RYaDRTTWNBbjZs"
+                },
+                "text": "Ezen az oldalon megtaláltam a szomszédomat. Az életben csendes-csendes, az ágyban viszont tűz.",
+                "createdTime": 1794235877,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "93830011-5b15-4369-b611-55ea9904ad85",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 21,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1g2i0gr",
+            "profileNo": "1788",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE0OTc4MDQ5MDgyMjE2NQ==",
+              "legacyCommentId": "1149780490822165",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwbmJteHl0RUxoYW5NaDFLcks4ZFhGcnUxQmE5alVSSEd1SnNha1haNVFIbzY4VEE0UGRjTExqNlFjb0NkcU5obnVVNVZFN1JOVk1zdUdIVjZTcFNkaTdHQWFmZ0RYaDRTTWNBbjZs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1149780490822165",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwbmJteHl0RUxoYW5NaDFLcks4ZFhGcnUxQmE5alVSSEd1SnNha1haNVFIbzY4VEE0UGRjTExqNlFjb0NkcU5obnVVNVZFN1JOVk1zdUdIVjZTcFNkaTdHQWFmZ0RYaDRTTWNBbjZs"
+            }
+          },
+          {
+            "id": "4",
+            "parent_id": null,
+            "text": "Minden lánynak van az életében egy időszak, amikor átmegy ezen az oldalon ☺️",
+            "gender": "female",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "f6720524-12d0-4144-bd1e-eae844fdbe2e",
+                "profileId": "k1g2i0cy",
+                "profileNo": "1694",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTA2MDA2ODYyMDQyNTg3MQ==",
+                "legacyCommentId": "1060068620425871",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVXJwSlJzZUFwckF2TnhjQ1d2eXZvV0hWeEFGZFRwdFVaVWNMZEpiQ2hLM0Z0WGRETXFGa1E3S0ZlOW9IcFFXalNRWmhVRHJ2bVczQVE3MmE0OENMRWlxclFhR2k5ZXN4NGZEd3Vs",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1060068620425871",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVXJwSlJzZUFwckF2TnhjQ1d2eXZvV0hWeEFGZFRwdFVaVWNMZEpiQ2hLM0Z0WGRETXFGa1E3S0ZlOW9IcFFXalNRWmhVRHJ2bVczQVE3MmE0OENMRWlxclFhR2k5ZXN4NGZEd3Vs",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTA2MDA2ODYyMDQyNTg3MQ==",
+                  "legacyCommentId": "1060068620425871",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVXJwSlJzZUFwckF2TnhjQ1d2eXZvV0hWeEFGZFRwdFVaVWNMZEpiQ2hLM0Z0WGRETXFGa1E3S0ZlOW9IcFFXalNRWmhVRHJ2bVczQVE3MmE0OENMRWlxclFhR2k5ZXN4NGZEd3Vs",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1060068620425871",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVXJwSlJzZUFwckF2TnhjQ1d2eXZvV0hWeEFGZFRwdFVaVWNMZEpiQ2hLM0Z0WGRETXFGa1E3S0ZlOW9IcFFXalNRWmhVRHJ2bVczQVE3MmE0OENMRWlxclFhR2k5ZXN4NGZEd3Vs"
+                },
+                "text": "Minden lánynak van az életében egy időszak, amikor átmegy ezen az oldalon ☺️",
+                "createdTime": 1794235902,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "09ad8405-5f26-4ef1-819f-e977d5c68bf7",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 26,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1g2i0cy",
+            "profileNo": "1694",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTA2MDA2ODYyMDQyNTg3MQ==",
+              "legacyCommentId": "1060068620425871",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVXJwSlJzZUFwckF2TnhjQ1d2eXZvV0hWeEFGZFRwdFVaVWNMZEpiQ2hLM0Z0WGRETXFGa1E3S0ZlOW9IcFFXalNRWmhVRHJ2bVczQVE3MmE0OENMRWlxclFhR2k5ZXN4NGZEd3Vs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1060068620425871",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVXJwSlJzZUFwckF2TnhjQ1d2eXZvV0hWeEFGZFRwdFVaVWNMZEpiQ2hLM0Z0WGRETXFGa1E3S0ZlOW9IcFFXalNRWmhVRHJ2bVczQVE3MmE0OENMRWlxclFhR2k5ZXN4NGZEd3Vs"
+            }
+          },
+          {
+            "id": "5",
+            "parent_id": null,
+            "text": "Nekem ezzel az oldallal elég keserű tapasztalatom van. Regisztráltam, megnéztem, ki akar találkozni 2-3 km-es körzetben... és megtaláltam a feleségemet. Így tudtam meg, hogy évek óta megcsal.",
+            "gender": "male",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "6debd8a0-56d9-4df2-b525-5f8475a4dfbc",
+                "profileId": "k1g2i0h0",
+                "profileNo": "1793",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ2MTA4MzkzMjU3MDkxOQ==",
+                "legacyCommentId": "1461083932570919",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRHU2a24xYnhtSEZoVkVxOXJzR3dGN1JiQzliUWk1NWVobzZ3Z2lmWmJSQnpzZFFqTGFESk5adWJrZFlKdUI2alhtdDVHTnBvdWJBQnpDTHdjTlo3dk5iczhxVWQ2dmVQTEphaUxs",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1461083932570919",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRHU2a24xYnhtSEZoVkVxOXJzR3dGN1JiQzliUWk1NWVobzZ3Z2lmWmJSQnpzZFFqTGFESk5adWJrZFlKdUI2alhtdDVHTnBvdWJBQnpDTHdjTlo3dk5iczhxVWQ2dmVQTEphaUxs",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ2MTA4MzkzMjU3MDkxOQ==",
+                  "legacyCommentId": "1461083932570919",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRHU2a24xYnhtSEZoVkVxOXJzR3dGN1JiQzliUWk1NWVobzZ3Z2lmWmJSQnpzZFFqTGFESk5adWJrZFlKdUI2alhtdDVHTnBvdWJBQnpDTHdjTlo3dk5iczhxVWQ2dmVQTEphaUxs",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1461083932570919",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRHU2a24xYnhtSEZoVkVxOXJzR3dGN1JiQzliUWk1NWVobzZ3Z2lmWmJSQnpzZFFqTGFESk5adWJrZFlKdUI2alhtdDVHTnBvdWJBQnpDTHdjTlo3dk5iczhxVWQ2dmVQTEphaUxs"
+                },
+                "text": "Nekem ezzel az oldallal elég keserű tapasztalatom van. Regisztráltam, megnéztem, ki akar találkozni 2-3 km-es körzetben... és megtaláltam a feleségemet. Így tudtam meg, hogy évek óta megcsal.",
+                "createdTime": 1794235928,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "97e7e4e6-2bca-4088-8634-23c2828d0676",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 31,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1g2i0h0",
+            "profileNo": "1793",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ2MTA4MzkzMjU3MDkxOQ==",
+              "legacyCommentId": "1461083932570919",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRHU2a24xYnhtSEZoVkVxOXJzR3dGN1JiQzliUWk1NWVobzZ3Z2lmWmJSQnpzZFFqTGFESk5adWJrZFlKdUI2alhtdDVHTnBvdWJBQnpDTHdjTlo3dk5iczhxVWQ2dmVQTEphaUxs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1461083932570919",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRHU2a24xYnhtSEZoVkVxOXJzR3dGN1JiQzliUWk1NWVobzZ3Z2lmWmJSQnpzZFFqTGFESk5adWJrZFlKdUI2alhtdDVHTnBvdWJBQnpDTHdjTlo3dk5iczhxVWQ2dmVQTEphaUxs"
+            }
+          },
+          {
+            "id": "5.1",
+            "parent_id": "5",
+            "text": "A feleséged megcsalt? Jó, de te magad miért mentél fel erre az oldalra - nyilván nem beszélgetni. Megérdemlitek egymást.",
+            "gender": "female",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "reply",
+            "status": "failed",
+            "attempts": [
+              {
+                "attemptId": "4123c77f-9aee-4469-8297-8ecf0e2b6133",
+                "profileId": "k1iqf2lt",
+                "profileNo": "2698",
+                "status": "human_confirmation_required",
+                "sessionStatus": "human_confirmation_required",
+                "code": "FACEBOOK_HUMAN_CONFIRMATION_REQUIRED",
+                "actionRequired": "confirm_human",
+                "stopProfile": true,
+                "banTag": {
+                  "added": true,
+                  "alreadyBanned": false,
+                  "tagId": "1035363"
+                },
+                "errorStatus": "human_confirmation_required",
+                "stage": "facebook",
+                "message": "Facebook вимагає підтвердити, що ви людина",
+                "diagnostic": {
+                  "status": "human_confirmation_required",
+                  "code": "FACEBOOK_HUMAN_CONFIRMATION_REQUIRED",
+                  "networkCode": null,
+                  "httpStatus": null,
+                  "graphCode": null,
+                  "graphSubcode": null,
+                  "message": "Facebook вимагає підтвердити, що ви людина",
+                  "stage": "facebook",
+                  "endpoint": null,
+                  "method": "GET",
+                  "durationMs": null,
+                  "traceId": null
+                },
+                "fields": [],
+                "steps": [
+                  "Дані профілю отримано",
+                  "Проксі профілю налаштовано",
+                  "Cookies отримано",
+                  "User-Agent отримано",
+                  "Facebook вимагає підтвердити, що ви людина"
+                ],
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 32,
+                  "format": "jsonl",
+                  "version": 1
+                },
+                "success": false,
+                "mutationAttempted": false,
+                "outcomeUnknown": false,
+                "outcome": "NOT_SENT"
+              }
+            ],
+            "profileId": "k1iqf2lt",
+            "profileNo": "2698",
+            "message": "Facebook вимагає підтвердити, що ви людина"
+          },
+          {
+            "id": "6",
+            "parent_id": null,
+            "text": "Köszi, ez az oldal egyszerűen kincs. Itt mindenki tudja, miért jött: írt, megbeszélt egy találkozót, csinálták amit akartak, és elégedetten hazamentek. Nem úgy, mint a többi oldalon: napokig chatelés, kávé, virágok, és a végén - \"nem illünk egymáshoz\". Tesó, te a király vagy.",
+            "gender": "male",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "face5214-180f-4d18-9a0b-64afd13059cb",
+                "profileId": "k1i44opa",
+                "profileNo": "2393",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfOTg3NTQxMjU3NzUzNzEw",
+                "legacyCommentId": "987541257753710",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwN1A2Z2ZTaWg2NXdNNm9KUlZDVnVlQUZrVXNtNm02Sk5EejViWUx5ODZzbkJXYTFCblA0SlZwb0tmS3R3djltOE1EelA0bXNDZ3ExZGV0MllpWGZhYUthYm94RkdNRk1EcGZ4Umw=",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=987541257753710",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwN1A2Z2ZTaWg2NXdNNm9KUlZDVnVlQUZrVXNtNm02Sk5EejViWUx5ODZzbkJXYTFCblA0SlZwb0tmS3R3djltOE1EelA0bXNDZ3ExZGV0MllpWGZhYUthYm94RkdNRk1EcGZ4Umw=",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfOTg3NTQxMjU3NzUzNzEw",
+                  "legacyCommentId": "987541257753710",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwN1A2Z2ZTaWg2NXdNNm9KUlZDVnVlQUZrVXNtNm02Sk5EejViWUx5ODZzbkJXYTFCblA0SlZwb0tmS3R3djltOE1EelA0bXNDZ3ExZGV0MllpWGZhYUthYm94RkdNRk1EcGZ4Umw=",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=987541257753710",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwN1A2Z2ZTaWg2NXdNNm9KUlZDVnVlQUZrVXNtNm02Sk5EejViWUx5ODZzbkJXYTFCblA0SlZwb0tmS3R3djltOE1EelA0bXNDZ3ExZGV0MllpWGZhYUthYm94RkdNRk1EcGZ4Umw="
+                },
+                "text": "Köszi, ez az oldal egyszerűen kincs. Itt mindenki tudja, miért jött: írt, megbeszélt egy találkozót, csinálták amit akartak, és elégedetten hazamentek. Nem úgy, mint a többi oldalon: napokig chatelés, kávé, virágok, és a végén - \"nem illünk egymáshoz\". Tesó, te a király vagy.",
+                "createdTime": 1794235956,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "844bf1d2-65fe-49e7-b6d5-ac5928a4c34d",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 37,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1i44opa",
+            "profileNo": "2393",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfOTg3NTQxMjU3NzUzNzEw",
+              "legacyCommentId": "987541257753710",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwN1A2Z2ZTaWg2NXdNNm9KUlZDVnVlQUZrVXNtNm02Sk5EejViWUx5ODZzbkJXYTFCblA0SlZwb0tmS3R3djltOE1EelA0bXNDZ3ExZGV0MllpWGZhYUthYm94RkdNRk1EcGZ4Umw=",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=987541257753710",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwN1A2Z2ZTaWg2NXdNNm9KUlZDVnVlQUZrVXNtNm02Sk5EejViWUx5ODZzbkJXYTFCblA0SlZwb0tmS3R3djltOE1EelA0bXNDZ3ExZGV0MllpWGZhYUthYm94RkdNRk1EcGZ4Umw="
+            }
+          },
+          {
+            "id": "7",
+            "parent_id": null,
+            "text": "A lányok ott tényleg nagyon menők. Találtam egyet fétisekkel, szerintem nem volt semmi, amit ne próbált volna - nyitott volt abszolút mindenre.",
+            "gender": "male",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "9890e911-bb1a-443d-a4bd-d69a452d2088",
+                "profileId": "k1i44opc",
+                "profileNo": "2395",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjkzNTQ3MzEzNjgxNTQ2Nw==",
+                "legacyCommentId": "2935473136815467",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRUZ0OW9uSjFMMmp0QTdjdHZGTE5zVFZjWHVVdm9HUVpKZGJTd004b0RSa3JQSDkyc2tYY3lHbTFxTE5jMjZMUDRLMkdGcmZuMWlGeVNFTmdlcEhDVWNWMk1KR1FQZVFKWTlrajRs",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2935473136815467",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRUZ0OW9uSjFMMmp0QTdjdHZGTE5zVFZjWHVVdm9HUVpKZGJTd004b0RSa3JQSDkyc2tYY3lHbTFxTE5jMjZMUDRLMkdGcmZuMWlGeVNFTmdlcEhDVWNWMk1KR1FQZVFKWTlrajRs",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjkzNTQ3MzEzNjgxNTQ2Nw==",
+                  "legacyCommentId": "2935473136815467",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRUZ0OW9uSjFMMmp0QTdjdHZGTE5zVFZjWHVVdm9HUVpKZGJTd004b0RSa3JQSDkyc2tYY3lHbTFxTE5jMjZMUDRLMkdGcmZuMWlGeVNFTmdlcEhDVWNWMk1KR1FQZVFKWTlrajRs",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2935473136815467",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRUZ0OW9uSjFMMmp0QTdjdHZGTE5zVFZjWHVVdm9HUVpKZGJTd004b0RSa3JQSDkyc2tYY3lHbTFxTE5jMjZMUDRLMkdGcmZuMWlGeVNFTmdlcEhDVWNWMk1KR1FQZVFKWTlrajRs"
+                },
+                "text": "A lányok ott tényleg nagyon menők. Találtam egyet fétisekkel, szerintem nem volt semmi, amit ne próbált volna - nyitott volt abszolút mindenre.",
+                "createdTime": 1794235978,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "46f0bd50-bf85-4356-a9cb-6a5bcd9b17e2",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 42,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1i44opc",
+            "profileNo": "2395",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjkzNTQ3MzEzNjgxNTQ2Nw==",
+              "legacyCommentId": "2935473136815467",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRUZ0OW9uSjFMMmp0QTdjdHZGTE5zVFZjWHVVdm9HUVpKZGJTd004b0RSa3JQSDkyc2tYY3lHbTFxTE5jMjZMUDRLMkdGcmZuMWlGeVNFTmdlcEhDVWNWMk1KR1FQZVFKWTlrajRs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2935473136815467",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRUZ0OW9uSjFMMmp0QTdjdHZGTE5zVFZjWHVVdm9HUVpKZGJTd004b0RSa3JQSDkyc2tYY3lHbTFxTE5jMjZMUDRLMkdGcmZuMWlGeVNFTmdlcEhDVWNWMk1KR1FQZVFKWTlrajRs"
+            }
+          },
+          {
+            "id": "8",
+            "parent_id": null,
+            "text": "Elhatároztam, megnézem, mi ez az oldal. Néhány órája regisztráltam, és már megyek egy lányhoz. Köszi a tippet.",
+            "gender": "male",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "376d5a93-9fdc-49a6-923c-5b16eca1f26d",
+                "profileId": "k1i44ope",
+                "profileNo": "2397",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjA0ODU3MjE5OTE4MDI1NA==",
+                "legacyCommentId": "2048572199180254",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkVSZ0JQY2EzOWJvRWVYZ1dqaDI0c2hjWHM3WnZCb3BhZEd1WmpReXZUZTlwS2ZaVDFNUlZtWXRaNXJDOXZKWjE0UDRGZjF3RW5HeExiQlFqUDFUWHlmSEZSQ3BjbktuUjVwQTFxbA==",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2048572199180254",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkVSZ0JQY2EzOWJvRWVYZ1dqaDI0c2hjWHM3WnZCb3BhZEd1WmpReXZUZTlwS2ZaVDFNUlZtWXRaNXJDOXZKWjE0UDRGZjF3RW5HeExiQlFqUDFUWHlmSEZSQ3BjbktuUjVwQTFxbA==",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjA0ODU3MjE5OTE4MDI1NA==",
+                  "legacyCommentId": "2048572199180254",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkVSZ0JQY2EzOWJvRWVYZ1dqaDI0c2hjWHM3WnZCb3BhZEd1WmpReXZUZTlwS2ZaVDFNUlZtWXRaNXJDOXZKWjE0UDRGZjF3RW5HeExiQlFqUDFUWHlmSEZSQ3BjbktuUjVwQTFxbA==",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2048572199180254",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkVSZ0JQY2EzOWJvRWVYZ1dqaDI0c2hjWHM3WnZCb3BhZEd1WmpReXZUZTlwS2ZaVDFNUlZtWXRaNXJDOXZKWjE0UDRGZjF3RW5HeExiQlFqUDFUWHlmSEZSQ3BjbktuUjVwQTFxbA=="
+                },
+                "text": "Elhatároztam, megnézem, mi ez az oldal. Néhány órája regisztráltam, és már megyek egy lányhoz. Köszi a tippet.",
+                "createdTime": 1794235998,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "7f24d643-1931-449d-9b24-40c61f503c58",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 47,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1i44ope",
+            "profileNo": "2397",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjA0ODU3MjE5OTE4MDI1NA==",
+              "legacyCommentId": "2048572199180254",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkVSZ0JQY2EzOWJvRWVYZ1dqaDI0c2hjWHM3WnZCb3BhZEd1WmpReXZUZTlwS2ZaVDFNUlZtWXRaNXJDOXZKWjE0UDRGZjF3RW5HeExiQlFqUDFUWHlmSEZSQ3BjbktuUjVwQTFxbA==",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2048572199180254",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkVSZ0JQY2EzOWJvRWVYZ1dqaDI0c2hjWHM3WnZCb3BhZEd1WmpReXZUZTlwS2ZaVDFNUlZtWXRaNXJDOXZKWjE0UDRGZjF3RW5HeExiQlFqUDFUWHlmSEZSQ3BjbktuUjVwQTFxbA=="
+            }
+          },
+          {
+            "id": "9",
+            "parent_id": null,
+            "text": "Na igen, ez az oldal tényleg csak szexre van, semmi másra. Egyéjszakás csajt találni ott egyáltalán nem gond.",
+            "gender": "male",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "57fdfc21-5e63-4ae7-9347-64cb980588c5",
+                "profileId": "k1i44opp",
+                "profileNo": "2402",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTY0MzgwNzkyMDQ1NDEyMQ==",
+                "legacyCommentId": "1643807920454121",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwWkVCUUFXNjVYODF1OWtKWVpTR1BKakNGc0hCRkVmdUpzOG1nWW53ZkRURDN1eDJYQWlUalNOS3hyNThyQmtHQkZTcjNEdm1MNGpNYmp6V0ZVWWljVVROTHQ4MTJFZ1drZnN4UVhs",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1643807920454121",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwWkVCUUFXNjVYODF1OWtKWVpTR1BKakNGc0hCRkVmdUpzOG1nWW53ZkRURDN1eDJYQWlUalNOS3hyNThyQmtHQkZTcjNEdm1MNGpNYmp6V0ZVWWljVVROTHQ4MTJFZ1drZnN4UVhs",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTY0MzgwNzkyMDQ1NDEyMQ==",
+                  "legacyCommentId": "1643807920454121",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwWkVCUUFXNjVYODF1OWtKWVpTR1BKakNGc0hCRkVmdUpzOG1nWW53ZkRURDN1eDJYQWlUalNOS3hyNThyQmtHQkZTcjNEdm1MNGpNYmp6V0ZVWWljVVROTHQ4MTJFZ1drZnN4UVhs",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1643807920454121",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwWkVCUUFXNjVYODF1OWtKWVpTR1BKakNGc0hCRkVmdUpzOG1nWW53ZkRURDN1eDJYQWlUalNOS3hyNThyQmtHQkZTcjNEdm1MNGpNYmp6V0ZVWWljVVROTHQ4MTJFZ1drZnN4UVhs"
+                },
+                "text": "Na igen, ez az oldal tényleg csak szexre van, semmi másra. Egyéjszakás csajt találni ott egyáltalán nem gond.",
+                "createdTime": 1794236022,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "ce0d2e49-a98b-4423-8b58-bda13a7c2e08",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 52,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1i44opp",
+            "profileNo": "2402",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTY0MzgwNzkyMDQ1NDEyMQ==",
+              "legacyCommentId": "1643807920454121",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwWkVCUUFXNjVYODF1OWtKWVpTR1BKakNGc0hCRkVmdUpzOG1nWW53ZkRURDN1eDJYQWlUalNOS3hyNThyQmtHQkZTcjNEdm1MNGpNYmp6V0ZVWWljVVROTHQ4MTJFZ1drZnN4UVhs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1643807920454121",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwWkVCUUFXNjVYODF1OWtKWVpTR1BKakNGc0hCRkVmdUpzOG1nWW53ZkRURDN1eDJYQWlUalNOS3hyNThyQmtHQkZTcjNEdm1MNGpNYmp6V0ZVWWljVVROTHQ4MTJFZ1drZnN4UVhs"
+            }
+          },
+          {
+            "id": "10",
+            "parent_id": null,
+            "text": "Dobjátok már a linket az oldalra.",
+            "gender": "male",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "f807885c-12ec-42dc-9ff3-20451b88163a",
+                "profileId": "k1ib0170",
+                "profileNo": "2524",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ3OTEyNTk2NzQxMDQzOQ==",
+                "legacyCommentId": "1479125967410439",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1479125967410439",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ3OTEyNTk2NzQxMDQzOQ==",
+                  "legacyCommentId": "1479125967410439",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1479125967410439",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps"
+                },
+                "text": "Dobjátok már a linket az oldalra.",
+                "createdTime": 1794236039,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "e7488d35-1477-4be7-9112-a036389f8ee3",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 57,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1ib0170",
+            "profileNo": "2524",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ3OTEyNTk2NzQxMDQzOQ==",
+              "legacyCommentId": "1479125967410439",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1479125967410439",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps"
+            }
+          },
+          {
+            "id": "10.1",
+            "parent_id": "10",
+            "text": "Ott van a szöveg elején, de tessék: ",
+            "gender": "male",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "reply",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "ecc3db94-9351-4b77-a06b-2b68bba426a2",
+                "profileId": "k1ib017g",
+                "profileNo": "2536",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTYwNjgyODU3NDA4MDQ3MA==",
+                "legacyCommentId": "1606828574080470",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwU3dvWHZrd0hyTDNHN1pjTWVVd2ZKZ3RabnAxS1l3SE5wWkQxbWtieTgybkgyNnRoOVY2TjNCa3F3dVloRlkzM3pDZWFEZGcxY1JQUm9HZkRnenZZdXVna0VqRW1laHh1SHBMMVds",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1479125967410439&reply_comment_id=1606828574080470",
+                "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ3OTEyNTk2NzQxMDQzOQ==",
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTYwNjgyODU3NDA4MDQ3MA==",
+                  "legacyCommentId": "1606828574080470",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwU3dvWHZrd0hyTDNHN1pjTWVVd2ZKZ3RabnAxS1l3SE5wWkQxbWtieTgybkgyNnRoOVY2TjNCa3F3dVloRlkzM3pDZWFEZGcxY1JQUm9HZkRnenZZdXVna0VqRW1laHh1SHBMMVds",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1479125967410439&reply_comment_id=1606828574080470",
+                  "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ3OTEyNTk2NzQxMDQzOQ==",
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps"
+                },
+                "text": "Ott van a szöveg elején, de tessék:",
+                "createdTime": 1794236056,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "35333327-511d-4aa7-bffc-9b3630cd3153",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 62,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1ib017g",
+            "profileNo": "2536",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTYwNjgyODU3NDA4MDQ3MA==",
+              "legacyCommentId": "1606828574080470",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwU3dvWHZrd0hyTDNHN1pjTWVVd2ZKZ3RabnAxS1l3SE5wWkQxbWtieTgybkgyNnRoOVY2TjNCa3F3dVloRlkzM3pDZWFEZGcxY1JQUm9HZkRnenZZdXVna0VqRW1laHh1SHBMMVds",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1479125967410439&reply_comment_id=1606828574080470",
+              "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ3OTEyNTk2NzQxMDQzOQ==",
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps"
+            }
+          },
+          {
+            "id": "10.2",
+            "parent_id": "10",
+            "text": "",
+            "gender": null,
+            "profile_key": null,
+            "is_author": true,
+            "should_write": false,
+            "type": "reply",
+            "status": "skipped",
+            "attempts": [],
+            "message": "Рядок автора"
+          },
+          {
+            "id": "11",
+            "parent_id": null,
+            "text": "Jaj igen... jó oldal, mennyi emlék 😊",
+            "gender": "female",
+            "profile_key": null,
+            "is_author": false,
+            "should_write": true,
+            "type": "comment",
+            "status": "success",
+            "attempts": [
+              {
+                "attemptId": "e1cca216-0341-44ee-952c-3407f0040add",
+                "profileId": "k1iqf2md",
+                "profileNo": "2713",
+                "status": "success",
+                "success": true,
+                "outcome": "CREATED",
+                "code": null,
+                "message": "Коментар створено, ID отримано",
+                "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTYwMjQ0OTU4MTU2NDMwMw==",
+                "legacyCommentId": "1602449581564303",
+                "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwd2lpZVNlWnRXZ3RiYUJYakZDRGVMaW1QU2g3QVc3MzhmNW56elhhQVJXZGpqWnZVNDd2eGMyOFQ3RjUzSm1DTkc3ellBSzF3bVRtVlRFOHRjSmNqenR3RjdiNjcyTFJMVFVnVXBs",
+                "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1602449581564303",
+                "parentCommentId": null,
+                "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwd2lpZVNlWnRXZ3RiYUJYakZDRGVMaW1QU2g3QVc3MzhmNW56elhhQVJXZGpqWnZVNDd2eGMyOFQ3RjUzSm1DTkc3ellBSzF3bVRtVlRFOHRjSmNqenR3RjdiNjcyTFJMVFVnVXBs",
+                "commentTarget": {
+                  "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTYwMjQ0OTU4MTU2NDMwMw==",
+                  "legacyCommentId": "1602449581564303",
+                  "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwd2lpZVNlWnRXZ3RiYUJYakZDRGVMaW1QU2g3QVc3MzhmNW56elhhQVJXZGpqWnZVNDd2eGMyOFQ3RjUzSm1DTkc3ellBSzF3bVRtVlRFOHRjSmNqenR3RjdiNjcyTFJMVFVnVXBs",
+                  "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+                  "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+                  "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1602449581564303",
+                  "parentCommentId": null,
+                  "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwd2lpZVNlWnRXZ3RiYUJYakZDRGVMaW1QU2g3QVc3MzhmNW56elhhQVJXZGpqWnZVNDd2eGMyOFQ3RjUzSm1DTkc3ellBSzF3bVRtVlRFOHRjSmNqenR3RjdiNjcyTFJMVFVnVXBs"
+                },
+                "text": "Jaj igen... jó oldal, mennyi emlék 😊",
+                "createdTime": 1794236074,
+                "httpStatus": 200,
+                "traceId": null,
+                "metaRequestId": null,
+                "mutationAttempted": true,
+                "outcomeUnknown": false,
+                "retryable": false,
+                "actionId": "4418ebfa-71d3-405c-b9d2-5aac24eba09e",
+                "httpHistory": {
+                  "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+                  "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+                  "requestCount": 67,
+                  "format": "jsonl",
+                  "version": 1
+                }
+              }
+            ],
+            "profileId": "k1iqf2md",
+            "profileNo": "2713",
+            "message": "Коментар створено, ID отримано",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTYwMjQ0OTU4MTU2NDMwMw==",
+              "legacyCommentId": "1602449581564303",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwd2lpZVNlWnRXZ3RiYUJYakZDRGVMaW1QU2g3QVc3MzhmNW56elhhQVJXZGpqWnZVNDd2eGMyOFQ3RjUzSm1DTkc3ellBSzF3bVRtVlRFOHRjSmNqenR3RjdiNjcyTFJMVFVnVXBs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1602449581564303",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwd2lpZVNlWnRXZ3RiYUJYakZDRGVMaW1QU2g3QVc3MzhmNW56elhhQVJXZGpqWnZVNDd2eGMyOFQ3RjUzSm1DTkc3ellBSzF3bVRtVlRFOHRjSmNqenR3RjdiNjcyTFJMVFVnVXBs"
+            }
+          }
+        ],
+        "assignments": {
+          "m1": "k1e0e269",
+          "m2": "k1g2i0fk"
+        },
+        "reactions": [
+          {
+            "profileId": "k1829rp3",
+            "profileNo": "357",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "wow",
+              "id": "478547315650144"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "6ca0e37c-6b43-4eb0-ba6d-ab65f54cb804",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 4,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1e0e269",
+            "profileNo": "1374",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "like",
+              "id": "1635855486666999"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "c5dc0765-ac2a-4fa6-817a-c72d7a91d80c",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 9,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1g2i0fk",
+            "profileNo": "1757",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "wow",
+              "id": "478547315650144"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "35778437-b448-45a7-81ed-12c36a0983d7",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 14,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1g2i0gr",
+            "profileNo": "1788",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "love",
+              "id": "1678524932434102"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "ba7f3c95-69f5-44b4-bdb7-35fcfed4dd04",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 20,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1g2i0cy",
+            "profileNo": "1694",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "like",
+              "id": "1635855486666999"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "c3bef106-26b6-482c-8450-fe41245cce23",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 25,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1g2i0h0",
+            "profileNo": "1793",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "like",
+              "id": "1635855486666999"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "c089c526-7fae-4097-b48e-efbe6af1ed52",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 30,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1i44opa",
+            "profileNo": "2393",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "like",
+              "id": "1635855486666999"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "604f69c0-7b71-44c2-92c1-0c84e56a8c01",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 36,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1i44opc",
+            "profileNo": "2395",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "love",
+              "id": "1678524932434102"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "61978fb1-a615-460c-a94d-e1cd6ccb955e",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 41,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1i44ope",
+            "profileNo": "2397",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "wow",
+              "id": "478547315650144"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "ef336670-fcce-4cf8-bd15-146e9be77935",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 46,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1i44opp",
+            "profileNo": "2402",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "wow",
+              "id": "478547315650144"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "10c35488-f5c3-476b-8e19-04210e32d898",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 51,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1ib0170",
+            "profileNo": "2524",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "love",
+              "id": "1678524932434102"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "c0b8f2e8-fca5-4407-ac61-5be007fd1356",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 56,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1ib017g",
+            "profileNo": "2536",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "like",
+              "id": "1635855486666999"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "ad959e5c-6797-4488-adfc-cebf1cc62156",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 61,
+              "format": "jsonl",
+              "version": 1
+            }
+          },
+          {
+            "profileId": "k1iqf2md",
+            "profileNo": "2713",
+            "success": true,
+            "outcome": "APPLIED",
+            "code": null,
+            "message": "Реакцію встановлено",
+            "postTarget": {
+              "postId": "122151646833062015",
+              "storyId": "pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+            },
+            "reaction": {
+              "name": "love",
+              "id": "1678524932434102"
+            },
+            "httpStatus": 200,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "e1d3fe82-c677-4891-8b05-6ad44de5b433",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 66,
+              "format": "jsonl",
+              "version": 1
+            }
+          }
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+        "profiles": [
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjg4NTkxMjkxODQ0Njk5NQ==",
+            "legacyCommentId": "2885912918446995",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRkM1eUg1U3FEMk1kZ2V2SkdVdmdqYWJlNURkVUFkZUZMaGdMSzQyUGVBS1dBRnpKaDllcmNuS2E4MWJSaGc0QVZYYmk2NGtFY2dkY3FuaXlINVF6eFJpQ01ScHZmTWlkU256OXBs",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2885912918446995",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRkM1eUg1U3FEMk1kZ2V2SkdVdmdqYWJlNURkVUFkZUZMaGdMSzQyUGVBS1dBRnpKaDllcmNuS2E4MWJSaGc0QVZYYmk2NGtFY2dkY3FuaXlINVF6eFJpQ01ScHZmTWlkU256OXBs",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjg4NTkxMjkxODQ0Njk5NQ==",
+              "legacyCommentId": "2885912918446995",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRkM1eUg1U3FEMk1kZ2V2SkdVdmdqYWJlNURkVUFkZUZMaGdMSzQyUGVBS1dBRnpKaDllcmNuS2E4MWJSaGc0QVZYYmk2NGtFY2dkY3FuaXlINVF6eFJpQ01ScHZmTWlkU256OXBs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2885912918446995",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRkM1eUg1U3FEMk1kZ2V2SkdVdmdqYWJlNURkVUFkZUZMaGdMSzQyUGVBS1dBRnpKaDllcmNuS2E4MWJSaGc0QVZYYmk2NGtFY2dkY3FuaXlINVF6eFJpQ01ScHZmTWlkU256OXBs"
+            },
+            "text": "Ó, ismerem ezt az oldalt - van ott egy ismerősöm, igazi kis bestia, és a mai napig nem mászik ki onnan. Fiúk, inkább keressetek normális, rendes nőket.",
+            "createdTime": 1794235797,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "adf48147-c4fc-4cb7-a11c-9beca49b5bc3",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 5,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "439262d8-c1d5-40a5-8378-578217f1daac",
+            "operation": "comment-create",
+            "rowId": "1",
+            "parentRowId": null,
+            "profileKey": null,
+            "profileId": "k1829rp3",
+            "profileNo": "357"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjU4NTM4MjAyMTk3NjIzMg==",
+            "legacyCommentId": "2585382021976232",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjU4NTM4MjAyMTk3NjIzMg==",
+              "legacyCommentId": "2585382021976232",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs"
+            },
+            "text": "Haha, én is ismerem azt a nimfománt, szerintem mindenki ismeri, aki ült azon az oldalon. Tényleg tűz, de úgy tűnik, a célja, hogy mindenkivel lefeküdjön a világon.",
+            "createdTime": 1794235822,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "7a81b518-417d-45cb-8256-b8624357245d",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 10,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "09c8959e-dc86-49b8-973d-ec6db2145860",
+            "operation": "comment-create",
+            "rowId": "2",
+            "parentRowId": null,
+            "profileKey": "m1",
+            "profileId": "k1e0e269",
+            "profileNo": "1374"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE3Mjc1MTMwNTI1ODk4MQ==",
+            "legacyCommentId": "1172751305258981",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZTliWnlHQm1hTWZFSGlZVlU2OGtwN0Q2MnJZRk55N051b2N5aTFVTE45OUp3WXExakZQY3FFR2pBNHVnSDF5Z1dVVkdBM3RocUFLNWR0YVlQN3FnVzVOWVZCenVNcnpva0RiRDds",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232&reply_comment_id=1172751305258981",
+            "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjU4NTM4MjAyMTk3NjIzMg==",
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE3Mjc1MTMwNTI1ODk4MQ==",
+              "legacyCommentId": "1172751305258981",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZTliWnlHQm1hTWZFSGlZVlU2OGtwN0Q2MnJZRk55N051b2N5aTFVTE45OUp3WXExakZQY3FFR2pBNHVnSDF5Z1dVVkdBM3RocUFLNWR0YVlQN3FnVzVOWVZCenVNcnpva0RiRDds",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232&reply_comment_id=1172751305258981",
+              "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjU4NTM4MjAyMTk3NjIzMg==",
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs"
+            },
+            "text": "Te is elmentél hozzá?",
+            "createdTime": 1794235847,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "5c3f8c59-a09b-4562-b3e4-2b0b480934d3",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 15,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "ec1c0113-0211-4d3e-b588-0d3b1a9e95fa",
+            "operation": "reply-create",
+            "rowId": "2.1",
+            "parentRowId": "2",
+            "profileKey": "m2",
+            "profileId": "k1g2i0fk",
+            "profileNo": "1757"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjM1MTAyODcwODk5ODcyNQ==",
+            "legacyCommentId": "2351028708998725",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQweUtBV0R6cjRncUtuQ1MybnA4REJaUmFlSkZncHZzSHdZNmVUN0FlSFdFYjE0NFNKZVdKWVcySHgzSHUxTmgyRWpTZ1lrcWpWVnNOaW1BNW52Z21LY2ZTUHFTTWpZQkczREN3QlVs",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232&reply_comment_id=2351028708998725",
+            "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE3Mjc1MTMwNTI1ODk4MQ==",
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjM1MTAyODcwODk5ODcyNQ==",
+              "legacyCommentId": "2351028708998725",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQweUtBV0R6cjRncUtuQ1MybnA4REJaUmFlSkZncHZzSHdZNmVUN0FlSFdFYjE0NFNKZVdKWVcySHgzSHUxTmgyRWpTZ1lrcWpWVnNOaW1BNW52Z21LY2ZTUHFTTWpZQkczREN3QlVs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2585382021976232&reply_comment_id=2351028708998725",
+              "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE3Mjc1MTMwNTI1ODk4MQ==",
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZnd1OW9nNFJVU0hiU3ROOVVZVHZ6NlpMMVJjaDZiQm5KNGNDdmlRYXdqM1hmSE4zWTc2dlQ5R3VobWVFYzlnbmtLR1FRUFlDcnh4VmpSa21rQ0gzZE1Bc01yNTE2VkJ2SERZTEZs"
+            },
+            "text": "Igen, volt. Szerintem azok közül a nők közül való, akik azt akarják, hogy mindenki róluk álmodozzon - igazi férfigyűjtő.",
+            "createdTime": 1794235853,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "d8cf580c-1b0e-473c-9e14-25d9c4dadb47",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 16,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "e5edde92-eb46-497a-abbc-a6a53daa382e",
+            "operation": "reply-create",
+            "rowId": "2.1.1",
+            "parentRowId": "2.1",
+            "profileKey": "m1",
+            "profileId": "k1e0e269",
+            "profileNo": "1374"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE0OTc4MDQ5MDgyMjE2NQ==",
+            "legacyCommentId": "1149780490822165",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwbmJteHl0RUxoYW5NaDFLcks4ZFhGcnUxQmE5alVSSEd1SnNha1haNVFIbzY4VEE0UGRjTExqNlFjb0NkcU5obnVVNVZFN1JOVk1zdUdIVjZTcFNkaTdHQWFmZ0RYaDRTTWNBbjZs",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1149780490822165",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwbmJteHl0RUxoYW5NaDFLcks4ZFhGcnUxQmE5alVSSEd1SnNha1haNVFIbzY4VEE0UGRjTExqNlFjb0NkcU5obnVVNVZFN1JOVk1zdUdIVjZTcFNkaTdHQWFmZ0RYaDRTTWNBbjZs",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTE0OTc4MDQ5MDgyMjE2NQ==",
+              "legacyCommentId": "1149780490822165",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwbmJteHl0RUxoYW5NaDFLcks4ZFhGcnUxQmE5alVSSEd1SnNha1haNVFIbzY4VEE0UGRjTExqNlFjb0NkcU5obnVVNVZFN1JOVk1zdUdIVjZTcFNkaTdHQWFmZ0RYaDRTTWNBbjZs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1149780490822165",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwbmJteHl0RUxoYW5NaDFLcks4ZFhGcnUxQmE5alVSSEd1SnNha1haNVFIbzY4VEE0UGRjTExqNlFjb0NkcU5obnVVNVZFN1JOVk1zdUdIVjZTcFNkaTdHQWFmZ0RYaDRTTWNBbjZs"
+            },
+            "text": "Ezen az oldalon megtaláltam a szomszédomat. Az életben csendes-csendes, az ágyban viszont tűz.",
+            "createdTime": 1794235877,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "93830011-5b15-4369-b611-55ea9904ad85",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 21,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "07946977-a2b6-441d-ae9c-4a30307aa5d5",
+            "operation": "comment-create",
+            "rowId": "3",
+            "parentRowId": null,
+            "profileKey": null,
+            "profileId": "k1g2i0gr",
+            "profileNo": "1788"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTA2MDA2ODYyMDQyNTg3MQ==",
+            "legacyCommentId": "1060068620425871",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVXJwSlJzZUFwckF2TnhjQ1d2eXZvV0hWeEFGZFRwdFVaVWNMZEpiQ2hLM0Z0WGRETXFGa1E3S0ZlOW9IcFFXalNRWmhVRHJ2bVczQVE3MmE0OENMRWlxclFhR2k5ZXN4NGZEd3Vs",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1060068620425871",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVXJwSlJzZUFwckF2TnhjQ1d2eXZvV0hWeEFGZFRwdFVaVWNMZEpiQ2hLM0Z0WGRETXFGa1E3S0ZlOW9IcFFXalNRWmhVRHJ2bVczQVE3MmE0OENMRWlxclFhR2k5ZXN4NGZEd3Vs",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTA2MDA2ODYyMDQyNTg3MQ==",
+              "legacyCommentId": "1060068620425871",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVXJwSlJzZUFwckF2TnhjQ1d2eXZvV0hWeEFGZFRwdFVaVWNMZEpiQ2hLM0Z0WGRETXFGa1E3S0ZlOW9IcFFXalNRWmhVRHJ2bVczQVE3MmE0OENMRWlxclFhR2k5ZXN4NGZEd3Vs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1060068620425871",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVXJwSlJzZUFwckF2TnhjQ1d2eXZvV0hWeEFGZFRwdFVaVWNMZEpiQ2hLM0Z0WGRETXFGa1E3S0ZlOW9IcFFXalNRWmhVRHJ2bVczQVE3MmE0OENMRWlxclFhR2k5ZXN4NGZEd3Vs"
+            },
+            "text": "Minden lánynak van az életében egy időszak, amikor átmegy ezen az oldalon ☺️",
+            "createdTime": 1794235902,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "09ad8405-5f26-4ef1-819f-e977d5c68bf7",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 26,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "f6720524-12d0-4144-bd1e-eae844fdbe2e",
+            "operation": "comment-create",
+            "rowId": "4",
+            "parentRowId": null,
+            "profileKey": null,
+            "profileId": "k1g2i0cy",
+            "profileNo": "1694"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ2MTA4MzkzMjU3MDkxOQ==",
+            "legacyCommentId": "1461083932570919",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRHU2a24xYnhtSEZoVkVxOXJzR3dGN1JiQzliUWk1NWVobzZ3Z2lmWmJSQnpzZFFqTGFESk5adWJrZFlKdUI2alhtdDVHTnBvdWJBQnpDTHdjTlo3dk5iczhxVWQ2dmVQTEphaUxs",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1461083932570919",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRHU2a24xYnhtSEZoVkVxOXJzR3dGN1JiQzliUWk1NWVobzZ3Z2lmWmJSQnpzZFFqTGFESk5adWJrZFlKdUI2alhtdDVHTnBvdWJBQnpDTHdjTlo3dk5iczhxVWQ2dmVQTEphaUxs",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ2MTA4MzkzMjU3MDkxOQ==",
+              "legacyCommentId": "1461083932570919",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRHU2a24xYnhtSEZoVkVxOXJzR3dGN1JiQzliUWk1NWVobzZ3Z2lmWmJSQnpzZFFqTGFESk5adWJrZFlKdUI2alhtdDVHTnBvdWJBQnpDTHdjTlo3dk5iczhxVWQ2dmVQTEphaUxs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1461083932570919",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRHU2a24xYnhtSEZoVkVxOXJzR3dGN1JiQzliUWk1NWVobzZ3Z2lmWmJSQnpzZFFqTGFESk5adWJrZFlKdUI2alhtdDVHTnBvdWJBQnpDTHdjTlo3dk5iczhxVWQ2dmVQTEphaUxs"
+            },
+            "text": "Nekem ezzel az oldallal elég keserű tapasztalatom van. Regisztráltam, megnéztem, ki akar találkozni 2-3 km-es körzetben... és megtaláltam a feleségemet. Így tudtam meg, hogy évek óta megcsal.",
+            "createdTime": 1794235928,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "97e7e4e6-2bca-4088-8634-23c2828d0676",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 31,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "6debd8a0-56d9-4df2-b525-5f8475a4dfbc",
+            "operation": "comment-create",
+            "rowId": "5",
+            "parentRowId": null,
+            "profileKey": null,
+            "profileId": "k1g2i0h0",
+            "profileNo": "1793"
+          },
+          {
+            "status": "human_confirmation_required",
+            "sessionStatus": "human_confirmation_required",
+            "code": "FACEBOOK_HUMAN_CONFIRMATION_REQUIRED",
+            "actionRequired": "confirm_human",
+            "stopProfile": true,
+            "banTag": {
+              "added": true,
+              "alreadyBanned": false,
+              "tagId": "1035363"
+            },
+            "errorStatus": "human_confirmation_required",
+            "stage": "facebook",
+            "message": "Facebook вимагає підтвердити, що ви людина",
+            "diagnostic": {
+              "status": "human_confirmation_required",
+              "code": "FACEBOOK_HUMAN_CONFIRMATION_REQUIRED",
+              "networkCode": null,
+              "httpStatus": null,
+              "graphCode": null,
+              "graphSubcode": null,
+              "message": "Facebook вимагає підтвердити, що ви людина",
+              "stage": "facebook",
+              "endpoint": null,
+              "method": "GET",
+              "durationMs": null,
+              "traceId": null
+            },
+            "fields": [],
+            "steps": [
+              "Дані профілю отримано",
+              "Проксі профілю налаштовано",
+              "Cookies отримано",
+              "User-Agent отримано",
+              "Facebook вимагає підтвердити, що ви людина"
+            ],
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 32,
+              "format": "jsonl",
+              "version": 1
+            },
+            "success": false,
+            "mutationAttempted": false,
+            "outcomeUnknown": false,
+            "outcome": "NOT_SENT",
+            "attemptId": "4123c77f-9aee-4469-8297-8ecf0e2b6133",
+            "operation": "reply-create",
+            "rowId": "5.1",
+            "parentRowId": "5",
+            "profileKey": null,
+            "profileId": "k1iqf2lt",
+            "profileNo": "2698",
+            "text": "A feleséged megcsalt? Jó, de te magad miért mentél fel erre az oldalra - nyilván nem beszélgetni. Megérdemlitek egymást.",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfOTg3NTQxMjU3NzUzNzEw",
+            "legacyCommentId": "987541257753710",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwN1A2Z2ZTaWg2NXdNNm9KUlZDVnVlQUZrVXNtNm02Sk5EejViWUx5ODZzbkJXYTFCblA0SlZwb0tmS3R3djltOE1EelA0bXNDZ3ExZGV0MllpWGZhYUthYm94RkdNRk1EcGZ4Umw=",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=987541257753710",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwN1A2Z2ZTaWg2NXdNNm9KUlZDVnVlQUZrVXNtNm02Sk5EejViWUx5ODZzbkJXYTFCblA0SlZwb0tmS3R3djltOE1EelA0bXNDZ3ExZGV0MllpWGZhYUthYm94RkdNRk1EcGZ4Umw=",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfOTg3NTQxMjU3NzUzNzEw",
+              "legacyCommentId": "987541257753710",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwN1A2Z2ZTaWg2NXdNNm9KUlZDVnVlQUZrVXNtNm02Sk5EejViWUx5ODZzbkJXYTFCblA0SlZwb0tmS3R3djltOE1EelA0bXNDZ3ExZGV0MllpWGZhYUthYm94RkdNRk1EcGZ4Umw=",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=987541257753710",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwN1A2Z2ZTaWg2NXdNNm9KUlZDVnVlQUZrVXNtNm02Sk5EejViWUx5ODZzbkJXYTFCblA0SlZwb0tmS3R3djltOE1EelA0bXNDZ3ExZGV0MllpWGZhYUthYm94RkdNRk1EcGZ4Umw="
+            },
+            "text": "Köszi, ez az oldal egyszerűen kincs. Itt mindenki tudja, miért jött: írt, megbeszélt egy találkozót, csinálták amit akartak, és elégedetten hazamentek. Nem úgy, mint a többi oldalon: napokig chatelés, kávé, virágok, és a végén - \"nem illünk egymáshoz\". Tesó, te a király vagy.",
+            "createdTime": 1794235956,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "844bf1d2-65fe-49e7-b6d5-ac5928a4c34d",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 37,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "face5214-180f-4d18-9a0b-64afd13059cb",
+            "operation": "comment-create",
+            "rowId": "6",
+            "parentRowId": null,
+            "profileKey": null,
+            "profileId": "k1i44opa",
+            "profileNo": "2393"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjkzNTQ3MzEzNjgxNTQ2Nw==",
+            "legacyCommentId": "2935473136815467",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRUZ0OW9uSjFMMmp0QTdjdHZGTE5zVFZjWHVVdm9HUVpKZGJTd004b0RSa3JQSDkyc2tYY3lHbTFxTE5jMjZMUDRLMkdGcmZuMWlGeVNFTmdlcEhDVWNWMk1KR1FQZVFKWTlrajRs",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2935473136815467",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRUZ0OW9uSjFMMmp0QTdjdHZGTE5zVFZjWHVVdm9HUVpKZGJTd004b0RSa3JQSDkyc2tYY3lHbTFxTE5jMjZMUDRLMkdGcmZuMWlGeVNFTmdlcEhDVWNWMk1KR1FQZVFKWTlrajRs",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjkzNTQ3MzEzNjgxNTQ2Nw==",
+              "legacyCommentId": "2935473136815467",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRUZ0OW9uSjFMMmp0QTdjdHZGTE5zVFZjWHVVdm9HUVpKZGJTd004b0RSa3JQSDkyc2tYY3lHbTFxTE5jMjZMUDRLMkdGcmZuMWlGeVNFTmdlcEhDVWNWMk1KR1FQZVFKWTlrajRs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2935473136815467",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwRUZ0OW9uSjFMMmp0QTdjdHZGTE5zVFZjWHVVdm9HUVpKZGJTd004b0RSa3JQSDkyc2tYY3lHbTFxTE5jMjZMUDRLMkdGcmZuMWlGeVNFTmdlcEhDVWNWMk1KR1FQZVFKWTlrajRs"
+            },
+            "text": "A lányok ott tényleg nagyon menők. Találtam egyet fétisekkel, szerintem nem volt semmi, amit ne próbált volna - nyitott volt abszolút mindenre.",
+            "createdTime": 1794235978,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "46f0bd50-bf85-4356-a9cb-6a5bcd9b17e2",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 42,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "9890e911-bb1a-443d-a4bd-d69a452d2088",
+            "operation": "comment-create",
+            "rowId": "7",
+            "parentRowId": null,
+            "profileKey": null,
+            "profileId": "k1i44opc",
+            "profileNo": "2395"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjA0ODU3MjE5OTE4MDI1NA==",
+            "legacyCommentId": "2048572199180254",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkVSZ0JQY2EzOWJvRWVYZ1dqaDI0c2hjWHM3WnZCb3BhZEd1WmpReXZUZTlwS2ZaVDFNUlZtWXRaNXJDOXZKWjE0UDRGZjF3RW5HeExiQlFqUDFUWHlmSEZSQ3BjbktuUjVwQTFxbA==",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2048572199180254",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkVSZ0JQY2EzOWJvRWVYZ1dqaDI0c2hjWHM3WnZCb3BhZEd1WmpReXZUZTlwS2ZaVDFNUlZtWXRaNXJDOXZKWjE0UDRGZjF3RW5HeExiQlFqUDFUWHlmSEZSQ3BjbktuUjVwQTFxbA==",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMjA0ODU3MjE5OTE4MDI1NA==",
+              "legacyCommentId": "2048572199180254",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkVSZ0JQY2EzOWJvRWVYZ1dqaDI0c2hjWHM3WnZCb3BhZEd1WmpReXZUZTlwS2ZaVDFNUlZtWXRaNXJDOXZKWjE0UDRGZjF3RW5HeExiQlFqUDFUWHlmSEZSQ3BjbktuUjVwQTFxbA==",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=2048572199180254",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkVSZ0JQY2EzOWJvRWVYZ1dqaDI0c2hjWHM3WnZCb3BhZEd1WmpReXZUZTlwS2ZaVDFNUlZtWXRaNXJDOXZKWjE0UDRGZjF3RW5HeExiQlFqUDFUWHlmSEZSQ3BjbktuUjVwQTFxbA=="
+            },
+            "text": "Elhatároztam, megnézem, mi ez az oldal. Néhány órája regisztráltam, és már megyek egy lányhoz. Köszi a tippet.",
+            "createdTime": 1794235998,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "7f24d643-1931-449d-9b24-40c61f503c58",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 47,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "376d5a93-9fdc-49a6-923c-5b16eca1f26d",
+            "operation": "comment-create",
+            "rowId": "8",
+            "parentRowId": null,
+            "profileKey": null,
+            "profileId": "k1i44ope",
+            "profileNo": "2397"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTY0MzgwNzkyMDQ1NDEyMQ==",
+            "legacyCommentId": "1643807920454121",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwWkVCUUFXNjVYODF1OWtKWVpTR1BKakNGc0hCRkVmdUpzOG1nWW53ZkRURDN1eDJYQWlUalNOS3hyNThyQmtHQkZTcjNEdm1MNGpNYmp6V0ZVWWljVVROTHQ4MTJFZ1drZnN4UVhs",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1643807920454121",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwWkVCUUFXNjVYODF1OWtKWVpTR1BKakNGc0hCRkVmdUpzOG1nWW53ZkRURDN1eDJYQWlUalNOS3hyNThyQmtHQkZTcjNEdm1MNGpNYmp6V0ZVWWljVVROTHQ4MTJFZ1drZnN4UVhs",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTY0MzgwNzkyMDQ1NDEyMQ==",
+              "legacyCommentId": "1643807920454121",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwWkVCUUFXNjVYODF1OWtKWVpTR1BKakNGc0hCRkVmdUpzOG1nWW53ZkRURDN1eDJYQWlUalNOS3hyNThyQmtHQkZTcjNEdm1MNGpNYmp6V0ZVWWljVVROTHQ4MTJFZ1drZnN4UVhs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1643807920454121",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwWkVCUUFXNjVYODF1OWtKWVpTR1BKakNGc0hCRkVmdUpzOG1nWW53ZkRURDN1eDJYQWlUalNOS3hyNThyQmtHQkZTcjNEdm1MNGpNYmp6V0ZVWWljVVROTHQ4MTJFZ1drZnN4UVhs"
+            },
+            "text": "Na igen, ez az oldal tényleg csak szexre van, semmi másra. Egyéjszakás csajt találni ott egyáltalán nem gond.",
+            "createdTime": 1794236022,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "ce0d2e49-a98b-4423-8b58-bda13a7c2e08",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 52,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "57fdfc21-5e63-4ae7-9347-64cb980588c5",
+            "operation": "comment-create",
+            "rowId": "9",
+            "parentRowId": null,
+            "profileKey": null,
+            "profileId": "k1i44opp",
+            "profileNo": "2402"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ3OTEyNTk2NzQxMDQzOQ==",
+            "legacyCommentId": "1479125967410439",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1479125967410439",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ3OTEyNTk2NzQxMDQzOQ==",
+              "legacyCommentId": "1479125967410439",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1479125967410439",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps"
+            },
+            "text": "Dobjátok már a linket az oldalra.",
+            "createdTime": 1794236039,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "e7488d35-1477-4be7-9112-a036389f8ee3",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 57,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "f807885c-12ec-42dc-9ff3-20451b88163a",
+            "operation": "comment-create",
+            "rowId": "10",
+            "parentRowId": null,
+            "profileKey": null,
+            "profileId": "k1ib0170",
+            "profileNo": "2524"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTYwNjgyODU3NDA4MDQ3MA==",
+            "legacyCommentId": "1606828574080470",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwU3dvWHZrd0hyTDNHN1pjTWVVd2ZKZ3RabnAxS1l3SE5wWkQxbWtieTgybkgyNnRoOVY2TjNCa3F3dVloRlkzM3pDZWFEZGcxY1JQUm9HZkRnenZZdXVna0VqRW1laHh1SHBMMVds",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1479125967410439&reply_comment_id=1606828574080470",
+            "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ3OTEyNTk2NzQxMDQzOQ==",
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTYwNjgyODU3NDA4MDQ3MA==",
+              "legacyCommentId": "1606828574080470",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwU3dvWHZrd0hyTDNHN1pjTWVVd2ZKZ3RabnAxS1l3SE5wWkQxbWtieTgybkgyNnRoOVY2TjNCa3F3dVloRlkzM3pDZWFEZGcxY1JQUm9HZkRnenZZdXVna0VqRW1laHh1SHBMMVds",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1479125967410439&reply_comment_id=1606828574080470",
+              "parentCommentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTQ3OTEyNTk2NzQxMDQzOQ==",
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwQ3ZwMzJkSzN3Tm51N1VtZlFib1NCZGo0Mzl0Q2k0YmQ3RWZUOFVpdmJrU0J6aGNDY1ByOUxobVR1VWVKSmhUeU5RSnZDVkdDTVlidjQ3MXZMcDdFeHNvd1JoNkRKNHlwNVI1N2ps"
+            },
+            "text": "Ott van a szöveg elején, de tessék: ",
+            "createdTime": 1794236056,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "35333327-511d-4aa7-bffc-9b3630cd3153",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 62,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "ecc3db94-9351-4b77-a06b-2b68bba426a2",
+            "operation": "reply-create",
+            "rowId": "10.1",
+            "parentRowId": "10",
+            "profileKey": null,
+            "profileId": "k1ib017g",
+            "profileNo": "2536"
+          },
+          {
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTYwMjQ0OTU4MTU2NDMwMw==",
+            "legacyCommentId": "1602449581564303",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwd2lpZVNlWnRXZ3RiYUJYakZDRGVMaW1QU2g3QVc3MzhmNW56elhhQVJXZGpqWnZVNDd2eGMyOFQ3RjUzSm1DTkc3ellBSzF3bVRtVlRFOHRjSmNqenR3RjdiNjcyTFJMVFVnVXBs",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+            "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1602449581564303",
+            "parentCommentId": null,
+            "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwd2lpZVNlWnRXZ3RiYUJYakZDRGVMaW1QU2g3QVc3MzhmNW56elhhQVJXZGpqWnZVNDd2eGMyOFQ3RjUzSm1DTkc3ellBSzF3bVRtVlRFOHRjSmNqenR3RjdiNjcyTFJMVFVnVXBs",
+            "commentTarget": {
+              "commentId": "Y29tbWVudDoxMjIxNTE2NDY4MzMwNjIwMTVfMTYwMjQ0OTU4MTU2NDMwMw==",
+              "legacyCommentId": "1602449581564303",
+              "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwd2lpZVNlWnRXZ3RiYUJYakZDRGVMaW1QU2g3QVc3MzhmNW56elhhQVJXZGpqWnZVNDd2eGMyOFQ3RjUzSm1DTkc3ellBSzF3bVRtVlRFOHRjSmNqenR3RjdiNjcyTFJMVFVnVXBs",
+              "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlpaOEpVUVZxOUF0WmNteU15b1YxeEFYOTdFVnZ6RU4zclJHa3o4Y04zSHR3aWhYdzhrcXFnZ1kydDRaR0pzWFds",
+              "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304",
+              "commentUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02ZZ8JUQVq9AtZcmyMyoV1xAX97EVvzEN3rRGkz8cN3HtwihXw8kqqggY2t4ZGJsXWl&id=61581860459304&comment_id=1602449581564303",
+              "parentCommentId": null,
+              "threadFeedbackId": "ZmVlZGJhY2s6cGZiaWQwd2lpZVNlWnRXZ3RiYUJYakZDRGVMaW1QU2g3QVc3MzhmNW56elhhQVJXZGpqWnZVNDd2eGMyOFQ3RjUzSm1DTkc3ellBSzF3bVRtVlRFOHRjSmNqenR3RjdiNjcyTFJMVFVnVXBs"
+            },
+            "text": "Jaj igen... jó oldal, mennyi emlék 😊",
+            "createdTime": 1794236074,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "4418ebfa-71d3-405c-b9d2-5aac24eba09e",
+            "httpHistory": {
+              "id": "acc07f0d-cfee-49ec-940e-9c7706802283",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\acc07f0d-cfee-49ec-940e-9c7706802283.jsonl",
+              "requestCount": 67,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "e1cca216-0341-44ee-952c-3407f0040add",
+            "operation": "comment-create",
+            "rowId": "11",
+            "parentRowId": null,
+            "profileKey": null,
+            "profileId": "k1iqf2md",
+            "profileNo": "2713"
+          }
+        ],
+        "summary": {
+          "comments": 11,
+          "replies": 3,
+          "failed": 1,
+          "unknown": 0,
+          "skipped": 1,
+          "reactionsAdded": 13,
+          "reactionsExisting": 0,
+          "durationMs": 303558
+        },
+        "summaryText": "Коментарі: 11 · Реплаї: 3 · Помилки: 1 · Невідомо: 0 · Пропущено: 1 · Реакції: 13 нових / 0 вже були · Час: 304 с",
+        "publishedCount": 14,
+        "requestedCount": 16,
+        "skippedCount": 1,
+        "remaining": [],
+        "cancelled": false,
+        "stoppedForStorage": false,
+        "runId": "7bae7bd6-5c7f-41c3-9723-fd955bd75119"
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-09T14:49:34.787Z",
+      "startedAt": "2026-11-09T14:49:34.792Z",
+      "finishedAt": "2026-11-09T14:54:39.387Z",
+      "updatedAt": "2026-11-09T14:54:39.405Z"
+    },
+    {
+      "id": "82031bbf-78c5-4995-9c18-c6e3d1205fcb",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 807655665767419_122151625431062015",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-065",
+        "pageId": "807655665767419",
+        "postId": "807655665767419_122151625431062015"
+      },
+      "metadata": {
+        "accountKey": "account-065",
+        "pageId": "807655665767419",
+        "reportId": "8be48193-305c-456c-a933-06703b73e780"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "807655665767419_122151625431062015"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-09T14:47:36.439Z",
+      "startedAt": "2026-11-09T14:47:44.198Z",
+      "finishedAt": "2026-11-09T14:47:53.118Z",
+      "updatedAt": "2026-11-09T14:47:53.127Z"
+    },
+    {
+      "id": "81bd1449-d85c-40fb-8672-eb46a1884c15",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 807655665767419_122151621405062015",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-065",
+        "pageId": "807655665767419",
+        "postId": "807655665767419_122151621405062015"
+      },
+      "metadata": {
+        "accountKey": "account-065",
+        "pageId": "807655665767419",
+        "reportId": "ff7afacc-8f5c-420a-a0c7-cd3dba3a54c4"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "807655665767419_122151621405062015"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-09T14:47:34.186Z",
+      "startedAt": "2026-11-09T14:47:34.193Z",
+      "finishedAt": "2026-11-09T14:47:44.188Z",
+      "updatedAt": "2026-11-09T14:47:44.194Z"
+    },
+    {
+      "id": "b88e2462-1595-4889-976a-a80939ca3d7b",
+      "type": "campaign",
+      "name": "HU | Creo_1 | 25+ 09/11 14:43",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "b2d2e714-7fce-419a-b395-74f4235e2d42"
+      },
+      "metadata": {
+        "campaignJobId": "b2d2e714-7fce-419a-b395-74f4235e2d42",
+        "accountKey": "account-065",
+        "adAccountId": "act_1663248192162663",
+        "uniqueKey": "campaign-job:b2d2e714-7fce-419a-b395-74f4235e2d42",
+        "reportId": "6cd3673c-48d1-456b-8e91-78d0129fc8e2"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120250047645090644",
+          "creativeId": "874620025711894",
+          "creatives": [
+            {
+              "id": "874620025711894",
+              "pageId": "807655665767419",
+              "postId": "807655665767419_122151646833062015"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120250047647170644",
+              "name": "HU | Creo_1 | 25+ 09/11 14:43 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120250047649600644",
+              "name": "HU | Creo_1 | 25+ 09/11 14:43 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "b2d2e714-7fce-419a-b395-74f4235e2d42",
+        "campaignId": "120250047645090644",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-09T14:43:24.270Z",
+      "startedAt": "2026-11-09T14:43:24.275Z",
+      "finishedAt": "2026-11-09T14:44:12.006Z",
+      "updatedAt": "2026-11-09T14:44:12.014Z"
+    },
+    {
+      "id": "6c0e4962-20d4-40d7-8732-5f49a48084bc",
+      "type": "publication",
+      "name": "Публікація · HU · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-065",
+        "pageId": "807655665767419",
+        "geo": "HU",
+        "language": "",
+        "creativeGeo": "HU",
+        "creativeName": "1",
+        "siteUrl": "",
+        "manualCreativeText": "Miket művelt ez a nimfomániás csaj...\n\nEgy hónapja regisztráltam egy társkereső oldalra: https://love-in-hurt.club/nzbexw. Ha valaki még fent van ott, írja meg kommentben.\n\nŐszintén szólva nem vártam túl sokat. Azt hittem, megint kiosztok pár lájkot, beszélgetek néhány csajjal, aztán ugyanúgy elkezdenek eltűnni, és nem válaszolnak többé. De most teljesen másképp alakult a dolog, srácok 🫣\n\nAz első csaj, akivel beszélgetni kezdtem, teljesen váratlanul felajánlotta, hogy menjek át hozzá. Képzeljétek, rögtön az első ismerkedésnél! Annyira meglepődtem, hogy hirtelen azt sem tudtam, mit mondjak. Általában én szoktam megtenni az első lépést, és találkozót javasolni, most viszont pont fordítva történt. Fogalmam sem volt, hogyan reagáljak, úgyhogy elkezdtem viccelődni, meg mindenféle hülyeséget összehordani. Végül nem lett semmi a beszélgetésből. De mint később kiderült, ez még csak a kezdete volt az igazán érdekes dolgoknak.\n\nMegérkeztem, bekopogtam, ő pedig ajtót nyitott… és rögtön beinvitált..\n\nNem is húztuk sokáig az időt, rögtön rátértünk a legizgalmasabb részre.\n\nKésőbb még több csajjal is találkoztam erről az oldalról. Volt köztük hatalmas mellű lány és szilikonos szépség is, de azt a nimfomániást azóta sem tudom kiverni a fejemből. Többször is írtam neki, de egyszerűen nem értem, mi történt. Lehet, hogy valamit rosszul csináltam, vagy csak elvesztette az érdeklődését. Az oldalon gyakran látom online, de WhatsAppon nem válaszol.\n\nVégül azért minden jól alakult. Mostanra találtam néhány csajt, akikkel rendszeresen találkozom. Egy dolgot viszont biztosan megtanultam: vannak nők, akik legalább annyira akarják ezt, mint a férfiak, sőt néha még jobban is.",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\762829933_122325643460007675_5689537905500061894_n.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-065",
+        "pageId": "807655665767419",
+        "geo": "HU",
+        "language": "",
+        "creativeName": "1",
+        "manualCreativeText": true,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "ffdf6e7b-5821-4b0c-839c-32c9a1afc433"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-065",
+        "pageId": "807655665767419",
+        "geo": "HU",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "",
+        "postId": "807655665767419_122151646833062015",
+        "permalinkUrl": "https://www.facebook.com/122151362421062015/posts/122151646833062015",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-09T14:42:39.506Z",
+      "startedAt": "2026-11-09T14:42:39.514Z",
+      "finishedAt": "2026-11-09T14:42:55.011Z",
+      "updatedAt": "2026-11-09T14:42:55.020Z"
+    },
+    {
+      "id": "180b0121-ed92-4ee7-b2be-31e3144ab87a",
+      "type": "campaign",
+      "name": "Тест креативу | Creo_1 | Наростаючий | 8 абзаців",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "8f37c340-4ef4-4158-9c19-d88bf789952e"
+      },
+      "metadata": {
+        "campaignJobId": "8f37c340-4ef4-4158-9c19-d88bf789952e",
+        "accountKey": "account-065",
+        "adAccountId": "act_1663248192162663",
+        "uniqueKey": "campaign-job:8f37c340-4ef4-4158-9c19-d88bf789952e",
+        "reportId": "59e0ab03-6657-4e0f-809a-1132d58a65cf"
+      },
+      "progress": {
+        "completed": 19,
+        "total": 19,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120250046092380644",
+          "creativeId": "2324780245031104",
+          "creatives": [
+            {
+              "id": "2324780245031104",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзац 1"
+            },
+            {
+              "id": "1950489589659298",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзаци 1–2"
+            },
+            {
+              "id": "1683468589797643",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзаци 1–3"
+            },
+            {
+              "id": "1164419586008765",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзаци 1–4"
+            },
+            {
+              "id": "1101244119445075",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзаци 1–5"
+            },
+            {
+              "id": "1151095037468337",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзаци 1–6"
+            },
+            {
+              "id": "2327766198076011",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзаци 1–7"
+            },
+            {
+              "id": "2416327262276648",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзаци 1–8"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120250046105460644",
+              "name": "Тест креативу | Creo_1 | Наростаючий | 8 абзаців | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120250046106860644",
+              "name": "Тест креативу | Creo_1 | Наростаючий | 8 абзаців | AD 01 | Абзац 1"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 1,
+              "id": "120250046107530644",
+              "name": "Тест креативу | Creo_1 | Наростаючий | 8 абзаців | AD 01 | Абзаци 1–2"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 2,
+              "id": "120250046108430644",
+              "name": "Тест креативу | Creo_1 | Наростаючий | 8 абзаців | AD 01 | Абзаци 1–3"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 3,
+              "id": "120250046109690644",
+              "name": "Тест креативу | Creo_1 | Наростаючий | 8 абзаців | AD 01 | Абзаци 1–4"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 4,
+              "id": "120250046110190644",
+              "name": "Тест креативу | Creo_1 | Наростаючий | 8 абзаців | AD 01 | Абзаци 1–5"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 5,
+              "id": "120250046111430644",
+              "name": "Тест креативу | Creo_1 | Наростаючий | 8 абзаців | AD 01 | Абзаци 1–6"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 6,
+              "id": "120250046112060644",
+              "name": "Тест креативу | Creo_1 | Наростаючий | 8 абзаців | AD 01 | Абзаци 1–7"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 7,
+              "id": "120250046113340644",
+              "name": "Тест креативу | Creo_1 | Наростаючий | 8 абзаців | AD 01 | Абзаци 1–8"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "8f37c340-4ef4-4158-9c19-d88bf789952e",
+        "campaignId": "120250046092380644",
+        "warnings": [
+          "Ad set 1: Meta не підтвердила налаштування обмежених витрат на виключені плейсменти"
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-09T12:57:37.623Z",
+      "startedAt": "2026-11-09T12:57:37.628Z",
+      "finishedAt": "2026-11-09T13:00:51.486Z",
+      "updatedAt": "2026-11-09T13:00:51.493Z"
+    },
+    {
+      "id": "78f63a2c-15d7-4e49-9687-ccfe580a8bfe",
+      "type": "campaign",
+      "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "57dc07c1-979a-4f3f-9ecd-e397f74d250b"
+      },
+      "metadata": {
+        "campaignJobId": "57dc07c1-979a-4f3f-9ecd-e397f74d250b",
+        "accountKey": "account-065",
+        "adAccountId": "act_1663248192162663",
+        "uniqueKey": "campaign-job:57dc07c1-979a-4f3f-9ecd-e397f74d250b",
+        "reportId": "a51edd76-3a50-4d99-8df5-6ec5f20051d8"
+      },
+      "progress": {
+        "completed": 21,
+        "total": 21,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120250045889990644",
+          "creativeId": "1827033955243906",
+          "creatives": [
+            {
+              "id": "1827033955243906",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзац 1"
+            },
+            {
+              "id": "1094003776794767",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзац 2"
+            },
+            {
+              "id": "1121987967210006",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзац 3"
+            },
+            {
+              "id": "1797513391361381",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзац 4"
+            },
+            {
+              "id": "1693393132429136",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзац 5"
+            },
+            {
+              "id": "1473472404734684",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзац 6"
+            },
+            {
+              "id": "1162374042881479",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзац 7"
+            },
+            {
+              "id": "1797197791517042",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзац 8"
+            },
+            {
+              "id": "1869552891066106",
+              "pageId": "807655665767419",
+              "postId": null,
+              "variantLabel": "Абзац 9"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120250045908790644",
+              "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120250045911290644",
+              "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців | AD 01 | Абзац 1"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 1,
+              "id": "120250045914740644",
+              "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців | AD 01 | Абзац 2"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 2,
+              "id": "120250045915810644",
+              "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців | AD 01 | Абзац 3"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 3,
+              "id": "120250045917850644",
+              "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців | AD 01 | Абзац 4"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 4,
+              "id": "120250045919470644",
+              "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців | AD 01 | Абзац 5"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 5,
+              "id": "120250045920060644",
+              "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців | AD 01 | Абзац 6"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 6,
+              "id": "120250045920940644",
+              "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців | AD 01 | Абзац 7"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 7,
+              "id": "120250045922830644",
+              "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців | AD 01 | Абзац 8"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 8,
+              "id": "120250045924280644",
+              "name": "Тест креативу | Creo_1 | Кожен окремо | 9 абзаців | AD 01 | Абзац 9"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "57dc07c1-979a-4f3f-9ecd-e397f74d250b",
+        "campaignId": "120250045889990644",
+        "warnings": [
+          "Ad set 1: Meta не підтвердила налаштування обмежених витрат на виключені плейсменти"
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-09T12:38:41.874Z",
+      "startedAt": "2026-11-09T12:38:41.879Z",
+      "finishedAt": "2026-11-09T12:41:52.386Z",
+      "updatedAt": "2026-11-09T12:41:52.394Z"
+    },
+    {
       "id": "3ced574a-fbfa-41e2-9fa8-ac8bc306612f",
       "type": "campaign",
       "name": "HU | Creo_1 | 25+ 09/11 11:35",

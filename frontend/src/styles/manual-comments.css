@@ -9,6 +9,7 @@
 .mc-feedback { flex-shrink: 0; padding: 12px 24px; color: var(--muted); font-size: 12px; min-height: 44px; }
 .mc-feedback .notice { margin: 0; padding: 9px 12px; overflow-wrap: anywhere; }
 .mc-copy-notice { display: flex; align-items: center; gap: 7px; color: var(--green); animation: mc-appear .2s ease; }
+.mc-author-option { flex-shrink: 0; margin: 0 24px 12px; }
 .mc-setup { width: min(720px, 100%); margin: 28px auto; padding: 0 30px 30px; overflow-y: auto; }
 .mc-setup-title { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
 .mc-setup h3 { margin: 0 0 6px; font-size: 18px; }

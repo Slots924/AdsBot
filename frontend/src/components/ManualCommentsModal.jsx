@@ -11,8 +11,8 @@ const genderLabel = (row) => row.is_author ? "Автор" : row.gender === "male
 const stateLabels = { available: "Вільний", assigned: "Призначено", replaced: "Замінено", banned: "Бан", unavailable: "Недоступний" };
 const writable = (row) => !row.is_author && row.should_write !== false;
 
-export default function ManualCommentsModal({ contextKey, initialDraft, countries, groups, onClose, onBack }) {
-    const [draft, setDraft] = useState(initialDraft);
+export default function ManualCommentsModal({ contextKey, authorPageUrl = "", initialDraft, countries, groups, onClose, onBack }) {
+    const [draft, setDraft] = useState({ ...initialDraft, openAuthorPage: false });
     const [session, setSession] = useState(null);
     const [busy, setBusy] = useState("resume");
     const [error, setError] = useState("");
@@ -22,7 +22,9 @@ export default function ManualCommentsModal({ contextKey, initialDraft, countrie
     const inFlight = useRef(true);
     const root = useRef(null);
     const reducedMotion = useReducedMotion();
-    const api = (action, input = {}) => unwrap(window.adsBot.manualCommentAction(action, { contextKey, ...input }));
+    const api = (action, input = {}) => unwrap(window.adsBot.manualCommentAction(action, {
+        contextKey, ...(authorPageUrl ? { authorPageUrl } : {}), ...input,
+    }));
     const update = (field, value) => setDraft((current) => ({ ...current, [field]: value }));
 
     useEffect(() => {
@@ -32,13 +34,13 @@ export default function ManualCommentsModal({ contextKey, initialDraft, countrie
         api("resume").then((value) => {
             if (!active) return;
             setSession(value);
-            if (value) setDraft(value.settings);
+            if (value) setDraft({ ...value.settings, openAuthorPage: value.settings.openAuthorPage === true });
         }).catch((failure) => { if (active) setError(failure.message); })
             .finally(() => { if (active) { inFlight.current = false; setBusy(""); } });
         return () => { active = false; previousFocus?.focus?.(); };
     }, [contextKey]);
 
-    const run = async (action, row = null) => {
+    const run = async (action, row = null, settings = {}) => {
         if (inFlight.current) return;
         inFlight.current = true;
         setBusy(`${action}:${row?.id || ""}`);
@@ -46,8 +48,9 @@ export default function ManualCommentsModal({ contextKey, initialDraft, countrie
         setNotice("");
         try {
             const value = await api(action, action === "start" ? { ...draft, creativeGeo: draft.language || draft.geo }
-                : { sessionId: session.id, commentId: row?.id });
+                : { sessionId: session.id, commentId: row?.id, ...settings });
             setSession(value);
+            if (action === "updateSettings") setDraft({ ...value.settings, openAuthorPage: value.settings.openAuthorPage === true });
             if (action === "finish") onClose();
             else if (["open", "replace", "ban", "copy"].includes(action) && value.comments.find((item) => item.id === row?.id)?.status !== "blocked") {
                 setNotice("Текст коментаря скопійовано");
@@ -107,6 +110,11 @@ export default function ManualCommentsModal({ contextKey, initialDraft, countrie
                 {error ? <div className="notice danger" role="alert">{error}</div> : notice ? <span className="mc-copy-notice"><Check size={15} />{notice}</span>
                     : <span>{session ? "Відкрийте профіль — текст одразу буде в буфері обміну." : "Оберіть креатив і групи, щоб підготувати робочий пул."}</span>}
             </div>
+            <label className="checkbox-line mc-author-option">
+                <input type="checkbox" checked={draft.openAuthorPage === true} disabled={Boolean(busy) || !authorPageUrl || session?.finalizing}
+                    onChange={(event) => session ? void run("updateSettings", null, { openAuthorPage: event.target.checked }) : update("openAuthorPage", event.target.checked)} />
+                <span>Відкривати одразу сторінку автора</span>
+            </label>
             {!session ? <form className="mc-setup" onSubmit={(event) => { event.preventDefault(); void run("start"); }}>
                 <div className="mc-setup-title"><span className="mc-step">01</span><div><h3>Підготовка сеансу</h3><p>Виберіть джерело коментарів та акаунтів.</p></div></div>
                 <div className="mc-config-grid">

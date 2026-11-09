@@ -1,11 +1,84 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import ManualCommentSessionManager from "../services/gui/ManualCommentSessionManager.js";
+import AdsBotGuiService from "../services/gui/AdsBotGuiService.js";
+import puppeteer from "puppeteer-core";
 import ProfileActivityStore from "../services/profile/ProfileActivityStore.js";
 import { BAN_TAG_ID, LOGIN_ERROR_TAG_ID, MAN_TAG_ID, WOMAN_TAG_ID } from "../config.js";
 
 const comment = (id, gender = "male", key = null, parent = null) => ({ id, gender, profile_key: key,
     parent_id: parent, is_author: false, should_write: true, text: `Коментар ${id}` });
+
+test("вкладка автора відкривається без закриття браузера, а помилки від'єднують Puppeteer", async (t) => {
+    const events = [];
+    let failNavigation = false;
+    const page = {
+        goto: async (url) => { events.push(["goto", url]); if (failNavigation) throw new Error("Помилка переходу"); },
+        bringToFront: async () => events.push(["front"]),
+    };
+    const browser = {
+        newPage: async () => { events.push(["newPage"]); return page; },
+        disconnect: async () => events.push(["disconnect"]),
+        close: async () => assert.fail("Браузер має залишатися відкритим"),
+    };
+    const connect = t.mock.method(puppeteer, "connect", async (options) => {
+        assert.equal(options.browserWSEndpoint, "ws://test");
+        return browser;
+    });
+    const service = new AdsBotGuiService({ facebookBackend: {}, adsPower: {
+        openProfile: async (no, options) => { events.push(["start", no, options]); return { ws: { puppeteer: "ws://test" } }; },
+    } });
+    await service.openAdsPowerProfile("1");
+    assert.equal(events[0][2].restoreLastOpenedTabs, true);
+    assert.equal(connect.mock.callCount(), 0);
+    events.length = 0;
+    await service.openAdsPowerProfile("1", { restoreLastOpenedTabs: false, openUrl: "https://www.facebook.com/123" });
+    assert.equal(events[0][2].restoreLastOpenedTabs, false);
+    assert.deepEqual(events.slice(1), [["newPage"], ["goto", "https://www.facebook.com/123"], ["front"], ["disconnect"]]);
+    failNavigation = true;
+    await assert.rejects(service.openAdsPowerProfile("1", { openUrl: "https://www.facebook.com/123" }), /Помилка переходу/);
+    assert.deepEqual(events.at(-1), ["disconnect"]);
+});
+
+test("налаштування автора зберігається й діє для відкриття, заміни та бану", async (t) => {
+    const f = await fixture(t, [comment("1")]);
+    assert.equal(f.session.settings.openAuthorPage, false);
+    const authorPageUrl = "https://www.facebook.com/123";
+    const act = (action, extra = {}) => f.manager.execute(action, { sessionId: f.session.id, commentId: "1", authorPageUrl, ...extra });
+    const launches = [];
+    const original = f.guiService.openAdsPowerProfile;
+    f.guiService.openAdsPowerProfile = async (no, options) => { launches.push(options); return original(no, options); };
+    await f.act("open", "1");
+    assert.equal(launches[0].openUrl, undefined);
+    await act("updateSettings", { openAuthorPage: true });
+    assert.equal((await f.manager.execute("resume", { contextKey: "page-post" })).settings.openAuthorPage, true);
+    assert.equal(launches.length, 1);
+    await act("open");
+    await act("replace");
+    await act("ban");
+    for (const options of launches.slice(1)) {
+        assert.equal(options.restoreLastOpenedTabs, false);
+        assert.equal(options.openUrl, authorPageUrl);
+    }
+    await act("updateSettings", { openAuthorPage: false });
+    await f.act("open", "1");
+    assert.equal(launches.at(-1).openUrl, undefined);
+});
+
+test("без адреси автора ввімкнення відхиляється, помилка навігації не зараховує коментар", async (t) => {
+    const f = await fixture(t, [comment("1")]);
+    await assert.rejects(f.manager.execute("updateSettings", { sessionId: f.session.id, openAuthorPage: true }), /Немає посилання/);
+    const authorPageUrl = "https://www.facebook.com/123";
+    await f.manager.execute("updateSettings", { sessionId: f.session.id, authorPageUrl, openAuthorPage: true });
+    f.guiService.openAdsPowerProfile = async () => { throw new Error("Помилка переходу"); };
+    await assert.rejects(f.manager.execute("open", { sessionId: f.session.id, commentId: "1", authorPageUrl }), /Помилка переходу/);
+    const state = await f.act("get");
+    assert.equal(state.comments[0].status, "pending");
+    assert.equal(state.comments[0].completedAt, null);
+    assert.equal(f.events.length, 0);
+    await f.act("finish");
+    assert.equal((await f.activityStore.list({ bannedOnly: false })).items.length, 0);
+});
 
 async function fixture(t, comments, random = () => 0.999999) {
     const activityStore = new ProfileActivityStore({ databaseFile: ":memory:" });

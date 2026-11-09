@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import ManualCommentsModal from "../components/ManualCommentsModal.jsx";
+import { CommentModal } from "../tabs/PagesTab.jsx";
 
 afterEach(cleanup);
 const draft = { geo: "US", language: "", creativeName: "202", groupIds: ["g"], siteUrl: "" };
@@ -13,10 +14,11 @@ const base = () => ({ id: "s1", settings: draft, comments: structuredClone(comme
     { profileNo: "12", name: "Перший акаунт", gender: "male", state: "available" },
     { profileNo: "13", name: "Другий акаунт", gender: "male", state: "available" },
 ] });
-function mount(resume = base()) {
+function mount(resume = base(), authorPageUrl = "") {
     let state = resume;
     const api = vi.fn(async (action, input) => {
-        if (action === "start") state = base();
+        if (action === "start") state = { ...base(), settings: { ...draft, openAuthorPage: input.openAuthorPage } };
+        if (action === "updateSettings") state.settings = { ...state.settings, openAuthorPage: input.openAuthorPage };
         if (action === "open") {
             state.comments.find((row) => row.id === input.commentId).status = "assumed";
             state.comments.find((row) => row.id === input.commentId).profileNo = "12";
@@ -27,7 +29,7 @@ function mount(resume = base()) {
     });
     window.adsBot = { manualCommentAction: api };
     const onClose = vi.fn();
-    render(<ManualCommentsModal contextKey="context" initialDraft={draft} countries={[]} groups={[]}
+    render(<ManualCommentsModal contextKey="context" authorPageUrl={authorPageUrl} initialDraft={draft} countries={[]} groups={[]}
         onClose={onClose} onBack={vi.fn()} />);
     return { api, onClose };
 }
@@ -41,6 +43,63 @@ it("показує доступні акаунти, реплаї та неакт
     expect(screen.getByText("Другий учасник відповідає").closest("article")).toHaveClass("mc-reply");
     fireEvent.click(screen.getByRole("button", { name: "Розгорнути коментар 1" }));
     expect(screen.getByRole("button", { name: "Розгорнути коментар 1" })).toHaveAttribute("aria-expanded", "true");
+});
+
+it("перемикач вимкнений за замовчуванням і доступний до та після підготовки", async () => {
+    const authorPageUrl = "https://www.facebook.com/123";
+    const { api } = mount(null, authorPageUrl);
+    const toggle = await screen.findByRole("checkbox", { name: "Відкривати одразу сторінку автора" });
+    await waitFor(() => expect(toggle).toBeEnabled());
+    expect(toggle).not.toBeChecked();
+    fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole("button", { name: "Підтвердити" }));
+    await screen.findByText("Сценарій коментарів");
+    expect(api).toHaveBeenCalledWith("start", expect.objectContaining({ openAuthorPage: true, authorPageUrl }));
+    expect(toggle).toBeChecked();
+    fireEvent.click(toggle);
+    await waitFor(() => expect(toggle).not.toBeChecked());
+    expect(api).toHaveBeenCalledWith("updateSettings", expect.objectContaining({ sessionId: "s1", openAuthorPage: false, authorPageUrl }));
+    fireEvent.click(screen.getByRole("button", { name: "Відкрити профіль для коментаря 1" }));
+    await screen.findByText("Текст коментаря скопійовано");
+    expect(api).toHaveBeenCalledWith("open", expect.objectContaining({ authorPageUrl, commentId: "1" }));
+});
+
+it("відновлює перемикач із сеансу та блокує його без адреси автора", async () => {
+    const state = base();
+    state.settings = { ...draft, openAuthorPage: true };
+    mount(state);
+    await screen.findByText("Сценарій коментарів");
+    const toggle = screen.getByRole("checkbox", { name: "Відкривати одразу сторінку автора" });
+    expect(toggle).toBeChecked();
+    expect(toggle).toBeDisabled();
+});
+
+it.each([{ id: "123" }, { pageId: "123" }])("бере адресу автора з фанпейджа %j без зміни контексту", async (page) => {
+    const api = vi.fn(async () => ({ ok: true, data: null }));
+    window.adsBot = { manualCommentAction: api };
+    render(<CommentModal page={{ ...page, geo: "US", creativeName: "202" }} accountKey="client"
+        countries={[]} groups={[]} settings={{}} onClose={vi.fn()} onQueued={vi.fn()} onError={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Вручну" }));
+    const toggle = await screen.findByRole("checkbox", { name: "Відкривати одразу сторінку автора" });
+    await waitFor(() => expect(toggle).toBeEnabled());
+    expect(api).toHaveBeenCalledWith("resume", {
+        contextKey: JSON.stringify(["client", "123", "", "post"]), authorPageUrl: "https://www.facebook.com/123",
+    });
+});
+
+it("блокує дії до збереження перемикача та показує помилку без зміни значення", async () => {
+    const { api } = mount(base(), "https://www.facebook.com/123");
+    const toggle = await screen.findByRole("checkbox", { name: "Відкривати одразу сторінку автора" });
+    await waitFor(() => expect(toggle).toBeEnabled());
+    let rejectUpdate;
+    api.mockImplementationOnce(() => new Promise((resolve, reject) => { rejectUpdate = reject; }));
+    fireEvent.click(toggle);
+    expect(toggle).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Відкрити профіль для коментаря 1" })).toBeDisabled();
+    rejectUpdate(new Error("Не вдалося зберегти"));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Не вдалося зберегти");
+    await waitFor(() => expect(toggle).toBeEnabled());
+    expect(toggle).not.toBeChecked();
 });
 
 it("відкриває акаунт за конкретним коментарем і фіксує статистику при закритті", async () => {

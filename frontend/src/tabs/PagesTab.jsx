@@ -571,6 +571,7 @@ export function CommentModal({
     if (auOpen) return <FanPageAuCommentsModal initialDraft={draft} countries={countries} groups={groups} onClose={onClose}
         onBack={value => { setDraft(value); setAuOpen(false); }} onQueued={onQueued} />;
     if (manualOpen) return <ManualCommentsModal
+        authorPageUrl={page.id || page.pageId ? `https://www.facebook.com/${page.id || page.pageId}` : ""}
         contextKey={JSON.stringify([accountKey, page.id || page.pageId, post?.id || post?.postId || draft.postUrl, commentTarget])}
         initialDraft={draft} countries={countries} groups={groups}
         onClose={onClose} onBack={() => setManualOpen(false)} />;

@@ -74,6 +74,11 @@ export default class ManualCommentSessionManager {
         }
         if (session.closed) throw new Error("Ручний сеанс уже завершено");
         if (session.finalizing) throw new Error("Завершення сеансу ще триває. Повторіть закриття вікна");
+        if (action === "updateSettings") {
+            if (input.openAuthorPage === true && !input.authorPageUrl) throw new Error("Немає посилання на сторінку автора");
+            session.settings.openAuthorPage = input.openAuthorPage === true;
+            return this.save(session);
+        }
         const row = session.comments.find((item) => item.id === input.commentId);
         if (!row || !writable(row)) throw new Error("Цей коментар недоступний для ручних дій");
         if (action === "copy") {
@@ -86,6 +91,7 @@ export default class ManualCommentSessionManager {
             return this.save(session);
         }
         if (!["open", "replace", "ban"].includes(action)) throw new Error("Невідома дія ручного коментування");
+        if (session.settings.openAuthorPage === true && !input.authorPageUrl) throw new Error("Немає посилання на сторінку автора");
         const key = actorKey(row);
         const locked = session.comments.some((item) => item.id !== row.id
             && actorKey(item) === key && item.status === "assumed");
@@ -159,6 +165,7 @@ export default class ManualCommentSessionManager {
         }
         await this.guiService.openAdsPowerProfile(candidate.profileNo, {
             windowSize: facebookAutomationWindowSize,
+            ...(session.settings.openAuthorPage === true ? { restoreLastOpenedTabs: false, openUrl: input.authorPageUrl } : {}),
         });
         await this.copyText(row.text);
         row.status = "assumed";
@@ -167,6 +174,7 @@ export default class ManualCommentSessionManager {
     }
 
     async start(input) {
+        if (input.openAuthorPage === true && !input.authorPageUrl) throw new Error("Немає посилання на сторінку автора");
         const groupIds = [...new Set((input.groupIds ?? []).map(String).filter(Boolean))];
         const geo = String(input.creativeGeo || input.language || input.geo || "").trim();
         const creativeName = String(input.creativeName || "").trim().replace(/^Creo_/i, "");
@@ -200,7 +208,7 @@ export default class ManualCommentSessionManager {
             }
         }
         return this.save({ id: randomUUID(), contextKey: input.contextKey, closed: false,
-            settings: { geo: input.geo, language: input.language, creativeName, groupIds, siteUrl: input.siteUrl || "" },
+            settings: { geo: input.geo, language: input.language, creativeName, groupIds, siteUrl: input.siteUrl || "", openAuthorPage: input.openAuthorPage === true },
             comments, pool: shuffleArray([...profiles.values()], this.random), assignments: {} });
     }
 }

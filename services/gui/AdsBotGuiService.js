@@ -1,5 +1,6 @@
 import { isUnavailableCampaign, clearUnavailableCampaignStatistics } from "../campaigns/campaignVisibility.js";
 import AdsPower from "../../classes/AdsPower.js";
+import puppeteer from "puppeteer-core";
 import FacebookBackendService
     from "../../facebook/services/FacebookBackendService.js";
 import runCommentingScenario
@@ -350,13 +351,23 @@ export default class AdsBotGuiService {
     }
 
 
-    async openAdsPowerProfile(profileNo, { windowSize = null } = {}) {
-        await this.adsPower.openProfile(profileNo, {
+    async openAdsPowerProfile(profileNo, { windowSize = null, restoreLastOpenedTabs = true, openUrl = "" } = {}) {
+        const browserData = await this.adsPower.openProfile(profileNo, {
             browserMode: "visible",
-            restoreLastOpenedTabs: true,
+            restoreLastOpenedTabs,
             proxyDetection: true,
             ...(windowSize ? { launchArgs: [`--window-size=${windowSize.width},${windowSize.height}`] } : {}),
         });
+        if (openUrl) {
+            const browser = await puppeteer.connect({ browserWSEndpoint: browserData.ws.puppeteer, defaultViewport: null });
+            try {
+                const page = await browser.newPage();
+                await page.goto(openUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
+                await page.bringToFront();
+            } finally {
+                await browser.disconnect();
+            }
+        }
         return { isOpen: true };
     }
 
