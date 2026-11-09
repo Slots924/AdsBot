@@ -363,17 +363,17 @@ export default function registerIpcHandlers({
     }));
     const fanPageComments = new FanPageCommentsService({ adsPower: guiService.adsPower, guiService, autoupload });
     ipcMain.handle("fanpage-au-comments:prepare", safeHandler(async input => ({
-        prepared: await fanPageComments.prepare(input), profiles: await fanPageComments.profiles(),
+        prepared: await fanPageComments.prepare(input), profiles: await fanPageComments.profiles(input.groupIds),
     })));
     ipcMain.handle("fanpage-au-comments:run", safeHandler(async ({ ids, ...input }) => {
         const prepared = await fanPageComments.prepare(input);
-        const profiles = await fanPageComments.selected(ids);
+        const profiles = await fanPageComments.selected(ids, prepared.groupIds);
         const task = await backgroundTaskManager.enqueue({
             type: "autoupload-comments", name: `AU Comments · ${prepared.comments.length} · ${profiles.length} профілів`,
             uniqueKey: `fanpage-au-comments:${prepared.storyId}`,
             resources: [{ key: "autoupload-comments", label: "послідовна публікація коментарів" },
                 ...profiles.map(profile => ({ key: `adspower-profile:${profile.profileNo}`, label: `профіль №${profile.profileNo}` }))],
-            input: { profileIds: profiles.map(profile => profile.profileId), postUrl: prepared.postUrl },
+            input: { profileIds: profiles.map(profile => profile.profileId), postUrl: prepared.postUrl, groupIds: prepared.groupIds },
             runner: context => fanPageComments.run(profiles, prepared, context),
         });
         return { taskId: task.id };

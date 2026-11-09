@@ -27,7 +27,7 @@ export async function incrementActionCounter({ adsPower, store, profileId, key, 
         profile = (await store.snapshot()).profiles.find(item => item.profileId === profileId);
         readFailed = true;
     }
-    const remote = readActionCounters(profile.name ?? "");
+    const remote = readActionCounters(profile?.name ?? "");
     const counters = await store.confirmActionCounter(profileId, key, eventId, remote);
     if (readFailed) throw new Error("AdsPower недоступний; збільшення лічильника збережено локально");
     const name = formatActionCounters(profile.name ?? "", counters);

@@ -36,7 +36,8 @@ export default function parseResponse(response, { session = {}, mutation = true 
     if (errors.length) {
         const first = errors[0];
         const partialResult = mutation && chunks.some((item) => item.data?.friend_request_send || item.data?.friend_request_accept
-            || item.data?.comment_create?.feedback_comment_edge?.node?.id);
+            || item.data?.comment_create?.feedback_comment_edge?.node?.id
+            || item.data?.feedback_react);
         const authenticationRequired = Number(first.code) === 190 || (Number(first.code) === 31 && Number(first.error_subcode) === 3858385);
         throw actionError(first.error_user_msg || first.message, "FACEBOOK_GRAPHQL_ERROR", {
             httpStatus, graphCode: first.code, graphSubcode: first.error_subcode, apiErrorCode: first.api_error_code,

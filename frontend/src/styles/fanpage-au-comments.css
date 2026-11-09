@@ -16,6 +16,8 @@
 .au-profile small, .au-comments small { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
 .au-comments { list-style-position: inside; }
 .au-comments li { border-bottom: 1px solid var(--stroke); padding: 8px 0; font-size: 12px; }
+.au-replies { padding-left: 18px; border-left: 2px solid var(--stroke); margin-left: 4px; }
+.au-replies:empty { display: none; }
 .fanpage-au-dialog .au-comments p { margin: 6px 0; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .au-note { color: var(--muted); font-size: 12px; line-height: 1.6; padding: 12px 14px; border-radius: 10px; background: #8472ff0c; }
 .au-footer { justify-content: space-between; gap: 12px; }

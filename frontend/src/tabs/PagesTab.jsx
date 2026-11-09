@@ -567,7 +567,7 @@ export function CommentModal({
             onError(errorDetails(error));
         }
     };
-    if (auOpen) return <FanPageAuCommentsModal initialDraft={draft} countries={countries} onClose={onClose}
+    if (auOpen) return <FanPageAuCommentsModal initialDraft={draft} countries={countries} groups={groups} onClose={onClose}
         onBack={value => { setDraft(value); setAuOpen(false); }} onQueued={onQueued} />;
     if (manualOpen) return <ManualCommentsModal
         contextKey={JSON.stringify([accountKey, page.id || page.pageId, post?.id || post?.postId || draft.postUrl, commentTarget])}

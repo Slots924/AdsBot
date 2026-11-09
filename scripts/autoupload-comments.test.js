@@ -10,6 +10,9 @@ import path from "node:path";
 import os from "node:os";
 import { formatActionCounters, readActionCounters, incrementActionCounter } from "../services/profile/actionCounters.js";
 import { withHttpWorkflow } from "../services/reports/HttpExchangeTrace.js";
+import { HUMAN_CONFIRMATION_REQUIRED } from "../facebook/session/sessionStatus.js";
+import { BAN_TAG_ID } from "../config.js";
+import { defaultProfileActivityStore } from "../services/profile/ProfileActivityStore.js";
 
 async function directory(t) {
     const dir = await mkdtemp(path.join(os.tmpdir(), "adsbot-comments-"));
@@ -35,6 +38,54 @@ async function batchFixture(t, execute, count = 4) {
 const batchInput = { postUrl: "https://www.facebook.com/permalink.php?story_fbid=pfbidTest123&id=456", comments: ["First", "Second", "Third"] };
 
 const feedbackId = Buffer.from("feedback:pfbidTest123").toString("base64");
+test("AU Comments ставить BAN при підтвердженні людини та рахує лише успіх наступного акаунта", async t => {
+    const sync = defaultProfileActivityStore.syncProfileGroups;
+    const mark = defaultProfileActivityStore.markBanned;
+    defaultProfileActivityStore.syncProfileGroups = async () => {};
+    defaultProfileActivityStore.markBanned = async () => {};
+    t.after(() => {
+        defaultProfileActivityStore.syncProfileGroups = sync;
+        defaultProfileActivityStore.markBanned = mark;
+    });
+    for (const stage of ["session", "mutation"]) {
+        const f = await batchFixture(t, async () => ({}));
+        const profiles = ["blocked", "active"].map(id => ({ profileId: id, profileNo: id, gender: "male", name: "Тест" }));
+        const names = { blocked: "Тест", active: "Тест [AU_COMMENT=2]" };
+        const bans = [];
+        f.adsPower.getProfileById = async id => ({ profile_id: id, profile_no: id, name: names[id], profile_tags: [] });
+        f.adsPower.updateProfileTags = async (...args) => bans.push(args);
+        f.adsPower.updateProfileName = async (id, name) => { names[id] = name; };
+        const failure = { success: false, status: HUMAN_CONFIRMATION_REQUIRED, sessionStatus: HUMAN_CONFIRMATION_REQUIRED, outcomeUnknown: false, message: "Підтвердіть, що ви людина" };
+        f.service.prepareCommentSession = async ({ profileId }) => profileId === "blocked" && stage === "session"
+            ? { client: null, result: failure }
+            : { client: { getFbData: () => ({ profileId }) }, result: { status: "active" } };
+        const attempts = [];
+        f.service.createCommentFn = async (data, input) => {
+            attempts.push([data.profileId, input.text]);
+            return data.profileId === "blocked" ? failure : { success: true, commentId: "confirmed-id" };
+        };
+        const result = await f.service.publishComments(profiles.map(p => p.profileId), { ...batchInput, comments: ["Текст"] }, {
+            profiles, commentRows: [{ gender: "male" }],
+        });
+        assert.deepEqual(bans, [["blocked", [BAN_TAG_ID], "2"]]);
+        assert.equal(result.result.profiles[0].banTag.added, true);
+        assert.deepEqual(attempts.at(-1), ["active", "Текст"]);
+        assert.equal(result.result.publishedCount, 1);
+        assert.equal(names.blocked, "Тест");
+        assert.equal(names.active, "Тест [AU_COMMENT=3]");
+        assert.equal((await f.store.snapshot()).actionCounters.blocked, undefined);
+    }
+});
+
+test("збій AdsPower після успіху зберігає лічильник навіть для профілю поза списком AU", async t => {
+    const f = await batchFixture(t, async () => ({ success: true, commentId: "confirmed-external" }));
+    f.adsPower.getProfileById = async () => { throw new Error("Недоступний"); };
+    const profile = { profileId: "external", profileNo: "99", gender: "male", name: "Тест" };
+    const result = await f.service.publishComments([profile.profileId], { ...batchInput, comments: ["Текст"] }, { profiles: [profile] });
+    assert.equal(result.result.publishedCount, 1);
+    assert.ok(result.result.profiles[0].counterWarning);
+    assert.equal((await f.store.snapshot()).actionCounters.external.values.AU_COMMENT, 1);
+});
 test("акаунти поза вкладкою AU підбираються за статтю, відмова передає коментар наступному", async t => {
     const f = await batchFixture(t, async () => ({}));
     const profiles = [
@@ -61,13 +112,13 @@ test("акаунти поза вкладкою AU підбираються за 
     assert.equal(state.actionCounters.x3.values.AU_COMMENT, 1);
 });
 const html = 'DTSGInitialData",[],{"token":"fake-dtsg"} LSD",[],{"token":"fake-lsd"} <input name="jazoest" value="2123"> {"sessionId":"fake-session","actorID":"123","client_revision":456}';
-async function fixture(reply) {
+async function fixture(reply, actorId = "123") {
     const calls = [];
     const client = new FacebookWebClient({ userAgent: "Test-UA",
         cookies: ["c_user", "xs"].map(name => ({ name, value: name === "c_user" ? "123" : "fake-xs", domain: ".facebook.com", path: "/", secure: true })),
         httpClient: { request: async (config, options) => {
             calls.push({ config, options });
-            return config.method === "get" ? { status: 200, headers: {}, data: html } : reply(config);
+            return config.method === "get" ? { status: 200, headers: {}, data: html.replace('"actorID":"123"', `"actorID":"${actorId}","ACCOUNT_ID":"123"`) } : reply(config);
         } },
     });
     await client.checkSession();
@@ -97,6 +148,18 @@ test("коментар повертає ID і використовує гото�
     assert.equal(result.exchanges.length, 1);
     assert.ok(!JSON.stringify(result).includes("fake-dtsg"));
     assert.ok(!JSON.stringify(result).includes("fake-xs"));
+});
+
+test("коментар надсилається від активної фанки без перемикання на соц", async () => {
+    const { fbData, calls } = await fixture(() => response({ data: { comment_create: {
+        feedback: { id: feedbackId }, feedback_comment_edge: { node: { id: "comment-id" } },
+    } } }), "456");
+    const result = await createComment(fbData, { feedbackId, text: "Test" });
+    assert.equal(result.success, true);
+    const form = new URLSearchParams(calls[1].config.data);
+    assert.equal(form.get("av"), "456");
+    assert.equal(form.get("__user"), "456");
+    assert.throws(() => fbData.client.validateFbData(fbData), { code: "FACEBOOK_SOCIAL_CONTEXT_REQUIRED" });
 });
 
 test("відповідь без ID, невалідний JSON та timeout не повторюють mutation", async () => {
@@ -199,7 +262,7 @@ test("черга завершується після останнього ком
 });
 
 test("повна HTTP-історія зберігає ID та відповіді, приховуючи сесію", async t => {
-    const { fbData } = await fixture(() => response({ data: { comment_create: { feedback_comment_edge: { node: { id: "saved-id", body: { text: "Test" } } } } } }));
+    const { fbData } = await fixture(() => response({ data: { comment_create: { feedback: { id: feedbackId }, feedback_comment_edge: { node: { id: "saved-id", body: { text: "Test" } } } } } }));
     const value = await withHttpWorkflow("comment-test", () => createComment(fbData, { feedbackId, text: "Test" }), { directory: await directory(t) });
     const history = await readFile(value.httpHistory.path, "utf8");
     assert.ok(history.includes('"commentId":"saved-id"'));

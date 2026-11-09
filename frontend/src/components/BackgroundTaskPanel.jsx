@@ -17,6 +17,7 @@ import {
 
 import { errorDetails, unwrap } from "../lib/api.js";
 import WorkerProxyPicker from "./WorkerProxyPicker.jsx";
+import CommentDialogueReport from "./CommentDialogueReport.jsx";
 
 
 const activeStatuses = new Set(["queued", "running"]);
@@ -233,6 +234,7 @@ export default function BackgroundTaskPanel({
                             {(selected.progress?.objects?.campaignId || campaignJob?.objects?.campaignId) && <div className="wide"><span>Campaign ID</span><strong>{selected.progress?.objects?.campaignId || campaignJob.objects.campaignId}</strong></div>}
                         </div>
                         {selected.error && <div className="creation-error"><AlertCircle size={18} /><div><strong>{selected.error.message}</strong><span>{selected.error.code || "TASK_ERROR"}</span></div></div>}
+                        <CommentDialogueReport result={selected.result} />
                         {taskProxyAlerts(selected).map((alert) => (
                             <div className="task-proxy-alert" key={`${alert.workerId}-${alert.commentId}`}>
                                 <Flashlight size={16} />

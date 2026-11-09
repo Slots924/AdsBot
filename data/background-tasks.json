@@ -2,6 +2,925 @@
   "version": 1,
   "tasks": [
     {
+      "id": "1b9e3604-5294-4982-94f1-2a161f8c03cc",
+      "type": "autoupload-comments",
+      "name": "Коментарі · 5 · 5 профілів",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "autoupload-comments",
+          "label": "послідовна публікація коментарів"
+        },
+        {
+          "key": "adspower-profile:2704",
+          "label": "профіль №2704"
+        },
+        {
+          "key": "adspower-profile:2705",
+          "label": "профіль №2705"
+        },
+        {
+          "key": "adspower-profile:2706",
+          "label": "профіль №2706"
+        },
+        {
+          "key": "adspower-profile:2710",
+          "label": "профіль №2710"
+        },
+        {
+          "key": "adspower-profile:2712",
+          "label": "профіль №2712"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1iqf2m1",
+          "k1iqf2m3",
+          "k1iqf2m5",
+          "k1iqf2ma",
+          "k1iqf2mc"
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl&id=61578700323442",
+        "comments": [
+          "Well, that escalated quickly 😂",
+          "Sometimes I wonder how people come up with these ideas. Like, do they just wake up one morning and decide to create absolute chaos?",
+          "Beautiful little reminder that happiness doesn't always have to be expensive or complicated.",
+          "My dog looked at my phone for two seconds and walked away. Even he has higher standards than me 💀",
+          "I remember when Facebook was mostly pictures of people's lunches and random vacation photos. Now every time I open this app, I discover something that makes me question reality. And somehow I keep coming back for more."
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "autoupload-comments:pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl:k1iqf2m1,k1iqf2m3,k1iqf2m5,k1iqf2ma,k1iqf2mc",
+        "httpHistory": {
+          "id": "167e331f-2b35-4cdb-9316-e5dcf4da5115",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\167e331f-2b35-4cdb-9316-e5dcf4da5115.jsonl",
+          "requestCount": 10,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "7fb00dfa-75e2-48b9-9dd7-d59cae59144f"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1iqf2m1",
+            "profileNo": "2704",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwTlBCZkNTQ0VRNTg4eHg2Y2Q5SkJxQW1UQzd0Y3RoZnJjRXB0V2p2OW9YVERBU0pUQWNNM0Z2ZktjTFB1MTZ3amw=",
+            "commentId": "Y29tbWVudDoxMjIxMzc2MjQ5NTg5NTY2NzdfMTc0NDU1MzgzNzM0MDY4OA==",
+            "legacyCommentId": "1744553837340688",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkV4cE1EVjFwWUh4aEdWQ1F4QVcySmJNSFk1UktnRlNMOFAyNVFXMXJERFRUZXdCS2p5Mlp4NTRRSHZpMjJhMzVlZ285RnRqWXZ5S0xXV2dMbzFYS0hwY3A3dzVqUFVma2JpNkd4bA==",
+            "commentUrl": null,
+            "text": "Well, that escalated quickly 😂",
+            "createdTime": 1794213673,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "ec92adb6-c6e5-4701-9d6f-9fa3e4aa0b89",
+            "httpHistory": {
+              "id": "167e331f-2b35-4cdb-9316-e5dcf4da5115",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\167e331f-2b35-4cdb-9316-e5dcf4da5115.jsonl",
+              "requestCount": 2,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "9c5fc168-0e0b-4b50-acf8-2c372897dc06",
+            "operation": "comment-create",
+            "commentIndex": 1,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl&id=61578700323442",
+            "storyId": "pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 4,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2m3",
+            "profileNo": "2705",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwTlBCZkNTQ0VRNTg4eHg2Y2Q5SkJxQW1UQzd0Y3RoZnJjRXB0V2p2OW9YVERBU0pUQWNNM0Z2ZktjTFB1MTZ3amw=",
+            "commentId": "Y29tbWVudDoxMjIxMzc2MjQ5NTg5NTY2NzdfNDE0NTk3OTI5MjM2MjcwNQ==",
+            "legacyCommentId": "4145979292362705",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwczg4VnpzWFVQaHZ1MUtBcVJ6QnlNbVF6U2JDbjlCNzU0OENBY0FNR2E0WERjV1RxR0Y2WTl6Z1NqenRVMW1maFVYQTdIZHVwcEZnWGJ4MWNlc2J1b1N6b3JKTDNNdGVaeVVvUXds",
+            "commentUrl": null,
+            "text": "Sometimes I wonder how people come up with these ideas. Like, do they just wake up one morning and decide to create absolute chaos?",
+            "createdTime": 1794213685,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "142cf71d-6573-4585-a8ee-54d4b32f69d4",
+            "httpHistory": {
+              "id": "167e331f-2b35-4cdb-9316-e5dcf4da5115",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\167e331f-2b35-4cdb-9316-e5dcf4da5115.jsonl",
+              "requestCount": 4,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "a87b8f4e-08e7-491a-a9e6-44c6e0fb770c",
+            "operation": "comment-create",
+            "commentIndex": 2,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl&id=61578700323442",
+            "storyId": "pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 4,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2m5",
+            "profileNo": "2706",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwTlBCZkNTQ0VRNTg4eHg2Y2Q5SkJxQW1UQzd0Y3RoZnJjRXB0V2p2OW9YVERBU0pUQWNNM0Z2ZktjTFB1MTZ3amw=",
+            "commentId": "Y29tbWVudDoxMjIxMzc2MjQ5NTg5NTY2NzdfMjM3MTI1NjgxNjk1NTExMg==",
+            "legacyCommentId": "2371256816955112",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwcm9rdm0yNUNTaVZHWkRGNEFBUXdDRVAza3p6OHM1TmVBY3ZZUTcxeEQzWld4WEhtQ0hUS2ZYZW5VOHRvOHF1VHFubTlMQlpxWk1taGlUVUJoalRiR25xNDZkOVRzOENwWGFNNXBs",
+            "commentUrl": null,
+            "text": "Beautiful little reminder that happiness doesn't always have to be expensive or complicated.",
+            "createdTime": 1794213697,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "11e09b51-1bae-4322-b8d2-cefd7a5aa8ac",
+            "httpHistory": {
+              "id": "167e331f-2b35-4cdb-9316-e5dcf4da5115",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\167e331f-2b35-4cdb-9316-e5dcf4da5115.jsonl",
+              "requestCount": 6,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "c2694d11-5962-4c25-a9c4-71a04d96b868",
+            "operation": "comment-create",
+            "commentIndex": 3,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl&id=61578700323442",
+            "storyId": "pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 4,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2ma",
+            "profileNo": "2710",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwTlBCZkNTQ0VRNTg4eHg2Y2Q5SkJxQW1UQzd0Y3RoZnJjRXB0V2p2OW9YVERBU0pUQWNNM0Z2ZktjTFB1MTZ3amw=",
+            "commentId": "Y29tbWVudDoxMjIxMzc2MjQ5NTg5NTY2NzdfMTEyMzI5OTk1MDQwMzIyNA==",
+            "legacyCommentId": "1123299950403224",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwNHl0RUMzZTd5dmc1ZjJSclpMWHBoVmlQZEJ3WGs3d2t5ZjZ2dHpIMnh1UndDdHppMjNhaTc5QVRMNjdhOHVIOHZMZzF6WjhwVkVHYWp0cW16MTR1M01jNmZVemdHUGpYelhMc3ps",
+            "commentUrl": null,
+            "text": "My dog looked at my phone for two seconds and walked away. Even he has higher standards than me 💀",
+            "createdTime": 1794213709,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "fbfbd623-fe4d-4400-b939-a472d1fbf3ab",
+            "httpHistory": {
+              "id": "167e331f-2b35-4cdb-9316-e5dcf4da5115",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\167e331f-2b35-4cdb-9316-e5dcf4da5115.jsonl",
+              "requestCount": 8,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "3de92687-7e44-4e6a-abf8-d432a4f8a894",
+            "operation": "comment-create",
+            "commentIndex": 4,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl&id=61578700323442",
+            "storyId": "pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 11,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2mc",
+            "profileNo": "2712",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwTlBCZkNTQ0VRNTg4eHg2Y2Q5SkJxQW1UQzd0Y3RoZnJjRXB0V2p2OW9YVERBU0pUQWNNM0Z2ZktjTFB1MTZ3amw=",
+            "commentId": "Y29tbWVudDoxMjIxMzc2MjQ5NTg5NTY2NzdfMTQ3OTc2NDE3NDAzMjE5Mg==",
+            "legacyCommentId": "1479764174032192",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwZFhCS0o1Wnc2S3AxS2hta3Q4aWNEQWF3ZmloU2N3d1hDY2VNRnBSY3oybzZKcDM5eGY3MnJ2R2pFc1BFclN2OTNxYW9IZDJ4SmU4dlo5QlR0ZVUyYVl0cjV1UVl3bVhOMndETlBs",
+            "commentUrl": null,
+            "text": "I remember when Facebook was mostly pictures of people's lunches and random vacation photos. Now every time I open this app, I discover something that makes me question reality. And somehow I keep coming back for more.",
+            "createdTime": 1794213722,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "9b1bb181-018a-4e20-b24e-8523954e1fd9",
+            "httpHistory": {
+              "id": "167e331f-2b35-4cdb-9316-e5dcf4da5115",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\167e331f-2b35-4cdb-9316-e5dcf4da5115.jsonl",
+              "requestCount": 10,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "f643e57f-46a8-41b8-bd65-e061b405fd61",
+            "operation": "comment-create",
+            "commentIndex": 5,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl&id=61578700323442",
+            "storyId": "pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 11,
+              "synced": true
+            }
+          }
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid0NPBfCSCEQ588xx6cd9JBqAmTC7tcthfrcEptWjv9oXTDASJTAcM3FvfKcLPu16wjl&id=61578700323442",
+        "requestedCount": 5,
+        "publishedCount": 5,
+        "skippedCount": 0,
+        "remaining": [],
+        "cancelled": false,
+        "stoppedForStorage": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-09T08:41:06.794Z",
+      "startedAt": "2026-11-09T08:41:06.798Z",
+      "finishedAt": "2026-11-09T08:42:07.406Z",
+      "updatedAt": "2026-11-09T08:42:07.421Z"
+    },
+    {
+      "id": "08b1e653-725f-4079-8456-ff65355c3721",
+      "type": "autoupload-comments",
+      "name": "AU Comments · 11 · 9 профілів",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "autoupload-comments",
+          "label": "послідовна публікація коментарів"
+        },
+        {
+          "key": "adspower-profile:337",
+          "label": "профіль №337"
+        },
+        {
+          "key": "adspower-profile:342",
+          "label": "профіль №342"
+        },
+        {
+          "key": "adspower-profile:343",
+          "label": "профіль №343"
+        },
+        {
+          "key": "adspower-profile:1985",
+          "label": "профіль №1985"
+        },
+        {
+          "key": "adspower-profile:2699",
+          "label": "профіль №2699"
+        },
+        {
+          "key": "adspower-profile:2700",
+          "label": "профіль №2700"
+        },
+        {
+          "key": "adspower-profile:2701",
+          "label": "профіль №2701"
+        },
+        {
+          "key": "adspower-profile:2702",
+          "label": "профіль №2702"
+        },
+        {
+          "key": "adspower-profile:2703",
+          "label": "профіль №2703"
+        }
+      ],
+      "input": {
+        "profileIds": [
+          "k1829rog",
+          "k1829rom",
+          "k1829ron",
+          "k1gueugd",
+          "k1iqf2lu",
+          "k1iqf2lv",
+          "k1iqf2lw",
+          "k1iqf2lx",
+          "k1iqf2m0"
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+        "groupIds": [
+          "7705877"
+        ]
+      },
+      "metadata": {
+        "uniqueKey": "fanpage-au-comments:pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+        "httpHistory": {
+          "id": "2c0db580-f7a1-4336-801e-48d66bdadf89",
+          "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2c0db580-f7a1-4336-801e-48d66bdadf89.jsonl",
+          "requestCount": 15,
+          "format": "jsonl",
+          "version": 1
+        },
+        "reportId": "82adc358-effd-485e-aa2a-f9a1a0023d6e"
+      },
+      "progress": {
+        "completed": 11,
+        "total": 9,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "profiles": [
+          {
+            "profileId": "k1829rom",
+            "profileNo": "342",
+            "success": false,
+            "outcome": "NOT_CONFIRMED",
+            "code": "FACEBOOK_SOCIAL_CONTEXT_REQUIRED",
+            "message": "Ця дія потребує контексту соца; у сесії активна фанка",
+            "httpStatus": null,
+            "graphCode": null,
+            "graphSubcode": null,
+            "apiErrorCode": null,
+            "graphType": null,
+            "graphUserTitle": null,
+            "graphUserMessage": null,
+            "traceId": null,
+            "metaRequestId": null,
+            "friendshipStatus": null,
+            "errors": [],
+            "isTransient": false,
+            "sessionStatus": null,
+            "actionRequired": null,
+            "outcomeUnknown": false,
+            "diagnostic": null,
+            "retryable": false,
+            "mutationAttempted": false,
+            "actionId": "cae76dd9-7e8e-4201-9f1c-f659beddb522",
+            "httpHistory": {
+              "id": "2c0db580-f7a1-4336-801e-48d66bdadf89",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2c0db580-f7a1-4336-801e-48d66bdadf89.jsonl",
+              "requestCount": 1,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "209be874-d75c-4e0d-9cd9-e86e4c107978",
+            "operation": "comment-create",
+            "commentIndex": 1,
+            "text": "Oh I know this site, I've got one mate who's a proper little witch and she's always hanging out on there. Blokes, go find yourselves decent women.",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+            "storyId": "pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlVxdEFoTDlpTjVHUGtlUjJmb2lwQ3RMNzNyenpVMnlKU2F6YlJlbVZOQlBxMnNEd01jWWFFV0hRRGFXSm9oNm9s",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Ця дія потребує контексту соца; у сесії активна фанка"
+            ]
+          },
+          {
+            "profileId": "k1829ron",
+            "profileNo": "343",
+            "success": false,
+            "outcome": "NOT_CONFIRMED",
+            "code": "FACEBOOK_SOCIAL_CONTEXT_REQUIRED",
+            "message": "Ця дія потребує контексту соца; у сесії активна фанка",
+            "httpStatus": null,
+            "graphCode": null,
+            "graphSubcode": null,
+            "apiErrorCode": null,
+            "graphType": null,
+            "graphUserTitle": null,
+            "graphUserMessage": null,
+            "traceId": null,
+            "metaRequestId": null,
+            "friendshipStatus": null,
+            "errors": [],
+            "isTransient": false,
+            "sessionStatus": null,
+            "actionRequired": null,
+            "outcomeUnknown": false,
+            "diagnostic": null,
+            "retryable": false,
+            "mutationAttempted": false,
+            "actionId": "d0706a3b-5994-4d64-a20f-25f83961e706",
+            "httpHistory": {
+              "id": "2c0db580-f7a1-4336-801e-48d66bdadf89",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2c0db580-f7a1-4336-801e-48d66bdadf89.jsonl",
+              "requestCount": 2,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "22739288-e68a-4d30-b68c-1484917e8b5f",
+            "operation": "comment-create",
+            "commentIndex": 1,
+            "text": "Oh I know this site, I've got one mate who's a proper little witch and she's always hanging out on there. Blokes, go find yourselves decent women.",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+            "storyId": "pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlVxdEFoTDlpTjVHUGtlUjJmb2lwQ3RMNzNyenpVMnlKU2F6YlJlbVZOQlBxMnNEd01jWWFFV0hRRGFXSm9oNm9s",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Ця дія потребує контексту соца; у сесії активна фанка"
+            ]
+          },
+          {
+            "success": false,
+            "skipped": true,
+            "commentIndex": 1,
+            "text": "Oh I know this site, I've got one mate who's a proper little witch and she's always hanging out on there. Blokes, go find yourselves decent women.",
+            "message": "Немає доступного акаунта відповідної статі",
+            "mutationAttempted": false
+          },
+          {
+            "profileId": "k1829rog",
+            "profileNo": "337",
+            "success": false,
+            "outcome": "NOT_CONFIRMED",
+            "code": "FACEBOOK_SOCIAL_CONTEXT_REQUIRED",
+            "message": "Ця дія потребує контексту соца; у сесії активна фанка",
+            "httpStatus": null,
+            "graphCode": null,
+            "graphSubcode": null,
+            "apiErrorCode": null,
+            "graphType": null,
+            "graphUserTitle": null,
+            "graphUserMessage": null,
+            "traceId": null,
+            "metaRequestId": null,
+            "friendshipStatus": null,
+            "errors": [],
+            "isTransient": false,
+            "sessionStatus": null,
+            "actionRequired": null,
+            "outcomeUnknown": false,
+            "diagnostic": null,
+            "retryable": false,
+            "mutationAttempted": false,
+            "actionId": "81a951e2-3590-43f6-8f7b-43005688a854",
+            "httpHistory": {
+              "id": "2c0db580-f7a1-4336-801e-48d66bdadf89",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2c0db580-f7a1-4336-801e-48d66bdadf89.jsonl",
+              "requestCount": 3,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "d87b2ea7-d0bc-45c3-989e-248df08f3549",
+            "operation": "comment-create",
+            "commentIndex": 2,
+            "text": "Haha I know that nympho too, pretty much everyone who's been on that site knows her. Yeah she's really good but seems like her goal is to sleep with every bloke on the planet.",
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+            "storyId": "pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlVxdEFoTDlpTjVHUGtlUjJmb2lwQ3RMNzNyenpVMnlKU2F6YlJlbVZOQlBxMnNEd01jWWFFV0hRRGFXSm9oNm9s",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Ця дія потребує контексту соца; у сесії активна фанка"
+            ]
+          },
+          {
+            "profileId": "k1gueugd",
+            "profileNo": "1985",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlVxdEFoTDlpTjVHUGtlUjJmb2lwQ3RMNzNyenpVMnlKU2F6YlJlbVZOQlBxMnNEd01jWWFFV0hRRGFXSm9oNm9s",
+            "commentId": "Y29tbWVudDoxMjIxNDgwNzMzMjMwNTM5ODZfOTg2MDczNzE3OTA5OTkz",
+            "legacyCommentId": "986073717909993",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwODVDaDdxb2FMNkdwSmlWTFZlUUV3cWhkWnR3dmFrdVVMcnA2Q0drVDcyRDVydno1RnM4Z29xWjE0bWZiOTJaR2RITEo4U3luSEdCbVBXNDYxQjF4b0xVZ2twazl1ZjRNR0Rzdmw=",
+            "commentUrl": null,
+            "text": "Haha I know that nympho too, pretty much everyone who's been on that site knows her. Yeah she's really good but seems like her goal is to sleep with every bloke on the planet.",
+            "createdTime": 1794161087,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "0ae779f7-bf07-4d74-993e-a2255c983947",
+            "httpHistory": {
+              "id": "2c0db580-f7a1-4336-801e-48d66bdadf89",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2c0db580-f7a1-4336-801e-48d66bdadf89.jsonl",
+              "requestCount": 5,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "053f6f84-8990-4fcf-9257-58a9837c6217",
+            "operation": "comment-create",
+            "commentIndex": 2,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+            "storyId": "pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 1,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2lu",
+            "profileNo": "2699",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlVxdEFoTDlpTjVHUGtlUjJmb2lwQ3RMNzNyenpVMnlKU2F6YlJlbVZOQlBxMnNEd01jWWFFV0hRRGFXSm9oNm9s",
+            "commentId": "Y29tbWVudDoxMjIxNDgwNzMzMjMwNTM5ODZfMjY1NjUyMjUzNDgyMDc5MA==",
+            "legacyCommentId": "2656522534820790",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQweVhEWXVLV1Y4d1JCRDRNTnl4QzFIeDlGdDJGaER4d1hEOWdBMTlHYWJEQ3ZTSDVSV0VEeHl6eXFxanRqQ3duSm95REpQWFJYY25ZUHlLcXpRRWhKWXRuV2tWV0V5V2JtZVJuMUhs",
+            "commentUrl": null,
+            "text": "Found my neighbour on this site. Dead quiet in real life but absolute fire in bed.",
+            "createdTime": 1794161102,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "7abf1f70-19a0-42e4-ba93-4ae9f6e28c08",
+            "httpHistory": {
+              "id": "2c0db580-f7a1-4336-801e-48d66bdadf89",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2c0db580-f7a1-4336-801e-48d66bdadf89.jsonl",
+              "requestCount": 7,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "257d08e1-39e1-40a4-b909-4441191ad914",
+            "operation": "comment-create",
+            "commentIndex": 3,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+            "storyId": "pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 1,
+              "synced": true
+            }
+          },
+          {
+            "success": false,
+            "skipped": true,
+            "commentIndex": 4,
+            "text": "Every woman goes through a phase with this site at some point ☺️",
+            "message": "Немає доступного акаунта відповідної статі",
+            "mutationAttempted": false
+          },
+          {
+            "profileId": "k1iqf2lv",
+            "profileNo": "2700",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlVxdEFoTDlpTjVHUGtlUjJmb2lwQ3RMNzNyenpVMnlKU2F6YlJlbVZOQlBxMnNEd01jWWFFV0hRRGFXSm9oNm9s",
+            "commentId": "Y29tbWVudDoxMjIxNDgwNzMzMjMwNTM5ODZfMTEzMzkyNTc4NTg0NjI0NQ==",
+            "legacyCommentId": "1133925785846245",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwOUM0WFQ2VFFhSHNoMnN4czNhYlRCYjV0QzREajM5VVdTYTZBSERCY1N3a3I4VGI5SmlGNG5wQ01lRDhZMXF6d1g3eTFES252ODNRQVFaTVlmbVJnVVF3MzY5QUZIRk5QM1o1Q1Js",
+            "commentUrl": null,
+            "text": "Had a rough run with this site. Signed up and checked who wanted to meet within 2-3 km - and found my own wife. That's how I found out she'd been cheating on me for years.",
+            "createdTime": 1794161116,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "85494ccd-d44f-40c8-bb35-0bba1ac353ad",
+            "httpHistory": {
+              "id": "2c0db580-f7a1-4336-801e-48d66bdadf89",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2c0db580-f7a1-4336-801e-48d66bdadf89.jsonl",
+              "requestCount": 9,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "25e10b35-112e-4308-b0ae-46fb29dc0be8",
+            "operation": "comment-create",
+            "commentIndex": 5,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+            "storyId": "pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 1,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2lw",
+            "profileNo": "2701",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlVxdEFoTDlpTjVHUGtlUjJmb2lwQ3RMNzNyenpVMnlKU2F6YlJlbVZOQlBxMnNEd01jWWFFV0hRRGFXSm9oNm9s",
+            "commentId": "Y29tbWVudDoxMjIxNDgwNzMzMjMwNTM5ODZfMTgzMTQwNjQ5ODEwMTA4NA==",
+            "legacyCommentId": "1831406498101084",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwVUdIY1lzQnpTU3FoYXI0dHhETm1aUFV6ZlNEaVFWaTF6ZGhibVZHRUpiMkg2OHVpdGFTZ2NSOTY1Mmc2OW1hcTgyNDhmVGFleTZNS2dad1p2QlFCN2VoVEQ2OHRkR0JnYTNYNTds",
+            "commentUrl": null,
+            "text": "Cheers, this site is a real goldmine. Everyone knows why they're there - you message, meet up, do what you want and head home happy. Not like other sites where you chat for days then grab a coffee buy flowers and end up hearing we're not right for each other. Mate you're the best.",
+            "createdTime": 1794161131,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "16340e80-a6bc-4cf3-ad82-56a985c8881f",
+            "httpHistory": {
+              "id": "2c0db580-f7a1-4336-801e-48d66bdadf89",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2c0db580-f7a1-4336-801e-48d66bdadf89.jsonl",
+              "requestCount": 11,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "662ce70f-0aa4-498a-9e9a-5507430f8ba1",
+            "operation": "comment-create",
+            "commentIndex": 6,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+            "storyId": "pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 1,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2lx",
+            "profileNo": "2702",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlVxdEFoTDlpTjVHUGtlUjJmb2lwQ3RMNzNyenpVMnlKU2F6YlJlbVZOQlBxMnNEd01jWWFFV0hRRGFXSm9oNm9s",
+            "commentId": "Y29tbWVudDoxMjIxNDgwNzMzMjMwNTM5ODZfOTU2MzczMDQwNjAyMjE0",
+            "legacyCommentId": "956373040602214",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwOHVheWJQdGh1dWY4UTV5a2RDOENoYVFQY29remhxWFNGazc1UnNKaFNaajZWcWJ0eE1RdWNKcVVoQ3QyYlVlNTZtc2JvR0ZoNFVSY0Qyb0p5bnZWVHp0M3poeUhnYzlrR2R3MWw=",
+            "commentUrl": null,
+            "text": "The girls on there are properly top tier. Met a fetishist on there she was down for anything absolute mad.",
+            "createdTime": 1794161148,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "8af7482c-715b-41fa-a174-fcc4c504e659",
+            "httpHistory": {
+              "id": "2c0db580-f7a1-4336-801e-48d66bdadf89",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2c0db580-f7a1-4336-801e-48d66bdadf89.jsonl",
+              "requestCount": 13,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "04c7dcc8-12e5-4dda-949e-1f05b4c77618",
+            "operation": "comment-create",
+            "commentIndex": 7,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+            "storyId": "pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 1,
+              "synced": true
+            }
+          },
+          {
+            "profileId": "k1iqf2m0",
+            "profileNo": "2703",
+            "success": true,
+            "outcome": "CREATED",
+            "code": null,
+            "message": "Коментар створено, ID отримано",
+            "postFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMlVxdEFoTDlpTjVHUGtlUjJmb2lwQ3RMNzNyenpVMnlKU2F6YlJlbVZOQlBxMnNEd01jWWFFV0hRRGFXSm9oNm9s",
+            "commentId": "Y29tbWVudDoxMjIxNDgwNzMzMjMwNTM5ODZfMjIwODU5OTU0MDA3MTkxMw==",
+            "legacyCommentId": "2208599540071913",
+            "commentFeedbackId": "ZmVlZGJhY2s6cGZiaWQwMkR1bW11RG96dGtpaEhhSnNoZnQ2WEZWZ3NzUTMzcTNLbWdZbXdkNjMxVjlDNzFvMWdqVHFkRUF6NkRWOGRSd1FwVlBIR2Q5U0RoMVJpWmhpRk51NWVkdWF1ZnY1SFNYSnJhdXNUbA==",
+            "commentUrl": null,
+            "text": "Decided to check out what this site is about. Signed up a few hours ago and I'm already about to head over to some girl's place. Cheers for the tip.",
+            "createdTime": 1794161165,
+            "httpStatus": 200,
+            "traceId": null,
+            "metaRequestId": null,
+            "mutationAttempted": true,
+            "outcomeUnknown": false,
+            "retryable": false,
+            "actionId": "ca64b533-d066-49b4-b28e-206d99a8d59a",
+            "httpHistory": {
+              "id": "2c0db580-f7a1-4336-801e-48d66bdadf89",
+              "path": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\http\\2c0db580-f7a1-4336-801e-48d66bdadf89.jsonl",
+              "requestCount": 15,
+              "format": "jsonl",
+              "version": 1
+            },
+            "attemptId": "772c502f-6767-4b2b-a7fb-b3a3d5f1a798",
+            "operation": "comment-create",
+            "commentIndex": 8,
+            "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+            "storyId": "pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+            "skipped": false,
+            "fields": [],
+            "steps": [
+              "Коментар створено, ID отримано"
+            ],
+            "counter": {
+              "key": "AU_COMMENT",
+              "value": 1,
+              "synced": true
+            }
+          }
+        ],
+        "postUrl": "https://www.facebook.com/permalink.php?story_fbid=pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol&id=61581619600262",
+        "requestedCount": 11,
+        "publishedCount": 6,
+        "skippedCount": 2,
+        "remaining": [
+          {
+            "commentIndex": 9,
+            "text": "This site is just for sex nothing else. Easy to find yourself a girl for the night."
+          },
+          {
+            "commentIndex": 10,
+            "text": "Drop the link to the site."
+          },
+          {
+            "commentIndex": 11,
+            "text": "Oh yeah great site so many memories 😂"
+          }
+        ],
+        "cancelled": false,
+        "stoppedForStorage": false
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-08T18:04:14.345Z",
+      "startedAt": "2026-11-08T18:04:14.349Z",
+      "finishedAt": "2026-11-08T18:06:13.422Z",
+      "updatedAt": "2026-11-08T18:06:13.430Z"
+    },
+    {
+      "id": "9a6e477f-13ef-40ec-bc20-17022e440f82",
+      "type": "comments",
+      "name": "Коментарі поста · AU · 1",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "adspower-group:7705877",
+          "label": "[USA] America"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7705877"
+        ],
+        "geo": "AU",
+        "creativeGeo": "AU",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/61581619600262/posts/pfbid02UqtAhL9iN5GPkeR2foipCtL73rzzU2yJSazbRemVNBPq2sDwMcYaEWHQDaWJoh6ol",
+        "postId": "793374197197941_122148073323053986",
+        "authorPageUrl": "https://www.facebook.com/793374197197941",
+        "browserMode": "visible",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7705877"
+        ],
+        "geo": "AU",
+        "language": "",
+        "browserMode": "visible",
+        "disableImages": true,
+        "reportId": "3b9158f6-ec9e-4f29-b06c-74e905a32737"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 16,
+        "stage": "interrupted",
+        "message": "Задачу перервано",
+        "published": 0,
+        "skipped": 1,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "1",
+        "currentProfileNo": "342",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-11-08_19-56-44-019.md",
+        "fatalError": "Паралельне коментування перервано",
+        "interrupted": true
+      },
+      "error": {
+        "message": "Паралельне коментування перервано",
+        "code": "COMMENTING_ABORTED",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "httpStatus": null,
+        "requestId": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "endpoint": null,
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": null,
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-08T17:56:40.406Z",
+      "startedAt": "2026-11-08T17:56:40.411Z",
+      "finishedAt": "2026-11-08T17:56:44.025Z",
+      "updatedAt": "2026-11-08T17:56:44.030Z"
+    },
+    {
       "id": "e5c8e0e5-c2d0-4e32-b545-099c51b7ecf5",
       "type": "account-setup",
       "name": "Акаунти під коментарі · US · 5",

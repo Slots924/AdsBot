@@ -74,6 +74,8 @@ export async function withHttpAction(name, execute, metadata = {}) {
                     publishedCount: result?.publishedCount, backdatedCount: result?.backdatedCount, requestedCount: result?.requestedCount,
                     commentId: result?.commentId, legacyCommentId: result?.legacyCommentId,
                     commentFeedbackId: result?.commentFeedbackId, postFeedbackId: result?.postFeedbackId,
+                    parentCommentId: result?.parentCommentId, reaction: result?.reaction, reactionKnown: result?.reactionKnown,
+                    postTarget: result?.postTarget, commentTarget: result?.commentTarget,
                     commentUrl: result?.commentUrl, text: result?.text, createdTime: result?.createdTime,
                     adsManagerPrepared: result?.hasAdsManagerSession, credentialObtained: result?.hasAccessToken }, [...scope.secrets]) });
             return result && typeof result === "object" ? { ...result, actionId: scope.actionId, exchanges: scope.exchanges,

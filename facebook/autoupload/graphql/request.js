@@ -2,10 +2,10 @@ import buildForm from "./buildForm.js";
 import parseResponse from "./parseResponse.js";
 
 // Викликається всередині черги клієнта; самостійно не створює нову сесію.
-export default async function requestGraphql(fbData, operation, variables, { signal, mutation = true, beforeSend, accountsCenter = false, formSession = fbData.session } = {}) {
+export default async function requestGraphql(fbData, operation, variables, { signal, mutation = true, beforeSend, accountsCenter = false, formSession = fbData.session, allowPageActor = false } = {}) {
     signal?.throwIfAborted();
-    fbData.client.validateFbData(fbData);
-    const form = buildForm({ ...fbData, session: formSession }, { ...operation, variables });
+    fbData.client.validateFbData(fbData, { allowPageActor });
+    const form = buildForm({ ...fbData, session: formSession }, { ...operation, variables, allowPageActor });
     if (accountsCenter) form.set("__crn", "comet.fx.accounts_center.name.editor");
     await beforeSend?.();
     signal?.throwIfAborted();

@@ -14,6 +14,11 @@ import { profileActions, validateProfileAction } from "../../facebook/autoupload
 import getFanPages from "../../facebook/autoupload/actions/pages/getFanPages.js";
 import grantFanPageAccess from "../../facebook/autoupload/workflows/grantFanPageAccess.js";
 import createComment from "../../facebook/autoupload/actions/comments/createComment.js";
+import createReply from "../../facebook/autoupload/actions/comments/createReply.js";
+import getPostContext from "../../facebook/autoupload/actions/posts/getPostContext.js";
+import setPostReaction from "../../facebook/autoupload/actions/reactions/setPostReaction.js";
+import runCommentDialogue from "./commentDialogue.js";
+import { compactHttpHistory } from "../reports/HttpExchangeTrace.js";
 import commentBatchInput from "./commentBatchInput.js";
 import { incrementActionCounter } from "../profile/actionCounters.js";
 import { randomUUID } from "node:crypto";
@@ -29,7 +34,8 @@ export default class AutouploadService {
     #pageLists = new Map();
     constructor({ store, adsPower, profileBrowser, sessionStore, reportManager, onUpdated = () => {}, checkSession, sendFriendRequestFn = sendFriendRequest, shareAdAccountFn = shareAdAccount, acceptFriendRequestFn = acceptIncomingFriendRequest, changeNameFn = changeFacebookName,
         getFanPagesFn = getFanPages, grantFanPageAccessFn = grantFanPageAccess, checkPageSession = checkProfileSession,
-        createCommentFn = createComment, prepareCommentSession = checkProfileSession }) {
+        createCommentFn = createComment, createReplyFn = createReply, getPostContextFn = getPostContext, setPostReactionFn = setPostReaction, prepareCommentSession = checkProfileSession }) {
+        Object.assign(this, { createReplyFn, getPostContextFn, setPostReactionFn });
         Object.assign(this, { createCommentFn, prepareCommentSession });
         Object.assign(this, { reportManager, getFanPagesFn, grantFanPageAccessFn, checkPageSession });
         this.changeNameFn = changeNameFn;
@@ -39,6 +45,39 @@ export default class AutouploadService {
 
     publishComments(ids, input, context = {}) {
         return this.#runReported("publishComments", () => this.#publishComments(ids, commentBatchInput(input), context));
+    }
+
+    publishDialogue(ids, input, context = {}) {
+        return this.#runReported("publishComments", async () => {
+            const profiles = context.profiles ?? await this.selected(ids);
+            const pendingIds = profiles.map(profile => profile.profileId);
+            if (pendingIds.some(id => this.#running.has(id) || this.#mutating.has(id) || this.#browserBusy.has(id))) throw new Error("Операція над профілем уже виконується");
+            pendingIds.forEach(id => this.#running.add(id));
+            const runId = randomUUID();
+            try {
+                await this.#publish();
+                const output = await runCommentDialogue({ rows: input.commentRows, profiles, postUrl: input.postUrl, signal: context.signal, progress: context.progress,
+                    prepare: profile => this.prepareCommentSession({ profileId: profile.profileId, adsPower: this.adsPower, signal: context.signal,
+                        onSessionStatus: this.#statusHandler(profile.profileId),
+                        onStage: message => context.progress?.({ stage: "session", message: `№${profile.profileNo}: ${message}` }),
+                    }),
+                    getPostContext: this.getPostContextFn, setPostReaction: this.setPostReactionFn,
+                    createComment: this.createCommentFn, createReply: this.createReplyFn,
+                    handleRestriction: (id, action) => this.#handleRestriction(id, action),
+                    persist: (id, entry) => this.store.recordAction(id, entry),
+                    persistState: state => this.store.saveCommentDialogue(runId, { ...state, runId }),
+                    saveSession: async (id, client) => { if (this.sessionStore) await this.sessionStore.save(id, client.exportSession()); },
+                    afterSuccess: async (profile, row, action) => {
+                        await incrementActionCounter({ adsPower: this.adsPower, store: this.store, profileId: profile.profileId,
+                            key: row.type === "reply" ? "AU_REPLY" : "AU_COMMENT", eventId: action.commentId, syncLocalName: !context.profiles });
+                    },
+                });
+                return compactHttpHistory({ ...output, result: { ...output.result, runId } });
+            } finally {
+                pendingIds.forEach(id => this.#running.delete(id));
+                await this.#publish();
+            }
+        });
     }
 
     async #publishComments(ids, input, { signal, progress = async () => {}, profiles: suppliedProfiles, commentRows } = {}) {

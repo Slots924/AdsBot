@@ -185,6 +185,14 @@ export default class AutouploadStore {
         });
     }
 
+    saveCommentDialogue(runId, result) {
+        const compact = compactHttpHistory(result);
+        return this.change(state => {
+            state.commentDialogues ??= {};
+            state.commentDialogues[runId] = { ...compact, runId, updatedAt: new Date().toISOString(), httpHistory: currentHttpHistory() };
+        });
+    }
+
     recordAction(profileId, result) {
         if (currentHttpHistory()) result = { ...compactHttpHistory(result), httpHistory: currentHttpHistory() };
         return this.change((state) => {

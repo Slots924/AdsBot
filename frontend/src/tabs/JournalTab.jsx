@@ -1,5 +1,6 @@
 import AccountCreationType from "../components/AccountCreationType.jsx";
 import HttpHistoryTimeline from "../components/HttpHistoryTimeline.jsx";
+import CommentDialogueReport from "../components/CommentDialogueReport.jsx";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -441,7 +442,8 @@ export default function JournalTab({ onError, showToast, onOpenTask = () => {} }
                 <span className="eyebrow">{selectedWorkflowReport ? "Markdown report" : selectedReport ? "Task report" : selectedLog?.scope}</span>
                 <h2>{selectedWorkflowReport?.title || selectedReport?.title || selectedLog?.message}</h2>
                 {selectedWorkflowReport ? <MarkdownPreview content={selectedWorkflowReport.content} /> : <>
-                    <pre>{JSON.stringify(selectedReport ? { ...selectedReport, httpHistoryEvents: undefined } : selectedLog, null, 2)}</pre>
+                    {selectedReport?.resultSummary?.summary && <CommentDialogueReport result={selectedReport.resultSummary} />}
+                    {selectedReport?.resultSummary?.summary ? <details><summary>Деталі виконання</summary><pre>{JSON.stringify({ ...selectedReport, httpHistoryEvents: undefined }, null, 2)}</pre></details> : <pre>{JSON.stringify(selectedReport ? { ...selectedReport, httpHistoryEvents: undefined } : selectedLog, null, 2)}</pre>}
                     <HttpHistoryTimeline events={selectedReport?.httpHistoryEvents} />
                 </>}
                 <div className="form-actions">

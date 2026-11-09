@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { sanitize } from "../logging/AppLogger.js";
 import { historyReferences, readHttpHistory, buildHttpHistoryMarkdown } from "./httpHistoryReport.js";
+import { cleanHistory } from "./httpHistoryPolicy.js";
 
 
 function summarizeInput(input = {}) {
@@ -34,14 +35,21 @@ function markdown(report) {
         "",
         "## Результат",
         "",
-        "```json",
-        JSON.stringify(report.resultSummary, null, 2),
-        "```",
+        ...(report.resultSummary?.summary && Array.isArray(report.resultSummary.rows)
+            ? dialogueMarkdown(report.resultSummary)
+            : ["```json", JSON.stringify(report.resultSummary, null, 2), "```"]),
     ];
     if (report.errors?.length) {
         lines.push("", "## Помилки", "", "```json", JSON.stringify(report.errors, null, 2), "```");
     }
     return `${lines.join("\n")}\n${buildHttpHistoryMarkdown(report.httpHistoryEvents ?? [])}`;
+}
+
+function dialogueMarkdown(result) {
+    const cell = value => String(value ?? '—').replace(/\|/g, '\\|').replace(/[\r\n]+/g, ' ');
+    const labels = { success: 'Опубліковано', failed: 'Помилка', unknown: 'Результат невідомий', skipped: 'Пропущено', pending: 'Не виконано' };
+    return [result.summaryText, '', '| Рядок / батько | Дія | Профіль | Результат | Причина |', '| --- | --- | --- | --- | --- |',
+        ...result.rows.map(row => `| ${cell(row.id)} / ${cell(row.parent_id)} | ${row.type === 'reply' ? 'Реплай' : 'Коментар'} | ${cell(row.profileNo)} | ${row.status === 'success' && row.commentTarget?.commentUrl ? `[Опубліковано](${row.commentTarget.commentUrl})` : cell(labels[row.status])} | ${cell(row.counterWarning || row.storageWarning || row.message)} |`)];
 }
 
 
@@ -81,6 +89,8 @@ export default class TaskReportManager {
             });
             // Посилання обробляються окремо: загальний sanitizer сприймає повтор того самого об'єкта як цикл.
             report.httpHistories = historyReferences({ task, details }).map(reference => sanitize({ ...reference }));
+            // Повний результат діалогу зберігається без обрізання рядків і вкладених спроб.
+            if (task.result?.summary && Array.isArray(task.result.rows)) report.resultSummary = cleanHistory(details.resultSummary ?? task.result);
             await mkdir(this.reportsDirectory, { recursive: true });
             const target = this.#file(report.id);
             const temporary = `${target}.tmp`;
