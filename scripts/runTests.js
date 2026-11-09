@@ -4,6 +4,7 @@ import { performance } from "node:perf_hooks";
 
 const backendSuites = {
     campaign: [
+        "test/testCreativeTest.js",
         "test/testAdSetDelivery.js",
         "test/testAdSetConcurrency.js",
         "test/testAdSetService.js",
@@ -19,6 +20,7 @@ const backendSuites = {
         "test/testCampaignTemplateManager.js",
     ],
     all: [
+        "test/testCreativeTest.js",
         "test/testAdSetDelivery.js",
         "test/testAdSetConcurrency.js",
         "test/testAdSetService.js",
@@ -119,8 +121,9 @@ const backendSuites = {
     ],
 };
 const frontendSuites = {
-    campaign: ["src/test/campaign.test.jsx", "src/test/adsets.test.jsx", "src/test/batch-campaign.test.jsx", "src/test/templates.test.jsx"],
+    campaign: ["src/test/creative-test.test.jsx", "src/test/campaign.test.jsx", "src/test/adsets.test.jsx", "src/test/batch-campaign.test.jsx", "src/test/templates.test.jsx"],
     all: [
+        "src/test/creative-test.test.jsx",
         "src/test/farming.test.jsx",
         "src/test/adsets.test.jsx",
         "src/test/personal-fanpage-editor.test.jsx",

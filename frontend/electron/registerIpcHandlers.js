@@ -1003,7 +1003,7 @@ export default function registerIpcHandlers({
         let cachedCreatedCampaignId = null;
         const onProgress = async (progress) => {
             assertNotAborted();
-            const completed = job.input.posts?.length && progress.objects
+            const completed = (job.input.posts?.length || job.input.creativeTest) && progress.objects
                 ? 1 + Number(Boolean(progress.objects.campaignId)) + (progress.objects.creatives?.length ?? 0) + progress.objects.adSets.length + progress.objects.ads.length
                 : progressValue(progress, job.input.adSetCount);
             const updated = await campaignCreationJournal.update(job.id, {
@@ -2448,6 +2448,7 @@ export default function registerIpcHandlers({
             });
         })
     );
+    ipcMain.handle("creatives:test-prepare", safeHandler(payload => guiService.prepareCreativeTest(payload)));
     ipcMain.handle(
         "campaigns:create-start",
         safeHandler(async (payload) => {

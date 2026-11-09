@@ -8,8 +8,10 @@ import {
     verifyCampaignReadback,
 } from "../services/campaigns/CampaignSettings.js";
 import { buildCampaignCreativeFields } from "../services/campaigns/CampaignCreative.js";
+import { normalizeCreativeTestOptions } from "../../services/creatives/creativeTest.js";
 
 export default async function createLeadCampaign(options, onProgress = () => {}, operations) {
+    options = normalizeCreativeTestOptions(options);
     const {
         campaignName,
         template,
@@ -47,6 +49,7 @@ export default async function createLeadCampaign(options, onProgress = () => {},
     });
     let currentStage = "preflight";
     let currentIndex = null;
+    let currentVariant = null;
     const metaWarnings = [];
     const collectWarnings = (response) => {
         for (const warning of summarizeGraphResponse({ data: response }).warnings) {
@@ -77,11 +80,16 @@ export default async function createLeadCampaign(options, onProgress = () => {},
             }
             imageHash = await operations.uploadImage(preflight.adAccountId, adCreative.image);
         }
-        const postPreflights = preflight.posts ?? [preflight];
+        const postPreflights = options.creativeTest
+            ? options.creativeTest.variants.map(() => preflight)
+            : preflight.posts ?? [preflight];
         for (const [creativeIndex, postPreflight] of postPreflights.entries()) {
+            const variant = options.creativeTest?.variants[creativeIndex];
+            currentVariant = variant?.label ?? null;
+            currentIndex = creativeIndex;
             const creativeFields = buildCampaignCreativeFields({
-                options,
-                name: postPreflights.length > 1 ? `${name} | ${postPreflight.postId}` : name,
+                options: variant ? { ...options, adCreative: { ...adCreative, siteUrl: options.siteUrl, callToActionType: "NO_BUTTON", primaryText: variant.text, headline: new URL(options.siteUrl).hostname } } : options,
+                name: variant ? `${name} | ${variant.label}` : postPreflights.length > 1 ? `${name} | ${postPreflight.postId}` : name,
                 preflight: postPreflight,
                 imageHash,
             });
@@ -95,9 +103,12 @@ export default async function createLeadCampaign(options, onProgress = () => {},
                 pageId: postPreflight.pageId,
                 postId: postPreflight.postId,
                 creativeName: options.posts?.[creativeIndex]?.creativeName,
+                ...(variant ? { variantLabel: variant.label } : {}),
             });
-            await emit("creative", { message: `Креатив ${objects.creatives.length}/${postPreflights.length} створено` });
+            await emit("creative", { creativeIndex, variantLabel: currentVariant, message: `Креатив ${objects.creatives.length}/${postPreflights.length} створено${currentVariant ? ` · ${currentVariant}` : ""}` });
         }
+
+        currentVariant = null;
 
         for (let index = 0; index < count; index += 1) {
             currentIndex = index;
@@ -126,9 +137,10 @@ export default async function createLeadCampaign(options, onProgress = () => {},
 
             currentStage = "ad";
             for (const [creativeIndex, creative] of objects.creatives.entries()) {
+                currentVariant = creative.variantLabel ?? null;
                 const adFields = buildAdFields({
                     name,
-                    ordinal: objects.creatives.length > 1 ? `${ordinal} | ${creative.postId}` : ordinal,
+                    ordinal: creative.variantLabel ? `${ordinal} | ${creative.variantLabel}` : objects.creatives.length > 1 ? `${ordinal} | ${creative.postId}` : ordinal,
                     adSetId: adSet.id,
                     creativeId: creative.id,
                     creativeName: creative.creativeName,
@@ -141,10 +153,13 @@ export default async function createLeadCampaign(options, onProgress = () => {},
                 await emit("ad", {
                     index,
                     creativeIndex,
-                    message: `Оголошення ${objects.ads.length}/${count * objects.creatives.length} створено`,
+                    variantLabel: currentVariant,
+                    message: `Оголошення ${objects.ads.length}/${count * objects.creatives.length} створено${currentVariant ? ` · ${currentVariant}` : ""}`,
                 });
             }
         }
+
+        currentVariant = null;
 
         // Дочірні об'єкти вже мають потрібний статус; кампанію вмикаємо останньою.
         if (!createPaused) {
@@ -179,6 +194,7 @@ export default async function createLeadCampaign(options, onProgress = () => {},
         await emit("complete", { message: "Створення завершено" });
         return { objects, preflight, readback, createPaused };
     } catch (error) {
+        if (currentVariant) error.message = `${currentVariant}: ${error.message}`;
         if (/instagram|\binsta\b|\big account\b|page.backed/i.test(error.message ?? "")) {
             error.message = `Проблема з Instagram: ${error.message}. Перевірте Instagram-ідентичність фанпейджі в Ads Manager (Use Facebook Page або підключений Instagram) і доступи рекламного акаунта.`;
         }

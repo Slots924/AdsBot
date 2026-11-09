@@ -19,6 +19,7 @@ import {
 import { errorDetails, unwrap } from "../lib/api.js";
 import { buildPixelUtm } from "../../../services/keitaro/pixelUtm.js";
 import TemplatesTab from "../tabs/TemplatesTab.jsx";
+import { creativeTestName } from "../../../services/creatives/creativeTest.js";
 
 
 function campaignNameTimestamp(date, timeZone) {
@@ -71,6 +72,9 @@ export default function CampaignCreationWizard({
     lastPublishedPost = null,
     sourcePage = null,
     sourcePost = null,
+    creativeTest = null,
+    testImagePath = "",
+    onBack,
     batch = null,
     onRetryBatch,
     onClose,
@@ -113,7 +117,7 @@ export default function CampaignCreationWizard({
         templateId: "",
         pageId: String(initialPageId || ""),
         postId: String(initialPostId || ""),
-        adSetCount: 5,
+        adSetCount: creativeTest ? 1 : 5,
         dailyBudget: 5,
         budgetMode: "adset",
         campaignBudget: 25,
@@ -129,6 +133,7 @@ export default function CampaignCreationWizard({
     const [warnings, setWarnings] = useState([]);
     const [jobId, setJobId] = useState(null);
     const jobIdRef = useRef(null);
+    const progressRevision = useRef(0);
     const pagesRequest = useRef(0);
     const postsRequest = useRef(0);
     const pixelsRequest = useRef(0);
@@ -196,7 +201,7 @@ export default function CampaignCreationWizard({
     }, [accountKey]);
 
     useEffect(() => {
-        if (!batch) refreshPages();
+        if (!batch && !creativeTest) refreshPages();
         else setPagesLoading(false);
     }, [refreshPages, Boolean(batch)]);
 
@@ -237,12 +242,13 @@ export default function CampaignCreationWizard({
                 ? String(initialPostId || "")
                 : "",
         }));
-        if (form.pageId && !batch) loadPosts(form.pageId);
+        if (form.pageId && !batch && !creativeTest) loadPosts(form.pageId);
     }, [form.pageId, loadPosts, initialPageId, initialPostId]);
 
     useEffect(() => {
         return window.adsBot.onCampaignCreationProgress((event) => {
             if (!jobIdRef.current || event.jobId !== jobIdRef.current) return;
+            progressRevision.current += 1;
             setProgress(event);
             if (event.error) setFailure(event.error);
         });
@@ -251,6 +257,22 @@ export default function CampaignCreationWizard({
     useEffect(() => {
         jobIdRef.current = jobId;
     }, [jobId]);
+
+    useEffect(() => {
+        if (!creativeTest || !jobId || !window.adsBot.getCampaignCreationJob) return;
+        let active = true;
+        const revision = progressRevision.current;
+        const refresh = async () => {
+            try {
+                const job = await unwrap(window.adsBot.getCampaignCreationJob(jobId));
+                if (!active || revision !== progressRevision.current) return;
+                setProgress({ stage: ["failed", "interrupted"].includes(job.status) ? job.status : job.stage, objects: job.objects, completed: job.completed, total: job.total });
+                if (job.errors?.length) setFailure(job.errors[0]);
+            } catch (error) { if (active) setFailure(errorDetails(error)); }
+        };
+        refresh();
+        return () => { active = false; };
+    }, [creativeTest, jobId]);
 
     const selectedPage = pages.find(
         (page) => String(page.id) === form.pageId
@@ -292,6 +314,7 @@ export default function CampaignCreationWizard({
         [form.adSetCount, form.dailyBudget]
     );
     const buildAutomaticName = useCallback((date) => {
+        if (creativeTest) return creativeTestName(creativeTest);
         if (!sourcePage) return "";
         const localeCodes = (selectedTemplate?.locales ?? [])
             .map((id) => languages.find((language) => Number(language.id) === Number(id))?.code)
@@ -303,7 +326,7 @@ export default function CampaignCreationWizard({
             : "";
         const source = batch ? `${[...new Set(selectedBatchPosts.map((post) => post.page.geo || "GEO"))].join("/") || sourcePage.geo || "GEO"} | ${form.budgetMode === "campaign" ? "CBO" : "ABO"} | ${selectedBatchPosts.length} креативів` : `${geo} | Creo_${sourcePage.creativeName || "?"}`;
         return `${source} | ${selectedTemplate?.ageMin ?? 18}+${operatingSystem} ${campaignNameTimestamp(date, timezone)}`;
-    }, [languages, selectedTemplate, sourcePage, timezone, batch, excludedPosts, form.budgetMode]);
+    }, [languages, selectedTemplate, sourcePage, timezone, batch, excludedPosts, form.budgetMode, creativeTest]);
     const automaticName = buildAutomaticName(openedAt.current);
 
     useEffect(() => {
@@ -369,10 +392,11 @@ export default function CampaignCreationWizard({
         accountKey,
         adAccountId: adAccount.id,
         templateId: Number(form.templateId),
-        campaignName: form.campaignName.trim(),
+        campaignName: creativeTest && !form.campaignName.trim().startsWith(creativeTestName(creativeTest)) ? `${creativeTestName(creativeTest)} | ${form.campaignName.trim()}` : form.campaignName.trim(),
         pageId: form.pageId,
         postId: form.postId.trim(),
-        adSetCount: Number(form.adSetCount),
+        adSetCount: creativeTest ? 1 : Number(form.adSetCount),
+        ...(creativeTest ? { creativeTest, creativeMode: "image", imagePath: testImagePath, siteUrl: creativeTest.siteUrl, budgetMode: "adset", callToActionType: "NO_BUTTON" } : {}),
         dailyBudget: Number(form.dailyBudget),
         ...(batch ? {
             budgetMode: form.budgetMode,
@@ -491,12 +515,13 @@ export default function CampaignCreationWizard({
 
     const canCheck = form.campaignName.trim()
         && form.templateId
-        && (batch ? !batch.loading && !batch.errors.length && selectedBatchPosts.length > 0 : form.pageId && form.postId.trim())
+        && (creativeTest ? form.pageId && testImagePath && creativeTest.variants.length : batch ? !batch.loading && !batch.errors.length && selectedBatchPosts.length > 0 : form.pageId && form.postId.trim())
         && Number.isInteger(Number(form.adSetCount)) && Number(form.adSetCount) > 0 && Number(form.adSetCount) <= 100
         && Number(batch && form.budgetMode === "campaign" ? form.campaignBudget : form.dailyBudget) > 0
         && form.startTime
         && (!isPostCampaign || (!pixelsLoading && !pixelsError && Boolean(form.pixelId)));
-    const creationTotal = 2 + (batch ? selectedBatchPosts.length : 1) + Number(form.adSetCount) * (1 + (batch ? selectedBatchPosts.length : 1));
+    const variantCount = creativeTest?.variants.length ?? (batch ? selectedBatchPosts.length : 1);
+    const creationTotal = 2 + variantCount + Number(form.adSetCount) * (1 + variantCount);
 
     const check = async (event) => {
         event.preventDefault();
@@ -562,6 +587,7 @@ export default function CampaignCreationWizard({
                 ...draft,
                 postId: verifiedPostId,
             }));
+            jobIdRef.current = response.jobId;
             setJobId(response.jobId);
             setProgress({
                 stage: "queued",
@@ -595,7 +621,7 @@ export default function CampaignCreationWizard({
         ? Math.min(100, Math.round((progress.completed ?? 0) / progress.total * 100))
         : 0;
 
-    if (sourcePage && (sourcePost || batch)) {
+    if (sourcePage && (sourcePost || batch || creativeTest)) {
         return (
             <div className="overlay creative-launch-overlay" onMouseDown={() => !checking && !creating && onClose()}>
                 <div
@@ -647,7 +673,7 @@ export default function CampaignCreationWizard({
                         </section>}
                         <section className="launch-section campaign-source-section">
                             <header><strong>{batch ? `Креативи · вибрано ${selectedBatchPosts.length} з ${batch.items.length}` : "Джерело реклами"}</strong>{batch && <button type="button" className="secondary-button" disabled={batch.loading || checking || creating} onClick={onRetryBatch}><RefreshCw size={14} /> Оновити</button>}</header>
-                            {batch ? <div className="batch-creative-list" aria-label="Креативи для запуску" aria-busy={batch.loading}>
+                            {creativeTest ? <div><strong>{sourcePage.name} · {sourcePage.id}</strong><p>1 кампанія → 1 адсет → {creativeTest.variants.length} оголошень</p><p>Лише Facebook Feed. Автоматичні покращення вимкнено. Ціль — ліди.</p>{creativeTest.variants.map(variant => <details key={variant.last}><summary>{variant.label}</summary><p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{variant.text}</p></details>)}</div> : batch ? <div className="batch-creative-list" aria-label="Креативи для запуску" aria-busy={batch.loading}>
                                 {batch.loading && <div className="batch-list-message"><LoaderCircle className="spin" size={20} /> Оновлюємо URL-пости вибраних фанок…</div>}
                                 {batch.errors.map((error) => <div className="resource-inline-error" key={error.page.id}>{error.page.name}: {error.message}. Оновіть список перед запуском.</div>)}
                                 {!batch.loading && !batch.items.length && <div className="batch-list-message">Серед останніх 10 постів вибраних фанок немає постів з URL.</div>}
@@ -727,7 +753,7 @@ export default function CampaignCreationWizard({
                                 <input type="datetime-local" step="60" value={form.startTime} onChange={(event) => change("startTime", event.target.value)} />
                             </label>
                             <div className="launch-budget-grid">
-                                <label className="field"><span>Ad sets</span><input type="number" min="1" max="100" value={form.adSetCount} onChange={(event) => change("adSetCount", event.target.value)} /></label>
+                                <label className="field"><span>Ad sets</span><input type="number" min="1" max="100" disabled={Boolean(creativeTest)} value={form.adSetCount} onChange={(event) => change("adSetCount", event.target.value)} /></label>
                                 <label className="field"><span>Бюджет / ad set, {adAccount.currency}</span><input type="number" min="0.01" step="0.01" disabled={Boolean(batch) && form.budgetMode === "campaign"} value={form.dailyBudget} onChange={(event) => change("dailyBudget", event.target.value)} /></label>
                             </div>
                             {batch && <p className="batch-launch-summary">{form.adSetCount || 0} адсетів × {selectedBatchPosts.length} креативів = {Number(form.adSetCount || 0) * selectedBatchPosts.length} оголошень. Денний бюджет: {form.budgetMode === "campaign" ? Number(form.campaignBudget || 0) : Number(form.adSetCount || 0) * Number(form.dailyBudget || 0)} {adAccount.currency}. Географія та мова показів — із вибраного шаблону.{form.budgetMode === "campaign" ? " Спільний бюджет адсетів із шаблону ігнорується." : ""}</p>}
@@ -753,11 +779,14 @@ export default function CampaignCreationWizard({
                             </div>
                         </section>
 
+                        {creativeTest && progress && <div className="creation-progress" role="status"><strong>{stageLabel(progress.stage)} · {percent}%</strong><p>{progress.message}</p>{progress.objects?.campaignId && <button type="button" className="secondary-button" onClick={() => window.adsBot.openExternal(`https://adsmanager.facebook.com/adsmanager/manage/ads?act=${String(adAccount.id).replace(/^act_/, "")}&selected_campaign_ids=${progress.objects.campaignId}`)}>Відкрити кампанію в Ads Manager</button>}{progress.stage === "complete" && <p>Кампанію створено. Результати модерації перевіряйте в Ads Manager.</p>}</div>}
                         {failure && <div className="creation-error"><CircleAlert size={19} /><div><strong>{failure.message}</strong></div></div>}
                     </fieldset>
                     <div className="form-actions creative-launch-actions">
+                        {creativeTest && !jobId && <button type="button" className="secondary-button" disabled={checking || creating} onClick={onBack}>До редагування</button>}
+                        {creativeTest && failure && jobId && <button type="button" className="secondary-button" disabled={creating} onClick={cleanup}>Видалити відомі об’єкти</button>}
                         <button type="button" className="secondary-button" disabled={checking || creating} onClick={onClose}>Скасувати</button>
-                        <button type="button" className="primary-button" disabled={!canCheck || checking || creating} onClick={checkAndCreate}>
+                        <button type="button" className="primary-button" disabled={!canCheck || checking || creating || Boolean(creativeTest && jobId)} onClick={checkAndCreate}>
                             {(checking || creating) && <LoaderCircle className="spin" size={16} />}
                             Поставити в чергу
                         </button>

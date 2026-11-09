@@ -1,6 +1,7 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { normalizeCreativeTestOptions } from "../creatives/creativeTest.js";
 
 
 function cleanInput(input = {}) {
@@ -34,6 +35,7 @@ function cleanInput(input = {}) {
         siteUrl: String(input.siteUrl ?? ""),
         imagePath: String(input.imagePath ?? ""),
         callToActionType: String(input.callToActionType ?? "NO_BUTTON"),
+        ...(input.creativeTest ? { creativeTest: structuredClone(input.creativeTest) } : {}),
     };
 }
 
@@ -48,6 +50,7 @@ export default class CampaignCreationJournal {
 
 
     async create(input) {
+        input = normalizeCreativeTestOptions(input);
         return this.#enqueue(async () => {
             const store = await this.#read();
             const now = new Date().toISOString();
@@ -57,7 +60,7 @@ export default class CampaignCreationJournal {
                 status: "queued",
                 stage: "preflight",
                 completed: 0,
-                total: 2 + (input.posts?.length ?? 1) + Number(input.adSetCount || 0) * (1 + (input.posts?.length ?? 1)),
+                total: 2 + (input.creativeTest?.variants.length ?? input.posts?.length ?? 1) + Number(input.adSetCount || 0) * (1 + (input.creativeTest?.variants.length ?? input.posts?.length ?? 1)),
                 objects: {
                     campaignId: null,
                     creativeId: null,

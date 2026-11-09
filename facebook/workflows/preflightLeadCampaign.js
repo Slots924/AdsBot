@@ -1,4 +1,5 @@
 import { createValidationError, normalizeObjectId } from "../api/validation.js";
+import { normalizeCreativeTestOptions } from "../../services/creatives/creativeTest.js";
 import { budgetToMinorUnits } from "../services/campaigns/CampaignBudget.js";
 import {
     prepareLeadCampaignInput,
@@ -9,6 +10,7 @@ import {
 } from "../services/campaigns/CampaignSettings.js";
 
 export default async function preflightLeadCampaign(options, operations) {
+    options = normalizeCreativeTestOptions(options);
     if (options.posts !== undefined) {
         if (!Array.isArray(options.posts) || !options.posts.length || options.posts.length > 1000) {
             throw createValidationError("Оберіть від 1 до 1000 креативів", "CAMPAIGN_POSTS_INVALID");

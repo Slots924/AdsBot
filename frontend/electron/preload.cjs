@@ -294,6 +294,7 @@ contextBridge.exposeInMainWorld("adsBot", {
         ipcRenderer.invoke("personal-account:disconnect", { sessionId }),
     closePersonalAccountProfile: (sessionId) =>
         ipcRenderer.invoke("personal-account:profile-close", { sessionId }),
+    prepareCreativeTest: (options) => ipcRenderer.invoke("creatives:test-prepare", options),
     startCreativeLaunch: (options) =>
         ipcRenderer.invoke("creative-launch:start", options),
     getCreativeLaunch: (workflowJobId) =>

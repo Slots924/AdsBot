@@ -7,6 +7,7 @@ import prepareCreativeForCampaign
     from "../../services/creatives/prepareCreativeForCampaign.js";
 import loadImageFromPath
     from "../../services/images/loadImageFromPath.js";
+import { normalizeCreativeTestOptions } from "../../services/creatives/creativeTest.js";
 import PageRebuildJournal
     from "../../services/workflows/PageRebuildJournal.js";
 import rebuildPageFromFolderWorkflow
@@ -362,11 +363,19 @@ export default class FacebookBackendService {
 
 
     async createLeadCampaign(accountKey, options, onProgress) {
+        options = normalizeCreativeTestOptions(options);
         const facebookApiClient = this.#getFacebookApiClient(accountKey);
         if (options?.creativeMode !== "image") {
             return facebookApiClient.createLeadCampaign(options, onProgress);
         }
 
+        if (options.creativeTest) {
+            const image = await this.#loadImageFromPath(options.imagePath);
+            return facebookApiClient.createLeadCampaign({
+                ...options,
+                adCreative: { image, siteUrl: options.siteUrl, callToActionType: "NO_BUTTON" },
+            }, onProgress);
+        }
         const prepared = await this.prepareCreative({
             geo: options.geo,
             creativeName: options.creativeName,

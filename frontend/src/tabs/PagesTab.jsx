@@ -22,6 +22,7 @@ import {
 import AdAccountSelect from "../components/AdAccountSelect.jsx";
 import CampaignCreationWizard from "../components/CampaignCreationWizard.jsx";
 import CreativeLaunchModal from "../components/CreativeLaunchModal.jsx";
+import CreativeTestModal from "../components/CreativeTestModal.jsx";
 import GeoSelect from "../components/GeoSelect.jsx";
 import ImageListDropzone from "../components/ImageListDropzone.jsx";
 import CrmCampaignPickerModal from "../components/CrmCampaignPickerModal.jsx";
@@ -1187,6 +1188,7 @@ export default function PagesTab({
                                     >
                                         <Send size={16} />Запостити креатив
                                     </button>
+                                    <button className="secondary-button" onClick={() => setAction({ type: "creative-test", page: selected })}>Затестити креатив</button>
                                     <button
                                         className="danger-button"
                                         onClick={async () => {
@@ -1284,6 +1286,7 @@ export default function PagesTab({
                 </div>
             )}
 
+            {action?.type === "creative-test" && <CreativeTestModal accountKey={accountKey} page={action.page} countries={countries} adAccounts={adAccounts} settings={settings} onClose={() => setAction(null)} onQueued={() => showToast("Тестову кампанію поставлено в чергу", "success")} />}
             {action?.type === "launch" && (
                 <CreativeLaunchModal
                     accountKey={accountKey}

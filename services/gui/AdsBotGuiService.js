@@ -27,6 +27,7 @@ import CreativeManager from "../creatives/CreativeManager.js";
 import { prepareCommentsForCampaign }
     from "../creatives/prepareCreativeForCampaign.js";
 import applyCreativeFont from "../creatives/applyCreativeFont.js";
+import { prepareCreativeTest } from "../creatives/creativeTest.js";
 import { defaultProfileActivityStore, profileActivityTypes } from "../profile/ProfileActivityStore.js";
 
 
@@ -969,6 +970,10 @@ export default class AdsBotGuiService {
 
     async prepareCreative(options) {
         return this.#facebookBackend.prepareCreative(options);
+    }
+
+    async prepareCreativeTest(options) {
+        return prepareCreativeTest(options, input => this.prepareCreative(input));
     }
 
 
