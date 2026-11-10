@@ -32,6 +32,8 @@ import FanPageAuCommentsModal from "../components/FanPageAuCommentsModal.jsx";
 import PagePostDiscussion from "../components/PagePostDiscussion.jsx";
 import { errorDetails, unwrap } from "../lib/api.js";
 import { findGroupForGeo } from "../lib/groups.js";
+import useMyrahaMonster from "../lib/useMyrahaMonster.js";
+import MyrahaMonsterToggle from "../components/MyrahaMonsterToggle.jsx";
 
 
 const compare = (left, right) => String(left.name || "").localeCompare(
@@ -89,7 +91,7 @@ function StableImage({ src, alt = "", fallback = null }) {
 }
 
 
-function PageCard({ page, selected, onSelect, onFavorite, checked, onCheck }) {
+function PageCard({ page, selected, onSelect, onFavorite, checked, onCheck, moderation }) {
     return (
         <div
             className={`page-card ${selected ? "selected" : ""}`}
@@ -130,6 +132,7 @@ function PageCard({ page, selected, onSelect, onFavorite, checked, onCheck }) {
                     ? <CircleMinus size={17} />
                     : <CirclePlus size={17} />}
             </button>
+            <MyrahaMonsterToggle pageId={page.id} moderation={moderation} />
         </div>
     );
 }
@@ -763,6 +766,7 @@ export default function PagesTab({
     showToast,
 }) {
     const [posts, setPosts] = useState([]);
+    const moderation = useMyrahaMonster();
     const [discussionVersion, setDiscussionVersion] = useState(0);
     const [loading, setLoading] = useState(false);
     const [listRefreshing, setListRefreshing] = useState(false);
@@ -919,7 +923,7 @@ export default function PagesTab({
     const refreshFanpageList = async () => {
         setListRefreshing(true);
         try {
-            await onRefresh?.();
+            await Promise.all([onRefresh?.(), moderation.refresh()]);
         } catch (error) {
             onError({
                 ...errorDetails(error),
@@ -1024,6 +1028,7 @@ export default function PagesTab({
                                     <div key={page.id} className={divider ? "page-geo-divider" : ""}>
                                         <PageCard
                                             page={page}
+                                            moderation={moderation}
                                             selected={String(page.id) === String(selectedPageId)}
                                             onSelect={setSelectedPageId}
                                             onFavorite={favorite}
@@ -1040,6 +1045,7 @@ export default function PagesTab({
                                 <PageCard
                                     key={page.id}
                                     page={page}
+                                    moderation={moderation}
                                     selected={String(page.id) === String(selectedPageId)}
                                     onSelect={setSelectedPageId}
                                     onFavorite={favorite}

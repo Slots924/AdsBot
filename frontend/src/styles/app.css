@@ -1232,6 +1232,18 @@ button:focus-visible, input:focus-visible {
 .page-copy-button { display: grid; flex: 0 0 27px; place-items: center; width: 27px; height: 27px; padding: 0; border: 1px solid transparent; border-radius: 7px; color: #778096; background: rgba(255,255,255,.035); cursor: pointer; }
 .page-copy-button:hover { color: #c7c1ff; border-color: rgba(132,114,255,.3); background: rgba(132,114,255,.12); }
 .page-card .ad-card-action { width: 29px; height: 29px; }
+.myraha-control { grid-column: 2 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; min-width: 0; cursor: default; }
+.myraha-toggle { display: flex; align-items: center; gap: 7px; font-size: var(--font-caption); }
+.myraha-toggle input { accent-color: #9484ff; width: 15px; height: 15px; margin: 0; }
+.myraha-control input[role="switch"] { appearance: none; position: relative; flex: 0 0 30px; width: 30px; height: 18px; border: 1px solid #626b7f; border-radius: 12px; background: #353d50; cursor: pointer; transition: background .15s; }
+.myraha-control input[role="switch"]::before { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #e5e7ef; transition: transform .15s; }
+.myraha-control input[role="switch"]:checked { background: #7d68d9; border-color: #9484ff; }
+.myraha-control input[role="switch"]:checked::before { transform: translateX(12px); }
+.myraha-control input[role="switch"]:disabled { background: #3b414c; border-color: #606672; opacity: .65; cursor: default; }
+.myraha-control input[role="switch"]:focus-visible { outline: 2px solid #bcb4ff; outline-offset: 3px; }
+.myraha-toggle:has(input:disabled) { color: #82899a; }
+.myraha-control small { flex-basis: 100%; color: #8c94a8; font-size: 11px; overflow-wrap: anywhere; }
+.myraha-control small.myraha-error { color: #f0a09a; }
 .page-link-field { grid-column: 1 / -1; }
 .page-post-reference { display: flex; align-items: center; gap: 7px; min-width: 0; margin-top: 7px; }
 .page-post-reference > span { min-width: 0; overflow: hidden; color: #8c94a8; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }

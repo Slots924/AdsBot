@@ -1,4 +1,5 @@
 import SpendServerSettings from "./SpendServerSettings.jsx";
+import IntegrationsSettings from "./IntegrationsSettings.jsx";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -177,6 +178,9 @@ export default function SettingsModal({
                         <div className="modal-icon settings-icon"><Settings /></div>
                         <span className="eyebrow">AdsBot preferences</span>
                         <h2>Налаштування</h2>
+                        <button type="button" className={tab === "integrations" ? "active" : ""} onClick={() => setTab("integrations")}>
+                            <ListChecks size={15} /> Інтеграції
+                        </button>
                         <button
                             type="button"
                             className={tab === "general" ? "active" : ""}
@@ -241,6 +245,7 @@ export default function SettingsModal({
                         </button>
                     </nav>
                     <div className="settings-body" ref={settingsBodyRef}>
+                        {tab === "integrations" && <IntegrationsSettings onError={onError} showToast={showToast} />}
                         {tab === "spend-server" && <SpendServerSettings onError={onError} showToast={showToast} />}
                         {tab === "crm" && <CrmSettings onError={onError} showToast={showToast} />}
                         {tab === "credit-cards" && (

@@ -13,6 +13,12 @@ function subscribe(channel, callback) {
 
 
 contextBridge.exposeInMainWorld("adsBot", {
+    getMyrahaMonsterSettings: () => ipcRenderer.invoke("myraha:settings-get"),
+    saveMyrahaMonsterSettings: (payload) => ipcRenderer.invoke("myraha:settings-save", payload),
+    getMyrahaMonsterPages: () => ipcRenderer.invoke("myraha:pages"),
+    getMyrahaMonsterPage: (pageId) => ipcRenderer.invoke("myraha:page", { pageId }),
+    setMyrahaMonsterModeration: (pageId, enabled) => ipcRenderer.invoke("myraha:moderation", { pageId, enabled }),
+    onMyrahaMonsterSettingsChanged: (callback) => subscribe("myraha:settings-changed", callback),
     getCreatives: () => ipcRenderer.invoke("creatives:list"),
     getCreativeOriginal: (name) => ipcRenderer.invoke("creatives:original", { name }),
     saveCreativeOriginal: (payload) => ipcRenderer.invoke("creatives:save-original", payload),

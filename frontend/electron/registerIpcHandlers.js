@@ -169,6 +169,7 @@ function createSafeHandler(handler, logger = null) {
 
 export default function registerIpcHandlers({
     crm,
+    myrahaMonster,
     autouploadSessionStore,
     ipcMain,
     dialog,
@@ -231,6 +232,15 @@ export default function registerIpcHandlers({
         return settings;
     }));
     ipcMain.handle("crm:settings-get", safeHandler(() => crm.getSettings()));
+    ipcMain.handle("myraha:settings-get", safeHandler(() => myrahaMonster.getSettings()));
+    ipcMain.handle("myraha:settings-save", safeHandler(async (payload) => {
+        const settings = await myrahaMonster.saveSettings(payload);
+        sendRendererEvent("myraha:settings-changed", { revision: settings.revision });
+        return settings;
+    }));
+    ipcMain.handle("myraha:pages", safeHandler(() => myrahaMonster.getPages()));
+    ipcMain.handle("myraha:page", safeHandler(({ pageId }) => myrahaMonster.getPage(pageId)));
+    ipcMain.handle("myraha:moderation", safeHandler(({ pageId, enabled }) => myrahaMonster.setModeration(pageId, enabled)));
     ipcMain.handle("crm:settings-save", safeHandler((payload) => crm.saveSettings(payload)));
     ipcMain.handle("crm:campaigns-list", safeHandler(() => crm.getCampaigns()));
     ipcMain.handle("crm:campaign-form", safeHandler(() => crm.getCampaignForm()));

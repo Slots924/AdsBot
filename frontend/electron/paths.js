@@ -52,6 +52,7 @@ export const appPaths = {
     creditCards: path.join(projectRoot, "data/credit-cards.json"),
     spendServerSettings: path.join(projectRoot, "data/local-secrets/spend-server.json"),
     crmSettings: path.join(projectRoot, "data/local-secrets/crm.json"),
+    myrahaMonsterSettings: path.join(projectRoot, "data/local-secrets/myraha-monster.json"),
     logs: path.join(projectRoot, "data/logs"),
     renderer: path.join(frontendRoot, "dist/index.html"),
     preload: path.join(electronDirectory, "preload.cjs"),
