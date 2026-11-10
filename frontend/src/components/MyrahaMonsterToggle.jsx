@@ -17,15 +17,14 @@ export default function MyrahaMonsterToggle({ pageId, moderation }) {
     const disabled = busy || moderation.status !== "ready" || !page?.integrationReady || Boolean(error);
     const retry = moderation.status === "error" || (error && !error.unavailable);
 
-    return <div className="myraha-control" title={message} onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+    return <div className={`myraha-control${busy || loading || retry ? " myraha-pending" : ""}`} title={`Приховування коментарів: ${message}`} onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
         <label className="myraha-toggle">
             <input type="checkbox" role="switch" aria-label={`Приховування коментарів ${id}`}
                 aria-describedby={`myraha-status-${id}`} checked={page?.enabled === true} disabled={disabled}
                 onChange={(event) => moderation.toggle(id, event.target.checked)} />
-            <span>Приховування коментарів</span>
         </label>
         {(busy || loading) && <LoaderCircle className="spin" size={14} role="status" aria-label={`Запит MyrahaMonster ${id}`} />}
-        {retry && <button type="button" className="icon-button" disabled={busy} aria-label={`Перевірити приховування ${id}`}
+        {retry && !busy && !loading && <button type="button" className="icon-button" aria-label={`Перевірити приховування ${id}`}
             onClick={() => moderation.status === "error" ? moderation.refresh() : moderation.check(id)}><RefreshCw size={13} /></button>}
         <small id={`myraha-status-${id}`} className={error || moderation.status === "error" ? "myraha-error" : ""}>{message}</small>
     </div>;

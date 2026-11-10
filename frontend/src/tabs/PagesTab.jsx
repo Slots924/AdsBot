@@ -103,6 +103,7 @@ function PageCard({ page, selected, onSelect, onFavorite, checked, onCheck, mode
             }}
         >
             <input type="checkbox" className="page-batch-checkbox" aria-label={`Вибрати фанпейджу ${page.name}`} checked={checked} onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()} onChange={() => onCheck(page.id)} />
+            <MyrahaMonsterToggle pageId={page.id} moderation={moderation} />
             <span className="page-avatar">
                 <StableImage
                     src={page.pictureUrl}
@@ -132,7 +133,6 @@ function PageCard({ page, selected, onSelect, onFavorite, checked, onCheck, mode
                     ? <CircleMinus size={17} />
                     : <CirclePlus size={17} />}
             </button>
-            <MyrahaMonsterToggle pageId={page.id} moderation={moderation} />
         </div>
     );
 }
