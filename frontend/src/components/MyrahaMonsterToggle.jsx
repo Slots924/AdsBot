@@ -9,6 +9,7 @@ export default function MyrahaMonsterToggle({ pageId, moderation }) {
     let message = "";
     if (moderation.status === "unconfigured") message = "Додайте API-ключ у Налаштування → Інтеграції";
     else if (moderation.status === "error") message = moderation.message || "Не вдалося перевірити стан";
+    else if (moderation.status === "idle") message = "Оновіть список фанок, щоб перевірити стан";
     else if (loading) message = "Перевіряємо стан MyrahaMonster…";
     else if (error) message = error.message;
     else if (!page) message = "Немає доступу до фанпейджі в MyrahaMonster";

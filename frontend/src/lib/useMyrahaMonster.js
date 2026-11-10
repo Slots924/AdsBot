@@ -1,23 +1,47 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { unwrap } from "./api.js";
 
-const initial = { status: "loading", pages: {}, busy: {}, errors: {}, message: "", revision: null };
+const initial = { status: "idle", pages: {}, busy: {}, errors: {}, message: "", revision: null };
 
-export default function useMyrahaMonster() {
-    const [state, setState] = useState(initial);
-    const live = useRef(state);
-    const generation = useRef(0);
-    const listRequest = useRef(0);
-    const versions = useRef({});
-    const active = useRef(false);
-    const commit = useCallback((update) => {
-        if (!active.current) return;
+// Спільний стан за ID фанки переживає зміну профілю та закриття вкладки.
+const stores = new WeakMap();
+
+function createStore(api) {
+    const live = { current: initial };
+    const generation = { current: 0 };
+    const listRequest = { current: 0 };
+    const versions = { current: {} };
+    const listeners = new Set();
+    const commit = (update) => {
         live.current = typeof update === "function" ? update(live.current) : update;
-        setState(live.current);
-    }, []);
+        listeners.forEach((listener) => listener());
+    };
+    const invalidate = () => {
+        generation.current += 1;
+        listRequest.current += 1;
+        versions.current = {};
+        commit(initial);
+    };
+    const loadSettings = async () => {
+        const epoch = generation.current;
+        try {
+            if (!api?.getMyrahaMonsterSettings) {
+                commit({ ...initial, status: "unconfigured" });
+                return;
+            }
+            const settings = await unwrap(api.getMyrahaMonsterSettings());
+            if (epoch !== generation.current) return;
+            if (!settings.hasApiKey || (live.current.revision !== null && live.current.revision !== settings.revision)) {
+                invalidate();
+                commit({ ...initial, status: settings.hasApiKey ? "idle" : "unconfigured", revision: settings.revision });
+            }
+        } catch (error) {
+            if (epoch === generation.current) commit((previous) => ({ ...previous, status: "error", message: error.message }));
+        }
+    };
 
-    const refresh = useCallback(async (reset = false) => {
-        if (!window.adsBot?.getMyrahaMonsterSettings) {
+    const refresh = async (reset = false) => {
+        if (!api?.getMyrahaMonsterSettings) {
             commit({ ...initial, status: "unconfigured" });
             return;
         }
@@ -30,16 +54,16 @@ export default function useMyrahaMonster() {
         const request = ++listRequest.current;
         const startedVersions = { ...versions.current };
         const wasBusy = { ...live.current.busy };
-        const current = () => active.current && epoch === generation.current && request === listRequest.current;
+        const current = () => epoch === generation.current && request === listRequest.current;
         commit((previous) => ({ ...previous, status: "loading", message: "" }));
         try {
-            const settings = await unwrap(window.adsBot.getMyrahaMonsterSettings());
+            const settings = await unwrap(api.getMyrahaMonsterSettings());
             if (!current()) return;
             if (!settings.hasApiKey) {
                 commit({ ...initial, status: "unconfigured", revision: settings.revision });
                 return;
             }
-            const result = await unwrap(window.adsBot.getMyrahaMonsterPages());
+            const result = await unwrap(api.getMyrahaMonsterPages());
             if (!current()) return;
             if (result.revision !== settings.revision) { await refresh(true); return; }
             commit((previous) => {
@@ -60,9 +84,9 @@ export default function useMyrahaMonster() {
             if (error.code === "MYRAHA_STALE") { await refresh(true); return; }
             commit((previous) => ({ ...previous, status: error.code === "MYRAHA_NO_KEY" ? "unconfigured" : "error", message: error.message }));
         }
-    }, [commit]);
+    };
 
-    const operate = useCallback(async (id, enabled, checkOnly = false) => {
+    const operate = async (id, enabled, checkOnly = false) => {
         id = String(id);
         const before = live.current;
         if (before.busy[id] || before.status !== "ready") return;
@@ -70,12 +94,12 @@ export default function useMyrahaMonster() {
         const epoch = generation.current;
         const version = (versions.current[id] ?? 0) + 1;
         versions.current[id] = version;
-        const current = () => active.current && epoch === generation.current && version === versions.current[id];
+        const current = () => epoch === generation.current && version === versions.current[id];
         commit((previous) => ({ ...previous, busy: { ...previous.busy, [id]: true } }));
         try {
             const result = await unwrap(checkOnly
-                ? window.adsBot.getMyrahaMonsterPage(id)
-                : window.adsBot.setMyrahaMonsterModeration(id, enabled));
+                ? api.getMyrahaMonsterPage(id)
+                : api.setMyrahaMonsterModeration(id, enabled));
             if (!current()) return;
             if (result.revision !== live.current.revision) { await refresh(true); return; }
             commit((previous) => {
@@ -102,18 +126,31 @@ export default function useMyrahaMonster() {
                 commit((previous) => ({ ...previous, busy: { ...previous.busy, [id]: false } }));
             }
         }
-    }, [commit, refresh]);
+    };
 
+    return {
+        subscribe(listener) {
+            listeners.add(listener);
+            return () => listeners.delete(listener);
+        },
+        getSnapshot: () => live.current,
+        loadSettings,
+        settingsChanged() { invalidate(); return loadSettings(); },
+        refresh: () => refresh(),
+        toggle: (id, enabled) => operate(id, enabled),
+        check: (id) => operate(id, false, true),
+    };
+}
+
+const unavailableApi = {};
+export default function useMyrahaMonster() {
+    const api = window.adsBot ?? unavailableApi;
+    if (!stores.has(api)) stores.set(api, createStore(api));
+    const store = stores.get(api);
+    const state = useSyncExternalStore(store.subscribe, store.getSnapshot);
     useEffect(() => {
-        active.current = true;
-        refresh(true);
-        const unsubscribe = window.adsBot?.onMyrahaMonsterSettingsChanged?.(() => refresh(true));
-        return () => {
-            active.current = false;
-            generation.current += 1;
-            unsubscribe?.();
-        };
-    }, [refresh]);
-
-    return { ...state, refresh: () => refresh(), toggle: (id, enabled) => operate(id, enabled), check: (id) => operate(id, false, true) };
+        store.loadSettings();
+        return api.onMyrahaMonsterSettingsChanged?.(store.settingsChanged);
+    }, [api, store]);
+    return { ...state, refresh: store.refresh, toggle: store.toggle, check: store.check };
 }

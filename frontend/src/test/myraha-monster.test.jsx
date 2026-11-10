@@ -34,6 +34,7 @@ const ready = () => waitFor(() => expect(toggle("1")).toBeEnabled());
 it("показує enabled, відсутність доступу та підписки окремо", async () => {
     window.adsBot.getMyrahaMonsterPages.mockResolvedValue(ok({ items: [page("1", true), page("2", true, false)], revision: 1 }));
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await ready();
     expect(toggle("1")).toBeChecked();
     expect(toggle("2")).toBeChecked();
@@ -48,6 +49,7 @@ it("показує спінер лише для активної фанки та
     const second = deferred();
     window.adsBot.setMyrahaMonsterModeration.mockImplementation((id) => id === "1" ? first.promise : second.promise);
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await ready();
     fireEvent.click(toggle("1"));
     expect(toggle("1")).toBeDisabled();
@@ -68,6 +70,7 @@ it("старе завантаження списку не перезаписує
     const list = deferred();
     window.adsBot.setMyrahaMonsterModeration.mockReturnValue(patch.promise);
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await ready();
     fireEvent.click(toggle("1"));
     window.adsBot.getMyrahaMonsterPages.mockReturnValue(list.promise);
@@ -82,11 +85,14 @@ it("відповідь для попереднього ключа не змін�
     const patch = deferred();
     window.adsBot.setMyrahaMonsterModeration.mockReturnValue(patch.promise);
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await ready();
     fireEvent.click(toggle("1"));
     window.adsBot.getMyrahaMonsterSettings.mockResolvedValue(ok({ hasApiKey: true, revision: 2 }));
     window.adsBot.getMyrahaMonsterPages.mockResolvedValue(ok({ items: [page("1")], revision: 2 }));
     await act(async () => { settingsChanged(); });
+    expect(window.adsBot.getMyrahaMonsterPages).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await ready();
     await act(async () => { patch.resolve(ok({ id: "1", enabled: true, revision: 1 })); });
     expect(toggle("1")).not.toBeChecked();
@@ -97,10 +103,13 @@ it("старий список не замінює список після збе
     const oldList = deferred();
     window.adsBot.getMyrahaMonsterPages.mockReturnValueOnce(oldList.promise);
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await waitFor(() => expect(window.adsBot.getMyrahaMonsterPages).toHaveBeenCalledTimes(1));
     window.adsBot.getMyrahaMonsterSettings.mockResolvedValue(ok({ hasApiKey: true, revision: 2 }));
     window.adsBot.getMyrahaMonsterPages.mockResolvedValue(ok({ items: [page("1", true)], revision: 2 }));
     await act(async () => { settingsChanged(); });
+    expect(window.adsBot.getMyrahaMonsterPages).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await ready();
     await act(async () => { oldList.resolve(ok({ items: [page("1")], revision: 1 })); });
     expect(toggle("1")).toBeChecked();
@@ -109,6 +118,7 @@ it("старий список не замінює список після збе
 it("мережева помилка списку не означає відсутність доступу", async () => {
     window.adsBot.getMyrahaMonsterPages.mockResolvedValue({ ok: false, error: { message: "Сервіс недоступний" } });
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await screen.findAllByText("Сервіс недоступний");
     expect(toggle("1")).toBeDisabled();
     expect(screen.queryByText("Немає доступу до фанпейджі в MyrahaMonster")).not.toBeInTheDocument();
@@ -120,6 +130,7 @@ it("мережева помилка списку не означає відсу�
 it("невідомий результат вимагає перевірки перед наступною mutation", async () => {
     window.adsBot.setMyrahaMonsterModeration.mockResolvedValue({ ok: false, error: { code: "MYRAHA_UNKNOWN", outcomeUnknown: true, message: "Стан невідомий" } });
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await ready();
     fireEvent.click(toggle("1"));
     await screen.findByText("Стан невідомий");
@@ -133,6 +144,7 @@ it("невідомий результат вимагає перевірки пе
 it.each([403, 404])("HTTP %s блокує лише недоступну фанку", async (httpStatus) => {
     window.adsBot.setMyrahaMonsterModeration.mockResolvedValue({ ok: false, error: { httpStatus, message: "Немає прав" } });
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await ready();
     fireEvent.click(toggle("1"));
     await screen.findByText("Немає прав");
@@ -144,6 +156,7 @@ it.each([403, 404])("HTTP %s блокує лише недоступну фанк
 it("без API-ключа не виконує запити списку", async () => {
     window.adsBot.getMyrahaMonsterSettings.mockResolvedValue(ok({ hasApiKey: false, revision: 0 }));
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await screen.findAllByText("Додайте API-ключ у Налаштування → Інтеграції");
     expect(window.adsBot.getMyrahaMonsterPages).not.toHaveBeenCalled();
 });
@@ -151,6 +164,7 @@ it("без API-ключа не виконує запити списку", async 
 it("401 блокує перемикання всіх фанок; 429 не повторює mutation", async () => {
     window.adsBot.setMyrahaMonsterModeration.mockResolvedValue({ ok: false, error: { httpStatus: 429, message: "Ліміт 120 запитів" } });
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await ready();
     fireEvent.click(toggle("1"));
     await screen.findByText("Ліміт 120 запитів");
@@ -182,6 +196,7 @@ it("старий список не скасовує помилку ключа, �
     const list = deferred();
     window.adsBot.setMyrahaMonsterModeration.mockReturnValue(patch.promise);
     render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
     await ready();
     fireEvent.click(toggle("1"));
     window.adsBot.getMyrahaMonsterPages.mockReturnValue(list.promise);
@@ -191,4 +206,52 @@ it("старий список не скасовує помилку ключа, �
     await act(async () => { list.resolve(ok({ items: [page("1"), page("2")], revision: 1 })); });
     expect(toggle("2")).toBeDisabled();
     expect(screen.getAllByText("Недійсний ключ")).toHaveLength(3);
+});
+
+
+it("відкриття та повторне відкриття списку не запитує MyrahaMonster", async () => {
+    const first = render(<Harness />);
+    await act(async () => {});
+    expect(window.adsBot.getMyrahaMonsterPages).not.toHaveBeenCalled();
+    expect(toggle("1")).toBeDisabled();
+    expect(screen.getAllByText("Оновіть список фанок, щоб перевірити стан")).toHaveLength(3);
+    first.unmount();
+    render(<Harness />);
+    await act(async () => {});
+    expect(window.adsBot.getMyrahaMonsterPages).not.toHaveBeenCalled();
+});
+
+it("стан фанки та незавершене перемикання зберігаються після зміни профілю", async () => {
+    const patch = deferred();
+    window.adsBot.setMyrahaMonsterModeration.mockReturnValue(patch.promise);
+    const first = render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
+    await ready();
+    fireEvent.click(toggle("1"));
+    first.unmount();
+    const second = render(<Harness />);
+    expect(toggle("1")).toBeDisabled();
+    await act(async () => { patch.resolve(ok({ id: "1", enabled: true, revision: 1 })); });
+    expect(toggle("1")).toBeChecked();
+    expect(toggle("1")).toBeEnabled();
+    second.unmount();
+    render(<Harness />);
+    await act(async () => {});
+    expect(toggle("1")).toBeChecked();
+    expect(window.adsBot.getMyrahaMonsterPages).toHaveBeenCalledTimes(1);
+    expect(window.adsBot.setMyrahaMonsterModeration).toHaveBeenCalledTimes(1);
+});
+
+it("зміна ключа при закритій вкладці скидає кеш без запиту списку", async () => {
+    const first = render(<Harness />);
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
+    await ready();
+    fireEvent.click(toggle("1"));
+    await waitFor(() => expect(toggle("1")).toBeChecked());
+    first.unmount();
+    window.adsBot.getMyrahaMonsterSettings.mockResolvedValue(ok({ hasApiKey: true, revision: 2 }));
+    render(<Harness />);
+    await waitFor(() => expect(toggle("1")).toBeDisabled());
+    expect(toggle("1")).not.toBeChecked();
+    expect(window.adsBot.getMyrahaMonsterPages).toHaveBeenCalledTimes(1);
 });
