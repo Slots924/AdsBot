@@ -1,4 +1,4 @@
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import GrokClient from "../llm/grok/GrokClient.js";
@@ -301,6 +301,45 @@ export default class CreativeManager {
         await mkdir(this.creativesDirectory, { recursive: true });
         await writeFile(context.targetFile, `${JSON.stringify(creative, null, 2)}\n`, "utf8");
         return creative;
+    }
+
+
+    async deleteOriginal({ name }) {
+        const normalizedName = normalizeName(name);
+        await this.#deleteFile(path.join(this.originalsDirectory, `${normalizedName}.txt`));
+        return { name: normalizedName };
+    }
+
+
+    async deleteVariant({ name, geo }) {
+        const normalizedName = normalizeName(name);
+        const normalizedGeo = normalizeGeo(geo);
+        await this.#deleteFile(path.join(this.creativesDirectory, `${normalizedGeo} ${normalizedName}.json`));
+        return { name: normalizedName, geo: normalizedGeo };
+    }
+
+
+    async deleteCreative({ name }) {
+        const normalizedName = normalizeName(name);
+        let entries;
+        try { entries = await readdir(this.creativesDirectory, { withFileTypes: true }); }
+        catch (error) { if (error.code !== "ENOENT") throw error; entries = []; }
+        const files = [path.join(this.originalsDirectory, `${normalizedName}.txt`)];
+        for (const entry of entries) {
+            const match = entry.isFile() && /^([A-Z]{2}) ([A-Za-z0-9_-]{1,100})\.json$/.exec(entry.name);
+            if (match && match[2] === normalizedName) files.push(path.join(this.creativesDirectory, entry.name));
+        }
+        const results = await Promise.allSettled(files.map((file) => this.#deleteFile(file)));
+        if (results.some((result) => result.status === "rejected")) {
+            throw createCreativeError("Не вдалося видалити всі файли креативу. Список оновлено; спробуйте ще раз.", "CREATIVE_DELETE_FAILED");
+        }
+        return { name: normalizedName };
+    }
+
+
+    async #deleteFile(file) {
+        try { await unlink(file); }
+        catch (error) { if (error.code !== "ENOENT") throw error; }
     }
 
 

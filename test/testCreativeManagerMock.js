@@ -212,6 +212,32 @@ try {
 
     assert.equal(parallelCalls, 1);
     assert.deepEqual(parallelResults, [parallelCreative, parallelCreative]);
+    await creativeManager.saveOriginal({ name: "delete-test", text: "Original", create: true });
+    await writeFile(path.join(creativesDirectory, "UA delete-test.json"), "broken", "utf8");
+    await writeFile(path.join(creativesDirectory, "ZZ delete-test.json"), "broken", "utf8");
+    await writeFile(path.join(creativesDirectory, "UA delete-test-extra.json"), "keep", "utf8");
+    await creativeManager.deleteOriginal({ name: "delete-test" });
+    await assert.rejects(readFile(path.join(originalsDirectory, "delete-test.txt")), { code: "ENOENT" });
+    assert.equal(await readFile(path.join(creativesDirectory, "UA delete-test.json"), "utf8"), "broken");
+    await creativeManager.deleteVariant({ name: "delete-test", geo: "ua" });
+    await assert.rejects(readFile(path.join(creativesDirectory, "UA delete-test.json")), { code: "ENOENT" });
+    assert.equal(await readFile(path.join(creativesDirectory, "ZZ delete-test.json"), "utf8"), "broken");
+    await creativeManager.saveOriginal({ name: "delete-test", text: "Original", create: true });
+    await creativeManager.deleteCreative({ name: "delete-test" });
+    await assert.rejects(readFile(path.join(originalsDirectory, "delete-test.txt")), { code: "ENOENT" });
+    await assert.rejects(readFile(path.join(creativesDirectory, "ZZ delete-test.json")), { code: "ENOENT" });
+    assert.equal(await readFile(path.join(creativesDirectory, "UA delete-test-extra.json"), "utf8"), "keep");
+    await creativeManager.deleteCreative({ name: "delete-test" });
+    await creativeManager.deleteOriginal({ name: "delete-test" });
+    await creativeManager.deleteVariant({ name: "delete-test", geo: "ZZ" });
+    for (const method of ["deleteOriginal", "deleteVariant", "deleteCreative"]) {
+        await assert.rejects(creativeManager[method]({ name: "../outside", geo: "UA" }), { code: "CREATIVE_VALIDATION_ERROR" });
+    }
+    await assert.rejects(creativeManager.deleteVariant({ name: "safe", geo: "../UA" }), { code: "CREATIVE_VALIDATION_ERROR" });
+    await mkdir(path.join(originalsDirectory, "partial-delete.txt"));
+    await writeFile(path.join(creativesDirectory, "UA partial-delete.json"), "broken", "utf8");
+    await assert.rejects(creativeManager.deleteCreative({ name: "partial-delete" }), { code: "CREATIVE_DELETE_FAILED" });
+    await assert.rejects(readFile(path.join(creativesDirectory, "UA partial-delete.json")), { code: "ENOENT" });
 } finally {
     await rm(temporaryDirectory, { recursive: true, force: true });
 }

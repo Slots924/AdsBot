@@ -2,6 +2,737 @@
   "version": 1,
   "tasks": [
     {
+      "id": "06baf2ce-87ca-4f2e-8c34-68b103ee97cc",
+      "type": "publication",
+      "name": "Публікація · HU · 197",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-065",
+        "pageId": "1352003897997099",
+        "geo": "HU",
+        "language": "",
+        "creativeGeo": "HU",
+        "creativeName": "197",
+        "siteUrl": "https://love-in-hurt.club/zqp6y9",
+        "manualCreativeText": "",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Downloads\\772510836_122255610758096756_8989453995008858890_n.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-065",
+        "pageId": "1352003897997099",
+        "geo": "HU",
+        "language": "",
+        "creativeName": "197",
+        "manualCreativeText": false,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "e158a12e-587f-4aff-9ef7-29711a3d531e"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-065",
+        "pageId": "1352003897997099",
+        "geo": "HU",
+        "language": "",
+        "creativeName": "197",
+        "siteUrl": "https://love-in-hurt.club/zqp6y9",
+        "postId": "1352003897997099_122116279797506960",
+        "permalinkUrl": "https://www.facebook.com/122115327837506960/posts/122116279797506960",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-10T13:49:26.590Z",
+      "startedAt": "2026-11-10T13:49:26.602Z",
+      "finishedAt": "2026-11-10T13:50:37.886Z",
+      "updatedAt": "2026-11-10T13:50:37.900Z"
+    },
+    {
+      "id": "486c6df0-e460-417d-936f-82fb36cd263f",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1352003897997099_122115327789506960",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-065",
+        "pageId": "1352003897997099",
+        "postId": "1352003897997099_122115327789506960"
+      },
+      "metadata": {
+        "accountKey": "account-065",
+        "pageId": "1352003897997099",
+        "reportId": "0043901a-20ee-40f8-892a-6526b2c884b8"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1352003897997099_122115327789506960"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-10T13:48:28.882Z",
+      "startedAt": "2026-11-10T13:49:11.938Z",
+      "finishedAt": "2026-11-10T13:49:21.335Z",
+      "updatedAt": "2026-11-10T13:49:21.349Z"
+    },
+    {
+      "id": "7b161b13-edc9-463c-ab84-1f09b0393413",
+      "type": "publication",
+      "name": "Публікація · HU · 182",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-065",
+        "pageId": "1364248796763986",
+        "geo": "HU",
+        "language": "",
+        "creativeGeo": "HU",
+        "creativeName": "182",
+        "siteUrl": "https://love-in-hurt.club/hau4nf",
+        "manualCreativeText": "",
+        "useCreativeFont": true,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Downloads\\61659175_009_d568.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-065",
+        "pageId": "1364248796763986",
+        "geo": "HU",
+        "language": "",
+        "creativeName": "182",
+        "manualCreativeText": false,
+        "useCreativeFont": true,
+        "commentsEnabled": false,
+        "reportId": "651237e3-276b-4b0b-87f6-4af15f257b04"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 3,
+        "stage": "failed",
+        "message": "У креативі та коментарях не знайдено маркер <LINK>"
+      },
+      "result": null,
+      "error": {
+        "message": "У креативі та коментарях не знайдено маркер <LINK>",
+        "code": "CREATIVE_LINK_PLACEHOLDER_NOT_FOUND",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "httpStatus": null,
+        "requestId": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "endpoint": null,
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": null,
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-10T13:48:17.559Z",
+      "startedAt": "2026-11-10T13:48:17.576Z",
+      "finishedAt": "2026-11-10T13:49:11.911Z",
+      "updatedAt": "2026-11-10T13:49:11.926Z"
+    },
+    {
+      "id": "0ff8a727-207c-4a89-9a4f-0211e57d08b8",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1364248796763986_122120536011497525",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-065",
+        "pageId": "1364248796763986",
+        "postId": "1364248796763986_122120536011497525"
+      },
+      "metadata": {
+        "accountKey": "account-065",
+        "pageId": "1364248796763986",
+        "reportId": "0907715a-2a04-4812-8a9f-79238c97cbb7"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1364248796763986_122120536011497525"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-10T13:47:06.110Z",
+      "startedAt": "2026-11-10T13:47:06.138Z",
+      "finishedAt": "2026-11-10T13:47:15.047Z",
+      "updatedAt": "2026-11-10T13:47:15.061Z"
+    },
+    {
+      "id": "8078e566-8470-4124-8964-97ce1c78aab4",
+      "type": "campaign",
+      "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців",
+      "status": "completed_with_warnings",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "fdc31209-061e-4a45-859b-f46e2dbfccb0"
+      },
+      "metadata": {
+        "campaignJobId": "fdc31209-061e-4a45-859b-f46e2dbfccb0",
+        "accountKey": "account-069",
+        "adAccountId": "act_1917580402939176",
+        "uniqueKey": "campaign-job:fdc31209-061e-4a45-859b-f46e2dbfccb0",
+        "reportId": "c7ec540a-6e1d-4bb0-b3ff-21a1c2277554"
+      },
+      "progress": {
+        "completed": 49,
+        "total": 49,
+        "stage": "completed_with_warnings",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "52628977101645",
+          "creativeId": "1807254387234103",
+          "creatives": [
+            {
+              "id": "1807254387234103",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзац 1"
+            },
+            {
+              "id": "1448452820178351",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–2"
+            },
+            {
+              "id": "1561178895776255",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–3"
+            },
+            {
+              "id": "1755825065716027",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–4"
+            },
+            {
+              "id": "1683142260002908",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–5"
+            },
+            {
+              "id": "29560016010283514",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–6"
+            },
+            {
+              "id": "1885905175917137",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–7"
+            },
+            {
+              "id": "1902221231135100",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–8"
+            },
+            {
+              "id": "2216236745908575",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–9"
+            },
+            {
+              "id": "1740954553674021",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–10"
+            },
+            {
+              "id": "1770600910838138",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–11"
+            },
+            {
+              "id": "1388731176672172",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–12"
+            },
+            {
+              "id": "1140552231857952",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–13"
+            },
+            {
+              "id": "1579196890642495",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–14"
+            },
+            {
+              "id": "1861356191708078",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–15"
+            },
+            {
+              "id": "39885604327721887",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–16"
+            },
+            {
+              "id": "1151814310559414",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–17"
+            },
+            {
+              "id": "1470381988511048",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–18"
+            },
+            {
+              "id": "2875075126202948",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–19"
+            },
+            {
+              "id": "3204361299954675",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–20"
+            },
+            {
+              "id": "1136077088966092",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–21"
+            },
+            {
+              "id": "1107061788892152",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–22"
+            },
+            {
+              "id": "1806390217302873",
+              "pageId": "1401321019721226",
+              "postId": null,
+              "variantLabel": "Абзаци 1–23"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52628977381045",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52628977392445",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзац 1"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 1,
+              "id": "52628977398045",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–2"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 2,
+              "id": "52628977411245",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–3"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 3,
+              "id": "52628977420045",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–4"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 4,
+              "id": "52628977427245",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–5"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 5,
+              "id": "52628977438445",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–6"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 6,
+              "id": "52628977447445",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–7"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 7,
+              "id": "52628977458645",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–8"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 8,
+              "id": "52628977464845",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–9"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 9,
+              "id": "52628977471445",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–10"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 10,
+              "id": "52628977484045",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–11"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 11,
+              "id": "52628977510845",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–12"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 12,
+              "id": "52628977535445",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–13"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 13,
+              "id": "52628977551845",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–14"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 14,
+              "id": "52628977566445",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–15"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 15,
+              "id": "52628977577245",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–16"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 16,
+              "id": "52628977587045",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–17"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 17,
+              "id": "52628977601645",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–18"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 18,
+              "id": "52628977615445",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–19"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 19,
+              "id": "52628977623445",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–20"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 20,
+              "id": "52628977634245",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–21"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 21,
+              "id": "52628977653645",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–22"
+            },
+            {
+              "index": 0,
+              "creativeIndex": 22,
+              "id": "52628977668845",
+              "name": "Тест креативу | Creo_5 | Наростаючий | 23 абзаців | AD 01 | Абзаци 1–23"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "fdc31209-061e-4a45-859b-f46e2dbfccb0",
+        "campaignId": "52628977101645",
+        "warnings": [
+          "Ad set 1: Meta не підтвердила налаштування обмежених витрат на виключені плейсменти"
+        ]
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-10T11:56:34.648Z",
+      "startedAt": "2026-11-10T11:56:34.662Z",
+      "finishedAt": "2026-11-10T12:01:25.648Z",
+      "updatedAt": "2026-11-10T12:01:25.664Z"
+    },
+    {
+      "id": "9299d7f9-0c8f-42e2-9e70-3f58d76d3e18",
+      "type": "campaign",
+      "name": "CZ | Creo_5 | 25+ 10/11 11:40",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "a3d8db78-af28-4f29-8aac-64284441a7df"
+      },
+      "metadata": {
+        "campaignJobId": "a3d8db78-af28-4f29-8aac-64284441a7df",
+        "accountKey": "account-069",
+        "adAccountId": "act_1917580402939176",
+        "uniqueKey": "campaign-job:a3d8db78-af28-4f29-8aac-64284441a7df",
+        "reportId": "ee618489-c2b9-4fcc-9eb7-55b79c448a98"
+      },
+      "progress": {
+        "completed": 5,
+        "total": 5,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "52628974548845",
+          "creativeId": "1147049411149405",
+          "creatives": [
+            {
+              "id": "1147049411149405",
+              "pageId": "1401321019721226",
+              "postId": "1401321019721226_122121708699505571"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52628974595445",
+              "name": "CZ | Creo_5 | 25+ 10/11 11:40 | AS 01"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52628974625845",
+              "name": "CZ | Creo_5 | 25+ 10/11 11:40 | AD 01"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "a3d8db78-af28-4f29-8aac-64284441a7df",
+        "campaignId": "52628974548845",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-10T11:40:46.322Z",
+      "startedAt": "2026-11-10T11:40:46.333Z",
+      "finishedAt": "2026-11-10T11:41:10.808Z",
+      "updatedAt": "2026-11-10T11:41:10.819Z"
+    },
+    {
+      "id": "d3fac8c2-a1ff-4ec3-9bff-7b34dfbc36b4",
+      "type": "publication",
+      "name": "Публікація · CZ · 5",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeGeo": "CZ",
+        "creativeName": "5",
+        "siteUrl": "",
+        "manualCreativeText": "**Její manžel nám zkazil sex**\n\nByl konec pracovního týdne a já už měl té zasrané práce fakt plné zuby. Jediné, co jsem chtěl, bylo užít si konečně pořádný večer bez zbytečných starostí a keců. Tak jsem se zaregistroval na seznamce, kde ženské hledají chlapy na nezávazné intimní schůzky.\n\nNo a začal jsem si psát s jednou holkou. A abyste rozuměli, byla to fakt pěkná mladá ženská. Prdelku měla pěkně vypracovanou, pas úzký jako přesýpací hodiny a kozy taky stály za to. No řekněte mi, co víc si může chlap přát?\n\nJeště jsem se jí ani nestihl na nic pořádně zeptat a ona už se zajímala, co mám večer v plánu a jestli bych za ní nemohl přijet ještě dneska.\n\nTak jsem dorazil k ní domů. Dali jsme si jednu skleničku, pak druhou a atmosféra začala být pěkně žhavá. Ona se usmívala, já se posunul blíž a už to jelo. Líbali jsme se, jazyky se nám proplétaly a moje ruce pomalu mířily k její halence.\n\nZačal jsem ji svlékat. Nejdřív halenku, potom podprsenku. Ona mi mezitím stáhla košili a začala rozepínat kalhoty. Za chvíli jsme byli oba skoro nazí a jeden druhému sundávali poslední kousky oblečení.\n\nSrdce mi bušilo, péro stálo jak stožár a já si v duchu říkal, že jí teď konečně ukážu, co ve mně je! Začali jsme se pořádně mazlit, ona vzdychala, já ji hladil a všechno směřovalo k tomu, že si konečně pořádně zašukáme.\n\nA najednou – DO PRDELE!\n\nPřed barákem slyšíme zastavit auto.\n\nOna okamžitě ztuhla, začala poslouchat a najednou vykulila oči.\n\n„TY VOLE! MANŽEL SE VRÁTIL DŘÍV! SCHOVEJ SE!“\n\nNež jsem vůbec stihl pochopit, co se děje, popadla moje hadry – kalhoty, košili, trenky – a začala je vyhazovat z okna!\n\n„RYCHLE NA BALKON! SCHOVEJ SE TAM!“ křičela na mě celá rudá.\n\nJá byl úplně v prdeli. Stál jsem na balkoně nahej jak debil, péro mi ještě ani nestihlo splasknout a vůbec jsem netušil, co mám dělat.\n\nRozhlížím se kolem a najednou vidím požární žebřík. Tak jsem se ho chytil. Byl studenej a klouzal jak sviňa. V hlavě mi běžela jediná myšlenka: „Hlavně se, kurva, nezabít!“\n\nZačal jsem lézt dolů a najednou kolem mě začaly létat moje věci. Nejdřív tenisky, potom kalhoty, bunda a všechno ostatní, co ta ženská nestihla vyhodit napoprvé.\n\nA na závěr, KURVA, LETĚLA Z OKNA JEŠTĚ LÁHEV ŠAMPAŇSKÉHO!\n\nJen tak tak jsem uhnul. Ještě pár centimetrů a mohl jsem mít rozbitou hlavu!\n\nTakže si to představte. Stojím dole před barákem úplně nahej, klepu se zimou a sbírám svoje hadry ze země. Sousedé určitě čuměli z oken a měli ze mě prdel.\n\nNakonec jsem se z toho průseru nějak dostal, ale jedno vám řeknu. Na podobné dobrodružství s vdanou ženskou už fakt seru!\n\nChlapi, jestli jste taky na téhle seznamce https://love-in-hurt.club/652uqi, tak hlavně neopakujte moji chybu.\n\nNejdřív se zeptejte, jestli je ženská vdaná, a teprve potom řešte všechno ostatní.\n\nZabere vám to sotva pár minut, ale může vám to ušetřit kurva hodně nervů! 😂",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Other\\29557479_033_77d6.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "5",
+        "manualCreativeText": true,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "3d9a0391-4a0c-449a-95fe-a968cb8e6a4d"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "5",
+        "siteUrl": "",
+        "postId": "1401321019721226_122121708699505571",
+        "permalinkUrl": "https://www.facebook.com/122120604063505571/posts/122121708699505571",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-10T11:40:18.971Z",
+      "startedAt": "2026-11-10T11:40:18.982Z",
+      "finishedAt": "2026-11-10T11:40:28.847Z",
+      "updatedAt": "2026-11-10T11:40:28.858Z"
+    },
+    {
+      "id": "e64bcaf3-535e-426a-9faa-00ead26b936e",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1401321019721226_122121660957505571",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "postId": "1401321019721226_122121660957505571"
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "reportId": "662e1dce-eff7-42d5-b371-d031526c9fa4"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1401321019721226_122121660957505571"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-10T11:39:02.083Z",
+      "startedAt": "2026-11-10T11:39:02.097Z",
+      "finishedAt": "2026-11-10T11:39:08.173Z",
+      "updatedAt": "2026-11-10T11:39:08.186Z"
+    },
+    {
       "id": "fb726864-882a-47f2-988d-a93cc3d0c1a0",
       "type": "campaign",
       "name": "CZ | Creo_138 | 25+ 10/11 09:04",

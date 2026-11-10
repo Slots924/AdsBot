@@ -17,6 +17,11 @@
 .creative-list-item span { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
 .creative-list-item strong { font-size: var(--font-control); font-weight: 600; }
 .creative-list-item small { color: var(--muted); font-size: var(--font-meta); }
+.creative-list-row { display: flex; align-items: center; gap: 4px; }
+.creative-list-row .creative-list-item { flex: 1; min-width: 0; }
+.creative-delete { display: inline-flex; align-items: center; justify-content: center; gap: 6px; color: var(--red); background: transparent; border: 1px solid var(--stroke); border-radius: 8px; padding: 9px; cursor: pointer; flex-shrink: 0; }
+.creative-delete:hover { border-color: var(--red); }
+.creative-delete:disabled { opacity: .5; cursor: default; }
 .creatives-detail { padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow: auto; }
 .creative-detail-heading h2 { margin: 0; font-size: 18px; overflow-wrap: anywhere; }
 .creative-detail-heading > span { color: var(--yellow); font-size: var(--font-meta); }

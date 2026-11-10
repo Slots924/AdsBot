@@ -214,6 +214,9 @@ export default function registerIpcHandlers({
     ipcMain.handle("creatives:save-original", safeHandler((payload) => creativeManager.saveOriginal(payload)));
     ipcMain.handle("creatives:variant", safeHandler(({ geo, name }) => creativeManager.readVariant(geo, name)));
     ipcMain.handle("creatives:save-variant", safeHandler((payload) => creativeManager.saveVariant(payload)));
+    ipcMain.handle("creatives:delete-original", safeHandler((payload) => creativeManager.deleteOriginal(payload)));
+    ipcMain.handle("creatives:delete-variant", safeHandler((payload) => creativeManager.deleteVariant(payload)));
+    ipcMain.handle("creatives:delete", safeHandler((payload) => creativeManager.deleteCreative(payload)));
     const manualComments = new ManualCommentSessionManager({
         guiService, activityStore: profileActivityStore, copyText,
     });
