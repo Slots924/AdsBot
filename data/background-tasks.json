@@ -2,6 +2,496 @@
   "version": 1,
   "tasks": [
     {
+      "id": "5a5e0347-8a58-4287-b540-26dfb12b8ee8",
+      "type": "campaign",
+      "name": "HU | Creo_1 | 25+ 10/11 20:28",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "4f845b06-2f27-4d95-b88a-beb3f69e1b6e"
+      },
+      "metadata": {
+        "campaignJobId": "4f845b06-2f27-4d95-b88a-beb3f69e1b6e",
+        "accountKey": "account-065",
+        "adAccountId": "act_1663248192162663",
+        "uniqueKey": "campaign-job:4f845b06-2f27-4d95-b88a-beb3f69e1b6e",
+        "reportId": "b48a3dcb-9ee3-43a0-b3f7-0d9f2967a2bd"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "completed",
+        "message": "Задачу завершено",
+        "objects": {
+          "campaignId": "120250075067170644",
+          "creativeId": "2309778563178137",
+          "creatives": [
+            {
+              "id": "2309778563178137",
+              "pageId": "807655665767419",
+              "postId": "807655665767419_122151646833062015"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "120250075069470644",
+              "name": "HU | Creo_1 | 25+ 10/11 20:28 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "120250075072670644",
+              "name": "HU | Creo_1 | 25+ 10/11 20:28 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "120250075074860644",
+              "name": "HU | Creo_1 | 25+ 10/11 20:28 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "120250075076910644",
+              "name": "HU | Creo_1 | 25+ 10/11 20:28 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "120250075078420644",
+              "name": "HU | Creo_1 | 25+ 10/11 20:28 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "120250075071590644",
+              "name": "HU | Creo_1 | 25+ 10/11 20:28 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "120250075074240644",
+              "name": "HU | Creo_1 | 25+ 10/11 20:28 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "120250075076230644",
+              "name": "HU | Creo_1 | 25+ 10/11 20:28 | AD 03"
+            },
+            {
+              "index": 3,
+              "creativeIndex": 0,
+              "id": "120250075077480644",
+              "name": "HU | Creo_1 | 25+ 10/11 20:28 | AD 04"
+            },
+            {
+              "index": 4,
+              "creativeIndex": 0,
+              "id": "120250075079090644",
+              "name": "HU | Creo_1 | 25+ 10/11 20:28 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": {
+        "campaignJobId": "4f845b06-2f27-4d95-b88a-beb3f69e1b6e",
+        "campaignId": "120250075067170644",
+        "warnings": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-10T20:28:33.175Z",
+      "startedAt": "2026-11-10T20:28:33.188Z",
+      "finishedAt": "2026-11-10T20:30:22.632Z",
+      "updatedAt": "2026-11-10T20:30:22.645Z"
+    },
+    {
+      "id": "97ca28d9-4d9f-43e9-ba9b-4653ecdc419c",
+      "type": "campaign",
+      "name": "HU | Creo_1 | 25+ 10/11 20:27",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "c026438b-d80e-417b-b93b-83962ac7413f"
+      },
+      "metadata": {
+        "campaignJobId": "c026438b-d80e-417b-b93b-83962ac7413f",
+        "accountKey": "account-065",
+        "adAccountId": "act_1663248192162663",
+        "uniqueKey": "campaign-job:c026438b-d80e-417b-b93b-83962ac7413f",
+        "reportId": "26633d31-b1b5-400f-b538-397c1e659af4"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 13,
+        "stage": "interrupted",
+        "message": "Задачу перервано",
+        "objects": {
+          "campaignId": null,
+          "creativeId": null,
+          "creatives": [],
+          "adSets": [],
+          "ads": []
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "Створення кампанії перервано",
+        "code": "CAMPAIGN_CREATION_INTERRUPTED",
+        "stage": "preflight",
+        "graphCode": null,
+        "graphSubcode": null,
+        "httpStatus": null,
+        "requestId": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "endpoint": null,
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": null,
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-10T20:27:59.003Z",
+      "startedAt": "2026-11-10T20:27:59.016Z",
+      "finishedAt": "2026-11-10T20:28:13.691Z",
+      "updatedAt": "2026-11-10T20:28:13.703Z"
+    },
+    {
+      "id": "6df61531-3abe-4020-a0fb-502f232504e6",
+      "type": "comments",
+      "name": "Коментарі поста · CZ · 1",
+      "status": "interrupted",
+      "resources": [
+        {
+          "key": "adspower-group:7398930",
+          "label": "[CZ] Czech Republic"
+        }
+      ],
+      "input": {
+        "groupIds": [
+          "7398930"
+        ],
+        "geo": "CZ",
+        "creativeGeo": "CZ",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "",
+        "postUrl": "https://www.facebook.com/122120604063505571/posts/122121831111505571",
+        "postId": "1401321019721226_122121831111505571",
+        "authorPageUrl": "https://www.facebook.com/1401321019721226",
+        "browserMode": "visible",
+        "disableImages": true,
+        "commentTarget": "post",
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "groupIds": [
+          "7398930"
+        ],
+        "geo": "CZ",
+        "language": "",
+        "browserMode": "visible",
+        "disableImages": true,
+        "reportId": "173408f6-9529-422b-85fa-918f33771965"
+      },
+      "progress": {
+        "completed": 1,
+        "total": 16,
+        "stage": "interrupted",
+        "message": "Задачу перервано",
+        "published": 0,
+        "skipped": 1,
+        "failedComments": 0,
+        "failedProfiles": 0,
+        "activeWorkers": 0,
+        "concurrency": 1,
+        "currentCommentId": "1",
+        "currentProfileNo": "1538",
+        "workerId": 1
+      },
+      "result": {
+        "reportPath": "C:\\Users\\Darkness\\Documents\\AdsBot\\data\\reports\\commenting-report_2026-11-10_21-03-01-278.md",
+        "fatalError": "Паралельне коментування перервано",
+        "interrupted": true
+      },
+      "error": {
+        "message": "Паралельне коментування перервано",
+        "code": "COMMENTING_ABORTED",
+        "stage": null,
+        "graphCode": null,
+        "graphSubcode": null,
+        "httpStatus": null,
+        "requestId": null,
+        "traceId": null,
+        "metaRequestId": null,
+        "endpoint": null,
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": null,
+        "isTransient": false
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-10T19:02:57.572Z",
+      "startedAt": "2026-11-10T19:02:57.583Z",
+      "finishedAt": "2026-11-10T19:03:01.289Z",
+      "updatedAt": "2026-11-10T19:03:01.305Z"
+    },
+    {
+      "id": "5043b72b-f194-4b1d-9b84-0b21667b68ce",
+      "type": "campaign",
+      "name": "CZ | Creo_1 | 25+ 10/11 18:53",
+      "status": "failed",
+      "resources": [
+        {
+          "key": "facebook-campaign-write",
+          "label": "черга створення рекламних кампаній"
+        }
+      ],
+      "input": {
+        "campaignJobId": "33834810-a512-4bd6-8b81-e64ea1477489"
+      },
+      "metadata": {
+        "campaignJobId": "33834810-a512-4bd6-8b81-e64ea1477489",
+        "accountKey": "account-069",
+        "adAccountId": "act_1917580402939176",
+        "uniqueKey": "campaign-job:33834810-a512-4bd6-8b81-e64ea1477489",
+        "reportId": "7f7110d7-1595-4e39-83ff-3316fe71877a"
+      },
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "stage": "failed",
+        "message": "An unexpected error has occurred. Please retry your request later.",
+        "objects": {
+          "campaignId": "52629075123645",
+          "creativeId": "3328366787551908",
+          "creatives": [
+            {
+              "id": "3328366787551908",
+              "pageId": "1401321019721226",
+              "postId": "1401321019721226_122121831111505571"
+            }
+          ],
+          "adSets": [
+            {
+              "index": 0,
+              "id": "52629075135045",
+              "name": "CZ | Creo_1 | 25+ 10/11 18:53 | AS 01"
+            },
+            {
+              "index": 1,
+              "id": "52629075176245",
+              "name": "CZ | Creo_1 | 25+ 10/11 18:53 | AS 02"
+            },
+            {
+              "index": 2,
+              "id": "52629075204645",
+              "name": "CZ | Creo_1 | 25+ 10/11 18:53 | AS 03"
+            },
+            {
+              "index": 3,
+              "id": "52629075243045",
+              "name": "CZ | Creo_1 | 25+ 10/11 18:53 | AS 04"
+            },
+            {
+              "index": 4,
+              "id": "52629075286245",
+              "name": "CZ | Creo_1 | 25+ 10/11 18:53 | AS 05"
+            }
+          ],
+          "ads": [
+            {
+              "index": 0,
+              "creativeIndex": 0,
+              "id": "52629075154045",
+              "name": "CZ | Creo_1 | 25+ 10/11 18:53 | AD 01"
+            },
+            {
+              "index": 1,
+              "creativeIndex": 0,
+              "id": "52629075196845",
+              "name": "CZ | Creo_1 | 25+ 10/11 18:53 | AD 02"
+            },
+            {
+              "index": 2,
+              "creativeIndex": 0,
+              "id": "52629075230245",
+              "name": "CZ | Creo_1 | 25+ 10/11 18:53 | AD 03"
+            },
+            {
+              "index": 3,
+              "creativeIndex": 0,
+              "id": "52629075276045",
+              "name": "CZ | Creo_1 | 25+ 10/11 18:53 | AD 04"
+            },
+            {
+              "index": 4,
+              "creativeIndex": 0,
+              "id": "52629075302445",
+              "name": "CZ | Creo_1 | 25+ 10/11 18:53 | AD 05"
+            }
+          ]
+        }
+      },
+      "result": null,
+      "error": {
+        "message": "An unexpected error has occurred. Please retry your request later.",
+        "code": "FACEBOOK_API_ERROR",
+        "stage": "activation",
+        "graphCode": 2,
+        "graphSubcode": null,
+        "httpStatus": 500,
+        "requestId": "fc56a773-3619-495c-b0f9-bed7213c8600",
+        "traceId": "A9biCBxEHy86HTn1kgVsa_i",
+        "metaRequestId": "A9biCBxEHy86HTn1kgVsa_i",
+        "endpoint": "/52629075123645",
+        "actionRequired": null,
+        "retryable": false,
+        "outcomeUnknown": false,
+        "reason": null,
+        "graphUserTitle": null,
+        "graphUserMessage": null,
+        "graphType": "OAuthException",
+        "isTransient": true
+      },
+      "waitingReason": null,
+      "createdAt": "2026-11-10T18:53:34.894Z",
+      "startedAt": "2026-11-10T18:53:34.906Z",
+      "finishedAt": "2026-11-10T18:54:59.101Z",
+      "updatedAt": "2026-11-10T18:54:59.115Z"
+    },
+    {
+      "id": "58c88e5e-25f3-422f-bd5a-51ca927b05b2",
+      "type": "publication",
+      "name": "Публікація · CZ · 1",
+      "status": "completed",
+      "resources": [
+        {
+          "key": "facebook-page-publish",
+          "label": "черга публікації Facebook-постів"
+        }
+      ],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeGeo": "CZ",
+        "creativeName": "1",
+        "siteUrl": "",
+        "manualCreativeText": "**Co všechno tahle nymfomanka vyváděla...**\n\nPřed měsícem jsem se zaregistroval na jedné seznamce: https://love-in-hurt.club/lu13xi. Jestli tam někdo z vás ještě je, napište mi do komentářů.\n\nUpřímně řečeno jsem od toho moc nečekal. Myslel jsem si, že zase rozdám pár lajků, pokecám s několika holkama a pak se začnou postupně vytrácet a přestanou odepisovat. Jenže tentokrát to dopadlo úplně jinak, chlapi 🫣\n\nHned první holka, se kterou jsem si začal psát, mě úplně nečekaně pozvala k sobě domů. Představte si to, hned při prvním seznámení!\n\nTak mě to překvapilo, že jsem v první chvíli vůbec nevěděl, co říct. Normálně jsem to já, kdo dělá první krok a navrhuje schůzku, ale tentokrát to bylo přesně naopak.\n\nNeměl jsem tušení, jak reagovat, tak jsem začal vtipkovat a plácat jednu blbost za druhou. Nakonec z toho našeho psaní nic nebylo. Ale jak jsem později zjistil, tohle byl teprve začátek mnohem zajímavějších věcí.\n\nO pár dní později jsem se domluvil na schůzce s další holkou z té seznamky.\n\nDorazil jsem k ní, zazvonil a ona mi otevřela dveře… a hned mě pozvala dál.\n\nAni jsme se moc nezdržovali nějakým dlouhým povídáním a skoro okamžitě jsme přešli k tomu nejzajímavějšímu.\n\nPozději jsem se z téhle seznamky sešel ještě s několika dalšími holkama. Byla mezi nimi jedna s pořádně velkýma prsama a taky nádherná kočka se silikonama.\n\nAle na tu jednu nymfomanku od té doby prostě nemůžu přestat myslet.\n\nNěkolikrát jsem jí ještě napsal, ale fakt nechápu, co se stalo. Možná jsem něco pokazil, nebo o mě prostě ztratila zájem.\n\nNa seznamce ji docela často vidím online, ale na WhatsAppu mi vůbec neodpovídá.\n\nNakonec ale všechno dopadlo dobře. Teď už znám pár holek, se kterýma se pravidelně scházím.\n\nJednu věc jsem se ale naučil naprosto jistě: existují ženské, které mají na takové schůzky minimálně stejnou chuť jako my chlapi.\n\nA některé ji mají očividně ještě mnohem větší! 😏",
+        "useCreativeFont": false,
+        "creativeFont": "blurry",
+        "imagePath": "",
+        "imagePaths": [
+          "C:\\Users\\Darkness\\Downloads\\CZ (1).png",
+          "C:\\Users\\Darkness\\Desktop\\Work\\Photo\\_Creative\\001\\photo_2026-03-30_00-02-20_19d59c867d4_19d94b382f9_19daeb83ac0.jpg"
+        ],
+        "disableComments": true,
+        "commentGroupIds": [],
+        "commentBrowserMode": "visible",
+        "commentDisableImages": true,
+        "commentWorkerConcurrency": 1,
+        "commentWorkerProxyIds": {
+          "1": "proxy-003"
+        }
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "1",
+        "manualCreativeText": true,
+        "useCreativeFont": false,
+        "commentsEnabled": false,
+        "reportId": "9ab4b8b3-70e2-4136-a46f-dc6abeb902ed"
+      },
+      "progress": {
+        "completed": 3,
+        "total": 3,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "geo": "CZ",
+        "language": "",
+        "creativeName": "1",
+        "siteUrl": "",
+        "postId": "1401321019721226_122121831111505571",
+        "permalinkUrl": "https://www.facebook.com/122120604063505571/posts/122121831111505571",
+        "type": "photo",
+        "verified": true,
+        "comments": null
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-10T18:52:49.030Z",
+      "startedAt": "2026-11-10T18:52:49.045Z",
+      "finishedAt": "2026-11-10T18:53:03.826Z",
+      "updatedAt": "2026-11-10T18:53:03.839Z"
+    },
+    {
+      "id": "b464698c-1b6d-4f23-920e-1f8152271957",
+      "type": "page-post-delete",
+      "name": "Видалення поста · 1401321019721226_122121708699505571",
+      "status": "completed",
+      "resources": [],
+      "input": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "postId": "1401321019721226_122121708699505571"
+      },
+      "metadata": {
+        "accountKey": "account-069",
+        "pageId": "1401321019721226",
+        "reportId": "6116e717-f117-4a10-a834-959ee59f01cc"
+      },
+      "progress": {
+        "completed": 0,
+        "total": 1,
+        "stage": "completed",
+        "message": "Задачу завершено"
+      },
+      "result": {
+        "deleted": [
+          {
+            "id": "1401321019721226_122121708699505571"
+          }
+        ],
+        "failed": []
+      },
+      "error": null,
+      "waitingReason": null,
+      "createdAt": "2026-11-10T18:50:09.323Z",
+      "startedAt": "2026-11-10T18:50:09.336Z",
+      "finishedAt": "2026-11-10T18:50:16.504Z",
+      "updatedAt": "2026-11-10T18:50:16.519Z"
+    },
+    {
       "id": "4d22cbe5-eaf5-433d-aa8c-ce1a090c8df4",
       "type": "campaign",
       "name": "US(es) | Creo_1 | 25+ Android 10/11 17:02",

@@ -30,6 +30,7 @@ export default class PagePreferencesStore {
                 geo: store.pages[String(page.id)]?.geo ?? "",
                 language: store.pages[String(page.id)]?.language ?? "",
                 creativeName: store.pages[String(page.id)]?.creativeName ?? "",
+                disableComments: store.pages[String(page.id)]?.disableComments === true,
                 isFavorite: favorites.has(String(page.id)),
             }));
         });
@@ -62,6 +63,9 @@ export default class PagePreferencesStore {
                 creativeName: patch.creativeName === undefined
                     ? current.creativeName
                     : String(patch.creativeName ?? "").trim().replace(/^Creo_/i, ""),
+                disableComments: patch.disableComments === undefined
+                    ? current.disableComments === true
+                    : patch.disableComments === true,
             };
             if (store.pages[id].geo && !/^[A-Z]{2}$/.test(store.pages[id].geo)) {
                 throw Object.assign(new Error("GEO має бути ISO-кодом із двох літер"), { code: "PAGE_GEO_INVALID" });
@@ -89,6 +93,7 @@ export default class PagePreferencesStore {
                     geo: String(value?.geo ?? "").trim().toUpperCase(),
                     language: String(value?.language ?? "").trim().toUpperCase(),
                     creativeName: String(value?.creativeName ?? "").trim().replace(/^Creo_/i, ""),
+                    disableComments: value?.disableComments === true,
                 };
             }
             return {

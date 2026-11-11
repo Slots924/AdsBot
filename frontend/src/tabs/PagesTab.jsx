@@ -320,7 +320,7 @@ function PageRebuildModal({
 
 
 function PublicationModal({
-    page, accountKey, countries, groups, settings, onClose, onQueued, onError,
+    page, accountKey, countries, groups, settings, onClose, onQueued, onError, onMetadata,
 }) {
     const defaultGroup = findGroupForGeo(groups, page.geo);
     const [draft, setDraft] = useState({
@@ -333,10 +333,24 @@ function PublicationModal({
         creativeFont: "blurry",
         imagePath: "",
         imagePaths: [],
-        disableComments: false,
+        disableComments: page.disableComments === true,
         groupIds: defaultGroup ? [String(defaultGroup.groupId)] : [],
     });
     const [saving, setSaving] = useState(false);
+    const [preferenceSaving, setPreferenceSaving] = useState(false);
+    const changeDisableComments = async (disableComments) => {
+        const previous = draft.disableComments;
+        setDraft((current) => ({ ...current, disableComments }));
+        setPreferenceSaving(true);
+        try {
+            await onMetadata({ disableComments });
+        } catch (error) {
+            setDraft((current) => ({ ...current, disableComments: previous }));
+            onError(errorDetails(error));
+        } finally {
+            setPreferenceSaving(false);
+        }
+    };
     const [keitaroPickerOpen, setKeitaroPickerOpen] = useState(false);
     const [manualEditorOpen, setManualEditorOpen] = useState(false);
     const [manualEditorValue, setManualEditorValue] = useState("");
@@ -470,11 +484,8 @@ function PublicationModal({
                         type="checkbox"
                         aria-label="Вимкнути коментування"
                         checked={draft.disableComments}
-                        onChange={(event) => setDraft((current) => ({
-                            ...current,
-                            disableComments: event.target.checked,
-                        }))}
-                        disabled={saving}
+                        onChange={(event) => changeDisableComments(event.target.checked)}
+                        disabled={saving || preferenceSaving}
                     />
                     <span>
                         <strong>Вимкнути коментування</strong>
@@ -496,7 +507,7 @@ function PublicationModal({
                     </button>
                     <button
                         className="primary-button"
-                        disabled={saving || !draft.geo || (!hasManualCreative && (!draft.creativeName || !draft.siteUrl)) || (!draft.disableComments && (!draft.creativeName || !draft.groupIds.length))}
+                        disabled={saving || preferenceSaving || !draft.geo || (!hasManualCreative && (!draft.creativeName || !draft.siteUrl)) || (!draft.disableComments && (!draft.creativeName || !draft.groupIds.length))}
                     >
                         {draft.disableComments ? "Опублікувати" : "Опублікувати та прокоментувати"}
                     </button>
@@ -1327,6 +1338,7 @@ export default function PagesTab({
                     onClose={() => setAction(null)}
                     onQueued={() => queued("Публікацію поставлено в чергу")}
                     onError={onError}
+                    onMetadata={metadata}
                 />
             )}
             {action?.type === "comment" && (
