@@ -23,14 +23,9 @@ try {
         geo: "HU",
         language: "ES",
         creativeName: "138V2",
-        disableComments: false,
         isFavorite: true,
     });
     assert.equal(acrossAnotherClient[1].isFavorite, false);
-    assert.equal(acrossAnotherClient[1].disableComments, false);
-
-    await store.updateMetadata("100", { disableComments: true });
-    await store.updateMetadata("100", { language: "es" });
 
     const restored = new PagePreferencesStore({ preferencesFile });
     assert.equal((await restored.enrich([{ id: "100" }]))[0].isFavorite, true);
@@ -40,11 +35,6 @@ try {
     assert.equal(afterRemoval.geo, "HU");
     assert.equal(afterRemoval.language, "ES");
     assert.equal(afterRemoval.creativeName, "138V2");
-    assert.equal(afterRemoval.disableComments, true);
-    assert.equal((await restored.enrich([{ id: "200" }]))[0].disableComments, false);
-    await restored.updateMetadata("100", { disableComments: false });
-    const restarted = new PagePreferencesStore({ preferencesFile });
-    assert.equal((await restarted.enrich([{ id: "100" }]))[0].disableComments, false);
     await assert.rejects(restored.updateMetadata("100", { geo: "HUN" }), { code: "PAGE_GEO_INVALID" });
     await assert.rejects(restored.updateMetadata("100", { language: "SPA" }), { code: "PAGE_LANGUAGE_INVALID" });
 

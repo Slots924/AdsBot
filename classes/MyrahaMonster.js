@@ -34,9 +34,13 @@ function pageId(value) {
 export default class MyrahaMonster {
     #settingsOperation = Promise.resolve();
     #revision = 0;
+    #cacheSequence = 0;
+    #cachedVersions = new Map();
+    #activePages = new Map();
 
-    constructor({ settingsFile, encrypt, decrypt, httpRequest = axios }) {
+    constructor({ settingsFile, cacheFile = `${settingsFile}.pages-cache.json`, encrypt, decrypt, httpRequest = axios }) {
         this.settingsFile = settingsFile;
+        this.cacheFile = cacheFile;
         this.encrypt = encrypt;
         this.decrypt = decrypt;
         this.httpRequest = httpRequest;
@@ -66,12 +70,74 @@ export default class MyrahaMonster {
         });
     }
 
+    async #readPagesCache() {
+        try {
+            const stored = JSON.parse(await readFile(this.cacheFile, "utf8"));
+            return Array.isArray(stored.items) ? stored.items.map((item) => normalizePage(item)) : null;
+        } catch (error) {
+            if (error.code === "ENOENT" || error instanceof SyntaxError || error.code === "MYRAHA_RESPONSE") return null;
+            throw failure("Не вдалося прочитати кеш MyrahaMonster", "MYRAHA_STORAGE");
+        }
+    }
+
+    async #writePagesCache(items) {
+        try {
+            await mkdir(path.dirname(this.cacheFile), { recursive: true });
+            await writeFile(`${this.cacheFile}.tmp`, JSON.stringify({ version: 1, items }), "utf8");
+            await rename(`${this.cacheFile}.tmp`, this.cacheFile);
+        } catch {
+            throw failure("Не вдалося зберегти кеш MyrahaMonster", "MYRAHA_STORAGE");
+        }
+    }
+
+    getCachedPages() {
+        return this.#settingsTask(async () => {
+            const settings = await this.#readSettings();
+            return { items: settings.apiKey ? await this.#readPagesCache() : null, revision: this.#revision };
+        });
+    }
+
+    #cachePages(settings, items, sequence, replace = false, protectedIds = new Set()) {
+        return this.#settingsTask(async () => {
+            this.#assertCurrent(settings);
+            if (replace) for (const id of this.#activePages.keys()) protectedIds.add(id);
+            const previous = new Map((await this.#readPagesCache() ?? []).map((item) => [item.id, item]));
+            const pages = replace ? new Map() : new Map(previous);
+            for (const item of items) {
+                if (protectedIds.has(item.id) || (this.#cachedVersions.get(item.id) ?? 0) > sequence) continue;
+                pages.set(item.id, normalizePage({ integrationReady: false, ...previous.get(item.id), ...item }));
+            }
+            // Запізнілий список не повинен перезаписати підтверджене новіше перемикання.
+            for (const [id, item] of previous) {
+                if (protectedIds.has(id) || (this.#cachedVersions.get(id) ?? 0) > sequence) pages.set(id, item);
+            }
+            await this.#writePagesCache([...pages.values()]);
+            const changedIds = replace ? new Set([...previous.keys(), ...pages.keys()]) : items.map((item) => item.id);
+            for (const id of changedIds) {
+                if (protectedIds.has(id)) continue;
+                this.#cachedVersions.set(id, Math.max(sequence, this.#cachedVersions.get(id) ?? 0));
+            }
+        });
+    }
+
+    async #pageTask(id, task) {
+        this.#activePages.set(id, (this.#activePages.get(id) ?? 0) + 1);
+        try { return await task(); }
+        finally {
+            const count = this.#activePages.get(id) - 1;
+            if (count) this.#activePages.set(id, count);
+            else this.#activePages.delete(id);
+        }
+    }
+
     saveSettings(input = {}) {
         return this.#settingsTask(async () => {
             const current = await this.#readSettings();
             const baseUrl = normalizeUrl(input.baseUrl ?? current.baseUrl);
             const apiKey = input.removeApiKey === true ? "" : String(input.apiKey ?? "").trim() || current.apiKey;
             if (apiKey && /[^\x21-\x7E]/.test(apiKey)) throw failure("Некоректний API-ключ MyrahaMonster", "MYRAHA_CONFIG");
+            // Кеш попередньої інтеграції не переносимо на інший ключ або сервер.
+            await this.#writePagesCache(null);
             try {
                 const stored = { baseUrl, apiKey: apiKey ? this.encrypt(apiKey) : "" };
                 await mkdir(path.dirname(this.settingsFile), { recursive: true });
@@ -119,6 +185,8 @@ export default class MyrahaMonster {
 
     async getPages() {
         const settings = await this.#snapshot();
+        const sequence = ++this.#cacheSequence;
+        const protectedIds = new Set(this.#activePages.keys());
         const items = new Map();
         let page = 1;
         let received = 0;
@@ -138,35 +206,46 @@ export default class MyrahaMonster {
             if (received >= result.total) break;
             page += 1;
         }
-        return { items: [...items.values()], revision: settings.revision };
+        const pages = [...items.values()];
+        await this.#cachePages(settings, pages, sequence, true, protectedIds);
+        return { items: pages, revision: settings.revision };
     }
 
     async getPage(id) {
         id = pageId(id);
-        const settings = await this.#snapshot();
-        const item = normalizePage(await this.request("get", `/pages/${id}`, { settings }), id);
-        return { ...item, revision: settings.revision };
+        return this.#pageTask(id, async () => {
+            const settings = await this.#snapshot();
+            const sequence = ++this.#cacheSequence;
+            const item = normalizePage(await this.request("get", `/pages/${id}`, { settings }), id);
+            await this.#cachePages(settings, [item], sequence);
+            return { ...item, revision: settings.revision };
+        });
     }
 
     async setModeration(id, enabled) {
         id = pageId(id);
         if (typeof enabled !== "boolean") throw failure("Стан автоприховування має бути логічним значенням", "MYRAHA_INPUT");
-        const settings = await this.#snapshot();
-        try {
-            const result = await this.request("patch", `/pages/${id}/moderation`, { settings, data: { enabled } });
-            if (result?.id !== id || typeof result.enabled !== "boolean") {
-                throw failure("Не вдалося підтвердити стан MyrahaMonster", "MYRAHA_RESPONSE");
-            }
-            return { id, enabled: result.enabled, revision: settings.revision };
-        } catch (error) {
-            if (!["MYRAHA_NETWORK", "MYRAHA_RESPONSE"].includes(error.code)) throw error;
+        return this.#pageTask(id, async () => {
+            const settings = await this.#snapshot();
+            const sequence = ++this.#cacheSequence;
             try {
-                const item = normalizePage(await this.request("get", `/pages/${id}`, { settings }), id);
-                return { ...item, revision: settings.revision, reconciled: true };
-            } catch (checkError) {
-                if (checkError.code === "MYRAHA_STALE" || [401, 403, 404].includes(checkError.httpStatus)) throw checkError;
-                throw Object.assign(failure("Стан автоприховування невідомий. Перевірте стан перед повторним перемиканням.", "MYRAHA_UNKNOWN"), { outcomeUnknown: true });
+                const result = await this.request("patch", `/pages/${id}/moderation`, { settings, data: { enabled } });
+                if (result?.id !== id || typeof result.enabled !== "boolean") {
+                    throw failure("Не вдалося підтвердити стан MyrahaMonster", "MYRAHA_RESPONSE");
+                }
+                await this.#cachePages(settings, [{ id, enabled: result.enabled }], sequence);
+                return { id, enabled: result.enabled, revision: settings.revision };
+            } catch (error) {
+                if (!["MYRAHA_NETWORK", "MYRAHA_RESPONSE"].includes(error.code)) throw error;
+                try {
+                    const item = normalizePage(await this.request("get", `/pages/${id}`, { settings }), id);
+                    await this.#cachePages(settings, [item], sequence);
+                    return { ...item, revision: settings.revision, reconciled: true };
+                } catch (checkError) {
+                    if (checkError.code === "MYRAHA_STALE" || [401, 403, 404].includes(checkError.httpStatus)) throw checkError;
+                    throw Object.assign(failure("Стан автоприховування невідомий. Перевірте стан перед повторним перемиканням.", "MYRAHA_UNKNOWN"), { outcomeUnknown: true });
+                }
             }
-        }
+        });
     }
 }

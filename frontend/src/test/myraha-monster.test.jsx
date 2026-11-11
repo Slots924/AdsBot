@@ -20,6 +20,7 @@ function Harness() {
 beforeEach(() => {
     window.adsBot = {
         getMyrahaMonsterSettings: vi.fn(async () => ok({ baseUrl: "https://myrahamonster.xyz/api/v1", hasApiKey: true, revision: 1 })),
+        getMyrahaMonsterCachedPages: vi.fn(async () => ok({ items: null, revision: 1 })),
         getMyrahaMonsterPages: vi.fn(async () => ok({ items: [page("1"), page("2")], revision: 1 })),
         setMyrahaMonsterModeration: vi.fn(async (id, enabled) => ok({ id, enabled, revision: 1 })),
         getMyrahaMonsterPage: vi.fn(async (id) => ok({ ...page(id, true), revision: 1 })),
@@ -30,6 +31,34 @@ beforeEach(() => {
 afterEach(cleanup);
 const toggle = (id) => screen.getByRole("switch", { name: `Приховування коментарів ${id}` });
 const ready = () => waitFor(() => expect(toggle("1")).toBeEnabled());
+
+it("відновлює положення з дискового кешу після перезапуску без запиту до сервісу", async () => {
+    window.adsBot.getMyrahaMonsterCachedPages.mockResolvedValue(ok({ items: [page("1", true), page("2", false)], revision: 1 }));
+    const first = render(<Harness />);
+    await ready();
+    expect(toggle("1")).toBeChecked();
+    expect(toggle("2")).not.toBeChecked();
+    first.unmount();
+    // Новий об'єкт API імітує новий процес без попереднього стану в пам'яті.
+    window.adsBot = { ...window.adsBot };
+    render(<Harness />);
+    await ready();
+    expect(toggle("1")).toBeChecked();
+    expect(toggle("2")).not.toBeChecked();
+    expect(window.adsBot.getMyrahaMonsterCachedPages).toHaveBeenCalledTimes(2);
+    expect(window.adsBot.getMyrahaMonsterPages).not.toHaveBeenCalled();
+});
+
+it("запізнілий дисковий кеш не перезаписує оновлений стан", async () => {
+    const cached = deferred();
+    window.adsBot.getMyrahaMonsterCachedPages.mockReturnValue(cached.promise);
+    render(<Harness />);
+    await waitFor(() => expect(window.adsBot.getMyrahaMonsterCachedPages).toHaveBeenCalled());
+    fireEvent.click(screen.getByText("Оновити інтеграцію"));
+    await ready();
+    await act(async () => cached.resolve(ok({ items: [page("1", true)], revision: 1 })));
+    expect(toggle("1")).not.toBeChecked();
+});
 
 it("показує enabled, відсутність доступу та підписки окремо", async () => {
     window.adsBot.getMyrahaMonsterPages.mockResolvedValue(ok({ items: [page("1", true), page("2", true, false)], revision: 1 }));

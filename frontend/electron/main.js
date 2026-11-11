@@ -184,7 +184,7 @@ async function createWindow() {
     systemUserManager = new FacebookAccountManager({ accountsFile: appPaths.systemUsers, kind: "system" });
     const secretStorage = createSecretStorage(safeStorage);
     const crm = new CRM({ settingsFile: appPaths.crmSettings, ...secretStorage });
-    const myrahaMonster = new MyrahaMonster({ settingsFile: appPaths.myrahaMonsterSettings, ...secretStorage });
+    const myrahaMonster = new MyrahaMonster({ settingsFile: appPaths.myrahaMonsterSettings, cacheFile: appPaths.myrahaMonsterCache, ...secretStorage });
     const autouploadSessionStore = new AutouploadSessionStore({ directory: appPaths.autouploadSessions, ...secretStorage });
     const creditCardStore = new CreditCardStore({
         cardsFile: appPaths.creditCards,

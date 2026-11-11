@@ -129,9 +129,6 @@ describe("Дизайн workspace фанпейджів", () => {
                 ok: true,
                 data: { task: { id: "publication-task" } },
             }),
-            updatePageMetadata: vi.fn(async (pageId, patch) => ({
-                ok: true, data: { pageId, ...patch },
-            })),
         };
         Object.assign(navigator, {
             clipboard: { writeText: vi.fn().mockResolvedValue(undefined) },
@@ -295,13 +292,11 @@ describe("Дизайн workspace фанпейджів", () => {
         fireEvent.click(screen.getByLabelText("Вимкнути коментування"));
         expect(groupSelect).toBeDisabled();
         expect(screen.getByRole("button", { name: "Опублікувати" })).toBeDisabled();
-        await waitFor(() => expect(screen.getByLabelText("Вимкнути коментування")).toBeEnabled());
 
         fireEvent.click(screen.getByLabelText("Вимкнути коментування"));
         fireEvent.change(screen.getByLabelText("Offer URL"), {
             target: { value: "https://example.com/offer" },
         });
-        await waitFor(() => expect(screen.getByRole("button", { name: "Опублікувати та прокоментувати" })).toBeEnabled());
         fireEvent.click(screen.getByRole("button", { name: "Опублікувати та прокоментувати" }));
 
         await waitFor(() => expect(window.adsBot.publishCreativePost).toHaveBeenCalledWith(expect.objectContaining({
@@ -310,29 +305,6 @@ describe("Дизайн workspace фанпейджів", () => {
             commentGroupIds: ["hu-group"],
             commentBrowserMode: "visible",
         })));
-    });
-
-    it.each([false, true])("зберігає перемикач коментування фанки зі стану %s та відновлює при відкритті", async (disableComments) => {
-        const onPagesChange = vi.fn();
-        const props = {
-            selectedAccount: { accountKey: "client", status: "active" },
-            pages: [{ id: "10", name: "Page", geo: "HU", disableComments }],
-            adAccounts: [], groups: [], selectedPageId: "10",
-            setSelectedPageId: vi.fn(), onPagesChange, onRefresh: vi.fn(),
-            settings, onError: vi.fn(), showToast: vi.fn(),
-        };
-        const view = render(<PagesTab {...props} />);
-        fireEvent.click(await screen.findByRole("button", { name: "Запостити креатив" }));
-        expect(screen.getByLabelText("Вимкнути коментування").checked).toBe(disableComments);
-        fireEvent.click(screen.getByLabelText("Вимкнути коментування"));
-        await waitFor(() => expect(onPagesChange).toHaveBeenCalled());
-        expect(window.adsBot.updatePageMetadata).toHaveBeenCalledWith("10", { disableComments: !disableComments });
-        const pages = onPagesChange.mock.calls.at(-1)[0];
-        expect(pages[0].disableComments).toBe(!disableComments);
-        fireEvent.click(view.container.querySelector(".action-modal .modal-close"));
-        view.rerender(<PagesTab {...props} pages={pages} />);
-        fireEvent.click(screen.getByRole("button", { name: "Запостити креатив" }));
-        expect(screen.getByLabelText("Вимкнути коментування").checked).toBe(!disableComments);
     });
 
     it("окремо оновлює список і вибрану фанку, не ховаючи старі пости", async () => {

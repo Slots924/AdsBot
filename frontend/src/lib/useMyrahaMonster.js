@@ -34,6 +34,17 @@ function createStore(api) {
             if (!settings.hasApiKey || (live.current.revision !== null && live.current.revision !== settings.revision)) {
                 invalidate();
                 commit({ ...initial, status: settings.hasApiKey ? "idle" : "unconfigured", revision: settings.revision });
+                return;
+            }
+            if (live.current.status === "idle" && api.getMyrahaMonsterCachedPages) {
+                const request = listRequest.current;
+                const cached = await unwrap(api.getMyrahaMonsterCachedPages());
+                // Кеш відновлюємо лише до початку оновлення або перемикання.
+                if (epoch !== generation.current || request !== listRequest.current || live.current.status !== "idle") return;
+                if (cached.revision === settings.revision && Array.isArray(cached.items)) {
+                    commit({ ...initial, status: "ready", revision: cached.revision,
+                        pages: Object.fromEntries(cached.items.map((item) => [item.id, item])) });
+                }
             }
         } catch (error) {
             if (epoch === generation.current) commit((previous) => ({ ...previous, status: "error", message: error.message }));

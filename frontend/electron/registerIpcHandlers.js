@@ -242,6 +242,7 @@ export default function registerIpcHandlers({
         return settings;
     }));
     ipcMain.handle("myraha:pages", safeHandler(() => myrahaMonster.getPages()));
+    ipcMain.handle("myraha:pages-cache", safeHandler(() => myrahaMonster.getCachedPages()));
     ipcMain.handle("myraha:page", safeHandler(({ pageId }) => myrahaMonster.getPage(pageId)));
     ipcMain.handle("myraha:moderation", safeHandler(({ pageId, enabled }) => myrahaMonster.setModeration(pageId, enabled)));
     ipcMain.handle("crm:settings-save", safeHandler((payload) => crm.saveSettings(payload)));

@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld("adsBot", {
     getMyrahaMonsterSettings: () => ipcRenderer.invoke("myraha:settings-get"),
     saveMyrahaMonsterSettings: (payload) => ipcRenderer.invoke("myraha:settings-save", payload),
     getMyrahaMonsterPages: () => ipcRenderer.invoke("myraha:pages"),
+    getMyrahaMonsterCachedPages: () => ipcRenderer.invoke("myraha:pages-cache"),
     getMyrahaMonsterPage: (pageId) => ipcRenderer.invoke("myraha:page", { pageId }),
     setMyrahaMonsterModeration: (pageId, enabled) => ipcRenderer.invoke("myraha:moderation", { pageId, enabled }),
     onMyrahaMonsterSettingsChanged: (callback) => subscribe("myraha:settings-changed", callback),

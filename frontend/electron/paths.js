@@ -53,6 +53,7 @@ export const appPaths = {
     spendServerSettings: path.join(projectRoot, "data/local-secrets/spend-server.json"),
     crmSettings: path.join(projectRoot, "data/local-secrets/crm.json"),
     myrahaMonsterSettings: path.join(projectRoot, "data/local-secrets/myraha-monster.json"),
+    myrahaMonsterCache: path.join(projectRoot, "data/myraha-monster-cache.json"),
     logs: path.join(projectRoot, "data/logs"),
     renderer: path.join(frontendRoot, "dist/index.html"),
     preload: path.join(electronDirectory, "preload.cjs"),
