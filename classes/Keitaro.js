@@ -163,6 +163,11 @@ function streamPayloadFromTemplate(stream = {}) {
 }
 
 
+function isKeitaroEnabled() {
+    return process.env.KEITARO_ENABLED === "true";
+}
+
+
 class Keitaro {
     constructor({
         apiKey = process.env.KEITARO_API_KEY,
@@ -249,6 +254,9 @@ class Keitaro {
 
     // Усі запити до Keitaro проходять через цей метод
     async request(method, endpoint, data = null, params = null, options = {}) {
+        if (!isKeitaroEnabled()) {
+            throw createKeitaroError("Інтеграцію Keitaro вимкнено", "KEITARO_DISABLED");
+        }
         const sendRequest = async () => {
             this.ensureConfigured();
             const logger = getLogger("keitaro");
@@ -993,4 +1001,4 @@ class Keitaro {
 
 
 export default Keitaro;
-export { createKeitaroError, normalizeConcurrency, normalizeList };
+export { createKeitaroError, isKeitaroEnabled, normalizeConcurrency, normalizeList };

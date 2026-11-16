@@ -1,4 +1,5 @@
 import SpendServerService from "../../services/gui/SpendServerService.js";
+import { isKeitaroEnabled } from "../../classes/Keitaro.js";
 import { isUnavailableCampaign, clearUnavailableCampaignStatistics, visibleCampaigns } from "../../services/campaigns/campaignVisibility.js";
 import { readdir, readFile, stat } from "node:fs/promises";
 import registerFarmIpcHandlers from "./registerFarmIpcHandlers.js";
@@ -618,6 +619,7 @@ export default function registerIpcHandlers({
         datePreset,
         data,
     }) => {
+        if (!isKeitaroEnabled()) return Promise.resolve(data);
         const key = [adAccountId, data.context?.rangeKey ?? datePreset].join("::");
         if (!data.campaigns.some((campaign) => !isUnavailableCampaign(campaign))) return Promise.resolve(data);
         if (keitaroLeadRefreshes.has(key)) return keitaroLeadRefreshes.get(key);
